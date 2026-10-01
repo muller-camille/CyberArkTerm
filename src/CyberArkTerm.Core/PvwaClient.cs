@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using CyberArkTerm.Core.Ssh;
 
 namespace CyberArkTerm.Core;
 
@@ -153,6 +154,28 @@ public sealed class PvwaClient : IDisposable
 
         var bytes = await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
         return RdpFile.FromPsmConnectResponse(bytes, response.Content.Headers.ContentType?.MediaType);
+    }
+
+    /// <summary>
+    /// Demande une clé SSH temporaire « MFA caching » pour s'authentifier au PSMP sans ressaisir
+    /// mot de passe et MFA. Renvoie null si la fonctionnalité n'est pas activée sur le PVWA.
+    /// </summary>
+    public async Task<MfaSshKey?> GetMfaCachingSshKeyAsync(CancellationToken ct = default)
+    {
+        using var request = CreateAuthenticatedRequest(HttpMethod.Post, "API/Users/Secret/SSHKeys/Cache");
+        request.Content = new StringContent("""{"formats":["OpenSSH","PEM","PPK"]}""", Encoding.UTF8, "application/json");
+        using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            throw await CreateErrorAsync(response, ct).ConfigureAwait(false);
+        }
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        return MfaSshKey.Parse(await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
     }
 
     /// <summary>Ferme la session côté PVWA. Sans effet si aucune session n'est ouverte.</summary>

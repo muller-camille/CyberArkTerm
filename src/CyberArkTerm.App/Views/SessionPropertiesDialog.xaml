@@ -1,0 +1,64 @@
+<Window x:Class="CyberArkTerm.App.Views.SessionPropertiesDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Propriétés du serveur" Width="540" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Background="{StaticResource ToolbarBrush}" BorderBrush="{StaticResource ToolbarBorderBrush}"
+                BorderThickness="0,0,0,1" Padding="16,12">
+            <DockPanel>
+                <Image x:Name="KindIcon" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center" />
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock x:Name="AccountText" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                    <TextBlock x:Name="DetailsText" Foreground="{StaticResource MutedBrush}" Margin="0,2,0,0" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,4,16,16">
+            <Button Content="_Enregistrer" IsDefault="True" Click="OnSave" />
+            <Button Content="Annuler" IsCancel="True" Margin="8,0,0,0" />
+        </StackPanel>
+
+        <Grid Margin="16,12,16,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.ColumnSpan="2" Text="Affichage" Style="{StaticResource SectionTitle}" />
+            <Label Grid.Row="1" Content="_Nom :" Target="{Binding ElementName=NameBox}" />
+            <TextBox Grid.Row="1" Grid.Column="1" x:Name="NameBox" Margin="0,0,0,8" />
+            <Label Grid.Row="2" Content="_Dossier :" Target="{Binding ElementName=FolderBox}" />
+            <ComboBox Grid.Row="2" Grid.Column="1" x:Name="FolderBox" IsEditable="True" Margin="0,0,0,12"
+                      ToolTip="Dossier de l'onglet « Courants » ; « / » pour les sous-dossiers (ex. Prod/Web)" />
+
+            <TextBlock Grid.Row="3" Grid.ColumnSpan="2" Text="Connexion" Style="{StaticResource SectionTitle}" />
+            <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
+                <RadioButton x:Name="PsmRadio" Content="PSM (bureau à distance)" GroupName="Mode" Margin="0,0,24,0" Checked="OnModeChanged" />
+                <RadioButton x:Name="SshRadio" Content="SSH via PSMP" GroupName="Mode" Checked="OnModeChanged" />
+            </StackPanel>
+            <Label Grid.Row="5" Content="_Composant PSM :" Target="{Binding ElementName=ComponentBox}" />
+            <ComboBox Grid.Row="5" Grid.Column="1" x:Name="ComponentBox" IsEditable="True" Margin="0,0,0,8"
+                      ToolTip="Vide : composant déduit de la plateforme" />
+            <Label Grid.Row="6" Content="_Machine cible :" Target="{Binding ElementName=MachineBox}" />
+            <ComboBox Grid.Row="6" Grid.Column="1" x:Name="MachineBox" IsEditable="True" Margin="0,0,0,8" />
+            <Label Grid.Row="7" Content="_Motif par défaut :" Target="{Binding ElementName=ReasonBox}" />
+            <TextBox Grid.Row="7" Grid.Column="1" x:Name="ReasonBox" Margin="0,0,0,8" />
+            <Label Grid.Row="8" Content="Dossier SFTP de _départ :" Target="{Binding ElementName=StartDirBox}" />
+            <TextBox Grid.Row="8" Grid.Column="1" x:Name="StartDirBox" Margin="0,0,0,8"
+                     ToolTip="Dossier ouvert par le panneau Fichiers (ex. /opt/appli/logs). Vide : dossier personnel." />
+        </Grid>
+    </DockPanel>
+</Window>

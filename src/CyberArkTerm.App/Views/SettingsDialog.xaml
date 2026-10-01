@@ -7,7 +7,7 @@
     <StackPanel Margin="16">
         <TextBlock Text="SSH via PSM for SSH (PSMP)" Style="{StaticResource SectionTitle}" />
         <TextBlock Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10"
-                   Text="Permet d'ouvrir les comptes Unix directement en SSH (Windows Terminal ou console). Laisser vide pour désactiver." />
+                   Text="Permet d'ouvrir les comptes Unix directement en SSH. Laisser vide pour désactiver." />
         <Grid Margin="0,0,0,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="140" />
@@ -20,7 +20,22 @@
             <Label Grid.Column="2" Content="_Port :" Target="{Binding ElementName=PortBox}" Margin="8,0,0,0" />
             <TextBox Grid.Column="3" x:Name="PortBox" VerticalContentAlignment="Center" />
         </Grid>
-        <CheckBox x:Name="PreferSshBox" Content="Double-clic sur un compte Unix : se connecter en SSH via PSMP" Margin="0,4,0,16" />
+        <CheckBox x:Name="PreferSshBox" Content="Double-clic sur un compte Unix : se connecter en SSH via PSMP" Margin="0,4,0,8" />
+        <CheckBox x:Name="SshInAppBox" Margin="0,0,0,8">
+            <TextBlock TextWrapping="Wrap" Text="Ouvrir les sessions SSH dans CyberArkTerm (terminal en onglet + onglet « Fichiers »), sinon dans Windows Terminal" />
+        </CheckBox>
+        <CheckBox x:Name="FollowBox" Margin="0,0,0,8">
+            <TextBlock TextWrapping="Wrap" Text="Permettre au navigateur de fichiers de suivre le dossier du terminal (installe PROMPT_COMMAND dans le shell à l'ouverture)" />
+        </CheckBox>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="Dépôt de fichiers :" VerticalAlignment="Center" Margin="0,0,12,0" />
+            <RadioButton x:Name="ScpRadio" Content="SCP" GroupName="Upload" Margin="0,0,16,0" VerticalAlignment="Center" />
+            <RadioButton x:Name="SftpRadio" Content="SFTP" GroupName="Upload" VerticalAlignment="Center" />
+        </StackPanel>
+        <DockPanel Margin="0,0,0,16">
+            <Button DockPanel.Dock="Right" Content="Oublier les _clés" Click="OnForgetHostKeys" VerticalAlignment="Center" />
+            <TextBlock x:Name="HostKeysText" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0" />
+        </DockPanel>
 
         <TextBlock Text="Composants PSM mémorisés" Style="{StaticResource SectionTitle}" />
         <DockPanel Margin="0,0,0,16">

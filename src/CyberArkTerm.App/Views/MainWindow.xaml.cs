@@ -34,6 +34,7 @@ public partial class MainWindow : Window
     private ListCollectionView? _view;
     private string _query = "";
     private PvwaAccount? _current;
+    private SavedSession? _currentSaved;
     private bool _loading;
     private bool _connecting;
     private bool _loggedOff;
@@ -65,7 +66,10 @@ public partial class MainWindow : Window
         };
         GroupByBox.SelectedValue = settings.GroupBy;
 
+        _psmpUi = new PsmpInteraction(this, settings, SaveSettings);
+        FilesPanel.Initialize(settings, SaveSettings);
         RefreshRecent();
+        RefreshSaved();
         UpdateWelcome();
         UpdateActions();
         Loaded += async (_, _) => await LoadAccountsAsync();
@@ -119,7 +123,9 @@ public partial class MainWindow : Window
             _view = new ListCollectionView(_accounts) { Filter = o => AccountFilter.Matches((PvwaAccount)o, _query) };
             AccountsGrid.ItemsSource = _view;
             ApplyFilter();
-            RefreshFavorites();
+            SessionLibrary.MigrateFavorites(_settings, _byId, _client.BaseUri.Host);
+            SaveSettings();
+            RefreshSaved();
             RefreshQuickResults();
             UpdateWelcome();
             UpdateActions();
@@ -175,13 +181,6 @@ public partial class MainWindow : Window
     {
         WelcomeText.Text = string.Format(French, "Connecté à {0} en tant que {1} · {2:N0} compte(s) disponible(s)",
             _client.BaseUri.Host, _sessionUser, _accounts.Count);
-    }
-
-    private void RefreshFavorites()
-    {
-        var favorites = _settings.Favorites.Select(id => _byId.GetValueOrDefault(id)).OfType<PvwaAccount>().ToList();
-        FavoritesList.ItemsSource = favorites;
-        NoFavoritesText.Visibility = favorites.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void RefreshRecent()
@@ -272,9 +271,10 @@ public partial class MainWindow : Window
 
     // ===================== Sélection =====================
 
-    private void SetCurrent(PvwaAccount? account)
+    private void SetCurrent(PvwaAccount? account, SavedSession? saved = null)
     {
         _current = account;
+        _currentSaved = saved;
         UpdateActions();
     }
 
@@ -283,7 +283,7 @@ public partial class MainWindow : Window
         bool has = _current is not null && !_connecting;
         ConnectButton.IsEnabled = has;
         AdvancedButton.IsEnabled = has;
-        FavoriteButton.IsEnabled = _current is not null;
+        AddCurrentButton.IsEnabled = _current is not null && _currentSaved is null;
         SshButton.IsEnabled = has && HasPsmp;
         SshButton.ToolTip = HasPsmp ? "Ouvrir le compte en SSH via le PSMP" : "Renseignez l'adresse du PSMP dans les paramètres";
     }
@@ -433,7 +433,11 @@ public partial class MainWindow : Window
 
     private void OnConnectDefault(object sender, RoutedEventArgs e)
     {
-        if (_current is { } account)
+        if (_currentSaved is { } saved)
+        {
+            ConnectSaved(saved, advanced: false);
+        }
+        else if (_current is { } account)
         {
             _ = ConnectAsync(account, DefaultRequest(account, null));
         }
@@ -457,7 +461,11 @@ public partial class MainWindow : Window
 
     private void OnConnectAdvanced(object sender, RoutedEventArgs e)
     {
-        if (_current is { } account)
+        if (_currentSaved is { } saved)
+        {
+            ConnectSaved(saved, advanced: true);
+        }
+        else if (_current is { } account)
         {
             _ = ConnectAsync(account, DefaultRequest(account, null), showDialog: true);
         }
@@ -478,7 +486,7 @@ public partial class MainWindow : Window
     /// Ouvre la session. La fenêtre « Connexion avancée » s'affiche si elle est demandée, s'il faut choisir
     /// la machine cible, ou si le PVWA refuse la demande (motif exigé, composant inconnu...) pour corriger et réessayer.
     /// </summary>
-    private async Task ConnectAsync(PvwaAccount account, ConnectRequest request, bool showDialog = false)
+    private async Task ConnectAsync(PvwaAccount account, ConnectRequest request, bool showDialog = false, SavedSession? saved = null)
     {
         if (_connecting)
         {
@@ -518,7 +526,7 @@ public partial class MainWindow : Window
 
                 try
                 {
-                    await LaunchAsync(account, request);
+                    await LaunchAsync(account, request, saved);
                     return;
                 }
                 catch (PvwaException ex) when (ex.IsUnauthorized)
@@ -547,7 +555,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private async Task LaunchAsync(PvwaAccount account, ConnectRequest request)
+    private async Task LaunchAsync(PvwaAccount account, ConnectRequest request, SavedSession? saved)
     {
         var target = string.IsNullOrWhiteSpace(request.RemoteMachine) ? account.Address : request.RemoteMachine;
         var label = $"{account.UserName}@{target}";
@@ -576,6 +584,12 @@ public partial class MainWindow : Window
             _launcher.LaunchRdp(rdp, label);
             SetStatus($"Session PSM lancée : {label} ({request.Component})");
             AddRecent(account, label, request.Component, request.RemoteMachine);
+        }
+        else if (_settings.SshInApp)
+        {
+            var login = PsmpTarget.BuildLogin(_vaultUser, account, request.RemoteMachine);
+            await OpenSshTabAsync(account, login, label, saved);
+            AddRecent(account, label, RecentModes.Ssh, request.RemoteMachine);
         }
         else
         {
@@ -624,8 +638,8 @@ public partial class MainWindow : Window
         {
             switch (item.Tag as string)
             {
-                case "fav":
-                    item.Header = _settings.IsFavorite(_current.Id) ? "Retirer des _favoris" : "Ajouter aux _favoris";
+                case "addcurrent":
+                    BuildAddToCurrentMenu(item, _current);
                     break;
                 case "ssh":
                     item.IsEnabled = HasPsmp;
@@ -633,21 +647,6 @@ public partial class MainWindow : Window
                     break;
             }
         }
-    }
-
-    private void OnToggleFavorite(object sender, RoutedEventArgs e)
-    {
-        if (_current is not { } account)
-        {
-            return;
-        }
-
-        _settings.ToggleFavorite(account.Id);
-        SaveSettings();
-        RefreshFavorites();
-        SetStatus(_settings.IsFavorite(account.Id)
-            ? $"{account.UserName}@{account.Address} ajouté aux favoris"
-            : $"{account.UserName}@{account.Address} retiré des favoris");
     }
 
     private void OnCopyAddress(object sender, RoutedEventArgs e) => CopyAccounts(sender, a => a.Address ?? "");
@@ -768,6 +767,7 @@ public partial class MainWindow : Window
         }
         finally
         {
+            CloseAllSshSessions();
             _launcher.Cleanup();
             _client.Dispose();
             _lifetime.Dispose();
