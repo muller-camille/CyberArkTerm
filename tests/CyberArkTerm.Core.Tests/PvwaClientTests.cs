@@ -62,6 +62,8 @@ public class PvwaClientTests
         Assert.Equal("s3cr\"et", json.RootElement.GetProperty("password").GetString());
         Assert.True(json.RootElement.GetProperty("concurrentSession").GetBoolean());
         Assert.True(client.IsAuthenticated);
+        // Corps envoyé avec Content-Length (pas en « chunked »).
+        Assert.Equal(System.Text.Encoding.UTF8.GetByteCount(body), Assert.Single(pvwa.ContentLengths));
     }
 
     [Fact]

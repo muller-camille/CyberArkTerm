@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 
 namespace CyberArkTerm.Core;
@@ -91,7 +92,9 @@ public sealed class PvwaClient : IDisposable
 
         using var request = new HttpRequestMessage(HttpMethod.Post, $"API/auth/{method}/Logon")
         {
-            Content = JsonContent.Create(body),
+            // Corps sérialisé à l'avance pour envoyer un Content-Length : JsonContent passe en
+            // « chunked », que certains load balancers / WAF placés devant le PVWA rejettent.
+            Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json"),
         };
         using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode)

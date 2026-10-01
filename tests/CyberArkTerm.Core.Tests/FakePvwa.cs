@@ -12,6 +12,8 @@ internal sealed class FakePvwa : HttpMessageHandler
 
     public List<(HttpMethod Method, string PathAndQuery, string? Authorization, string Body)> Requests { get; } = [];
 
+    public List<long?> ContentLengths { get; } = [];
+
     public static HttpResponseMessage Json(string json, HttpStatusCode status = HttpStatusCode.OK) =>
         new(status) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
 
@@ -19,6 +21,7 @@ internal sealed class FakePvwa : HttpMessageHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
+        ContentLengths.Add(request.Content?.Headers.ContentLength);
         string body = request.Content is null ? "" : await request.Content.ReadAsStringAsync(cancellationToken);
         string? auth = request.Headers.TryGetValues("Authorization", out var values) ? values.Single() : null;
         Requests.Add((request.Method, request.RequestUri!.PathAndQuery, auth, body));
