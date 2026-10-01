@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CyberArkTerm.Core.Ssh;
 
 namespace CyberArkTerm.Core;
 
@@ -25,8 +26,28 @@ public sealed class AppSettings
 
     public GroupBy GroupBy { get; set; } = GroupBy.Safe;
 
-    /// <summary>ID des comptes favoris.</summary>
+    /// <summary>Anciens favoris (remplacés par l'onglet « Courants », migrés au chargement des comptes).</summary>
     public List<string> Favorites { get; set; } = [];
+
+    /// <summary>Dossiers de l'onglet « Courants » (« Prod/Web »...), y compris les dossiers vides.</summary>
+    public List<string> SessionFolderList { get; set; } = [];
+
+    /// <summary>Serveurs de l'onglet « Courants », avec leur configuration.</summary>
+    public List<SavedSession> Sessions { get; set; } = [];
+
+    /// <summary>Sessions SSH dans un onglet CyberArkTerm (terminal + navigateur de fichiers) plutôt que Windows Terminal.</summary>
+    public bool SshInApp { get; set; } = true;
+
+    /// <summary>Protocole utilisé pour déposer des fichiers sur le serveur.</summary>
+    public TransferProtocol UploadProtocol { get; set; } = TransferProtocol.Scp;
+
+    /// <summary>Installe PROMPT_COMMAND à l'ouverture d'une session SSH pour que le navigateur suive le dossier du terminal.</summary>
+    public bool FollowTerminalFolder { get; set; } = true;
+
+    public bool ShowHiddenFiles { get; set; }
+
+    /// <summary>Empreintes des clés d'hôte PSMP acceptées (« hôte:port » → « algorithme SHA256:... »).</summary>
+    public Dictionary<string, string> KnownHosts { get; set; } = [];
 
     public List<RecentSession> Recent { get; set; } = [];
 
@@ -99,6 +120,9 @@ public sealed class AppSettings
                 settings.Favorites ??= [];
                 settings.Recent ??= [];
                 settings.ComponentByPlatform ??= [];
+                settings.SessionFolderList ??= [];
+                settings.Sessions ??= [];
+                settings.KnownHosts ??= [];
                 return settings;
             }
         }
