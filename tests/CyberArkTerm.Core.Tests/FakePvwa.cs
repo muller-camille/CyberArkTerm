@@ -14,14 +14,28 @@ internal sealed class FakePvwa : HttpMessageHandler
 
     public List<long?> ContentLengths { get; } = [];
 
+    public List<string> Accepts { get; } = [];
+
     public static HttpResponseMessage Json(string json, HttpStatusCode status = HttpStatusCode.OK) =>
         new(status) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
 
     public PvwaClient CreateClient() => new(new Uri("https://pvwa.test/PasswordVault/"), this);
 
+    /// <summary>Client déjà authentifié (la première requête enregistrée est le logon).</summary>
+    public async Task<PvwaClient> CreateLoggedOnClientAsync()
+    {
+        var client = CreateClient();
+        await client.LogonAsync(AuthMethod.CyberArk, "jdoe", "pw");
+        return client;
+    }
+
+    public static bool IsLogon(HttpRequestMessage request) =>
+        request.RequestUri!.AbsolutePath.EndsWith("/Logon", StringComparison.Ordinal);
+
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         ContentLengths.Add(request.Content?.Headers.ContentLength);
+        Accepts.Add(request.Headers.Accept.ToString());
         string body = request.Content is null ? "" : await request.Content.ReadAsStringAsync(cancellationToken);
         string? auth = request.Headers.TryGetValues("Authorization", out var values) ? values.Single() : null;
         Requests.Add((request.Method, request.RequestUri!.PathAndQuery, auth, body));

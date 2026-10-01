@@ -129,6 +129,32 @@ public sealed class PvwaClient : IDisposable
         }
     }
 
+    /// <summary>
+    /// Demande au PVWA une connexion PSM pour le compte (équivalent du bouton « Connect » du PVWA)
+    /// et renvoie le fichier RDP à ouvrir avec <c>mstsc.exe</c>.
+    /// </summary>
+    /// <exception cref="PvwaException">Refus du PVWA (composant inconnu, motif exigé, accès non autorisé...).</exception>
+    public async Task<byte[]> PsmConnectAsync(string accountId, PsmConnectOptions options, CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accountId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(options.ConnectionComponent);
+
+        using var request = CreateAuthenticatedRequest(HttpMethod.Post, $"API/Accounts/{Uri.EscapeDataString(accountId)}/PSMConnect");
+        // « octet-stream » : le PVWA renvoie le fichier RDP ; « json » renverrait les données PSM Gateway (HTML5).
+        request.Headers.Accept.Clear();
+        request.Headers.Accept.ParseAdd("application/octet-stream");
+        request.Content = new StringContent(JsonSerializer.Serialize(options.ToRequestBody()), Encoding.UTF8, "application/json");
+
+        using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw await CreateErrorAsync(response, ct).ConfigureAwait(false);
+        }
+
+        var bytes = await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
+        return RdpFile.FromPsmConnectResponse(bytes, response.Content.Headers.ContentType?.MediaType);
+    }
+
     /// <summary>Ferme la session côté PVWA. Sans effet si aucune session n'est ouverte.</summary>
     public async Task LogoffAsync(CancellationToken ct = default)
     {
