@@ -1,0 +1,261 @@
+using System.Net;
+using System.Text.Json;
+
+namespace CyberArkTerm.Core.Tests;
+
+public class PvwaClientTests
+{
+    [Theory]
+    [InlineData("pvwa.corp.local", "https://pvwa.corp.local/PasswordVault/")]
+    [InlineData("  https://pvwa.corp.local  ", "https://pvwa.corp.local/PasswordVault/")]
+    [InlineData("https://pvwa.corp.local/PasswordVault", "https://pvwa.corp.local/PasswordVault/")]
+    [InlineData("https://pvwa.corp.local/passwordvault/v10/logon", "https://pvwa.corp.local/passwordvault/")]
+    [InlineData("https://pvwa.corp.local:8443/PasswordVault/", "https://pvwa.corp.local:8443/PasswordVault/")]
+    [InlineData("https://cyberark.corp.local/prod/PasswordVault/v10/Accounts", "https://cyberark.corp.local/prod/PasswordVault/")]
+    public void NormalizeBaseUri_ExtractsPasswordVaultRoot(string input, string expected)
+    {
+        Assert.Equal(expected, PvwaClient.NormalizeBaseUri(input).ToString());
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("http://pvwa.corp.local/PasswordVault")]
+    [InlineData("https://")]
+    public void NormalizeBaseUri_RejectsInvalidOrInsecureUrls(string input)
+    {
+        Assert.Throws<ArgumentException>(() => PvwaClient.NormalizeBaseUri(input));
+    }
+
+    [Theory]
+    [InlineData("\"abc123==\"", "abc123==")]
+    [InlineData("{\"CyberArkLogonResult\":\"legacy-token\"}", "legacy-token")]
+    public void ParseToken_AcceptsV10AndLegacyFormats(string body, string expected)
+    {
+        Assert.Equal(expected, PvwaClient.ParseToken(body));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("\"\"")]
+    [InlineData("<html>maintenance</html>")]
+    [InlineData("{\"other\":1}")]
+    public void ParseToken_RejectsResponsesWithoutToken(string body)
+    {
+        Assert.Throws<PvwaException>(() => PvwaClient.ParseToken(body));
+    }
+
+    [Fact]
+    public async Task Logon_PostsCredentialsToMethodEndpoint()
+    {
+        var pvwa = new FakePvwa(_ => FakePvwa.Json("\"tok\""));
+        using var client = pvwa.CreateClient();
+
+        await client.LogonAsync(AuthMethod.LDAP, "jdoe", "s3cr\"et");
+
+        var (method, path, auth, body) = Assert.Single(pvwa.Requests);
+        Assert.Equal(HttpMethod.Post, method);
+        Assert.Equal("/PasswordVault/API/auth/LDAP/Logon", path);
+        Assert.Null(auth);
+        using var json = JsonDocument.Parse(body);
+        Assert.Equal("jdoe", json.RootElement.GetProperty("username").GetString());
+        Assert.Equal("s3cr\"et", json.RootElement.GetProperty("password").GetString());
+        Assert.True(json.RootElement.GetProperty("concurrentSession").GetBoolean());
+        Assert.True(client.IsAuthenticated);
+    }
+
+    [Fact]
+    public async Task Logon_Windows_SendsNoCredentialsInBody()
+    {
+        var pvwa = new FakePvwa(_ => FakePvwa.Json("\"tok\""));
+        using var client = pvwa.CreateClient();
+
+        await client.LogonAsync(AuthMethod.Windows, null, null);
+
+        var request = Assert.Single(pvwa.Requests);
+        Assert.Equal("/PasswordVault/API/auth/Windows/Logon", request.PathAndQuery);
+        using var json = JsonDocument.Parse(request.Body);
+        Assert.False(json.RootElement.TryGetProperty("username", out _));
+        Assert.False(json.RootElement.TryGetProperty("password", out _));
+    }
+
+    [Fact]
+    public async Task Logon_Failure_SurfacesPvwaErrorCodeAndMessage()
+    {
+        var pvwa = new FakePvwa(_ => FakePvwa.Json(
+            "{\"ErrorCode\":\"ITATS004E\",\"ErrorMessage\":\"Authentication failure for User [jdoe].\"}",
+            HttpStatusCode.Forbidden));
+        using var client = pvwa.CreateClient();
+
+        var ex = await Assert.ThrowsAsync<PvwaException>(() => client.LogonAsync(AuthMethod.CyberArk, "jdoe", "bad"));
+
+        Assert.Equal("ITATS004E", ex.ErrorCode);
+        Assert.Equal("Authentication failure for User [jdoe]. (ITATS004E)", ex.Message);
+        Assert.False(ex.IsRadiusChallenge);
+        Assert.False(client.IsAuthenticated);
+    }
+
+    [Fact]
+    public async Task Logon_NonJsonError_FallsBackToHttpStatus()
+    {
+        var pvwa = new FakePvwa(_ => new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+        {
+            Content = new StringContent("<html>IIS</html>"),
+        });
+        using var client = pvwa.CreateClient();
+
+        var ex = await Assert.ThrowsAsync<PvwaException>(() => client.LogonAsync(AuthMethod.CyberArk, "jdoe", "pw"));
+
+        Assert.Null(ex.ErrorCode);
+        Assert.StartsWith("HTTP 503", ex.Message);
+    }
+
+    [Fact]
+    public async Task Logon_RadiusChallenge_CanBeAnsweredOnSameClient()
+    {
+        int call = 0;
+        var pvwa = new FakePvwa(_ => ++call == 1
+            ? FakePvwa.Json("{\"ErrorCode\":\"ITATS542I\",\"ErrorMessage\":\"Enter the code sent to your phone\"}",
+                HttpStatusCode.InternalServerError)
+            : FakePvwa.Json("\"tok\""));
+        using var client = pvwa.CreateClient();
+
+        var ex = await Assert.ThrowsAsync<PvwaException>(() => client.LogonAsync(AuthMethod.RADIUS, "jdoe", "pw"));
+        Assert.True(ex.IsRadiusChallenge);
+        Assert.Equal("Enter the code sent to your phone", ex.ServerMessage);
+
+        await client.LogonAsync(AuthMethod.RADIUS, "jdoe", "123456");
+
+        Assert.True(client.IsAuthenticated);
+        Assert.Contains("\"password\":\"123456\"", pvwa.Requests[1].Body);
+    }
+
+    [Fact]
+    public async Task GetAccounts_FollowsPaginationWithToken()
+    {
+        const int total = 2500;
+        var pvwa = new FakePvwa(req =>
+        {
+            if (req.RequestUri!.AbsolutePath.EndsWith("/Logon", StringComparison.Ordinal))
+            {
+                return FakePvwa.Json("\"tok\"");
+            }
+
+            var query = System.Web.HttpUtility.ParseQueryString(req.RequestUri.Query);
+            int offset = int.Parse(query["offset"]!);
+            int limit = int.Parse(query["limit"]!);
+            var items = Enumerable.Range(offset, Math.Max(0, Math.Min(limit, total - offset)))
+                .Select(i => new { id = $"1_{i}", address = $"srv{i:D4}.corp.local", userName = "admin" });
+            return FakePvwa.Json(JsonSerializer.Serialize(new { value = items, count = total }));
+        });
+        using var client = pvwa.CreateClient();
+        await client.LogonAsync(AuthMethod.CyberArk, "jdoe", "pw");
+        var reports = new List<(int, int)>();
+
+        var accounts = await client.GetAccountsAsync(new SyncProgress<(int, int)>(reports.Add));
+
+        Assert.Equal(total, accounts.Count);
+        Assert.Equal("srv2499.corp.local", accounts[^1].Address);
+        var pages = pvwa.Requests.Skip(1).ToList();
+        Assert.Equal(
+            ["/PasswordVault/API/Accounts?offset=0&limit=1000",
+             "/PasswordVault/API/Accounts?offset=1000&limit=1000",
+             "/PasswordVault/API/Accounts?offset=2000&limit=1000"],
+            pages.Select(p => p.PathAndQuery));
+        Assert.All(pages, p => Assert.Equal("tok", p.Authorization));
+        Assert.Equal([(1000, total), (2000, total), (total, total)], reports);
+    }
+
+    [Fact]
+    public async Task GetAccounts_StopsOnEmptyPage()
+    {
+        var pvwa = new FakePvwa(req => req.RequestUri!.AbsolutePath.EndsWith("/Logon", StringComparison.Ordinal)
+            ? FakePvwa.Json("\"tok\"")
+            : FakePvwa.Json("{\"value\":[],\"count\":42}"));
+        using var client = pvwa.CreateClient();
+        await client.LogonAsync(AuthMethod.CyberArk, "jdoe", "pw");
+
+        var accounts = await client.GetAccountsAsync();
+
+        Assert.Empty(accounts);
+        Assert.Equal(2, pvwa.Requests.Count);
+    }
+
+    [Fact]
+    public async Task GetAccounts_MapsAccountFields()
+    {
+        var pvwa = new FakePvwa(req => req.RequestUri!.AbsolutePath.EndsWith("/Logon", StringComparison.Ordinal)
+            ? FakePvwa.Json("\"tok\"")
+            : FakePvwa.Json("""
+                {"value":[{
+                  "id":"12_3","name":"Operating System-WinDomain-corp.local-adm.jdoe",
+                  "address":"corp.local","userName":"adm.jdoe","platformId":"WinDomain","safeName":"T0-Admins",
+                  "secretType":"password","createdTime":1700000000,
+                  "platformAccountProperties":{"LogonDomain":"CORP","Port":3389},
+                  "remoteMachinesAccess":{"remoteMachines":"srv1;srv2","accessRestrictedToRemoteMachines":true},
+                  "secretManagement":{"automaticManagementEnabled":true,"lastModifiedTime":1700000100}
+                }],"count":1}
+                """));
+        using var client = pvwa.CreateClient();
+        await client.LogonAsync(AuthMethod.CyberArk, "jdoe", "pw");
+
+        var a = Assert.Single(await client.GetAccountsAsync());
+
+        Assert.Equal("12_3", a.Id);
+        Assert.Equal("corp.local", a.Address);
+        Assert.Equal("adm.jdoe", a.UserName);
+        Assert.Equal("WinDomain", a.PlatformId);
+        Assert.Equal("T0-Admins", a.SafeName);
+        Assert.Equal("CORP", a.LogonDomain);
+        Assert.Equal("3389", a.GetPlatformProperty("port"));
+        Assert.Equal("srv1;srv2", a.RemoteMachines);
+        Assert.True(a.RemoteMachinesAccess!.AccessRestrictedToRemoteMachines);
+        Assert.Equal(1700000000, a.CreatedTime);
+    }
+
+    [Fact]
+    public async Task GetAccounts_ExpiredSession_IsReportedAsUnauthorized()
+    {
+        var pvwa = new FakePvwa(req => req.RequestUri!.AbsolutePath.EndsWith("/Logon", StringComparison.Ordinal)
+            ? FakePvwa.Json("\"tok\"")
+            : FakePvwa.Json("{\"ErrorCode\":\"PASWS013E\",\"ErrorMessage\":\"Session timed out\"}", HttpStatusCode.Unauthorized));
+        using var client = pvwa.CreateClient();
+        await client.LogonAsync(AuthMethod.CyberArk, "jdoe", "pw");
+
+        var ex = await Assert.ThrowsAsync<PvwaException>(() => client.GetAccountsAsync());
+
+        Assert.True(ex.IsUnauthorized);
+    }
+
+    [Fact]
+    public async Task GetAccounts_WithoutLogon_Throws()
+    {
+        var pvwa = new FakePvwa(_ => throw new InvalidOperationException("no request expected"));
+        using var client = pvwa.CreateClient();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => client.GetAccountsAsync());
+        Assert.Empty(pvwa.Requests);
+    }
+
+    [Fact]
+    public async Task Logoff_SendsTokenOnceThenForgetsIt()
+    {
+        var pvwa = new FakePvwa(_ => FakePvwa.Json("\"tok\""));
+        using var client = pvwa.CreateClient();
+        await client.LogonAsync(AuthMethod.CyberArk, "jdoe", "pw");
+
+        await client.LogoffAsync();
+        await client.LogoffAsync();
+
+        Assert.Equal(2, pvwa.Requests.Count);
+        Assert.Equal("/PasswordVault/API/Auth/Logoff", pvwa.Requests[1].PathAndQuery);
+        Assert.Equal("tok", pvwa.Requests[1].Authorization);
+        Assert.False(client.IsAuthenticated);
+    }
+
+    /// <summary><see cref="Progress{T}"/> poste de manière asynchrone ; ici on veut un rapport synchrone.</summary>
+    private sealed class SyncProgress<T>(Action<T> report) : IProgress<T>
+    {
+        public void Report(T value) => report(value);
+    }
+}

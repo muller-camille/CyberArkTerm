@@ -1,0 +1,84 @@
+<Window x:Class="CyberArkTerm.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="CyberArkTerm — Comptes PSM"
+        Width="1100" Height="680" MinWidth="640" MinHeight="360"
+        WindowStartupLocation="CenterScreen">
+    <Window.CommandBindings>
+        <CommandBinding Command="Find" Executed="OnFind" />
+        <CommandBinding Command="Refresh" Executed="OnRefresh" CanExecute="CanRefresh" />
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Key="F5" Command="Refresh" />
+    </Window.InputBindings>
+
+    <DockPanel>
+        <!-- Barre d'outils -->
+        <DockPanel DockPanel.Dock="Top" Margin="10,10,10,6" LastChildFill="True">
+            <Button DockPanel.Dock="Right" Content="_Déconnexion" Click="OnLogout" Margin="8,0,0,0" />
+            <Button DockPanel.Dock="Right" x:Name="ExportButton" Content="_Exporter CSV…" Click="OnExport" Margin="8,0,0,0" />
+            <Button DockPanel.Dock="Right" Content="_Actualiser" Command="Refresh" Margin="8,0,0,0"
+                    ToolTip="Recharger la liste depuis le PVWA (F5)" />
+            <Grid>
+                <TextBox x:Name="SearchBox" TextChanged="OnSearchChanged" VerticalContentAlignment="Center"
+                         ToolTip="Filtrer par serveur, utilisateur, domaine, safe, plateforme… (Ctrl+F)" />
+                <TextBlock Text="Rechercher un serveur, un compte, un safe…" Foreground="Gray"
+                           Margin="7,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </DockPanel>
+
+        <!-- Barre d'état -->
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock x:Name="CountText" />
+            </StatusBarItem>
+            <StatusBarItem>
+                <ProgressBar x:Name="LoadProgress" Width="160" Height="10" Visibility="Collapsed" />
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock x:Name="SessionText" Foreground="Gray" />
+            </StatusBarItem>
+        </StatusBar>
+
+        <!-- Liste des comptes -->
+        <DataGrid x:Name="AccountsGrid" Margin="10,0,10,6"
+                  AutoGenerateColumns="False" IsReadOnly="True"
+                  CanUserAddRows="False" CanUserDeleteRows="False"
+                  SelectionMode="Extended" SelectionUnit="FullRow"
+                  GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E5E5E5"
+                  HeadersVisibility="Column" AlternatingRowBackground="#F7F9FC"
+                  EnableRowVirtualization="True" EnableColumnVirtualization="True"
+                  VirtualizingPanel.VirtualizationMode="Recycling"
+                  ClipboardCopyMode="IncludeHeader">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Serveur" Binding="{Binding Address}" Width="2*" SortDirection="Ascending" />
+                <DataGridTextColumn Header="Utilisateur" Binding="{Binding UserName}" Width="1.3*" />
+                <DataGridTextColumn Header="Domaine" Binding="{Binding LogonDomain}" Width="*" />
+                <DataGridTextColumn Header="Plateforme" Binding="{Binding PlatformId}" Width="1.3*" />
+                <DataGridTextColumn Header="Safe" Binding="{Binding SafeName}" Width="1.3*" />
+                <DataGridTextColumn Header="Machines autorisées" Binding="{Binding RemoteMachines}" Width="1.5*" />
+                <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="2*" />
+            </DataGrid.Columns>
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Copier le _serveur" Click="OnCopyAddress" />
+                    <MenuItem Header="Copier l'_utilisateur" Click="OnCopyUser" />
+                    <MenuItem Header="Copier _domaine\utilisateur" Click="OnCopyDomainUser" />
+                    <Separator />
+                    <MenuItem Header="Copier les _lignes" Command="Copy" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+        </DataGrid>
+    </DockPanel>
+</Window>

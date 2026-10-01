@@ -1,0 +1,36 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Tests
+        run: dotnet test CyberArkTerm.sln -c Release
+
+      - name: Publication (exe autonome win-x64)
+        run: >
+          dotnet publish src/CyberArkTerm.App/CyberArkTerm.App.csproj
+          -c Release -r win-x64 -p:SelfContained=true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true -p:DebugType=none
+          -o publish
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CyberArkTerm-win-x64
+          path: publish/CyberArkTerm.exe
