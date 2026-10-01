@@ -27,7 +27,7 @@ public partial class App : Application
             return;
         }
 
-        var main = new MainWindow(login.Client, login.SessionUser);
+        var main = new MainWindow(login.Client, _settings, login.SessionUser, login.VaultUser);
         MainWindow = main;
         main.Closed += (_, _) =>
         {

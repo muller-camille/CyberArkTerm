@@ -3,6 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Theme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
         <Style TargetType="TextBox">
             <Setter Property="Padding" Value="4,3" />
         </Style>
@@ -16,5 +20,6 @@
             <Setter Property="Padding" Value="12,4" />
             <Setter Property="MinWidth" Value="90" />
         </Style>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

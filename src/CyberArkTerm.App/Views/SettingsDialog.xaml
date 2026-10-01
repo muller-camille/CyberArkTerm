@@ -1,0 +1,38 @@
+<Window x:Class="CyberArkTerm.App.Views.SettingsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Paramètres"
+        Width="500" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <StackPanel Margin="16">
+        <TextBlock Text="SSH via PSM for SSH (PSMP)" Style="{StaticResource SectionTitle}" />
+        <TextBlock Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10"
+                   Text="Permet d'ouvrir les comptes Unix directement en SSH (Windows Terminal ou console), comme dans MobaXterm. Laisser vide pour désactiver." />
+        <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="70" />
+            </Grid.ColumnDefinitions>
+            <Label Content="_Adresse PSMP :" Target="{Binding ElementName=PsmpBox}" />
+            <TextBox Grid.Column="1" x:Name="PsmpBox" VerticalContentAlignment="Center" />
+            <Label Grid.Column="2" Content="_Port :" Target="{Binding ElementName=PortBox}" Margin="8,0,0,0" />
+            <TextBox Grid.Column="3" x:Name="PortBox" VerticalContentAlignment="Center" />
+        </Grid>
+        <CheckBox x:Name="PreferSshBox" Content="Double-clic sur un compte Unix : se connecter en SSH via PSMP" Margin="0,4,0,16" />
+
+        <TextBlock Text="Composants PSM mémorisés" Style="{StaticResource SectionTitle}" />
+        <DockPanel Margin="0,0,0,16">
+            <Button DockPanel.Dock="Right" Content="_Oublier" Click="OnForgetComponents" VerticalAlignment="Center" />
+            <TextBlock x:Name="ComponentsText" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"
+                       VerticalAlignment="Center" Margin="0,0,12,0" />
+        </DockPanel>
+
+        <TextBlock x:Name="ErrorText" Foreground="Firebrick" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,0,0,8" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="_Enregistrer" IsDefault="True" Click="OnSave" />
+            <Button Content="Annuler" IsCancel="True" Margin="8,0,0,0" />
+        </StackPanel>
+    </StackPanel>
+</Window>

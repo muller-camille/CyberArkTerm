@@ -58,6 +58,9 @@ public partial class LoginWindow : Window
     /// <summary>Nom affiché de l'utilisateur connecté.</summary>
     public string SessionUser { get; private set; } = "";
 
+    /// <summary>Nom d'utilisateur du coffre (utilisé pour se connecter au PSMP).</summary>
+    public string VaultUser { get; private set; } = "";
+
     private AuthMethod SelectedMethod => MethodBox.SelectedItem is AuthMethod m ? m : AuthMethod.CyberArk;
 
     private void OnMethodChanged(object sender, SelectionChangedEventArgs e)
@@ -101,6 +104,7 @@ public partial class LoginWindow : Window
             SaveSettings(method, userName);
             Client = _pending;
             SessionUser = method == AuthMethod.Windows ? Environment.UserDomainName + "\\" + Environment.UserName : userName;
+            VaultUser = method == AuthMethod.Windows ? Environment.UserName : userName;
             DialogResult = true;
         }
         catch (PvwaException ex) when (!_closed && ex.IsRadiusChallenge)
