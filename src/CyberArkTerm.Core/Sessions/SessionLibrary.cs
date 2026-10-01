@@ -1,0 +1,161 @@
+namespace CyberArkTerm.Core;
+
+/// <summary>Opérations sur les dossiers et sessions de l'onglet « Courants » (stockés dans les préférences).</summary>
+public static class SessionLibrary
+{
+    /// <summary>Arbre des dossiers et sessions du PVWA <paramref name="pvwaHost"/>, triés par nom.</summary>
+    public static SessionFolderNode BuildTree(AppSettings settings, string pvwaHost)
+    {
+        var root = new SessionFolderNode("");
+        var nodes = new Dictionary<string, SessionFolderNode>(StringComparer.OrdinalIgnoreCase) { [""] = root };
+
+        SessionFolderNode Ensure(string path)
+        {
+            path = SessionFolders.Normalize(path);
+            if (nodes.TryGetValue(path, out var node))
+            {
+                return node;
+            }
+
+            node = new SessionFolderNode(path);
+            nodes[path] = node;
+            Ensure(SessionFolders.Parent(path)).Folders.Add(node);
+            return node;
+        }
+
+        foreach (var folder in settings.SessionFolderList)
+        {
+            Ensure(folder);
+        }
+
+        foreach (var session in settings.Sessions.Where(s => IsForHost(s, pvwaHost)))
+        {
+            Ensure(session.Folder).Sessions.Add(session);
+        }
+
+        Sort(root);
+        return root;
+    }
+
+    public static bool IsForHost(SavedSession session, string pvwaHost) =>
+        session.PvwaHost.Length == 0 || string.Equals(session.PvwaHost, pvwaHost, StringComparison.OrdinalIgnoreCase);
+
+    public static void AddFolder(AppSettings settings, string path)
+    {
+        path = SessionFolders.Normalize(path);
+        while (path.Length > 0)
+        {
+            if (!settings.SessionFolderList.Contains(path, StringComparer.OrdinalIgnoreCase))
+            {
+                settings.SessionFolderList.Add(path);
+            }
+
+            path = SessionFolders.Parent(path);
+        }
+    }
+
+    /// <summary>Renomme le dernier segment d'un dossier ; sous-dossiers et sessions suivent.</summary>
+    public static string RenameFolder(AppSettings settings, string path, string newName)
+    {
+        path = SessionFolders.Normalize(path);
+        newName = SessionFolders.Normalize(newName);
+        if (path.Length == 0 || newName.Length == 0 || newName.Contains('/'))
+        {
+            throw new ArgumentException("Nom de dossier invalide.");
+        }
+
+        var target = SessionFolders.Combine(SessionFolders.Parent(path), newName);
+        MoveFolder(settings, path, target);
+        return target;
+    }
+
+    /// <summary>Déplace un dossier (avec son contenu) sous un autre chemin.</summary>
+    public static void MoveFolder(AppSettings settings, string path, string target)
+    {
+        path = SessionFolders.Normalize(path);
+        target = SessionFolders.Normalize(target);
+        if (path.Length == 0 || SessionFolders.IsWithin(target, path) && !string.Equals(target, path, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException("Impossible de déplacer un dossier dans lui-même.");
+        }
+
+        for (int i = 0; i < settings.SessionFolderList.Count; i++)
+        {
+            if (SessionFolders.IsWithin(settings.SessionFolderList[i], path))
+            {
+                settings.SessionFolderList[i] = SessionFolders.Rebase(settings.SessionFolderList[i], path, target);
+            }
+        }
+
+        foreach (var session in settings.Sessions.Where(s => s.Folder.Length > 0 && SessionFolders.IsWithin(s.Folder, path)))
+        {
+            session.Folder = SessionFolders.Rebase(session.Folder, path, target);
+        }
+
+        AddFolder(settings, target);
+        Deduplicate(settings);
+    }
+
+    /// <summary>Supprime un dossier, ses sous-dossiers et les sessions qu'ils contiennent ; renvoie le nombre de sessions supprimées.</summary>
+    public static int DeleteFolder(AppSettings settings, string path)
+    {
+        path = SessionFolders.Normalize(path);
+        if (path.Length == 0)
+        {
+            throw new ArgumentException("La racine ne peut pas être supprimée.");
+        }
+
+        settings.SessionFolderList.RemoveAll(f => SessionFolders.IsWithin(f, path));
+        return settings.Sessions.RemoveAll(s => s.Folder.Length > 0 && SessionFolders.IsWithin(s.Folder, path));
+    }
+
+    public static SavedSession AddSession(AppSettings settings, PvwaAccount account, string pvwaHost, string folder)
+    {
+        var session = SavedSession.FromAccount(account, pvwaHost, folder);
+        AddFolder(settings, session.Folder);
+        settings.Sessions.Add(session);
+        return session;
+    }
+
+    public static void MoveSession(AppSettings settings, SavedSession session, string folder)
+    {
+        session.Folder = SessionFolders.Normalize(folder);
+        AddFolder(settings, session.Folder);
+    }
+
+    /// <summary>Reprend les anciens favoris comme sessions à la racine de « Courants » (une seule fois).</summary>
+    public static void MigrateFavorites(AppSettings settings, IReadOnlyDictionary<string, PvwaAccount> accounts, string pvwaHost)
+    {
+        if (settings.Favorites.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var id in settings.Favorites)
+        {
+            if (accounts.TryGetValue(id, out var account) && !settings.Sessions.Any(s => s.AccountId == id))
+            {
+                settings.Sessions.Add(SavedSession.FromAccount(account, pvwaHost, ""));
+            }
+        }
+
+        settings.Favorites.Clear();
+    }
+
+    private static void Deduplicate(AppSettings settings)
+    {
+        var unique = settings.SessionFolderList.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        settings.SessionFolderList.Clear();
+        settings.SessionFolderList.AddRange(unique);
+    }
+
+    private static void Sort(SessionFolderNode node)
+    {
+        node.Folders.Sort((a, b) => StringComparer.OrdinalIgnoreCase.Compare(a.Name, b.Name));
+        node.Sessions.Sort((a, b) => StringComparer.OrdinalIgnoreCase.Compare(a.Name, b.Name));
+        foreach (var child in node.Folders)
+        {
+            Sort(child);
+        }
+    }
+}

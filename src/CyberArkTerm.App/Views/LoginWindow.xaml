@@ -1,0 +1,67 @@
+<Window x:Class="CyberArkTerm.App.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="CyberArkTerm — Connexion"
+        Width="440" SizeToContent="Height"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="Connexion au coffre CyberArk" FontSize="18" FontWeight="SemiBold" />
+            <TextBlock Text="Identifiez-vous pour lister les comptes accessibles via PSM."
+                       Foreground="Gray" Margin="0,4,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- Saisie des identifiants -->
+        <Grid Grid.Row="1" x:Name="CredentialsPanel">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" Content="_Adresse PVWA :" Target="{Binding ElementName=UrlBox}" Margin="0,0,8,8" />
+            <TextBox Grid.Row="0" Grid.Column="1" x:Name="UrlBox" Margin="0,0,0,8"
+                     ToolTip="Ex. : https://pvwa.mondomaine.local/PasswordVault" />
+
+            <Label Grid.Row="1" Content="_Méthode :" Target="{Binding ElementName=MethodBox}" Margin="0,0,8,8" />
+            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="MethodBox" Margin="0,0,0,8"
+                      SelectionChanged="OnMethodChanged" />
+
+            <Label Grid.Row="2" Content="_Utilisateur :" Target="{Binding ElementName=UserBox}" Margin="0,0,8,8" />
+            <TextBox Grid.Row="2" Grid.Column="1" x:Name="UserBox" Margin="0,0,0,8" />
+
+            <Label Grid.Row="3" Content="Mot de _passe :" Target="{Binding ElementName=PasswordBox}" Margin="0,0,8,8" />
+            <PasswordBox Grid.Row="3" Grid.Column="1" x:Name="PasswordBox" Margin="0,0,0,8" />
+        </Grid>
+
+        <!-- Challenge RADIUS (MFA) : affiché seulement si le PVWA le demande -->
+        <StackPanel Grid.Row="1" x:Name="ChallengePanel" Visibility="Collapsed">
+            <TextBlock x:Name="ChallengeText" TextWrapping="Wrap" Margin="0,0,0,8" />
+            <PasswordBox x:Name="ChallengeBox" Margin="0,0,0,8" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="2" x:Name="StatusText" TextWrapping="Wrap" Margin="0,4,0,8"
+                   Foreground="Firebrick" Visibility="Collapsed" />
+
+        <DockPanel Grid.Row="3" LastChildFill="False" Margin="0,8,0,0">
+            <ProgressBar x:Name="Busy" DockPanel.Dock="Left" Width="120" Height="6"
+                         IsIndeterminate="True" Visibility="Hidden" VerticalAlignment="Center" />
+            <Button DockPanel.Dock="Right" Content="Annuler" IsCancel="True" Margin="8,0,0,0" />
+            <Button DockPanel.Dock="Right" x:Name="LoginButton" Content="_Se connecter" IsDefault="True"
+                    Click="OnLoginClick" />
+        </DockPanel>
+    </Grid>
+</Window>
