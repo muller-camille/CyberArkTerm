@@ -1,0 +1,55 @@
+namespace CyberArkTerm.Core.Ssh;
+
+/// <summary>Fichier ou dossier distant listé par le navigateur SFTP.</summary>
+public sealed record RemoteEntry(
+    string Name,
+    string FullPath,
+    bool IsDirectory,
+    bool IsSymbolicLink,
+    long Length,
+    DateTime LastWriteTime,
+    string Permissions)
+{
+    public bool IsHidden => Name.StartsWith('.');
+
+    public string SizeText => IsDirectory ? "" : RemotePath.FormatSize(Length);
+
+    public string ModifiedText => LastWriteTime == default ? "" : LastWriteTime.ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+
+    /// <summary>Entrée « .. » affichée en tête de liste pour remonter d'un niveau.</summary>
+    public bool IsParentLink => Name == "..";
+
+    public static RemoteEntry ParentLink(string directory) =>
+        new("..", RemotePath.Parent(directory), true, false, 0, default, "");
+
+    /// <summary>Dossiers d'abord, puis ordre alphabétique sans tenir compte de la casse.</summary>
+    public static List<RemoteEntry> Sort(IEnumerable<RemoteEntry> entries) =>
+        entries.OrderByDescending(e => e.IsDirectory)
+               .ThenBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
+               .ThenBy(e => e.Name, StringComparer.Ordinal)
+               .ToList();
+
+    /// <summary>Droits au format <c>ls -l</c> (ex. <c>drwxr-x---</c>).</summary>
+    public static string FormatPermissions(bool isDirectory, bool isSymbolicLink, params bool[] rwx)
+    {
+        var chars = new char[10];
+        chars[0] = isSymbolicLink ? 'l' : isDirectory ? 'd' : '-';
+        for (int i = 0; i < 9; i++)
+        {
+            chars[i + 1] = i < rwx.Length && rwx[i] ? "rwx"[i % 3] : '-';
+        }
+
+        return new string(chars);
+    }
+}
+
+public enum TransferProtocol
+{
+    /// <summary>Envoi par SCP (connexion dédiée au PSMP).</summary>
+    Scp,
+
+    /// <summary>Envoi par la connexion SFTP du navigateur.</summary>
+    Sftp,
+}
+
+public sealed record TransferProgress(string FileName, long Transferred, long Total);
