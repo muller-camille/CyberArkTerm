@@ -10,7 +10,7 @@ using Microsoft.Win32;
 namespace CyberArkTerm.App.Views;
 
 /// <summary>
-/// Onglet latéral « Fichiers » (comme le navigateur SFTP de MobaXterm) : parcourt le serveur de la session SSH
+/// Onglet latéral « Fichiers » (navigateur SFTP) : parcourt le serveur de la session SSH
 /// active, dépose des fichiers par glisser-déposer (SCP ou SFTP), supprime, télécharge, et peut suivre
 /// le dossier courant du terminal.
 /// </summary>

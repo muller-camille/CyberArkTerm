@@ -7,7 +7,7 @@ using CyberArkTerm.Core.Terminal;
 namespace CyberArkTerm.App.Terminal;
 
 /// <summary>
-/// Affichage d'un <see cref="TerminalEmulator"/> et saisie clavier, à la manière de MobaXterm :
+/// Affichage d'un <see cref="TerminalEmulator"/> et saisie clavier :
 /// sélection = copie, clic droit = collage, molette = historique.
 /// </summary>
 public sealed class TerminalView : FrameworkElement

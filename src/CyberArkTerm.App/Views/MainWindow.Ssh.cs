@@ -62,7 +62,7 @@ public partial class MainWindow
         header.Children.Add(new Image { Source = (System.Windows.Media.ImageSource)FindResource("IconSsh"), Width = 16, Height = 16, Margin = new Thickness(0, 0, 6, 0) });
         header.Children.Add(new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center });
         header.Children.Add(close);
-        // Clic molette sur l'onglet : fermeture, comme dans MobaXterm.
+        // Clic molette sur l'onglet : fermeture.
         header.MouseDown += (_, e) =>
         {
             if (e.ChangedButton == MouseButton.Middle)

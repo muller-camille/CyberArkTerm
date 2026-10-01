@@ -2,7 +2,7 @@
 
 [![build](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml/badge.svg)](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml)
 
-**Client Windows « façon MobaXterm » pour CyberArk.** CyberArkTerm se connecte à votre PVWA, liste les comptes
+**Client Windows multi-sessions pour CyberArk.** CyberArkTerm se connecte à votre PVWA, liste les comptes
 auxquels vous avez accès et ouvre vos sessions en un double-clic : bureau à distance via **PSM**, ou terminal
 SSH via **PSM for SSH (PSMP)** avec un **navigateur de fichiers** intégré pour déposer des fichiers sur le
 serveur.
@@ -122,7 +122,7 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   SFTP et SCP du même onglet, jamais enregistré.
 - **Clé du PSMP** : à la première connexion, son empreinte SHA256 est affichée et doit être acceptée ; si elle
   change ensuite, une alerte s'affiche.
-- **Terminal** : la sélection copie, le clic droit colle (comme MobaXterm), la molette remonte l'historique,
+- **Terminal** : la sélection copie, le clic droit colle, la molette remonte l'historique,
   AltGr fonctionne sur clavier français. Fermez l'onglet avec la croix ou un clic molette.
 
 ### 5. Parcourir et déposer des fichiers : onglet « Fichiers »

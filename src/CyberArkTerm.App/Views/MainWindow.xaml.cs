@@ -15,7 +15,7 @@ using Microsoft.Win32;
 namespace CyberArkTerm.App.Views;
 
 /// <summary>
-/// Fenêtre principale « à la MobaXterm » : barre d'outils, arbre des sessions à gauche,
+/// Fenêtre principale : barre d'outils, arbre des sessions à gauche,
 /// onglets Accueil / Tous les comptes, connexion PSM ou SSH (PSMP) sur double-clic.
 /// </summary>
 public partial class MainWindow : Window

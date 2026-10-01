@@ -7,7 +7,7 @@
     <StackPanel Margin="16">
         <TextBlock Text="SSH via PSM for SSH (PSMP)" Style="{StaticResource SectionTitle}" />
         <TextBlock Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10"
-                   Text="Permet d'ouvrir les comptes Unix directement en SSH, comme dans MobaXterm. Laisser vide pour désactiver." />
+                   Text="Permet d'ouvrir les comptes Unix directement en SSH. Laisser vide pour désactiver." />
         <Grid Margin="0,0,0,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="140" />

@@ -9,7 +9,7 @@ public static class TerminalColor
 
     private const int RgbFlag = 0x1000000;
 
-    // Palette 16 couleurs proche de celle de MobaXterm / Windows Terminal (« Campbell »).
+    // Palette 16 couleurs « Campbell » (celle de Windows Terminal).
     private static readonly uint[] Base16 =
     [
         0x0C0C0C, 0xC50F1F, 0x13A10E, 0xC19C00, 0x0037DA, 0x881798, 0x3A96DD, 0xCCCCCC,
