@@ -51,6 +51,12 @@ public sealed class AppSettings
     /// <summary>Sessions Bureau à distance (PSM) dans un onglet CyberArkTerm plutôt que dans mstsc.</summary>
     public bool RdpInApp { get; set; } = true;
 
+    /// <summary>
+    /// Composants PSM en application distante (RemoteApp) ouverts comme un bureau, dans l'onglet, plutôt qu'en
+    /// fenêtres séparées ; le serveur PSM doit accepter les sessions en bureau.
+    /// </summary>
+    public bool PsmRemoteAppAsDesktop { get; set; } = true;
+
     /// <summary>Protocole utilisé pour déposer des fichiers sur le serveur.</summary>
     public TransferProtocol UploadProtocol { get; set; } = TransferProtocol.Scp;
 

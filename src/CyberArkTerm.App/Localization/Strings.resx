@@ -1024,6 +1024,12 @@ Close anyway? The local copies will be deleted.</value>
   <data name="RdpInApp" xml:space="preserve">
     <value>Open remote desktop sessions in a CyberArkTerm tab, otherwise in Remote Desktop Connection (mstsc)</value>
   </data>
+  <data name="PsmRemoteAppAsDesktop" xml:space="preserve">
+    <value>Show PSM remote applications (RemoteApp) in the tab as a desktop, if the PSM accepts it; otherwise their windows open on their own</value>
+  </data>
+  <data name="RdpDesktopFromRemoteAppHint" xml:space="preserve">
+    <value>This PSM component is a remote application, opened here as a desktop. If the PSM does not accept it, untick “Show PSM remote applications in the tab” in Settings: its windows will then open on their own.</value>
+  </data>
   <data name="KeePassFolderTitle" xml:space="preserve">
     <value>KeePass vault</value>
   </data>

@@ -48,6 +48,13 @@ public partial class MainWindow
     }
 
     /// <summary>
+    /// Composant PSM en application distante : ouvert comme un bureau dans l'onglet si l'option le demande et si le
+    /// fichier le permet (programme de démarrage présent), sinon tel quel (fenêtres séparées).
+    /// </summary>
+    private RdpConnectionSettings ForPsmTab(RdpConnectionSettings settings) =>
+        _settings.PsmRemoteAppAsDesktop && settings.RemoteAppAsDesktop() is { } desktop ? desktop : settings;
+
+    /// <summary>
     /// Ouvre un onglet Bureau à distance. <paramref name="prepare"/> fournit les réglages de chaque connexion
     /// (y compris les reconnexions) ; <paramref name="first"/> sert pour la première si on l'a déjà.
     /// </summary>

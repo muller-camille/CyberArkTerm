@@ -28,8 +28,11 @@
         </CheckBox>
 
         <TextBlock Text="{x:Static loc:Strings.RdpSection}" Style="{StaticResource SectionTitle}" />
-        <CheckBox x:Name="RdpInAppBox" Margin="0,0,0,16">
+        <CheckBox x:Name="RdpInAppBox" Margin="0,0,0,8">
             <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.RdpInApp}" />
+        </CheckBox>
+        <CheckBox x:Name="PsmRemoteAppAsDesktopBox" Margin="0,0,0,16">
+            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.PsmRemoteAppAsDesktop}" />
         </CheckBox>
 
         <TextBlock Text="{x:Static loc:Strings.SettingsSshSection}" Style="{StaticResource SectionTitle}" />

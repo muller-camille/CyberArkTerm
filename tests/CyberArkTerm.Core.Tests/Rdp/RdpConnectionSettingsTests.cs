@@ -92,6 +92,36 @@ public class RdpConnectionSettingsTests
         Assert.Equal("PSM Session", s.RemoteApplicationTitle);
     }
 
+    /// <summary>Fichier RemoteApp tel que le renvoie un PVWA (valeurs masquées) : ouvert comme une connexion PSM classique.</summary>
+    [Fact]
+    public void PsmRemoteAppOpensAsDesktop()
+    {
+        var s = RdpConnectionSettings.FromRdpFile(Encoding.UTF8.GetBytes(
+            "full address:s:psm01.corp.local\r\nserver port:i:3389\r\nusername:s:localhost\\PSM@0123abcd\r\n" +
+            "alternate shell:s:PSM@0123abcd\r\nenablecredsspsupport:i:0\r\nremoteapplicationmode:i:1\r\n" +
+            "remoteapplicationprogram:s:||PSMInitSession\r\nremoteapplicationname:s:PSM-RDP\r\ndisableconnectionsharing:i:1\r\n" +
+            "signscope:s:Full Address,Alternate Shell,RemoteApplicationProgram\r\nsignature:s:AAAA\r\n"));
+
+        var desktop = s.RemoteAppAsDesktop();
+
+        Assert.NotNull(desktop);
+        Assert.False(desktop.IsRemoteApp);
+        Assert.True(desktop.DesktopFromRemoteApp);
+        Assert.Equal("PSM@0123abcd", desktop.StartProgram);
+        Assert.Equal(@"localhost\PSM@0123abcd", desktop.UserName);
+        Assert.Equal("psm01.corp.local", desktop.Server);
+        Assert.False(desktop.EnableCredSsp);
+        Assert.True(s.IsRemoteApp);
+    }
+
+    [Theory]
+    [InlineData("full address:s:psm\r\nremoteapplicationmode:i:1\r\nremoteapplicationprogram:s:||PSMInitSession\r\n")]
+    [InlineData("full address:s:psm\r\nalternate shell:s:psm /u admin /a srv01 /c PSM-RDP\r\n")]
+    public void OnlyRemoteAppsWithAStartProgramOpenAsDesktop(string file)
+    {
+        Assert.Null(RdpConnectionSettings.FromRdpFile(Encoding.UTF8.GetBytes(file)).RemoteAppAsDesktop());
+    }
+
     [Theory]
     [InlineData("||PSMInitSession", "PSMInitSession")]
     [InlineData(@"C:\Windows\System32\notepad.exe", "notepad.exe")]

@@ -2666,6 +2666,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Show PSM remote applications (RemoteApp) in the tab as a desktop, if the PSM accepts it; otherwis[rest of string was truncated].
+        /// </summary>
+        public static string PsmRemoteAppAsDesktop {
+            get {
+                return ResourceManager.GetString("PsmRemoteAppAsDesktop", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to PSM session started: {0} ({1}).
         /// </summary>
         public static string PsmStarted {
@@ -2770,6 +2779,15 @@ namespace CyberArkTerm.App.Localization {
         public static string RdpControlMissing {
             get {
                 return ResourceManager.GetString("RdpControlMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This PSM component is a remote application, opened here as a desktop. If the PSM does not accept [rest of string was truncated].
+        /// </summary>
+        public static string RdpDesktopFromRemoteAppHint {
+            get {
+                return ResourceManager.GetString("RdpDesktopFromRemoteAppHint", resourceCulture);
             }
         }
 

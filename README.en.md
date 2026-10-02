@@ -118,9 +118,11 @@ The session opens **in a CyberArkTerm tab**, with the Windows Remote Desktop con
   of a PSM session works only once);
 - closing the tab (cross or middle click) disconnects the session, after confirmation.
 
-A PSM component that opens a **remote application** (RemoteApp) also goes through the built-in control: its
-windows open on their own, on this computer's desktop as with `mstsc`, and the tab shows its state
-("Disconnect" closes it, "Reconnect" starts it again).
+A PSM component that opens a **remote application** (RemoteApp) also shows **in the tab**: CyberArkTerm opens the
+same connection as a desktop, with the same PSM session request, like a classic PSM connection. The PSM server must
+accept desktop sessions; otherwise, untick "Show PSM remote applications in the tab" in the Settings: the
+application then still goes through the built-in control, but its windows open on their own, on this computer's
+desktop as with `mstsc`, and the tab shows its state ("Disconnect" closes it, "Reconnect" starts it again).
 
 The session opens in **Remote Desktop Connection** (`mstsc`) if the option is unticked in the Settings or if the
 Remote Desktop control can't be used on this computer; the status bar then says why.
@@ -254,6 +256,7 @@ password, delete.
 | Keep the PVWA session open | Light request every 4 minutes; paused while Windows is locked | yes |
 | Local vault | Remembered KeePass master passwords: create, unlock, change password, delete | — |
 | Remote desktop in CyberArkTerm | PSM sessions in a tab; otherwise Remote Desktop Connection (`mstsc`) | yes |
+| PSM remote applications in the tab | PSM RemoteApp components opened as a desktop in the tab (the PSM must accept it); otherwise separate windows | yes |
 | SSH in CyberArkTerm | Built-in terminal and Files tab; otherwise Windows Terminal | yes |
 | Follow the terminal folder | Allows setting up folder tracking in the shell | yes |
 | File upload | SCP or SFTP | SCP |
@@ -330,13 +333,19 @@ available). CyberArkTerm reads the RDP file returned by `PSMConnect` and applies
 redirections, sound, visual effects. Session ends and connection errors are explained in the tab with the
 Windows message.
 
-For a remote application (`remoteapplicationmode:i:1`), the control switches to RemoteApp mode
+A PSM component that opens a remote application is opened as a desktop by default: RemoteApp mode off, and
+`alternate shell` (for PSM, the `PSM@…` session request) starts the session like a classic PSM connection. The
+file's signature (`signature`) is checked only by `mstsc`, not by the control nor by the server.
+
+Otherwise (option unticked, or file without `alternate shell`), for a remote application
+(`remoteapplicationmode:i:1`), the control switches to RemoteApp mode
 (`disableremoteappcapscheck` applied), then starts the application once the session is open, once per
 connection: `remoteapplicationprogram` (for PSM, `||PSMInitSession`) with the `remoteapplicationcmdline`
 arguments; `remoteapplicationname` is used for display and `alternate shell` is not used. If the server refuses
 the application, the session ends with the reason. The remote desktop takes the size of all screens so the
 windows can go anywhere. An integration test (`rdp-integration` workflow) opens real sessions on the CI machine:
-a desktop in a tab, Notepad as a remote application, and an unknown application (error message).
+a desktop in a tab, Notepad as a remote application, a remote application file opened as a desktop, and an
+unknown application (error message).
 
 ### PSMP sessions
 

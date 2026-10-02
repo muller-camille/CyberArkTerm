@@ -38,6 +38,8 @@ jobs:
 
           $ts = 'HKLM:\System\CurrentControlSet\Control\Terminal Server'
           Set-ItemProperty $ts -Name fDenyTSConnections -Value 0 -Type DWord
+          # Programme de démarrage demandé par le client (« alternate shell »), comme sur un serveur PSM.
+          Set-ItemProperty "$ts\WinStations\RDP-Tcp" -Name fInheritInitialProgram -Value 1 -Type DWord
           # Applications distantes sans publication (liste d'autorisation désactivée), comme sur un hôte RemoteApp.
           $allow = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Terminal Server\TSAppAllowList'
           New-Item $allow -Force | Out-Null

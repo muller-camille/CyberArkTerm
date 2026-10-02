@@ -679,15 +679,16 @@ public partial class MainWindow : Window
                 LoadProgress.Visibility = _loading ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            if (EmbeddableRdp(rdp, label, out var fallbackReason) is { } settings)
+            if (EmbeddableRdp(rdp, label, out var fallbackReason) is { } embeddable)
             {
+                var settings = ForPsmTab(embeddable);
                 SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
                 AddRecent(account, label, request.Component, request.RemoteMachine);
                 // Une reconnexion demande un nouveau jeton au PVWA : le précédent ne sert qu'une fois.
                 var session = await OpenRdpTabAsync(label, async ct =>
                 {
                     var file = await Client.PsmConnectAsync(account.Id, options, ct);
-                    return new RdpConnectionRequest(RdpConnectionSettings.FromRdpFile(file), null);
+                    return new RdpConnectionRequest(ForPsmTab(RdpConnectionSettings.FromRdpFile(file)), null);
                 }, new RdpConnectionRequest(settings, null));
                 if (session.ControlFailed)
                 {

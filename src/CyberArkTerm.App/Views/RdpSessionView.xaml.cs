@@ -54,6 +54,12 @@ public partial class RdpSessionView : UserControl
                 StatusLine.Text = failed ? Strings.ConnectionImpossible : Strings.SessionEnded;
                 OverlayText.Text = StatusLine.Text;
                 OverlayDetail.Text = session.Error ?? "";
+                if (session.DesktopFromRemoteApp && (session.ConnectedAt is not { } opened || DateTime.UtcNow - opened < TimeSpan.FromMinutes(1)))
+                {
+                    // Fin rapide d'une application distante ouverte en bureau : le serveur refuse peut-être ce mode.
+                    OverlayDetail.Text = (OverlayDetail.Text + "\n\n" + Strings.RdpDesktopFromRemoteAppHint).Trim();
+                }
+
                 ReconnectButton.Visibility = Visibility.Visible;
                 break;
         }

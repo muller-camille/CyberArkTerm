@@ -7,7 +7,7 @@ namespace CyberArkTerm.Core.Rdp;
 /// Réglages d'une session Bureau à distance ouverte dans un onglet de l'application : lus dans le fichier .rdp
 /// renvoyé par le PVWA (PSM), ou construits pour une connexion directe. Le mot de passe n'en fait pas partie.
 /// </summary>
-public sealed class RdpConnectionSettings
+public sealed record RdpConnectionSettings
 {
     public const int DefaultPort = 3389;
 
@@ -116,6 +116,18 @@ public sealed class RdpConnectionSettings
 
     /// <summary>Connexion en application distante même si le serveur ne l'annonce pas (« disableremoteappcapscheck »).</summary>
     public bool DisableRemoteAppCapsCheck { get; init; }
+
+    /// <summary>Vrai pour une application distante ouverte comme un bureau (voir <see cref="RemoteAppAsDesktop"/>).</summary>
+    public bool DesktopFromRemoteApp { get; init; }
+
+    /// <summary>
+    /// La même connexion ouverte comme un bureau au lieu d'une application distante, pour l'afficher dans l'onglet :
+    /// le programme de démarrage (« alternate shell », pour le PSM la demande de session « PSM@… ») lance la session
+    /// comme une connexion PSM classique. Null si ce n'est pas une application distante ou si le fichier n'a pas de
+    /// programme de démarrage (le bureau n'afficherait rien d'utile).
+    /// </summary>
+    public RdpConnectionSettings? RemoteAppAsDesktop() =>
+        IsRemoteApp && StartProgram.Trim().Length > 0 ? this with { IsRemoteApp = false, DesktopFromRemoteApp = true } : null;
 
     /// <summary>Nom à afficher pour l'application distante : son nom, sinon son programme sans « || » ni chemin.</summary>
     public string RemoteApplicationTitle =>
