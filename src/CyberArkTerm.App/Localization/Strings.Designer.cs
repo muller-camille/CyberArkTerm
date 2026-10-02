@@ -335,6 +335,42 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Debug log on.
+        /// </summary>
+        public static string DebugLogActive {
+            get {
+                return ResourceManager.GetString("DebugLogActive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No debug log yet: turn it on, then reproduce the problem..
+        /// </summary>
+        public static string DebugLogMissing {
+            get {
+                return ResourceManager.GetString("DebugLogMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Debug log on: {0}.
+        /// </summary>
+        public static string DebugLogStarted {
+            get {
+                return ResourceManager.GetString("DebugLogStarted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Debug log off..
+        /// </summary>
+        public static string DebugLogStopped {
+            get {
+                return ResourceManager.GetString("DebugLogStopped", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Default _reason:.
         /// </summary>
         public static string DefaultReasonLabel {
@@ -2018,6 +2054,33 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _Debug log.
+        /// </summary>
+        public static string MenuDebugLog {
+            get {
+                return ResourceManager.GetString("MenuDebugLog", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Show the debug log _file.
+        /// </summary>
+        public static string MenuDebugLogShow {
+            get {
+                return ResourceManager.GetString("MenuDebugLogShow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Records how connections unfold (PVWA, PSM, remote desktop, SSH) in a file, to understand a failur[rest of string was truncated].
+        /// </summary>
+        public static string MenuDebugLogTip {
+            get {
+                return ResourceManager.GetString("MenuDebugLogTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Delete folder….
         /// </summary>
         public static string MenuDeleteFolder {
@@ -2167,6 +2230,15 @@ namespace CyberArkTerm.App.Localization {
         public static string MenuRename {
             get {
                 return ResourceManager.GetString("MenuRename", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Settings….
+        /// </summary>
+        public static string MenuSettings {
+            get {
+                return ResourceManager.GetString("MenuSettings", resourceCulture);
             }
         }
 
@@ -2801,11 +2873,20 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Disconnected (code {0})..
+        ///   Looks up a localized string similar to Disconnected ({0})..
         /// </summary>
         public static string RdpDisconnectCode {
             get {
                 return ResourceManager.GetString("RdpDisconnectCode", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to code {0}, extended code {1}.
+        /// </summary>
+        public static string RdpDisconnectCodes {
+            get {
+                return ResourceManager.GetString("RdpDisconnectCodes", resourceCulture);
             }
         }
 
@@ -2842,6 +2923,15 @@ namespace CyberArkTerm.App.Localization {
         public static string RdpInApp {
             get {
                 return ResourceManager.GetString("RdpInApp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open in _separate windows.
+        /// </summary>
+        public static string RdpOpenRemoteAppWindows {
+            get {
+                return ResourceManager.GetString("RdpOpenRemoteAppWindows", resourceCulture);
             }
         }
 
@@ -3773,7 +3863,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to PSMP, language, remembered components.
+        ///   Looks up a localized string similar to PSMP, language, remembered components, debug log.
         /// </summary>
         public static string ToolSettingsTip {
             get {

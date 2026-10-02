@@ -184,7 +184,7 @@
     <value>Settings</value>
   </data>
   <data name="ToolSettingsTip" xml:space="preserve">
-    <value>PSMP, language, remembered components</value>
+    <value>PSMP, language, remembered components, debug log</value>
   </data>
   <data name="TabAvailable" xml:space="preserve">
     <value>Available</value>
@@ -986,7 +986,7 @@ Close anyway? The local copies will be deleted.</value>
     <value>Remote Desktop control error ({0}).</value>
   </data>
   <data name="RdpDisconnectCode" xml:space="preserve">
-    <value>Disconnected (code {0}).</value>
+    <value>Disconnected ({0}).</value>
   </data>
   <data name="RdpRemoteAppOpened" xml:space="preserve">
     <value>Remote application “{0}” is open</value>
@@ -1028,7 +1028,37 @@ Close anyway? The local copies will be deleted.</value>
     <value>Show PSM remote applications (RemoteApp) in the tab as a desktop, if the PSM accepts it; otherwise their windows open on their own</value>
   </data>
   <data name="RdpDesktopFromRemoteAppHint" xml:space="preserve">
-    <value>This PSM component is a remote application, opened here as a desktop. If the PSM does not accept it, untick “Show PSM remote applications in the tab” in Settings: its windows will then open on their own.</value>
+    <value>This PSM component is a remote application, opened here as a desktop. If the PSM does not accept it, “Open in separate windows” starts it again as a remote application (new request to the PVWA). To do so every time, untick “Show PSM remote applications in the tab” in Settings.</value>
+  </data>
+  <data name="RdpOpenRemoteAppWindows" xml:space="preserve">
+    <value>Open in _separate windows</value>
+  </data>
+  <data name="RdpDisconnectCodes" xml:space="preserve">
+    <value>code {0}, extended code {1}</value>
+  </data>
+  <data name="MenuSettings" xml:space="preserve">
+    <value>_Settings…</value>
+  </data>
+  <data name="MenuDebugLog" xml:space="preserve">
+    <value>_Debug log</value>
+  </data>
+  <data name="MenuDebugLogTip" xml:space="preserve">
+    <value>Records how connections unfold (PVWA, PSM, remote desktop, SSH) in a file, to understand a failure. It contains server and account names, never passwords or tokens. Off by default.</value>
+  </data>
+  <data name="MenuDebugLogShow" xml:space="preserve">
+    <value>Show the debug log _file</value>
+  </data>
+  <data name="DebugLogActive" xml:space="preserve">
+    <value>Debug log on</value>
+  </data>
+  <data name="DebugLogStarted" xml:space="preserve">
+    <value>Debug log on: {0}</value>
+  </data>
+  <data name="DebugLogStopped" xml:space="preserve">
+    <value>Debug log off.</value>
+  </data>
+  <data name="DebugLogMissing" xml:space="preserve">
+    <value>No debug log yet: turn it on, then reproduce the problem.</value>
   </data>
   <data name="KeePassFolderTitle" xml:space="preserve">
     <value>KeePass vault</value>

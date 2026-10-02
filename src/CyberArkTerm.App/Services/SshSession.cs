@@ -3,6 +3,7 @@ using System.Text;
 using System.Windows.Threading;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
+using CyberArkTerm.Core.Diagnostics;
 using CyberArkTerm.Core.Ssh;
 using CyberArkTerm.Core.Terminal;
 using Renci.SshNet;
@@ -106,7 +107,9 @@ public sealed class SshSession : IDisposable
         _lastData = default;
         try
         {
+            DebugLog.Write("ssh", $"{Label} : connexion");
             _client = await _connector.ConnectShellAsync(_lifetime.Token);
+            DebugLog.Write("ssh", $"{Label} : connecté ({_client.ConnectionInfo.ServerVersion}, {_client.ConnectionInfo.CurrentServerEncryption}, bannière {!string.IsNullOrWhiteSpace(_connector.Banner)})");
             _client.KeepAliveInterval = TimeSpan.FromSeconds(30);
             if (!string.IsNullOrWhiteSpace(_connector.Banner))
             {
@@ -116,8 +119,16 @@ public sealed class SshSession : IDisposable
 
             _shell = _client.CreateShellStream("xterm-256color", (uint)Emulator.Columns, (uint)Emulator.Rows, 0, 0, 65536);
             _shell.DataReceived += (_, e) => OnData(e.Data);
-            _shell.Closed += (_, _) => _dispatcher.BeginInvoke(() => SetState(SshSessionState.Closed, Strings.SessionClosedByServer));
-            _shell.ErrorOccurred += (_, e) => _dispatcher.BeginInvoke(() => SetState(SshSessionState.Failed, e.Exception.Message));
+            _shell.Closed += (_, _) =>
+            {
+                DebugLog.Write("ssh", $"{Label} : session fermée par le serveur");
+                _dispatcher.BeginInvoke(() => SetState(SshSessionState.Closed, Strings.SessionClosedByServer));
+            };
+            _shell.ErrorOccurred += (_, e) =>
+            {
+                DebugLog.Write("ssh", $"{Label} : erreur de la session", e.Exception);
+                _dispatcher.BeginInvoke(() => SetState(SshSessionState.Failed, e.Exception.Message));
+            };
             SetState(SshSessionState.Connected, null);
             ScreenUpdated?.Invoke();
             if (_followTerminal || Saved?.StartDirectory is not null)
@@ -127,6 +138,7 @@ public sealed class SshSession : IDisposable
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
+            DebugLog.Write("ssh", $"{Label} : échec de la connexion", ex);
             SetState(SshSessionState.Failed, ex is OperationCanceledException ? Strings.ConnectionCancelled : ex.Message);
             throw;
         }

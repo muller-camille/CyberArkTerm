@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
+using CyberArkTerm.Core.Diagnostics;
 using CyberArkTerm.Core.Localization;
 
 namespace CyberArkTerm.App.Views;
@@ -154,7 +155,9 @@ public partial class LoginWindow : Window
                 _pendingMethod = method;
             }
 
+            DebugLog.Write("login", $"Connexion à {_pending!.BaseUri} (méthode {method}{(answeringChallenge ? ", réponse au challenge RADIUS" : "")})");
             await _pending!.LogonAsync(method, userName, password);
+            DebugLog.Write("login", "Session PVWA ouverte.");
             if (_closed)
             {
                 // Fenêtre fermée pendant l'authentification.
@@ -169,10 +172,12 @@ public partial class LoginWindow : Window
         }
         catch (PvwaException ex) when (!_closed && ex.IsRadiusChallenge)
         {
+            DebugLog.Write("login", "Le PVWA demande une réponse au challenge RADIUS.");
             ShowChallenge(ex.ServerMessage ?? Strings.LoginRadiusPrompt);
         }
         catch (Exception ex) when (!_closed && ex is not OutOfMemoryException)
         {
+            DebugLog.Write("login", "Échec de la connexion au PVWA", ex);
             ShowError(ErrorText.Describe(ex));
             if (answeringChallenge)
             {

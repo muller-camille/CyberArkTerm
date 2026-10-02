@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using CyberArkTerm.Core.Diagnostics;
 using CyberArkTerm.Core.Localization;
 using CyberArkTerm.Core.Ssh;
 
@@ -25,7 +26,7 @@ public sealed class PvwaClient : IDisposable
     public PvwaClient(Uri baseUri, HttpMessageHandler handler)
     {
         BaseUri = baseUri;
-        _http = new HttpClient(handler) { BaseAddress = baseUri, Timeout = TimeSpan.FromSeconds(60) };
+        _http = new HttpClient(new DebugLogHandler(handler)) { BaseAddress = baseUri, Timeout = TimeSpan.FromSeconds(60) };
         _http.DefaultRequestHeaders.Accept.ParseAdd("application/json");
     }
 
@@ -291,6 +292,7 @@ public sealed class PvwaClient : IDisposable
             text = $"{text} ({code})";
         }
 
+        DebugLog.Write("pvwa", $"Erreur renvoyée par le PVWA : {text}");
         return new PvwaException(response.StatusCode, code, text, message);
     }
 

@@ -119,10 +119,11 @@ The session opens **in a CyberArkTerm tab**, with the Windows Remote Desktop con
 - closing the tab (cross or middle click) disconnects the session, after confirmation.
 
 A PSM component that opens a **remote application** (RemoteApp) also shows **in the tab**: CyberArkTerm opens the
-same connection as a desktop, with the same PSM session request, like a classic PSM connection. The PSM server must
-accept desktop sessions; otherwise, untick "Show PSM remote applications in the tab" in the Settings: the
-application then still goes through the built-in control, but its windows open on their own, on this computer's
-desktop as with `mstsc`, and the tab shows its state ("Disconnect" closes it, "Reconnect" starts it again).
+same connection as a desktop that starts the program published by the PSM (`||PSMInitSession`), with the same PSM
+session request. The PSM server must accept this mode. If it closes the session, the tab offers "Open in separate
+windows": a new request to the PVWA, and the application opens as a remote application, its windows on their own,
+on this computer's desktop as with `mstsc`; the tab then shows its state ("Disconnect" closes it, "Reconnect"
+starts it again). To do so every time, untick "Show PSM remote applications in the tab" in the Settings.
 
 The session opens in **Remote Desktop Connection** (`mstsc`) if the option is unticked in the Settings or if the
 Remote Desktop control can't be used on this computer; the status bar then says why.
@@ -257,6 +258,7 @@ password, delete.
 | Local vault | Remembered KeePass master passwords: create, unlock, change password, delete | — |
 | Remote desktop in CyberArkTerm | PSM sessions in a tab; otherwise Remote Desktop Connection (`mstsc`) | yes |
 | PSM remote applications in the tab | PSM RemoteApp components opened as a desktop in the tab (the PSM must accept it); otherwise separate windows | yes |
+| Debug log | Settings button menu: how connections unfold, in a file, without secrets (see [Security](#security)); "Show the debug log file" opens it in Explorer | no |
 | SSH in CyberArkTerm | Built-in terminal and Files tab; otherwise Windows Terminal | yes |
 | Follow the terminal folder | Allows setting up folder tracking in the shell | yes |
 | File upload | SCP or SFTP | SCP |
@@ -294,6 +296,12 @@ vaults and of their key files. This file contains **no password, token or privat
   - direct remote desktop: the password is only passed to the Remote Desktop control (no file, no credential
     manager), with network level authentication (NLA) and a warning if the server is not recognized;
   - `urgence.log`: date, Windows account, computer, action, vault, entry, target; never a password.
+- **Debug log**, off by default (Settings button menu): `%LOCALAPPDATA%\CyberArkTerm\debug.log`, 5 MB at most
+  plus one `.1` generation. It records how PVWA, PSM, remote desktop and SSH connections unfold: request addresses
+  and statuses, .rdp file settings, Remote Desktop control events and codes, errors. It contains server and
+  account names, but **never** a password, session token, PSM session request (`PSM@…` masked), signature,
+  request header or body, nor session content. The status bar shows it while it is on. Read it before passing it
+  on, and delete it once the problem is solved.
 - **Edited files**: the local copy opened in the editor is stored in `%TEMP%\CyberArkTerm\edit` and deleted when
   the SSH tab closes; a warning shows if changes were not sent back.
 - **No command injection**: SCP paths and start folders are quoted for the remote shell; `ssh` / Windows
@@ -333,11 +341,15 @@ available). CyberArkTerm reads the RDP file returned by `PSMConnect` and applies
 redirections, sound, visual effects. Session ends and connection errors are explained in the tab with the
 Windows message.
 
-A PSM component that opens a remote application is opened as a desktop by default: RemoteApp mode off, and
-`alternate shell` (for PSM, the `PSM@…` session request) starts the session like a classic PSM connection. The
-file's signature (`signature`) is checked only by `mstsc`, not by the control nor by the server.
+A PSM component that opens a remote application is opened as a desktop by default: RemoteApp mode off, and the
+session starts `remoteapplicationprogram` (for PSM, `||PSMInitSession`, followed by `remoteapplicationcmdline` if
+any), with the same user (`PSM@…`). A server in RemoteApp mode usually only accepts its published programs when a
+session starts: a PSM closed the session that started `alternate shell` (`PSM@…`) directly (version 0.4.1). The
+file's signature (`signature`) is checked only by `mstsc`, not by the control nor by the server. If the session
+ends within its first minute, the tab offers "Open in separate windows", which requests the PVWA again and opens
+the file as it is.
 
-Otherwise (option unticked, or file without `alternate shell`), for a remote application
+Otherwise (option unticked, file without `alternate shell`, or separate windows requested), for a remote application
 (`remoteapplicationmode:i:1`), the control switches to RemoteApp mode
 (`disableremoteappcapscheck` applied), then starts the application once the session is open, once per
 connection: `remoteapplicationprogram` (for PSM, `||PSMInitSession`) with the `remoteapplicationcmdline`
@@ -345,8 +357,9 @@ arguments; `remoteapplicationname` is used for display and `alternate shell` is 
 the application, the session ends with the reason. The remote desktop takes the size of all screens so the
 windows can go anywhere. An integration test (`rdp-integration` workflow) opens real sessions on the CI machine:
 a desktop in a tab, Notepad as a remote application, a remote application file opened as a desktop (the CI
-machine, without the Session Host role, does not run the start program: only its transfer is checked), and an
-unknown application (error message).
+machine, without the Session Host role, does not run the start program: only its transfer is checked) then in
+separate windows, and an unknown application (error message). Session end messages give the Windows codes
+(reason, extended reason).
 
 ### PSMP sessions
 
@@ -387,6 +400,8 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 | "The local vault file is damaged or was created by another Windows account." | The local vault does not follow a change of computer or account: delete it in the Settings and create it again. |
 | "The entry … was changed or deleted in the vault in the meantime" | Someone changed the same entry elsewhere: the vault is reloaded, make the change again. |
 | The PSM session opens in `mstsc`, not in a tab | Remote Desktop control unavailable or failing, or option unticked: the status bar gives the reason. |
+| PSM session of a remote application ends at once ("An internal error has occurred"…) | The PSM refuses the remote application opened as a desktop: "Open in separate windows" in the tab, or untick "Show PSM remote applications in the tab". |
+| Understanding a connection failure | Settings → Debug log, reproduce the problem, then Settings → "Show the debug log file". |
 | Remote application (RemoteApp): "not allowed on the server" | The requested application is not published on the PSM server: check with the CyberArk administrator. |
 | The tab shows "Remote Desktop control error" | Untick "Open remote desktop sessions in a CyberArkTerm tab" in the Settings to use `mstsc`, and report the code shown. |
 

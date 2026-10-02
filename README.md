@@ -123,11 +123,12 @@ moteur que `mstsc`) :
 - fermer l'onglet (croix ou clic molette) déconnecte la session, après confirmation.
 
 Un composant PSM en **application distante** (RemoteApp) s'affiche lui aussi **dans l'onglet** : CyberArkTerm
-ouvre la même connexion comme un bureau, avec la même demande de session PSM, comme une connexion PSM classique.
-Le serveur PSM doit accepter les sessions en bureau ; sinon, décochez « Afficher les applications distantes PSM
-dans l'onglet » dans les Paramètres : l'application passe alors aussi par le contrôle intégré, mais ses fenêtres
-s'ouvrent à part, sur le bureau du poste comme avec `mstsc`, et l'onglet affiche son état (« Déconnecter » la
-ferme, « Reconnecter » la relance).
+ouvre la même connexion comme un bureau, qui démarre le programme publié par le PSM (`||PSMInitSession`), avec
+la même demande de session PSM. Le serveur PSM doit accepter ce mode. S'il ferme la session, l'onglet propose
+« Ouvrir en fenêtres séparées » : nouvelle demande au PVWA, et l'application s'ouvre en application distante,
+ses fenêtres à part, sur le bureau du poste comme avec `mstsc` ; l'onglet affiche alors son état
+(« Déconnecter » la ferme, « Reconnecter » la relance). Pour le faire à chaque fois, décochez « Afficher les
+applications distantes PSM dans l'onglet » dans les Paramètres.
 
 La session s'ouvre dans la **Connexion Bureau à distance** (`mstsc`) si l'option est décochée dans les
 Paramètres ou si le contrôle Bureau à distance n'est pas utilisable sur le poste ; la barre d'état indique alors
@@ -272,6 +273,7 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Coffre local | Mots de passe maîtres KeePass mémorisés : créer, déverrouiller, changer le mot de passe, supprimer | — |
 | Bureau à distance dans CyberArkTerm | Sessions PSM en onglet ; sinon Connexion Bureau à distance (`mstsc`) | oui |
 | Applications distantes PSM dans l'onglet | Composants PSM en RemoteApp ouverts comme un bureau dans l'onglet (le PSM doit l'accepter) ; sinon fenêtres à part | oui |
+| Journal de débogage | Menu du bouton Paramètres : déroulement des connexions dans un fichier, sans secret (voir [Sécurité](#sécurité)) ; « Afficher le fichier du journal » l'ouvre dans l'Explorateur | non |
 | Adresse et port PSMP | Serveur PSM for SSH ; vide = SSH désactivé | vide, 22 |
 | Double-clic Unix = SSH | Ouvre les comptes Unix en SSH plutôt qu'en PSM | non |
 | SSH dans CyberArkTerm | Terminal et onglet Fichiers intégrés ; sinon Windows Terminal | oui |
@@ -313,6 +315,13 @@ l'application et supprimez-le.
   - bureau à distance direct : le mot de passe est transmis au seul contrôle Bureau à distance (ni fichier, ni
     gestionnaire d'identification), authentification réseau (NLA) et alerte si le serveur n'est pas reconnu ;
   - journal `urgence.log` : date, compte Windows, poste, action, coffre, entrée, cible ; jamais de mot de passe.
+- **Journal de débogage**, désactivé par défaut (menu du bouton Paramètres) : `%LOCALAPPDATA%\CyberArkTerm\debug.log`,
+  5 Mo au plus plus une génération `.1`. Il note le déroulement des connexions PVWA, PSM, Bureau à distance et
+  SSH : adresses et statuts des requêtes, réglages du fichier .rdp, événements et codes du contrôle Bureau à
+  distance, erreurs. Il contient des noms de serveurs et de comptes, mais **jamais** de mot de passe, de jeton de
+  session, de demande de session PSM (`PSM@…` masqué), de signature, d'en-tête ou de corps de requête, ni le
+  contenu des sessions. La barre d'état le signale tant qu'il est actif. Relisez-le avant de le transmettre, et
+  supprimez-le une fois le problème résolu.
 - **Fichiers modifiés** : la copie locale ouverte dans l'éditeur est placée dans `%TEMP%\CyberArkTerm\edit`
   et supprimée à la fermeture de l'onglet SSH ; une alerte prévient si des modifications n'ont pas été
   renvoyées.
@@ -354,11 +363,15 @@ réglages : `full address`, `username`, `alternate shell` (lancement de la sessi
 d'authentification du serveur, NLA (CredSSP), passerelle, redirections, son, effets visuels. Les fermetures
 de session et les erreurs de connexion sont expliquées dans l'onglet avec le message de Windows.
 
-Un composant PSM en application distante est ouvert par défaut comme un bureau : mode RemoteApp désactivé, et
-`alternate shell` (pour le PSM, la demande de session `PSM@…`) lance la session comme une connexion PSM classique.
-La signature du fichier (`signature`) n'est vérifiée que par `mstsc`, ni par le contrôle ni par le serveur.
+Un composant PSM en application distante est ouvert par défaut comme un bureau : mode RemoteApp désactivé, et la
+session démarre `remoteapplicationprogram` (pour le PSM, `||PSMInitSession`, suivi de `remoteapplicationcmdline`
+s'il y en a), avec le même utilisateur (`PSM@…`). Un serveur en mode RemoteApp n'accepte en général au démarrage
+d'une session que ses programmes publiés : un PSM a fermé la session qui démarrait directement `alternate shell`
+(`PSM@…`, version 0.4.1). La signature du fichier (`signature`) n'est vérifiée que par `mstsc`, ni par le
+contrôle ni par le serveur. Si la session se termine dans sa première minute, l'onglet propose « Ouvrir en
+fenêtres séparées », qui refait la demande au PVWA et ouvre le fichier tel quel.
 
-Sinon (option décochée, ou fichier sans `alternate shell`), pour une application distante
+Sinon (option décochée, fichier sans `alternate shell`, ou fenêtres séparées demandées), pour une application distante
 (`remoteapplicationmode:i:1`), le contrôle passe en mode RemoteApp
 (`disableremoteappcapscheck` repris), puis lance l'application une fois la session ouverte, une seule fois par
 connexion : `remoteapplicationprogram` (pour le PSM, `||PSMInitSession`) avec les arguments
@@ -367,7 +380,8 @@ serveur refuse l'application, la session se termine avec la raison. Le bureau di
 l'ensemble des écrans pour que les fenêtres puissent aller partout. Un test d'intégration (workflow
 `rdp-integration`) ouvre de vraies sessions sur le poste de CI : bureau en onglet, Bloc-notes en application
 distante, fichier d'application distante ouvert en bureau (le poste de CI, sans rôle Hôte de session, ne lance pas
-le programme de démarrage : seule sa transmission est vérifiée), et application inconnue (message d'erreur).
+le programme de démarrage : seule sa transmission est vérifiée) puis en fenêtres séparées, et application
+inconnue (message d'erreur). Les messages de fin de session donnent les codes de Windows (raison, raison étendue).
 
 ### Sessions PSMP
 
@@ -408,6 +422,8 @@ Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place d
 | « Le fichier du coffre local est endommagé ou a été créé par un autre compte Windows » | Le coffre local ne suit pas un changement de poste ou de compte : supprimez-le dans les Paramètres et recréez-le. |
 | « L'entrée … a été modifiée ou supprimée dans le coffre entre-temps » | Quelqu'un a changé la même entrée ailleurs : le coffre est rechargé, refaites la modification. |
 | La session PSM s'ouvre dans `mstsc` et pas dans un onglet | Contrôle Bureau à distance indisponible ou en échec, ou option décochée : la barre d'état indique la raison. |
+| Session PSM d'une application distante terminée aussitôt (« An internal error has occurred »…) | Le PSM refuse l'application distante ouverte comme un bureau : « Ouvrir en fenêtres séparées » dans l'onglet, ou décochez « Afficher les applications distantes PSM dans l'onglet ». |
+| Comprendre un échec de connexion | Paramètres → Journal de débogage, reproduisez le problème, puis Paramètres → « Afficher le fichier du journal ». |
 | Application distante (RemoteApp) : « n'est pas autorisée sur le serveur » | L'application demandée n'est pas publiée sur le serveur PSM : voyez avec l'administrateur CyberArk. |
 | L'onglet affiche « Erreur du contrôle Bureau à distance » | Décochez « Ouvrir les sessions Bureau à distance dans un onglet » dans les Paramètres pour passer par `mstsc`, et signalez le code affiché. |
 

@@ -56,6 +56,8 @@ public class RdpSessionTests(ITestOutputHelper output)
             // Code > 3 : échec de connexion signalé par l'événement OnDisconnected (pas une fin de session normale).
             Assert.True(reason > 3, $"raison {reason}");
             Assert.False(string.IsNullOrWhiteSpace(error));
+            // Les codes de Windows accompagnent l'explication.
+            Assert.Contains(reason!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture), error);
         }
     }
 
@@ -144,10 +146,10 @@ public class RdpSessionTests(ITestOutputHelper output)
     }
 
     /// <summary>
-    /// Fichier d'application distante ouvert comme un bureau (option des composants PSM en RemoteApp) : la session
-    /// s'affiche dans l'onglet, sans mode RemoteApp, et le programme de démarrage (« alternate shell ») est transmis.
-    /// Un serveur PSM (hôte de session Bureau à distance) le lance ; le poste de CI, un Windows Server sans ce rôle,
-    /// ouvre à la place son bureau habituel (constaté) : le lancement n'est donc qu'affiché, pas vérifié.
+    /// Fichier d'application distante PSM ouvert comme un bureau (option des composants PSM en RemoteApp) : la session
+    /// s'affiche dans l'onglet, sans mode RemoteApp, et démarre le programme publié de l'application, pas celui du
+    /// fichier (« PSM@… »). Un serveur PSM (hôte de session Bureau à distance) le lance ; le poste de CI, un Windows
+    /// Server sans ce rôle, ouvre à la place son bureau habituel (constaté) : le lancement n'est donc qu'affiché.
     /// </summary>
     [Fact]
     [Trait("Category", "RdpIntegration")]
@@ -158,10 +160,7 @@ public class RdpSessionTests(ITestOutputHelper output)
             return;
         }
 
-        var settings = RdpConnectionSettings.FromRdpFile(Encoding.Unicode.GetBytes(
-            $"full address:s:127.0.0.2:3389\r\nusername:s:{account.User}\r\nauthentication level:i:0\r\nenablecredsspsupport:i:1\r\n" +
-            "alternate shell:s:C:\\Windows\\System32\\notepad.exe\r\nremoteapplicationmode:i:1\r\n" +
-            "remoteapplicationprogram:s:||PSMInitSession\r\nremoteapplicationname:s:PSM-RDP\r\n")).RemoteAppAsDesktop();
+        var settings = PsmRemoteAppFile(account.User).RemoteAppAsDesktop();
         Assert.NotNull(settings);
         var request = new RdpConnectionRequest(settings, account.Password);
         int ourSession = System.Diagnostics.Process.GetCurrentProcess().SessionId;
@@ -188,6 +187,59 @@ public class RdpSessionTests(ITestOutputHelper output)
             Assert.Equal(RdpSessionState.Ended, await WaitForAsync(session, s => s is RdpSessionState.Ended or RdpSessionState.Failed, TimeSpan.FromSeconds(30)));
         });
     }
+
+    /// <summary>
+    /// « Ouvrir en fenêtres séparées » sur une application distante ouverte comme un bureau : nouvelle connexion en
+    /// application distante, telle que le fichier la demande (le Bloc-notes est lancé dans la session ouverte).
+    /// </summary>
+    [Fact]
+    [Trait("Category", "RdpIntegration")]
+    public async Task RemoteAppOpenedAsDesktopCanOpenInSeparateWindows()
+    {
+        if (IntegrationAccount() is not { } account)
+        {
+            return;
+        }
+
+        var settings = PsmRemoteAppFile(account.User).RemoteAppAsDesktop();
+        Assert.NotNull(settings);
+        var request = new RdpConnectionRequest(settings, account.Password);
+        int ourSession = System.Diagnostics.Process.GetCurrentProcess().SessionId;
+
+        await RunOnStaAsync(request, async session =>
+        {
+            await session.OpenRemoteAppWindowsAsync();
+            var state = await WaitForAsync(session, s => s != RdpSessionState.Connecting, TimeSpan.FromSeconds(90));
+            output.WriteLine($"Fenêtres séparées : {state}, raison {session.DisconnectReason}, {session.Error}");
+            Assert.Equal(RdpSessionState.Connected, state);
+            Assert.True(session.IsRemoteApp);
+            Assert.False(session.DesktopFromRemoteApp);
+            Assert.False(session.ShowsDesktop);
+            Assert.Equal("PSM-RDP", session.RemoteAppName);
+
+            bool started = false;
+            for (int i = 0; i < 60 && !started; i++)
+            {
+                started = System.Diagnostics.Process.GetProcessesByName("notepad").Any(p => p.SessionId != ourSession);
+                if (!started)
+                {
+                    await Task.Delay(500);
+                }
+            }
+
+            output.WriteLine($"Bloc-notes dans une autre session : {started} ; événements {string.Join(" | ", session.RemoteAppEvents)}");
+            Assert.True(started, "Bloc-notes non lancé dans la session distante");
+
+            session.Disconnect();
+            Assert.Equal(RdpSessionState.Ended, await WaitForAsync(session, s => s is RdpSessionState.Ended or RdpSessionState.Failed, TimeSpan.FromSeconds(30)));
+        });
+    }
+
+    /// <summary>Fichier RemoteApp structuré comme celui du PVWA, avec le Bloc-notes comme application publiée.</summary>
+    private static RdpConnectionSettings PsmRemoteAppFile(string user) => RdpConnectionSettings.FromRdpFile(Encoding.Unicode.GetBytes(
+        $"full address:s:127.0.0.2:3389\r\nusername:s:{user}\r\nauthentication level:i:0\r\nenablecredsspsupport:i:1\r\n" +
+        "alternate shell:s:PSM@0123abcd\r\nremoteapplicationmode:i:1\r\ndisableremoteappcapscheck:i:1\r\n" +
+        "remoteapplicationprogram:s:C:\\Windows\\System32\\notepad.exe\r\nremoteapplicationname:s:PSM-RDP\r\n"));
 
     /// <summary>
     /// Application distante inconnue du serveur : la session se termine avec une explication, au lieu de rester

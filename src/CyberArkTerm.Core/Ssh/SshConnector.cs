@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using CyberArkTerm.Core.Diagnostics;
 using CyberArkTerm.Core.Localization;
 using Renci.SshNet;
 using Renci.SshNet.Common;
@@ -102,6 +103,8 @@ public sealed class SshConnector
                 {
                     foreach (var prompt in e.Prompts)
                     {
+                        // La question seulement, jamais la réponse.
+                        DebugLog.Write("ssh", $"{Host} : question du serveur « {prompt.Request.Trim()} » (saisie affichée {prompt.IsEchoed})");
                         var answer = known is not null && !prompt.IsEchoed && IsPasswordPrompt(prompt.Request)
                             ? known
                             : Answer(e.Instruction, prompt);
@@ -134,7 +137,11 @@ public sealed class SshConnector
 
             var client = create(info);
             client.HostKeyReceived += (_, e) =>
+            {
                 e.CanTrust = _ui.CheckHostKey(Host, Port, e.HostKeyName, e.FingerPrintSHA256);
+                DebugLog.Write("ssh", $"{Host}:{Port} : clé d'hôte {e.HostKeyName} SHA256:{e.FingerPrintSHA256}, acceptée {e.CanTrust}");
+            };
+            DebugLog.Write("ssh", $"{Host}:{Port} : connexion {typeof(T).Name}, essai {attempt + 1}, méthodes {string.Join(", ", methods.Select(m => m.Name))}");
             try
             {
                 await client.ConnectAsync(ct).ConfigureAwait(false);
@@ -142,14 +149,16 @@ public sealed class SshConnector
             }
             catch (SshAuthenticationException ex) when (!cancelled && attempt < 3)
             {
+                DebugLog.Write("ssh", $"{Host}:{Port} : authentification refusée : {ex.Message}");
                 client.Dispose();
                 ClearCache();
                 var allowed = ex.Message;
                 usePassword = !allowed.Contains("keyboard-interactive", StringComparison.OrdinalIgnoreCase)
                               && allowed.Contains("password", StringComparison.OrdinalIgnoreCase);
             }
-            catch
+            catch (Exception ex)
             {
+                DebugLog.Write("ssh", $"{Host}:{Port} : échec de la connexion {typeof(T).Name}", ex);
                 client.Dispose();
                 if (cancelled)
                 {

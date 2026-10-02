@@ -13,6 +13,7 @@ using CyberArkTerm.App.Services;
 using CyberArkTerm.App.Services.KeePass;
 using CyberArkTerm.App.Services.Rdp;
 using CyberArkTerm.Core;
+using CyberArkTerm.Core.Diagnostics;
 using CyberArkTerm.Core.Localization;
 using CyberArkTerm.Core.Rdp;
 using Microsoft.Win32;
@@ -54,6 +55,7 @@ public partial class MainWindow : Window
         _keePass = keePass;
         Title = client is null ? Strings.EmergencyTitle : $"CyberArkTerm — {client.BaseUri.Host}";
         SessionText.Text = client is null ? Strings.EmergencySession : $"{sessionUser} @ {client.BaseUri.Host}";
+        UpdateDebugLogIndicator();
 
         _searchDebounce = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
         _searchDebounce.Tick += (_, _) =>
@@ -670,6 +672,7 @@ public partial class MainWindow : Window
                 RemoteMachine = request.RemoteMachine,
             };
             byte[] rdp;
+            DebugLog.Write("psm", $"Demande de connexion PSM pour {label} (compte {account.Id}, composant {request.Component}, machine cible « {request.RemoteMachine} »)");
             try
             {
                 rdp = await Client.PsmConnectAsync(account.Id, options, _lifetime.Token);
@@ -679,6 +682,8 @@ public partial class MainWindow : Window
                 LoadProgress.Visibility = _loading ? Visibility.Visible : Visibility.Collapsed;
             }
 
+            LogRdpFile(rdp);
+
             if (EmbeddableRdp(rdp, label, out var fallbackReason) is { } embeddable)
             {
                 var settings = ForPsmTab(embeddable);
@@ -687,12 +692,15 @@ public partial class MainWindow : Window
                 // Une reconnexion demande un nouveau jeton au PVWA : le précédent ne sert qu'une fois.
                 var session = await OpenRdpTabAsync(label, async ct =>
                 {
+                    DebugLog.Write("psm", $"Nouvelle demande de connexion PSM pour {label} (reconnexion)");
                     var file = await Client.PsmConnectAsync(account.Id, options, ct);
+                    LogRdpFile(file);
                     return new RdpConnectionRequest(ForPsmTab(RdpConnectionSettings.FromRdpFile(file)), null);
                 }, new RdpConnectionRequest(settings, null));
                 if (session.ControlFailed)
                 {
                     // Contrôle Bureau à distance inutilisable sur ce poste : le jeton n'a pas servi, mstsc prend le relais.
+                    DebugLog.Write("psm", $"Contrôle Bureau à distance inutilisable ({session.Error}) : ouverture avec mstsc.");
                     await RemoveRdpTabAsync(session);
                     _launcher.LaunchRdp(rdp, label);
                     SetStatus(Text.Format(Strings.RdpControlFallback, label, session.Error));
@@ -700,6 +708,7 @@ public partial class MainWindow : Window
             }
             else
             {
+                DebugLog.Write("psm", $"Ouverture avec mstsc : {fallbackReason ?? "option « Bureau à distance dans l'onglet » désactivée ou fichier illisible."}");
                 _launcher.LaunchRdp(rdp, label);
                 SetStatus(fallbackReason ?? Text.Format(Strings.PsmStarted, label, request.Component));
                 AddRecent(account, label, request.Component, request.RemoteMachine);
@@ -717,6 +726,15 @@ public partial class MainWindow : Window
             _launcher.LaunchSsh(login, _settings.PsmpAddress, _settings.PsmpPort, label);
             SetStatus(Text.Format(Strings.SshStarted, label, _settings.PsmpAddress));
             AddRecent(account, label, RecentModes.Ssh, request.RemoteMachine);
+        }
+    }
+
+    /// <summary>Fichier .rdp renvoyé par le PVWA, dans le journal de débogage (jetons et signature masqués).</summary>
+    private static void LogRdpFile(byte[] rdp)
+    {
+        if (DebugLog.Enabled)
+        {
+            DebugLog.Write("psm", $"Fichier .rdp reçu du PVWA ({rdp.Length} octets) :\n{DebugLog.DescribeRdpFile(RdpConnectionSettings.ReadFile(rdp))}");
         }
     }
 
@@ -837,6 +855,59 @@ public partial class MainWindow : Window
             StartKeepAlive();
             SetStatus(_settings.Language == language ? Strings.SettingsSaved : Strings.SettingsSavedLanguage);
         }
+    }
+
+    /// <summary>Bouton Paramètres : menu sous le bouton (paramètres, journal de débogage).</summary>
+    private void OnSettingsMenu(object sender, RoutedEventArgs e)
+    {
+        var menu = (ContextMenu)FindResource("SettingsMenu");
+        menu.PlacementTarget = (UIElement)sender;
+        menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+        menu.IsOpen = true;
+    }
+
+    private void OnSettingsMenuOpened(object sender, RoutedEventArgs e)
+    {
+        foreach (var item in ((ContextMenu)sender).Items.OfType<MenuItem>().Where(i => i.Tag as string == "debuglog"))
+        {
+            item.IsChecked = _settings.DebugLogEnabled;
+        }
+    }
+
+    private void OnToggleDebugLog(object sender, RoutedEventArgs e)
+    {
+        _settings.DebugLogEnabled = ((MenuItem)sender).IsChecked;
+        AppDebugLog.Apply(_settings);
+        SaveSettings();
+        UpdateDebugLogIndicator();
+        SetStatus(DebugLog.FilePath is { } path ? Text.Format(Strings.DebugLogStarted, path) : Strings.DebugLogStopped);
+    }
+
+    /// <summary>Ouvre l'Explorateur sur le fichier du journal, pour le relire ou le joindre à un message.</summary>
+    private void OnShowDebugLog(object sender, RoutedEventArgs e)
+    {
+        var path = DebugLog.FilePath ?? DebugLog.DefaultPath;
+        if (!File.Exists(path))
+        {
+            SetStatus(Strings.DebugLogMissing, isError: true);
+            return;
+        }
+
+        try
+        {
+            System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"")?.Dispose();
+        }
+        catch (System.ComponentModel.Win32Exception ex)
+        {
+            SetStatus(ex.Message, isError: true);
+        }
+    }
+
+    /// <summary>Barre d'état : rappel visible tant que le journal de débogage est actif.</summary>
+    private void UpdateDebugLogIndicator()
+    {
+        DebugLogText.Visibility = DebugLog.Enabled ? Visibility.Visible : Visibility.Collapsed;
+        DebugLogText.ToolTip = DebugLog.FilePath;
     }
 
     private void SaveSettings()

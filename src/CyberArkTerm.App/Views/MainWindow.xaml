@@ -169,6 +169,19 @@
             </MenuItem>
         </ContextMenu>
 
+        <!-- Menu du bouton Paramètres : paramètres, journal de débogage (désactivé par défaut). -->
+        <ContextMenu x:Key="SettingsMenu" Opened="OnSettingsMenuOpened">
+            <MenuItem Header="{x:Static loc:Strings.MenuSettings}" Click="OnSettings" FontWeight="SemiBold">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconSettings}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator />
+            <MenuItem Tag="debuglog" Header="{x:Static loc:Strings.MenuDebugLog}" IsCheckable="True" Click="OnToggleDebugLog"
+                      ToolTip="{x:Static loc:Strings.MenuDebugLogTip}" />
+            <MenuItem Header="{x:Static loc:Strings.MenuDebugLogShow}" Click="OnShowDebugLog" />
+        </ContextMenu>
+
         <!-- Ligne « compte » réutilisée dans les listes (favoris, résultats de recherche). -->
         <DataTemplate x:Key="AccountRow" DataType="{x:Type core:PvwaAccount}">
             <DockPanel Margin="0,2">
@@ -253,7 +266,7 @@
                         </StackPanel>
                     </Button>
                     <Rectangle Style="{StaticResource ToolSeparator}" />
-                    <Button Style="{StaticResource ToolButton}" Click="OnSettings" ToolTip="{x:Static loc:Strings.ToolSettingsTip}">
+                    <Button Style="{StaticResource ToolButton}" Click="OnSettingsMenu" ToolTip="{x:Static loc:Strings.ToolSettingsTip}">
                         <StackPanel>
                             <Image Source="{StaticResource IconSettings}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolSettings}" Style="{StaticResource ToolLabel}" />
@@ -267,6 +280,8 @@
         <Border DockPanel.Dock="Bottom" Background="{StaticResource StatusBrush}" Padding="10,3">
             <DockPanel>
                 <TextBlock DockPanel.Dock="Right" x:Name="SessionText" Foreground="#C8D3DE" />
+                <TextBlock DockPanel.Dock="Right" x:Name="DebugLogText" Foreground="#F2C14E" Margin="0,0,16,0" Visibility="Collapsed"
+                           Text="{x:Static loc:Strings.DebugLogActive}" />
                 <TextBlock x:Name="CountText" Foreground="White" Margin="0,0,16,0" />
                 <ProgressBar x:Name="LoadProgress" Width="140" Height="8" Margin="0,0,16,0" Visibility="Collapsed" />
                 <TextBlock x:Name="StatusText" Foreground="#9FD39F" TextTrimming="CharacterEllipsis" />

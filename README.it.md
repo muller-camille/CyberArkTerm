@@ -120,11 +120,12 @@ motore di `mstsc`):
 - chiudere la scheda (croce o clic centrale) disconnette la sessione, dopo conferma.
 
 Anche un componente PSM che apre un'**applicazione remota** (RemoteApp) si mostra **nella scheda**: CyberArkTerm
-apre la stessa connessione come desktop, con la stessa richiesta di sessione PSM, come una connessione PSM classica.
-Il server PSM deve accettare le sessioni desktop; altrimenti, disattiva «Mostra le applicazioni remote PSM nella
-scheda» nelle Impostazioni: l'applicazione passa comunque dal controllo integrato, ma le sue finestre si aprono a
-parte, sul desktop del computer come con `mstsc`, e la scheda ne mostra lo stato («Disconnetti» la chiude,
-«Riconnetti» la riavvia).
+apre la stessa connessione come desktop che avvia il programma pubblicato dal PSM (`||PSMInitSession`), con la
+stessa richiesta di sessione PSM. Il server PSM deve accettare questa modalità. Se chiude la sessione, la scheda
+propone «Apri in finestre separate»: nuova richiesta al PVWA, e l'applicazione si apre come applicazione remota,
+con le sue finestre a parte, sul desktop del computer come con `mstsc`; la scheda ne mostra allora lo stato
+(«Disconnetti» la chiude, «Riconnetti» la riavvia). Per farlo ogni volta, disattiva «Mostra le applicazioni
+remote PSM nella scheda» nelle Impostazioni.
 
 La sessione si apre in **Connessione Desktop remoto** (`mstsc`) se l'opzione è disattivata nelle Impostazioni o
 se il controllo Desktop remoto non è utilizzabile sul computer; la barra di stato indica il motivo.
@@ -267,6 +268,7 @@ password, elimina.
 | Vault locale | Password principali KeePass memorizzate: crea, sblocca, cambia password, elimina | — |
 | Desktop remoto in CyberArkTerm | Sessioni PSM in una scheda; altrimenti Connessione Desktop remoto (`mstsc`) | sì |
 | Applicazioni remote PSM nella scheda | Componenti PSM RemoteApp aperti come desktop nella scheda (il PSM deve accettarlo); altrimenti finestre separate | sì |
+| Registro di debug | Menu del pulsante Impostazioni: svolgimento delle connessioni in un file, senza segreti (vedi [Sicurezza](#sicurezza)); «Mostra il file del registro» lo apre in Esplora risorse | no |
 | SSH in CyberArkTerm | Terminale e scheda File integrati; altrimenti Windows Terminal | sì |
 | Segui la cartella del terminale | Consente di attivare il monitoraggio della cartella nella shell | sì |
 | Invio dei file | SCP o SFTP | SCP |
@@ -306,6 +308,13 @@ l'applicazione ed eliminalo.
   - desktop remoto diretto: la password è passata solo al controllo Desktop remoto (nessun file, nessun gestore
     credenziali), con autenticazione a livello di rete (NLA) e avviso se il server non è riconosciuto;
   - `urgence.log`: data, account Windows, computer, azione, archivio, voce, destinazione; mai una password.
+- **Registro di debug**, disattivato per impostazione predefinita (menu del pulsante Impostazioni):
+  `%LOCALAPPDATA%\CyberArkTerm\debug.log`, al massimo 5 MB più una generazione `.1`. Registra lo svolgimento delle
+  connessioni PVWA, PSM, desktop remoto e SSH: indirizzi e stati delle richieste, impostazioni del file .rdp,
+  eventi e codici del controllo Desktop remoto, errori. Contiene nomi di server e di account, ma **mai** password,
+  token di sessione, richiesta di sessione PSM (`PSM@…` mascherata), firma, intestazione o corpo delle richieste,
+  né il contenuto delle sessioni. La barra di stato lo segnala finché è attivo. Rileggilo prima di trasmetterlo,
+  ed eliminalo una volta risolto il problema.
 - **File modificati**: la copia locale aperta nell'editor si trova in `%TEMP%\CyberArkTerm\edit` e viene
   eliminata alla chiusura della scheda SSH; un avviso segnala le modifiche non rinviate.
 - **Nessuna iniezione di comandi**: percorsi SCP e cartelle iniziali protetti tra apici per la shell remota;
@@ -348,11 +357,14 @@ NLA (CredSSP), gateway, reindirizzamenti, audio, effetti visivi. Le chiusure di 
 connessione sono spiegati nella scheda con il messaggio di Windows.
 
 Un componente PSM con applicazione remota viene aperto per impostazione predefinita come desktop: modalità
-RemoteApp disattivata, e `alternate shell` (per il PSM, la richiesta di sessione `PSM@…`) avvia la sessione come
-una connessione PSM classica. La firma del file (`signature`) è verificata solo da `mstsc`, non dal controllo né
-dal server.
+RemoteApp disattivata, e la sessione avvia `remoteapplicationprogram` (per il PSM, `||PSMInitSession`, seguito da
+`remoteapplicationcmdline` se presente), con lo stesso utente (`PSM@…`). Un server in modalità RemoteApp accetta di
+solito all'avvio di una sessione solo i suoi programmi pubblicati: un PSM ha chiuso la sessione che avviava
+direttamente `alternate shell` (`PSM@…`, versione 0.4.1). La firma del file (`signature`) è verificata solo da
+`mstsc`, non dal controllo né dal server. Se la sessione termina entro il primo minuto, la scheda propone «Apri in
+finestre separate», che rifà la richiesta al PVWA e apre il file così com'è.
 
-Altrimenti (opzione disattivata, o file senza `alternate shell`), per un'applicazione remota
+Altrimenti (opzione disattivata, file senza `alternate shell`, o finestre separate richieste), per un'applicazione remota
 (`remoteapplicationmode:i:1`), il controllo passa in modalità RemoteApp
 (`disableremoteappcapscheck` applicato), poi avvia l'applicazione una volta aperta la sessione, una sola volta per
 connessione: `remoteapplicationprogram` (per il PSM, `||PSMInitSession`) con gli argomenti
@@ -361,8 +373,9 @@ usato. Se il server rifiuta l'applicazione, la sessione termina con il motivo. I
 dimensione di tutti gli schermi perché le finestre possano andare ovunque. Un test di integrazione (workflow
 `rdp-integration`) apre sessioni reali sul computer di CI: un desktop in una scheda, il Blocco note come
 applicazione remota, un file di applicazione remota aperto come desktop (il computer di CI, senza il ruolo Host
-sessione, non avvia il programma di avvio: ne viene verificata solo la trasmissione) e un'applicazione
-sconosciuta (messaggio di errore).
+sessione, non avvia il programma di avvio: ne viene verificata solo la trasmissione) poi in finestre separate, e
+un'applicazione sconosciuta (messaggio di errore). I messaggi di fine sessione riportano i codici di Windows
+(motivo, motivo esteso).
 
 ### Sessioni PSMP
 
@@ -404,6 +417,8 @@ Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posizion
 | «Il file del vault locale è danneggiato o è stato creato da un altro account Windows.» | Il vault locale non segue un cambio di computer o di account: eliminalo nelle Impostazioni e ricrealo. |
 | «La voce … è stata modificata o eliminata nell'archivio nel frattempo» | Qualcuno ha cambiato la stessa voce altrove: l'archivio viene ricaricato, rifai la modifica. |
 | La sessione PSM si apre in `mstsc` e non in una scheda | Controllo Desktop remoto non disponibile o in errore, oppure opzione disattivata: la barra di stato indica il motivo. |
+| Sessione PSM di un'applicazione remota terminata subito («An internal error has occurred»…) | Il PSM rifiuta l'applicazione remota aperta come desktop: «Apri in finestre separate» nella scheda, o disattiva «Mostra le applicazioni remote PSM nella scheda». |
+| Capire un errore di connessione | Impostazioni → Registro di debug, riproduci il problema, poi Impostazioni → «Mostra il file del registro». |
 | Applicazione remota (RemoteApp): «non è consentita sul server» | L'applicazione richiesta non è pubblicata sul server PSM: verifica con l'amministratore CyberArk. |
 | La scheda mostra «Errore del controllo Desktop remoto» | Disattiva «Apri le sessioni Desktop remoto in una scheda di CyberArkTerm» nelle Impostazioni per usare `mstsc`, e segnala il codice mostrato. |
 
