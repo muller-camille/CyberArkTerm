@@ -248,9 +248,20 @@ public partial class FileBrowserPanel
 
     private void FinishDrag(VirtualFileDataObject data, string? staging, int count)
     {
-        if (data.Fetched)
+        int result = data.OperationResult;
+        if (data.FetchError is { } error)
+        {
+            SetStatus(Text.Format(Strings.DownloadFailed, Describe(error)), error: true);
+        }
+        else if (data.Fetched && result >= 0)
         {
             SetStatus(Text.Format(Strings.DragDownloaded, count));
+        }
+        else if (data.Fetched || (!data.FetchAttempted && result < 0 && result != unchecked((int)0x80004004)))
+        {
+            // Téléchargé mais pas copié, ou refusé par l'Explorateur avant le téléchargement. (Annulation ou échec dans
+            // la fenêtre de téléchargement : déjà affichés.)
+            SetStatus(Text.Format(Strings.DownloadFailed, $"0x{result:X8}"), error: true);
         }
 
         DeleteStaging(staging);
