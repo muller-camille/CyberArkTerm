@@ -105,6 +105,12 @@ public class RemoteAppHostingSpike(ITestOutputHelper output)
         Assert.NotEqual(IntPtr.Zero, main);
         output.WriteLine($"Fenêtre principale : {Describe(main)}");
         Shot(main, "1-toplevel");
+        int connectionThread = await session.InvokeOnControlAsync(_ => GetCurrentThreadId());
+        output.WriteLine($"Thread de la connexion : {connectionThread}");
+        var host = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+
+        // E0. Clic droit au centre de la fenêtre encore à part : où s'ouvre le menu contextuel ? (référence)
+        await RightClick(main, host, "E0 à part");
 
         // A. Déplacement d'une fenêtre de premier niveau : le serveur le garde-t-il ?
         SetWindowPos(main, IntPtr.Zero, 300, 200, 640, 420, SwpNoZOrder | SwpNoActivate);
@@ -138,6 +144,9 @@ public class RemoteAppHostingSpike(ITestOutputHelper output)
         await Task.Delay(2500);
         output.WriteLine($"C saisie (PostMessage) : titre « {before} » → « {Title(main)} »");
 
+        // E1. Clic droit dans la fenêtre rattachée : le menu s'ouvre-t-il sous la souris ?
+        await RightClick(main, host, "E1 dans l'onglet");
+
         // D. Redimensionnement de l'onglet : la fenêtre suit-elle si on la redimensionne ?
         window.Width = 800;
         window.Height = 560;
@@ -146,6 +155,17 @@ public class RemoteAppHostingSpike(ITestOutputHelper output)
         SetWindowPos(main, IntPtr.Zero, 0, 0, slotRect.Width, slotRect.Height, SwpNoZOrder | SwpNoActivate);
         await Track(main, "D redimensionnée", 4000);
         ShotScreen(Screen(slot), "4-child-resized");
+
+        // E2. Après redimensionnement, même mesure.
+        await RightClick(main, host, "E2 redimensionnée");
+
+        // F. Agrandissement demandé à l'application (bouton du titre) : que fait la fenêtre rattachée ?
+        PostMessage(main, 0x112, new IntPtr(0xF030), IntPtr.Zero);
+        await Track(main, "F agrandie", 3000);
+        GetClientRect(slot, out slotRect);
+        SetWindowPos(main, IntPtr.Zero, 0, 0, slotRect.Width, slotRect.Height, SwpNoZOrder | SwpNoActivate);
+        await Track(main, "F réajustée", 3000);
+        await RightClick(main, host, "E3 après agrandissement");
 
         output.WriteLine("Fenêtres après :");
         foreach (var h in Ours().Where(IsWindowVisible))
@@ -157,6 +177,112 @@ public class RemoteAppHostingSpike(ITestOutputHelper output)
         await Task.Delay(3000);
         output.WriteLine($"Fin : {session.State}");
     }
+
+    /// <summary>
+    /// Clic droit au centre de <paramref name="main"/> (vraie souris) : nouvelles fenêtres de l'application distante et
+    /// écart entre le menu contextuel et le point cliqué ; puis Échap.
+    /// </summary>
+    private async Task RightClick(IntPtr main, IntPtr host, string step)
+    {
+        var before = Ours().ToHashSet();
+        SetForegroundWindow(host);
+        await Task.Delay(300);
+        GetWindowRect(main, out var r);
+        int x = r.Left + (r.Width / 2), y = r.Top + (r.Height / 2);
+        SetCursorPos(x, y);
+        await Task.Delay(200);
+        output.WriteLine($"{step} : clic droit en ({x},{y}), fenêtre sous la souris {Describe(WindowFromPoint(new Point32 { X = x, Y = y }))}");
+        Click(0x0008, 0x0010);
+        await Task.Delay(2000);
+        var added = Ours().Where(h => !before.Contains(h) && IsWindowVisible(h)).ToList();
+        if (added.Count == 0)
+        {
+            output.WriteLine($"{step} : aucune nouvelle fenêtre");
+        }
+
+        foreach (var h in added)
+        {
+            GetWindowRect(h, out var p);
+            output.WriteLine($"{step} : nouvelle fenêtre {Describe(h)}, écart au clic ({p.Left - x},{p.Top - y})");
+            Shot(h, $"menu-{step.Split(' ')[0]}");
+        }
+
+        Key(0x1B);
+        await Task.Delay(800);
+    }
+
+    private static void Click(uint down, uint up)
+    {
+        var inputs = new[]
+        {
+            new Input { Type = 0, Mouse = new MouseInput { Flags = down } },
+            new Input { Type = 0, Mouse = new MouseInput { Flags = up } },
+        };
+        SendInput((uint)inputs.Length, inputs, Marshal.SizeOf<Input>());
+    }
+
+    private static void Key(ushort vk)
+    {
+        var inputs = new[]
+        {
+            new Input { Type = 1, Keyboard = new KeyboardInput { Vk = vk } },
+            new Input { Type = 1, Keyboard = new KeyboardInput { Vk = vk, Flags = 2 } },
+        };
+        SendInput((uint)inputs.Length, inputs, Marshal.SizeOf<Input>());
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct Point32
+    {
+        public int X;
+        public int Y;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MouseInput
+    {
+        public int Dx;
+        public int Dy;
+        public uint Data;
+        public uint Flags;
+        public uint Time;
+        public IntPtr Extra;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct KeyboardInput
+    {
+        public ushort Vk;
+        public ushort Scan;
+        public uint Flags;
+        public uint Time;
+        public IntPtr Extra;
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    private struct Input
+    {
+        [FieldOffset(0)]
+        public uint Type;
+
+        [FieldOffset(8)]
+        public MouseInput Mouse;
+
+        [FieldOffset(8)]
+        public KeyboardInput Keyboard;
+    }
+
+    [DllImport("user32.dll")]
+    private static extern uint SendInput(uint count, Input[] inputs, int size);
+
+    [DllImport("user32.dll")]
+    private static extern bool SetCursorPos(int x, int y);
+
+    [DllImport("user32.dll")]
+    private static extern bool SetForegroundWindow(IntPtr h);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr WindowFromPoint(Point32 point);
 
     /// <summary>Position de la fenêtre toutes les 500 ms : stable, ou corrigée par le serveur ?</summary>
     private async Task Track(IntPtr h, string step, int ms)
