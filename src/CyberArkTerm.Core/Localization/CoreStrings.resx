@@ -126,4 +126,43 @@
   <data name="RootCannotBeDeleted" xml:space="preserve">
     <value>The root cannot be deleted.</value>
   </data>
+  <data name="KeePassNotKdbx" xml:space="preserve">
+    <value>This file is not a KeePass 2 vault (.kdbx).</value>
+  </data>
+  <data name="KeePassUnsupportedVersion" xml:space="preserve">
+    <value>KeePass format {0} is not supported (KDBX 3.1 and 4.x are).</value>
+  </data>
+  <data name="KeePassUnsupportedCipher" xml:space="preserve">
+    <value>This vault uses an encryption that is not supported ({0}); AES-256 and ChaCha20 are.</value>
+  </data>
+  <data name="KeePassUnsupportedKdf" xml:space="preserve">
+    <value>This vault uses a key derivation that is not supported ({0}).</value>
+  </data>
+  <data name="KeePassKdfTooCostly" xml:space="preserve">
+    <value>The vault's key derivation settings are too high to be computed here ({0}).</value>
+  </data>
+  <data name="KeePassInvalidKey" xml:space="preserve">
+    <value>Wrong master password or key file.</value>
+  </data>
+  <data name="KeePassKeyFileDamaged" xml:space="preserve">
+    <value>The key file is damaged (its checksum doesn't match).</value>
+  </data>
+  <data name="KeePassKeyFileVersion" xml:space="preserve">
+    <value>Key file version {0} is not supported.</value>
+  </data>
+  <data name="KeePassKeyFileTooLarge" xml:space="preserve">
+    <value>This file is too large to be used as a key file.</value>
+  </data>
+  <data name="KeePassCorrupted" xml:space="preserve">
+    <value>The vault file is damaged ({0}).</value>
+  </data>
+  <data name="KeePassConflict" xml:space="preserve">
+    <value>The entry “{0}” was changed or deleted in the vault in the meantime. Reload the folder and try again.</value>
+  </data>
+  <data name="KeePassBusy" xml:space="preserve">
+    <value>The vault file keeps changing (another program is saving it). Try again in a moment.</value>
+  </data>
+  <data name="KeePassVerifyFailed" xml:space="preserve">
+    <value>The vault was not saved: the new file failed verification, the original is untouched.</value>
+  </data>
 </root>
