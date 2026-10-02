@@ -377,11 +377,21 @@ sessione, non avvia il programma di avvio: ne viene verificata solo la trasmissi
 un'applicazione sconosciuta (messaggio di errore). I messaggi di fine sessione riportano i codici di Windows
 (motivo, motivo esteso).
 
+**Un thread per connessione desktop remoto.** Il controllo, la sua finestra e i suoi eventi vivono su un thread a
+parte (STA, con il proprio ciclo di messaggi); l'interfaccia non lo attende mai. La scheda contiene una finestra del
+thread dell'interfaccia, in cui quel thread colloca la finestra del controllo. Prima di rilasciare il controllo, ve
+la toglie: una disconnessione o un rilascio lento non blocca più l'applicazione. Se il thread non risponde per 5 s,
+la barra della scheda lo segnala, e il resto dell'applicazione resta utilizzabile. Limite: Windows condivide
+tastiera e mouse tra una finestra e quelle che contiene, anche di un altro thread; un controllo bloccato
+definitivamente può ancora trattenere un clic nella sua area o un cambio di focus.
+
 ### Sessioni PSMP
 
 Ogni scheda SSH apre fino a tre connessioni al PSMP, con lo stesso identificativo
 `<tu>@<account>[#dominio]@<destinazione>`: il terminale, la connessione SFTP della scheda File e una
 connessione SCP al primo invio in SCP. Ognuna è una sessione PSMP, registrata dal PSM.
+Gli invii al server (digitazione, dimensione del terminale) e la chiusura delle connessioni avvengono fuori dal
+thread dell'interfaccia, in ordine: un server o un PSMP che non legge più non blocca l'applicazione.
 
 ### Monitoraggio della cartella del terminale
 

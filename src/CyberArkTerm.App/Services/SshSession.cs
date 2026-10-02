@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.IO;
 using System.Text;
 using System.Windows.Threading;
 using CyberArkTerm.App.Localization;
@@ -31,6 +32,8 @@ public sealed class SshSession : IDisposable
     private readonly ConcurrentQueue<string> _pending = new();
     private readonly Decoder _decoder = Encoding.UTF8.GetDecoder();
     private readonly CancellationTokenSource _lifetime = new();
+    private readonly object _sendLock = new();
+    private Task _sending = Task.CompletedTask;
     private SshClient? _client;
     private ShellStream? _shell;
     private Task<RemoteFileBrowser>? _browser;
@@ -98,8 +101,7 @@ public sealed class SshSession : IDisposable
         Emulator.Resize(columns, rows);
         // Reconnexion : on libère la connexion précédente avant d'en ouvrir une nouvelle, et on oublie ce qu'elle a
         // reçu ou ce qui y a été tapé (sinon le suivi du dossier ne s'installerait pas, ou trop tôt).
-        _shell?.Dispose();
-        _client?.Dispose();
+        DisposeInBackground(_shell, _client, null);
         _shell = null;
         _client = null;
         int connection = ++_connection;
@@ -168,31 +170,83 @@ public sealed class SshSession : IDisposable
 
     public void Send(string text)
     {
-        if (_shell is null || State != SshSessionState.Connected)
+        if (_shell is not { } shell || State != SshSessionState.Connected)
         {
             return;
         }
 
-        try
+        Enqueue(shell, closeOnError: true, s =>
         {
-            _shell.Write(text);
-            _shell.Flush();
-        }
-        catch (Exception ex) when (ex is Renci.SshNet.Common.SshException or ObjectDisposedException or InvalidOperationException)
-        {
-            SetState(SshSessionState.Closed, ex.Message);
-        }
+            s.Write(text);
+            s.Flush();
+        });
     }
 
     public void Resize(int columns, int rows)
     {
-        try
+        if (_shell is { } shell)
         {
-            _shell?.ChangeWindowSize((uint)columns, (uint)rows, 0, 0);
+            Enqueue(shell, closeOnError: false, s => s.ChangeWindowSize((uint)columns, (uint)rows, 0, 0));
         }
-        catch (Exception ex) when (ex is Renci.SshNet.Common.SshException or ObjectDisposedException or InvalidOperationException)
+    }
+
+    /// <summary>
+    /// Envoi au serveur hors du thread de l'interface, dans l'ordre des demandes : une écriture attend le réseau et la
+    /// fenêtre SSH du serveur, et ne doit pas figer l'application si le serveur ou le PSMP ne lit plus.
+    /// </summary>
+    private void Enqueue(ShellStream shell, bool closeOnError, Action<ShellStream> write)
+    {
+        lock (_sendLock)
         {
+            _sending = _sending.ContinueWith(_ =>
+            {
+                try
+                {
+                    write(shell);
+                }
+                catch (Exception ex) when (ex is Renci.SshNet.Common.SshException or ObjectDisposedException or InvalidOperationException or IOException)
+                {
+                    DebugLog.Write("ssh", $"{Label} : échec de l'envoi au serveur", ex);
+                    if (closeOnError)
+                    {
+                        _dispatcher.BeginInvoke(() =>
+                        {
+                            if (_shell == shell)
+                            {
+                                SetState(SshSessionState.Closed, ex.Message);
+                            }
+                        });
+                    }
+                }
+            }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
         }
+    }
+
+    /// <summary>
+    /// Fermeture des connexions hors du thread de l'interface (la déconnexion attend le réseau). Une écriture en
+    /// attente échoue alors, sans conséquence.
+    /// </summary>
+    private void DisposeInBackground(ShellStream? shell, SshClient? client, RemoteFileBrowser? browser)
+    {
+        if (shell is null && client is null && browser is null)
+        {
+            return;
+        }
+
+        var label = Label;
+        _ = Task.Run(() =>
+        {
+            try
+            {
+                shell?.Dispose();
+                client?.Dispose();
+                browser?.Dispose();
+            }
+            catch (Exception ex) when (ex is Renci.SshNet.Common.SshException or ObjectDisposedException or InvalidOperationException or IOException)
+            {
+                DebugLog.Write("ssh", $"{label} : erreur à la fermeture", ex);
+            }
+        });
     }
 
     /// <summary>Connexion SFTP (deuxième session PSMP), ouverte au premier usage du panneau Fichiers.</summary>
@@ -202,7 +256,7 @@ public sealed class SshSession : IDisposable
         {
             if (_browser.IsCompletedSuccessfully)
             {
-                _browser.Result.Dispose();
+                DisposeInBackground(null, null, _browser.Result);
             }
 
             _browser = null;
@@ -222,19 +276,9 @@ public sealed class SshSession : IDisposable
     {
         Editor?.Dispose();
         _lifetime.Cancel();
-        try
-        {
-            _shell?.Dispose();
-            _client?.Dispose();
-            if (_browser is { IsCompletedSuccessfully: true })
-            {
-                _browser.Result.Dispose();
-            }
-        }
-        catch (Exception ex) when (ex is Renci.SshNet.Common.SshException or ObjectDisposedException or InvalidOperationException)
-        {
-        }
-
+        DisposeInBackground(_shell, _client, _browser is { IsCompletedSuccessfully: true } browser ? browser.Result : null);
+        _shell = null;
+        _client = null;
         _lifetime.Dispose();
     }
 

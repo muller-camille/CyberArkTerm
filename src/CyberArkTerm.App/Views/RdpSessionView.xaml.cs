@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services.Rdp;
 
@@ -64,6 +65,23 @@ public partial class RdpSessionView : UserControl
 
                 ReconnectButton.Visibility = Visibility.Visible;
                 break;
+        }
+
+        if (session.IsNotResponding)
+        {
+            // Barre de l'onglet (WPF) : la fenêtre du contrôle reste à sa place, rien ne s'affiche par-dessus.
+            StatusLine.Text = Text.Format(Strings.RdpNotResponding, session.Label);
+        }
+
+        if (session.IsNotResponding)
+        {
+            StatusLine.Foreground = Brushes.Firebrick;
+            StatusLine.FontWeight = FontWeights.SemiBold;
+        }
+        else
+        {
+            StatusLine.ClearValue(TextBlock.ForegroundProperty);
+            StatusLine.ClearValue(TextBlock.FontWeightProperty);
         }
     }
 

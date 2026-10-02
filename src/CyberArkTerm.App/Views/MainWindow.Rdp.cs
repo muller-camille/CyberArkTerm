@@ -143,8 +143,9 @@ public partial class MainWindow
         MainTabs.SelectedItem ??= HomeTab;
         var view = _rdpViews.First(v => v.Session == session);
         view.Visibility = Visibility.Hidden;
-        // Le contrôle reste dans la fenêtre jusqu'à la fin de la déconnexion.
+        // Le contrôle reste dans la fenêtre jusqu'à la fin de la déconnexion ; il la quitte avant d'être libéré.
         await session.CloseAsync();
+        await Task.WhenAny(session.Closed, Task.Delay(TimeSpan.FromSeconds(3)));
         _rdpViews.Remove(view);
         RdpLayer.Children.Remove(view);
     }
@@ -158,14 +159,20 @@ public partial class MainWindow
                 MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
     }
 
-    private void CloseAllRdpSessions()
+    /// <summary>
+    /// Ferme toutes les sessions et attend (3 s au plus) que leurs fenêtres aient quitté les onglets : la fenêtre
+    /// principale ne doit pas être détruite avec des fenêtres d'un autre thread. Faux si l'une n'a pas répondu.
+    /// </summary>
+    private async Task<bool> CloseAllRdpSessionsAsync()
     {
-        foreach (var view in _rdpViews)
+        var closed = _rdpViews.Select(v =>
         {
-            view.Session.Dispose();
-        }
-
+            v.Session.Dispose();
+            return v.Session.Closed;
+        }).ToList();
         _rdpViews.Clear();
+        var all = Task.WhenAll(closed);
+        return await Task.WhenAny(all, Task.Delay(TimeSpan.FromSeconds(3))) == all;
     }
 
     /// <summary>Affiche la session Bureau à distance de l'onglet choisi et masque les autres.</summary>

@@ -1033,6 +1033,9 @@ Fermer quand même ? Les copies locales seront supprimées.</value>
   <data name="RdpOpenRemoteAppWindows" xml:space="preserve">
     <value>Ouvrir en _fenêtres séparées</value>
   </data>
+  <data name="RdpNotResponding" xml:space="preserve">
+    <value>{0} : le Bureau à distance ne répond pas. Le reste de CyberArkTerm reste utilisable ; vous pouvez fermer cet onglet.</value>
+  </data>
   <data name="RdpDisconnectCodes" xml:space="preserve">
     <value>code {0}, code étendu {1}</value>
   </data>

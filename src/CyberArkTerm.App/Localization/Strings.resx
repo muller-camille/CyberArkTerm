@@ -1033,6 +1033,9 @@ Close anyway? The local copies will be deleted.</value>
   <data name="RdpOpenRemoteAppWindows" xml:space="preserve">
     <value>Open in _separate windows</value>
   </data>
+  <data name="RdpNotResponding" xml:space="preserve">
+    <value>{0}: Remote Desktop is not responding. The rest of CyberArkTerm stays usable; you can close this tab.</value>
+  </data>
   <data name="RdpDisconnectCodes" xml:space="preserve">
     <value>code {0}, extended code {1}</value>
   </data>
