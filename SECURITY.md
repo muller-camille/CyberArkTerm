@@ -9,8 +9,8 @@ Only the latest release receives security fixes. Please update to it before repo
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.5.x   | :white_check_mark: |
-| < 0.5   | :x:                |
+| 0.6.x   | :white_check_mark: |
+| < 0.6   | :x:                |
 
 ## Reporting a Vulnerability
 
