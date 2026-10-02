@@ -542,6 +542,42 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Download cancelled..
+        /// </summary>
+        public static string DragCancelled {
+            get {
+                return ResourceManager.GetString("DragCancelled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Download to Explorer.
+        /// </summary>
+        public static string DragDownloadTitle {
+            get {
+                return ResourceManager.GetString("DragDownloadTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} item(s) downloaded by drag and drop..
+        /// </summary>
+        public static string DragDownloaded {
+            get {
+                return ResourceManager.GetString("DragDownloaded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reading the folders to drag….
+        /// </summary>
+        public static string DragPreparing {
+            get {
+                return ResourceManager.GetString("DragPreparing", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Drop to upload over {0} to {1}.
         /// </summary>
         public static string DropHint {
@@ -2243,6 +2279,51 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _Close tab.
+        /// </summary>
+        public static string MenuTabClose {
+            get {
+                return ResourceManager.GetString("MenuTabClose", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close _other tabs.
+        /// </summary>
+        public static string MenuTabCloseOthers {
+            get {
+                return ResourceManager.GetString("MenuTabCloseOthers", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Duplicate tab.
+        /// </summary>
+        public static string MenuTabDuplicate {
+            get {
+                return ResourceManager.GetString("MenuTabDuplicate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Opens another session on the same account or entry, in a new tab.
+        /// </summary>
+        public static string MenuTabDuplicateTip {
+            get {
+                return ResourceManager.GetString("MenuTabDuplicateTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Reconnect.
+        /// </summary>
+        public static string MenuTabReconnect {
+            get {
+                return ResourceManager.GetString("MenuTabReconnect", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to PSM (remote desktop).
         /// </summary>
         public static string ModePsm {
@@ -3593,6 +3674,24 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Close the other session tab? Its session will be closed..
+        /// </summary>
+        public static string TabCloseOtherConfirm {
+            get {
+                return ResourceManager.GetString("TabCloseOtherConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close the {0} other session tabs? Their sessions will be closed..
+        /// </summary>
+        public static string TabCloseOthersConfirm {
+            get {
+                return ResourceManager.GetString("TabCloseOthersConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Files.
         /// </summary>
         public static string TabFiles {
@@ -3634,6 +3733,15 @@ namespace CyberArkTerm.App.Localization {
         public static string TabMyServersTip {
             get {
                 return ResourceManager.GetString("TabMyServersTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reconnect {0}? The open session will be closed..
+        /// </summary>
+        public static string TabReconnectConfirm {
+            get {
+                return ResourceManager.GetString("TabReconnectConfirm", resourceCulture);
             }
         }
 

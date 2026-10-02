@@ -560,6 +560,15 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to More than {0} files or folders: drag fewer at a time..
+        /// </summary>
+        public static string TooManyFiles {
+            get {
+                return ResourceManager.GetString("TooManyFiles", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to the user name.
         /// </summary>
         public static string UserNameWhat {

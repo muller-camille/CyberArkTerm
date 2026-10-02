@@ -189,4 +189,7 @@
   <data name="WriteIncomplete" xml:space="preserve">
     <value>The server received {0} bytes instead of {1}: the file on the server is incomplete.</value>
   </data>
+  <data name="TooManyFiles" xml:space="preserve">
+    <value>More than {0} files or folders: drag fewer at a time.</value>
+  </data>
 </root>

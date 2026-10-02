@@ -174,6 +174,11 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   dossier pour y entrer, `..` pour remonter, boutons « dossier parent » et « dossier personnel ».
 - **Déposer des fichiers** : glissez-les depuis l'Explorateur sur la liste (ou bouton « Envoyer »). Envoi en
   **SCP** par défaut (SFTP en option), dossiers compris ; confirmation avant d'écraser un fichier existant.
+- **Télécharger en glissant** : glissez des fichiers ou des dossiers de la liste vers l'Explorateur ou le
+  bureau. Rien n'est téléchargé pendant le glissement : au dépôt, une fenêtre montre la progression (Annuler
+  l'interrompt), puis l'Explorateur copie les fichiers là où vous les avez déposés. Les noms Unix sont rendus
+  valides pour Windows (`\`, `:`, `..`, `CON`… remplacés), sans jamais écrire hors du dossier de dépôt ; le
+  dossier temporaire du téléchargement est effacé ensuite.
 - **Supprimer** : sélection puis Suppr (ou clic droit → « Supprimer (rm) »), avec confirmation. Les dossiers
   doivent être vides.
 - **Modifier un fichier** : sélection puis `F4` (ou clic droit → « Modifier », ou bouton crayon). Le fichier
@@ -258,6 +263,7 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Terminal | Coller | Clic droit, `Maj+Inser` ou `Ctrl+Maj+V` |
 | Terminal | Historique | Molette, `Maj+Page préc.` / `Maj+Page suiv.` |
 | Onglet SSH ou Bureau à distance | Fermer | Croix de l'onglet ou clic molette |
+| Onglet SSH ou Bureau à distance | Reconnecter, dupliquer (autre session sur le même compte ou la même entrée), fermer, fermer les autres onglets | Clic droit sur l'onglet |
 | Bureau à distance | Plein écran / retour | `Ctrl+Alt+Pause` |
 | Fichiers | Ouvrir / modifier / dossier parent / supprimer / actualiser | `Entrée` / `F4` / `Retour arrière` / `Suppr` / `F5` |
 | Coffre KeePass | Se connecter / modifier / supprimer une entrée | Double-clic ou `Entrée` / `F2` / `Suppr` |

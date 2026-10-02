@@ -509,12 +509,13 @@ public partial class MainWindow
                     password: Password, addressWhat: CoreStrings.ServerAddressWhat);
                 var session = new SshSession(null, label, connector, Dispatcher, _settings.FollowTerminalFolder, null);
                 ShowSshTab(session, $"{target.UserName}@{target.Address}", Strings.ConnectingDirect, "IconKeePass",
-                    Text.Format(Strings.KeePassSshOpened, node.Title, target.Address));
+                    Text.Format(Strings.KeePassSshOpened, node.Title, target.Address), () => ConnectKeePassAsync(node, target.Protocol));
             }
             else if (RdpClientHost.IsAvailable)
             {
                 var settings = RdpConnectionSettings.Direct(target.Host, target.Port, target.UserName);
-                await OpenRdpTabAsync(label, _ => Task.FromResult(new RdpConnectionRequest(settings, Password())));
+                await OpenRdpTabAsync(label, _ => Task.FromResult(new RdpConnectionRequest(settings, Password())),
+                    duplicate: () => ConnectKeePassAsync(node, target.Protocol));
             }
             else
             {

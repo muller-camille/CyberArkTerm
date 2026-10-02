@@ -80,8 +80,9 @@ public partial class MainWindow
     /// Ouvre un onglet Bureau à distance. <paramref name="prepare"/> fournit les réglages de chaque connexion
     /// (y compris les reconnexions) ; <paramref name="first"/> sert pour la première si on l'a déjà.
     /// </summary>
+    /// <param name="duplicate">Ouvre une autre session sur le même compte ou la même entrée (menu de l'onglet).</param>
     private async Task<RdpSession> OpenRdpTabAsync(string label, Func<CancellationToken, Task<RdpConnectionRequest>> prepare,
-        RdpConnectionRequest? first = null)
+        RdpConnectionRequest? first = null, Func<Task>? duplicate = null)
     {
         var pending = first;
         var session = new RdpSession(label, ct =>
@@ -92,7 +93,7 @@ public partial class MainWindow
         });
         var view = new RdpSessionView(session) { Visibility = Visibility.Hidden };
         var tab = new TabItem { Tag = session };
-        tab.Header = TabHeader(label, "IconWindows", () => _ = CloseRdpTabAsync(tab));
+        tab.Header = TabHeader(tab, label, "IconWindows", duplicate);
         session.StateChanged += () =>
         {
             switch (session.State)

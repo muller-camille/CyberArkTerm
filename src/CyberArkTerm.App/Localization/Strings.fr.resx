@@ -793,6 +793,18 @@ Continuer ?</value>
   <data name="Downloaded" xml:space="preserve">
     <value>Fichiers téléchargés dans {1} : {0}</value>
   </data>
+  <data name="DragPreparing" xml:space="preserve">
+    <value>Lecture des dossiers à glisser…</value>
+  </data>
+  <data name="DragDownloadTitle" xml:space="preserve">
+    <value>Téléchargement vers l'Explorateur</value>
+  </data>
+  <data name="DragDownloaded" xml:space="preserve">
+    <value>{0} élément(s) téléchargé(s) par glisser-déposer.</value>
+  </data>
+  <data name="DragCancelled" xml:space="preserve">
+    <value>Téléchargement annulé.</value>
+  </data>
   <data name="DownloadFailed" xml:space="preserve">
     <value>Échec du téléchargement : {0}</value>
   </data>
@@ -1038,6 +1050,30 @@ Fermer quand même ? Les copies locales seront supprimées.</value>
   </data>
   <data name="RdpDisconnectCodes" xml:space="preserve">
     <value>code {0}, code étendu {1}</value>
+  </data>
+  <data name="MenuTabReconnect" xml:space="preserve">
+    <value>_Reconnecter</value>
+  </data>
+  <data name="MenuTabDuplicate" xml:space="preserve">
+    <value>_Dupliquer l'onglet</value>
+  </data>
+  <data name="MenuTabDuplicateTip" xml:space="preserve">
+    <value>Ouvre une autre session sur le même compte ou la même entrée, dans un nouvel onglet</value>
+  </data>
+  <data name="MenuTabClose" xml:space="preserve">
+    <value>_Fermer l'onglet</value>
+  </data>
+  <data name="MenuTabCloseOthers" xml:space="preserve">
+    <value>Fermer les _autres onglets</value>
+  </data>
+  <data name="TabReconnectConfirm" xml:space="preserve">
+    <value>Reconnecter {0} ? La session ouverte sera fermée.</value>
+  </data>
+  <data name="TabCloseOtherConfirm" xml:space="preserve">
+    <value>Fermer l'autre onglet de session ? Sa session sera fermée.</value>
+  </data>
+  <data name="TabCloseOthersConfirm" xml:space="preserve">
+    <value>Fermer les {0} autres onglets de session ? Leurs sessions seront fermées.</value>
   </data>
   <data name="MenuSettings" xml:space="preserve">
     <value>_Paramètres…</value>

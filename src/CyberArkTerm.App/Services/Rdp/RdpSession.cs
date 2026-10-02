@@ -234,24 +234,40 @@ internal sealed class RdpSession : IDisposable
     /// <summary>Déconnecte la session puis attend sa fin (3 s au plus) avant de libérer le contrôle.</summary>
     public async Task CloseAsync()
     {
-        if (HasControl && IsConnected)
-        {
-            var ended = new TaskCompletionSource();
-            void OnState()
-            {
-                if (!IsConnected)
-                {
-                    ended.TrySetResult();
-                }
-            }
+        await DisconnectAndWaitAsync();
+        Dispose();
+    }
 
-            StateChanged += OnState;
-            Disconnect();
-            await Task.WhenAny(ended.Task, Task.Delay(TimeSpan.FromSeconds(3)));
-            StateChanged -= OnState;
+    /// <summary>Nouvelle connexion dans l'onglet ; une session ouverte est d'abord déconnectée.</summary>
+    public async Task ReconnectAsync()
+    {
+        await DisconnectAndWaitAsync();
+        if (!_disposed)
+        {
+            await ConnectAsync();
+        }
+    }
+
+    private async Task DisconnectAndWaitAsync()
+    {
+        if (!HasControl || !IsConnected)
+        {
+            return;
         }
 
-        Dispose();
+        var ended = new TaskCompletionSource();
+        void OnState()
+        {
+            if (!IsConnected)
+            {
+                ended.TrySetResult();
+            }
+        }
+
+        StateChanged += OnState;
+        Disconnect();
+        await Task.WhenAny(ended.Task, Task.Delay(TimeSpan.FromSeconds(3)));
+        StateChanged -= OnState;
     }
 
     /// <summary>Déconnecte la session ; pendant la connexion (serveur ou PSM qui ne répond pas), l'abandonne.</summary>

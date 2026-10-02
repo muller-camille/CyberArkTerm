@@ -670,7 +670,7 @@ public partial class FileBrowserPanel : UserControl
         string? singleTarget = null;
         if (files.Count == 1)
         {
-            var save = new SaveFileDialog { Title = Strings.DownloadTitle, FileName = files[0].Name };
+            var save = new SaveFileDialog { Title = Strings.DownloadTitle, FileName = WindowsFileName.Sanitize(files[0].Name) };
             if (save.ShowDialog(Window.GetWindow(this)) != true)
             {
                 return;
@@ -699,7 +699,9 @@ public partial class FileBrowserPanel : UserControl
                 SetStatus(Text.Format(Strings.Downloading, file.Name));
                 TransferBar.Value = 0;
                 var progress = new Progress<TransferProgress>(p => TransferBar.Value = p.Total > 0 ? 100.0 * p.Transferred / p.Total : 0);
-                await browser.DownloadAsync(file, singleTarget ?? Path.Combine(folder, file.Name), progress, CancellationToken.None);
+                // Nom Unix nettoyé (« ..\ », « : », « CON »...) : rien ne s'écrit hors du dossier choisi.
+                await browser.DownloadAsync(file, singleTarget ?? Path.Combine(folder, WindowsFileName.Sanitize(file.Name)), progress,
+                    CancellationToken.None);
             }
 
             SetStatus(Text.Format(Strings.Downloaded, files.Count, folder));

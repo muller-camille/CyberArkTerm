@@ -163,6 +163,10 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   go up, "parent folder" and "home folder" buttons.
 - **Upload files**: drag them from Explorer onto the list (or the "Upload" button). Sent over **SCP** by
   default (SFTP as an option), folders included; confirmation before overwriting an existing file.
+- **Download by dragging**: drag files or folders from the list to Explorer or the desktop. Nothing is
+  downloaded while dragging: on drop, a window shows the progress (Cancel stops it), then Explorer copies the
+  files where you dropped them. Unix names are made valid for Windows (`\`, `:`, `..`, `CON`… replaced), never
+  writing outside the drop folder; the temporary download folder is deleted afterwards.
 - **Delete**: select, then Del (or right-click → "Delete (rm)"), with confirmation. Folders must be empty.
 - **Edit a file**: select it, then `F4` (or right-click → "Edit", or the pencil button). The file opens in the
   text editor chosen in Settings (Notepad by default). Every time you save, CyberArkTerm offers to send it back
@@ -241,6 +245,7 @@ password, delete.
 | Terminal | Paste | Right-click, `Shift+Insert` or `Ctrl+Shift+V` |
 | Terminal | Scrollback | Mouse wheel, `Shift+Page Up` / `Shift+Page Down` |
 | SSH or remote desktop tab | Close | Tab cross or middle click |
+| SSH or remote desktop tab | Reconnect, duplicate (another session on the same account or entry), close, close the other tabs | Right-click on the tab |
 | Remote desktop | Full screen / back | `Ctrl+Alt+Break` |
 | Files | Open / edit / parent folder / delete / refresh | `Enter` / `F4` / `Backspace` / `Del` / `F5` |
 | KeePass vault | Connect / edit / delete an entry | Double-click or `Enter` / `F2` / `Del` |

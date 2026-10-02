@@ -793,6 +793,18 @@ Continuare?</value>
   <data name="Downloaded" xml:space="preserve">
     <value>File scaricati in {1}: {0}</value>
   </data>
+  <data name="DragPreparing" xml:space="preserve">
+    <value>Lettura delle cartelle da trascinare…</value>
+  </data>
+  <data name="DragDownloadTitle" xml:space="preserve">
+    <value>Download verso Esplora risorse</value>
+  </data>
+  <data name="DragDownloaded" xml:space="preserve">
+    <value>{0} elemento/i scaricato/i trascinando.</value>
+  </data>
+  <data name="DragCancelled" xml:space="preserve">
+    <value>Download annullato.</value>
+  </data>
   <data name="DownloadFailed" xml:space="preserve">
     <value>Download non riuscito: {0}</value>
   </data>
@@ -1038,6 +1050,30 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
   </data>
   <data name="RdpDisconnectCodes" xml:space="preserve">
     <value>codice {0}, codice esteso {1}</value>
+  </data>
+  <data name="MenuTabReconnect" xml:space="preserve">
+    <value>_Riconnetti</value>
+  </data>
+  <data name="MenuTabDuplicate" xml:space="preserve">
+    <value>_Duplica scheda</value>
+  </data>
+  <data name="MenuTabDuplicateTip" xml:space="preserve">
+    <value>Apre un'altra sessione sullo stesso account o sulla stessa voce, in una nuova scheda</value>
+  </data>
+  <data name="MenuTabClose" xml:space="preserve">
+    <value>_Chiudi scheda</value>
+  </data>
+  <data name="MenuTabCloseOthers" xml:space="preserve">
+    <value>Chiudi le _altre schede</value>
+  </data>
+  <data name="TabReconnectConfirm" xml:space="preserve">
+    <value>Riconnettere {0}? La sessione aperta verrà chiusa.</value>
+  </data>
+  <data name="TabCloseOtherConfirm" xml:space="preserve">
+    <value>Chiudere l'altra scheda di sessione? La sua sessione verrà chiusa.</value>
+  </data>
+  <data name="TabCloseOthersConfirm" xml:space="preserve">
+    <value>Chiudere le altre {0} schede di sessione? Le loro sessioni verranno chiuse.</value>
   </data>
   <data name="MenuSettings" xml:space="preserve">
     <value>_Impostazioni…</value>
