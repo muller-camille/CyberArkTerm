@@ -1,0 +1,5 @@
+# Fichiers de test lus octet par octet (le hachage d'un fichier clé quelconque en dépend) :
+# aucune conversion de fin de ligne à l'extraction, même avec core.autocrlf=true sous Windows.
+*.kdbx binary
+*.key binary
+*.keyx binary
