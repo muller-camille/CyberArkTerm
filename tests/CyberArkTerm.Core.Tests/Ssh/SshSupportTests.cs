@@ -22,11 +22,33 @@ public class SshSupportTests
     }
 
     [Theory]
-    [InlineData(512, "512 o")]
-    [InlineData(2048, "2 Ko")]
-    [InlineData(2_400_000, "2,3 Mo")]
-    [InlineData(5L * 1024 * 1024 * 1024, "5 Go")]
-    public void FormatsSizes(long bytes, string expected) => Assert.Equal(expected, RemotePath.FormatSize(bytes));
+    [InlineData("fr-FR", 512, "512 o")]
+    [InlineData("fr-FR", 2048, "2 Ko")]
+    [InlineData("fr-FR", 2_400_000, "2,3 Mo")]
+    [InlineData("fr-FR", 5L * 1024 * 1024 * 1024, "5 Go")]
+    [InlineData("en-US", 512, "512 B")]
+    [InlineData("en-US", 2_400_000, "2.3 MB")]
+    [InlineData("it-IT", 2_400_000, "2,3 MB")]
+    public void FormatsSizes(string culture, long bytes, string expected)
+    {
+        using var _ = UiCulture.Use(culture);
+
+        Assert.Equal(expected, RemotePath.FormatSize(bytes));
+    }
+
+    [Theory]
+    [InlineData("fr-FR", "01/10/2026", "21:05")]
+    [InlineData("it-IT", "01/10/2026", "21:05")]
+    [InlineData("en-US", "10/1/2026", "9:05")]
+    public void FormatsModificationDateForTheRegion(string culture, string date, string time)
+    {
+        using var _ = UiCulture.Use(culture);
+        var entry = new RemoteEntry("a.log", "/a.log", false, false, 1, new DateTime(2026, 10, 1, 21, 5, 0), "");
+
+        // L'espace avant « PM » varie selon la bibliothèque de cultures (ICU ou Windows) : on vérifie date et heure.
+        Assert.StartsWith(date + " " + time, entry.ModifiedText);
+        Assert.Equal("", (entry with { LastWriteTime = default }).ModifiedText);
+    }
 
     [Fact]
     public void SortsDirectoriesFirstAndFormatsPermissions()

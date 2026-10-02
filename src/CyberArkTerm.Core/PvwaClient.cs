@@ -1,7 +1,9 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using CyberArkTerm.Core.Localization;
 using CyberArkTerm.Core.Ssh;
 
 namespace CyberArkTerm.Core;
@@ -55,7 +57,7 @@ public sealed class PvwaClient : IDisposable
         var text = input?.Trim() ?? "";
         if (text.Length == 0)
         {
-            throw new ArgumentException("L'adresse du PVWA est obligatoire.");
+            throw new ArgumentException(CoreStrings.PvwaAddressRequired);
         }
 
         if (!text.Contains("://", StringComparison.Ordinal))
@@ -65,12 +67,12 @@ public sealed class PvwaClient : IDisposable
 
         if (!Uri.TryCreate(text, UriKind.Absolute, out var uri) || string.IsNullOrEmpty(uri.Host))
         {
-            throw new ArgumentException($"Adresse du PVWA invalide : « {input} ».");
+            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, CoreStrings.PvwaAddressInvalid, input));
         }
 
         if (uri.Scheme != Uri.UriSchemeHttps)
         {
-            throw new ArgumentException("Le PVWA doit être joint en HTTPS : les identifiants transitent par cette connexion.");
+            throw new ArgumentException(CoreStrings.PvwaHttpsRequired);
         }
 
         var path = uri.AbsolutePath;
@@ -216,7 +218,7 @@ public sealed class PvwaClient : IDisposable
         {
         }
 
-        throw new PvwaException(HttpStatusCode.OK, null, "Réponse inattendue du PVWA : aucun jeton de session reçu.");
+        throw new PvwaException(HttpStatusCode.OK, null, CoreStrings.PvwaNoToken);
     }
 
     private async Task<T> GetAsync<T>(string relativeUri, CancellationToken ct)
@@ -229,12 +231,12 @@ public sealed class PvwaClient : IDisposable
         }
 
         return await response.Content.ReadFromJsonAsync<T>(JsonOptions, ct).ConfigureAwait(false)
-            ?? throw new PvwaException(response.StatusCode, null, "Réponse vide du PVWA.");
+            ?? throw new PvwaException(response.StatusCode, null, CoreStrings.PvwaEmptyResponse);
     }
 
     private HttpRequestMessage CreateAuthenticatedRequest(HttpMethod method, string relativeUri)
     {
-        var token = _token ?? throw new InvalidOperationException("Aucune session ouverte sur le PVWA.");
+        var token = _token ?? throw new InvalidOperationException(CoreStrings.PvwaNoSession);
         var request = new HttpRequestMessage(method, relativeUri);
         // Le PVWA attend le jeton brut, sans schéma (« Bearer » etc.).
         request.Headers.TryAddWithoutValidation("Authorization", token);

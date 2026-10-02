@@ -1,6 +1,8 @@
+using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using CyberArkTerm.Core.Localization;
 
 namespace CyberArkTerm.Core;
 
@@ -29,15 +31,15 @@ public static class RdpFile
         else if (text.StartsWith('{'))
         {
             var hint = text.Contains("PSMGW", StringComparison.OrdinalIgnoreCase)
-                ? "Le PVWA a renvoyé une connexion HTML5 (PSM Gateway) au lieu d'un fichier RDP."
-                : "Réponse inattendue du PVWA : pas de fichier RDP.";
+                ? CoreStrings.RdpGatewayInstead
+                : string.Format(CultureInfo.CurrentCulture, CoreStrings.RdpUnexpected, "");
             throw new PvwaException(HttpStatusCode.OK, null, hint);
         }
 
         if (!text.Contains("full address", StringComparison.OrdinalIgnoreCase))
         {
             var kind = mediaType is null ? "" : $" ({mediaType})";
-            throw new PvwaException(HttpStatusCode.OK, null, $"Réponse inattendue du PVWA{kind} : pas de fichier RDP.");
+            throw new PvwaException(HttpStatusCode.OK, null, string.Format(CultureInfo.CurrentCulture, CoreStrings.RdpUnexpected, kind));
         }
 
         return body;

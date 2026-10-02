@@ -1,7 +1,10 @@
+using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
+using CyberArkTerm.Core.Localization;
 
 namespace CyberArkTerm.App.Views;
 
@@ -22,25 +25,28 @@ public partial class LoginWindow : Window
         UrlBox.Text = settings.PvwaUrl;
         UserBox.Text = settings.UserName;
 
+        // Langue affichée : celle en cours (choisie, ou à défaut celle de Windows).
+        LanguageBox.DisplayMemberPath = "Value";
+        LanguageBox.SelectedValuePath = "Key";
+        LanguageBox.ItemsSource = UiLanguage.Supported
+            .Select(code => new KeyValuePair<string, string>(code, UiLanguage.NativeName(code)))
+            .ToList();
+        LanguageBox.SelectedValue = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+
         Loaded += (_, _) =>
         {
-            if (UrlBox.Text.Length == 0)
-            {
-                UrlBox.Focus();
-            }
-            else if (UserBox.IsEnabled && UserBox.Text.Length == 0)
-            {
-                UserBox.Focus();
-            }
-            else if (PasswordBox.IsEnabled)
-            {
-                PasswordBox.Focus();
-            }
-            else
-            {
-                LoginButton.Focus();
-            }
+            FocusFirstField();
+            // Fenêtre rouverte après un changement de langue : elle doit reprendre le clavier.
+            Activate();
         };
+        // Le focus clavier n'est effectif qu'une fois la fenêtre active : on le replace à la première activation.
+        EventHandler? firstActivation = null;
+        firstActivation = (_, _) =>
+        {
+            Activated -= firstActivation;
+            Dispatcher.BeginInvoke(FocusFirstField, System.Windows.Threading.DispatcherPriority.Input);
+        };
+        Activated += firstActivation;
         Closed += (_, _) =>
         {
             _closed = true;
@@ -61,7 +67,52 @@ public partial class LoginWindow : Window
     /// <summary>Nom d'utilisateur du coffre (utilisé pour se connecter au PSMP).</summary>
     public string VaultUser { get; private set; } = "";
 
+    /// <summary>Vrai si la fenêtre a été fermée pour être rouverte dans une autre langue.</summary>
+    public bool LanguageChanged { get; private set; }
+
     private AuthMethod SelectedMethod => MethodBox.SelectedItem is AuthMethod m ? m : AuthMethod.CyberArk;
+
+    private void FocusFirstField()
+    {
+        if (UrlBox.Text.Length == 0)
+        {
+            UrlBox.Focus();
+        }
+        else if (UserBox.IsEnabled && UserBox.Text.Length == 0)
+        {
+            UserBox.Focus();
+        }
+        else if (PasswordBox.IsEnabled)
+        {
+            PasswordBox.Focus();
+        }
+        else
+        {
+            LoginButton.Focus();
+        }
+    }
+
+    private void OnLanguageChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!IsLoaded || LanguageBox.SelectedValue is not string code
+            || code == CultureInfo.CurrentUICulture.TwoLetterISOLanguageName)
+        {
+            return;
+        }
+
+        // Saisies conservées (sauf le mot de passe) : la fenêtre est reconstruite dans la nouvelle langue.
+        _settings.Language = code;
+        _settings.PvwaUrl = UrlBox.Text.Trim();
+        _settings.AuthMethod = SelectedMethod;
+        if (SelectedMethod != AuthMethod.Windows)
+        {
+            _settings.UserName = UserBox.Text.Trim();
+        }
+
+        TrySaveSettings();
+        LanguageChanged = true;
+        Close();
+    }
 
     private void OnMethodChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -79,7 +130,7 @@ public partial class LoginWindow : Window
 
         if (!answeringChallenge && method != AuthMethod.Windows && (userName.Length == 0 || password.Length == 0))
         {
-            ShowError("Saisissez votre nom d'utilisateur et votre mot de passe.");
+            ShowError(Strings.LoginMissingCredentials);
             return;
         }
 
@@ -109,7 +160,7 @@ public partial class LoginWindow : Window
         }
         catch (PvwaException ex) when (!_closed && ex.IsRadiusChallenge)
         {
-            ShowChallenge(ex.ServerMessage ?? "Saisissez la réponse demandée par le serveur RADIUS :");
+            ShowChallenge(ex.ServerMessage ?? Strings.LoginRadiusPrompt);
         }
         catch (Exception ex) when (!_closed && ex is not OutOfMemoryException)
         {
@@ -151,6 +202,7 @@ public partial class LoginWindow : Window
     {
         Busy.Visibility = busy ? Visibility.Visible : Visibility.Hidden;
         LoginButton.IsEnabled = !busy;
+        LanguageBox.IsEnabled = !busy && ChallengePanel.Visibility != Visibility.Visible;
         CredentialsPanel.IsEnabled = !busy;
         ChallengePanel.IsEnabled = !busy;
         if (busy)
@@ -168,6 +220,11 @@ public partial class LoginWindow : Window
             _settings.UserName = userName;
         }
 
+        TrySaveSettings();
+    }
+
+    private void TrySaveSettings()
+    {
         try
         {
             _settings.Save(AppSettings.DefaultPath);

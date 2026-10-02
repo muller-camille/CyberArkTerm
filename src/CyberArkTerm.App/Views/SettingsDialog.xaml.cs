@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Windows;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
+using CyberArkTerm.Core.Localization;
 using CyberArkTerm.Core.Ssh;
 
 namespace CyberArkTerm.App.Views;
@@ -15,6 +17,12 @@ public partial class SettingsDialog : Window
     {
         InitializeComponent();
         _settings = settings;
+        LanguageBox.DisplayMemberPath = "Value";
+        LanguageBox.SelectedValuePath = "Key";
+        LanguageBox.ItemsSource = new[] { new KeyValuePair<string, string>("", CoreStrings.LanguageSystem) }
+            .Concat(UiLanguage.Supported.Select(code => new KeyValuePair<string, string>(code, UiLanguage.NativeName(code))))
+            .ToList();
+        LanguageBox.SelectedValue = UiLanguage.Normalize(settings.Language);
         PsmpBox.Text = settings.PsmpAddress;
         PortBox.Text = settings.PsmpPort.ToString(CultureInfo.InvariantCulture);
         PreferSshBox.IsChecked = settings.PreferSshForUnix;
@@ -22,24 +30,24 @@ public partial class SettingsDialog : Window
         FollowBox.IsChecked = settings.FollowTerminalFolder;
         (settings.UploadProtocol == TransferProtocol.Sftp ? SftpRadio : ScpRadio).IsChecked = true;
         HostKeysText.Text = settings.KnownHosts.Count == 0
-            ? "Aucune clé de PSMP mémorisée."
-            : $"Clés de PSMP acceptées : {string.Join(", ", settings.KnownHosts.Keys)}";
+            ? Strings.NoHostKeys
+            : Text.Format(Strings.HostKeys, string.Join(", ", settings.KnownHosts.Keys));
         ComponentsText.Text = settings.ComponentByPlatform.Count == 0
-            ? "Aucun : le composant est déduit de la plateforme (PSM-RDP pour Windows, PSM-SSH pour Unix...)."
-            : string.Join(", ", settings.ComponentByPlatform.Select(kv => $"{kv.Key} : {kv.Value}"));
+            ? Strings.NoComponents
+            : string.Join(", ", settings.ComponentByPlatform.Select(kv => Text.Format(Strings.ComponentEntry, kv.Key, kv.Value)));
         Loaded += (_, _) => PsmpBox.Focus();
     }
 
     private void OnForgetComponents(object sender, RoutedEventArgs e)
     {
         _forgetComponents = true;
-        ComponentsText.Text = "Seront oubliés à l'enregistrement.";
+        ComponentsText.Text = Strings.ComponentsForgotten;
     }
 
     private void OnForgetHostKeys(object sender, RoutedEventArgs e)
     {
         _forgetHostKeys = true;
-        HostKeysText.Text = "Seront oubliées à l'enregistrement : l'empreinte sera redemandée à la prochaine connexion.";
+        HostKeysText.Text = Strings.HostKeysForgotten;
     }
 
     private void OnSave(object sender, RoutedEventArgs e)
@@ -47,16 +55,17 @@ public partial class SettingsDialog : Window
         var host = PsmpBox.Text.Trim();
         if (host.Length > 0 && Uri.CheckHostName(host) == UriHostNameType.Unknown)
         {
-            ShowError("Adresse PSMP invalide : saisissez un nom d'hôte ou une adresse IP.");
+            ShowError(Strings.InvalidPsmpAddress);
             return;
         }
 
         if (!int.TryParse(PortBox.Text.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var port) || port is < 1 or > 65535)
         {
-            ShowError("Port invalide (1 à 65535).");
+            ShowError(Strings.InvalidPort);
             return;
         }
 
+        _settings.Language = LanguageBox.SelectedValue as string ?? "";
         _settings.PsmpAddress = host;
         _settings.PsmpPort = port;
         _settings.PreferSshForUnix = PreferSshBox.IsChecked == true;

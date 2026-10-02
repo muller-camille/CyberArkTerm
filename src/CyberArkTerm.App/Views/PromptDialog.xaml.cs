@@ -1,4 +1,5 @@
 using System.Windows;
+using CyberArkTerm.App.Localization;
 
 namespace CyberArkTerm.App.Views;
 
@@ -11,7 +12,7 @@ public partial class PromptDialog : Window
     {
         InitializeComponent();
         _echo = echo;
-        InstructionText.Text = string.IsNullOrWhiteSpace(instruction) ? "Le serveur PSMP demande :" : instruction.Trim();
+        InstructionText.Text = string.IsNullOrWhiteSpace(instruction) ? Strings.PromptDefaultInstruction : instruction.Trim();
         PromptText.Text = prompt.Trim();
         SecretBox.Visibility = echo ? Visibility.Collapsed : Visibility.Visible;
         TextBox.Visibility = echo ? Visibility.Visible : Visibility.Collapsed;

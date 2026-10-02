@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="LanguageSystem" xml:space="preserve">
+    <value>System language</value>
+  </data>
+  <data name="RdpGatewayInstead" xml:space="preserve">
+    <value>The PVWA returned an HTML5 connection (PSM Gateway) instead of an RDP file.</value>
+  </data>
+  <data name="RdpUnexpected" xml:space="preserve">
+    <value>Unexpected response from the PVWA{0}: no RDP file.</value>
+  </data>
+  <data name="PsmpAddressWhat" xml:space="preserve">
+    <value>the PSMP address</value>
+  </data>
+  <data name="SshLoginWhat" xml:space="preserve">
+    <value>the SSH login</value>
+  </data>
+  <data name="CharacterNotAllowed" xml:space="preserve">
+    <value>Character not allowed in {0}: “{1}”.</value>
+  </data>
+  <data name="PasswordPromptTitle" xml:space="preserve">
+    <value>Connecting to {0}</value>
+  </data>
+  <data name="PasswordPrompt" xml:space="preserve">
+    <value>Password for {0}:</value>
+  </data>
+  <data name="AuthenticationCancelled" xml:space="preserve">
+    <value>Authentication cancelled.</value>
+  </data>
+  <data name="SizeBytes" xml:space="preserve">
+    <value>{0} B</value>
+  </data>
+  <data name="SizeKilobytes" xml:space="preserve">
+    <value>{0} KB</value>
+  </data>
+  <data name="SizeMegabytes" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="SizeGigabytes" xml:space="preserve">
+    <value>{0} GB</value>
+  </data>
+  <data name="KindDatabase" xml:space="preserve">
+    <value>Databases</value>
+  </data>
+  <data name="KindNetwork" xml:space="preserve">
+    <value>Network</value>
+  </data>
+  <data name="KindOther" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="GroupNotSet" xml:space="preserve">
+    <value>(not set)</value>
+  </data>
+  <data name="PvwaAddressRequired" xml:space="preserve">
+    <value>The PVWA address is required.</value>
+  </data>
+  <data name="PvwaAddressInvalid" xml:space="preserve">
+    <value>Invalid PVWA address: “{0}”.</value>
+  </data>
+  <data name="PvwaHttpsRequired" xml:space="preserve">
+    <value>The PVWA must be reached over HTTPS: your credentials go through this connection.</value>
+  </data>
+  <data name="PvwaNoToken" xml:space="preserve">
+    <value>Unexpected response from the PVWA: no session token received.</value>
+  </data>
+  <data name="PvwaEmptyResponse" xml:space="preserve">
+    <value>Empty response from the PVWA.</value>
+  </data>
+  <data name="PvwaNoSession" xml:space="preserve">
+    <value>No session is open on the PVWA.</value>
+  </data>
+  <data name="ControlCharacterInPath" xml:space="preserve">
+    <value>Control characters are not allowed in the path.</value>
+  </data>
+  <data name="ColumnServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="ColumnUser" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="ColumnDomain" xml:space="preserve">
+    <value>Domain</value>
+  </data>
+  <data name="ColumnPlatform" xml:space="preserve">
+    <value>Platform</value>
+  </data>
+  <data name="ColumnSafe" xml:space="preserve">
+    <value>Safe</value>
+  </data>
+  <data name="ColumnName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ColumnAllowedMachines" xml:space="preserve">
+    <value>Allowed machines</value>
+  </data>
+  <data name="ColumnCreated" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="AccountHasNoUser" xml:space="preserve">
+    <value>The account has no user name.</value>
+  </data>
+  <data name="AccountHasNoAddress" xml:space="preserve">
+    <value>The account has no target address.</value>
+  </data>
+  <data name="VaultUserUnknown" xml:space="preserve">
+    <value>Unknown vault user.</value>
+  </data>
+  <data name="InvalidFolderName" xml:space="preserve">
+    <value>Invalid folder name.</value>
+  </data>
+  <data name="FolderIntoItself" xml:space="preserve">
+    <value>A folder cannot be moved into itself.</value>
+  </data>
+  <data name="RootCannotBeDeleted" xml:space="preserve">
+    <value>The root cannot be deleted.</value>
+  </data>
+</root>

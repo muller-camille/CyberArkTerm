@@ -4,6 +4,8 @@
         xmlns:app="clr-namespace:CyberArkTerm.App"
         xmlns:views="clr-namespace:CyberArkTerm.App.Views"
         xmlns:core="clr-namespace:CyberArkTerm.Core;assembly=CyberArkTerm.Core"
+        xmlns:corel="clr-namespace:CyberArkTerm.Core.Localization;assembly=CyberArkTerm.Core"
+        xmlns:loc="clr-namespace:CyberArkTerm.App.Localization"
         Title="CyberArkTerm"
         Width="1280" Height="780" MinWidth="820" MinHeight="480"
         WindowStartupLocation="CenterScreen">
@@ -20,80 +22,80 @@
 
         <!-- Menu contextuel commun à l'arbre, à la liste, aux favoris et à l'accueil. -->
         <ContextMenu x:Key="AccountMenu" x:Shared="False" Opened="OnAccountMenuOpened">
-            <MenuItem Tag="psm" Header="_Se connecter (PSM)" Click="OnConnectPsm" FontWeight="SemiBold">
+            <MenuItem Tag="psm" Header="{x:Static loc:Strings.MenuConnectPsm}" Click="OnConnectPsm" FontWeight="SemiBold">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconConnect}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Tag="ssh" Header="Se connecter en SS_H (PSMP)" Click="OnConnectSsh">
+            <MenuItem Tag="ssh" Header="{x:Static loc:Strings.MenuConnectSsh}" Click="OnConnectSsh">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconSsh}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="Connexion _avancée…" Click="OnConnectAdvanced">
+            <MenuItem Header="{x:Static loc:Strings.MenuConnectAdvanced}" Click="OnConnectAdvanced">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconConnectAdvanced}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
-            <MenuItem Tag="addcurrent" Header="Ajouter aux serveurs _courants">
+            <MenuItem Tag="addcurrent" Header="{x:Static loc:Strings.MenuAddToMyServers}">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconBookmark}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
-            <MenuItem Header="Copier le serveur" Click="OnCopyAddress" />
-            <MenuItem Header="Copier l'utilisateur" Click="OnCopyUser" />
-            <MenuItem Header="Copier domaine\utilisateur" Click="OnCopyDomainUser" />
+            <MenuItem Header="{x:Static loc:Strings.MenuCopyServer}" Click="OnCopyAddress" />
+            <MenuItem Header="{x:Static loc:Strings.MenuCopyUser}" Click="OnCopyUser" />
+            <MenuItem Header="{x:Static loc:Strings.MenuCopyDomainUser}" Click="OnCopyDomainUser" />
         </ContextMenu>
 
         <!-- Menus de l'onglet « Courants ». -->
         <ContextMenu x:Key="SavedSessionMenu" x:Shared="False">
-            <MenuItem Header="_Se connecter" Click="OnConnectSelectedSaved" FontWeight="SemiBold">
+            <MenuItem Header="{x:Static loc:Strings.Connect}" Click="OnConnectSelectedSaved" FontWeight="SemiBold">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconConnect}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="Connexion _avancée…" Click="OnConnectSelectedSavedAdvanced">
+            <MenuItem Header="{x:Static loc:Strings.MenuConnectAdvanced}" Click="OnConnectSelectedSavedAdvanced">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconConnectAdvanced}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
-            <MenuItem Header="_Propriétés…" Click="OnEditSelectedSaved">
+            <MenuItem Header="{x:Static loc:Strings.MenuProperties}" Click="OnEditSelectedSaved">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="_Renommer…" Click="OnRenameSelectedSaved" />
-            <MenuItem Header="Re_tirer des serveurs courants" Click="OnDeleteSelectedSaved">
+            <MenuItem Header="{x:Static loc:Strings.MenuRename}" Click="OnRenameSelectedSaved" />
+            <MenuItem Header="{x:Static loc:Strings.MenuRemoveFromMyServers}" Click="OnDeleteSelectedSaved">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
-            <MenuItem Header="Copier le serveur" Click="OnCopyAddress" />
-            <MenuItem Header="Copier l'utilisateur" Click="OnCopyUser" />
+            <MenuItem Header="{x:Static loc:Strings.MenuCopyServer}" Click="OnCopyAddress" />
+            <MenuItem Header="{x:Static loc:Strings.MenuCopyUser}" Click="OnCopyUser" />
         </ContextMenu>
         <ContextMenu x:Key="SavedFolderMenu" x:Shared="False">
-            <MenuItem Header="_Nouveau sous-dossier…" Click="OnNewSubFolder">
+            <MenuItem Header="{x:Static loc:Strings.MenuNewSubfolder}" Click="OnNewSubFolder">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconNewFolder}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="_Renommer…" Click="OnRenameSelectedSaved">
+            <MenuItem Header="{x:Static loc:Strings.MenuRename}" Click="OnRenameSelectedSaved">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="_Supprimer le dossier…" Click="OnDeleteSelectedSaved">
+            <MenuItem Header="{x:Static loc:Strings.MenuDeleteFolder}" Click="OnDeleteSelectedSaved">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
         </ContextMenu>
         <ContextMenu x:Key="SavedBackgroundMenu" x:Shared="False">
-            <MenuItem Header="_Nouveau dossier…" Click="OnNewFolder">
+            <MenuItem Header="{x:Static loc:Strings.NewFolderMenu}" Click="OnNewFolder">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconNewFolder}" Width="16" Height="16" />
                 </MenuItem.Icon>
@@ -128,66 +130,66 @@
                 BorderThickness="0,0,0,1" Padding="6,4">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                    <Button Style="{StaticResource ToolButton}" Click="OnLogout" ToolTip="Fermer la session CyberArk et revenir à l'écran de connexion">
+                    <Button Style="{StaticResource ToolButton}" Click="OnLogout" ToolTip="{x:Static loc:Strings.ToolLogoutTip}">
                         <StackPanel>
                             <Image Source="{StaticResource IconLogout}" Style="{StaticResource ToolIcon}" />
-                            <TextBlock Text="Déconnexion" Style="{StaticResource ToolLabel}" />
+                            <TextBlock Text="{x:Static loc:Strings.ToolLogout}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource ToolButton}" Click="OnExit" ToolTip="Quitter CyberArkTerm">
+                    <Button Style="{StaticResource ToolButton}" Click="OnExit" ToolTip="{x:Static loc:Strings.ToolExitTip}">
                         <StackPanel>
                             <Image Source="{StaticResource IconExit}" Style="{StaticResource ToolIcon}" />
-                            <TextBlock Text="Quitter" Style="{StaticResource ToolLabel}" />
+                            <TextBlock Text="{x:Static loc:Strings.ToolExit}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="ConnectButton" Style="{StaticResource ToolButton}" Click="OnConnectDefault"
-                            ToolTip="Ouvrir une session sur le compte sélectionné (double-clic / Entrée)">
+                            ToolTip="{x:Static loc:Strings.ToolConnectTip}">
                         <StackPanel>
                             <Image Source="{StaticResource IconConnect}" Style="{StaticResource ToolIcon}" />
-                            <TextBlock Text="Se connecter" Style="{StaticResource ToolLabel}" />
+                            <TextBlock Text="{x:Static loc:Strings.ToolConnect}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                     <Button x:Name="SshButton" Style="{StaticResource ToolButton}" Click="OnConnectSsh"
-                            ToolTip="Ouvrir le compte en SSH via le PSMP">
+                            ToolTip="{x:Static loc:Strings.ToolSshTip}">
                         <StackPanel>
                             <Image Source="{StaticResource IconSsh}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="SSH" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                     <Button x:Name="AdvancedButton" Style="{StaticResource ToolButton}" Click="OnConnectAdvanced"
-                            ToolTip="Choisir le composant, la machine cible, le motif ou le ticket">
+                            ToolTip="{x:Static loc:Strings.ToolAdvancedTip}">
                         <StackPanel>
                             <Image Source="{StaticResource IconConnectAdvanced}" Style="{StaticResource ToolIcon}" />
-                            <TextBlock Text="Connexion…" Style="{StaticResource ToolLabel}" />
+                            <TextBlock Text="{x:Static loc:Strings.ToolAdvanced}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                     <Rectangle Style="{StaticResource ToolSeparator}" />
                     <Button x:Name="AddCurrentButton" Style="{StaticResource ToolButton}" Click="OnAddToCurrent"
-                            ToolTip="Ajouter le compte sélectionné à vos serveurs courants">
+                            ToolTip="{x:Static loc:Strings.ToolAddToMyServersTip}">
                         <StackPanel>
                             <Image Source="{StaticResource IconBookmark}" Style="{StaticResource ToolIcon}" />
-                            <TextBlock Text="Courant" Style="{StaticResource ToolLabel}" />
+                            <TextBlock Text="{x:Static loc:Strings.ToolAddToMyServers}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource ToolButton}" Command="Refresh" ToolTip="Recharger les comptes depuis le PVWA (F5)">
+                    <Button Style="{StaticResource ToolButton}" Command="Refresh" ToolTip="{x:Static loc:Strings.ToolRefreshTip}">
                         <StackPanel>
                             <Image Source="{StaticResource IconRefresh}" Style="{StaticResource ToolIcon}" />
-                            <TextBlock Text="Actualiser" Style="{StaticResource ToolLabel}" />
+                            <TextBlock Text="{x:Static loc:Strings.ToolRefresh}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource ToolButton}" Click="OnExport" ToolTip="Exporter la liste filtrée en CSV">
+                    <Button Style="{StaticResource ToolButton}" Click="OnExport" ToolTip="{x:Static loc:Strings.ToolExportTip}">
                         <StackPanel>
                             <Image Source="{StaticResource IconExport}" Style="{StaticResource ToolIcon}" />
-                            <TextBlock Text="Exporter" Style="{StaticResource ToolLabel}" />
+                            <TextBlock Text="{x:Static loc:Strings.ToolExport}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                     <Rectangle Style="{StaticResource ToolSeparator}" />
-                    <Button Style="{StaticResource ToolButton}" Click="OnSettings" ToolTip="PSMP, composants mémorisés">
+                    <Button Style="{StaticResource ToolButton}" Click="OnSettings" ToolTip="{x:Static loc:Strings.ToolSettingsTip}">
                         <StackPanel>
                             <Image Source="{StaticResource IconSettings}" Style="{StaticResource ToolIcon}" />
-                            <TextBlock Text="Paramètres" Style="{StaticResource ToolLabel}" />
+                            <TextBlock Text="{x:Static loc:Strings.ToolSettings}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -213,7 +215,7 @@
 
             <!-- ===== Bandeau latéral : comptes disponibles / serveurs courants / fichiers ===== -->
             <TabControl x:Name="SideTabs" Style="{StaticResource SideTabControl}">
-                <TabItem x:Name="AvailableTab" ToolTip="Tous les comptes accessibles dans CyberArk">
+                <TabItem x:Name="AvailableTab" ToolTip="{x:Static loc:Strings.TabAvailableTip}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <Image Source="{StaticResource IconFolder}" Width="14" Height="14" Margin="0,0,6,0">
@@ -221,7 +223,7 @@
                                     <RotateTransform Angle="90" />
                                 </Image.LayoutTransform>
                             </Image>
-                            <TextBlock Text="Disponibles" FontWeight="SemiBold" />
+                            <TextBlock Text="{x:Static loc:Strings.TabAvailable}" FontWeight="SemiBold" />
                         </StackPanel>
                     </TabItem.Header>
                     <DockPanel TextElement.Foreground="{StaticResource SidePanelForeground}">
@@ -229,14 +231,14 @@
                             <Grid>
                                 <TextBox x:Name="SearchBox" TextChanged="OnSearchChanged" Padding="24,4,4,4"
                                          PreviewKeyDown="OnSearchKeyDown"
-                                         ToolTip="Filtrer par serveur, utilisateur, safe, plateforme… (Ctrl+F)" />
+                                         ToolTip="{x:Static loc:Strings.SearchTip}" />
                                 <Image Source="{StaticResource IconSearch}" Width="14" Height="14" HorizontalAlignment="Left"
                                        Margin="6,0,0,0" IsHitTestVisible="False" />
                                 <TextBlock Style="{StaticResource Placeholder}" Tag="{Binding ElementName=SearchBox}"
-                                           Text="Filtrer les sessions…" Margin="26,0,0,0" />
+                                           Text="{x:Static loc:Strings.SearchPlaceholder}" Margin="26,0,0,0" />
                             </Grid>
                             <DockPanel Margin="0,6,0,0">
-                                <TextBlock Text="Grouper par" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock Text="{x:Static loc:Strings.GroupBy}" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0" />
                                 <ComboBox x:Name="GroupByBox" SelectionChanged="OnGroupByChanged" Padding="6,2" />
                             </DockPanel>
                         </StackPanel>
@@ -271,7 +273,7 @@
                     </DockPanel>
                 </TabItem>
                 <TabItem x:Name="CurrentTab" AllowDrop="True" DragEnter="OnCurrentTabDragEnter"
-                         ToolTip="Vos serveurs de travail, rangés en dossiers, avec leur configuration">
+                         ToolTip="{x:Static loc:Strings.TabMyServersTip}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <Image Source="{StaticResource IconBookmark}" Width="14" Height="14" Margin="0,0,6,0">
@@ -279,27 +281,27 @@
                                     <RotateTransform Angle="90" />
                                 </Image.LayoutTransform>
                             </Image>
-                            <TextBlock Text="Courants" FontWeight="SemiBold" />
+                            <TextBlock Text="{x:Static loc:Strings.TabMyServers}" FontWeight="SemiBold" />
                         </StackPanel>
                     </TabItem.Header>
                     <DockPanel TextElement.Foreground="{StaticResource SidePanelForeground}">
                         <DockPanel DockPanel.Dock="Top" Margin="8,8,6,4">
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                <Button Style="{StaticResource SmallToolButton}" Click="OnNewFolder" ToolTip="Nouveau dossier">
+                                <Button Style="{StaticResource SmallToolButton}" Click="OnNewFolder" ToolTip="{x:Static loc:Strings.NewFolder}">
                                     <Image Source="{StaticResource IconNewFolder}" Style="{StaticResource SmallIcon}" />
                                 </Button>
-                                <Button Style="{StaticResource SmallToolButton}" Click="OnEditSelectedSaved" ToolTip="Propriétés / renommer">
+                                <Button Style="{StaticResource SmallToolButton}" Click="OnEditSelectedSaved" ToolTip="{x:Static loc:Strings.EditSavedTip}">
                                     <Image Source="{StaticResource IconEdit}" Style="{StaticResource SmallIcon}" />
                                 </Button>
-                                <Button Style="{StaticResource SmallToolButton}" Click="OnDeleteSelectedSaved" ToolTip="Retirer le serveur ou supprimer le dossier">
+                                <Button Style="{StaticResource SmallToolButton}" Click="OnDeleteSelectedSaved" ToolTip="{x:Static loc:Strings.DeleteSavedTip}">
                                     <Image Source="{StaticResource IconDelete}" Style="{StaticResource SmallIcon}" />
                                 </Button>
                             </StackPanel>
-                            <TextBlock Text="Mes serveurs" Style="{StaticResource SectionTitle}" Margin="0" VerticalAlignment="Center" />
+                            <TextBlock Text="{x:Static loc:Strings.MyServersHeading}" Style="{StaticResource SectionTitle}" Margin="0" VerticalAlignment="Center" />
                         </DockPanel>
                         <TextBlock DockPanel.Dock="Top" x:Name="NoSavedText" Margin="10,4,10,0" TextWrapping="Wrap"
                                    Foreground="{StaticResource MutedBrush}"
-                                   Text="Ajoutez ici les serveurs que vous utilisez : clic droit sur un compte de l'onglet « Disponibles » puis « Ajouter aux serveurs courants », ou glissez-le sur l'onglet « Courants ». Clic droit ici pour créer des dossiers." />
+                                   Text="{x:Static loc:Strings.NoSavedHelp}" />
                         <TreeView x:Name="SavedTree" BorderThickness="0" Background="Transparent" Padding="2,0,0,0" AllowDrop="True"
                                   SelectedItemChanged="OnSavedSelectionChanged" KeyDown="OnSavedKeyDown"
                                   PreviewMouseLeftButtonDown="OnDragSourceMouseDown" PreviewMouseMove="OnSavedDragMove"
@@ -332,7 +334,7 @@
                         </TreeView>
                     </DockPanel>
                 </TabItem>
-                <TabItem x:Name="FilesTab" ToolTip="Fichiers du serveur de la session SSH active (SFTP / SCP)">
+                <TabItem x:Name="FilesTab" ToolTip="{x:Static loc:Strings.TabFilesTip}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <Image Source="{StaticResource IconFiles}" Width="14" Height="14" Margin="0,0,6,0">
@@ -340,7 +342,7 @@
                                     <RotateTransform Angle="90" />
                                 </Image.LayoutTransform>
                             </Image>
-                            <TextBlock Text="Fichiers" FontWeight="SemiBold" />
+                            <TextBlock Text="{x:Static loc:Strings.TabFiles}" FontWeight="SemiBold" />
                         </StackPanel>
                     </TabItem.Header>
                     <views:FileBrowserPanel x:Name="FilesPanel" Foreground="{StaticResource SidePanelForeground}" />
@@ -355,7 +357,7 @@
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <Image Source="{StaticResource IconHome}" Width="16" Height="16" Margin="0,0,6,0" />
-                            <TextBlock Text="Accueil" />
+                            <TextBlock Text="{x:Static loc:Strings.TabHome}" />
                         </StackPanel>
                     </TabItem.Header>
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -384,7 +386,7 @@
                                     <Image Source="{StaticResource IconSearch}" Width="18" Height="18" HorizontalAlignment="Left"
                                            Margin="10,0,0,0" IsHitTestVisible="False" />
                                     <TextBlock Style="{StaticResource Placeholder}" Tag="{Binding ElementName=QuickBox}" FontSize="15"
-                                               Text="Connexion rapide : tapez un serveur ou un compte, puis Entrée" Margin="38,0,0,0" />
+                                               Text="{x:Static loc:Strings.QuickPlaceholder}" Margin="38,0,0,0" />
                                 </Grid>
                             </Border>
                             <Border Grid.Row="2" x:Name="QuickResultsPanel" BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="1"
@@ -404,12 +406,12 @@
                                 <StackPanel>
                                     <DockPanel Margin="0,0,0,6">
                                         <Image Source="{StaticResource IconHistory}" Width="16" Height="16" Margin="0,0,6,0" />
-                                        <TextBlock Text="Sessions récentes" Style="{StaticResource SectionTitle}" Margin="0" />
+                                        <TextBlock Text="{x:Static loc:Strings.RecentSessions}" Style="{StaticResource SectionTitle}" Margin="0" />
                                     </DockPanel>
                                     <Border BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="1" CornerRadius="4">
                                         <Grid>
                                             <TextBlock x:Name="NoRecentText" Margin="12" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"
-                                                       Text="Les sessions que vous ouvrez apparaîtront ici." />
+                                                       Text="{x:Static loc:Strings.NoRecent}" />
                                             <ListBox x:Name="RecentList" BorderThickness="0" Background="Transparent" MaxHeight="360"
                                                      MouseDoubleClick="OnRecentDoubleClick" KeyDown="OnRecentKeyDown">
                                                 <ListBox.ItemTemplate>
@@ -431,14 +433,14 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Raccourcis" Style="{StaticResource SectionTitle}" />
+                                    <TextBlock Text="{x:Static loc:Strings.Shortcuts}" Style="{StaticResource SectionTitle}" />
                                     <Border Background="{StaticResource AccentLightBrush}" CornerRadius="4" Padding="12,10">
                                         <StackPanel>
-                                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"><Run FontWeight="SemiBold" Text="Double-clic / Entrée" /> : ouvrir la session</TextBlock>
-                                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"><Run FontWeight="SemiBold" Text="Clic droit" /> : PSM, SSH, connexion avancée, serveurs courants</TextBlock>
-                                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"><Run FontWeight="SemiBold" Text="Session SSH" /> : onglet « Fichiers » à gauche, glisser-déposer pour envoyer</TextBlock>
-                                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"><Run FontWeight="SemiBold" Text="Ctrl+F" /> : filtrer les sessions</TextBlock>
-                                            <TextBlock TextWrapping="Wrap"><Run FontWeight="SemiBold" Text="F5" /> : recharger depuis le PVWA</TextBlock>
+                                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"><Run FontWeight="SemiBold" Text="{x:Static loc:Strings.ShortcutOpenKey}" /><Run Text="{x:Static loc:Strings.ShortcutOpen}" /></TextBlock>
+                                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"><Run FontWeight="SemiBold" Text="{x:Static loc:Strings.ShortcutMenuKey}" /><Run Text="{x:Static loc:Strings.ShortcutMenu}" /></TextBlock>
+                                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"><Run FontWeight="SemiBold" Text="{x:Static loc:Strings.ShortcutSshKey}" /><Run Text="{x:Static loc:Strings.ShortcutSsh}" /></TextBlock>
+                                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"><Run FontWeight="SemiBold" Text="Ctrl+F" /><Run Text="{x:Static loc:Strings.ShortcutFilter}" /></TextBlock>
+                                            <TextBlock TextWrapping="Wrap"><Run FontWeight="SemiBold" Text="F5" /><Run Text="{x:Static loc:Strings.ShortcutReload}" /></TextBlock>
                                         </StackPanel>
                                     </Border>
                                 </StackPanel>
@@ -451,7 +453,7 @@
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <Image Source="{StaticResource IconList}" Width="16" Height="16" Margin="0,0,6,0" />
-                            <TextBlock Text="Tous les comptes" />
+                            <TextBlock Text="{x:Static loc:Strings.TabAllAccounts}" />
                         </StackPanel>
                     </TabItem.Header>
                     <DataGrid x:Name="AccountsGrid" Margin="0"
@@ -477,13 +479,13 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Serveur" Binding="{Binding Address}" Width="2*" SortDirection="Ascending" />
-                            <DataGridTextColumn Header="Utilisateur" Binding="{Binding UserName}" Width="1.3*" />
-                            <DataGridTextColumn Header="Domaine" Binding="{Binding LogonDomain}" Width="*" />
-                            <DataGridTextColumn Header="Plateforme" Binding="{Binding PlatformId}" Width="1.3*" />
-                            <DataGridTextColumn Header="Safe" Binding="{Binding SafeName}" Width="1.3*" />
-                            <DataGridTextColumn Header="Machines autorisées" Binding="{Binding RemoteMachines}" Width="1.5*" />
-                            <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="2*" />
+                            <DataGridTextColumn Header="{x:Static corel:CoreStrings.ColumnServer}" Binding="{Binding Address}" Width="2*" SortDirection="Ascending" />
+                            <DataGridTextColumn Header="{x:Static corel:CoreStrings.ColumnUser}" Binding="{Binding UserName}" Width="1.3*" />
+                            <DataGridTextColumn Header="{x:Static corel:CoreStrings.ColumnDomain}" Binding="{Binding LogonDomain}" Width="*" />
+                            <DataGridTextColumn Header="{x:Static corel:CoreStrings.ColumnPlatform}" Binding="{Binding PlatformId}" Width="1.3*" />
+                            <DataGridTextColumn Header="{x:Static corel:CoreStrings.ColumnSafe}" Binding="{Binding SafeName}" Width="1.3*" />
+                            <DataGridTextColumn Header="{x:Static corel:CoreStrings.ColumnAllowedMachines}" Binding="{Binding RemoteMachines}" Width="1.5*" />
+                            <DataGridTextColumn Header="{x:Static corel:CoreStrings.ColumnName}" Binding="{Binding Name}" Width="2*" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </TabItem>

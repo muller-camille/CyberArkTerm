@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
 
 namespace CyberArkTerm.App.Views;
@@ -129,7 +130,7 @@ public partial class MainWindow
     {
         if (!_byId.TryGetValue(saved.AccountId, out var account))
         {
-            SetStatus($"{saved.Name} : compte introuvable dans CyberArk (supprimé ou droits retirés).", isError: true);
+            SetStatus(Text.Format(Strings.SavedAccountGone, saved.Name), isError: true);
             return;
         }
 
@@ -181,8 +182,8 @@ public partial class MainWindow
         Expand(session.Folder);
         SaveAndRefreshSaved();
         SetStatus(session.Folder.Length > 0
-            ? $"{session.Name} ajouté aux serveurs courants (dossier {session.Folder})"
-            : $"{session.Name} ajouté aux serveurs courants");
+            ? Text.Format(Strings.AddedToMyServersFolder, session.Name, session.Folder)
+            : Text.Format(Strings.AddedToMyServers, session.Name));
     }
 
     /// <summary>Sous-menu « Ajouter aux serveurs courants » : racine, dossiers existants, nouveau dossier.</summary>
@@ -194,16 +195,16 @@ public partial class MainWindow
             return;
         }
 
-        parent.Items.Add(MenuEntry("(racine)", () => AddToCurrent(account, "")));
+        parent.Items.Add(MenuEntry(Strings.RootFolder, () => AddToCurrent(account, "")));
         foreach (var folder in _settings.SessionFolderList.OrderBy(f => f, StringComparer.OrdinalIgnoreCase))
         {
             parent.Items.Add(MenuEntry(folder.Replace("/", " › "), () => AddToCurrent(account, folder)));
         }
 
         parent.Items.Add(new Separator());
-        parent.Items.Add(MenuEntry("Nouveau dossier…", () =>
+        parent.Items.Add(MenuEntry(Strings.NewFolderEntry, () =>
         {
-            if (AskFolderName("Nouveau dossier", "", "") is { } path)
+            if (AskFolderName(Strings.NewFolder, "", "") is { } path)
             {
                 AddToCurrent(account, path);
             }
@@ -228,7 +229,7 @@ public partial class MainWindow
 
     private void CreateFolder(string parent)
     {
-        if (AskFolderName(parent.Length == 0 ? "Nouveau dossier" : $"Nouveau dossier dans {parent}", parent, "") is { } path)
+        if (AskFolderName(parent.Length == 0 ? Strings.NewFolder : Text.Format(Strings.NewFolderIn, parent), parent, "") is { } path)
         {
             SessionLibrary.AddFolder(_settings, path);
             Expand(path);
@@ -239,16 +240,16 @@ public partial class MainWindow
     /// <summary>Demande un nom de dossier sous <paramref name="parent"/> ; renvoie le chemin complet.</summary>
     private string? AskFolderName(string title, string parent, string initial, string? except = null)
     {
-        var dialog = new InputDialog(title, "Nom du dossier :", initial, value =>
+        var dialog = new InputDialog(title, Strings.FolderNameLabel, initial, value =>
         {
             if (value.Contains('/') || value.Contains('\\'))
             {
-                return "Le nom ne doit pas contenir « / » ni « \\ ».";
+                return Strings.FolderNameNoSlashes;
             }
 
             var path = SessionFolders.Combine(parent, value);
             bool exists = _settings.SessionFolderList.Contains(path, StringComparer.OrdinalIgnoreCase);
-            return exists && !string.Equals(path, except, StringComparison.OrdinalIgnoreCase) ? "Ce dossier existe déjà." : null;
+            return exists && !string.Equals(path, except, StringComparison.OrdinalIgnoreCase) ? Strings.FolderExists : null;
         })
         { Owner = this };
         return dialog.ShowDialog() == true ? SessionFolders.Combine(parent, dialog.Value) : null;
@@ -267,7 +268,7 @@ public partial class MainWindow
                     SessionLibrary.AddFolder(_settings, node.Session.Folder);
                     Expand(node.Session.Folder);
                     SaveAndRefreshSaved();
-                    SetStatus($"Configuration de {node.Session.Name} enregistrée");
+                    SetStatus(Text.Format(Strings.SavedSettingsSaved, node.Session.Name));
                 }
 
                 break;
@@ -284,7 +285,7 @@ public partial class MainWindow
         switch (SavedTree.SelectedItem)
         {
             case SavedSessionNode node:
-                var dialog = new InputDialog("Renommer", "Nom affiché :", node.Session.Name) { Owner = this };
+                var dialog = new InputDialog(Strings.RenameTitle, Strings.DisplayNameLabel, node.Session.Name) { Owner = this };
                 if (dialog.ShowDialog() == true)
                 {
                     node.Session.Name = dialog.Value;
@@ -293,7 +294,7 @@ public partial class MainWindow
 
                 break;
             case SavedFolderNode folder:
-                if (AskFolderName("Renommer le dossier", SessionFolders.Parent(folder.Path), folder.Name, except: folder.Path) is { } path)
+                if (AskFolderName(Strings.RenameFolderTitle, SessionFolders.Parent(folder.Path), folder.Name, except: folder.Path) is { } path)
                 {
                     bool collapsed = _collapsedFolders.Contains(folder.Path);
                     SessionLibrary.RenameFolder(_settings, folder.Path, SessionFolders.Name(path));
@@ -316,8 +317,8 @@ public partial class MainWindow
         switch (SavedTree.SelectedItem)
         {
             case SavedSessionNode node:
-                if (MessageBox.Show(this, $"Retirer « {node.Session.Name} » de vos serveurs courants ?\n\nLe compte reste disponible dans l'onglet « Disponibles ».",
-                        "Serveurs courants", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                if (MessageBox.Show(this, Text.Format(Strings.RemoveSavedConfirm, node.Session.Name),
+                        Strings.MyServers, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     _settings.Sessions.Remove(node.Session);
                     SaveAndRefreshSaved();
@@ -326,9 +327,9 @@ public partial class MainWindow
                 break;
             case SavedFolderNode folder:
                 var message = folder.Count == 0
-                    ? $"Supprimer le dossier « {folder.Path} » ?"
-                    : $"Supprimer le dossier « {folder.Path} » et les {folder.Count} serveur(s) qu'il contient ?\n\nLes comptes restent disponibles dans l'onglet « Disponibles ».";
-                if (MessageBox.Show(this, message, "Serveurs courants", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
+                    ? Text.Format(Strings.DeleteEmptyFolderConfirm, folder.Path)
+                    : Text.Format(Strings.DeleteFolderConfirm, folder.Path, folder.Count);
+                if (MessageBox.Show(this, message, Strings.MyServers, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
                     SessionLibrary.DeleteFolder(_settings, folder.Path);
                     SaveAndRefreshSaved();

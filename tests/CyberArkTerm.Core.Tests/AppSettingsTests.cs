@@ -16,9 +16,11 @@ public sealed class AppSettingsTests : IDisposable
     public void SaveThenLoad_RoundTrips()
     {
         var path = Path.Combine(_dir, "sub", "settings.json");
-        new AppSettings { PvwaUrl = "https://pvwa", UserName = "jdoe", AuthMethod = AuthMethod.LDAP }.Save(path);
+        new AppSettings { PvwaUrl = "https://pvwa", UserName = "jdoe", AuthMethod = AuthMethod.LDAP, Language = "it" }.Save(path);
 
         var loaded = AppSettings.Load(path);
+
+        Assert.Equal("it", loaded.Language);
 
         Assert.Equal("https://pvwa", loaded.PvwaUrl);
         Assert.Equal("jdoe", loaded.UserName);

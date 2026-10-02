@@ -1,6 +1,11 @@
+<img src="docs/icone.png" alt="" width="72" align="right">
+
 # CyberArkTerm
 
+**Français** · [English](README.en.md) · [Italiano](README.it.md)
+
 [![build](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml/badge.svg)](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml)
+[![release](https://img.shields.io/github/v/release/muller-camille/CyberArkTerm)](https://github.com/muller-camille/CyberArkTerm/releases/latest)
 
 **Client Windows multi-sessions pour CyberArk.** CyberArkTerm se connecte à votre PVWA, liste les comptes
 auxquels vous avez accès et ouvre vos sessions en un double-clic : bureau à distance via **PSM**, ou terminal
@@ -36,16 +41,21 @@ serveur.
 | **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), authentification MFA. |
 | **Onglet Fichiers** | Navigateur SFTP du serveur : `ls`, navigation, `rm`, dépôt de fichiers par glisser-déposer en SCP, suivi du dossier du terminal. |
 | **Accueil** | Connexion rapide (tapez un serveur, Entrée), sessions récentes. |
-| **Export** | Liste des comptes en CSV (compatible Excel français). |
+| **Export** | Liste des comptes en CSV, ouvrable directement dans Excel (séparateur selon la région Windows). |
+| **Langues** | Interface en français, anglais et italien : langue de Windows par défaut, modifiable à tout moment. |
 
 ## Installation
 
 ### Télécharger l'exécutable
 
-1. Ouvrez l'onglet [Actions](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml) du
-   dépôt et choisissez la dernière exécution réussie.
-2. Téléchargez l'artefact **`CyberArkTerm-win-x64`** (zip) et décompressez-le.
-3. Lancez `CyberArkTerm.exe` : aucun runtime à installer, aucun droit administrateur requis.
+1. Ouvrez la [dernière version](https://github.com/muller-camille/CyberArkTerm/releases/latest) dans les
+   *Releases* du dépôt.
+2. Téléchargez **`CyberArkTerm-<version>-win-x64.zip`** et décompressez-le (l'empreinte SHA256 est dans
+   `SHA256SUMS.txt`).
+3. Lancez `CyberArkTerm.exe` : un seul fichier, aucun runtime à installer, aucun droit administrateur requis.
+
+Version de développement : l'exécutable de chaque compilation est aussi disponible en artefact
+`CyberArkTerm-win-x64` dans l'onglet [Actions](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml).
 
 L'exécutable n'est pas signé : au premier lancement, Windows SmartScreen peut afficher un avertissement
 (« Informations complémentaires » → « Exécuter quand même »).
@@ -81,6 +91,9 @@ pose une question (code OTP), la fenêtre l'affiche et attend votre réponse.
 
 L'adresse, la méthode et l'identifiant sont mémorisés ; **le mot de passe ne l'est jamais**.
 
+La liste en bas à gauche change la langue de l'interface (Français, English, Italiano) ; la fenêtre se
+rouvre aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant saisis.
+
 ### 2. Trouver un compte : onglet « Disponibles »
 
 ![Onglet Disponibles filtré sur un compte de domaine](docs/captures/disponibles.png)
@@ -113,7 +126,8 @@ Renseignez une fois l'adresse du PSMP dans **Paramètres**. Ensuite, clic droit 
 (ou bouton « SSH »). Avec l'option « Double-clic sur un compte Unix : SSH via PSMP », le double-clic suffit.
 
 La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP standard
-`<vous>@<compte cible>[#domaine]@<serveur cible>`.
+`<vous>@<compte cible>[#domaine]@<serveur cible>`. Les noms d'utilisateur contenant des espaces
+(`Jean Dupont`, `Admin Local`) sont acceptés.
 
 <img src="docs/captures/authentification-psmp.png" alt="Question d'authentification posée par le PSMP" width="640">
 
@@ -185,6 +199,7 @@ Un serveur dont le compte n'est plus visible dans CyberArk apparaît grisé.
 
 | Paramètre | Rôle | Défaut |
 | --- | --- | --- |
+| Langue de l'interface | Français, English, Italiano ou langue du système ; appliquée après déconnexion ou au prochain démarrage | langue de Windows (anglais si elle n'est pas traduite) |
 | Adresse et port PSMP | Serveur PSM for SSH ; vide = SSH désactivé | vide, 22 |
 | Double-clic Unix = SSH | Ouvre les comptes Unix en SSH plutôt qu'en PSM | non |
 | SSH dans CyberArkTerm | Terminal et onglet Fichiers intégrés ; sinon Windows Terminal | oui |
@@ -193,7 +208,7 @@ Un serveur dont le compte n'est plus visible dans CyberArk apparaît grisé.
 | Clés de PSMP acceptées | Empreintes mémorisées (bouton « Oublier les clés ») | — |
 | Composants mémorisés | Composant PSM choisi par plateforme (bouton « Oublier ») | — |
 
-Toutes les préférences sont enregistrées dans `%APPDATA%\CyberArkTerm\settings.json` : adresse du PVWA,
+Toutes les préférences sont enregistrées dans `%APPDATA%\CyberArkTerm\settings.json` : langue, adresse du PVWA,
 méthode et identifiant de connexion, paramètres ci-dessus, serveurs « Courants » et leurs dossiers, sessions
 récentes. Ce fichier ne contient **aucun mot de passe, jeton ni clé privée**. Pour repartir de zéro, fermez
 l'application et supprimez-le.
@@ -212,6 +227,8 @@ l'application et supprimez-le.
 - Export CSV protégé contre l'injection de formules Excel.
 - Les sessions PSM et PSMP ouvertes par CyberArkTerm sont des sessions CyberArk standard : elles sont
   enregistrées et auditées par le PSM comme celles ouvertes depuis le PVWA.
+
+Pour signaler une vulnérabilité, voir [SECURITY.md](SECURITY.md) (signalement privé, pas d'issue publique).
 
 ## Fonctionnement technique
 
@@ -265,10 +282,19 @@ Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place d
 | Projet | Rôle |
 | --- | --- |
 | `src/CyberArkTerm.Core` | Logique sans interface, multiplateforme : client de l'API PVWA, classement des comptes, émulateur de terminal xterm, connexions PSMP et navigateur SFTP/SCP (SSH.NET), serveurs « Courants » en dossiers, préférences. |
-| `src/CyberArkTerm.App` | Application WPF : fenêtres, onglets, contrôle terminal, lancement de `mstsc`. |
+| `src/CyberArkTerm.App` | Application WPF : fenêtres, onglets, contrôle terminal, lancement de `mstsc`, icône (`Assets`). |
 | `tests/CyberArkTerm.Core.Tests` | Tests xUnit de Core (faux PVWA HTTP, terminal, PSMP, dossiers…). |
 
 Dépendance externe : [SSH.NET](https://github.com/sshnet/SSH.NET) (licence MIT).
+
+### Traductions
+
+Les textes de l'interface sont dans `src/CyberArkTerm.Core/Localization/CoreStrings*.resx` et
+`src/CyberArkTerm.App/Localization/Strings*.resx` : anglais dans le fichier neutre, puis `.fr` et `.it`.
+Les classes `*.Designer.cs` sont générées par Visual Studio (`PublicResXFileCodeGenerator`) ; un test vérifie
+que chaque langue a toutes les clés, les mêmes paramètres `{0}` et les mêmes touches d'accès `_`.
+Pour ajouter une langue : copier les `.resx` avec le nouveau code (`.de.resx`…), traduire, puis ajouter le
+code à `UiLanguage.Supported`.
 
 ### Compiler et tester
 
@@ -295,6 +321,12 @@ dotnet publish src/CyberArkTerm.App -c Release -r win-x64 -p:SelfContained=false
 
 La CI ([`.github/workflows/build.yml`](.github/workflows/build.yml)) exécute les tests et publie l'exécutable
 autonome en artefact `CyberArkTerm-win-x64` pour chaque pull request et chaque push sur `main`.
+
+### Publier une version
+
+Poussez un tag `vX.Y.Z` sur `main` : le workflow [`release.yml`](.github/workflows/release.yml) exécute les
+tests, compile l'exécutable avec ce numéro de version et crée la *Release* GitHub avec le zip et
+`SHA256SUMS.txt`. Les notes de version sont lues dans `docs/releases/vX.Y.Z.md` si ce fichier existe.
 
 ## Limites et pistes
 

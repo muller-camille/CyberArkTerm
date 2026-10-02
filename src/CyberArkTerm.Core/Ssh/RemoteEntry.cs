@@ -14,7 +14,8 @@ public sealed record RemoteEntry(
 
     public string SizeText => IsDirectory ? "" : RemotePath.FormatSize(Length);
 
-    public string ModifiedText => LastWriteTime == default ? "" : LastWriteTime.ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+    /// <summary>Date courte et heure selon les réglages régionaux (01/10/2026 21:05, 10/1/2026 9:05 PM...).</summary>
+    public string ModifiedText => LastWriteTime == default ? "" : LastWriteTime.ToString("g", System.Globalization.CultureInfo.CurrentCulture);
 
     /// <summary>Entrée « .. » affichée en tête de liste pour remonter d'un niveau.</summary>
     public bool IsParentLink => Name == "..";

@@ -3,7 +3,22 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>CyberArkTerm.Core</RootNamespace>
+    <!-- Textes en anglais par défaut ; traductions française et italienne en assemblys satellites. -->
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Classe d'accès aux textes générée par Visual Studio (PublicResXFileCodeGenerator) à partir du .resx anglais. -->
+    <EmbeddedResource Update="Localization\CoreStrings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>CoreStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Update="Localization\CoreStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CoreStrings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="CyberArkTerm.Core.Tests" />

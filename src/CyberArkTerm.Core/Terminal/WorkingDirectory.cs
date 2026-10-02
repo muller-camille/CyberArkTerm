@@ -1,3 +1,5 @@
+using CyberArkTerm.Core.Localization;
+
 namespace CyberArkTerm.Core.Terminal;
 
 /// <summary>
@@ -53,7 +55,7 @@ public static class WorkingDirectory
     {
         if (value.Any(char.IsControl))
         {
-            throw new ArgumentException("Caractère de contrôle interdit dans le chemin.");
+            throw new ArgumentException(CoreStrings.ControlCharacterInPath);
         }
 
         return "'" + value.Replace("'", "'\\''") + "'";

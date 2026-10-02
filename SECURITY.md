@@ -1,21 +1,41 @@
 # Security Policy
 
+CyberArkTerm handles CyberArk credentials and opens privileged sessions, so security reports are welcome and
+taken seriously.
+
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Only the latest release receives security fixes. Please update to it before reporting.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| 0.2.x   | :white_check_mark: |
+| < 0.2   | :x:                |
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+**Please do not open a public issue.** Report it privately through GitHub:
+[Security → Report a vulnerability](https://github.com/muller-camille/CyberArkTerm/security/advisories/new).
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Include, if possible:
+
+- the CyberArkTerm version and Windows version;
+- the steps to reproduce, or a proof of concept;
+- the impact you see (what an attacker could read, change or execute).
+
+The report is acknowledged and investigated. If it is confirmed, a fix is released in a new version and a
+GitHub security advisory is published, crediting you unless you prefer otherwise. If it is declined, you get
+an explanation.
+
+## Scope
+
+In scope: the CyberArkTerm code in this repository (PVWA client, PSM / PSMP connections, SSH terminal,
+SFTP / SCP file transfers, settings storage, release executables).
+
+Out of scope, to be reported to their maintainers:
+
+- vulnerabilities in CyberArk products (PVWA, PSM, PSMP) → CyberArk;
+- vulnerabilities in [SSH.NET](https://github.com/sshnet/SSH.NET) or .NET → their projects.
+
+The security measures built into the application are described in the
+[README](README.en.md#security).

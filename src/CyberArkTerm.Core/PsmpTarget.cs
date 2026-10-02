@@ -1,3 +1,6 @@
+using System.Globalization;
+using CyberArkTerm.Core.Localization;
+
 namespace CyberArkTerm.Core;
 
 /// <summary>
@@ -11,22 +14,37 @@ public static class PsmpTarget
     /// <summary>Partie « utilisateur » de la commande SSH (tout ce qui précède l'adresse du PSMP).</summary>
     public static string BuildLogin(string vaultUser, PvwaAccount account, string? remoteMachine = null)
     {
-        var target = Require(account.UserName, "Le compte n'a pas de nom d'utilisateur.");
-        var address = Require(string.IsNullOrWhiteSpace(remoteMachine) ? account.Address : remoteMachine, "Le compte n'a pas d'adresse cible.");
+        var target = Require(account.UserName, CoreStrings.AccountHasNoUser);
+        var address = Require(string.IsNullOrWhiteSpace(remoteMachine) ? account.Address : remoteMachine, CoreStrings.AccountHasNoAddress);
         var domain = account.LogonDomain.Trim();
-        var login = $"{Require(vaultUser, "Utilisateur du coffre inconnu.")}@{target}{(domain.Length > 0 ? "#" + domain : "")}@{address}";
-        Validate(login, "l'identifiant SSH");
+        var login = $"{Require(vaultUser, CoreStrings.VaultUserUnknown)}@{target}{(domain.Length > 0 ? "#" + domain : "")}@{address}";
+
+        // Les noms d'utilisateur (coffre, compte cible) peuvent contenir des espaces (« Jean Dupont ») ;
+        // l'adresse et le domaine, jamais.
+        Validate(login, CoreStrings.SshLoginWhat, allowSpaces: true);
+        if (address.Contains(' ') || domain.Contains(' '))
+        {
+            throw NotAllowed(CoreStrings.SshLoginWhat, login);
+        }
+
         return login;
     }
 
-    /// <summary>Vérifie une valeur passée en argument à ssh / Windows Terminal (pas d'espace ni de métacaractère).</summary>
-    public static void Validate(string value, string what)
+    /// <summary>
+    /// Vérifie une valeur passée en argument à ssh / Windows Terminal : pas de caractère de contrôle ni de métacaractère,
+    /// ni d'espace sauf si <paramref name="allowSpaces"/> (espace simple uniquement).
+    /// </summary>
+    public static void Validate(string value, string what, bool allowSpaces = false)
     {
-        if (value.Length == 0 || value.Any(c => char.IsWhiteSpace(c) || char.IsControl(c) || Forbidden.Contains(c)))
+        if (value.Length == 0
+            || value.Any(c => (char.IsWhiteSpace(c) && !(allowSpaces && c == ' ')) || char.IsControl(c) || Forbidden.Contains(c)))
         {
-            throw new ArgumentException($"Caractère non autorisé dans {what} : « {value} ».");
+            throw NotAllowed(what, value);
         }
     }
+
+    private static ArgumentException NotAllowed(string what, string value) =>
+        new(string.Format(CultureInfo.CurrentCulture, CoreStrings.CharacterNotAllowed, what, value));
 
     private static string Require(string? value, string message) =>
         string.IsNullOrWhiteSpace(value) ? throw new ArgumentException(message) : value.Trim();

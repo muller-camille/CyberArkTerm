@@ -1,0 +1,808 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Cancel" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>_OK</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>_Enregistrer</value>
+  </data>
+  <data name="Connect" xml:space="preserve">
+    <value>_Se connecter</value>
+  </data>
+  <data name="SetPsmpAddress" xml:space="preserve">
+    <value>Renseignez l'adresse du PSMP dans les paramètres.</value>
+  </data>
+  <data name="PlatformAndSafe" xml:space="preserve">
+    <value>Plateforme {0} · Safe {1}</value>
+  </data>
+  <data name="ModePsm" xml:space="preserve">
+    <value>PSM (bureau à distance)</value>
+  </data>
+  <data name="ModeSsh" xml:space="preserve">
+    <value>SSH via PSMP</value>
+  </data>
+  <data name="ComponentLabel" xml:space="preserve">
+    <value>_Composant PSM :</value>
+  </data>
+  <data name="TargetMachineLabel" xml:space="preserve">
+    <value>_Machine cible :</value>
+  </data>
+  <data name="NewFolder" xml:space="preserve">
+    <value>Nouveau dossier</value>
+  </data>
+  <data name="NewFolderMenu" xml:space="preserve">
+    <value>_Nouveau dossier…</value>
+  </data>
+  <data name="MyServers" xml:space="preserve">
+    <value>Serveurs courants</value>
+  </data>
+  <data name="LoginTitle" xml:space="preserve">
+    <value>CyberArkTerm — Connexion</value>
+  </data>
+  <data name="LoginHeading" xml:space="preserve">
+    <value>Connexion au coffre CyberArk</value>
+  </data>
+  <data name="LoginSubtitle" xml:space="preserve">
+    <value>Identifiez-vous pour lister les comptes accessibles via PSM.</value>
+  </data>
+  <data name="LoginAddress" xml:space="preserve">
+    <value>_Adresse PVWA :</value>
+  </data>
+  <data name="LoginAddressTip" xml:space="preserve">
+    <value>Ex. : https://pvwa.mondomaine.local/PasswordVault</value>
+  </data>
+  <data name="LoginMethod" xml:space="preserve">
+    <value>_Méthode :</value>
+  </data>
+  <data name="LoginUser" xml:space="preserve">
+    <value>_Utilisateur :</value>
+  </data>
+  <data name="LoginPassword" xml:space="preserve">
+    <value>Mot de _passe :</value>
+  </data>
+  <data name="LoginButton" xml:space="preserve">
+    <value>_Se connecter</value>
+  </data>
+  <data name="LoginLanguageTip" xml:space="preserve">
+    <value>Langue de l'interface</value>
+  </data>
+  <data name="LoginMissingCredentials" xml:space="preserve">
+    <value>Saisissez votre nom d'utilisateur et votre mot de passe.</value>
+  </data>
+  <data name="LoginRadiusPrompt" xml:space="preserve">
+    <value>Saisissez la réponse demandée par le serveur RADIUS :</value>
+  </data>
+  <data name="ErrorPvwaTimeout" xml:space="preserve">
+    <value>Le PVWA n'a pas répondu à temps.</value>
+  </data>
+  <data name="ErrorTlsRejected" xml:space="preserve">
+    <value>Connexion TLS refusée : le certificat du PVWA n'est pas approuvé par ce poste.</value>
+  </data>
+  <data name="ErrorPvwaUnreachable" xml:space="preserve">
+    <value>Impossible de joindre le PVWA : {0}</value>
+  </data>
+  <data name="ErrorLaunchClient" xml:space="preserve">
+    <value>Impossible de lancer le client de connexion : {0}</value>
+  </data>
+  <data name="MenuConnectPsm" xml:space="preserve">
+    <value>_Se connecter (PSM)</value>
+  </data>
+  <data name="MenuConnectSsh" xml:space="preserve">
+    <value>Se connecter en SS_H (PSMP)</value>
+  </data>
+  <data name="MenuConnectAdvanced" xml:space="preserve">
+    <value>Connexion _avancée…</value>
+  </data>
+  <data name="MenuAddToMyServers" xml:space="preserve">
+    <value>Ajouter aux serveurs _courants</value>
+  </data>
+  <data name="MenuCopyServer" xml:space="preserve">
+    <value>Copier le serveur</value>
+  </data>
+  <data name="MenuCopyUser" xml:space="preserve">
+    <value>Copier l'utilisateur</value>
+  </data>
+  <data name="MenuCopyDomainUser" xml:space="preserve">
+    <value>Copier domaine\utilisateur</value>
+  </data>
+  <data name="MenuProperties" xml:space="preserve">
+    <value>_Propriétés…</value>
+  </data>
+  <data name="MenuRename" xml:space="preserve">
+    <value>_Renommer…</value>
+  </data>
+  <data name="MenuRemoveFromMyServers" xml:space="preserve">
+    <value>Re_tirer des serveurs courants</value>
+  </data>
+  <data name="MenuNewSubfolder" xml:space="preserve">
+    <value>_Nouveau sous-dossier…</value>
+  </data>
+  <data name="MenuDeleteFolder" xml:space="preserve">
+    <value>_Supprimer le dossier…</value>
+  </data>
+  <data name="ToolLogout" xml:space="preserve">
+    <value>Déconnexion</value>
+  </data>
+  <data name="ToolLogoutTip" xml:space="preserve">
+    <value>Fermer la session CyberArk et revenir à l'écran de connexion</value>
+  </data>
+  <data name="ToolExit" xml:space="preserve">
+    <value>Quitter</value>
+  </data>
+  <data name="ToolExitTip" xml:space="preserve">
+    <value>Quitter CyberArkTerm</value>
+  </data>
+  <data name="ToolConnect" xml:space="preserve">
+    <value>Se connecter</value>
+  </data>
+  <data name="ToolConnectTip" xml:space="preserve">
+    <value>Ouvrir une session sur le compte sélectionné (double-clic / Entrée)</value>
+  </data>
+  <data name="ToolSshTip" xml:space="preserve">
+    <value>Ouvrir le compte en SSH via le PSMP</value>
+  </data>
+  <data name="ToolAdvanced" xml:space="preserve">
+    <value>Connexion…</value>
+  </data>
+  <data name="ToolAdvancedTip" xml:space="preserve">
+    <value>Choisir le composant, la machine cible, le motif ou le ticket</value>
+  </data>
+  <data name="ToolAddToMyServers" xml:space="preserve">
+    <value>Courant</value>
+  </data>
+  <data name="ToolAddToMyServersTip" xml:space="preserve">
+    <value>Ajouter le compte sélectionné à vos serveurs courants</value>
+  </data>
+  <data name="ToolRefresh" xml:space="preserve">
+    <value>Actualiser</value>
+  </data>
+  <data name="ToolRefreshTip" xml:space="preserve">
+    <value>Recharger les comptes depuis le PVWA (F5)</value>
+  </data>
+  <data name="ToolExport" xml:space="preserve">
+    <value>Exporter</value>
+  </data>
+  <data name="ToolExportTip" xml:space="preserve">
+    <value>Exporter la liste filtrée en CSV</value>
+  </data>
+  <data name="ToolSettings" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="ToolSettingsTip" xml:space="preserve">
+    <value>PSMP, langue, composants mémorisés</value>
+  </data>
+  <data name="TabAvailable" xml:space="preserve">
+    <value>Disponibles</value>
+  </data>
+  <data name="TabAvailableTip" xml:space="preserve">
+    <value>Tous les comptes accessibles dans CyberArk</value>
+  </data>
+  <data name="SearchTip" xml:space="preserve">
+    <value>Filtrer par serveur, utilisateur, safe, plateforme… (Ctrl+F)</value>
+  </data>
+  <data name="SearchPlaceholder" xml:space="preserve">
+    <value>Filtrer les sessions…</value>
+  </data>
+  <data name="GroupBy" xml:space="preserve">
+    <value>Grouper par</value>
+  </data>
+  <data name="GroupByKind" xml:space="preserve">
+    <value>Type de cible</value>
+  </data>
+  <data name="TabMyServers" xml:space="preserve">
+    <value>Courants</value>
+  </data>
+  <data name="TabMyServersTip" xml:space="preserve">
+    <value>Vos serveurs de travail, rangés en dossiers, avec leur configuration</value>
+  </data>
+  <data name="EditSavedTip" xml:space="preserve">
+    <value>Propriétés / renommer</value>
+  </data>
+  <data name="DeleteSavedTip" xml:space="preserve">
+    <value>Retirer le serveur ou supprimer le dossier</value>
+  </data>
+  <data name="MyServersHeading" xml:space="preserve">
+    <value>Mes serveurs</value>
+  </data>
+  <data name="NoSavedHelp" xml:space="preserve">
+    <value>Ajoutez ici les serveurs que vous utilisez : clic droit sur un compte de l'onglet « Disponibles » puis « Ajouter aux serveurs courants », ou glissez-le sur l'onglet « Courants ». Clic droit ici pour créer des dossiers.</value>
+  </data>
+  <data name="TabFiles" xml:space="preserve">
+    <value>Fichiers</value>
+  </data>
+  <data name="TabFilesTip" xml:space="preserve">
+    <value>Fichiers du serveur de la session SSH active (SFTP / SCP)</value>
+  </data>
+  <data name="TabHome" xml:space="preserve">
+    <value>Accueil</value>
+  </data>
+  <data name="QuickPlaceholder" xml:space="preserve">
+    <value>Connexion rapide : tapez un serveur ou un compte, puis Entrée</value>
+  </data>
+  <data name="RecentSessions" xml:space="preserve">
+    <value>Sessions récentes</value>
+  </data>
+  <data name="NoRecent" xml:space="preserve">
+    <value>Les sessions que vous ouvrez apparaîtront ici.</value>
+  </data>
+  <data name="Shortcuts" xml:space="preserve">
+    <value>Raccourcis</value>
+  </data>
+  <data name="ShortcutOpenKey" xml:space="preserve">
+    <value>Double-clic / Entrée</value>
+  </data>
+  <data name="ShortcutOpen" xml:space="preserve">
+    <value> : ouvrir la session</value>
+  </data>
+  <data name="ShortcutMenuKey" xml:space="preserve">
+    <value>Clic droit</value>
+  </data>
+  <data name="ShortcutMenu" xml:space="preserve">
+    <value> : PSM, SSH, connexion avancée, serveurs courants</value>
+  </data>
+  <data name="ShortcutSshKey" xml:space="preserve">
+    <value>Session SSH</value>
+  </data>
+  <data name="ShortcutSsh" xml:space="preserve">
+    <value> : onglet « Fichiers » à gauche, glisser-déposer pour envoyer</value>
+  </data>
+  <data name="ShortcutFilter" xml:space="preserve">
+    <value> : filtrer les sessions</value>
+  </data>
+  <data name="ShortcutReload" xml:space="preserve">
+    <value> : recharger depuis le PVWA</value>
+  </data>
+  <data name="TabAllAccounts" xml:space="preserve">
+    <value>Tous les comptes</value>
+  </data>
+  <data name="LoadingAccounts" xml:space="preserve">
+    <value>Chargement des comptes…</value>
+  </data>
+  <data name="LoadingAccountsProgress" xml:space="preserve">
+    <value>Chargement des comptes… {0:N0} / {1:N0}</value>
+  </data>
+  <data name="LoadFailedShort" xml:space="preserve">
+    <value>Échec du chargement.</value>
+  </data>
+  <data name="LoadFailed" xml:space="preserve">
+    <value>Impossible de charger les comptes :
+
+{0}</value>
+  </data>
+  <data name="AccountCount" xml:space="preserve">
+    <value>Comptes : {0:N0}</value>
+  </data>
+  <data name="AccountCountFiltered" xml:space="preserve">
+    <value>Comptes affichés : {0:N0} / {1:N0}</value>
+  </data>
+  <data name="Welcome" xml:space="preserve">
+    <value>Connecté à {0} en tant que {1} · comptes disponibles : {2:N0}</value>
+  </data>
+  <data name="AccountGone" xml:space="preserve">
+    <value>Le compte {0} n'est plus disponible (supprimé ou droits retirés).</value>
+  </data>
+  <data name="SshUnavailable" xml:space="preserve">
+    <value>Connexion SSH indisponible : renseignez l'adresse du PSMP dans les paramètres.</value>
+  </data>
+  <data name="ConnectFailed" xml:space="preserve">
+    <value>Échec de la connexion : {0}</value>
+  </data>
+  <data name="PsmOpening" xml:space="preserve">
+    <value>Ouverture de la session PSM {0} ({1})…</value>
+  </data>
+  <data name="PsmStarted" xml:space="preserve">
+    <value>Session PSM lancée : {0} ({1})</value>
+  </data>
+  <data name="SshStarted" xml:space="preserve">
+    <value>Session SSH lancée : {0} via {1}</value>
+  </data>
+  <data name="NothingToExport" xml:space="preserve">
+    <value>Aucun compte à exporter.</value>
+  </data>
+  <data name="ExportTitle" xml:space="preserve">
+    <value>Exporter la liste des comptes</value>
+  </data>
+  <data name="ExportFilter" xml:space="preserve">
+    <value>Fichier CSV (*.csv)|*.csv</value>
+  </data>
+  <data name="ExportFileName" xml:space="preserve">
+    <value>comptes-psm</value>
+  </data>
+  <data name="Exported" xml:space="preserve">
+    <value>Comptes exportés vers {1} : {0:N0}</value>
+  </data>
+  <data name="ExportFailed" xml:space="preserve">
+    <value>Export impossible :
+
+{0}</value>
+  </data>
+  <data name="SettingsSaved" xml:space="preserve">
+    <value>Paramètres enregistrés</value>
+  </data>
+  <data name="SettingsSavedLanguage" xml:space="preserve">
+    <value>Paramètres enregistrés. La nouvelle langue s'appliquera après déconnexion ou au prochain démarrage.</value>
+  </data>
+  <data name="PreferencesNotSaved" xml:space="preserve">
+    <value>Préférences non enregistrées : {0}</value>
+  </data>
+  <data name="SessionExpired" xml:space="preserve">
+    <value>Votre session CyberArk a expiré. Veuillez vous reconnecter.</value>
+  </data>
+  <data name="AccountMachines" xml:space="preserve">
+    <value>Machines : {0}</value>
+  </data>
+  <data name="SshOpening" xml:space="preserve">
+    <value>Ouverture de la session SSH {0} via {1}…</value>
+  </data>
+  <data name="SshOpened" xml:space="preserve">
+    <value>Session SSH ouverte : {0} (PSMP {1})</value>
+  </data>
+  <data name="SshSessionError" xml:space="preserve">
+    <value>Session SSH {0} : {1}</value>
+  </data>
+  <data name="CloseSessionTip" xml:space="preserve">
+    <value>Fermer la session</value>
+  </data>
+  <data name="SshClosed" xml:space="preserve">
+    <value>Session SSH {0} fermée</value>
+  </data>
+  <data name="Reconnect" xml:space="preserve">
+    <value>_Reconnecter</value>
+  </data>
+  <data name="ConnectingViaPsmp" xml:space="preserve">
+    <value>Connexion via le PSMP…</value>
+  </data>
+  <data name="ConnectionImpossible" xml:space="preserve">
+    <value>Connexion impossible</value>
+  </data>
+  <data name="SessionEnded" xml:space="preserve">
+    <value>Session terminée</value>
+  </data>
+  <data name="SessionClosedByServer" xml:space="preserve">
+    <value>Session fermée par le serveur.</value>
+  </data>
+  <data name="ConnectionCancelled" xml:space="preserve">
+    <value>Connexion annulée.</value>
+  </data>
+  <data name="SavedAccountGone" xml:space="preserve">
+    <value>{0} : compte introuvable dans CyberArk (supprimé ou droits retirés).</value>
+  </data>
+  <data name="AddedToMyServersFolder" xml:space="preserve">
+    <value>{0} ajouté aux serveurs courants (dossier {1})</value>
+  </data>
+  <data name="AddedToMyServers" xml:space="preserve">
+    <value>{0} ajouté aux serveurs courants</value>
+  </data>
+  <data name="RootFolder" xml:space="preserve">
+    <value>(racine)</value>
+  </data>
+  <data name="NewFolderEntry" xml:space="preserve">
+    <value>Nouveau dossier…</value>
+  </data>
+  <data name="NewFolderIn" xml:space="preserve">
+    <value>Nouveau dossier dans {0}</value>
+  </data>
+  <data name="FolderNameLabel" xml:space="preserve">
+    <value>Nom du dossier :</value>
+  </data>
+  <data name="FolderNameNoSlashes" xml:space="preserve">
+    <value>Le nom ne doit pas contenir « / » ni « \ ».</value>
+  </data>
+  <data name="FolderExists" xml:space="preserve">
+    <value>Ce dossier existe déjà.</value>
+  </data>
+  <data name="SavedSettingsSaved" xml:space="preserve">
+    <value>Configuration de {0} enregistrée</value>
+  </data>
+  <data name="RenameTitle" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="DisplayNameLabel" xml:space="preserve">
+    <value>Nom affiché :</value>
+  </data>
+  <data name="RenameFolderTitle" xml:space="preserve">
+    <value>Renommer le dossier</value>
+  </data>
+  <data name="RemoveSavedConfirm" xml:space="preserve">
+    <value>Retirer « {0} » de vos serveurs courants ?
+
+Le compte reste disponible dans l'onglet « Disponibles ».</value>
+  </data>
+  <data name="DeleteEmptyFolderConfirm" xml:space="preserve">
+    <value>Supprimer le dossier « {0} » ?</value>
+  </data>
+  <data name="DeleteFolderConfirm" xml:space="preserve">
+    <value>Supprimer le dossier « {0} » et les serveurs qu'il contient ({1}) ?
+
+Les comptes restent disponibles dans l'onglet « Disponibles ».</value>
+  </data>
+  <data name="SavedTargetMachine" xml:space="preserve">
+    <value>Machine cible : {0}</value>
+  </data>
+  <data name="SavedSftpFolder" xml:space="preserve">
+    <value>Dossier SFTP : {0}</value>
+  </data>
+  <data name="SavedAccountMissing" xml:space="preserve">
+    <value>Compte introuvable dans CyberArk (supprimé ou droits retirés).</value>
+  </data>
+  <data name="ConnectTitle" xml:space="preserve">
+    <value>Connexion à la session</value>
+  </data>
+  <data name="ConnectionType" xml:space="preserve">
+    <value>Type de connexion</value>
+  </data>
+  <data name="TargetMachineTip" xml:space="preserve">
+    <value>Serveur sur lequel ouvrir la session (comptes de domaine). Vide : adresse du compte.</value>
+  </data>
+  <data name="ReasonLabel" xml:space="preserve">
+    <value>Moti_f :</value>
+  </data>
+  <data name="ReasonTip" xml:space="preserve">
+    <value>Obligatoire si la plateforme exige un motif d'accès.</value>
+  </data>
+  <data name="TicketLabel" xml:space="preserve">
+    <value>_Ticket :</value>
+  </data>
+  <data name="TicketSystemTip" xml:space="preserve">
+    <value>Système de ticketing (ex. ServiceNow)</value>
+  </data>
+  <data name="TicketSystemPlaceholder" xml:space="preserve">
+    <value>Système (optionnel)</value>
+  </data>
+  <data name="TicketIdTip" xml:space="preserve">
+    <value>Numéro de ticket</value>
+  </data>
+  <data name="TicketIdPlaceholder" xml:space="preserve">
+    <value>N° de ticket (optionnel)</value>
+  </data>
+  <data name="RememberComponent" xml:space="preserve">
+    <value>Mémoriser ce composant pour la plateforme {0}</value>
+  </data>
+  <data name="PsmHint" xml:space="preserve">
+    <value>Le PVWA génère un fichier RDP ouvert dans la Connexion Bureau à distance (mstsc).</value>
+  </data>
+  <data name="SshCommandHint" xml:space="preserve">
+    <value>Commande : ssh {0}</value>
+  </data>
+  <data name="SettingsTitle" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="LanguageSection" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="LanguageLabel" xml:space="preserve">
+    <value>_Langue de l'interface :</value>
+  </data>
+  <data name="LanguageHelp" xml:space="preserve">
+    <value>Appliquée après déconnexion ou au prochain démarrage.</value>
+  </data>
+  <data name="SettingsSshSection" xml:space="preserve">
+    <value>SSH via PSM for SSH (PSMP)</value>
+  </data>
+  <data name="SettingsSshHelp" xml:space="preserve">
+    <value>Permet d'ouvrir les comptes Unix directement en SSH. Laisser vide pour désactiver.</value>
+  </data>
+  <data name="PsmpAddressLabel" xml:space="preserve">
+    <value>_Adresse PSMP :</value>
+  </data>
+  <data name="PortLabel" xml:space="preserve">
+    <value>_Port :</value>
+  </data>
+  <data name="PreferSsh" xml:space="preserve">
+    <value>Double-clic sur un compte Unix : se connecter en SSH via PSMP</value>
+  </data>
+  <data name="SshInApp" xml:space="preserve">
+    <value>Ouvrir les sessions SSH dans CyberArkTerm (terminal en onglet + onglet « Fichiers »), sinon dans Windows Terminal</value>
+  </data>
+  <data name="FollowSetting" xml:space="preserve">
+    <value>Permettre au navigateur de fichiers de suivre le dossier du terminal (installe PROMPT_COMMAND dans le shell à l'ouverture)</value>
+  </data>
+  <data name="UploadLabel" xml:space="preserve">
+    <value>Dépôt de fichiers :</value>
+  </data>
+  <data name="ForgetKeys" xml:space="preserve">
+    <value>Oublier les _clés</value>
+  </data>
+  <data name="ComponentsSection" xml:space="preserve">
+    <value>Composants PSM mémorisés</value>
+  </data>
+  <data name="Forget" xml:space="preserve">
+    <value>_Oublier</value>
+  </data>
+  <data name="NoHostKeys" xml:space="preserve">
+    <value>Aucune clé de PSMP mémorisée.</value>
+  </data>
+  <data name="HostKeys" xml:space="preserve">
+    <value>Clés de PSMP acceptées : {0}</value>
+  </data>
+  <data name="NoComponents" xml:space="preserve">
+    <value>Aucun : le composant est déduit de la plateforme (PSM-RDP pour Windows, PSM-SSH pour Unix...).</value>
+  </data>
+  <data name="ComponentEntry" xml:space="preserve">
+    <value>{0} : {1}</value>
+  </data>
+  <data name="ComponentsForgotten" xml:space="preserve">
+    <value>Seront oubliés à l'enregistrement.</value>
+  </data>
+  <data name="HostKeysForgotten" xml:space="preserve">
+    <value>Seront oubliées à l'enregistrement : l'empreinte sera redemandée à la prochaine connexion.</value>
+  </data>
+  <data name="InvalidPsmpAddress" xml:space="preserve">
+    <value>Adresse PSMP invalide : saisissez un nom d'hôte ou une adresse IP.</value>
+  </data>
+  <data name="InvalidPort" xml:space="preserve">
+    <value>Port invalide (1 à 65535).</value>
+  </data>
+  <data name="PromptTitle" xml:space="preserve">
+    <value>Authentification PSMP</value>
+  </data>
+  <data name="PromptDefaultInstruction" xml:space="preserve">
+    <value>Le serveur PSMP demande :</value>
+  </data>
+  <data name="EnterValue" xml:space="preserve">
+    <value>Saisissez une valeur.</value>
+  </data>
+  <data name="HostKeyTitle" xml:space="preserve">
+    <value>Clé du serveur PSMP</value>
+  </data>
+  <data name="HostKeyUnknown" xml:space="preserve">
+    <value>Première connexion au PSMP {0}:{1}.
+
+Empreinte de sa clé ({2}) :
+SHA256:{3}
+
+Vérifiez-la auprès de l'équipe CyberArk si besoin. Faire confiance à ce serveur ?</value>
+  </data>
+  <data name="HostKeyChanged" xml:space="preserve">
+    <value>ATTENTION : la clé du PSMP {0}:{1} a changé !
+
+Nouvelle empreinte ({2}) :
+SHA256:{3}
+
+Cela peut indiquer une interception de la connexion. N'acceptez que si l'équipe CyberArk vous a confirmé ce changement. Accepter la nouvelle clé ?</value>
+  </data>
+  <data name="SshClientNotFound" xml:space="preserve">
+    <value>Client SSH introuvable : installez la fonctionnalité Windows « Client OpenSSH ».</value>
+  </data>
+  <data name="PropertiesTitle" xml:space="preserve">
+    <value>Propriétés du serveur</value>
+  </data>
+  <data name="DisplaySection" xml:space="preserve">
+    <value>Affichage</value>
+  </data>
+  <data name="NameLabel" xml:space="preserve">
+    <value>_Nom :</value>
+  </data>
+  <data name="FolderLabel" xml:space="preserve">
+    <value>_Dossier :</value>
+  </data>
+  <data name="FolderTip" xml:space="preserve">
+    <value>Dossier de l'onglet « Courants » ; « / » pour les sous-dossiers (ex. Prod/Web)</value>
+  </data>
+  <data name="ConnectionSection" xml:space="preserve">
+    <value>Connexion</value>
+  </data>
+  <data name="ComponentEmptyTip" xml:space="preserve">
+    <value>Vide : composant déduit de la plateforme</value>
+  </data>
+  <data name="DefaultReasonLabel" xml:space="preserve">
+    <value>_Motif par défaut :</value>
+  </data>
+  <data name="StartDirLabel" xml:space="preserve">
+    <value>Dossier SFTP de _départ :</value>
+  </data>
+  <data name="StartDirTip" xml:space="preserve">
+    <value>Dossier ouvert par le panneau Fichiers (ex. /opt/appli/logs). Vide : dossier personnel.</value>
+  </data>
+  <data name="AccountNotInList" xml:space="preserve">
+    <value>Compte introuvable dans la liste CyberArk actuelle</value>
+  </data>
+  <data name="StartDirMustBeAbsolute" xml:space="preserve">
+    <value>Le dossier de départ doit être un chemin absolu (ex. /opt/appli).</value>
+  </data>
+  <data name="FileOpen" xml:space="preserve">
+    <value>_Ouvrir</value>
+  </data>
+  <data name="FileDownload" xml:space="preserve">
+    <value>_Télécharger…</value>
+  </data>
+  <data name="FileUploadHere" xml:space="preserve">
+    <value>_Envoyer des fichiers ici…</value>
+  </data>
+  <data name="FileDelete" xml:space="preserve">
+    <value>_Supprimer (rm)</value>
+  </data>
+  <data name="FileCopyPath" xml:space="preserve">
+    <value>_Copier le chemin</value>
+  </data>
+  <data name="FileRefresh" xml:space="preserve">
+    <value>_Actualiser</value>
+  </data>
+  <data name="ParentTip" xml:space="preserve">
+    <value>Dossier parent (Retour arrière)</value>
+  </data>
+  <data name="HomeTip" xml:space="preserve">
+    <value>Dossier personnel</value>
+  </data>
+  <data name="RefreshTip" xml:space="preserve">
+    <value>Actualiser (F5)</value>
+  </data>
+  <data name="UploadTip" xml:space="preserve">
+    <value>Envoyer des fichiers (ou glissez-les dans la liste)</value>
+  </data>
+  <data name="DownloadTip" xml:space="preserve">
+    <value>Télécharger la sélection</value>
+  </data>
+  <data name="DeleteTip" xml:space="preserve">
+    <value>Supprimer la sélection (Suppr)</value>
+  </data>
+  <data name="PathTip" xml:space="preserve">
+    <value>Chemin courant : saisissez un chemin puis Entrée</value>
+  </data>
+  <data name="Hidden" xml:space="preserve">
+    <value>Cachés</value>
+  </data>
+  <data name="HiddenTip" xml:space="preserve">
+    <value>Afficher les fichiers commençant par un point</value>
+  </data>
+  <data name="FollowTerminal" xml:space="preserve">
+    <value>Suivre le dossier du terminal</value>
+  </data>
+  <data name="FollowTip" xml:space="preserve">
+    <value>Le navigateur se place automatiquement dans le dossier courant du shell (cd)</value>
+  </data>
+  <data name="FollowDisabledTip" xml:space="preserve">
+    <value>Activez le suivi du dossier du terminal dans les paramètres</value>
+  </data>
+  <data name="ColumnSize" xml:space="preserve">
+    <value>Taille</value>
+  </data>
+  <data name="ColumnModified" xml:space="preserve">
+    <value>Modifié</value>
+  </data>
+  <data name="ColumnPermissions" xml:space="preserve">
+    <value>Droits</value>
+  </data>
+  <data name="Retry" xml:space="preserve">
+    <value>_Réessayer</value>
+  </data>
+  <data name="NoSshSession" xml:space="preserve">
+    <value>Aucune session SSH</value>
+  </data>
+  <data name="NoSshSessionHelp" xml:space="preserve">
+    <value>Ouvrez une session SSH (PSMP) pour parcourir les fichiers du serveur et y déposer des fichiers.</value>
+  </data>
+  <data name="SshConnecting" xml:space="preserve">
+    <value>Connexion SSH en cours…</value>
+  </data>
+  <data name="SshClosedBrowse" xml:space="preserve">
+    <value>La session SSH est fermée. Reconnectez-la pour parcourir ses fichiers.</value>
+  </data>
+  <data name="SshNotConnectedBrowse" xml:space="preserve">
+    <value>La session SSH n'est pas connectée. Reconnectez-la pour parcourir ses fichiers.</value>
+  </data>
+  <data name="SftpOpening" xml:space="preserve">
+    <value>Ouverture de la connexion SFTP…</value>
+  </data>
+  <data name="SftpFailed" xml:space="preserve">
+    <value>Connexion SFTP impossible :
+{0}</value>
+  </data>
+  <data name="SftpLost" xml:space="preserve">
+    <value>Connexion SFTP perdue :
+{0}</value>
+  </data>
+  <data name="Reading" xml:space="preserve">
+    <value>Lecture de {0}…</value>
+  </data>
+  <data name="FolderSummary" xml:space="preserve">
+    <value>Dossiers : {0} · fichiers : {1}</value>
+  </data>
+  <data name="CannotOpen" xml:space="preserve">
+    <value>Impossible d'ouvrir {0} : {1}</value>
+  </data>
+  <data name="NewRemoteFolderPrompt" xml:space="preserve">
+    <value>Nom du dossier à créer dans {0} :</value>
+  </data>
+  <data name="NameNoSlash" xml:space="preserve">
+    <value>Le nom ne doit pas contenir « / ».</value>
+  </data>
+  <data name="CreateFailed" xml:space="preserve">
+    <value>Création impossible : {0}</value>
+  </data>
+  <data name="AndMore" xml:space="preserve">
+    <value>  … ({0} de plus)</value>
+  </data>
+  <data name="DeleteConfirm" xml:space="preserve">
+    <value>Supprimer définitivement du serveur ({0}) :
+
+{1}
+
+Les dossiers doivent être vides.</value>
+  </data>
+  <data name="DeleteTitle" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="Deleting" xml:space="preserve">
+    <value>Suppression de {0}…</value>
+  </data>
+  <data name="ItemError" xml:space="preserve">
+    <value>{0} : {1}</value>
+  </data>
+  <data name="DeleteIncomplete" xml:space="preserve">
+    <value>Suppression incomplète : {0}</value>
+  </data>
+  <data name="Deleted" xml:space="preserve">
+    <value>Éléments supprimés : {0}</value>
+  </data>
+  <data name="DropHint" xml:space="preserve">
+    <value>Déposer pour envoyer en {0} vers
+{1}</value>
+  </data>
+  <data name="UploadTo" xml:space="preserve">
+    <value>Envoyer vers {0}</value>
+  </data>
+  <data name="UploadConflicts" xml:space="preserve">
+    <value>Ces éléments existent déjà dans {0} et seront remplacés :
+
+{1}
+
+Continuer ?</value>
+  </data>
+  <data name="UploadTitle" xml:space="preserve">
+    <value>Envoyer</value>
+  </data>
+  <data name="Uploading" xml:space="preserve">
+    <value>Envoi {0} de {1} ({2}/{3})…</value>
+  </data>
+  <data name="UploadFailed" xml:space="preserve">
+    <value>Échec de l'envoi de {0} : {1}</value>
+  </data>
+  <data name="UploadFailedDetails" xml:space="preserve">
+    <value>Échec de l'envoi de {0} :
+
+{1}</value>
+  </data>
+  <data name="Uploaded" xml:space="preserve">
+    <value>Envoyés en {1} vers {2} : {0}</value>
+  </data>
+  <data name="DownloadTitle" xml:space="preserve">
+    <value>Télécharger</value>
+  </data>
+  <data name="DownloadManyTitle" xml:space="preserve">
+    <value>Télécharger {0} fichiers dans…</value>
+  </data>
+  <data name="Downloading" xml:space="preserve">
+    <value>Téléchargement de {0}…</value>
+  </data>
+  <data name="Downloaded" xml:space="preserve">
+    <value>Fichiers téléchargés dans {1} : {0}</value>
+  </data>
+  <data name="DownloadFailed" xml:space="preserve">
+    <value>Échec du téléchargement : {0}</value>
+  </data>
+  <data name="PermissionDenied" xml:space="preserve">
+    <value>permission refusée</value>
+  </data>
+  <data name="PathNotFound" xml:space="preserve">
+    <value>chemin introuvable</value>
+  </data>
+  <data name="DirectoryNotEmpty" xml:space="preserve">
+    <value>le dossier n'est pas vide ou ne peut pas être supprimé</value>
+  </data>
+</root>

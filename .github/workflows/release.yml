@@ -1,0 +1,61 @@
+name: release
+
+# Publie une version : poussez un tag vX.Y.Z (sur un commit de main) pour compiler l'exécutable
+# et créer la Release GitHub avec le zip et son empreinte SHA256.
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Numéro de version
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".Substring(1)
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Tag invalide : ${{ github.ref_name }} (attendu vX.Y.Z)" }
+          "VERSION=$version" >> $env:GITHUB_ENV
+
+      - name: Tests
+        run: dotnet test CyberArkTerm.sln -c Release
+
+      - name: Publication (exe autonome win-x64)
+        run: >
+          dotnet publish src/CyberArkTerm.App/CyberArkTerm.App.csproj
+          -c Release -r win-x64 -p:SelfContained=true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true -p:DebugType=none
+          -p:Version=${{ env.VERSION }}
+          -o publish
+
+      - name: Archive et empreinte
+        shell: pwsh
+        run: |
+          $zip = "CyberArkTerm-$env:VERSION-win-x64.zip"
+          Compress-Archive -Path publish/CyberArkTerm.exe, LICENSE -DestinationPath $zip
+          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $zip" | Out-File -FilePath SHA256SUMS.txt -Encoding ascii
+          Get-Content SHA256SUMS.txt
+
+      - name: Release GitHub
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $notes = "docs/releases/${{ github.ref_name }}.md"
+          $files = @("CyberArkTerm-$env:VERSION-win-x64.zip", "SHA256SUMS.txt")
+          if (Test-Path $notes) {
+            gh release create "${{ github.ref_name }}" @files --title "CyberArkTerm $env:VERSION" --notes-file $notes
+          } else {
+            gh release create "${{ github.ref_name }}" @files --title "CyberArkTerm $env:VERSION" --generate-notes
+          }

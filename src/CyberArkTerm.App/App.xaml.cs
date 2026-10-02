@@ -1,18 +1,33 @@
+using System.Globalization;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using CyberArkTerm.App.Views;
 using CyberArkTerm.Core;
+using CyberArkTerm.Core.Localization;
 
 namespace CyberArkTerm.App;
 
 public partial class App : Application
 {
     private AppSettings _settings = new();
+    private CultureInfo _systemCulture = CultureInfo.CurrentUICulture;
 
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
         DispatcherUnhandledException += OnUnhandledException;
+
+        // Même icône pour toutes les fenêtres (connexion, fenêtre principale, dialogues).
+        var icon = BitmapFrame.Create(new Uri("pack://application:,,,/Assets/CyberArkTerm.ico", UriKind.Absolute));
+        EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent, new RoutedEventHandler((sender, _) =>
+        {
+            if (sender is Window { Icon: null } window)
+            {
+                window.Icon = icon;
+            }
+        }));
+        _systemCulture = CultureInfo.CurrentUICulture;
         _settings = AppSettings.Load(AppSettings.DefaultPath);
         StartSession();
     }
@@ -20,8 +35,18 @@ public partial class App : Application
     /// <summary>Affiche l'écran de connexion puis, en cas de succès, la liste des comptes.</summary>
     private void StartSession()
     {
+        // Langue choisie dans les préférences (ou celle de Windows) : appliquée à chaque retour à l'écran de connexion.
+        UiLanguage.Apply(UiLanguage.Resolve(_settings.Language, _systemCulture));
         var login = new LoginWindow(_settings);
-        if (login.ShowDialog() != true || login.Client is null)
+        bool ok = login.ShowDialog() == true && login.Client is not null;
+        if (login.LanguageChanged)
+        {
+            // Langue changée depuis l'écran de connexion : on le rouvre dans la nouvelle langue.
+            StartSession();
+            return;
+        }
+
+        if (!ok || login.Client is null)
         {
             Shutdown();
             return;

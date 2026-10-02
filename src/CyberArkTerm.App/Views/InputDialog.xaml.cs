@@ -1,4 +1,5 @@
 using System.Windows;
+using CyberArkTerm.App.Localization;
 
 namespace CyberArkTerm.App.Views;
 
@@ -26,7 +27,7 @@ public partial class InputDialog : Window
 
     private void OnOk(object sender, RoutedEventArgs e)
     {
-        var error = Value.Length == 0 ? "Saisissez une valeur." : _validate?.Invoke(Value);
+        var error = Value.Length == 0 ? Strings.EnterValue : _validate?.Invoke(Value);
         if (error is not null)
         {
             ErrorText.Text = error;

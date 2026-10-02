@@ -108,6 +108,7 @@ public class PsmConnectTests
     [InlineData("", "pas de fichier RDP")]
     public void RdpFile_RejectsAnythingElse(string body, string expected)
     {
+        using var _ = UiCulture.Use("fr-FR");
         var ex = Assert.Throws<PvwaException>(() => RdpFile.FromPsmConnectResponse(Encoding.UTF8.GetBytes(body), null));
 
         Assert.Contains(expected, ex.Message);

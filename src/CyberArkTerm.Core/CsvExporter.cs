@@ -1,23 +1,25 @@
 using System.Globalization;
+using CyberArkTerm.Core.Localization;
 
 namespace CyberArkTerm.Core;
 
 /// <summary>
-/// Export CSV au format attendu par un Excel français (séparateur « ; »).
+/// Export CSV lisible par Excel : séparateur de liste de la région Windows (« ; » en France et en Italie,
+/// « , » aux États-Unis), en-têtes dans la langue de l'interface.
 /// </summary>
 public static class CsvExporter
 {
-    private const char Separator = ';';
-
-    private static readonly string[] Header =
-        ["Serveur", "Utilisateur", "Domaine", "Plateforme", "Safe", "Nom", "Machines autorisées", "Créé le", "ID"];
-
-    public static void Write(TextWriter writer, IEnumerable<PvwaAccount> accounts)
+    public static void Write(TextWriter writer, IEnumerable<PvwaAccount> accounts, char? separator = null)
     {
-        WriteLine(writer, Header);
+        char sep = separator ?? DefaultSeparator(CultureInfo.CurrentCulture);
+        WriteLine(writer, sep,
+        [
+            CoreStrings.ColumnServer, CoreStrings.ColumnUser, CoreStrings.ColumnDomain, CoreStrings.ColumnPlatform,
+            CoreStrings.ColumnSafe, CoreStrings.ColumnName, CoreStrings.ColumnAllowedMachines, CoreStrings.ColumnCreated, "ID",
+        ]);
         foreach (var a in accounts)
         {
-            WriteLine(writer,
+            WriteLine(writer, sep,
             [
                 a.Address ?? "",
                 a.UserName ?? "",
@@ -32,13 +34,17 @@ public static class CsvExporter
         }
     }
 
-    private static void WriteLine(TextWriter writer, IReadOnlyList<string> values)
+    /// <summary>Séparateur de liste de la culture (celui qu'utilise Excel), « ; » s'il n'est pas d'un seul caractère.</summary>
+    public static char DefaultSeparator(CultureInfo culture) =>
+        culture.TextInfo.ListSeparator is { Length: 1 } s && s[0] is not ('"' or '\r' or '\n') ? s[0] : ';';
+
+    private static void WriteLine(TextWriter writer, char separator, IReadOnlyList<string> values)
     {
         for (int i = 0; i < values.Count; i++)
         {
             if (i > 0)
             {
-                writer.Write(Separator);
+                writer.Write(separator);
             }
 
             writer.Write(Escape(values[i]));
@@ -55,7 +61,8 @@ public static class CsvExporter
             value = "'" + value;
         }
 
-        if (value.IndexOfAny([Separator, '"', '\r', '\n']) >= 0)
+        // Guillemets si la valeur contient un séparateur possible (« ; » ou « , »), un guillemet ou un saut de ligne.
+        if (value.IndexOfAny([';', ',', '"', '\r', '\n']) >= 0)
         {
             return "\"" + value.Replace("\"", "\"\"") + "\"";
         }

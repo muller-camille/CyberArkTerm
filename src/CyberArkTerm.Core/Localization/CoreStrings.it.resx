@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="LanguageSystem" xml:space="preserve">
+    <value>Lingua del sistema</value>
+  </data>
+  <data name="RdpGatewayInstead" xml:space="preserve">
+    <value>Il PVWA ha restituito una connessione HTML5 (PSM Gateway) invece di un file RDP.</value>
+  </data>
+  <data name="RdpUnexpected" xml:space="preserve">
+    <value>Risposta inattesa dal PVWA{0}: nessun file RDP.</value>
+  </data>
+  <data name="PsmpAddressWhat" xml:space="preserve">
+    <value>l'indirizzo del PSMP</value>
+  </data>
+  <data name="SshLoginWhat" xml:space="preserve">
+    <value>l'identificativo SSH</value>
+  </data>
+  <data name="CharacterNotAllowed" xml:space="preserve">
+    <value>Carattere non consentito in {0}: «{1}».</value>
+  </data>
+  <data name="PasswordPromptTitle" xml:space="preserve">
+    <value>Connessione a {0}</value>
+  </data>
+  <data name="PasswordPrompt" xml:space="preserve">
+    <value>Password per {0}:</value>
+  </data>
+  <data name="AuthenticationCancelled" xml:space="preserve">
+    <value>Autenticazione annullata.</value>
+  </data>
+  <data name="SizeBytes" xml:space="preserve">
+    <value>{0} B</value>
+  </data>
+  <data name="SizeKilobytes" xml:space="preserve">
+    <value>{0} KB</value>
+  </data>
+  <data name="SizeMegabytes" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="SizeGigabytes" xml:space="preserve">
+    <value>{0} GB</value>
+  </data>
+  <data name="KindDatabase" xml:space="preserve">
+    <value>Database</value>
+  </data>
+  <data name="KindNetwork" xml:space="preserve">
+    <value>Rete</value>
+  </data>
+  <data name="KindOther" xml:space="preserve">
+    <value>Altro</value>
+  </data>
+  <data name="GroupNotSet" xml:space="preserve">
+    <value>(non specificato)</value>
+  </data>
+  <data name="PvwaAddressRequired" xml:space="preserve">
+    <value>L'indirizzo del PVWA è obbligatorio.</value>
+  </data>
+  <data name="PvwaAddressInvalid" xml:space="preserve">
+    <value>Indirizzo del PVWA non valido: «{0}».</value>
+  </data>
+  <data name="PvwaHttpsRequired" xml:space="preserve">
+    <value>Il PVWA deve essere raggiunto in HTTPS: le credenziali transitano su questa connessione.</value>
+  </data>
+  <data name="PvwaNoToken" xml:space="preserve">
+    <value>Risposta inattesa dal PVWA: nessun token di sessione ricevuto.</value>
+  </data>
+  <data name="PvwaEmptyResponse" xml:space="preserve">
+    <value>Risposta vuota dal PVWA.</value>
+  </data>
+  <data name="PvwaNoSession" xml:space="preserve">
+    <value>Nessuna sessione aperta sul PVWA.</value>
+  </data>
+  <data name="ControlCharacterInPath" xml:space="preserve">
+    <value>Caratteri di controllo non consentiti nel percorso.</value>
+  </data>
+  <data name="ColumnServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="ColumnUser" xml:space="preserve">
+    <value>Utente</value>
+  </data>
+  <data name="ColumnDomain" xml:space="preserve">
+    <value>Dominio</value>
+  </data>
+  <data name="ColumnPlatform" xml:space="preserve">
+    <value>Piattaforma</value>
+  </data>
+  <data name="ColumnSafe" xml:space="preserve">
+    <value>Safe</value>
+  </data>
+  <data name="ColumnName" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="ColumnAllowedMachines" xml:space="preserve">
+    <value>Macchine autorizzate</value>
+  </data>
+  <data name="ColumnCreated" xml:space="preserve">
+    <value>Creato il</value>
+  </data>
+  <data name="AccountHasNoUser" xml:space="preserve">
+    <value>L'account non ha un nome utente.</value>
+  </data>
+  <data name="AccountHasNoAddress" xml:space="preserve">
+    <value>L'account non ha un indirizzo di destinazione.</value>
+  </data>
+  <data name="VaultUserUnknown" xml:space="preserve">
+    <value>Utente del vault sconosciuto.</value>
+  </data>
+  <data name="InvalidFolderName" xml:space="preserve">
+    <value>Nome della cartella non valido.</value>
+  </data>
+  <data name="FolderIntoItself" xml:space="preserve">
+    <value>Impossibile spostare una cartella in se stessa.</value>
+  </data>
+  <data name="RootCannotBeDeleted" xml:space="preserve">
+    <value>La radice non può essere eliminata.</value>
+  </data>
+</root>

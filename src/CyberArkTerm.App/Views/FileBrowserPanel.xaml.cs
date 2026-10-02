@@ -2,6 +2,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services;
 using CyberArkTerm.Core;
 using CyberArkTerm.Core.Ssh;
@@ -26,8 +27,8 @@ public partial class FileBrowserPanel : UserControl
     public FileBrowserPanel()
     {
         InitializeComponent();
-        ShowMessage("Ouvrez une session SSH (PSMP) pour parcourir les fichiers du serveur et y déposer des fichiers.", retry: false);
-        HeaderText.Text = "Aucune session SSH";
+        ShowMessage(Strings.NoSshSessionHelp, retry: false);
+        HeaderText.Text = Strings.NoSshSession;
         UpdateToolbar();
     }
 
@@ -60,8 +61,8 @@ public partial class FileBrowserPanel : UserControl
         StatusText.Text = "";
         if (session is null)
         {
-            HeaderText.Text = "Aucune session SSH";
-            ShowMessage("Ouvrez une session SSH (PSMP) pour parcourir les fichiers du serveur et y déposer des fichiers.", retry: false);
+            HeaderText.Text = Strings.NoSshSession;
+            ShowMessage(Strings.NoSshSessionHelp, retry: false);
             UpdateToolbar();
             return;
         }
@@ -70,8 +71,8 @@ public partial class FileBrowserPanel : UserControl
         FollowBox.IsEnabled = session.CanFollowTerminal;
         FollowBox.IsChecked = session.CanFollowTerminal && session.FollowTerminal;
         FollowBox.ToolTip = session.CanFollowTerminal
-            ? "Le navigateur se place automatiquement dans le dossier courant du shell (cd)"
-            : "Activez « Suivi du dossier du terminal » dans les paramètres";
+            ? Strings.FollowTip
+            : Strings.FollowDisabledTip;
         session.TerminalDirectoryChanged += OnTerminalDirectory;
         session.StateChanged += OnSessionStateChanged;
         _ = OpenAsync();
@@ -91,13 +92,13 @@ public partial class FileBrowserPanel : UserControl
         if (session.State != SshSessionState.Connected)
         {
             ShowMessage(session.State == SshSessionState.Connecting
-                ? "Connexion SSH en cours…"
-                : "La session SSH est fermée. Reconnectez-la pour parcourir ses fichiers.", retry: false);
+                ? Strings.SshConnecting
+                : Strings.SshClosedBrowse, retry: false);
             UpdateToolbar();
             return;
         }
 
-        ShowMessage("Ouverture de la connexion SFTP…", retry: false);
+        ShowMessage(Strings.SftpOpening, retry: false);
         try
         {
             var browser = await session.GetBrowserAsync();
@@ -118,7 +119,7 @@ public partial class FileBrowserPanel : UserControl
         {
             if (generation == _generation)
             {
-                ShowMessage("Connexion SFTP impossible :\n" + ErrorText.Describe(ex), retry: true);
+                ShowMessage(Text.Format(Strings.SftpFailed, ErrorText.Describe(ex)), retry: true);
             }
         }
         finally
@@ -136,7 +137,7 @@ public partial class FileBrowserPanel : UserControl
         }
 
         int generation = _generation;
-        SetStatus($"Lecture de {path}…");
+        SetStatus(Text.Format(Strings.Reading, path));
         try
         {
             var entries = await browser.ListAsync(path, _settings.ShowHiddenFiles, CancellationToken.None);
@@ -161,7 +162,7 @@ public partial class FileBrowserPanel : UserControl
             }
 
             int folders = entries.Count(e => e.IsDirectory);
-            SetStatus($"{folders} dossier(s), {entries.Count - folders} fichier(s)");
+            SetStatus(Text.Format(Strings.FolderSummary, folders, entries.Count - folders));
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -174,11 +175,11 @@ public partial class FileBrowserPanel : UserControl
             if (!browser.IsConnected)
             {
                 _browser = null;
-                ShowMessage("Connexion SFTP perdue :\n" + ErrorText.Describe(ex), retry: true);
+                ShowMessage(Text.Format(Strings.SftpLost, ErrorText.Describe(ex)), retry: true);
             }
             else
             {
-                SetStatus($"Impossible d'ouvrir {path} : {Describe(ex)}", error: true);
+                SetStatus(Text.Format(Strings.CannotOpen, path, Describe(ex)), error: true);
             }
         }
     }
@@ -206,7 +207,7 @@ public partial class FileBrowserPanel : UserControl
         }
         else if (_session.State is SshSessionState.Failed or SshSessionState.Closed && _browser is null)
         {
-            ShowMessage("La session SSH n'est pas connectée. Reconnectez-la pour parcourir ses fichiers.", retry: false);
+            ShowMessage(Strings.SshNotConnectedBrowse, retry: false);
         }
 
         UpdateToolbar();
@@ -354,8 +355,8 @@ public partial class FileBrowserPanel : UserControl
             return;
         }
 
-        var dialog = new InputDialog("Nouveau dossier", $"Nom du dossier à créer dans {browser.CurrentDirectory} :",
-            validate: v => v.Contains('/') ? "Le nom ne doit pas contenir « / »." : null) { Owner = Window.GetWindow(this) };
+        var dialog = new InputDialog(Strings.NewFolder, Text.Format(Strings.NewRemoteFolderPrompt, browser.CurrentDirectory),
+            validate: v => v.Contains('/') ? Strings.NameNoSlash : null) { Owner = Window.GetWindow(this) };
         if (dialog.ShowDialog() != true)
         {
             return;
@@ -368,7 +369,7 @@ public partial class FileBrowserPanel : UserControl
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            SetStatus("Création impossible : " + Describe(ex), error: true);
+            SetStatus(Text.Format(Strings.CreateFailed, Describe(ex)), error: true);
         }
     }
 
@@ -386,12 +387,12 @@ public partial class FileBrowserPanel : UserControl
         var names = string.Join("\n", selected.Take(10).Select(s => "  • " + s.Name + (s.IsDirectory ? "/" : "")));
         if (selected.Count > 10)
         {
-            names += $"\n  … et {selected.Count - 10} autre(s)";
+            names += "\n" + Text.Format(Strings.AndMore, selected.Count - 10);
         }
 
         var answer = MessageBox.Show(Window.GetWindow(this),
-            $"Supprimer définitivement du serveur ({browser.CurrentDirectory}) :\n\n{names}\n\nLes dossiers doivent être vides.",
-            "Supprimer", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+            Text.Format(Strings.DeleteConfirm, browser.CurrentDirectory, names),
+            Strings.DeleteTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
         if (answer != MessageBoxResult.Yes)
         {
             return;
@@ -403,14 +404,14 @@ public partial class FileBrowserPanel : UserControl
         {
             foreach (var entry in selected)
             {
-                SetStatus($"Suppression de {entry.Name}…");
+                SetStatus(Text.Format(Strings.Deleting, entry.Name));
                 try
                 {
                     await browser.DeleteAsync(entry, CancellationToken.None);
                 }
                 catch (Exception ex) when (ex is not OutOfMemoryException)
                 {
-                    errors.Add($"{entry.Name} : {Describe(ex, entry.IsDirectory)}");
+                    errors.Add(Text.Format(Strings.ItemError, entry.Name, Describe(ex, entry.IsDirectory)));
                 }
             }
         }
@@ -422,11 +423,11 @@ public partial class FileBrowserPanel : UserControl
         await NavigateAsync(browser.CurrentDirectory);
         if (errors.Count > 0)
         {
-            SetStatus("Suppression incomplète : " + string.Join(" ; ", errors), error: true);
+            SetStatus(Text.Format(Strings.DeleteIncomplete, string.Join(" ; ", errors)), error: true);
         }
         else
         {
-            SetStatus($"{selected.Count} élément(s) supprimé(s)");
+            SetStatus(Text.Format(Strings.Deleted, selected.Count));
         }
     }
 
@@ -438,7 +439,7 @@ public partial class FileBrowserPanel : UserControl
         e.Effects = ok ? DragDropEffects.Copy : DragDropEffects.None;
         if (ok)
         {
-            DropHintText.Text = $"Déposer pour envoyer en {Protocol} vers\n{_browser!.CurrentDirectory}";
+            DropHintText.Text = Text.Format(Strings.DropHint, Protocol, _browser!.CurrentDirectory);
             DropHint.Visibility = Visibility.Visible;
         }
 
@@ -463,7 +464,7 @@ public partial class FileBrowserPanel : UserControl
             return;
         }
 
-        var dialog = new OpenFileDialog { Title = $"Envoyer vers {_browser.CurrentDirectory}", Multiselect = true };
+        var dialog = new OpenFileDialog { Title = Text.Format(Strings.UploadTo, _browser.CurrentDirectory), Multiselect = true };
         if (dialog.ShowDialog(Window.GetWindow(this)) == true)
         {
             _ = UploadAsync(dialog.FileNames);
@@ -485,9 +486,8 @@ public partial class FileBrowserPanel : UserControl
             .Select(e => e.Name).ToHashSet(StringComparer.Ordinal);
         var conflicts = paths.Select(p => Path.GetFileName(p.TrimEnd('\\', '/'))).Where(existing.Contains).ToList();
         if (conflicts.Count > 0 && MessageBox.Show(Window.GetWindow(this),
-                $"Ces éléments existent déjà dans {directory} et seront remplacés :\n\n" +
-                string.Join("\n", conflicts.Take(10).Select(c => "  • " + c)) + "\n\nContinuer ?",
-                "Envoyer", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                Text.Format(Strings.UploadConflicts, directory, string.Join("\n", conflicts.Take(10).Select(c => "  • " + c))),
+                Strings.UploadTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
         {
             return;
         }
@@ -500,7 +500,7 @@ public partial class FileBrowserPanel : UserControl
             for (int i = 0; i < paths.Count; i++)
             {
                 var name = Path.GetFileName(paths[i].TrimEnd('\\', '/'));
-                SetStatus($"Envoi {Protocol} de {name} ({i + 1}/{paths.Count})…");
+                SetStatus(Text.Format(Strings.Uploading, Protocol, name, i + 1, paths.Count));
                 TransferBar.Value = 0;
                 var progress = new Progress<TransferProgress>(p =>
                 {
@@ -513,8 +513,8 @@ public partial class FileBrowserPanel : UserControl
                 }
                 catch (Exception ex) when (ex is not OutOfMemoryException)
                 {
-                    SetStatus($"Échec de l'envoi de {name} : {Describe(ex)}", error: true);
-                    MessageBox.Show(Window.GetWindow(this), $"Échec de l'envoi de {name} :\n\n{Describe(ex)}", "Envoi",
+                    SetStatus(Text.Format(Strings.UploadFailed, name, Describe(ex)), error: true);
+                    MessageBox.Show(Window.GetWindow(this), Text.Format(Strings.UploadFailedDetails, name, Describe(ex)), Strings.UploadTitle,
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     break;
                 }
@@ -533,7 +533,7 @@ public partial class FileBrowserPanel : UserControl
 
         if (done == paths.Count)
         {
-            SetStatus($"{done} élément(s) envoyé(s) en {Protocol} vers {directory}");
+            SetStatus(Text.Format(Strings.Uploaded, done, Protocol, directory));
         }
     }
 
@@ -552,7 +552,7 @@ public partial class FileBrowserPanel : UserControl
         string? singleTarget = null;
         if (files.Count == 1)
         {
-            var save = new SaveFileDialog { Title = "Télécharger", FileName = files[0].Name };
+            var save = new SaveFileDialog { Title = Strings.DownloadTitle, FileName = files[0].Name };
             if (save.ShowDialog(Window.GetWindow(this)) != true)
             {
                 return;
@@ -563,7 +563,7 @@ public partial class FileBrowserPanel : UserControl
         }
         else
         {
-            var pick = new OpenFolderDialog { Title = $"Télécharger {files.Count} fichiers dans…" };
+            var pick = new OpenFolderDialog { Title = Text.Format(Strings.DownloadManyTitle, files.Count) };
             if (pick.ShowDialog(Window.GetWindow(this)) != true)
             {
                 return;
@@ -578,17 +578,17 @@ public partial class FileBrowserPanel : UserControl
         {
             foreach (var file in files)
             {
-                SetStatus($"Téléchargement de {file.Name}…");
+                SetStatus(Text.Format(Strings.Downloading, file.Name));
                 TransferBar.Value = 0;
                 var progress = new Progress<TransferProgress>(p => TransferBar.Value = p.Total > 0 ? 100.0 * p.Transferred / p.Total : 0);
                 await browser.DownloadAsync(file, singleTarget ?? Path.Combine(folder, file.Name), progress, CancellationToken.None);
             }
 
-            SetStatus($"{files.Count} fichier(s) téléchargé(s) dans {folder}");
+            SetStatus(Text.Format(Strings.Downloaded, files.Count, folder));
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            SetStatus("Échec du téléchargement : " + Describe(ex), error: true);
+            SetStatus(Text.Format(Strings.DownloadFailed, Describe(ex)), error: true);
         }
         finally
         {
@@ -604,9 +604,9 @@ public partial class FileBrowserPanel : UserControl
 
     private static string Describe(Exception ex, bool directory = false) => ex switch
     {
-        Renci.SshNet.Common.SftpPermissionDeniedException => "permission refusée",
-        Renci.SshNet.Common.SftpPathNotFoundException => "chemin introuvable",
-        Renci.SshNet.Common.SshException when directory => "le dossier n'est pas vide ou ne peut pas être supprimé",
+        Renci.SshNet.Common.SftpPermissionDeniedException => Strings.PermissionDenied,
+        Renci.SshNet.Common.SftpPathNotFoundException => Strings.PathNotFound,
+        Renci.SshNet.Common.SshException when directory => Strings.DirectoryNotEmpty,
         _ => ErrorText.Describe(ex),
     };
 

@@ -1,4 +1,5 @@
 using System.Globalization;
+using CyberArkTerm.Core.Localization;
 
 namespace CyberArkTerm.Core.Ssh;
 
@@ -57,13 +58,13 @@ public static class RemotePath
 
     public static string FormatSize(long bytes)
     {
-        var culture = CultureInfo.GetCultureInfo("fr-FR");
+        var culture = CultureInfo.CurrentCulture;
         return bytes switch
         {
-            < 1024 => $"{bytes} o",
-            < 1024 * 1024 => (bytes / 1024.0).ToString("0.#", culture) + " Ko",
-            < 1024L * 1024 * 1024 => (bytes / 1024.0 / 1024).ToString("0.#", culture) + " Mo",
-            _ => (bytes / 1024.0 / 1024 / 1024).ToString("0.##", culture) + " Go",
+            < 1024 => string.Format(culture, CoreStrings.SizeBytes, bytes),
+            < 1024 * 1024 => string.Format(culture, CoreStrings.SizeKilobytes, (bytes / 1024.0).ToString("0.#", culture)),
+            < 1024L * 1024 * 1024 => string.Format(culture, CoreStrings.SizeMegabytes, (bytes / 1024.0 / 1024).ToString("0.#", culture)),
+            _ => string.Format(culture, CoreStrings.SizeGigabytes, (bytes / 1024.0 / 1024 / 1024).ToString("0.##", culture)),
         };
     }
 }

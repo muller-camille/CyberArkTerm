@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Text;
+using CyberArkTerm.Core.Localization;
 using Renci.SshNet;
 using Renci.SshNet.Common;
 
@@ -28,7 +30,7 @@ public sealed class PsmpConnector
     /// <param name="key">Clé SSH « MFA caching » fournie par le PVWA, si disponible.</param>
     public PsmpConnector(string host, int port, string login, IPsmpInteraction ui, PrivateKeyFile? key = null)
     {
-        PsmpTarget.Validate(host, "l'adresse du PSMP");
+        PsmpTarget.Validate(host, CoreStrings.PsmpAddressWhat);
         Host = host;
         Port = port;
         Login = login;
@@ -73,8 +75,11 @@ public sealed class PsmpConnector
 
             if (usePassword)
             {
-                var password = _ui.Prompt($"Connexion à {Host}", $"Mot de passe pour {Login} :", echo: false)
-                    ?? throw new OperationCanceledException("Authentification annulée.");
+                var password = _ui.Prompt(
+                        string.Format(CultureInfo.CurrentCulture, CoreStrings.PasswordPromptTitle, Host),
+                        string.Format(CultureInfo.CurrentCulture, CoreStrings.PasswordPrompt, Login),
+                        echo: false)
+                    ?? throw new OperationCanceledException(CoreStrings.AuthenticationCancelled);
                 methods.Add(new PasswordAuthenticationMethod(Login, password));
             }
             else
@@ -133,7 +138,7 @@ public sealed class PsmpConnector
                 client.Dispose();
                 if (cancelled)
                 {
-                    throw new OperationCanceledException("Authentification annulée.");
+                    throw new OperationCanceledException(CoreStrings.AuthenticationCancelled);
                 }
 
                 throw;
