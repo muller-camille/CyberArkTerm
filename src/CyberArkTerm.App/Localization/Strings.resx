@@ -1037,19 +1037,25 @@ Close anyway? The local copies will be deleted.</value>
     <value>Open remote desktop sessions in a CyberArkTerm tab, otherwise in Remote Desktop Connection (mstsc)</value>
   </data>
   <data name="PsmRemoteAppAsDesktop" xml:space="preserve">
-    <value>Show PSM remote applications (RemoteApp) in the tab as a desktop, if the PSM accepts it (unticked automatically if it refuses); otherwise their windows open on their own</value>
+    <value>Open PSM remote applications as a desktop instead, if the PSM accepts it (unticked automatically if it refuses)</value>
   </data>
   <data name="RdpDesktopFromRemoteAppHint" xml:space="preserve">
-    <value>This PSM component is a remote application, opened here as a desktop. If the PSM does not accept it, “Open in separate windows” starts it again as a remote application (new request to the PVWA). To do so every time, untick “Show PSM remote applications in the tab” in Settings.</value>
+    <value>This PSM component is a remote application, opened here as a desktop. If the PSM does not accept it, “Open as a remote application” starts it again as a remote application (new request to the PVWA). To do so every time, untick “Open PSM remote applications as a desktop instead” in Settings.</value>
   </data>
   <data name="RdpOpenRemoteAppWindows" xml:space="preserve">
-    <value>Open in _separate windows</value>
+    <value>Open as a remote _application</value>
+  </data>
+  <data name="RemoteAppInTab" xml:space="preserve">
+    <value>Show the window of remote applications (RemoteApp) in the tab; otherwise they open on their own, on the desktop</value>
+  </data>
+  <data name="RdpRemoteAppInTabHint" xml:space="preserve">
+    <value>Its window shows here as soon as it opens; its menus and dialog boxes open above. Closing the application ends the session; Disconnect closes it from here.</value>
   </data>
   <data name="RdpRemoteAppFallback" xml:space="preserve">
-    <value>The PSM closed the session opened as a desktop: new request to the PVWA to open the application in separate windows.</value>
+    <value>The PSM closed the session opened as a desktop: new request to the PVWA to open it as a remote application.</value>
   </data>
   <data name="PsmDesktopRefused" xml:space="preserve">
-    <value>{0}: the PSM refuses remote applications as a desktop; they now open in separate windows (option unticked in Settings).</value>
+    <value>{0}: the PSM refuses remote applications as a desktop; they now open as remote applications (option unticked in Settings).</value>
   </data>
   <data name="RdpNotResponding" xml:space="preserve">
     <value>{0}: Remote Desktop is not responding. The rest of CyberArkTerm stays usable; you can close this tab.</value>

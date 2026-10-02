@@ -351,6 +351,115 @@ public class RdpSessionTests(ITestOutputHelper output)
     [DllImport("wtsapi32.dll")]
     private static extern void WTSFreeMemory(IntPtr memory);
 
+    /// <summary>
+    /// Application distante affichée dans l'onglet : la fenêtre du Bloc-notes (créée par le contrôle sur un thread à lui)
+    /// est rattachée à l'onglet et en prend la place ; clavier (par l'onglet, puis par un clic), taille, souris (menu
+    /// contextuel sous le pointeur), puis fenêtre retirée de l'onglet à la déconnexion.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "RdpIntegration")]
+    public async Task RemoteAppShowsInTheTab()
+    {
+        if (IntegrationAccount() is not { } account)
+        {
+            return;
+        }
+
+        var request = new RdpConnectionRequest(PsmRemoteAppFile(account.User), account.Password);
+        await RunOnStaAsync(request, async session =>
+        {
+            await session.ConnectAsync();
+            Assert.Equal(RdpSessionState.Connected, await WaitForAsync(session, s => s != RdpSessionState.Connecting, TimeSpan.FromSeconds(90)));
+            for (int i = 0; i < 60 && !session.RemoteAppShown; i++)
+            {
+                await Task.Delay(500);
+            }
+
+            Assert.True(session.RemoteAppShown, "Fenêtre de l'application absente de l'onglet");
+            Assert.True(session.ShowsDesktop);
+            var window = Window.GetWindow(session.Host);
+            var host = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+            var slot = session.Host.SlotHandle;
+            var app = Win32Input.Descendants(slot).FirstOrDefault(h => Win32Input.ClassName(h) == "RAIL_WINDOW");
+            Assert.NotEqual(IntPtr.Zero, app);
+            output.WriteLine($"Dans l'onglet : « {Win32Input.Title(app)} » {Win32Input.ScreenBounds(app)}, onglet {Win32Input.ScreenBounds(slot)}");
+            Assert.Equal(Win32Input.ScreenBounds(slot), Win32Input.ScreenBounds(app));
+
+            // Clavier donné par l'onglet (comme à sa sélection) : le texte arrive dans l'application.
+            Assert.Contains("bonjour", await TypeAndCopyAsync(host, session.Focus, "bonjour"));
+
+            // Clavier repris par un clic dans l'application, après être passé à la fenêtre de l'onglet.
+            Assert.Contains("clic", await TypeAndCopyAsync(host, () =>
+            {
+                Win32Input.SetFocus(host);
+                Win32Input.Click(Win32Input.ScreenBounds(app).Center);
+            }, "clic"));
+
+            // Taille de l'onglet : l'application suit.
+            window.Width -= 160;
+            window.Height -= 100;
+            await Task.Delay(1500);
+            output.WriteLine($"Après redimensionnement : {Win32Input.ScreenBounds(app)}, onglet {Win32Input.ScreenBounds(slot)}");
+            Assert.Equal(Win32Input.ScreenBounds(slot), Win32Input.ScreenBounds(app));
+
+            // Souris : le menu contextuel (fenêtre à part, au-dessus) s'ouvre sous le pointeur.
+            var before = Win32Input.ProcessWindows().ToHashSet();
+            var point = Win32Input.ScreenBounds(app).Center;
+            Win32Input.SetForegroundWindow(host);
+            await Task.Delay(300);
+            Win32Input.Click(point, right: true);
+            IntPtr menu = IntPtr.Zero;
+            for (int i = 0; i < 20 && menu == IntPtr.Zero; i++)
+            {
+                await Task.Delay(250);
+                menu = Win32Input.ProcessWindows().FirstOrDefault(h => !before.Contains(h) && Win32Input.IsWindowVisible(h)
+                                                                       && Win32Input.ClassName(h) == "RAIL_WINDOW");
+            }
+
+            Assert.NotEqual(IntPtr.Zero, menu);
+            var bounds = Win32Input.ScreenBounds(menu);
+            output.WriteLine($"Menu contextuel en ({bounds.Left},{bounds.Top}), clic en {point}");
+            Assert.InRange(bounds.Left - point.X, -2, 2);
+            Assert.InRange(bounds.Top - point.Y, -2, 2);
+
+            session.Disconnect();
+            Assert.Equal(RdpSessionState.Ended, await WaitForAsync(session, s => s is RdpSessionState.Ended or RdpSessionState.Failed, TimeSpan.FromSeconds(30)));
+            await Task.Delay(1000);
+            Assert.False(session.RemoteAppShown);
+            Assert.False(Win32Input.IsChild(slot, app), "Fenêtre de l'application encore dans l'onglet");
+        }, remoteAppInTab: true);
+    }
+
+    /// <summary>
+    /// Donne le clavier (<paramref name="focus"/>), tape <paramref name="text"/> puis le sélectionne et le copie dans
+    /// l'application ; renvoie le presse-papiers de ce poste (redirigé depuis la session).
+    /// </summary>
+    private async Task<string> TypeAndCopyAsync(IntPtr host, Action focus, string text)
+    {
+        Clipboard.Clear();
+        Win32Input.SetForegroundWindow(host);
+        await Task.Delay(300);
+        focus();
+        await Task.Delay(700);
+        Win32Input.TypeThenSelectAllAndCopy(text);
+        string copied = "";
+        for (int i = 0; i < 20 && !copied.Contains(text, StringComparison.Ordinal); i++)
+        {
+            await Task.Delay(250);
+            try
+            {
+                copied = Clipboard.GetText();
+            }
+            catch (System.Runtime.InteropServices.COMException)
+            {
+                // Presse-papiers occupé (mise à jour par la redirection) : on réessaie.
+            }
+        }
+
+        output.WriteLine($"Tapé « {text} », copié « {copied} »");
+        return copied;
+    }
+
     /// <summary>Fichier RemoteApp structuré comme celui du PVWA, avec le Bloc-notes comme application publiée.</summary>
     private static RdpConnectionSettings PsmRemoteAppFile(string user) => RdpConnectionSettings.FromRdpFile(Encoding.Unicode.GetBytes(
         $"full address:s:127.0.0.2:3389\r\nusername:s:{user}\r\nauthentication level:i:0\r\nenablecredsspsupport:i:1\r\n" +
@@ -405,12 +514,12 @@ public class RdpSessionTests(ITestOutputHelper output)
     }
 
     /// <summary>Exécute <paramref name="scenario"/> sur un thread STA, la session étant affichée dans une fenêtre.</summary>
-    private static async Task RunOnStaAsync(RdpConnectionRequest request, Func<RdpSession, Task> scenario)
+    private static async Task RunOnStaAsync(RdpConnectionRequest request, Func<RdpSession, Task> scenario, bool remoteAppInTab = false)
     {
         var done = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() =>
         {
-            var session = new RdpSession("test", _ => Task.FromResult(request));
+            var session = new RdpSession("test", _ => Task.FromResult(request)) { RemoteAppInTab = remoteAppInTab };
             var window = new Window { Width = 900, Height = 650, ShowInTaskbar = false, ShowActivated = false, Content = session.Host };
             window.Show();
             window.Dispatcher.BeginInvoke(DispatcherPriority.Loaded, async () =>

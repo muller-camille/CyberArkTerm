@@ -52,6 +52,12 @@ public sealed class AppSettings
     public bool RdpInApp { get; set; } = true;
 
     /// <summary>
+    /// Applications distantes (RemoteApp) : leur fenêtre principale s'affiche dans l'onglet, leurs menus et boîtes de
+    /// dialogue au-dessus ; sinon toutes leurs fenêtres s'ouvrent à part, sur le bureau.
+    /// </summary>
+    public bool RemoteAppInTab { get; set; } = true;
+
+    /// <summary>
     /// Composants PSM en application distante (RemoteApp) ouverts comme un bureau, dans l'onglet, plutôt qu'en
     /// fenêtres séparées ; le serveur PSM doit accepter les sessions en bureau. Désactivé par défaut (un PSM les a
     /// refusées), et désactivé de lui-même quand un PSM ferme une telle session aussitôt ouverte.

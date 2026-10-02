@@ -2801,7 +2801,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0}: the PSM refuses remote applications as a desktop; they now open in separate windows (option [rest of string was truncated].
+        ///   Looks up a localized string similar to {0}: the PSM refuses remote applications as a desktop; they now open as remote applications (opti[rest of string was truncated].
         /// </summary>
         public static string PsmDesktopRefused {
             get {
@@ -2828,7 +2828,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Show PSM remote applications (RemoteApp) in the tab as a desktop, if the PSM accepts it (unticked[rest of string was truncated].
+        ///   Looks up a localized string similar to Open PSM remote applications as a desktop instead, if the PSM accepts it (unticked automatically [rest of string was truncated].
         /// </summary>
         public static string PsmRemoteAppAsDesktop {
             get {
@@ -3026,7 +3026,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Open in _separate windows.
+        ///   Looks up a localized string similar to Open as a remote _application.
         /// </summary>
         public static string RdpOpenRemoteAppWindows {
             get {
@@ -3062,7 +3062,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The PSM closed the session opened as a desktop: new request to the PVWA to open the application i[rest of string was truncated].
+        ///   Looks up a localized string similar to The PSM closed the session opened as a desktop: new request to the PVWA to open it as a remote ap[rest of string was truncated].
         /// </summary>
         public static string RdpRemoteAppFallback {
             get {
@@ -3076,6 +3076,15 @@ namespace CyberArkTerm.App.Localization {
         public static string RdpRemoteAppHint {
             get {
                 return ResourceManager.GetString("RdpRemoteAppHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Its window shows here as soon as it opens; its menus and dialog boxes open above. Closing the app[rest of string was truncated].
+        /// </summary>
+        public static string RdpRemoteAppInTabHint {
+            get {
+                return ResourceManager.GetString("RdpRemoteAppInTabHint", resourceCulture);
             }
         }
 
@@ -3193,6 +3202,15 @@ namespace CyberArkTerm.App.Localization {
         public static string RememberComponent {
             get {
                 return ResourceManager.GetString("RememberComponent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Show the window of remote applications (RemoteApp) in the tab; otherwise they open on their own, [rest of string was truncated].
+        /// </summary>
+        public static string RemoteAppInTab {
+            get {
+                return ResourceManager.GetString("RemoteAppInTab", resourceCulture);
             }
         }
 

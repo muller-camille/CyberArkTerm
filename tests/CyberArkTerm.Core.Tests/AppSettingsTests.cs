@@ -40,12 +40,13 @@ public sealed class AppSettingsTests : IDisposable
     }
 
     /// <summary>
-    /// Applications distantes PSM : fenêtres séparées par défaut (un PSM a refusé le bureau) ; un choix enregistré
+    /// Applications distantes : dans l'onglet par défaut, et pas en bureau (un PSM l'a refusé) ; un choix enregistré
     /// est gardé.
     /// </summary>
     [Fact]
     public void PsmRemoteAppsOpenInSeparateWindowsByDefault()
     {
+        Assert.True(new AppSettings().RemoteAppInTab);
         Assert.False(new AppSettings().PsmRemoteAppAsDesktop);
         Assert.False(AppSettings.Load(Path.Combine(_dir, "missing.json")).PsmRemoteAppAsDesktop);
 
