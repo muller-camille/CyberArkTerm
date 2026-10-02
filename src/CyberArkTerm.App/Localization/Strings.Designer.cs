@@ -2801,6 +2801,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to {0}: the PSM refuses remote applications as a desktop; they now open in separate windows (option [rest of string was truncated].
+        /// </summary>
+        public static string PsmDesktopRefused {
+            get {
+                return ResourceManager.GetString("PsmDesktopRefused", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to The PVWA generates an RDP connection, opened in a CyberArkTerm tab or in Remote Desktop Connectio[rest of string was truncated].
         /// </summary>
         public static string PsmHint {
@@ -2819,7 +2828,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Show PSM remote applications (RemoteApp) in the tab as a desktop, if the PSM accepts it; otherwis[rest of string was truncated].
+        ///   Looks up a localized string similar to Show PSM remote applications (RemoteApp) in the tab as a desktop, if the PSM accepts it (unticked[rest of string was truncated].
         /// </summary>
         public static string PsmRemoteAppAsDesktop {
             get {
@@ -3049,6 +3058,15 @@ namespace CyberArkTerm.App.Localization {
         public static string RdpRemoteAppFailed {
             get {
                 return ResourceManager.GetString("RdpRemoteAppFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PSM closed the session opened as a desktop: new request to the PVWA to open the application i[rest of string was truncated].
+        /// </summary>
+        public static string RdpRemoteAppFallback {
+            get {
+                return ResourceManager.GetString("RdpRemoteAppFallback", resourceCulture);
             }
         }
 

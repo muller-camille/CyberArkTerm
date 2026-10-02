@@ -53,9 +53,10 @@ public sealed class AppSettings
 
     /// <summary>
     /// Composants PSM en application distante (RemoteApp) ouverts comme un bureau, dans l'onglet, plutôt qu'en
-    /// fenêtres séparées ; le serveur PSM doit accepter les sessions en bureau.
+    /// fenêtres séparées ; le serveur PSM doit accepter les sessions en bureau. Désactivé par défaut (un PSM les a
+    /// refusées), et désactivé de lui-même quand un PSM ferme une telle session aussitôt ouverte.
     /// </summary>
-    public bool PsmRemoteAppAsDesktop { get; set; } = true;
+    public bool PsmRemoteAppAsDesktop { get; set; }
 
     /// <summary>Journal de débogage (déroulement des connexions, sans secret), désactivé par défaut.</summary>
     public bool DebugLogEnabled { get; set; }

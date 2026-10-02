@@ -33,6 +33,12 @@ internal sealed class RdpSession : IDisposable
     /// <summary>Sans réponse du thread de la connexion au-delà de ce délai, l'onglet le signale.</summary>
     private static readonly TimeSpan NotRespondingAfter = TimeSpan.FromSeconds(5);
 
+    /// <summary>
+    /// Application distante ouverte comme un bureau et fermée par le serveur avant ce délai après l'ouverture de
+    /// session : le serveur refuse ce mode (un PSM ferme la session en 3 à 4 s).
+    /// </summary>
+    private static readonly TimeSpan DesktopRefusedWithin = TimeSpan.FromSeconds(15);
+
     private readonly Func<CancellationToken, Task<RdpConnectionRequest>> _prepare;
     private readonly CancellationTokenSource _lifetime = new();
     private readonly DispatcherTimer _watchdog;
@@ -46,6 +52,7 @@ internal sealed class RdpSession : IDisposable
     private string? _programError;
     private bool _starting;
     private bool _remoteAppWindows;
+    private bool _fallbackRequested;
     private bool _pingPending;
     private long _pingSentAt;
     private bool _disposed;
@@ -65,6 +72,12 @@ internal sealed class RdpSession : IDisposable
     }
 
     public event Action? StateChanged;
+
+    /// <summary>
+    /// Le serveur a fermé l'application distante ouverte comme un bureau aussitôt la session ouverte : elle est
+    /// rouverte en fenêtres séparées.
+    /// </summary>
+    public event Action? DesktopRefused;
 
     public string Label { get; }
 
@@ -113,6 +126,12 @@ internal sealed class RdpSession : IDisposable
     /// <summary>Application distante PSM ouverte comme un bureau (le serveur peut refuser ce mode).</summary>
     public bool DesktopFromRemoteApp { get; private set; }
 
+    /// <summary>
+    /// Bureau refusé par le serveur : l'application distante est rouverte (puis ouverte) en fenêtres séparées, jusqu'à
+    /// la connexion suivante.
+    /// </summary>
+    public bool RemoteAppFallback { get; private set; }
+
     /// <summary>Ouverture de la session (fin de l'ouverture de session Windows), ou null.</summary>
     public DateTime? ConnectedAt { get; private set; }
 
@@ -131,6 +150,8 @@ internal sealed class RdpSession : IDisposable
     public async Task ConnectAsync()
     {
         ReleaseConnection(disconnect: false);
+        RemoteAppFallback = _fallbackRequested;
+        _fallbackRequested = false;
         Error = null;
         _programError = null;
         ConnectedAt = null;
@@ -377,12 +398,28 @@ internal sealed class RdpSession : IDisposable
             ? $"{Label} : fin de session {(DateTime.UtcNow - at).TotalSeconds:0.0} s après l'ouverture de session"
             : $"{Label} : fin de session avant l'ouverture de session");
         bool normal = NormalDisconnects.Contains(reason) && _programError is null;
+        // Fermée par le serveur (pas par ce poste) aussitôt ouverte : le PSM n'accepte que l'application distante.
+        bool refused = DesktopFromRemoteApp && !_remoteAppWindows && reason != 1 && _programError is null
+                       && ConnectedAt is { } opened && DateTime.UtcNow - opened < DesktopRefusedWithin;
+        if (refused)
+        {
+            DebugLog.Write("rdp", $"{Label} : bureau refusé par le serveur, application distante rouverte en fenêtres séparées");
+            _remoteAppWindows = true;
+            _fallbackRequested = true;
+            RemoteAppFallback = true;
+        }
+
         // Codes de Windows joints au message : ils disent ce que le texte, souvent générique, ne dit pas.
         var codes = Text.Format(Strings.RdpDisconnectCodes, reason, extended);
         Error = _programError
                 ?? (normal && reason == 1 ? null : string.IsNullOrWhiteSpace(description) ? Text.Format(Strings.RdpDisconnectCode, codes) : $"{description.Trim()} ({codes})");
         IsFullScreen = false;
         SetState(normal ? RdpSessionState.Ended : RdpSessionState.Failed);
+        if (refused)
+        {
+            DesktopRefused?.Invoke();
+            _ = _dispatcher.InvokeAsync(() => _disposed || !_fallbackRequested ? Task.CompletedTask : ConnectAsync(), DispatcherPriority.Background);
+        }
     }
 
     internal void OnFatalError(RdpConnection connection, int code)
@@ -512,6 +549,12 @@ internal sealed class RdpSession : IDisposable
     {
         DebugLog.Write("rdp", $"{Label} : état {state}");
         State = state;
+        if (state is RdpSessionState.Ended or RdpSessionState.Failed && !_fallbackRequested)
+        {
+            // Fin de la connexion rouverte en fenêtres séparées : son message est le sien.
+            RemoteAppFallback = false;
+        }
+
         StateChanged?.Invoke();
     }
 }

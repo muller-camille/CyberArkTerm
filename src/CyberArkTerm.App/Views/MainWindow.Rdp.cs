@@ -91,6 +91,18 @@ public partial class MainWindow
             pending = null;
             return request is not null ? Task.FromResult(request) : prepare(ct);
         });
+        session.DesktopRefused += () =>
+        {
+            // Ce PSM n'accepte que l'application distante : les suivantes s'ouvrent directement en fenêtres séparées.
+            if (_settings.PsmRemoteAppAsDesktop)
+            {
+                _settings.PsmRemoteAppAsDesktop = false;
+                SaveSettings();
+                DebugLog.Write("psm", "Option « applications distantes PSM dans l'onglet » décochée : bureau refusé par le PSM.");
+            }
+
+            SetStatus(Text.Format(Strings.PsmDesktopRefused, label));
+        };
         var view = new RdpSessionView(session) { Visibility = Visibility.Hidden };
         var tab = new TabItem { Tag = session };
         tab.Header = TabHeader(tab, label, "IconWindows", duplicate);

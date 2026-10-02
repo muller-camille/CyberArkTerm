@@ -38,4 +38,19 @@ public sealed class AppSettingsTests : IDisposable
         File.WriteAllText(corrupt, "{ not json");
         Assert.Equal(AuthMethod.CyberArk, AppSettings.Load(corrupt).AuthMethod);
     }
+
+    /// <summary>
+    /// Applications distantes PSM : fenêtres séparées par défaut (un PSM a refusé le bureau) ; un choix enregistré
+    /// est gardé.
+    /// </summary>
+    [Fact]
+    public void PsmRemoteAppsOpenInSeparateWindowsByDefault()
+    {
+        Assert.False(new AppSettings().PsmRemoteAppAsDesktop);
+        Assert.False(AppSettings.Load(Path.Combine(_dir, "missing.json")).PsmRemoteAppAsDesktop);
+
+        var path = Path.Combine(_dir, "settings.json");
+        new AppSettings { PsmRemoteAppAsDesktop = true }.Save(path);
+        Assert.True(AppSettings.Load(path).PsmRemoteAppAsDesktop);
+    }
 }

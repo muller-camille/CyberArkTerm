@@ -1037,13 +1037,19 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
     <value>Apri le sessioni Desktop remoto in una scheda di CyberArkTerm, altrimenti in Connessione Desktop remoto (mstsc)</value>
   </data>
   <data name="PsmRemoteAppAsDesktop" xml:space="preserve">
-    <value>Mostra le applicazioni remote PSM (RemoteApp) nella scheda come desktop, se il PSM lo accetta; altrimenti le loro finestre si aprono a parte</value>
+    <value>Mostra le applicazioni remote PSM (RemoteApp) nella scheda come desktop, se il PSM lo accetta (disattivata automaticamente se lo rifiuta); altrimenti le loro finestre si aprono a parte</value>
   </data>
   <data name="RdpDesktopFromRemoteAppHint" xml:space="preserve">
     <value>Questo componente PSM è un'applicazione remota, aperta qui come desktop. Se il PSM non lo accetta, «Apri in finestre separate» la riavvia come applicazione remota (nuova richiesta al PVWA). Per farlo ogni volta, disattiva «Mostra le applicazioni remote PSM nella scheda» nelle Impostazioni.</value>
   </data>
   <data name="RdpOpenRemoteAppWindows" xml:space="preserve">
     <value>Apri in _finestre separate</value>
+  </data>
+  <data name="RdpRemoteAppFallback" xml:space="preserve">
+    <value>Il PSM ha chiuso la sessione aperta come desktop: nuova richiesta al PVWA per aprire l'applicazione in finestre separate.</value>
+  </data>
+  <data name="PsmDesktopRefused" xml:space="preserve">
+    <value>{0}: il PSM rifiuta le applicazioni remote come desktop; ora si aprono in finestre separate (opzione disattivata nelle Impostazioni).</value>
   </data>
   <data name="RdpNotResponding" xml:space="preserve">
     <value>{0}: Desktop remoto non risponde. Il resto di CyberArkTerm resta utilizzabile; puoi chiudere questa scheda.</value>
