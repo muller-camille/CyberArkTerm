@@ -353,6 +353,51 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to The local vault file is damaged or was created by another Windows account..
+        /// </summary>
+        public static string LocalStoreDamaged {
+            get {
+                return ResourceManager.GetString("LocalStoreDamaged", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The local vault is locked..
+        /// </summary>
+        public static string LocalStoreLocked {
+            get {
+                return ResourceManager.GetString("LocalStoreLocked", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to There is no local vault yet..
+        /// </summary>
+        public static string LocalStoreMissing {
+            get {
+                return ResourceManager.GetString("LocalStoreMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The local vault password must have at least {0} characters..
+        /// </summary>
+        public static string LocalStorePasswordTooShort {
+            get {
+                return ResourceManager.GetString("LocalStorePasswordTooShort", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Wrong password for the local vault..
+        /// </summary>
+        public static string LocalStoreWrongPassword {
+            get {
+                return ResourceManager.GetString("LocalStoreWrongPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Password for {0}:.
         /// </summary>
         public static string PasswordPrompt {

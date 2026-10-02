@@ -165,4 +165,19 @@
   <data name="KeePassVerifyFailed" xml:space="preserve">
     <value>Le coffre n'a pas été enregistré : le nouveau fichier n'a pas passé la vérification, l'original est intact.</value>
   </data>
+  <data name="LocalStoreWrongPassword" xml:space="preserve">
+    <value>Mot de passe du coffre local incorrect.</value>
+  </data>
+  <data name="LocalStoreDamaged" xml:space="preserve">
+    <value>Le fichier du coffre local est endommagé ou a été créé par un autre compte Windows.</value>
+  </data>
+  <data name="LocalStoreMissing" xml:space="preserve">
+    <value>Il n'y a pas encore de coffre local.</value>
+  </data>
+  <data name="LocalStoreLocked" xml:space="preserve">
+    <value>Le coffre local est verrouillé.</value>
+  </data>
+  <data name="LocalStorePasswordTooShort" xml:space="preserve">
+    <value>Le mot de passe du coffre local doit faire au moins {0} caractères.</value>
+  </data>
 </root>

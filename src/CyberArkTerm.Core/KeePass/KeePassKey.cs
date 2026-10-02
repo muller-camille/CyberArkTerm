@@ -25,6 +25,23 @@ public sealed class KeePassKey : IDisposable
     /// </summary>
     public static KeePassKey Create(string? password, byte[]? keyFile)
     {
+        var bytes = password is null ? null : Encoding.UTF8.GetBytes(password);
+        try
+        {
+            return CreateFromUtf8(bytes, keyFile);
+        }
+        finally
+        {
+            if (bytes is not null)
+            {
+                CryptographicOperations.ZeroMemory(bytes);
+            }
+        }
+    }
+
+    /// <summary>Comme <see cref="Create(string?, byte[]?)"/>, avec un mot de passe déjà en UTF-8 (coffre local).</summary>
+    public static KeePassKey CreateFromUtf8(byte[]? password, byte[]? keyFile)
+    {
         bool usePassword = password is not null && (password.Length > 0 || keyFile is null);
         if (!usePassword && keyFile is null)
         {
@@ -36,9 +53,7 @@ public sealed class KeePassKey : IDisposable
         {
             if (usePassword)
             {
-                var bytes = Encoding.UTF8.GetBytes(password!);
-                parts.Add(SHA256.HashData(bytes));
-                CryptographicOperations.ZeroMemory(bytes);
+                parts.Add(SHA256.HashData(password!));
             }
 
             if (keyFile is not null)
@@ -67,21 +82,26 @@ public sealed class KeePassKey : IDisposable
         }
     }
 
+    /// <summary>Lit un fichier clé (taille limitée) ; null si aucun chemin.</summary>
+    public static byte[]? ReadKeyFile(string? keyFilePath)
+    {
+        if (string.IsNullOrEmpty(keyFilePath))
+        {
+            return null;
+        }
+
+        if (new FileInfo(keyFilePath).Length > MaxKeyFileSize)
+        {
+            throw new KeePassException(KeePassError.InvalidKeyFile, CoreStrings.KeePassKeyFileTooLarge);
+        }
+
+        return File.ReadAllBytes(keyFilePath);
+    }
+
     /// <summary>Clé à partir d'un mot de passe et/ou d'un chemin de fichier clé.</summary>
     public static KeePassKey Create(string? password, string? keyFilePath)
     {
-        byte[]? keyFile = null;
-        if (!string.IsNullOrEmpty(keyFilePath))
-        {
-            var info = new FileInfo(keyFilePath);
-            if (info.Length > MaxKeyFileSize)
-            {
-                throw new KeePassException(KeePassError.InvalidKeyFile, CoreStrings.KeePassKeyFileTooLarge);
-            }
-
-            keyFile = File.ReadAllBytes(keyFilePath);
-        }
-
+        var keyFile = ReadKeyFile(keyFilePath);
         try
         {
             return Create(password, keyFile);

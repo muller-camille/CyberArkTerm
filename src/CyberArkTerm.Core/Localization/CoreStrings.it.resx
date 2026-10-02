@@ -165,4 +165,19 @@
   <data name="KeePassVerifyFailed" xml:space="preserve">
     <value>L'archivio non è stato salvato: il nuovo file non ha superato la verifica, l'originale è intatto.</value>
   </data>
+  <data name="LocalStoreWrongPassword" xml:space="preserve">
+    <value>Password del vault locale errata.</value>
+  </data>
+  <data name="LocalStoreDamaged" xml:space="preserve">
+    <value>Il file del vault locale è danneggiato o è stato creato da un altro account Windows.</value>
+  </data>
+  <data name="LocalStoreMissing" xml:space="preserve">
+    <value>Non c'è ancora un vault locale.</value>
+  </data>
+  <data name="LocalStoreLocked" xml:space="preserve">
+    <value>Il vault locale è bloccato.</value>
+  </data>
+  <data name="LocalStorePasswordTooShort" xml:space="preserve">
+    <value>La password del vault locale deve avere almeno {0} caratteri.</value>
+  </data>
 </root>
