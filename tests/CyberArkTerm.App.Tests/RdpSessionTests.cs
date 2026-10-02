@@ -145,7 +145,9 @@ public class RdpSessionTests(ITestOutputHelper output)
 
     /// <summary>
     /// Fichier d'application distante ouvert comme un bureau (option des composants PSM en RemoteApp) : la session
-    /// s'affiche dans l'onglet et son programme de démarrage (« alternate shell ») tourne dans la session distante.
+    /// s'affiche dans l'onglet, sans mode RemoteApp, et le programme de démarrage (« alternate shell ») est transmis.
+    /// Un serveur PSM (hôte de session Bureau à distance) le lance ; le poste de CI, un Windows Server sans ce rôle,
+    /// ouvre à la place son bureau habituel (constaté) : le lancement n'est donc qu'affiché, pas vérifié.
     /// </summary>
     [Fact]
     [Trait("Category", "RdpIntegration")]
@@ -174,19 +176,13 @@ public class RdpSessionTests(ITestOutputHelper output)
             Assert.False(session.IsRemoteApp);
             Assert.True(session.DesktopFromRemoteApp);
 
-            bool started = false;
-            for (int i = 0; i < 60 && !started; i++)
-            {
-                started = System.Diagnostics.Process.GetProcessesByName("notepad").Any(p => p.SessionId != ourSession);
-                if (!started)
-                {
-                    await Task.Delay(500);
-                }
-            }
+            var secured = Dispatch.First(session.Control!, "SecuredSettings3", "SecuredSettings2");
+            Assert.Equal(@"C:\Windows\System32\notepad.exe", Dispatch.Get(secured!, "StartProgram") as string);
 
-            output.WriteLine($"Programme de démarrage lancé : {started}");
+            await Task.Delay(TimeSpan.FromSeconds(5));
+            output.WriteLine($"Programme de démarrage lancé par ce serveur : " +
+                             $"{System.Diagnostics.Process.GetProcessesByName("notepad").Any(p => p.SessionId != ourSession)}");
             output.WriteLine(OtherSessions(ourSession));
-            Assert.True(started, "Programme de démarrage non lancé dans la session distante");
 
             session.Disconnect();
             Assert.Equal(RdpSessionState.Ended, await WaitForAsync(session, s => s is RdpSessionState.Ended or RdpSessionState.Failed, TimeSpan.FromSeconds(30)));

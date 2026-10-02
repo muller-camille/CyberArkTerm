@@ -344,7 +344,8 @@ connection: `remoteapplicationprogram` (for PSM, `||PSMInitSession`) with the `r
 arguments; `remoteapplicationname` is used for display and `alternate shell` is not used. If the server refuses
 the application, the session ends with the reason. The remote desktop takes the size of all screens so the
 windows can go anywhere. An integration test (`rdp-integration` workflow) opens real sessions on the CI machine:
-a desktop in a tab, Notepad as a remote application, a remote application file opened as a desktop, and an
+a desktop in a tab, Notepad as a remote application, a remote application file opened as a desktop (the CI
+machine, without the Session Host role, does not run the start program: only its transfer is checked), and an
 unknown application (error message).
 
 ### PSMP sessions

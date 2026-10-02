@@ -366,7 +366,8 @@ connexion : `remoteapplicationprogram` (pour le PSM, `||PSMInitSession`) avec le
 serveur refuse l'application, la session se termine avec la raison. Le bureau distant prend la taille de
 l'ensemble des écrans pour que les fenêtres puissent aller partout. Un test d'intégration (workflow
 `rdp-integration`) ouvre de vraies sessions sur le poste de CI : bureau en onglet, Bloc-notes en application
-distante, fichier d'application distante ouvert en bureau, et application inconnue (message d'erreur).
+distante, fichier d'application distante ouvert en bureau (le poste de CI, sans rôle Hôte de session, ne lance pas
+le programme de démarrage : seule sa transmission est vérifiée), et application inconnue (message d'erreur).
 
 ### Sessions PSMP
 

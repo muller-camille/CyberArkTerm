@@ -360,8 +360,9 @@ connessione: `remoteapplicationprogram` (per il PSM, `||PSMInitSession`) con gli
 usato. Se il server rifiuta l'applicazione, la sessione termina con il motivo. Il desktop remoto prende la
 dimensione di tutti gli schermi perché le finestre possano andare ovunque. Un test di integrazione (workflow
 `rdp-integration`) apre sessioni reali sul computer di CI: un desktop in una scheda, il Blocco note come
-applicazione remota, un file di applicazione remota aperto come desktop e un'applicazione sconosciuta (messaggio
-di errore).
+applicazione remota, un file di applicazione remota aperto come desktop (il computer di CI, senza il ruolo Host
+sessione, non avvia il programma di avvio: ne viene verificata solo la trasmissione) e un'applicazione
+sconosciuta (messaggio di errore).
 
 ### Sessioni PSMP
 
