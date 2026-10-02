@@ -4,6 +4,7 @@ name: release
 # - en poussant un tag vX.Y.Z (sur un commit de main) ;
 # - depuis GitHub : Actions → release → Run workflow sur main, avec le numéro X.Y.Z (le tag est créé).
 # Compile l'exécutable et crée la Release GitHub avec le zip et son empreinte SHA256.
+# Relancé pour une version déjà publiée, il met à jour les notes sans remplacer les fichiers.
 on:
   push:
     tags: ['v*.*.*']
@@ -73,8 +74,11 @@ jobs:
           $files = @("CyberArkTerm-$env:VERSION-win-x64.zip", "SHA256SUMS.txt")
           $existing = @(gh release list --limit 200 --json tagName | ConvertFrom-Json | ForEach-Object tagName)
           if ($existing -contains $env:TAG) {
-            # Release déjà créée (depuis l'interface GitHub) : on y joint les fichiers.
-            gh release upload $env:TAG @files --clobber
+            # Release déjà existante (créée depuis l'interface GitHub, ou relance pour corriger les notes) :
+            # on joint seulement les fichiers absents, sans remplacer ceux déjà publiés, puis on met les notes à jour.
+            $published = @(gh release view $env:TAG --json assets | ConvertFrom-Json | ForEach-Object { $_.assets.name })
+            $missing = @($files | Where-Object { $published -notcontains $_ })
+            if ($missing.Count -gt 0) { gh release upload $env:TAG @missing }
             if (Test-Path $notes) { gh release edit $env:TAG --notes-file $notes }
           } else {
             # Le tag est créé sur le commit compilé s'il n'existe pas encore.
