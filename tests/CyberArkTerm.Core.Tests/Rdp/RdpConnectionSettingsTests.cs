@@ -92,7 +92,10 @@ public class RdpConnectionSettingsTests
         Assert.Equal("PSM Session", s.RemoteApplicationTitle);
     }
 
-    /// <summary>Fichier RemoteApp tel que le renvoie un PVWA (valeurs masquées) : ouvert comme une connexion PSM classique.</summary>
+    /// <summary>
+    /// Fichier RemoteApp tel que le renvoie un PVWA (valeurs masquées) : ouvert comme un bureau qui démarre le programme
+    /// publié, avec le même utilisateur ; les réglages d'origine restent disponibles pour les fenêtres séparées.
+    /// </summary>
     [Fact]
     public void PsmRemoteAppOpensAsDesktop()
     {
@@ -107,16 +110,30 @@ public class RdpConnectionSettingsTests
         Assert.NotNull(desktop);
         Assert.False(desktop.IsRemoteApp);
         Assert.True(desktop.DesktopFromRemoteApp);
-        Assert.Equal("PSM@0123abcd", desktop.StartProgram);
+        Assert.Equal("||PSMInitSession", desktop.StartProgram);
         Assert.Equal(@"localhost\PSM@0123abcd", desktop.UserName);
         Assert.Equal("psm01.corp.local", desktop.Server);
         Assert.False(desktop.EnableCredSsp);
+        Assert.Same(s, desktop.RemoteAppSettings);
         Assert.True(s.IsRemoteApp);
+        Assert.False(s.DesktopFromRemoteApp);
+        Assert.Equal("PSM@0123abcd", s.StartProgram);
+    }
+
+    [Fact]
+    public void RemoteAppArgumentsFollowThePublishedProgram()
+    {
+        var s = RdpConnectionSettings.FromRdpFile(Encoding.UTF8.GetBytes(
+            "full address:s:psm\r\nalternate shell:s:PSM@0123abcd\r\nremoteapplicationmode:i:1\r\n" +
+            "remoteapplicationprogram:s:||PSMInitSession \r\nremoteapplicationcmdline:s: /x 1\r\n"));
+
+        Assert.Equal("||PSMInitSession /x 1", s.RemoteAppAsDesktop()?.StartProgram);
     }
 
     [Theory]
     [InlineData("full address:s:psm\r\nremoteapplicationmode:i:1\r\nremoteapplicationprogram:s:||PSMInitSession\r\n")]
     [InlineData("full address:s:psm\r\nalternate shell:s:psm /u admin /a srv01 /c PSM-RDP\r\n")]
+    [InlineData("full address:s:psm\r\nremoteapplicationmode:i:1\r\nalternate shell:s:PSM@0123abcd\r\n")]
     public void OnlyRemoteAppsWithAStartProgramOpenAsDesktop(string file)
     {
         Assert.Null(RdpConnectionSettings.FromRdpFile(Encoding.UTF8.GetBytes(file)).RemoteAppAsDesktop());

@@ -57,6 +57,9 @@ public sealed class AppSettings
     /// </summary>
     public bool PsmRemoteAppAsDesktop { get; set; } = true;
 
+    /// <summary>Journal de débogage (déroulement des connexions, sans secret), désactivé par défaut.</summary>
+    public bool DebugLogEnabled { get; set; }
+
     /// <summary>Protocole utilisé pour déposer des fichiers sur le serveur.</summary>
     public TransferProtocol UploadProtocol { get; set; } = TransferProtocol.Scp;
 

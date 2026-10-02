@@ -30,6 +30,7 @@ public partial class RdpSessionView : UserControl
         FullScreenButton.IsEnabled = session.IsConnected;
         DisconnectButton.IsEnabled = session.HasControl;
         var server = session.Server.Length > 0 ? session.Server : session.Label;
+        RemoteAppWindowsButton.Visibility = Visibility.Collapsed;
         switch (session.State)
         {
             case RdpSessionState.Connecting:
@@ -58,6 +59,7 @@ public partial class RdpSessionView : UserControl
                 {
                     // Fin rapide d'une application distante ouverte en bureau : le serveur refuse peut-être ce mode.
                     OverlayDetail.Text = (OverlayDetail.Text + "\n\n" + Strings.RdpDesktopFromRemoteAppHint).Trim();
+                    RemoteAppWindowsButton.Visibility = Visibility.Visible;
                 }
 
                 ReconnectButton.Visibility = Visibility.Visible;
@@ -70,4 +72,6 @@ public partial class RdpSessionView : UserControl
     private void OnDisconnect(object sender, RoutedEventArgs e) => Session.Disconnect();
 
     private async void OnReconnect(object sender, RoutedEventArgs e) => await Session.ConnectAsync();
+
+    private async void OnOpenRemoteAppWindows(object sender, RoutedEventArgs e) => await Session.OpenRemoteAppWindowsAsync();
 }

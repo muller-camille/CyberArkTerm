@@ -1,9 +1,12 @@
+using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows.Forms.Integration;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using CyberArkTerm.App.Localization;
+using CyberArkTerm.Core.Diagnostics;
 using CyberArkTerm.Core.Rdp;
 
 namespace CyberArkTerm.App.Services.Rdp;
@@ -26,13 +29,23 @@ internal sealed record RdpConnectionRequest(RdpConnectionSettings Settings, stri
 internal sealed class RdpSession : IDisposable
 {
     private static readonly Guid EventsIid = new("336D5562-EFA8-482E-8CB3-C5C0FC7A7DB6");
+    private const int DispIdConnecting = 1;
+    private const int DispIdConnected = 2;
     private const int DispIdLoginComplete = 3;
     private const int DispIdDisconnected = 4;
     private const int DispIdEnterFullScreen = 5;
     private const int DispIdLeaveFullScreen = 6;
     private const int DispIdFatalError = 10;
+    private const int DispIdWarning = 11;
+    private const int DispIdRemoteDesktopSizeChange = 12;
+    private const int DispIdAuthenticationWarningDisplayed = 18;
+    private const int DispIdAuthenticationWarningDismissed = 19;
     private const int DispIdRemoteProgramResult = 20;
     private const int DispIdRemoteProgramDisplayed = 21;
+    private const int DispIdLogonError = 22;
+    private const int DispIdServiceMessageReceived = 28;
+    private const int DispIdAutoReconnected = 33;
+    private const int DispIdAutoReconnecting2 = 34;
 
     // Raisons de déconnexion normales : par ce poste, par l'utilisateur distant, par le serveur.
     private static readonly int[] NormalDisconnects = [1, 2, 3];
@@ -49,6 +62,7 @@ internal sealed class RdpSession : IDisposable
     private string? _programError;
     private RdpConnectionSettings? _remoteApp;
     private bool _programStarted;
+    private bool _remoteAppWindows;
     private bool _disposed;
 
     /// <param name="label">« compte@cible », titre de l'onglet et du plein écran.</param>
@@ -87,6 +101,9 @@ internal sealed class RdpSession : IDisposable
 
     /// <summary>Code de la dernière déconnexion signalée par le contrôle (événement OnDisconnected).</summary>
     public int? DisconnectReason { get; private set; }
+
+    /// <summary>Code détaillé de la dernière déconnexion (ExtendedDisconnectReason du contrôle).</summary>
+    public uint? ExtendedDisconnectReason { get; private set; }
 
     /// <summary>
     /// Vrai si la dernière tentative a échoué dans le contrôle Bureau à distance lui-même (création ou réglages),
@@ -133,6 +150,7 @@ internal sealed class RdpSession : IDisposable
         ConnectedAt = null;
         ControlFailed = false;
         DisconnectReason = null;
+        ExtendedDisconnectReason = null;
         SetState(RdpSessionState.Connecting);
         RdpConnectionRequest request;
         try
@@ -141,6 +159,7 @@ internal sealed class RdpSession : IDisposable
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
+            DebugLog.Write("rdp", $"{Label} : échec de la préparation de la connexion", ex);
             // Onglet fermé pendant la préparation (appel au PVWA annulé) : plus rien à afficher.
             if (!_disposed)
             {
@@ -154,6 +173,13 @@ internal sealed class RdpSession : IDisposable
         if (_disposed)
         {
             return;
+        }
+
+        if (_remoteAppWindows && request.Settings.RemoteAppSettings is { } remoteApp)
+        {
+            // « Ouvrir en fenêtres séparées » : l'application distante telle que le PVWA l'a demandée.
+            DebugLog.Write("rdp", $"{Label} : fenêtres séparées demandées, application distante ouverte telle quelle");
+            request = request with { Settings = remoteApp };
         }
 
         try
@@ -171,11 +197,22 @@ internal sealed class RdpSession : IDisposable
                 return;
             }
 
+            DebugLog.Write("rdp", $"{Label} : échec du contrôle Bureau à distance", ex);
             ReleaseClient();
             ControlFailed = true;
             Error = ex is COMException com ? Text.Format(Strings.RdpControlError, $"0x{com.HResult:X8}") : ErrorText.Describe(ex);
             SetState(RdpSessionState.Failed);
         }
+    }
+
+    /// <summary>
+    /// Application distante ouverte comme un bureau que le serveur refuse : nouvelle connexion (nouvelle demande au
+    /// PVWA) en application distante, aux fenêtres séparées, pour cette connexion et les suivantes de l'onglet.
+    /// </summary>
+    public Task OpenRemoteAppWindowsAsync()
+    {
+        _remoteAppWindows = true;
+        return ConnectAsync();
     }
 
     /// <summary>Déconnecte la session puis attend sa fin (3 s au plus) avant de libérer le contrôle.</summary>
@@ -281,8 +318,17 @@ internal sealed class RdpSession : IDisposable
             IsFullScreen = false;
             Focus();
         }));
+        if (DebugLog.Enabled)
+        {
+            SubscribeDiagnostics(ocx);
+        }
 
         Configure(ocx, request);
+        if (DebugLog.Enabled)
+        {
+            TryCall(() => DebugLog.Write("rdp", $"{Label} : connexion (version du contrôle {Dispatch.Get(ocx, "Version")})"));
+        }
+
         Dispatch.Call(ocx, "Connect");
         if (IsRemoteApp)
         {
@@ -303,6 +349,10 @@ internal sealed class RdpSession : IDisposable
         _sessionSize = DesktopSize(s.IsRemoteApp ? VirtualScreenSize() : PixelSize());
         _dynamicResize = !s.SmartSizing && !s.IsRemoteApp;
         _loggedIn = false;
+        if (DebugLog.Enabled)
+        {
+            DebugLog.Write("rdp", Describe(request, _sessionSize));
+        }
 
         Dispatch.Set(ocx, "Server", s.Server);
         if (s.UserName.Length > 0)
@@ -413,6 +463,7 @@ internal sealed class RdpSession : IDisposable
 
     private void OnLoginComplete()
     {
+        DebugLog.Write("rdp", $"{Label} : ouverture de session Windows terminée (OnLoginComplete)");
         _loggedIn = true;
         ConnectedAt = DateTime.UtcNow;
         if (_remoteApp is not null)
@@ -434,19 +485,22 @@ internal sealed class RdpSession : IDisposable
         }
 
         string? description = null;
+        uint extended = 0;
         if (_ocx is { } ocx)
         {
-            TryCall(() =>
-            {
-                var extended = Convert.ToUInt32(Dispatch.Get(ocx, "ExtendedDisconnectReason") ?? 0, System.Globalization.CultureInfo.InvariantCulture);
-                description = Dispatch.Call(ocx, "GetErrorDescription", (uint)reason, extended) as string;
-            });
+            TryCall(() => extended = Convert.ToUInt32(Dispatch.Get(ocx, "ExtendedDisconnectReason") ?? 0, CultureInfo.InvariantCulture));
+            TryCall(() => description = Dispatch.Call(ocx, "GetErrorDescription", (uint)reason, extended) as string);
         }
 
         DisconnectReason = reason;
+        ExtendedDisconnectReason = extended;
+        DebugLog.Write("rdp", string.Create(CultureInfo.InvariantCulture,
+            $"{Label} : déconnexion (OnDisconnected), raison {reason}, raison étendue {extended}, « {description?.Trim()} »{(ConnectedAt is { } at ? $", {(DateTime.UtcNow - at).TotalSeconds:0.0} s après l'ouverture de session" : ", avant l'ouverture de session")}"));
         bool normal = NormalDisconnects.Contains(reason) && _programError is null;
+        // Codes de Windows joints au message : ils disent ce que le texte, souvent générique, ne dit pas.
+        var codes = Text.Format(Strings.RdpDisconnectCodes, reason, extended);
         Error = _programError
-                ?? (normal && reason == 1 ? null : string.IsNullOrWhiteSpace(description) ? Text.Format(Strings.RdpDisconnectCode, reason) : description.Trim());
+                ?? (normal && reason == 1 ? null : string.IsNullOrWhiteSpace(description) ? Text.Format(Strings.RdpDisconnectCode, codes) : $"{description.Trim()} ({codes})");
         IsFullScreen = false;
         _loggedIn = false;
         SetState(normal ? RdpSessionState.Ended : RdpSessionState.Failed);
@@ -467,6 +521,7 @@ internal sealed class RdpSession : IDisposable
         }
 
         _programStarted = true;
+        DebugLog.Write("rdp", $"{Label} : lancement de l'application distante (ServerStartProgram) « {s.RemoteApplicationProgram} », fichier « {s.RemoteApplicationFile} », arguments « {DebugLog.Hidden(s.RemoteApplicationArgs)} »");
         try
         {
             var program = Dispatch.Get(ocx, "RemoteProgram") ?? throw new COMException("RemoteProgram", unchecked((int)0x80004002));
@@ -475,6 +530,7 @@ internal sealed class RdpSession : IDisposable
         }
         catch (Exception e) when (Dispatch.IsDispatchError(e))
         {
+            DebugLog.Write("rdp", $"{Label} : ServerStartProgram refusé", e);
             _programError = Text.Format(Strings.RdpRemoteAppFailed, RemoteAppName, ErrorText.Describe(e));
             TryCall(() => Dispatch.Call(ocx, "Disconnect"));
         }
@@ -484,6 +540,7 @@ internal sealed class RdpSession : IDisposable
     private void OnRemoteProgramResult(string program, int result, bool isExecutable)
     {
         RemoteAppEvents.Add($"result {program} {result} {isExecutable}");
+        DebugLog.Write("rdp", $"{Label} : résultat de l'application distante « {program} » : {result} (exécutable {isExecutable})");
         if (result == 0 || _disposed)
         {
             return;
@@ -509,6 +566,7 @@ internal sealed class RdpSession : IDisposable
     private void OnRemoteProgramDisplayed(bool displayed, uint information)
     {
         RemoteAppEvents.Add($"displayed {displayed} {information}");
+        DebugLog.Write("rdp", $"{Label} : application distante affichée {displayed} ({information})");
         // Normalement signalé par l'ouverture de session ; certains serveurs n'envoient que l'affichage de l'application.
         if (displayed && !_disposed && State == RdpSessionState.Connecting)
         {
@@ -519,6 +577,7 @@ internal sealed class RdpSession : IDisposable
 
     private void OnFatalError(int code)
     {
+        DebugLog.Write("rdp", $"{Label} : erreur fatale du contrôle (OnFatalError) {code}");
         Error = Text.Format(Strings.RdpControlError, code.ToString(System.Globalization.CultureInfo.InvariantCulture));
         SetState(RdpSessionState.Failed);
         ReleaseLater();
@@ -627,13 +686,14 @@ internal sealed class RdpSession : IDisposable
 
     private void SetState(RdpSessionState state)
     {
+        DebugLog.Write("rdp", $"{Label} : état {state}");
         State = state;
         StateChanged?.Invoke();
     }
 
-    private static void Optional(Action set) => TryCall(set);
+    private static void Optional(Action set, [CallerArgumentExpression(nameof(set))] string what = "") => TryCall(set, what);
 
-    private static void TryCall(Action call)
+    private static void TryCall(Action call, [CallerArgumentExpression(nameof(call))] string what = "")
     {
         try
         {
@@ -641,6 +701,49 @@ internal sealed class RdpSession : IDisposable
         }
         catch (Exception e) when (Dispatch.IsDispatchError(e))
         {
+            DebugLog.Write("rdp", $"Refusé par le contrôle : {what} : {e.GetType().Name} 0x{e.HResult:X8} {e.Message}");
         }
+    }
+
+    /// <summary>Réglages de la connexion pour le journal de débogage ; le mot de passe n'y figure pas, seulement s'il est fourni.</summary>
+    private string Describe(RdpConnectionRequest request, (int Width, int Height) size)
+    {
+        var s = request.Settings;
+        var mode = s.IsRemoteApp ? "application distante" : s.DesktopFromRemoteApp ? "bureau (application distante PSM ouverte comme un bureau)" : "bureau";
+        return string.Create(CultureInfo.InvariantCulture, $"""
+            {Label} : réglages de la connexion
+            serveur {s.Server}:{s.Port}, mode {mode}
+            utilisateur « {s.UserName} », domaine « {s.Domain} », mot de passe fourni {!string.IsNullOrEmpty(request.Password)}
+            programme de démarrage « {StartProgramForLog(s)} », dossier « {(s.IsRemoteApp ? "" : s.WorkDir)} »
+            application distante « {s.RemoteApplicationProgram} », nom « {s.RemoteApplicationName} », arguments « {DebugLog.Hidden(s.RemoteApplicationArgs)} », vérification des capacités désactivée {s.DisableRemoteAppCapsCheck}
+            NLA (CredSSP) {s.EnableCredSsp}, niveau d'authentification {s.AuthenticationLevel}, couche de sécurité négociée {s.NegotiateSecurityLayer}, session d'administration {s.ConnectToAdministerServer}
+            passerelle « {s.GatewayHostname} » (usage {s.GatewayUsageMethod}, identifiants {s.GatewayCredsSource}), répartition de charge fournie {s.LoadBalanceInfo.Length > 0}
+            taille {size.Width}x{size.Height}, couleurs {s.ColorDepth} bits, redimensionnement dynamique {_dynamicResize}, mise à l'échelle {s.SmartSizing}
+            redirections : presse-papiers {s.RedirectClipboard}, disques {s.RedirectDrives}, imprimantes {s.RedirectPrinters}, ports {s.RedirectPorts}, cartes à puce {s.RedirectSmartCards}, son {s.AudioMode}
+            """);
+    }
+
+    /// <summary>Programme de démarrage pour le journal : sans les arguments d'une application distante ouverte en bureau.</summary>
+    private static string StartProgramForLog(RdpConnectionSettings s) =>
+        s.IsRemoteApp ? ""
+        : s.RemoteAppSettings is { RemoteApplicationArgs.Length: > 0 } remoteApp
+            ? $"{remoteApp.RemoteApplicationProgram.Trim()} {DebugLog.Hidden(remoteApp.RemoteApplicationArgs.Trim())}"
+            : s.StartProgram;
+
+    /// <summary>Événements du contrôle utiles seulement au diagnostic, suivis quand le journal de débogage est actif.</summary>
+    private void SubscribeDiagnostics(object ocx)
+    {
+        void Log(string text) => DebugLog.Write("rdp", $"{Label} : {text}");
+        Subscribe(ocx, DispIdConnecting, new Action(() => Log("connexion au serveur (OnConnecting)")));
+        Subscribe(ocx, DispIdConnected, new Action(() => Log("connecté au serveur (OnConnected)")));
+        Subscribe(ocx, DispIdWarning, new Action<int>(code => Log($"avertissement du contrôle (OnWarning) {code}")));
+        Subscribe(ocx, DispIdRemoteDesktopSizeChange, new Action<int, int>((width, height) => Log($"taille du bureau distant {width}x{height}")));
+        Subscribe(ocx, DispIdAuthenticationWarningDisplayed, new Action(() => Log("avertissement d'authentification du serveur affiché")));
+        Subscribe(ocx, DispIdAuthenticationWarningDismissed, new Action(() => Log("avertissement d'authentification du serveur fermé")));
+        Subscribe(ocx, DispIdLogonError, new Action<int>(code => Log($"erreur d'ouverture de session (OnLogonError) {code}")));
+        Subscribe(ocx, DispIdServiceMessageReceived, new Action<string>(message => Log($"message du serveur (OnServiceMessageReceived) « {message} »")));
+        Subscribe(ocx, DispIdAutoReconnecting2, new Action<int, bool, int, int>((reason, network, attempt, max) =>
+            Log($"reconnexion automatique (raison {reason}, réseau {network}, tentative {attempt}/{max})")));
+        Subscribe(ocx, DispIdAutoReconnected, new Action(() => Log("reconnecté automatiquement")));
     }
 }

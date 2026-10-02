@@ -118,16 +118,35 @@ public sealed record RdpConnectionSettings
     public bool DisableRemoteAppCapsCheck { get; init; }
 
     /// <summary>Vrai pour une application distante ouverte comme un bureau (voir <see cref="RemoteAppAsDesktop"/>).</summary>
-    public bool DesktopFromRemoteApp { get; init; }
+    public bool DesktopFromRemoteApp => RemoteAppSettings is not null;
+
+    /// <summary>Réglages d'origine d'une application distante ouverte comme un bureau, pour l'ouvrir telle quelle.</summary>
+    public RdpConnectionSettings? RemoteAppSettings { get; init; }
 
     /// <summary>
-    /// La même connexion ouverte comme un bureau au lieu d'une application distante, pour l'afficher dans l'onglet :
-    /// le programme de démarrage (« alternate shell », pour le PSM la demande de session « PSM@… ») lance la session
-    /// comme une connexion PSM classique. Null si ce n'est pas une application distante ou si le fichier n'a pas de
-    /// programme de démarrage (le bureau n'afficherait rien d'utile).
+    /// La même connexion ouverte comme un bureau au lieu d'une application distante, pour l'afficher dans l'onglet.
+    /// La session démarre le programme publié de l'application (« ||PSMInitSession ») : un serveur en mode RemoteApp
+    /// n'accepte en général au démarrage d'une session que ses programmes publiés, et un PSM a fermé la session qui
+    /// démarrait directement le programme du fichier (« alternate shell », « PSM@… »). L'utilisateur (« PSM@… »
+    /// pour le PSM) ne change pas. Null si ce n'est pas une application distante PSM : sans programme de démarrage
+    /// ou sans programme d'application distante.
     /// </summary>
-    public RdpConnectionSettings? RemoteAppAsDesktop() =>
-        IsRemoteApp && StartProgram.Trim().Length > 0 ? this with { IsRemoteApp = false, DesktopFromRemoteApp = true } : null;
+    public RdpConnectionSettings? RemoteAppAsDesktop()
+    {
+        var program = RemoteApplicationProgram.Trim();
+        if (!IsRemoteApp || StartProgram.Trim().Length == 0 || program.Length == 0)
+        {
+            return null;
+        }
+
+        var args = RemoteApplicationArgs.Trim();
+        return this with
+        {
+            IsRemoteApp = false,
+            StartProgram = args.Length > 0 ? $"{program} {args}" : program,
+            RemoteAppSettings = this,
+        };
+    }
 
     /// <summary>Nom à afficher pour l'application distante : son nom, sinon son programme sans « || » ni chemin.</summary>
     public string RemoteApplicationTitle =>
@@ -148,7 +167,7 @@ public sealed record RdpConnectionSettings
     /// </summary>
     public static RdpConnectionSettings FromRdpFile(byte[] content)
     {
-        var values = Parse(Decode(content));
+        var values = ReadFile(content);
         string Text(string key, string fallback = "") => values.TryGetValue(key, out var v) ? v : fallback;
         int Int(string key, int fallback) =>
             values.TryGetValue(key, out var v) && int.TryParse(v.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var n) ? n : fallback;
@@ -203,6 +222,9 @@ public sealed record RdpConnectionSettings
             DisableRemoteAppCapsCheck = Bool("disableremoteappcapscheck", false),
         };
     }
+
+    /// <summary>Réglages d'un fichier .rdp (voir <see cref="Parse"/>), quel que soit son encodage.</summary>
+    public static IReadOnlyDictionary<string, string> ReadFile(byte[] content) => Parse(Decode(content));
 
     /// <summary>Lignes « nom:type:valeur » d'un fichier .rdp ; noms en minuscules, la dernière occurrence l'emporte.</summary>
     public static IReadOnlyDictionary<string, string> Parse(string text)

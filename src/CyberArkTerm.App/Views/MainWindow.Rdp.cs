@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services.Rdp;
+using CyberArkTerm.Core.Diagnostics;
 using CyberArkTerm.Core.Rdp;
 
 namespace CyberArkTerm.App.Views;
@@ -35,6 +36,7 @@ public partial class MainWindow
         }
         catch (FormatException)
         {
+            DebugLog.Write("psm", "Fichier .rdp sans adresse de serveur : ouvert avec mstsc.");
             return null;
         }
 
@@ -51,8 +53,28 @@ public partial class MainWindow
     /// Composant PSM en application distante : ouvert comme un bureau dans l'onglet si l'option le demande et si le
     /// fichier le permet (programme de démarrage présent), sinon tel quel (fenêtres séparées).
     /// </summary>
-    private RdpConnectionSettings ForPsmTab(RdpConnectionSettings settings) =>
-        _settings.PsmRemoteAppAsDesktop && settings.RemoteAppAsDesktop() is { } desktop ? desktop : settings;
+    private RdpConnectionSettings ForPsmTab(RdpConnectionSettings settings)
+    {
+        if (!settings.IsRemoteApp)
+        {
+            return settings;
+        }
+
+        if (!_settings.PsmRemoteAppAsDesktop)
+        {
+            DebugLog.Write("psm", "Application distante en fenêtres séparées : option « applications distantes PSM dans l'onglet » désactivée.");
+            return settings;
+        }
+
+        if (settings.RemoteAppAsDesktop() is not { } desktop)
+        {
+            DebugLog.Write("psm", "Application distante en fenêtres séparées : pas de programme de démarrage ou d'application dans le fichier.");
+            return settings;
+        }
+
+        DebugLog.Write("psm", $"Application distante « {settings.RemoteApplicationTitle} » ouverte comme un bureau : programme de démarrage « {settings.RemoteApplicationProgram} », arguments « {DebugLog.Hidden(settings.RemoteApplicationArgs)} », au lieu de « {settings.StartProgram} ».");
+        return desktop;
+    }
 
     /// <summary>
     /// Ouvre un onglet Bureau à distance. <paramref name="prepare"/> fournit les réglages de chaque connexion

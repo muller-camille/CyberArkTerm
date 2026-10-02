@@ -6,6 +6,7 @@ using CyberArkTerm.App.Services;
 using CyberArkTerm.App.Services.KeePass;
 using CyberArkTerm.App.Views;
 using CyberArkTerm.Core;
+using CyberArkTerm.Core.Diagnostics;
 using CyberArkTerm.Core.Localization;
 
 namespace CyberArkTerm.App;
@@ -32,6 +33,15 @@ public partial class App : Application
         }));
         _systemCulture = CultureInfo.CurrentUICulture;
         _settings = AppSettings.Load(AppSettings.DefaultPath);
+        AppDebugLog.Apply(_settings);
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+        {
+            if (args.ExceptionObject is Exception ex)
+            {
+                DebugLog.Write("app", "Exception non gérée (fin de l'application)", ex);
+            }
+        };
+        TaskScheduler.UnobservedTaskException += (_, args) => DebugLog.Write("app", "Exception d'une tâche non observée", args.Exception);
         RemoteEditor.CleanupStale();
         _keePass = new KeePassManager();
         UiLanguage.Apply(UiLanguage.Resolve(_settings.Language, _systemCulture));
@@ -41,6 +51,7 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        DebugLog.Write("app", "Fermeture de l'application.");
         _keePass?.Dispose();
         base.OnExit(e);
     }
@@ -97,6 +108,7 @@ public partial class App : Application
 
     private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
+        DebugLog.Write("app", "Exception non gérée", e.Exception);
         MessageBox.Show(ErrorText.Describe(e.Exception), "CyberArkTerm", MessageBoxButton.OK, MessageBoxImage.Error);
         e.Handled = true;
     }

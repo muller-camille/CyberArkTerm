@@ -184,7 +184,7 @@
     <value>Impostazioni</value>
   </data>
   <data name="ToolSettingsTip" xml:space="preserve">
-    <value>PSMP, lingua, componenti memorizzati</value>
+    <value>PSMP, lingua, componenti memorizzati, registro di debug</value>
   </data>
   <data name="TabAvailable" xml:space="preserve">
     <value>Disponibili</value>
@@ -986,7 +986,7 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
     <value>Errore del controllo Desktop remoto ({0}).</value>
   </data>
   <data name="RdpDisconnectCode" xml:space="preserve">
-    <value>Disconnesso (codice {0}).</value>
+    <value>Disconnesso ({0}).</value>
   </data>
   <data name="RdpRemoteAppOpened" xml:space="preserve">
     <value>Applicazione remota «{0}» aperta</value>
@@ -1028,7 +1028,37 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
     <value>Mostra le applicazioni remote PSM (RemoteApp) nella scheda come desktop, se il PSM lo accetta; altrimenti le loro finestre si aprono a parte</value>
   </data>
   <data name="RdpDesktopFromRemoteAppHint" xml:space="preserve">
-    <value>Questo componente PSM è un'applicazione remota, aperta qui come desktop. Se il PSM non lo accetta, disattiva «Mostra le applicazioni remote PSM nella scheda» nelle Impostazioni: le sue finestre si apriranno allora a parte.</value>
+    <value>Questo componente PSM è un'applicazione remota, aperta qui come desktop. Se il PSM non lo accetta, «Apri in finestre separate» la riavvia come applicazione remota (nuova richiesta al PVWA). Per farlo ogni volta, disattiva «Mostra le applicazioni remote PSM nella scheda» nelle Impostazioni.</value>
+  </data>
+  <data name="RdpOpenRemoteAppWindows" xml:space="preserve">
+    <value>Apri in _finestre separate</value>
+  </data>
+  <data name="RdpDisconnectCodes" xml:space="preserve">
+    <value>codice {0}, codice esteso {1}</value>
+  </data>
+  <data name="MenuSettings" xml:space="preserve">
+    <value>_Impostazioni…</value>
+  </data>
+  <data name="MenuDebugLog" xml:space="preserve">
+    <value>_Registro di debug</value>
+  </data>
+  <data name="MenuDebugLogTip" xml:space="preserve">
+    <value>Registra in un file lo svolgimento delle connessioni (PVWA, PSM, desktop remoto, SSH), per capire un errore. Contiene nomi di server e di account, mai password né token. Disattivato per impostazione predefinita.</value>
+  </data>
+  <data name="MenuDebugLogShow" xml:space="preserve">
+    <value>Mostra il _file del registro</value>
+  </data>
+  <data name="DebugLogActive" xml:space="preserve">
+    <value>Registro di debug attivo</value>
+  </data>
+  <data name="DebugLogStarted" xml:space="preserve">
+    <value>Registro di debug attivato: {0}</value>
+  </data>
+  <data name="DebugLogStopped" xml:space="preserve">
+    <value>Registro di debug disattivato.</value>
+  </data>
+  <data name="DebugLogMissing" xml:space="preserve">
+    <value>Ancora nessun registro di debug: attivalo, poi riproduci il problema.</value>
   </data>
   <data name="KeePassFolderTitle" xml:space="preserve">
     <value>Archivio KeePass</value>
