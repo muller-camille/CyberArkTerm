@@ -324,9 +324,11 @@ autonome en artefact `CyberArkTerm-win-x64` pour chaque pull request et chaque p
 
 ### Publier une version
 
-Poussez un tag `vX.Y.Z` sur `main` : le workflow [`release.yml`](.github/workflows/release.yml) exécute les
-tests, compile l'exécutable avec ce numéro de version et crée la *Release* GitHub avec le zip et
-`SHA256SUMS.txt`. Les notes de version sont lues dans `docs/releases/vX.Y.Z.md` si ce fichier existe.
+Depuis GitHub : **Actions → release → Run workflow** sur `main`, en indiquant le numéro `X.Y.Z` ; ou bien
+poussez un tag `vX.Y.Z` sur `main`. Le workflow [`release.yml`](.github/workflows/release.yml) exécute les
+tests, compile l'exécutable avec ce numéro de version, crée le tag s'il n'existe pas et publie la *Release*
+GitHub avec le zip et `SHA256SUMS.txt`. Les notes de version sont lues dans `docs/releases/vX.Y.Z.md` si ce
+fichier existe.
 
 ## Limites et pistes
 

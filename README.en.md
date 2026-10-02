@@ -309,9 +309,10 @@ self-contained executable as the `CyberArkTerm-win-x64` artifact for every pull 
 
 ### Publish a release
 
-Push a `vX.Y.Z` tag on `main`: the [`release.yml`](.github/workflows/release.yml) workflow runs the tests,
-builds the executable with that version number and creates the GitHub *Release* with the zip and
-`SHA256SUMS.txt`. Release notes are read from `docs/releases/vX.Y.Z.md` when that file exists.
+From GitHub: **Actions → release → Run workflow** on `main`, with the `X.Y.Z` number; or push a `vX.Y.Z` tag
+on `main`. The [`release.yml`](.github/workflows/release.yml) workflow runs the tests, builds the executable
+with that version number, creates the tag if it does not exist and publishes the GitHub *Release* with the
+zip and `SHA256SUMS.txt`. Release notes are read from `docs/releases/vX.Y.Z.md` when that file exists.
 
 ## Limitations and ideas
 

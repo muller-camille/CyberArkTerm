@@ -1,10 +1,18 @@
 name: release
 
-# Publie une version : poussez un tag vX.Y.Z (sur un commit de main) pour compiler l'exécutable
-# et créer la Release GitHub avec le zip et son empreinte SHA256.
+# Publie une version, au choix :
+# - en poussant un tag vX.Y.Z (sur un commit de main) ;
+# - depuis GitHub : Actions → release → Run workflow sur main, avec le numéro X.Y.Z (le tag est créé).
+# Compile l'exécutable et crée la Release GitHub avec le zip et son empreinte SHA256.
 on:
   push:
     tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Numéro de version X.Y.Z (le tag vX.Y.Z est créé sur main)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -21,10 +29,19 @@ jobs:
 
       - name: Numéro de version
         shell: pwsh
+        env:
+          EVENT: ${{ github.event_name }}
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
-          $version = "${{ github.ref_name }}".Substring(1)
-          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Tag invalide : ${{ github.ref_name }} (attendu vX.Y.Z)" }
+          if ($env:EVENT -eq 'workflow_dispatch') {
+            if ($env:GITHUB_REF -ne 'refs/heads/main') { throw "Lancez la publication depuis main (et non $env:GITHUB_REF)." }
+            $version = $env:INPUT_VERSION.Trim().TrimStart('v')
+          } else {
+            $version = $env:GITHUB_REF_NAME.Substring(1)
+          }
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Version invalide : '$version' (attendu X.Y.Z)" }
           "VERSION=$version" >> $env:GITHUB_ENV
+          "TAG=v$version" >> $env:GITHUB_ENV
 
       - name: Tests
         run: dotnet test CyberArkTerm.sln -c Release
@@ -52,10 +69,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $notes = "docs/releases/${{ github.ref_name }}.md"
+          $notes = "docs/releases/$env:TAG.md"
           $files = @("CyberArkTerm-$env:VERSION-win-x64.zip", "SHA256SUMS.txt")
-          if (Test-Path $notes) {
-            gh release create "${{ github.ref_name }}" @files --title "CyberArkTerm $env:VERSION" --notes-file $notes
+          $existing = @(gh release list --limit 200 --json tagName | ConvertFrom-Json | ForEach-Object tagName)
+          if ($existing -contains $env:TAG) {
+            # Release déjà créée (depuis l'interface GitHub) : on y joint les fichiers.
+            gh release upload $env:TAG @files --clobber
+            if (Test-Path $notes) { gh release edit $env:TAG --notes-file $notes }
           } else {
-            gh release create "${{ github.ref_name }}" @files --title "CyberArkTerm $env:VERSION" --generate-notes
+            # Le tag est créé sur le commit compilé s'il n'existe pas encore.
+            $options = @('--title', "CyberArkTerm $env:VERSION", '--target', $env:GITHUB_SHA)
+            if (Test-Path $notes) { $options += @('--notes-file', $notes) } else { $options += '--generate-notes' }
+            gh release create $env:TAG @files @options
           }
