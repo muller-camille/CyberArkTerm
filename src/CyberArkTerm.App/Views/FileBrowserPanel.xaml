@@ -1,35 +1,37 @@
 <UserControl x:Class="CyberArkTerm.App.Views.FileBrowserPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:app="clr-namespace:CyberArkTerm.App">
+             xmlns:app="clr-namespace:CyberArkTerm.App"
+             xmlns:corel="clr-namespace:CyberArkTerm.Core.Localization;assembly=CyberArkTerm.Core"
+             xmlns:loc="clr-namespace:CyberArkTerm.App.Localization">
     <UserControl.Resources>
         <app:FileIconConverter x:Key="FileIcon" />
         <ContextMenu x:Key="FileMenu" Opened="OnMenuOpened">
-            <MenuItem Tag="open" Header="_Ouvrir" Click="OnOpenSelected" FontWeight="SemiBold" />
-            <MenuItem Tag="download" Header="_Télécharger…" Click="OnDownload">
+            <MenuItem Tag="open" Header="{x:Static loc:Strings.FileOpen}" Click="OnOpenSelected" FontWeight="SemiBold" />
+            <MenuItem Tag="download" Header="{x:Static loc:Strings.FileDownload}" Click="OnDownload">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconDownload}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="_Envoyer des fichiers ici…" Click="OnUploadDialog">
+            <MenuItem Header="{x:Static loc:Strings.FileUploadHere}" Click="OnUploadDialog">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconUpload}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
-            <MenuItem Header="_Nouveau dossier…" Click="OnNewFolder">
+            <MenuItem Header="{x:Static loc:Strings.NewFolderMenu}" Click="OnNewFolder">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconNewFolder}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Tag="delete" Header="_Supprimer (rm)" Click="OnDelete">
+            <MenuItem Tag="delete" Header="{x:Static loc:Strings.FileDelete}" Click="OnDelete">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
-            <MenuItem Tag="copy" Header="_Copier le chemin" Click="OnCopyPath" />
-            <MenuItem Header="_Actualiser" Click="OnRefresh" InputGestureText="F5" />
+            <MenuItem Tag="copy" Header="{x:Static loc:Strings.FileCopyPath}" Click="OnCopyPath" />
+            <MenuItem Header="{x:Static loc:Strings.FileRefresh}" Click="OnRefresh" InputGestureText="F5" />
         </ContextMenu>
     </UserControl.Resources>
 
@@ -42,26 +44,26 @@
 
             <!-- Barre d'outils du navigateur -->
             <StackPanel x:Name="Toolbar" Orientation="Horizontal" Margin="-2,6,0,0">
-                <Button Style="{StaticResource SmallToolButton}" Click="OnParent" ToolTip="Dossier parent (Retour arrière)">
+                <Button Style="{StaticResource SmallToolButton}" Click="OnParent" ToolTip="{x:Static loc:Strings.ParentTip}">
                     <Image Source="{StaticResource IconUp}" Style="{StaticResource SmallIcon}" />
                 </Button>
-                <Button Style="{StaticResource SmallToolButton}" Click="OnHome" ToolTip="Dossier personnel">
+                <Button Style="{StaticResource SmallToolButton}" Click="OnHome" ToolTip="{x:Static loc:Strings.HomeTip}">
                     <Image Source="{StaticResource IconHome}" Style="{StaticResource SmallIcon}" />
                 </Button>
-                <Button Style="{StaticResource SmallToolButton}" Click="OnRefresh" ToolTip="Actualiser (F5)">
+                <Button Style="{StaticResource SmallToolButton}" Click="OnRefresh" ToolTip="{x:Static loc:Strings.RefreshTip}">
                     <Image Source="{StaticResource IconRefresh}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Rectangle Style="{StaticResource ToolSeparator}" Margin="4,3" />
-                <Button Style="{StaticResource SmallToolButton}" Click="OnUploadDialog" ToolTip="Envoyer des fichiers (ou glissez-les dans la liste)">
+                <Button Style="{StaticResource SmallToolButton}" Click="OnUploadDialog" ToolTip="{x:Static loc:Strings.UploadTip}">
                     <Image Source="{StaticResource IconUpload}" Style="{StaticResource SmallIcon}" />
                 </Button>
-                <Button Style="{StaticResource SmallToolButton}" Click="OnDownload" ToolTip="Télécharger la sélection">
+                <Button Style="{StaticResource SmallToolButton}" Click="OnDownload" ToolTip="{x:Static loc:Strings.DownloadTip}">
                     <Image Source="{StaticResource IconDownload}" Style="{StaticResource SmallIcon}" />
                 </Button>
-                <Button Style="{StaticResource SmallToolButton}" Click="OnNewFolder" ToolTip="Nouveau dossier">
+                <Button Style="{StaticResource SmallToolButton}" Click="OnNewFolder" ToolTip="{x:Static loc:Strings.NewFolder}">
                     <Image Source="{StaticResource IconNewFolder}" Style="{StaticResource SmallIcon}" />
                 </Button>
-                <Button Style="{StaticResource SmallToolButton}" Click="OnDelete" ToolTip="Supprimer la sélection (Suppr)">
+                <Button Style="{StaticResource SmallToolButton}" Click="OnDelete" ToolTip="{x:Static loc:Strings.DeleteTip}">
                     <Image Source="{StaticResource IconDelete}" Style="{StaticResource SmallIcon}" />
                 </Button>
             </StackPanel>
@@ -69,14 +71,14 @@
             <!-- Barre de navigation : chemin courant, modifiable -->
             <Grid Margin="0,6,0,0">
                 <TextBox x:Name="PathBox" FontFamily="Consolas, Courier New" Padding="4,4" KeyDown="OnPathKeyDown"
-                         ToolTip="Chemin courant : saisissez un chemin puis Entrée" />
+                         ToolTip="{x:Static loc:Strings.PathTip}" />
             </Grid>
 
             <DockPanel Margin="0,6,0,0">
-                <CheckBox x:Name="HiddenBox" DockPanel.Dock="Right" Content="Cachés" Click="OnHiddenChanged"
-                          ToolTip="Afficher les fichiers commençant par un point" />
-                <CheckBox x:Name="FollowBox" Content="Suivre le dossier du terminal" Click="OnFollowChanged"
-                          ToolTip="Le navigateur se place automatiquement dans le dossier courant du shell (cd)" />
+                <CheckBox x:Name="HiddenBox" DockPanel.Dock="Right" Content="{x:Static loc:Strings.Hidden}" Click="OnHiddenChanged"
+                          ToolTip="{x:Static loc:Strings.HiddenTip}" />
+                <CheckBox x:Name="FollowBox" Content="{x:Static loc:Strings.FollowTerminal}" Click="OnFollowChanged"
+                          ToolTip="{x:Static loc:Strings.FollowTip}" />
             </DockPanel>
         </StackPanel>
 
@@ -100,7 +102,7 @@
                 </ListView.ItemContainerStyle>
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Nom" Width="165">
+                        <GridViewColumn Header="{x:Static corel:CoreStrings.ColumnName}" Width="165">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
@@ -110,15 +112,15 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="Taille" Width="62">
+                        <GridViewColumn Header="{x:Static loc:Strings.ColumnSize}" Width="76">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding SizeText}" HorizontalAlignment="Right" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="Modifié" Width="112" DisplayMemberBinding="{Binding ModifiedText}" />
-                        <GridViewColumn Header="Droits" Width="84">
+                        <GridViewColumn Header="{x:Static loc:Strings.ColumnModified}" Width="112" DisplayMemberBinding="{Binding ModifiedText}" />
+                        <GridViewColumn Header="{x:Static loc:Strings.ColumnPermissions}" Width="84">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Permissions}" FontFamily="Consolas, Courier New" />
@@ -145,7 +147,7 @@
                     <Image Source="{StaticResource IconFiles}" Width="44" Height="44" Opacity="0.7" />
                     <TextBlock x:Name="MessageText" TextAlignment="Center" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}"
                                Margin="0,10,0,0" />
-                    <Button x:Name="RetryButton" Content="_Réessayer" Click="OnRetry" Visibility="Collapsed"
+                    <Button x:Name="RetryButton" Content="{x:Static loc:Strings.Retry}" Click="OnRetry" Visibility="Collapsed"
                             HorizontalAlignment="Center" Margin="0,12,0,0" />
                 </StackPanel>
             </Border>

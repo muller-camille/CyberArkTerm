@@ -9,7 +9,23 @@
     <AssemblyName>CyberArkTerm</AssemblyName>
     <RootNamespace>CyberArkTerm.App</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Interface en anglais par défaut, traduite en français et en italien. -->
+    <NeutralLanguage>en</NeutralLanguage>
+    <SatelliteResourceLanguages>en;fr;it</SatelliteResourceLanguages>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Classe d'accès aux textes générée par Visual Studio (PublicResXFileCodeGenerator) à partir du .resx anglais. -->
+    <EmbeddedResource Update="Localization\Strings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Update="Localization\Strings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CyberArkTerm.Core\CyberArkTerm.Core.csproj" />

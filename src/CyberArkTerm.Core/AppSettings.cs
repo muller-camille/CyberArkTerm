@@ -10,6 +10,9 @@ public sealed class AppSettings
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
+    /// <summary>Langue de l'interface (« fr », « en », « it ») ; vide = langue de Windows.</summary>
+    public string Language { get; set; } = "";
+
     public string PvwaUrl { get; set; } = "";
 
     public string UserName { get; set; } = "";

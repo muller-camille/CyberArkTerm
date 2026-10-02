@@ -8,8 +8,10 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services;
 using CyberArkTerm.Core;
+using CyberArkTerm.Core.Localization;
 using Microsoft.Win32;
 
 namespace CyberArkTerm.App.Views;
@@ -20,8 +22,6 @@ namespace CyberArkTerm.App.Views;
 /// </summary>
 public partial class MainWindow : Window
 {
-    private static readonly CultureInfo French = CultureInfo.GetCultureInfo("fr-FR");
-
     private readonly PvwaClient _client;
     private readonly AppSettings _settings;
     private readonly string _sessionUser;
@@ -60,9 +60,9 @@ public partial class MainWindow : Window
         GroupByBox.SelectedValuePath = "Value";
         GroupByBox.ItemsSource = new[]
         {
-            new KeyValuePair<string, GroupBy>("Safe", GroupBy.Safe),
-            new KeyValuePair<string, GroupBy>("Plateforme", GroupBy.Platform),
-            new KeyValuePair<string, GroupBy>("Type de cible", GroupBy.Kind),
+            new KeyValuePair<string, GroupBy>(CoreStrings.ColumnSafe, GroupBy.Safe),
+            new KeyValuePair<string, GroupBy>(CoreStrings.ColumnPlatform, GroupBy.Platform),
+            new KeyValuePair<string, GroupBy>(Strings.GroupByKind, GroupBy.Kind),
         };
         GroupByBox.SelectedValue = settings.GroupBy;
 
@@ -94,14 +94,14 @@ public partial class MainWindow : Window
         LoadProgress.Value = 0;
         LoadProgress.IsIndeterminate = true;
         LoadProgress.Visibility = Visibility.Visible;
-        CountText.Text = "Chargement des comptes…";
+        CountText.Text = Strings.LoadingAccounts;
 
         var progress = new Progress<(int Loaded, int Total)>(p =>
         {
             LoadProgress.IsIndeterminate = false;
             LoadProgress.Maximum = Math.Max(p.Total, 1);
             LoadProgress.Value = p.Loaded;
-            CountText.Text = string.Format(French, "Chargement des comptes… {0:N0} / {1:N0}", p.Loaded, p.Total);
+            CountText.Text = Text.Format(Strings.LoadingAccountsProgress, p.Loaded, p.Total);
         });
 
         try
@@ -140,8 +140,8 @@ public partial class MainWindow : Window
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            CountText.Text = "Échec du chargement.";
-            MessageBox.Show(this, "Impossible de charger les comptes :\n\n" + ErrorText.Describe(ex),
+            CountText.Text = Strings.LoadFailedShort;
+            MessageBox.Show(this, Text.Format(Strings.LoadFailed, ErrorText.Describe(ex)),
                 "CyberArkTerm", MessageBoxButton.OK, MessageBoxImage.Error);
         }
         finally
@@ -173,14 +173,13 @@ public partial class MainWindow : Window
     {
         int shown = _view?.Count ?? 0;
         CountText.Text = shown == _accounts.Count
-            ? string.Format(French, "{0:N0} compte(s)", _accounts.Count)
-            : string.Format(French, "{0:N0} compte(s) affiché(s) sur {1:N0}", shown, _accounts.Count);
+            ? Text.Format(Strings.AccountCount, _accounts.Count)
+            : Text.Format(Strings.AccountCountFiltered, shown, _accounts.Count);
     }
 
     private void UpdateWelcome()
     {
-        WelcomeText.Text = string.Format(French, "Connecté à {0} en tant que {1} · {2:N0} compte(s) disponible(s)",
-            _client.BaseUri.Host, _sessionUser, _accounts.Count);
+        WelcomeText.Text = Text.Format(Strings.Welcome, _client.BaseUri.Host, _sessionUser, _accounts.Count);
     }
 
     private void RefreshRecent()
@@ -285,7 +284,7 @@ public partial class MainWindow : Window
         AdvancedButton.IsEnabled = has;
         AddCurrentButton.IsEnabled = _current is not null && _currentSaved is null;
         SshButton.IsEnabled = has && HasPsmp;
-        SshButton.ToolTip = HasPsmp ? "Ouvrir le compte en SSH via le PSMP" : "Renseignez l'adresse du PSMP dans les paramètres";
+        SshButton.ToolTip = HasPsmp ? Strings.ToolSshTip : Strings.SetPsmpAddress;
     }
 
     private void OnTreeSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e) =>
@@ -420,7 +419,7 @@ public partial class MainWindow : Window
 
         if (!_byId.TryGetValue(recent.AccountId, out var account))
         {
-            SetStatus($"Le compte {recent.Label} n'est plus disponible (supprimé ou droits retirés).", isError: true);
+            SetStatus(Text.Format(Strings.AccountGone, recent.Label), isError: true);
             return;
         }
 
@@ -495,7 +494,7 @@ public partial class MainWindow : Window
 
         if (request.Mode == ConnectMode.Ssh && !HasPsmp)
         {
-            SetStatus("Connexion SSH indisponible : renseignez l'adresse du PSMP dans les paramètres.", isError: true);
+            SetStatus(Strings.SshUnavailable, isError: true);
             return;
         }
 
@@ -543,7 +542,7 @@ public partial class MainWindow : Window
                                                or Win32Exception or InvalidOperationException)
                 {
                     error = ErrorText.Describe(ex);
-                    SetStatus("Échec de la connexion : " + error, isError: true);
+                    SetStatus(Text.Format(Strings.ConnectFailed, error), isError: true);
                     showDialog = true;
                 }
             }
@@ -561,7 +560,7 @@ public partial class MainWindow : Window
         var label = $"{account.UserName}@{target}";
         if (request.Mode == ConnectMode.Psm)
         {
-            SetStatus($"Ouverture de la session PSM {label} ({request.Component})…");
+            SetStatus(Text.Format(Strings.PsmOpening, label, request.Component));
             LoadProgress.IsIndeterminate = true;
             LoadProgress.Visibility = Visibility.Visible;
             byte[] rdp;
@@ -582,7 +581,7 @@ public partial class MainWindow : Window
             }
 
             _launcher.LaunchRdp(rdp, label);
-            SetStatus($"Session PSM lancée : {label} ({request.Component})");
+            SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
             AddRecent(account, label, request.Component, request.RemoteMachine);
         }
         else if (_settings.SshInApp)
@@ -595,7 +594,7 @@ public partial class MainWindow : Window
         {
             var login = PsmpTarget.BuildLogin(_vaultUser, account, request.RemoteMachine);
             _launcher.LaunchSsh(login, _settings.PsmpAddress, _settings.PsmpPort, label);
-            SetStatus($"Session SSH lancée : {label} via {_settings.PsmpAddress}");
+            SetStatus(Text.Format(Strings.SshStarted, label, _settings.PsmpAddress));
             AddRecent(account, label, RecentModes.Ssh, request.RemoteMachine);
         }
     }
@@ -643,7 +642,7 @@ public partial class MainWindow : Window
                     break;
                 case "ssh":
                     item.IsEnabled = HasPsmp;
-                    item.ToolTip = HasPsmp ? null : "Renseignez l'adresse du PSMP dans les paramètres";
+                    item.ToolTip = HasPsmp ? null : Strings.SetPsmpAddress;
                     break;
             }
         }
@@ -676,15 +675,15 @@ public partial class MainWindow : Window
         var rows = _view?.Cast<PvwaAccount>().ToList() ?? [];
         if (rows.Count == 0)
         {
-            MessageBox.Show(this, "Aucun compte à exporter.", "CyberArkTerm", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(this, Strings.NothingToExport, "CyberArkTerm", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
         var dialog = new SaveFileDialog
         {
-            Title = "Exporter la liste des comptes",
-            Filter = "Fichier CSV (*.csv)|*.csv",
-            FileName = $"comptes-psm-{DateTime.Now:yyyyMMdd-HHmm}.csv",
+            Title = Strings.ExportTitle,
+            Filter = Strings.ExportFilter,
+            FileName = $"{Strings.ExportFileName}-{DateTime.Now:yyyyMMdd-HHmm}.csv",
         };
         if (dialog.ShowDialog(this) != true)
         {
@@ -696,21 +695,22 @@ public partial class MainWindow : Window
             // BOM UTF-8 pour qu'Excel détecte correctement les accents.
             using var writer = new StreamWriter(dialog.FileName, false, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
             CsvExporter.Write(writer, rows);
-            SetStatus(string.Format(French, "{0:N0} compte(s) exporté(s) vers {1}", rows.Count, dialog.FileName));
+            SetStatus(Text.Format(Strings.Exported, rows.Count, dialog.FileName));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            MessageBox.Show(this, "Export impossible :\n\n" + ex.Message, "CyberArkTerm", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(this, Text.Format(Strings.ExportFailed, ex.Message), "CyberArkTerm", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
     private void OnSettings(object sender, RoutedEventArgs e)
     {
+        var language = _settings.Language;
         if (new SettingsDialog(_settings) { Owner = this }.ShowDialog() == true)
         {
             SaveSettings();
             UpdateActions();
-            SetStatus("Paramètres enregistrés");
+            SetStatus(_settings.Language == language ? Strings.SettingsSaved : Strings.SettingsSavedLanguage);
         }
     }
 
@@ -722,13 +722,13 @@ public partial class MainWindow : Window
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
-            SetStatus("Préférences non enregistrées : " + e.Message, isError: true);
+            SetStatus(Text.Format(Strings.PreferencesNotSaved, e.Message), isError: true);
         }
     }
 
     private void OnSessionExpired()
     {
-        MessageBox.Show(this, "Votre session CyberArk a expiré. Veuillez vous reconnecter.",
+        MessageBox.Show(this, Strings.SessionExpired,
             "CyberArkTerm", MessageBoxButton.OK, MessageBoxImage.Information);
         LogoutRequested = true;
         Close();

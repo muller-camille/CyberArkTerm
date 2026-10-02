@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
 using CyberArkTerm.Core.Ssh;
 
@@ -27,7 +28,7 @@ public sealed class AccountNode(PvwaAccount account)
 
     public string Details => string.IsNullOrWhiteSpace(Account.RemoteMachines)
         ? $"{Account.PlatformId} · {Account.SafeName}"
-        : $"{Account.PlatformId} · {Account.SafeName}\nMachines : {Account.RemoteMachines}";
+        : $"{Account.PlatformId} · {Account.SafeName}\n" + Text.Format(Strings.AccountMachines, Account.RemoteMachines);
 }
 
 /// <summary>Icône selon le type de cible (compte, nœud de l'arbre, type ou session récente).</summary>
@@ -104,17 +105,17 @@ public sealed class SavedSessionNode(SavedSession session, PvwaAccount? account)
             var lines = new List<string> { $"{Session.UserName}@{Session.Address}", $"{Session.PlatformId} · {Session.SafeName}" };
             if (!string.IsNullOrWhiteSpace(Session.RemoteMachine))
             {
-                lines.Add($"Machine cible : {Session.RemoteMachine}");
+                lines.Add(Text.Format(Strings.SavedTargetMachine, Session.RemoteMachine));
             }
 
             if (!string.IsNullOrWhiteSpace(Session.StartDirectory))
             {
-                lines.Add($"Dossier SFTP : {Session.StartDirectory}");
+                lines.Add(Text.Format(Strings.SavedSftpFolder, Session.StartDirectory));
             }
 
             if (Account is null)
             {
-                lines.Add("Compte introuvable dans CyberArk (supprimé ou droits retirés).");
+                lines.Add(Strings.SavedAccountMissing);
             }
 
             return string.Join("\n", lines);

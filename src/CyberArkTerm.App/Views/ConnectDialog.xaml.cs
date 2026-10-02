@@ -1,4 +1,5 @@
 using System.Windows;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
 
 namespace CyberArkTerm.App.Views;
@@ -19,7 +20,7 @@ public partial class ConnectDialog : Window
 
         KindIcon.Source = (System.Windows.Media.ImageSource?)new KindIconConverter().Convert(account, typeof(object), null, System.Globalization.CultureInfo.CurrentCulture);
         TitleText.Text = $"{account.UserName}@{account.Address}";
-        DetailsText.Text = $"Plateforme {account.PlatformId} · Safe {account.SafeName}";
+        DetailsText.Text = Text.Format(Strings.PlatformAndSafe, account.PlatformId, account.SafeName);
 
         ComponentBox.ItemsSource = AccountClassifier.CommonComponents;
         ComponentBox.Text = initial.Component;
@@ -29,12 +30,12 @@ public partial class ConnectDialog : Window
         ReasonBox.Text = initial.Reason ?? "";
         TicketSystemBox.Text = initial.TicketingSystem ?? "";
         TicketIdBox.Text = initial.TicketId ?? "";
-        RememberBox.Content = $"Mémoriser ce composant pour la plateforme {account.PlatformId}";
+        RememberBox.Content = Text.Format(Strings.RememberComponent, account.PlatformId);
         RememberBox.IsChecked = initial.RememberComponent;
 
         bool sshAvailable = !string.IsNullOrWhiteSpace(settings.PsmpAddress);
         SshRadio.IsEnabled = sshAvailable;
-        SshRadio.ToolTip = sshAvailable ? null : "Renseignez l'adresse du PSMP dans les paramètres.";
+        SshRadio.ToolTip = sshAvailable ? null : Strings.SetPsmpAddress;
         (initial.Mode == ConnectMode.Ssh && sshAvailable ? SshRadio : PsmRadio).IsChecked = true;
 
         MachineBox.AddHandler(System.Windows.Controls.Primitives.TextBoxBase.TextChangedEvent,
@@ -89,14 +90,14 @@ public partial class ConnectDialog : Window
     {
         if (PsmRadio.IsChecked == true)
         {
-            SshHint.Text = "Le PVWA génère un fichier RDP ouvert dans la Connexion Bureau à distance (mstsc).";
+            SshHint.Text = Strings.PsmHint;
             return;
         }
 
         try
         {
             var login = PsmpTarget.BuildLogin(_vaultUser, _account, MachineBox.Text);
-            SshHint.Text = $"Commande : ssh {login}@{_settings.PsmpAddress}";
+            SshHint.Text = Text.Format(Strings.SshCommandHint, login, _settings.PsmpAddress);
         }
         catch (ArgumentException ex)
         {

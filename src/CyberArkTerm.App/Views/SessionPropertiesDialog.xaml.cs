@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Windows;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
 
 namespace CyberArkTerm.App.Views;
@@ -18,8 +19,8 @@ public partial class SessionPropertiesDialog : Window
             (object?)account ?? session, typeof(object), null, CultureInfo.CurrentCulture);
         AccountText.Text = $"{session.UserName}@{session.Address}";
         DetailsText.Text = account is null
-            ? "Compte introuvable dans la liste CyberArk actuelle"
-            : $"Plateforme {account.PlatformId} · Safe {account.SafeName}";
+            ? Strings.AccountNotInList
+            : Text.Format(Strings.PlatformAndSafe, account.PlatformId, account.SafeName);
 
         NameBox.Text = session.Name;
         FolderBox.ItemsSource = folders.OrderBy(f => f, StringComparer.OrdinalIgnoreCase).ToList();
@@ -30,7 +31,7 @@ public partial class SessionPropertiesDialog : Window
         MachineBox.Text = session.RemoteMachine ?? "";
         ReasonBox.Text = session.Reason ?? "";
         StartDirBox.Text = session.StartDirectory ?? "";
-        SshRadio.ToolTip = sshAvailable ? null : "Renseignez l'adresse du PSMP dans les paramètres.";
+        SshRadio.ToolTip = sshAvailable ? null : Strings.SetPsmpAddress;
         (session.Mode == ConnectMode.Ssh ? SshRadio : PsmRadio).IsChecked = true;
         Loaded += (_, _) =>
         {
@@ -56,7 +57,7 @@ public partial class SessionPropertiesDialog : Window
         var start = StartDirBox.Text.Trim();
         if (start.Length > 0 && !start.StartsWith('/'))
         {
-            MessageBox.Show(this, "Le dossier de départ doit être un chemin absolu (ex. /opt/appli).", Title,
+            MessageBox.Show(this, Strings.StartDirMustBeAbsolute, Title,
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }

@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Net.Http;
 using System.Security.Authentication;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
 
 namespace CyberArkTerm.App;
@@ -13,11 +14,10 @@ internal static class ErrorText
     {
         PvwaException p => p.Message,
         ArgumentException a => a.Message,
-        TaskCanceledException or TimeoutException => "Le PVWA n'a pas répondu à temps.",
-        HttpRequestException { InnerException: AuthenticationException } =>
-            "Connexion TLS refusée : le certificat du PVWA n'est pas approuvé par ce poste.",
-        HttpRequestException h => $"Impossible de joindre le PVWA : {h.Message}",
-        Win32Exception w => $"Impossible de lancer le client de connexion : {w.Message}",
+        TaskCanceledException or TimeoutException => Strings.ErrorPvwaTimeout,
+        HttpRequestException { InnerException: AuthenticationException } => Strings.ErrorTlsRejected,
+        HttpRequestException h => Text.Format(Strings.ErrorPvwaUnreachable, h.Message),
+        Win32Exception w => Text.Format(Strings.ErrorLaunchClient, w.Message),
         FileNotFoundException f => f.Message,
         _ => e.Message,
     };

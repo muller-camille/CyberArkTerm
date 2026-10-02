@@ -1,3 +1,5 @@
+using CyberArkTerm.Core.Localization;
+
 namespace CyberArkTerm.Core;
 
 /// <summary>Opérations sur les dossiers et sessions de l'onglet « Courants » (stockés dans les préférences).</summary>
@@ -61,7 +63,7 @@ public static class SessionLibrary
         newName = SessionFolders.Normalize(newName);
         if (path.Length == 0 || newName.Length == 0 || newName.Contains('/'))
         {
-            throw new ArgumentException("Nom de dossier invalide.");
+            throw new ArgumentException(CoreStrings.InvalidFolderName);
         }
 
         var target = SessionFolders.Combine(SessionFolders.Parent(path), newName);
@@ -76,7 +78,7 @@ public static class SessionLibrary
         target = SessionFolders.Normalize(target);
         if (path.Length == 0 || SessionFolders.IsWithin(target, path) && !string.Equals(target, path, StringComparison.OrdinalIgnoreCase))
         {
-            throw new ArgumentException("Impossible de déplacer un dossier dans lui-même.");
+            throw new ArgumentException(CoreStrings.FolderIntoItself);
         }
 
         for (int i = 0; i < settings.SessionFolderList.Count; i++)
@@ -102,7 +104,7 @@ public static class SessionLibrary
         path = SessionFolders.Normalize(path);
         if (path.Length == 0)
         {
-            throw new ArgumentException("La racine ne peut pas être supprimée.");
+            throw new ArgumentException(CoreStrings.RootCannotBeDeleted);
         }
 
         settings.SessionFolderList.RemoveAll(f => SessionFolders.IsWithin(f, path));

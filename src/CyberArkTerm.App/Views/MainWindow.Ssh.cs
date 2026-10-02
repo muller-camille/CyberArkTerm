@@ -4,6 +4,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services;
 using CyberArkTerm.Core;
 using CyberArkTerm.Core.Ssh;
@@ -21,7 +22,7 @@ public partial class MainWindow
 
     private async Task OpenSshTabAsync(PvwaAccount account, string login, string label, SavedSession? saved)
     {
-        SetStatus($"Ouverture de la session SSH {label} via {_settings.PsmpAddress}…");
+        SetStatus(Text.Format(Strings.SshOpening, label, _settings.PsmpAddress));
         var key = await GetPsmpKeyAsync();
         var connector = new PsmpConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi, key);
         var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved);
@@ -33,10 +34,10 @@ public partial class MainWindow
             switch (session.State)
             {
                 case SshSessionState.Connected:
-                    SetStatus($"Session SSH ouverte : {label} (PSMP {_settings.PsmpAddress})");
+                    SetStatus(Text.Format(Strings.SshOpened, label, _settings.PsmpAddress));
                     break;
                 case SshSessionState.Failed:
-                    SetStatus($"Session SSH {label} : {session.Error}", isError: true);
+                    SetStatus(Text.Format(Strings.SshSessionError, label, session.Error), isError: true);
                     break;
             }
         };
@@ -55,7 +56,7 @@ public partial class MainWindow
         {
             Style = (Style)FindResource("TabCloseButton"),
             Content = new Image { Source = (System.Windows.Media.ImageSource)FindResource("IconClose"), Width = 11, Height = 11 },
-            ToolTip = "Fermer la session",
+            ToolTip = Strings.CloseSessionTip,
         };
         close.Click += (_, _) => CloseSshTab(tab);
         var header = new StackPanel { Orientation = Orientation.Horizontal, Background = System.Windows.Media.Brushes.Transparent };
@@ -84,7 +85,7 @@ public partial class MainWindow
         _sshSessions.Remove(session);
         session.Dispose();
         MainTabs.SelectedItem ??= HomeTab;
-        SetStatus($"Session SSH {session.Label} fermée");
+        SetStatus(Text.Format(Strings.SshClosed, session.Label));
     }
 
     private void CloseAllSshSessions()

@@ -1,3 +1,6 @@
+using System.Globalization;
+using CyberArkTerm.Core.Localization;
+
 namespace CyberArkTerm.Core;
 
 /// <summary>
@@ -11,11 +14,11 @@ public static class PsmpTarget
     /// <summary>Partie « utilisateur » de la commande SSH (tout ce qui précède l'adresse du PSMP).</summary>
     public static string BuildLogin(string vaultUser, PvwaAccount account, string? remoteMachine = null)
     {
-        var target = Require(account.UserName, "Le compte n'a pas de nom d'utilisateur.");
-        var address = Require(string.IsNullOrWhiteSpace(remoteMachine) ? account.Address : remoteMachine, "Le compte n'a pas d'adresse cible.");
+        var target = Require(account.UserName, CoreStrings.AccountHasNoUser);
+        var address = Require(string.IsNullOrWhiteSpace(remoteMachine) ? account.Address : remoteMachine, CoreStrings.AccountHasNoAddress);
         var domain = account.LogonDomain.Trim();
-        var login = $"{Require(vaultUser, "Utilisateur du coffre inconnu.")}@{target}{(domain.Length > 0 ? "#" + domain : "")}@{address}";
-        Validate(login, "l'identifiant SSH");
+        var login = $"{Require(vaultUser, CoreStrings.VaultUserUnknown)}@{target}{(domain.Length > 0 ? "#" + domain : "")}@{address}";
+        Validate(login, CoreStrings.SshLoginWhat);
         return login;
     }
 
@@ -24,7 +27,7 @@ public static class PsmpTarget
     {
         if (value.Length == 0 || value.Any(c => char.IsWhiteSpace(c) || char.IsControl(c) || Forbidden.Contains(c)))
         {
-            throw new ArgumentException($"Caractère non autorisé dans {what} : « {value} ».");
+            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, CoreStrings.CharacterNotAllowed, what, value));
         }
     }
 

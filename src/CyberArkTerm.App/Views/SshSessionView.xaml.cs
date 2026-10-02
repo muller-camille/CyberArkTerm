@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services;
 
 namespace CyberArkTerm.App.Views;
@@ -55,13 +56,13 @@ public partial class SshSessionView : UserControl
                 break;
             case SshSessionState.Connecting:
                 Overlay.Visibility = Visibility.Visible;
-                OverlayText.Text = "Connexion via le PSMP…";
+                OverlayText.Text = Strings.ConnectingViaPsmp;
                 OverlayDetail.Text = Target;
                 ReconnectButton.Visibility = Visibility.Collapsed;
                 break;
             default:
                 Overlay.Visibility = Visibility.Visible;
-                OverlayText.Text = Session.State == SshSessionState.Failed ? "Connexion impossible" : "Session terminée";
+                OverlayText.Text = Session.State == SshSessionState.Failed ? Strings.ConnectionImpossible : Strings.SessionEnded;
                 OverlayDetail.Text = Session.Error ?? "";
                 ReconnectButton.Visibility = Visibility.Visible;
                 break;

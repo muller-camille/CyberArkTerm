@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.IO;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
+using CyberArkTerm.Core.Localization;
 
 namespace CyberArkTerm.App.Services;
 
@@ -35,10 +37,9 @@ internal sealed class SessionLauncher
     /// </summary>
     public void LaunchSsh(string login, string psmpHost, int port, string title)
     {
-        PsmpTarget.Validate(login, "l'identifiant SSH");
-        PsmpTarget.Validate(psmpHost, "l'adresse du PSMP");
-        var ssh = FindSsh() ?? throw new FileNotFoundException(
-            "Client SSH introuvable : installez la fonctionnalité Windows « Client OpenSSH ».");
+        PsmpTarget.Validate(login, CoreStrings.SshLoginWhat);
+        PsmpTarget.Validate(psmpHost, CoreStrings.PsmpAddressWhat);
+        var ssh = FindSsh() ?? throw new FileNotFoundException(Strings.SshClientNotFound);
         string[] sshArgs = ["-l", login, "-p", port.ToString(System.Globalization.CultureInfo.InvariantCulture), psmpHost];
 
         var terminal = FindWindowsTerminal();

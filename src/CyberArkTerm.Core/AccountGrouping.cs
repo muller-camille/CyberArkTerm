@@ -1,3 +1,5 @@
+using CyberArkTerm.Core.Localization;
+
 namespace CyberArkTerm.Core;
 
 public enum GroupBy
@@ -28,12 +30,12 @@ public static class AccountGrouping
             {
                 AccountKind.Windows => "Windows",
                 AccountKind.Unix => "Unix / Linux",
-                AccountKind.Database => "Bases de données",
-                AccountKind.Network => "Réseau",
-                _ => "Autres",
+                AccountKind.Database => CoreStrings.KindDatabase,
+                AccountKind.Network => CoreStrings.KindNetwork,
+                _ => CoreStrings.KindOther,
             },
             _ => a.SafeName,
         };
-        return string.IsNullOrWhiteSpace(key) ? "(non renseigné)" : key;
+        return string.IsNullOrWhiteSpace(key) ? CoreStrings.GroupNotSet : key;
     }
 }

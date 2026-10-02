@@ -73,6 +73,7 @@ public class ConnectionPlanningTests
     [Fact]
     public void Grouping_SortsGroupsAndAccounts()
     {
+        using var _ = UiCulture.Use("fr-FR");
         PvwaAccount[] accounts =
         [
             new() { Id = "1", SafeName = "b-safe", Address = "srv2", PlatformId = "UnixSSH" },
@@ -87,6 +88,18 @@ public class ConnectionPlanningTests
 
         var byKind = AccountGrouping.Group(accounts, GroupBy.Kind);
         Assert.Equal(["Bases de données", "Unix / Linux", "Windows"], byKind.Select(g => g.Name));
+    }
+
+    [Theory]
+    [InlineData("en-US", "(not set)", "Databases")]
+    [InlineData("it-IT", "(non specificato)", "Database")]
+    public void Grouping_NamesFollowInterfaceLanguage(string culture, string notSet, string databases)
+    {
+        using var _ = UiCulture.Use(culture);
+        PvwaAccount[] accounts = [new() { Id = "1", SafeName = null, Address = "db1", PlatformId = "Oracle" }];
+
+        Assert.Equal(notSet, AccountGrouping.Group(accounts, GroupBy.Safe).Single().Name);
+        Assert.Equal(databases, AccountGrouping.Group(accounts, GroupBy.Kind).Single().Name);
     }
 
     [Fact]

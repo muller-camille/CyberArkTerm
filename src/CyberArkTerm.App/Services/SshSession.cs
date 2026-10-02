@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Text;
 using System.Windows.Threading;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
 using CyberArkTerm.Core.Ssh;
 using CyberArkTerm.Core.Terminal;
@@ -103,7 +104,7 @@ public sealed class SshSession : IDisposable
 
             _shell = _client.CreateShellStream("xterm-256color", (uint)Emulator.Columns, (uint)Emulator.Rows, 0, 0, 65536);
             _shell.DataReceived += (_, e) => OnData(e.Data);
-            _shell.Closed += (_, _) => _dispatcher.BeginInvoke(() => SetState(SshSessionState.Closed, "Session fermée par le serveur."));
+            _shell.Closed += (_, _) => _dispatcher.BeginInvoke(() => SetState(SshSessionState.Closed, Strings.SessionClosedByServer));
             _shell.ErrorOccurred += (_, e) => _dispatcher.BeginInvoke(() => SetState(SshSessionState.Failed, e.Exception.Message));
             SetState(SshSessionState.Connected, null);
             ScreenUpdated?.Invoke();
@@ -114,7 +115,7 @@ public sealed class SshSession : IDisposable
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            SetState(SshSessionState.Failed, ex is OperationCanceledException ? "Connexion annulée." : ex.Message);
+            SetState(SshSessionState.Failed, ex is OperationCanceledException ? Strings.ConnectionCancelled : ex.Message);
             throw;
         }
     }
