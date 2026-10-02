@@ -1315,4 +1315,20 @@ This may mean the connection is being intercepted. Only accept if the server's a
   <data name="NoKeePassHelp" xml:space="preserve">
     <value>Add a KeePass vault with the vault button above (or right-click here).</value>
   </data>
+  <data name="EditWriteInterrupted" xml:space="preserve">
+    <value>Sending {0} was interrupted: the file on the server may be incomplete.
+
+{1}
+
+Your changes stay in the editor: save again to send the whole file once the connection is back.</value>
+  </data>
+  <data name="PermissionsLinkUnknown" xml:space="preserve">
+    <value>Cannot read the permissions of the target of the link {0}.</value>
+  </data>
+  <data name="KeePassSavedNoLog" xml:space="preserve">
+    <value>KeePass vault {0} saved, but the emergency log (urgence.log) could not be written</value>
+  </data>
+  <data name="KeePassTargetInvalid" xml:space="preserve">
+    <value>The host or user name of this entry contains a line break or a control character.</value>
+  </data>
 </root>

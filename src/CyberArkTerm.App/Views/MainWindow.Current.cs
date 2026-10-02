@@ -96,18 +96,7 @@ public partial class MainWindow
 
     // ===================== Sélection et connexion =====================
 
-    private void OnSavedSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-    {
-        _currentKeePass = e.NewValue as KeePassEntryNode;
-        if (e.NewValue is SavedSessionNode node)
-        {
-            SetCurrent(node.Account, node.Session);
-        }
-        else
-        {
-            SetCurrent(null);
-        }
-    }
+    private void OnSavedSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e) => SetCurrentFrom(e.NewValue);
 
     private void OnSavedItemDoubleClick(object sender, MouseButtonEventArgs e)
     {

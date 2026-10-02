@@ -84,6 +84,21 @@ public sealed class EditedFileTests : IDisposable
         Assert.Equal(0, saves.Count);
     }
 
+    [Fact]
+    public void InterruptedWrite_IsRememberedUntilTheNextSuccessfulSend()
+    {
+        var local = Path.Combine(_dir, "sshd_config");
+        File.WriteAllText(local, "Port 22\n");
+        using var file = new EditedFile("/etc/ssh/sshd_config", local, DateTime.UnixEpoch, 8);
+        Assert.False(file.WriteInterrupted);
+
+        file.MarkWriteInterrupted();
+        Assert.True(file.WriteInterrupted);
+
+        file.MarkSent(File.ReadAllBytes(local), DateTime.UnixEpoch.AddMinutes(1), 8);
+        Assert.False(file.WriteInterrupted);
+    }
+
     [Theory]
     [InlineData("nginx.conf", "nginx.conf")]
     [InlineData("rapport final.txt", "rapport final.txt")]

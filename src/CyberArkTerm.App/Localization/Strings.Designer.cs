@@ -632,6 +632,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Sending {0} was interrupted: the file on the server may be incomplete.  {1}  Your changes stay in[rest of string was truncated].
+        /// </summary>
+        public static string EditWriteInterrupted {
+            get {
+                return ResourceManager.GetString("EditWriteInterrupted", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Cannot start the text editor “{0}”: {1}  Choose another editor in the settings..
         /// </summary>
         public static string EditorLaunchFailed {
@@ -1397,6 +1406,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to KeePass vault {0} saved, but the emergency log (urgence.log) could not be written.
+        /// </summary>
+        public static string KeePassSavedNoLog {
+            get {
+                return ResourceManager.GetString("KeePassSavedNoLog", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Saving the KeePass vault {0}….
         /// </summary>
         public static string KeePassSaving {
@@ -1429,6 +1447,15 @@ namespace CyberArkTerm.App.Localization {
         public static string KeePassTabLabel {
             get {
                 return ResourceManager.GetString("KeePassTabLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The host or user name of this entry contains a line break or a control character..
+        /// </summary>
+        public static string KeePassTargetInvalid {
+            get {
+                return ResourceManager.GetString("KeePassTargetInvalid", resourceCulture);
             }
         }
 
@@ -2428,6 +2455,15 @@ namespace CyberArkTerm.App.Localization {
         public static string PermissionsInvalid {
             get {
                 return ResourceManager.GetString("PermissionsInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot read the permissions of the target of the link {0}..
+        /// </summary>
+        public static string PermissionsLinkUnknown {
+            get {
+                return ResourceManager.GetString("PermissionsLinkUnknown", resourceCulture);
             }
         }
 

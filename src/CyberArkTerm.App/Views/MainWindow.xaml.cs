@@ -312,11 +312,64 @@ public partial class MainWindow : Window
 
     // ===================== Sélection =====================
 
-    private void SetCurrent(PvwaAccount? account, SavedSession? saved = null)
+    /// <summary>
+    /// Cible du bouton « Connecter » : la dernière sélection faite, compte CyberArk ou entrée KeePass (jamais les deux,
+    /// pour qu'une entrée KeePass choisie plus tôt ne prenne pas la place du compte qu'on vient de sélectionner).
+    /// </summary>
+    private void SetCurrent(PvwaAccount? account, SavedSession? saved = null, KeePassEntryNode? keePass = null)
     {
         _current = account;
         _currentSaved = saved;
+        _currentKeePass = keePass;
         UpdateActions();
+    }
+
+    private void SetCurrentFrom(object? item)
+    {
+        switch (item)
+        {
+            case KeePassEntryNode entry:
+                SetCurrent(null, keePass: entry);
+                break;
+            case SavedSessionNode node:
+                SetCurrent(node.Account, node.Session);
+                break;
+            case AccountNode node:
+                SetCurrent(node.Account);
+                break;
+            case PvwaAccount account:
+                SetCurrent(account);
+                break;
+            default:
+                SetCurrent(null);
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Revenir dans une liste redonne à sa sélection le rôle de cible, même si elle n'a pas changé (cliquer sur
+    /// l'élément déjà sélectionné ne déclenche pas SelectionChanged).
+    /// </summary>
+    private void OnSelectorFocusChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (e.NewValue is true)
+        {
+            SetCurrentFrom(sender switch
+            {
+                TreeView tree => tree.SelectedItem,
+                System.Windows.Controls.Primitives.Selector selector => selector.SelectedItem,
+                _ => null,
+            });
+        }
+    }
+
+    /// <summary>Une entrée KeePass n'est plus la cible une fois l'onglet Courants quitté : elle n'est plus visible.</summary>
+    private void OnSideTabChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ReferenceEquals(e.Source, SideTabs) && _currentKeePass is not null && !CurrentTab.IsSelected)
+        {
+            SetCurrent(null);
+        }
     }
 
     private void UpdateActions()
@@ -329,8 +382,7 @@ public partial class MainWindow : Window
         SshButton.ToolTip = HasPsmp ? Strings.ToolSshTip : Strings.SetPsmpAddress;
     }
 
-    private void OnTreeSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e) =>
-        SetCurrent((e.NewValue as AccountNode)?.Account);
+    private void OnTreeSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e) => SetCurrentFrom(e.NewValue);
 
     private void OnGridSelectionChanged(object sender, SelectionChangedEventArgs e)
     {

@@ -35,5 +35,29 @@ public sealed class EmergencyLogTests : IDisposable
         Assert.Single(File.ReadAllLines(path));
     }
 
+    /// <summary>Deux instances de l'application peuvent écrire dans le même journal.</summary>
+    [Fact]
+    public void WritesWhileAnotherInstanceHasTheLogOpen()
+    {
+        var log = new EmergencyLog(Path.Combine(_directory, "urgence.log"));
+        log.Write("keepass-open");
+
+        using (new FileStream(log.FilePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete))
+        {
+            log.Write("keepass-lock");
+        }
+
+        Assert.Equal(2, File.ReadAllLines(log.FilePath).Length);
+    }
+
+    [Fact]
+    public void TryWriteReportsAnUnwritableLog()
+    {
+        var path = Path.Combine(_directory, "dossier");
+        Directory.CreateDirectory(path);
+
+        Assert.False(new EmergencyLog(path).TryWrite("keepass-lock"));
+    }
+
     public void Dispose() => Directory.Delete(_directory, recursive: true);
 }

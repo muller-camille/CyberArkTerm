@@ -1315,4 +1315,20 @@ Potrebbe indicare un'intercettazione della connessione. Accetta solo se l'ammini
   <data name="NoKeePassHelp" xml:space="preserve">
     <value>Aggiungi un archivio KeePass con il pulsante cassaforte qui sopra (o clic destro qui).</value>
   </data>
+  <data name="EditWriteInterrupted" xml:space="preserve">
+    <value>L'invio di {0} è stato interrotto: il file sul server potrebbe essere incompleto.
+
+{1}
+
+Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quando la connessione è ripristinata.</value>
+  </data>
+  <data name="PermissionsLinkUnknown" xml:space="preserve">
+    <value>Impossibile leggere i permessi della destinazione del collegamento {0}.</value>
+  </data>
+  <data name="KeePassSavedNoLog" xml:space="preserve">
+    <value>Archivio KeePass {0} salvato, ma non è stato possibile scrivere il registro di emergenza (urgence.log)</value>
+  </data>
+  <data name="KeePassTargetInvalid" xml:space="preserve">
+    <value>L'host o il nome utente di questa voce contiene un a capo o un carattere di controllo.</value>
+  </data>
 </root>

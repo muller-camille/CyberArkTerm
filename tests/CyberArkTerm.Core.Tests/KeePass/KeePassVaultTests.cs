@@ -166,7 +166,91 @@ public sealed class KeePassVaultTests : IDisposable
         Assert.Equal(KeePassError.InvalidKey, ex.Kind);
     }
 
+    [Fact]
+    public async Task GroupNamesMayContainSlashes()
+    {
+        var path = Copy("kxc-kdbx41.kdbx");
+        using var v = await Open(path, KdbxReadTests.Password, null);
+        var group = KeePassGroupPath.Combine("Urgence", "Linux/Unix");
+
+        var id = await v.SaveAsync(db => db.AddEntry(new KeePassEntryData("srv-lnx01", "root", "x", "ssh://srv-lnx01", ""), group));
+        int groups = v.Database.Groups.Count;
+        await v.SaveAsync(db => db.AddEntry(new KeePassEntryData("srv-lnx02", "root", "x", "ssh://srv-lnx02", ""), group));
+
+        Assert.Equal(group, v.Database.Entries.Single(e => e.Id == id).Group);
+        Assert.Contains(group, v.Database.Groups);
+        Assert.DoesNotContain("Urgence/Linux", v.Database.Groups);
+        // Le deuxième ajout retrouve le dossier « Linux/Unix » au lieu d'en créer un autre.
+        Assert.Equal(groups, v.Database.Groups.Count);
+        Assert.Equal(2, v.Database.Entries.Count(e => e.Group == group));
+    }
+
+    /// <summary>Verrouillage (Win+L) pendant un enregistrement : il se termine, puis les secrets sont effacés.</summary>
+    [Fact]
+    public async Task LockingDuringASaveLetsItFinish()
+    {
+        var path = Copy("kxc-kdbx41.kdbx");
+        var v = await Open(path, KdbxReadTests.Password, null);
+        var id = v.Database.Entries.First(e => e.HasPassword).Id;
+        Assert.NotNull(v.RevealPassword(id));
+        using var changing = new ManualResetEventSlim();
+        using var resume = new ManualResetEventSlim();
+
+        var save = v.SaveAsync(db =>
+        {
+            changing.Set();
+            resume.Wait(TimeSpan.FromSeconds(30));
+            return db.AddEntry(new KeePassEntryData("pendant le verrouillage", "", "p", "", ""));
+        });
+        Assert.True(changing.Wait(TimeSpan.FromSeconds(30)));
+        v.Dispose();
+        Assert.Null(v.RevealPassword(id));
+        resume.Set();
+        await save;
+
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => v.SaveAsync(_ => { }));
+        using var reopened = await Open(path, KdbxReadTests.Password, null);
+        Assert.Contains(reopened.Database.Entries, e => e.Title == "pendant le verrouillage");
+    }
+
+    /// <summary>ReplaceFile peut renommer l'original en .bak puis échouer : le nouveau fichier doit quand même être mis en place.</summary>
+    [Fact]
+    public void InstallRecoversWhenReplaceMovedTheOriginalFirst()
+    {
+        var (path, temp, backup) = InstallFiles();
+
+        KeePassVault.Install(temp, path, backup, (_, p, b) =>
+        {
+            File.Move(p, b, overwrite: true);
+            throw new IOException("ERROR_UNABLE_TO_MOVE_REPLACEMENT_2");
+        });
+
+        Assert.Equal("nouveau", File.ReadAllText(path));
+        Assert.Equal("ancien", File.ReadAllText(backup));
+        Assert.False(File.Exists(temp));
+    }
+
+    [Fact]
+    public void InstallCopiesWhenReplaceIsNotSupported()
+    {
+        var (path, temp, backup) = InstallFiles();
+
+        KeePassVault.Install(temp, path, backup, (_, _, _) => throw new PlatformNotSupportedException());
+
+        Assert.Equal("nouveau", File.ReadAllText(path));
+        Assert.Equal("ancien", File.ReadAllText(backup));
+        Assert.False(File.Exists(temp));
+    }
+
     public void Dispose() => Directory.Delete(_directory, recursive: true);
+
+    private (string Path, string Temp, string Backup) InstallFiles()
+    {
+        var path = Path.Combine(_directory, "urgence.kdbx");
+        File.WriteAllText(path, "ancien");
+        File.WriteAllText(path + ".tmp", "nouveau");
+        return (path, path + ".tmp", path + ".bak");
+    }
 
     private static List<(string, string, string, string, string?)> Snapshot(KeePassDatabase db) =>
         [.. db.Entries.OrderBy(e => e.Id).Select(e => (e.Title, e.UserName, e.Url, e.Notes, db.RevealPassword(e.Id)))];

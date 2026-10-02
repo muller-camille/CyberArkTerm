@@ -292,7 +292,7 @@ public sealed class KeePassDatabase : IDisposable
             foreach (var child in group.Elements("Group"))
             {
                 var name = child.Element("Name")?.Value ?? "";
-                var childPath = path.Length == 0 ? name : $"{path}/{name}";
+                var childPath = KeePassGroupPath.Combine(path, name);
                 var isBin = inBin || (binUuid.Length > 0 && child.Element("UUID")?.Value == binUuid);
                 foreach (var item in Walk(child, childPath, isBin))
                 {
@@ -309,9 +309,18 @@ public sealed class KeePassDatabase : IDisposable
 
     private KeePassEntry ToEntry(XElement entry, string groupPath)
     {
-        var custom = entry.Elements("String")
-            .Where(s => !StandardFields.Contains(s.Element("Key")?.Value) && s.Element("Value") is { } v && !IsProtected(v))
-            .ToDictionary(s => s.Element("Key")!.Value, s => s.Element("Value")!.Value, StringComparer.Ordinal);
+        // KeePass n'écrit pas deux champs du même nom, mais un autre outil peut le faire : le premier l'emporte, et un
+        // champ mal formé (sans nom) est ignoré plutôt que de rendre tout le coffre illisible.
+        var custom = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var field in entry.Elements("String"))
+        {
+            if (field.Element("Key")?.Value is { } name && !StandardFields.Contains(name) && field.Element("Value") is { } value
+                && !IsProtected(value))
+            {
+                custom.TryAdd(name, value.Value);
+            }
+        }
+
         return new KeePassEntry
         {
             Id = entry.Element("UUID")?.Value ?? "",
@@ -506,7 +515,7 @@ public sealed class KeePassDatabase : IDisposable
     {
         var group = RootGroup ?? throw new KeePassException(KeePassError.Corrupted,
             string.Format(CultureInfo.CurrentCulture, CoreStrings.KeePassCorrupted, "Root/Group"));
-        foreach (var name in path.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        foreach (var name in KeePassGroupPath.Split(path).Where(n => n.Length > 0))
         {
             var child = group.Elements("Group").FirstOrDefault(g => g.Element("Name")?.Value == name);
             if (child is null)

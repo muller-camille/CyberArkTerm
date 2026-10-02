@@ -59,6 +59,123 @@ public class RdpSessionTests(ITestOutputHelper output)
         }
     }
 
+    /// <summary>Fermer l'onglet pendant que la connexion se prépare (appel au PVWA) ne doit pas lever d'erreur.</summary>
+    [Fact]
+    public async Task ClosingWhilePreparingDoesNotThrow()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var done = new TaskCompletionSource<Exception?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var thread = new Thread(() =>
+        {
+            var session = new RdpSession("test", async ct =>
+            {
+                await Task.Delay(Timeout.Infinite, ct);
+                throw new InvalidOperationException("jamais atteint");
+            });
+            var dispatcher = Dispatcher.CurrentDispatcher;
+            dispatcher.BeginInvoke(async () =>
+            {
+                try
+                {
+                    var connect = session.ConnectAsync();
+                    session.Dispose();
+                    await connect;
+                    done.TrySetResult(null);
+                }
+                catch (Exception e)
+                {
+                    done.TrySetResult(e);
+                }
+                finally
+                {
+                    dispatcher.InvokeShutdown();
+                }
+            });
+            Dispatcher.Run();
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.IsBackground = true;
+        thread.Start();
+
+        var error = await done.Task.WaitAsync(TimeSpan.FromSeconds(30));
+        Assert.Null(error);
+    }
+
+    /// <summary>
+    /// « Déconnecter » pendant une connexion qui ne répond pas (adresse non routable) l'abandonne au lieu de ne rien faire.
+    /// </summary>
+    [Fact]
+    public async Task DisconnectAbandonsAPendingConnection()
+    {
+        if (!OperatingSystem.IsWindows() || !RdpClientHost.IsAvailable)
+        {
+            Assert.True(Environment.GetEnvironmentVariable("GITHUB_ACTIONS") is null, "Contrôle Bureau à distance absent du poste de CI");
+            return;
+        }
+
+        var request = new RdpConnectionRequest(RdpConnectionSettings.Direct("10.255.255.1", 3389, @"TEST\user"), null);
+        var (state, abandoned) = await RunOnStaThread(request, disconnectAfter: TimeSpan.FromSeconds(2));
+        output.WriteLine($"→ {state}, abandonnée pendant la connexion : {abandoned}");
+        Assert.NotEqual(RdpSessionState.Connecting, state);
+        if (abandoned)
+        {
+            Assert.Equal(RdpSessionState.Ended, state);
+        }
+    }
+
+    private static async Task<(RdpSessionState State, bool Abandoned)> RunOnStaThread(RdpConnectionRequest request, TimeSpan disconnectAfter)
+    {
+        var result = new TaskCompletionSource<(RdpSessionState, bool)>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var thread = new Thread(() =>
+        {
+            var session = new RdpSession("test", _ => Task.FromResult(request));
+            var window = new Window { Width = 900, Height = 650, ShowInTaskbar = false, ShowActivated = false, Content = session.Host };
+            bool abandoned = false;
+            void Finish()
+            {
+                result.TrySetResult((session.State, abandoned));
+                window.Dispatcher.BeginInvoke(() =>
+                {
+                    session.Dispose();
+                    window.Close();
+                    window.Dispatcher.InvokeShutdown();
+                });
+            }
+
+            var disconnect = new DispatcherTimer { Interval = disconnectAfter };
+            disconnect.Tick += (_, _) =>
+            {
+                disconnect.Stop();
+                if (session.State == RdpSessionState.Connecting && session.HasControl)
+                {
+                    abandoned = true;
+                    session.Disconnect();
+                }
+
+                // Laisse le temps à un éventuel événement de déconnexion d'arriver.
+                var settle = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+                settle.Tick += (_, _) =>
+                {
+                    settle.Stop();
+                    Finish();
+                };
+                settle.Start();
+            };
+            window.Show();
+            disconnect.Start();
+            window.Dispatcher.BeginInvoke(DispatcherPriority.Loaded, async () => await session.ConnectAsync());
+            Dispatcher.Run();
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.IsBackground = true;
+        thread.Start();
+        return await result.Task.WaitAsync(TimeSpan.FromSeconds(60));
+    }
+
     private static Task<(RdpSessionState State, bool ControlFailed, int? Reason, string? Error)> RunOnStaThread(RdpConnectionRequest request)
     {
         var result = new TaskCompletionSource<(RdpSessionState, bool, int?, string?)>(TaskCreationOptions.RunContinuationsAsynchronously);

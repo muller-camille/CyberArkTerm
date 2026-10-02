@@ -281,7 +281,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- ===== Bandeau latéral : comptes disponibles / serveurs courants / fichiers ===== -->
-            <TabControl x:Name="SideTabs" Style="{StaticResource SideTabControl}">
+            <TabControl x:Name="SideTabs" Style="{StaticResource SideTabControl}" SelectionChanged="OnSideTabChanged">
                 <TabItem x:Name="AvailableTab" ToolTip="{x:Static loc:Strings.TabAvailableTip}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
@@ -311,7 +311,7 @@
                         </StackPanel>
                         <TreeView x:Name="SessionTree" BorderThickness="0" Background="Transparent" Padding="2,0,0,0"
                                   VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
-                                  SelectedItemChanged="OnTreeSelectionChanged" KeyDown="OnTreeKeyDown"
+                                  SelectedItemChanged="OnTreeSelectionChanged" KeyDown="OnTreeKeyDown" IsKeyboardFocusWithinChanged="OnSelectorFocusChanged"
                                   PreviewMouseLeftButtonDown="OnDragSourceMouseDown" PreviewMouseMove="OnAvailableDragMove">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type app:FolderNode}" ItemsSource="{Binding Children}">
@@ -373,7 +373,7 @@
                                    Foreground="{StaticResource MutedBrush}"
                                    Text="{x:Static loc:Strings.NoSavedHelp}" />
                         <TreeView x:Name="SavedTree" BorderThickness="0" Background="Transparent" Padding="2,0,0,0" AllowDrop="True"
-                                  SelectedItemChanged="OnSavedSelectionChanged" KeyDown="OnSavedKeyDown"
+                                  SelectedItemChanged="OnSavedSelectionChanged" KeyDown="OnSavedKeyDown" IsKeyboardFocusWithinChanged="OnSelectorFocusChanged"
                                   PreviewMouseLeftButtonDown="OnDragSourceMouseDown" PreviewMouseMove="OnSavedDragMove"
                                   DragOver="OnSavedDragOver" Drop="OnSavedDrop" ContextMenu="{StaticResource SavedBackgroundMenu}">
                             <TreeView.Resources>
@@ -493,7 +493,8 @@
                                     CornerRadius="0,0,4,4" Visibility="Collapsed" Margin="0,0,0,8">
                                 <ListBox x:Name="QuickResults" BorderThickness="0" MaxHeight="320"
                                          ItemTemplate="{StaticResource AccountRow}" ItemContainerStyle="{StaticResource AccountListItem}"
-                                         SelectionChanged="OnListSelectionChanged" KeyDown="OnListKeyDown" />
+                                         SelectionChanged="OnListSelectionChanged" KeyDown="OnListKeyDown"
+                                         IsKeyboardFocusWithinChanged="OnSelectorFocusChanged" />
                             </Border>
 
                             <Grid Grid.Row="3" x:Name="HomeLists" Margin="0,18,0,0">
@@ -565,7 +566,8 @@
                               EnableRowVirtualization="True" EnableColumnVirtualization="True"
                               VirtualizingPanel.VirtualizationMode="Recycling"
                               ClipboardCopyMode="IncludeHeader" ContextMenu="{StaticResource AccountMenu}"
-                              SelectionChanged="OnGridSelectionChanged" PreviewKeyDown="OnGridKeyDown">
+                              SelectionChanged="OnGridSelectionChanged" PreviewKeyDown="OnGridKeyDown"
+                              IsKeyboardFocusWithinChanged="OnSelectorFocusChanged">
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow">
                                 <EventSetter Event="MouseDoubleClick" Handler="OnGridRowDoubleClick" />

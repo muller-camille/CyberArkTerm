@@ -48,7 +48,7 @@ public sealed class KeePassGroupNode(KeePassFolder folder, string path, List<obj
     /// <summary>Chemin dans le coffre, « Serveurs/Prod ».</summary>
     public string Path { get; } = path;
 
-    public string Name => Path[(Path.LastIndexOf('/') + 1)..];
+    public string Name => KeePassGroupPath.Name(Path);
 
     public List<object> Children { get; } = children;
 

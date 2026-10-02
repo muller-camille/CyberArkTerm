@@ -46,9 +46,9 @@ public partial class MainWindow
     private List<object> KeePassChildren(KeePassFolder folder, IReadOnlyList<string> groups, IReadOnlyList<KeePassEntry> entries, string path)
     {
         var items = new List<object>();
-        foreach (var group in groups.Where(g => g.Length > 0 && ParentGroup(g) == path).Order(StringComparer.OrdinalIgnoreCase))
+        foreach (var group in groups.Where(g => g.Length > 0 && KeePassGroupPath.Parent(g) == path).Order(StringComparer.OrdinalIgnoreCase))
         {
-            int count = entries.Count(e => e.Group == group || e.Group.StartsWith(group + "/", StringComparison.Ordinal));
+            int count = entries.Count(e => KeePassGroupPath.IsWithin(e.Group, group));
             if (count > 0)
             {
                 items.Add(new KeePassGroupNode(folder, group, KeePassChildren(folder, groups, entries, group),
@@ -60,8 +60,6 @@ public partial class MainWindow
             .Select(e => new KeePassEntryNode(folder, e)));
         return items;
     }
-
-    private static string ParentGroup(string path) => path.LastIndexOf('/') is var i and >= 0 ? path[..i] : "";
 
     private void RememberKeePassExpansion(object node)
     {
@@ -255,6 +253,11 @@ public partial class MainWindow
                 RefreshSaved();
                 SetStatus(Text.Format(Strings.KeePassReloaded, folder.DisplayName));
             }
+            catch (ObjectDisposedException)
+            {
+                // Coffre verrouillé entre-temps (Windows verrouillé) : l'arbre le montre verrouillé.
+                RefreshSaved();
+            }
             catch (Exception ex) when (ex is KeePassException or IOException or UnauthorizedAccessException)
             {
                 SetStatus(ex.Message, isError: true);
@@ -392,9 +395,13 @@ public partial class MainWindow
         try
         {
             await vault.SaveAsync(change, _lifetime.Token);
-            _keePass.Log.Write(action, ("vault", folder.FilePath), ("entry", entryTitle));
+        }
+        catch (ObjectDisposedException)
+        {
+            // Coffre verrouillé (Windows verrouillé, déconnexion) avant le début de l'enregistrement : rien n'est écrit.
+            SetStatus(Text.Format(Strings.KeePassLockedStatus, folder.DisplayName), isError: true);
             RefreshSaved();
-            SetStatus(Text.Format(Strings.KeePassSaved, folder.DisplayName, Path.GetFileName(vault.BackupPath)));
+            return;
         }
         catch (KeePassException ex) when (ex.Kind == KeePassError.Conflict)
         {
@@ -404,18 +411,29 @@ public partial class MainWindow
             {
                 await vault.ReloadAsync(_lifetime.Token);
             }
-            catch (Exception reload) when (reload is KeePassException or IOException or UnauthorizedAccessException)
+            catch (Exception reload) when (reload is KeePassException or IOException or UnauthorizedAccessException or ObjectDisposedException)
             {
             }
 
             RefreshSaved();
+            return;
         }
         catch (Exception ex) when (ex is KeePassException or IOException or UnauthorizedAccessException or ArgumentException)
         {
             SetStatus(ex.Message, isError: true);
             MessageBox.Show(this, Text.Format(Strings.KeePassSaveFailed, folder.DisplayName, ex.Message), Strings.KeePassFolderTitle,
                 MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
         }
+
+        // Le coffre est enregistré : un journal momentanément inaccessible ne doit pas le faire passer pour un échec
+        // (on recommencerait, et l'entrée serait ajoutée deux fois).
+        RefreshSaved();
+        bool logged = _keePass.Log.TryWrite(action, ("vault", folder.FilePath), ("entry", entryTitle));
+        SetStatus(logged
+                ? Text.Format(Strings.KeePassSaved, folder.DisplayName, Path.GetFileName(vault.BackupPath))
+                : Text.Format(Strings.KeePassSavedNoLog, folder.DisplayName),
+            isError: !logged);
     }
 
     // ===================== Connexions directes =====================
@@ -448,6 +466,14 @@ public partial class MainWindow
             return;
         }
 
+        // Un retour à la ligne dans l'hôte ou l'utilisateur ajouterait un réglage au fichier .rdp donné à mstsc
+        // (partage des disques…) : une entrée qui en contient est refusée, quel que soit le protocole.
+        if (target.Host.Any(char.IsControl) || target.UserName.Any(char.IsControl))
+        {
+            MessageBox.Show(this, Strings.KeePassTargetInvalid, Strings.KeePassFolderTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
         if (target.Protocol == RemoteProtocol.Unknown)
         {
             AskProtocol(node);
@@ -469,7 +495,7 @@ public partial class MainWindow
 
         var entryId = node.Entry.Id;
         // Lu à chaque connexion (terminal, puis SFTP et SCP de l'onglet Fichiers) ; rien si le coffre a été verrouillé.
-        string? Password() => _keePass.Get(folder.Id)?.Database.RevealPassword(entryId);
+        string? Password() => _keePass.Get(folder.Id)?.RevealPassword(entryId);
 
         var label = Text.Format(Strings.KeePassTabLabel, node.Title);
         _keePass.Log.Write(target.Protocol == RemoteProtocol.Ssh ? "ssh" : "rdp", ("vault", folder.FilePath), ("entry", node.Entry.Title),

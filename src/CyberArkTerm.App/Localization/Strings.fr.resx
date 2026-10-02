@@ -1315,4 +1315,20 @@ Cela peut indiquer une interception de la connexion. N'acceptez que si l'adminis
   <data name="NoKeePassHelp" xml:space="preserve">
     <value>Ajoutez un coffre KeePass avec le bouton coffre-fort ci-dessus (ou clic droit ici).</value>
   </data>
+  <data name="EditWriteInterrupted" xml:space="preserve">
+    <value>L'envoi de {0} a été interrompu : le fichier sur le serveur est peut-être incomplet.
+
+{1}
+
+Vos modifications restent dans l'éditeur : enregistrez à nouveau pour renvoyer le fichier entier une fois la connexion rétablie.</value>
+  </data>
+  <data name="PermissionsLinkUnknown" xml:space="preserve">
+    <value>Impossible de lire les droits de la cible du lien {0}.</value>
+  </data>
+  <data name="KeePassSavedNoLog" xml:space="preserve">
+    <value>Coffre KeePass {0} enregistré, mais le journal d'urgence (urgence.log) n'a pas pu être écrit</value>
+  </data>
+  <data name="KeePassTargetInvalid" xml:space="preserve">
+    <value>L'hôte ou le nom d'utilisateur de cette entrée contient un retour à la ligne ou un caractère de contrôle.</value>
+  </data>
 </root>
