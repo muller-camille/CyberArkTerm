@@ -405,9 +405,11 @@ public class RdpSessionTests(ITestOutputHelper output)
             output.WriteLine($"Après redimensionnement : {Win32Input.ScreenBounds(app)}, onglet {Win32Input.ScreenBounds(slot)}");
             Assert.Equal(Win32Input.ScreenBounds(slot), Win32Input.ScreenBounds(app));
 
-            // Souris : le menu contextuel (fenêtre à part, au-dessus) s'ouvre sous le pointeur.
+            // Souris : le menu contextuel (fenêtre à part, au-dessus) s'ouvre au pointeur. Windows l'ouvre au-dessus
+            // ou à gauche quand la place manque : l'un de ses coins est au point cliqué.
             var before = Win32Input.ProcessWindows().ToHashSet();
-            var point = Win32Input.ScreenBounds(app).Center;
+            var appBounds = Win32Input.ScreenBounds(app);
+            (int X, int Y) point = (appBounds.Center.X, appBounds.Top + (appBounds.Height / 4));
             Win32Input.SetForegroundWindow(host);
             await Task.Delay(300);
             Win32Input.Click(point, right: true);
@@ -422,8 +424,10 @@ public class RdpSessionTests(ITestOutputHelper output)
             Assert.NotEqual(IntPtr.Zero, menu);
             var bounds = Win32Input.ScreenBounds(menu);
             output.WriteLine($"Menu contextuel en ({bounds.Left},{bounds.Top}), clic en {point}");
-            Assert.InRange(bounds.Left - point.X, -2, 2);
-            Assert.InRange(bounds.Top - point.Y, -2, 2);
+            Assert.True(Math.Abs(bounds.Left - point.X) <= 2 || Math.Abs(bounds.Left + bounds.Width - point.X) <= 2,
+                $"Menu pas au pointeur horizontalement : {bounds}");
+            Assert.True(Math.Abs(bounds.Top - point.Y) <= 2 || Math.Abs(bounds.Top + bounds.Height - point.Y) <= 2,
+                $"Menu pas au pointeur verticalement : {bounds}");
 
             session.Disconnect();
             Assert.Equal(RdpSessionState.Ended, await WaitForAsync(session, s => s is RdpSessionState.Ended or RdpSessionState.Failed, TimeSpan.FromSeconds(30)));
