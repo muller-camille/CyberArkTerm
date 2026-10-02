@@ -22,6 +22,11 @@
                        TextWrapping="Wrap" Margin="0,4,0,0" />
         </Grid>
 
+        <TextBlock Text="{x:Static loc:Strings.RdpSection}" Style="{StaticResource SectionTitle}" />
+        <CheckBox x:Name="RdpInAppBox" Margin="0,0,0,16">
+            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.RdpInApp}" />
+        </CheckBox>
+
         <TextBlock Text="{x:Static loc:Strings.SettingsSshSection}" Style="{StaticResource SectionTitle}" />
         <TextBlock Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10"
                    Text="{x:Static loc:Strings.SettingsSshHelp}" />

@@ -474,7 +474,7 @@ Gli account restano disponibili nella scheda «Disponibili».</value>
     <value>Memorizza questo componente per la piattaforma {0}</value>
   </data>
   <data name="PsmHint" xml:space="preserve">
-    <value>Il PVWA genera un file RDP aperto in Connessione Desktop remoto (mstsc).</value>
+    <value>Il PVWA genera una connessione RDP, aperta in una scheda di CyberArkTerm o in Connessione Desktop remoto (mstsc) secondo le impostazioni.</value>
   </data>
   <data name="SshCommandHint" xml:space="preserve">
     <value>Comando: ssh {0}</value>
@@ -951,5 +951,65 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
   </data>
   <data name="PermissionsDoneCount" xml:space="preserve">
     <value>Permessi {0} applicati: {1} elementi</value>
+  </data>
+  <data name="RdpTitle" xml:space="preserve">
+    <value>Desktop remoto</value>
+  </data>
+  <data name="RdpConnecting" xml:space="preserve">
+    <value>Connessione a {0}…</value>
+  </data>
+  <data name="RdpConnected" xml:space="preserve">
+    <value>{0} — connesso a {1}</value>
+  </data>
+  <data name="RdpFullScreen" xml:space="preserve">
+    <value>_Schermo intero</value>
+  </data>
+  <data name="RdpFullScreenTip" xml:space="preserve">
+    <value>Mostra la sessione a schermo intero (barra di connessione in alto per tornare)</value>
+  </data>
+  <data name="RdpDisconnect" xml:space="preserve">
+    <value>_Disconnetti</value>
+  </data>
+  <data name="RdpDisconnectTip" xml:space="preserve">
+    <value>Disconnetti la sessione (la scheda resta aperta per riconnettersi)</value>
+  </data>
+  <data name="RdpOpened" xml:space="preserve">
+    <value>Sessione Desktop remoto aperta: {0}</value>
+  </data>
+  <data name="RdpClosed" xml:space="preserve">
+    <value>Sessione Desktop remoto {0} chiusa</value>
+  </data>
+  <data name="RdpSessionError" xml:space="preserve">
+    <value>Sessione Desktop remoto {0}: {1}</value>
+  </data>
+  <data name="RdpControlError" xml:space="preserve">
+    <value>Errore del controllo Desktop remoto ({0}).</value>
+  </data>
+  <data name="RdpDisconnectCode" xml:space="preserve">
+    <value>Disconnesso (codice {0}).</value>
+  </data>
+  <data name="RdpRemoteAppInTab" xml:space="preserve">
+    <value>Questa connessione apre un'applicazione remota (RemoteApp), che non può essere mostrata in una scheda.</value>
+  </data>
+  <data name="RdpRemoteAppFallback" xml:space="preserve">
+    <value>{0}: questo componente PSM apre un'applicazione remota (RemoteApp), aperta in Connessione Desktop remoto (mstsc).</value>
+  </data>
+  <data name="RdpControlMissing" xml:space="preserve">
+    <value>{0}: il controllo Desktop remoto non è disponibile su questo computer, sessione aperta in Connessione Desktop remoto (mstsc).</value>
+  </data>
+  <data name="RdpControlFallback" xml:space="preserve">
+    <value>{0}: il controllo Desktop remoto non ha funzionato ({1}), sessione aperta in Connessione Desktop remoto (mstsc).</value>
+  </data>
+  <data name="RdpCloseTabConfirm" xml:space="preserve">
+    <value>Disconnettere la sessione Desktop remoto {0}?</value>
+  </data>
+  <data name="RdpCloseAllConfirm" xml:space="preserve">
+    <value>Ci sono sessioni Desktop remoto aperte ({0}). Disconnetterle e chiudere?</value>
+  </data>
+  <data name="RdpSection" xml:space="preserve">
+    <value>Desktop remoto (RDP)</value>
+  </data>
+  <data name="RdpInApp" xml:space="preserve">
+    <value>Apri le sessioni Desktop remoto in una scheda di CyberArkTerm, altrimenti in Connessione Desktop remoto (mstsc)</value>
   </data>
 </root>

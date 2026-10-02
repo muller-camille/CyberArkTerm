@@ -41,6 +41,9 @@ public sealed class AppSettings
     /// <summary>Sessions SSH dans un onglet CyberArkTerm (terminal + navigateur de fichiers) plutôt que Windows Terminal.</summary>
     public bool SshInApp { get; set; } = true;
 
+    /// <summary>Sessions Bureau à distance (PSM) dans un onglet CyberArkTerm plutôt que dans mstsc.</summary>
+    public bool RdpInApp { get; set; } = true;
+
     /// <summary>Protocole utilisé pour déposer des fichiers sur le serveur.</summary>
     public TransferProtocol UploadProtocol { get; set; } = TransferProtocol.Scp;
 

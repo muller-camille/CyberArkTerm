@@ -1757,7 +1757,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The PVWA generates an RDP file opened in Remote Desktop Connection (mstsc)..
+        ///   Looks up a localized string similar to The PVWA generates an RDP connection, opened in a CyberArkTerm tab or in Remote Desktop Connectio[rest of string was truncated].
         /// </summary>
         public static string PsmHint {
             get {
@@ -1798,6 +1798,186 @@ namespace CyberArkTerm.App.Localization {
         public static string QuickPlaceholder {
             get {
                 return ResourceManager.GetString("QuickPlaceholder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote desktop sessions are open ({0}). Disconnect them and close?.
+        /// </summary>
+        public static string RdpCloseAllConfirm {
+            get {
+                return ResourceManager.GetString("RdpCloseAllConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Disconnect the remote desktop session {0}?.
+        /// </summary>
+        public static string RdpCloseTabConfirm {
+            get {
+                return ResourceManager.GetString("RdpCloseTabConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote desktop session {0} closed.
+        /// </summary>
+        public static string RdpClosed {
+            get {
+                return ResourceManager.GetString("RdpClosed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} — connected to {1}.
+        /// </summary>
+        public static string RdpConnected {
+            get {
+                return ResourceManager.GetString("RdpConnected", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connecting to {0}….
+        /// </summary>
+        public static string RdpConnecting {
+            get {
+                return ResourceManager.GetString("RdpConnecting", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote Desktop control error ({0})..
+        /// </summary>
+        public static string RdpControlError {
+            get {
+                return ResourceManager.GetString("RdpControlError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the Remote Desktop control failed ({1}), session opened in Remote Desktop Connection (mstsc)..
+        /// </summary>
+        public static string RdpControlFallback {
+            get {
+                return ResourceManager.GetString("RdpControlFallback", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the Remote Desktop control isn't available on this computer, session opened in Remote Deskto[rest of string was truncated].
+        /// </summary>
+        public static string RdpControlMissing {
+            get {
+                return ResourceManager.GetString("RdpControlMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Disconnect.
+        /// </summary>
+        public static string RdpDisconnect {
+            get {
+                return ResourceManager.GetString("RdpDisconnect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Disconnected (code {0})..
+        /// </summary>
+        public static string RdpDisconnectCode {
+            get {
+                return ResourceManager.GetString("RdpDisconnectCode", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Disconnect the session (the tab stays open to reconnect).
+        /// </summary>
+        public static string RdpDisconnectTip {
+            get {
+                return ResourceManager.GetString("RdpDisconnectTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Full screen.
+        /// </summary>
+        public static string RdpFullScreen {
+            get {
+                return ResourceManager.GetString("RdpFullScreen", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Show the session full screen (use the connection bar at the top to come back).
+        /// </summary>
+        public static string RdpFullScreenTip {
+            get {
+                return ResourceManager.GetString("RdpFullScreenTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open remote desktop sessions in a CyberArkTerm tab, otherwise in Remote Desktop Connection (mstsc).
+        /// </summary>
+        public static string RdpInApp {
+            get {
+                return ResourceManager.GetString("RdpInApp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote desktop session opened: {0}.
+        /// </summary>
+        public static string RdpOpened {
+            get {
+                return ResourceManager.GetString("RdpOpened", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: this PSM component opens a remote application (RemoteApp), opened in Remote Desktop Connecti[rest of string was truncated].
+        /// </summary>
+        public static string RdpRemoteAppFallback {
+            get {
+                return ResourceManager.GetString("RdpRemoteAppFallback", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This connection opens a remote application (RemoteApp), which can't be shown in a tab..
+        /// </summary>
+        public static string RdpRemoteAppInTab {
+            get {
+                return ResourceManager.GetString("RdpRemoteAppInTab", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote desktop (RDP).
+        /// </summary>
+        public static string RdpSection {
+            get {
+                return ResourceManager.GetString("RdpSection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote desktop session {0}: {1}.
+        /// </summary>
+        public static string RdpSessionError {
+            get {
+                return ResourceManager.GetString("RdpSessionError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote desktop.
+        /// </summary>
+        public static string RdpTitle {
+            get {
+                return ResourceManager.GetString("RdpTitle", resourceCulture);
             }
         }
 

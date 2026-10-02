@@ -474,7 +474,7 @@ Les comptes restent disponibles dans l'onglet « Disponibles ».</value>
     <value>Mémoriser ce composant pour la plateforme {0}</value>
   </data>
   <data name="PsmHint" xml:space="preserve">
-    <value>Le PVWA génère un fichier RDP ouvert dans la Connexion Bureau à distance (mstsc).</value>
+    <value>Le PVWA génère une connexion RDP, ouverte dans un onglet de CyberArkTerm ou dans la Connexion Bureau à distance (mstsc) selon les paramètres.</value>
   </data>
   <data name="SshCommandHint" xml:space="preserve">
     <value>Commande : ssh {0}</value>
@@ -951,5 +951,65 @@ Fermer quand même ? Les copies locales seront supprimées.</value>
   </data>
   <data name="PermissionsDoneCount" xml:space="preserve">
     <value>Droits {0} appliqués : {1} éléments</value>
+  </data>
+  <data name="RdpTitle" xml:space="preserve">
+    <value>Bureau à distance</value>
+  </data>
+  <data name="RdpConnecting" xml:space="preserve">
+    <value>Connexion à {0}…</value>
+  </data>
+  <data name="RdpConnected" xml:space="preserve">
+    <value>{0} — connecté à {1}</value>
+  </data>
+  <data name="RdpFullScreen" xml:space="preserve">
+    <value>_Plein écran</value>
+  </data>
+  <data name="RdpFullScreenTip" xml:space="preserve">
+    <value>Afficher la session en plein écran (barre de connexion en haut de l'écran pour revenir)</value>
+  </data>
+  <data name="RdpDisconnect" xml:space="preserve">
+    <value>_Déconnecter</value>
+  </data>
+  <data name="RdpDisconnectTip" xml:space="preserve">
+    <value>Déconnecter la session (l'onglet reste ouvert pour se reconnecter)</value>
+  </data>
+  <data name="RdpOpened" xml:space="preserve">
+    <value>Session Bureau à distance ouverte : {0}</value>
+  </data>
+  <data name="RdpClosed" xml:space="preserve">
+    <value>Session Bureau à distance {0} fermée</value>
+  </data>
+  <data name="RdpSessionError" xml:space="preserve">
+    <value>Session Bureau à distance {0} : {1}</value>
+  </data>
+  <data name="RdpControlError" xml:space="preserve">
+    <value>Erreur du contrôle Bureau à distance ({0}).</value>
+  </data>
+  <data name="RdpDisconnectCode" xml:space="preserve">
+    <value>Déconnecté (code {0}).</value>
+  </data>
+  <data name="RdpRemoteAppInTab" xml:space="preserve">
+    <value>Cette connexion ouvre une application distante (RemoteApp), qui ne peut pas s'afficher dans un onglet.</value>
+  </data>
+  <data name="RdpRemoteAppFallback" xml:space="preserve">
+    <value>{0} : ce composant PSM ouvre une application distante (RemoteApp), ouverte dans la Connexion Bureau à distance (mstsc).</value>
+  </data>
+  <data name="RdpControlMissing" xml:space="preserve">
+    <value>{0} : le contrôle Bureau à distance n'est pas disponible sur ce poste, session ouverte dans la Connexion Bureau à distance (mstsc).</value>
+  </data>
+  <data name="RdpControlFallback" xml:space="preserve">
+    <value>{0} : le contrôle Bureau à distance a échoué ({1}), session ouverte dans la Connexion Bureau à distance (mstsc).</value>
+  </data>
+  <data name="RdpCloseTabConfirm" xml:space="preserve">
+    <value>Déconnecter la session Bureau à distance {0} ?</value>
+  </data>
+  <data name="RdpCloseAllConfirm" xml:space="preserve">
+    <value>Des sessions Bureau à distance sont ouvertes ({0}). Les déconnecter et fermer ?</value>
+  </data>
+  <data name="RdpSection" xml:space="preserve">
+    <value>Bureau à distance (RDP)</value>
+  </data>
+  <data name="RdpInApp" xml:space="preserve">
+    <value>Ouvrir les sessions Bureau à distance dans un onglet de CyberArkTerm, sinon dans la Connexion Bureau à distance (mstsc)</value>
   </data>
 </root>

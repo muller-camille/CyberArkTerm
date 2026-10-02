@@ -579,7 +579,12 @@
                             <StackPanel IsItemsHost="True" Orientation="Horizontal" />
                         </Border>
                         <Border Background="White">
-                            <ContentPresenter ContentSource="SelectedContent" />
+                            <Grid>
+                                <ContentPresenter ContentSource="SelectedContent" />
+                                <!-- Onglets Bureau à distance : leur contenu reste ici en permanence (seulement masqué), pour que
+                                     le contrôle Bureau à distance ne soit jamais retiré de la fenêtre pendant la session. -->
+                                <Grid x:Name="RdpLayer" />
+                            </Grid>
                         </Border>
                     </DockPanel>
                 </ControlTemplate>

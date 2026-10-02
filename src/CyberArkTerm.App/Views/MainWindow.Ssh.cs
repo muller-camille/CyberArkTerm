@@ -30,7 +30,7 @@ public partial class MainWindow
             directory => FilesPanel.OnRemoteChanged(session, directory));
         var view = new SshSessionView(session, $"{login}@{_settings.PsmpAddress}");
         var tab = new TabItem { Content = view, Tag = session };
-        tab.Header = TabHeader(label, tab);
+        tab.Header = TabHeader(label, "IconSsh", () => CloseSshTab(tab));
         session.StateChanged += () =>
         {
             switch (session.State)
@@ -52,25 +52,25 @@ public partial class MainWindow
         _ = view.ConnectAsync();
     }
 
-    private object TabHeader(string label, TabItem tab)
+    private object TabHeader(string label, string icon, Action close)
     {
-        var close = new Button
+        var closeButton = new Button
         {
             Style = (Style)FindResource("TabCloseButton"),
             Content = new Image { Source = (System.Windows.Media.ImageSource)FindResource("IconClose"), Width = 11, Height = 11 },
             ToolTip = Strings.CloseSessionTip,
         };
-        close.Click += (_, _) => CloseSshTab(tab);
+        closeButton.Click += (_, _) => close();
         var header = new StackPanel { Orientation = Orientation.Horizontal, Background = System.Windows.Media.Brushes.Transparent };
-        header.Children.Add(new Image { Source = (System.Windows.Media.ImageSource)FindResource("IconSsh"), Width = 16, Height = 16, Margin = new Thickness(0, 0, 6, 0) });
+        header.Children.Add(new Image { Source = (System.Windows.Media.ImageSource)FindResource(icon), Width = 16, Height = 16, Margin = new Thickness(0, 0, 6, 0) });
         header.Children.Add(new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center });
-        header.Children.Add(close);
+        header.Children.Add(closeButton);
         // Clic molette sur l'onglet : fermeture.
         header.MouseDown += (_, e) =>
         {
             if (e.ChangedButton == MouseButton.Middle)
             {
-                CloseSshTab(tab);
+                close();
             }
         };
         return header;
@@ -119,6 +119,7 @@ public partial class MainWindow
 
         var tab = MainTabs.SelectedItem as TabItem;
         FilesPanel.Attach(tab?.Tag as SshSession);
+        ShowRdpView(tab);
         if (tab?.Content is SshSessionView view)
         {
             view.FocusTerminal();

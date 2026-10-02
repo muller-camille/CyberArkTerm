@@ -10,8 +10,10 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services;
+using CyberArkTerm.App.Services.Rdp;
 using CyberArkTerm.Core;
 using CyberArkTerm.Core.Localization;
+using CyberArkTerm.Core.Rdp;
 using Microsoft.Win32;
 
 namespace CyberArkTerm.App.Views;
@@ -563,26 +565,48 @@ public partial class MainWindow : Window
             SetStatus(Text.Format(Strings.PsmOpening, label, request.Component));
             LoadProgress.IsIndeterminate = true;
             LoadProgress.Visibility = Visibility.Visible;
+            var options = new PsmConnectOptions
+            {
+                ConnectionComponent = request.Component,
+                Reason = request.Reason,
+                TicketingSystemName = request.TicketingSystem,
+                TicketId = request.TicketId,
+                RemoteMachine = request.RemoteMachine,
+            };
             byte[] rdp;
             try
             {
-                rdp = await _client.PsmConnectAsync(account.Id, new PsmConnectOptions
-                {
-                    ConnectionComponent = request.Component,
-                    Reason = request.Reason,
-                    TicketingSystemName = request.TicketingSystem,
-                    TicketId = request.TicketId,
-                    RemoteMachine = request.RemoteMachine,
-                }, _lifetime.Token);
+                rdp = await _client.PsmConnectAsync(account.Id, options, _lifetime.Token);
             }
             finally
             {
                 LoadProgress.Visibility = _loading ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            _launcher.LaunchRdp(rdp, label);
-            SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
-            AddRecent(account, label, request.Component, request.RemoteMachine);
+            if (EmbeddableRdp(rdp, label) is { } settings)
+            {
+                SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
+                AddRecent(account, label, request.Component, request.RemoteMachine);
+                // Une reconnexion demande un nouveau jeton au PVWA : le précédent ne sert qu'une fois.
+                var session = await OpenRdpTabAsync(label, async ct =>
+                {
+                    var file = await _client.PsmConnectAsync(account.Id, options, ct);
+                    return new RdpConnectionRequest(RdpConnectionSettings.FromRdpFile(file), null);
+                }, new RdpConnectionRequest(settings, null));
+                if (session.ControlFailed)
+                {
+                    // Contrôle Bureau à distance inutilisable sur ce poste : le jeton n'a pas servi, mstsc prend le relais.
+                    await RemoveRdpTabAsync(session);
+                    _launcher.LaunchRdp(rdp, label);
+                    SetStatus(Text.Format(Strings.RdpControlFallback, label, session.Error));
+                }
+            }
+            else
+            {
+                _launcher.LaunchRdp(rdp, label);
+                SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
+                AddRecent(account, label, request.Component, request.RemoteMachine);
+            }
         }
         else if (_settings.SshInApp)
         {
@@ -750,9 +774,9 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!ConfirmCloseEditedFiles())
+        if (!ConfirmCloseEditedFiles() || !ConfirmCloseRdpSessions())
         {
-            // Fichiers modifiés dans l'éditeur et pas encore renvoyés : l'utilisateur garde la fenêtre ouverte.
+            // Fichiers modifiés non renvoyés, ou sessions Bureau à distance ouvertes : l'utilisateur garde la fenêtre.
             e.Cancel = true;
             LogoutRequested = false;
             return;
@@ -776,6 +800,7 @@ public partial class MainWindow : Window
         finally
         {
             CloseAllSshSessions();
+            CloseAllRdpSessions();
             _launcher.Cleanup();
             _client.Dispose();
             _lifetime.Dispose();

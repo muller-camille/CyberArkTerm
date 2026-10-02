@@ -28,6 +28,7 @@ public partial class SettingsDialog : Window
         PreferSshBox.IsChecked = settings.PreferSshForUnix;
         SshInAppBox.IsChecked = settings.SshInApp;
         FollowBox.IsChecked = settings.FollowTerminalFolder;
+        RdpInAppBox.IsChecked = settings.RdpInApp;
         EditorBox.Text = settings.TextEditor;
         (settings.UploadProtocol == TransferProtocol.Sftp ? SftpRadio : ScpRadio).IsChecked = true;
         HostKeysText.Text = settings.KnownHosts.Count == 0
@@ -72,6 +73,7 @@ public partial class SettingsDialog : Window
         _settings.PreferSshForUnix = PreferSshBox.IsChecked == true;
         _settings.SshInApp = SshInAppBox.IsChecked == true;
         _settings.FollowTerminalFolder = FollowBox.IsChecked == true;
+        _settings.RdpInApp = RdpInAppBox.IsChecked == true;
         _settings.UploadProtocol = SftpRadio.IsChecked == true ? TransferProtocol.Sftp : TransferProtocol.Scp;
         _settings.TextEditor = EditorBox.Text.Trim().Trim('"');
         if (_forgetHostKeys)

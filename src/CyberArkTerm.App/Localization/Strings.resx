@@ -474,7 +474,7 @@ The accounts remain available in the “Available” tab.</value>
     <value>Remember this component for platform {0}</value>
   </data>
   <data name="PsmHint" xml:space="preserve">
-    <value>The PVWA generates an RDP file opened in Remote Desktop Connection (mstsc).</value>
+    <value>The PVWA generates an RDP connection, opened in a CyberArkTerm tab or in Remote Desktop Connection (mstsc) depending on the settings.</value>
   </data>
   <data name="SshCommandHint" xml:space="preserve">
     <value>Command: ssh {0}</value>
@@ -951,5 +951,65 @@ Close anyway? The local copies will be deleted.</value>
   </data>
   <data name="PermissionsDoneCount" xml:space="preserve">
     <value>Permissions {0} applied: {1} items</value>
+  </data>
+  <data name="RdpTitle" xml:space="preserve">
+    <value>Remote desktop</value>
+  </data>
+  <data name="RdpConnecting" xml:space="preserve">
+    <value>Connecting to {0}…</value>
+  </data>
+  <data name="RdpConnected" xml:space="preserve">
+    <value>{0} — connected to {1}</value>
+  </data>
+  <data name="RdpFullScreen" xml:space="preserve">
+    <value>_Full screen</value>
+  </data>
+  <data name="RdpFullScreenTip" xml:space="preserve">
+    <value>Show the session full screen (use the connection bar at the top to come back)</value>
+  </data>
+  <data name="RdpDisconnect" xml:space="preserve">
+    <value>_Disconnect</value>
+  </data>
+  <data name="RdpDisconnectTip" xml:space="preserve">
+    <value>Disconnect the session (the tab stays open to reconnect)</value>
+  </data>
+  <data name="RdpOpened" xml:space="preserve">
+    <value>Remote desktop session opened: {0}</value>
+  </data>
+  <data name="RdpClosed" xml:space="preserve">
+    <value>Remote desktop session {0} closed</value>
+  </data>
+  <data name="RdpSessionError" xml:space="preserve">
+    <value>Remote desktop session {0}: {1}</value>
+  </data>
+  <data name="RdpControlError" xml:space="preserve">
+    <value>Remote Desktop control error ({0}).</value>
+  </data>
+  <data name="RdpDisconnectCode" xml:space="preserve">
+    <value>Disconnected (code {0}).</value>
+  </data>
+  <data name="RdpRemoteAppInTab" xml:space="preserve">
+    <value>This connection opens a remote application (RemoteApp), which can't be shown in a tab.</value>
+  </data>
+  <data name="RdpRemoteAppFallback" xml:space="preserve">
+    <value>{0}: this PSM component opens a remote application (RemoteApp), opened in Remote Desktop Connection (mstsc).</value>
+  </data>
+  <data name="RdpControlMissing" xml:space="preserve">
+    <value>{0}: the Remote Desktop control isn't available on this computer, session opened in Remote Desktop Connection (mstsc).</value>
+  </data>
+  <data name="RdpControlFallback" xml:space="preserve">
+    <value>{0}: the Remote Desktop control failed ({1}), session opened in Remote Desktop Connection (mstsc).</value>
+  </data>
+  <data name="RdpCloseTabConfirm" xml:space="preserve">
+    <value>Disconnect the remote desktop session {0}?</value>
+  </data>
+  <data name="RdpCloseAllConfirm" xml:space="preserve">
+    <value>Remote desktop sessions are open ({0}). Disconnect them and close?</value>
+  </data>
+  <data name="RdpSection" xml:space="preserve">
+    <value>Remote desktop (RDP)</value>
+  </data>
+  <data name="RdpInApp" xml:space="preserve">
+    <value>Open remote desktop sessions in a CyberArkTerm tab, otherwise in Remote Desktop Connection (mstsc)</value>
   </data>
 </root>
