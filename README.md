@@ -37,7 +37,7 @@ serveur.
 | **Connexion CyberArk** | Authentification CyberArk, LDAP, RADIUS (challenge / OTP compris) ou Windows (session courante). |
 | **Disponibles** | Tous les comptes visibles dans le coffre, groupés par safe, plateforme ou type de cible, avec recherche instantanée. |
 | **Courants** | Vos serveurs de travail, rangés en dossiers et sous-dossiers, chacun avec sa propre configuration. |
-| **Sessions PSM** | Bureau à distance via le PSM (comme le bouton « Connect » du PVWA) : composant, machine cible, motif, ticket. |
+| **Sessions PSM** | Bureau à distance via le PSM (comme le bouton « Connect » du PVWA), dans un onglet de l'application : composant, machine cible, motif, ticket. |
 | **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), authentification MFA. |
 | **Onglet Fichiers** | Navigateur SFTP du serveur : `ls`, navigation, `rm`, dépôt de fichiers par glisser-déposer en SCP, modification dans votre éditeur de texte, droits (`chmod`), suivi du dossier du terminal. |
 | **Accueil** | Connexion rapide (tapez un serveur, Entrée), sessions récentes. |
@@ -65,7 +65,8 @@ L'exécutable n'est pas signé : au premier lancement, Windows SmartScreen peut 
 **Poste de travail**
 
 - Windows 10 ou 11 (x64).
-- Le client Bureau à distance (`mstsc`, présent par défaut) pour les sessions PSM.
+- Le client Bureau à distance de Windows (présent par défaut) pour les sessions PSM : son contrôle intégré pour
+  les onglets, ou `mstsc`.
 - Facultatif : Windows Terminal et le « Client OpenSSH » de Windows, uniquement si vous choisissez d'ouvrir
   le SSH hors de CyberArkTerm.
 
@@ -108,6 +109,20 @@ rouvre aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant 
 
 Double-cliquez sur le compte (ou Entrée, ou bouton « Se connecter »). CyberArkTerm demande la connexion au
 PVWA et ouvre le Bureau à distance sur le PSM, exactement comme le bouton « Connect » du PVWA.
+
+La session s'ouvre **dans un onglet de CyberArkTerm**, avec le contrôle Bureau à distance de Windows (le même
+moteur que `mstsc`) :
+
+- la résolution du bureau distant suit la taille de l'onglet ;
+- « Plein écran » affiche la session sur tout l'écran (barre de connexion en haut pour revenir,
+  ou `Ctrl+Alt+Pause`) ;
+- « Déconnecter » ferme la session et garde l'onglet ; « Reconnecter » redemande une connexion au PVWA
+  (le jeton d'une session PSM ne sert qu'une fois) ;
+- fermer l'onglet (croix ou clic molette) déconnecte la session, après confirmation.
+
+La session s'ouvre dans la **Connexion Bureau à distance** (`mstsc`) si l'option est décochée dans les
+Paramètres, si le composant PSM ouvre une application distante (RemoteApp) ou si le contrôle Bureau à distance
+n'est pas utilisable sur le poste ; la barre d'état indique alors pourquoi.
 
 ![Connexion à un compte de domaine : machine cible, motif exigé par le PVWA](docs/captures/connexion-psm.png)
 
@@ -200,7 +215,8 @@ Un serveur dont le compte n'est plus visible dans CyberArk apparaît grisé.
 | Terminal | Copier | Sélection à la souris, ou `Ctrl+Maj+C` |
 | Terminal | Coller | Clic droit, `Maj+Inser` ou `Ctrl+Maj+V` |
 | Terminal | Historique | Molette, `Maj+Page préc.` / `Maj+Page suiv.` |
-| Onglet SSH | Fermer | Croix de l'onglet ou clic molette |
+| Onglet SSH ou Bureau à distance | Fermer | Croix de l'onglet ou clic molette |
+| Bureau à distance | Plein écran / retour | `Ctrl+Alt+Pause` |
 | Fichiers | Ouvrir / modifier / dossier parent / supprimer / actualiser | `Entrée` / `F4` / `Retour arrière` / `Suppr` / `F5` |
 
 ## Paramètres et fichier de configuration
@@ -210,6 +226,7 @@ Un serveur dont le compte n'est plus visible dans CyberArk apparaît grisé.
 | Paramètre | Rôle | Défaut |
 | --- | --- | --- |
 | Langue de l'interface | Français, English, Italiano ou langue du système ; appliquée après déconnexion ou au prochain démarrage | langue de Windows (anglais si elle n'est pas traduite) |
+| Bureau à distance dans CyberArkTerm | Sessions PSM en onglet ; sinon Connexion Bureau à distance (`mstsc`) | oui |
 | Adresse et port PSMP | Serveur PSM for SSH ; vide = SSH désactivé | vide, 22 |
 | Double-clic Unix = SSH | Ouvre les comptes Unix en SSH plutôt qu'en PSM | non |
 | SSH dans CyberArkTerm | Terminal et onglet Fichiers intégrés ; sinon Windows Terminal | oui |
@@ -230,8 +247,11 @@ l'application et supprimez-le.
 - **Aucun secret sur disque** : mot de passe CyberArk, jeton de session, clé MFA et mot de passe PSMP restent
   en mémoire, le temps de la session. Déconnexion du PVWA (`Logoff`) à la fermeture.
 - Session PVWA ouverte avec `concurrentSession` : votre session web PVWA éventuelle n'est pas fermée.
-- **Fichiers RDP** (jeton PSM à usage unique) écrits dans `%TEMP%\CyberArkTerm` et supprimés après 60 s ou
-  à la fermeture.
+- **Sessions Bureau à distance en onglet** : la réponse du PVWA (jeton PSM à usage unique) reste en mémoire,
+  rien n'est écrit sur disque. Les redirections (lecteurs, imprimantes, ports, cartes à puce) ne sont activées
+  que si le PVWA les demande ; le presse-papiers suit sa demande (activé s'il n'en dit rien).
+- **Fichiers RDP pour `mstsc`** (jeton PSM à usage unique) écrits dans `%TEMP%\CyberArkTerm` et supprimés
+  après 60 s ou à la fermeture.
 - **Clés d'hôte PSMP épinglées** au premier usage, avec alerte en cas de changement.
 - **Fichiers modifiés** : la copie locale ouverte dans l'éditeur est placée dans `%TEMP%\CyberArkTerm\edit`
   et supprimée à la fermeture de l'onglet SSH ; une alerte prévient si des modifications n'ont pas été
@@ -255,6 +275,14 @@ Pour signaler une vulnérabilité, voir [SECURITY.md](SECURITY.md) (signalement 
 | `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | Fichier RDP de la session PSM |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Clé SSH temporaire « MFA caching » (si activée) |
 | `POST /PasswordVault/API/Auth/Logoff` | Fermeture de session |
+
+### Sessions Bureau à distance
+
+Les onglets Bureau à distance hébergent le contrôle ActiveX de Windows (`mstscax.dll`, classe `MsRdpClient`
+la plus récente disponible). CyberArkTerm lit le fichier RDP renvoyé par `PSMConnect` et en reprend les
+réglages : `full address`, `username`, `alternate shell` (lancement de la session PSM), niveau
+d'authentification du serveur, NLA (CredSSP), passerelle, redirections, son, effets visuels. Les fermetures
+de session et les erreurs de connexion sont expliquées dans l'onglet avec le message de Windows.
 
 ### Sessions PSMP
 
@@ -290,6 +318,8 @@ Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place d
 | L'onglet Fichiers indique « Connexion SFTP impossible » | SFTP n'est pas autorisé sur le PSMP ou pour ce compte : voir l'équipe CyberArk. |
 | Le navigateur ne suit pas les `cd` | Le shell distant n'est pas bash ou zsh, l'option est désactivée dans les Paramètres, ou l'invite n'a pas été reconnue : recochez « Suivre le dossier du terminal » à l'invite du shell. |
 | Alerte « la clé du PSMP a changé » | Ne continuez que si l'équipe CyberArk confirme un changement du serveur. |
+| La session PSM s'ouvre dans `mstsc` et pas dans un onglet | Composant en application distante (RemoteApp), contrôle Bureau à distance indisponible, ou option décochée : la barre d'état indique la raison. |
+| L'onglet affiche « Erreur du contrôle Bureau à distance » | Décochez « Ouvrir les sessions Bureau à distance dans un onglet » dans les Paramètres pour passer par `mstsc`, et signalez le code affiché. |
 
 ## Développement
 
@@ -298,7 +328,7 @@ Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place d
 | Projet | Rôle |
 | --- | --- |
 | `src/CyberArkTerm.Core` | Logique sans interface, multiplateforme : client de l'API PVWA, classement des comptes, émulateur de terminal xterm, connexions PSMP et navigateur SFTP/SCP (SSH.NET), serveurs « Courants » en dossiers, préférences. |
-| `src/CyberArkTerm.App` | Application WPF : fenêtres, onglets, contrôle terminal, lancement de `mstsc`, icône (`Assets`). |
+| `src/CyberArkTerm.App` | Application WPF : fenêtres, onglets, contrôle terminal, contrôle Bureau à distance (onglets RDP), lancement de `mstsc`, icône (`Assets`). |
 | `tests/CyberArkTerm.Core.Tests` | Tests xUnit de Core (faux PVWA HTTP, terminal, PSMP, dossiers…). |
 
 Dépendance externe : [SSH.NET](https://github.com/sshnet/SSH.NET) (licence MIT).
@@ -322,7 +352,8 @@ dotnet run --project src/CyberArkTerm.App
 ```
 
 Le projet compile aussi sous Linux ou macOS (`EnableWindowsTargeting`) ; l'application ne s'exécute que sous
-Windows.
+Windows. Les tests de `tests/CyberArkTerm.App.Tests` (dont un test du vrai contrôle Bureau à distance) ne
+s'exécutent que sous Windows ; ailleurs, lancez `dotnet test tests/CyberArkTerm.Core.Tests`.
 
 ### Publier l'exécutable
 
@@ -353,14 +384,13 @@ fichier existe.
 - **Privilege Cloud** (connexion via CyberArk Identity) et **SAML** ne sont pas gérés.
 - L'API Accounts n'indique pas quels composants PSM une plateforme propose : le composant est déduit, puis
   mémorisable.
-- Les sessions PSM (RDP) s'ouvrent dans la fenêtre Bureau à distance de Windows, pas en onglet.
+- Les composants PSM en application distante (RemoteApp) s'ouvrent dans `mstsc`, pas en onglet.
 - Le suivi du dossier du terminal nécessite bash ou zsh sur le serveur.
 - PSM Gateway (HTML5), double validation (dual control) et accès exclusif ne sont pas gérés.
 
 **Pistes**
 
 - Exécutable signé et installateur MSI.
-- Sessions RDP en onglets intégrés.
 - Plusieurs PVWA (profils de connexion), Privilege Cloud.
 
 ## Licence

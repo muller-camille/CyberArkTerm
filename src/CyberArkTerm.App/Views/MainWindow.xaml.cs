@@ -583,7 +583,7 @@ public partial class MainWindow : Window
                 LoadProgress.Visibility = _loading ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            if (EmbeddableRdp(rdp, label) is { } settings)
+            if (EmbeddableRdp(rdp, label, out var fallbackReason) is { } settings)
             {
                 SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
                 AddRecent(account, label, request.Component, request.RemoteMachine);
@@ -604,7 +604,7 @@ public partial class MainWindow : Window
             else
             {
                 _launcher.LaunchRdp(rdp, label);
-                SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
+                SetStatus(fallbackReason ?? Text.Format(Strings.PsmStarted, label, request.Component));
                 AddRecent(account, label, request.Component, request.RemoteMachine);
             }
         }

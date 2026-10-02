@@ -18,10 +18,11 @@ public partial class MainWindow
 
     /// <summary>
     /// Réglages pour ouvrir ce fichier .rdp dans un onglet, ou null s'il faut le confier à mstsc : option désactivée,
-    /// application distante (RemoteApp) ou contrôle Bureau à distance absent (le motif s'affiche dans la barre d'état).
+    /// application distante (RemoteApp) ou contrôle Bureau à distance absent (<paramref name="reason"/> dit pourquoi).
     /// </summary>
-    private RdpConnectionSettings? EmbeddableRdp(byte[] rdpFile, string label)
+    private RdpConnectionSettings? EmbeddableRdp(byte[] rdpFile, string label, out string? reason)
     {
+        reason = null;
         if (!_settings.RdpInApp)
         {
             return null;
@@ -37,12 +38,12 @@ public partial class MainWindow
             return null;
         }
 
-        string? reason = settings.IsRemoteApp ? Strings.RdpRemoteAppFallback
+        var why = settings.IsRemoteApp ? Strings.RdpRemoteAppFallback
             : !RdpClientHost.IsAvailable ? Strings.RdpControlMissing
             : null;
-        if (reason is not null)
+        if (why is not null)
         {
-            SetStatus(Text.Format(reason, label));
+            reason = Text.Format(why, label);
             return null;
         }
 

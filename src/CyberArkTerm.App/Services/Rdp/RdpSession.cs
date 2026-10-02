@@ -80,6 +80,9 @@ internal sealed class RdpSession : IDisposable
 
     public bool IsFullScreen { get; private set; }
 
+    /// <summary>Code de la dernière déconnexion signalée par le contrôle (événement OnDisconnected).</summary>
+    public int? DisconnectReason { get; private set; }
+
     /// <summary>
     /// Vrai si la dernière tentative a échoué dans le contrôle Bureau à distance lui-même (création ou réglages),
     /// avant toute connexion au serveur.
@@ -96,6 +99,7 @@ internal sealed class RdpSession : IDisposable
         ReleaseClient();
         Error = null;
         ControlFailed = false;
+        DisconnectReason = null;
         SetState(RdpSessionState.Connecting);
         RdpConnectionRequest request;
         try
@@ -347,6 +351,7 @@ internal sealed class RdpSession : IDisposable
             });
         }
 
+        DisconnectReason = reason;
         bool normal = NormalDisconnects.Contains(reason);
         Error = normal && reason == 1 ? null : string.IsNullOrWhiteSpace(description) ? Text.Format(Strings.RdpDisconnectCode, reason) : description.Trim();
         IsFullScreen = false;

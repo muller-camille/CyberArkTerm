@@ -36,7 +36,7 @@ through **PSM for SSH (PSMP)** with a built-in **file browser** to upload files 
 | **CyberArk sign-in** | CyberArk, LDAP, RADIUS (challenge / OTP included) or Windows (current session) authentication. |
 | **Available** | Every account visible in the vault, grouped by safe, platform or target type, with instant search. |
 | **My servers** | Your working servers, organized in folders and subfolders, each with its own settings. |
-| **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button): component, target machine, reason, ticket. |
+| **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in an application tab: component, target machine, reason, ticket. |
 | **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colors, vim, less, top…), MFA authentication. |
 | **Files tab** | SFTP browser of the server: `ls`, navigation, `rm`, drag-and-drop upload over SCP, editing in your text editor, permissions (`chmod`), follows the terminal folder. |
 | **Home** | Quick connect (type a server, press Enter), recent sessions. |
@@ -64,7 +64,8 @@ The executable is not signed: on first launch, Windows SmartScreen may show a wa
 **Workstation**
 
 - Windows 10 or 11 (x64).
-- The Remote Desktop client (`mstsc`, installed by default) for PSM sessions.
+- The Windows Remote Desktop client (installed by default) for PSM sessions: its built-in control for tabs,
+  or `mstsc`.
 - Optional: Windows Terminal and the Windows "OpenSSH Client", only if you choose to open SSH outside
   CyberArkTerm.
 
@@ -104,6 +105,20 @@ right away in the chosen language, keeping the address and user name you typed.
 
 Double-click the account (or press Enter, or the "Connect" button). CyberArkTerm requests the connection from
 the PVWA and opens Remote Desktop on the PSM, exactly like the PVWA "Connect" button.
+
+The session opens **in a CyberArkTerm tab**, with the Windows Remote Desktop control (the same engine as
+`mstsc`):
+
+- the remote desktop resolution follows the tab size;
+- "Full screen" shows the session on the whole screen (use the connection bar at the top to come back, or
+  `Ctrl+Alt+Break`);
+- "Disconnect" ends the session and keeps the tab; "Reconnect" asks the PVWA for a new connection (the token
+  of a PSM session works only once);
+- closing the tab (cross or middle click) disconnects the session, after confirmation.
+
+The session opens in **Remote Desktop Connection** (`mstsc`) if the option is unticked in the Settings, if the
+PSM component opens a remote application (RemoteApp), or if the Remote Desktop control can't be used on this
+computer; the status bar then says why.
 
 - **PSM component**: deduced from the platform (`PSM-RDP` for Windows, `PSM-SSH` for Unix and network,
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Tick "Remember this component" to keep it for the whole
@@ -187,7 +202,8 @@ A server whose account is no longer visible in CyberArk is greyed out.
 | Terminal | Copy | Mouse selection, or `Ctrl+Shift+C` |
 | Terminal | Paste | Right-click, `Shift+Insert` or `Ctrl+Shift+V` |
 | Terminal | Scrollback | Mouse wheel, `Shift+Page Up` / `Shift+Page Down` |
-| SSH tab | Close | Tab cross or middle click |
+| SSH or remote desktop tab | Close | Tab cross or middle click |
+| Remote desktop | Full screen / back | `Ctrl+Alt+Break` |
 | Files | Open / edit / parent folder / delete / refresh | `Enter` / `F4` / `Backspace` / `Del` / `F5` |
 
 ## Settings and configuration file
@@ -199,6 +215,7 @@ A server whose account is no longer visible in CyberArk is greyed out.
 | Interface language | Français, English, Italiano or system language; applied after signing out or at the next start | Windows language (English if it is not translated) |
 | PSMP address and port | PSM for SSH server; empty = SSH disabled | empty, 22 |
 | Double-click on Unix = SSH | Opens Unix accounts over SSH rather than PSM | no |
+| Remote desktop in CyberArkTerm | PSM sessions in a tab; otherwise Remote Desktop Connection (`mstsc`) | yes |
 | SSH in CyberArkTerm | Built-in terminal and Files tab; otherwise Windows Terminal | yes |
 | Follow the terminal folder | Allows setting up folder tracking in the shell | yes |
 | File upload | SCP or SFTP | SCP |
@@ -216,7 +233,11 @@ and user name, the settings above, "My servers" and their folders, recent sessio
 - **No secret on disk**: CyberArk password, session token, MFA key and PSMP password stay in memory for the
   session. The PVWA session is closed (`Logoff`) on exit.
 - PVWA session opened with `concurrentSession`: your PVWA web session, if any, is not closed.
-- **RDP files** (one-time PSM token) written to `%TEMP%\CyberArkTerm` and deleted after 60 s or on exit.
+- **Remote desktop sessions in a tab**: the PVWA response (one-time PSM token) stays in memory, nothing is
+  written to disk. Redirections (drives, printers, ports, smart cards) are only turned on if the PVWA asks for
+  them; the clipboard follows its request (on if it says nothing).
+- **RDP files for `mstsc`** (one-time PSM token) written to `%TEMP%\CyberArkTerm` and deleted after 60 s or on
+  exit.
 - **PSMP host keys pinned** on first use, with a warning if they change.
 - **Edited files**: the local copy opened in the editor is stored in `%TEMP%\CyberArkTerm\edit` and deleted when
   the SSH tab closes; a warning shows if changes were not sent back.
@@ -239,6 +260,14 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md) (private reporting, no
 | `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | RDP file of the PSM session |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Temporary "MFA caching" SSH key (if enabled) |
 | `POST /PasswordVault/API/Auth/Logoff` | Sign out |
+
+### Remote desktop sessions
+
+Remote desktop tabs host the Windows ActiveX control (`mstscax.dll`, the most recent `MsRdpClient` class
+available). CyberArkTerm reads the RDP file returned by `PSMConnect` and applies its settings: `full address`,
+`username`, `alternate shell` (start of the PSM session), server authentication level, NLA (CredSSP), gateway,
+redirections, sound, visual effects. Session ends and connection errors are explained in the tab with the
+Windows message.
 
 ### PSMP sessions
 
@@ -274,6 +303,8 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 | The Files tab shows "SFTP connection failed" | SFTP is not allowed on the PSMP or for this account: ask your CyberArk team. |
 | The browser does not follow `cd` | The remote shell is not bash or zsh, the option is off in Settings, or the prompt was not recognized: tick "Follow the terminal folder" again at the shell prompt. |
 | "The key of the PSMP has changed" warning | Only continue if your CyberArk team confirms a server change. |
+| The PSM session opens in `mstsc`, not in a tab | Remote application component (RemoteApp), Remote Desktop control unavailable, or option unticked: the status bar gives the reason. |
+| The tab shows "Remote Desktop control error" | Untick "Open remote desktop sessions in a CyberArkTerm tab" in the Settings to use `mstsc`, and report the code shown. |
 
 ## Development
 
@@ -282,7 +313,7 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 | Project | Role |
 | --- | --- |
 | `src/CyberArkTerm.Core` | Cross-platform logic without UI: PVWA API client, account classification, xterm terminal emulator, PSMP connections and SFTP/SCP browser (SSH.NET), "My servers" folders, preferences. |
-| `src/CyberArkTerm.App` | WPF application: windows, tabs, terminal control, `mstsc` launch, icon (`Assets`). |
+| `src/CyberArkTerm.App` | WPF application: windows, tabs, terminal control, Remote Desktop control (RDP tabs), `mstsc` launch, icon (`Assets`). |
 | `tests/CyberArkTerm.Core.Tests` | xUnit tests of Core (fake PVWA over HTTP, terminal, PSMP, folders, translations…). |
 
 External dependency: [SSH.NET](https://github.com/sshnet/SSH.NET) (MIT license).
@@ -306,6 +337,8 @@ dotnet run --project src/CyberArkTerm.App
 ```
 
 The project also builds on Linux or macOS (`EnableWindowsTargeting`); the application only runs on Windows.
+The tests in `tests/CyberArkTerm.App.Tests` (including a test of the real Remote Desktop control) only run on
+Windows; elsewhere, run `dotnet test tests/CyberArkTerm.Core.Tests`.
 
 ### Publish the executable
 
@@ -336,14 +369,13 @@ zip and `SHA256SUMS.txt`. Release notes are read from `docs/releases/vX.Y.Z.md` 
 - **Privilege Cloud** (sign-in through CyberArk Identity) and **SAML** are not supported.
 - The Accounts API does not say which PSM components a platform offers: the component is deduced, then can be
   remembered.
-- PSM (RDP) sessions open in the Windows Remote Desktop window, not in a tab.
+- PSM components that open a remote application (RemoteApp) use `mstsc`, not a tab.
 - Following the terminal folder requires bash or zsh on the server.
 - PSM Gateway (HTML5), dual control and exclusive access are not supported.
 
 **Ideas**
 
 - Signed executable and MSI installer.
-- RDP sessions in built-in tabs.
 - Several PVWAs (connection profiles), Privilege Cloud.
 
 ## License

@@ -49,17 +49,19 @@ public class RdpSessionTests(ITestOutputHelper output)
 
         foreach (var request in new[] { direct, psm })
         {
-            var (state, controlFailed, error) = await RunOnStaThread(request);
-            output.WriteLine($"{request.Settings.Server}:{request.Settings.Port} → {state}, contrôle en échec : {controlFailed}, {error}");
+            var (state, controlFailed, reason, error) = await RunOnStaThread(request);
+            output.WriteLine($"{request.Settings.Server}:{request.Settings.Port} → {state}, raison {reason}, {error}");
             Assert.False(controlFailed, error);
             Assert.Equal(RdpSessionState.Failed, state);
+            // Code > 3 : échec de connexion signalé par l'événement OnDisconnected (pas une fin de session normale).
+            Assert.True(reason > 3, $"raison {reason}");
             Assert.False(string.IsNullOrWhiteSpace(error));
         }
     }
 
-    private static Task<(RdpSessionState State, bool ControlFailed, string? Error)> RunOnStaThread(RdpConnectionRequest request)
+    private static Task<(RdpSessionState State, bool ControlFailed, int? Reason, string? Error)> RunOnStaThread(RdpConnectionRequest request)
     {
-        var result = new TaskCompletionSource<(RdpSessionState, bool, string?)>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var result = new TaskCompletionSource<(RdpSessionState, bool, int?, string?)>(TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() =>
         {
             var session = new RdpSession("test", _ => Task.FromResult(request));
@@ -76,7 +78,7 @@ public class RdpSessionTests(ITestOutputHelper output)
             };
             void Finish(RdpSessionState state)
             {
-                result.TrySetResult((state, session.ControlFailed, session.Error));
+                result.TrySetResult((state, session.ControlFailed, session.DisconnectReason, session.Error));
                 window.Dispatcher.BeginInvoke(() =>
                 {
                     session.Dispose();

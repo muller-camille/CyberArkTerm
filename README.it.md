@@ -36,7 +36,7 @@ tramite **PSM for SSH (PSMP)** con un **browser dei file** integrato per inviare
 | **Accesso a CyberArk** | Autenticazione CyberArk, LDAP, RADIUS (challenge / OTP compresi) o Windows (sessione corrente). |
 | **Disponibili** | Tutti gli account visibili nel vault, raggruppati per safe, piattaforma o tipo di destinazione, con ricerca immediata. |
 | **I miei server** | I tuoi server di lavoro, organizzati in cartelle e sottocartelle, ognuno con la propria configurazione. |
-| **Sessioni PSM** | Desktop remoto tramite il PSM (come il pulsante «Connect» del PVWA): componente, macchina di destinazione, motivo, ticket. |
+| **Sessioni PSM** | Desktop remoto tramite il PSM (come il pulsante «Connect» del PVWA), in una scheda dell'applicazione: componente, macchina di destinazione, motivo, ticket. |
 | **Sessioni SSH (PSMP)** | Terminale integrato in una scheda (compatibile xterm: colori, vim, less, top…), autenticazione MFA. |
 | **Scheda File** | Browser SFTP del server: `ls`, navigazione, `rm`, invio di file per trascinamento in SCP, modifica nel tuo editor di testo, permessi (`chmod`), segue la cartella del terminale. |
 | **Home** | Connessione rapida (digita un server, Invio), sessioni recenti. |
@@ -64,7 +64,8 @@ L'eseguibile non è firmato: al primo avvio Windows SmartScreen può mostrare un
 **Postazione di lavoro**
 
 - Windows 10 o 11 (x64).
-- Il client Desktop remoto (`mstsc`, presente di default) per le sessioni PSM.
+- Il client Desktop remoto di Windows (presente di default) per le sessioni PSM: il suo controllo integrato
+  per le schede, oppure `mstsc`.
 - Facoltativo: Windows Terminal e il «Client OpenSSH» di Windows, solo se scegli di aprire l'SSH fuori da
   CyberArkTerm.
 
@@ -105,6 +106,20 @@ riapre subito nella lingua scelta, conservando l'indirizzo e il nome utente inse
 
 Fai doppio clic sull'account (oppure Invio, oppure il pulsante «Connetti»). CyberArkTerm richiede la
 connessione al PVWA e apre il Desktop remoto sul PSM, esattamente come il pulsante «Connect» del PVWA.
+
+La sessione si apre **in una scheda di CyberArkTerm**, con il controllo Desktop remoto di Windows (lo stesso
+motore di `mstsc`):
+
+- la risoluzione del desktop remoto segue la dimensione della scheda;
+- «Schermo intero» mostra la sessione su tutto lo schermo (barra di connessione in alto per tornare, o
+  `Ctrl+Alt+Pausa`);
+- «Disconnetti» chiude la sessione e conserva la scheda; «Riconnetti» richiede una nuova connessione al PVWA
+  (il token di una sessione PSM vale una sola volta);
+- chiudere la scheda (croce o clic centrale) disconnette la sessione, dopo conferma.
+
+La sessione si apre in **Connessione Desktop remoto** (`mstsc`) se l'opzione è disattivata nelle
+Impostazioni, se il componente PSM apre un'applicazione remota (RemoteApp) o se il controllo Desktop remoto non
+è utilizzabile sul computer; la barra di stato indica il motivo.
 
 - **Componente PSM**: dedotto dalla piattaforma (`PSM-RDP` per Windows, `PSM-SSH` per Unix e rete,
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Seleziona «Memorizza questo componente» per conservarlo per
@@ -194,7 +209,8 @@ Un server il cui account non è più visibile in CyberArk appare in grigio.
 | Terminale | Copiare | Selezione con il mouse, o `Ctrl+Maiusc+C` |
 | Terminale | Incollare | Clic destro, `Maiusc+Ins` o `Ctrl+Maiusc+V` |
 | Terminale | Cronologia | Rotellina, `Maiusc+Pag su` / `Maiusc+Pag giù` |
-| Scheda SSH | Chiudere | Croce della scheda o clic centrale |
+| Scheda SSH o Desktop remoto | Chiudere | Croce della scheda o clic centrale |
+| Desktop remoto | Schermo intero / ritorno | `Ctrl+Alt+Pausa` |
 | File | Aprire / modificare / cartella superiore / eliminare / aggiornare | `Invio` / `F4` / `Backspace` / `Canc` / `F5` |
 
 ## Impostazioni e file di configurazione
@@ -206,6 +222,7 @@ Un server il cui account non è più visibile in CyberArk appare in grigio.
 | Lingua dell'interfaccia | Français, English, Italiano o lingua del sistema; applicata dopo la disconnessione o al prossimo avvio | lingua di Windows (inglese se non è tradotta) |
 | Indirizzo e porta PSMP | Server PSM for SSH; vuoto = SSH disattivato | vuoto, 22 |
 | Doppio clic Unix = SSH | Apre gli account Unix in SSH anziché in PSM | no |
+| Desktop remoto in CyberArkTerm | Sessioni PSM in una scheda; altrimenti Connessione Desktop remoto (`mstsc`) | sì |
 | SSH in CyberArkTerm | Terminale e scheda File integrati; altrimenti Windows Terminal | sì |
 | Segui la cartella del terminale | Consente di attivare il monitoraggio della cartella nella shell | sì |
 | Invio dei file | SCP o SFTP | SCP |
@@ -224,7 +241,11 @@ l'applicazione ed eliminalo.
 - **Nessun segreto su disco**: password CyberArk, token di sessione, chiave MFA e password PSMP restano in
   memoria per la durata della sessione. Disconnessione dal PVWA (`Logoff`) alla chiusura.
 - Sessione PVWA aperta con `concurrentSession`: l'eventuale sessione web del PVWA non viene chiusa.
-- **File RDP** (token PSM monouso) scritti in `%TEMP%\CyberArkTerm` ed eliminati dopo 60 s o alla chiusura.
+- **Sessioni Desktop remoto in una scheda**: la risposta del PVWA (token PSM monouso) resta in memoria, nulla
+  viene scritto su disco. I reindirizzamenti (unità, stampanti, porte, smart card) sono attivati solo se il
+  PVWA li richiede; gli appunti seguono la sua richiesta (attivi se non dice nulla).
+- **File RDP per `mstsc`** (token PSM monouso) scritti in `%TEMP%\CyberArkTerm` ed eliminati dopo 60 s o alla
+  chiusura.
 - **Chiavi host del PSMP fissate** al primo utilizzo, con avviso in caso di modifica.
 - **File modificati**: la copia locale aperta nell'editor si trova in `%TEMP%\CyberArkTerm\edit` e viene
   eliminata alla chiusura della scheda SSH; un avviso segnala le modifiche non rinviate.
@@ -248,6 +269,14 @@ pubblica).
 | `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | File RDP della sessione PSM |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Chiave SSH temporanea «MFA caching» (se attivata) |
 | `POST /PasswordVault/API/Auth/Logoff` | Chiusura della sessione |
+
+### Sessioni Desktop remoto
+
+Le schede Desktop remoto ospitano il controllo ActiveX di Windows (`mstscax.dll`, la classe `MsRdpClient` più
+recente disponibile). CyberArkTerm legge il file RDP restituito da `PSMConnect` e ne applica le impostazioni:
+`full address`, `username`, `alternate shell` (avvio della sessione PSM), livello di autenticazione del server,
+NLA (CredSSP), gateway, reindirizzamenti, audio, effetti visivi. Le chiusure di sessione e gli errori di
+connessione sono spiegati nella scheda con il messaggio di Windows.
 
 ### Sessioni PSMP
 
@@ -284,6 +313,8 @@ Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posizion
 | La scheda File indica «Connessione SFTP impossibile» | SFTP non è consentito sul PSMP o per questo account: rivolgiti al team CyberArk. |
 | Il browser non segue i `cd` | La shell remota non è bash o zsh, l'opzione è disattivata nelle Impostazioni, oppure il prompt non è stato riconosciuto: riseleziona «Segui la cartella del terminale» al prompt della shell. |
 | Avviso «la chiave del PSMP è cambiata» | Prosegui solo se il team CyberArk conferma una modifica del server. |
+| La sessione PSM si apre in `mstsc` e non in una scheda | Componente con applicazione remota (RemoteApp), controllo Desktop remoto non disponibile, oppure opzione disattivata: la barra di stato indica il motivo. |
+| La scheda mostra «Errore del controllo Desktop remoto» | Disattiva «Apri le sessioni Desktop remoto in una scheda di CyberArkTerm» nelle Impostazioni per usare `mstsc`, e segnala il codice mostrato. |
 
 ## Sviluppo
 
@@ -292,7 +323,7 @@ Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posizion
 | Progetto | Ruolo |
 | --- | --- |
 | `src/CyberArkTerm.Core` | Logica senza interfaccia, multipiattaforma: client dell'API PVWA, classificazione degli account, emulatore di terminale xterm, connessioni PSMP e browser SFTP/SCP (SSH.NET), cartelle di «I miei server», preferenze. |
-| `src/CyberArkTerm.App` | Applicazione WPF: finestre, schede, controllo terminale, avvio di `mstsc`, icona (`Assets`). |
+| `src/CyberArkTerm.App` | Applicazione WPF: finestre, schede, controllo terminale, controllo Desktop remoto (schede RDP), avvio di `mstsc`, icona (`Assets`). |
 | `tests/CyberArkTerm.Core.Tests` | Test xUnit di Core (falso PVWA HTTP, terminale, PSMP, cartelle, traduzioni…). |
 
 Dipendenza esterna: [SSH.NET](https://github.com/sshnet/SSH.NET) (licenza MIT).
@@ -316,7 +347,8 @@ dotnet run --project src/CyberArkTerm.App
 ```
 
 Il progetto si compila anche su Linux o macOS (`EnableWindowsTargeting`); l'applicazione funziona solo su
-Windows.
+Windows. I test di `tests/CyberArkTerm.App.Tests` (tra cui un test del vero controllo Desktop remoto) si
+eseguono solo su Windows; altrove, esegui `dotnet test tests/CyberArkTerm.Core.Tests`.
 
 ### Pubblicare l'eseguibile
 
@@ -346,14 +378,13 @@ e `SHA256SUMS.txt`. Le note di versione vengono lette da `docs/releases/vX.Y.Z.m
 - **Privilege Cloud** (accesso tramite CyberArk Identity) e **SAML** non sono supportati.
 - L'API Accounts non indica quali componenti PSM offre una piattaforma: il componente viene dedotto, poi può
   essere memorizzato.
-- Le sessioni PSM (RDP) si aprono nella finestra Desktop remoto di Windows, non in una scheda.
+- I componenti PSM che aprono un'applicazione remota (RemoteApp) usano `mstsc`, non una scheda.
 - Il monitoraggio della cartella del terminale richiede bash o zsh sul server.
 - PSM Gateway (HTML5), doppio controllo (dual control) e accesso esclusivo non sono supportati.
 
 **Sviluppi futuri**
 
 - Eseguibile firmato e programma di installazione MSI.
-- Sessioni RDP in schede integrate.
 - Più PVWA (profili di connessione), Privilege Cloud.
 
 ## Licenza
