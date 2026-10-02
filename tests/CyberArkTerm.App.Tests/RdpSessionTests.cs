@@ -386,10 +386,10 @@ public class RdpSessionTests(ITestOutputHelper output)
             Assert.Equal(Win32Input.ScreenBounds(slot), Win32Input.ScreenBounds(app));
 
             // Clavier donné par l'onglet (comme à sa sélection) : le texte arrive dans l'application.
-            Assert.Contains("bonjour", await TypeAndCopyAsync(host, session.Focus, "bonjour"));
+            Assert.Contains("bonjour", await TypeAndCopyAsync(host, app, session.Focus, "bonjour"));
 
             // Clavier repris par un clic dans l'application, après être passé à la fenêtre de l'onglet.
-            Assert.Contains("clic", await TypeAndCopyAsync(host, () =>
+            Assert.Contains("clic", await TypeAndCopyAsync(host, app, () =>
             {
                 Win32Input.SetFocus(host);
                 Win32Input.Click(Win32Input.ScreenBounds(app).Center);
@@ -434,13 +434,14 @@ public class RdpSessionTests(ITestOutputHelper output)
     /// Donne le clavier (<paramref name="focus"/>), tape <paramref name="text"/> puis le sélectionne et le copie dans
     /// l'application ; renvoie le presse-papiers de ce poste (redirigé depuis la session).
     /// </summary>
-    private async Task<string> TypeAndCopyAsync(IntPtr host, Action focus, string text)
+    private async Task<string> TypeAndCopyAsync(IntPtr host, IntPtr app, Action focus, string text)
     {
-        Clipboard.Clear();
-        Win32Input.SetForegroundWindow(host);
+        Win32Input.BringToFront(host);
         await Task.Delay(300);
         focus();
         await Task.Delay(700);
+        output.WriteLine($"Avant « {text} » : premier plan {Win32Input.GetForegroundWindow()} (onglet {host}), " +
+                         $"clavier {Win32Input.FocusOf(app)} (application {app}), titre « {Win32Input.Title(app)} »");
         Win32Input.TypeThenSelectAllAndCopy(text);
         string copied = "";
         for (int i = 0; i < 20 && !copied.Contains(text, StringComparison.Ordinal); i++)
@@ -456,7 +457,7 @@ public class RdpSessionTests(ITestOutputHelper output)
             }
         }
 
-        output.WriteLine($"Tapé « {text} », copié « {copied} »");
+        output.WriteLine($"Tapé « {text} », copié « {copied} », titre « {Win32Input.Title(app)} »");
         return copied;
     }
 

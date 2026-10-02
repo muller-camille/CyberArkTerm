@@ -61,6 +61,22 @@ internal static class Win32Input
         return list;
     }
 
+    /// <summary>
+    /// Met <paramref name="window"/> au premier plan : une entrée de ce processus (souris immobile) l'y autorise.
+    /// </summary>
+    public static void BringToFront(IntPtr window)
+    {
+        Send(new Input { Type = 0, Mouse = new MouseInput { Flags = 0x0001 } });
+        SetForegroundWindow(window);
+    }
+
+    /// <summary>Fenêtre qui a le clavier dans le thread de <paramref name="window"/>.</summary>
+    public static IntPtr FocusOf(IntPtr window)
+    {
+        var info = new GuiThreadInfo { Size = Marshal.SizeOf<GuiThreadInfo>() };
+        return GetGUIThreadInfo(GetWindowThreadProcessId(window, out _), ref info) ? info.Focus : IntPtr.Zero;
+    }
+
     public static void Click((int X, int Y) point, bool right = false)
     {
         SetCursorPos(point.X, point.Y);
@@ -135,7 +151,28 @@ internal static class Win32Input
         public KeyboardInput Keyboard;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    private struct GuiThreadInfo
+    {
+        public int Size;
+        public int Flags;
+        public IntPtr Active;
+        public IntPtr Focus;
+        public IntPtr Capture;
+        public IntPtr MenuOwner;
+        public IntPtr MoveSize;
+        public IntPtr Caret;
+        public Rect CaretRect;
+    }
+
     private delegate bool EnumProc(IntPtr window, IntPtr param);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetGUIThreadInfo(int thread, ref GuiThreadInfo info);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetForegroundWindow();
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
