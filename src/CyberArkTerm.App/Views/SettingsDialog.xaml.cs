@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
+using CyberArkTerm.Core.KeePass;
 using CyberArkTerm.Core.Localization;
 using CyberArkTerm.Core.Ssh;
 
@@ -10,13 +11,18 @@ namespace CyberArkTerm.App.Views;
 public partial class SettingsDialog : Window
 {
     private readonly AppSettings _settings;
+    private readonly LocalSecretStore? _store;
     private bool _forgetComponents;
     private bool _forgetHostKeys;
 
-    public SettingsDialog(AppSettings settings)
+    /// <param name="store">Coffre local des mots de passe maîtres KeePass, géré depuis cette fenêtre.</param>
+    public SettingsDialog(AppSettings settings, LocalSecretStore? store = null)
     {
         InitializeComponent();
         _settings = settings;
+        _store = store;
+        KeepAliveBox.IsChecked = settings.KeepPvwaSessionAlive;
+        UpdateStore();
         LanguageBox.DisplayMemberPath = "Value";
         LanguageBox.SelectedValuePath = "Key";
         LanguageBox.ItemsSource = new[] { new KeyValuePair<string, string>("", CoreStrings.LanguageSystem) }
@@ -28,6 +34,7 @@ public partial class SettingsDialog : Window
         PreferSshBox.IsChecked = settings.PreferSshForUnix;
         SshInAppBox.IsChecked = settings.SshInApp;
         FollowBox.IsChecked = settings.FollowTerminalFolder;
+        RdpInAppBox.IsChecked = settings.RdpInApp;
         EditorBox.Text = settings.TextEditor;
         (settings.UploadProtocol == TransferProtocol.Sftp ? SftpRadio : ScpRadio).IsChecked = true;
         HostKeysText.Text = settings.KnownHosts.Count == 0
@@ -72,6 +79,8 @@ public partial class SettingsDialog : Window
         _settings.PreferSshForUnix = PreferSshBox.IsChecked == true;
         _settings.SshInApp = SshInAppBox.IsChecked == true;
         _settings.FollowTerminalFolder = FollowBox.IsChecked == true;
+        _settings.RdpInApp = RdpInAppBox.IsChecked == true;
+        _settings.KeepPvwaSessionAlive = KeepAliveBox.IsChecked == true;
         _settings.UploadProtocol = SftpRadio.IsChecked == true ? TransferProtocol.Sftp : TransferProtocol.Scp;
         _settings.TextEditor = EditorBox.Text.Trim().Trim('"');
         if (_forgetHostKeys)
@@ -100,5 +109,59 @@ public partial class SettingsDialog : Window
     {
         ErrorText.Text = message;
         ErrorText.Visibility = Visibility.Visible;
+    }
+
+    // ===================== Coffre local (actions immédiates) =====================
+
+    private void UpdateStore()
+    {
+        bool exists = _store?.Exists == true;
+        bool unlocked = _store?.IsUnlocked == true;
+        StoreText.Text = !exists ? Strings.LocalStoreStateNone
+            : unlocked ? Text.Format(Strings.LocalStoreStateUnlocked, _store!.Ids.Count)
+            : Strings.LocalStoreStateLocked;
+        StoreCreateButton.Visibility = _store is not null && !exists ? Visibility.Visible : Visibility.Collapsed;
+        StoreUnlockButton.Visibility = exists && !unlocked ? Visibility.Visible : Visibility.Collapsed;
+        StoreChangeButton.Visibility = unlocked ? Visibility.Visible : Visibility.Collapsed;
+        StoreDeleteButton.Visibility = exists ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void OnStoreCreate(object sender, RoutedEventArgs e) => ShowStoreDialog(LocalStoreDialog.Mode.Create);
+
+    private void OnStoreUnlock(object sender, RoutedEventArgs e) => ShowStoreDialog(LocalStoreDialog.Mode.Unlock);
+
+    private void OnStoreChange(object sender, RoutedEventArgs e) => ShowStoreDialog(LocalStoreDialog.Mode.ChangePassword);
+
+    private void ShowStoreDialog(LocalStoreDialog.Mode mode)
+    {
+        if (_store is not null)
+        {
+            new LocalStoreDialog(_store, mode) { Owner = this }.ShowDialog();
+            UpdateStore();
+        }
+    }
+
+    private void OnStoreDelete(object sender, RoutedEventArgs e)
+    {
+        if (_store is null || MessageBox.Show(this, Strings.LocalStoreDeleteConfirm, Strings.LocalStoreTitle,
+                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        try
+        {
+            _store.Delete();
+            foreach (var folder in _settings.KeePassFolders)
+            {
+                folder.RememberPassword = false;
+            }
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException)
+        {
+            MessageBox.Show(this, ex.Message, Strings.LocalStoreTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        UpdateStore();
     }
 }

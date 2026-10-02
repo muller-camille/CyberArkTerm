@@ -119,6 +119,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to All files (*.*)|*.*.
+        /// </summary>
+        public static string AllFilesFilter {
+            get {
+                return ResourceManager.GetString("AllFilesFilter", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to … ({0} more).
         /// </summary>
         public static string AndMore {
@@ -259,6 +268,15 @@ namespace CyberArkTerm.App.Localization {
         public static string ConnectTitle {
             get {
                 return ResourceManager.GetString("ConnectTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Direct connection (emergency access, outside CyberArk)….
+        /// </summary>
+        public static string ConnectingDirect {
+            get {
+                return ResourceManager.GetString("ConnectingDirect", resourceCulture);
             }
         }
 
@@ -623,6 +641,33 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Emergency access — without CyberArk.
+        /// </summary>
+        public static string EmergencySession {
+            get {
+                return ResourceManager.GetString("EmergencySession", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CyberArkTerm — Emergency access (without CyberArk).
+        /// </summary>
+        public static string EmergencyTitle {
+            get {
+                return ResourceManager.GetString("EmergencyTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Emergency access without CyberArk: open a KeePass vault in “My servers” on the left. Connections [rest of string was truncated].
+        /// </summary>
+        public static string EmergencyWelcome {
+            get {
+                return ResourceManager.GetString("EmergencyWelcome", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Enter a value..
         /// </summary>
         public static string EnterValue {
@@ -947,6 +992,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to WARNING: the key of the server {0}:{1} has changed!  New fingerprint ({2}): SHA256:{3}  This may [rest of string was truncated].
+        /// </summary>
+        public static string HostKeyChangedServer {
+            get {
+                return ResourceManager.GetString("HostKeyChangedServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to PSMP server key.
         /// </summary>
         public static string HostKeyTitle {
@@ -956,11 +1010,29 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Server key.
+        /// </summary>
+        public static string HostKeyTitleServer {
+            get {
+                return ResourceManager.GetString("HostKeyTitleServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to First connection to the PSMP {0}:{1}.  Key fingerprint ({2}): SHA256:{3}  Check it with your Cybe[rest of string was truncated].
         /// </summary>
         public static string HostKeyUnknown {
             get {
                 return ResourceManager.GetString("HostKeyUnknown", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to First connection to the server {0}:{1}.  Key fingerprint ({2}): SHA256:{3}  Check it with the ser[rest of string was truncated].
+        /// </summary>
+        public static string HostKeyUnknownServer {
+            get {
+                return ResourceManager.GetString("HostKeyUnknownServer", resourceCulture);
             }
         }
 
@@ -1028,6 +1100,483 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to KeePass vaults locked (Windows session locked).
+        /// </summary>
+        public static string KeePassAllLocked {
+            get {
+                return ResourceManager.GetString("KeePassAllLocked", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Emergency access: connecting to {0} ({1}) outside CyberArk….
+        /// </summary>
+        public static string KeePassConnecting {
+            get {
+                return ResourceManager.GetString("KeePassConnecting", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete the entry “{0}” from the KeePass vault {1}? It goes to the vault's recycle bin..
+        /// </summary>
+        public static string KeePassDeleteEntryConfirm {
+            get {
+                return ResourceManager.GetString("KeePassDeleteEntryConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Edit the KeePass entry.
+        /// </summary>
+        public static string KeePassEditEntryTitle {
+            get {
+                return ResourceManager.GetString("KeePassEditEntryTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Emergency access outside CyberArk: connections made with this vault do not go through the PSM (no[rest of string was truncated].
+        /// </summary>
+        public static string KeePassEmergencyWarning {
+            get {
+                return ResourceManager.GetString("KeePassEmergencyWarning", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to KeePass vault {0} — outside CyberArk.
+        /// </summary>
+        public static string KeePassEntryOrigin {
+            get {
+                return ResourceManager.GetString("KeePassEntryOrigin", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Vault file:.
+        /// </summary>
+        public static string KeePassFileLabel {
+            get {
+                return ResourceManager.GetString("KeePassFileLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This file doesn't exist: {0}.
+        /// </summary>
+        public static string KeePassFileMissing {
+            get {
+                return ResourceManager.GetString("KeePassFileMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to KeePass vaults (*.kdbx)|*.kdbx|All files (*.*)|*.*.
+        /// </summary>
+        public static string KeePassFilesFilter {
+            get {
+                return ResourceManager.GetString("KeePassFilesFilter", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to KeePass vault — emergency access outside CyberArk.
+        /// </summary>
+        public static string KeePassFolderTip {
+            get {
+                return ResourceManager.GetString("KeePassFolderTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to KeePass vault.
+        /// </summary>
+        public static string KeePassFolderTitle {
+            get {
+                return ResourceManager.GetString("KeePassFolderTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Group:.
+        /// </summary>
+        public static string KeePassGroupLabel {
+            get {
+                return ResourceManager.GetString("KeePassGroupLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Optional. Leave empty if the vault only uses a master password..
+        /// </summary>
+        public static string KeePassKeyFileHint {
+            get {
+                return ResourceManager.GetString("KeePassKeyFileHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Key file: {0}.
+        /// </summary>
+        public static string KeePassKeyFileInfo {
+            get {
+                return ResourceManager.GetString("KeePassKeyFileInfo", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Key file:.
+        /// </summary>
+        public static string KeePassKeyFileLabel {
+            get {
+                return ResourceManager.GetString("KeePassKeyFileLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to KeePass vault {0} locked.
+        /// </summary>
+        public static string KeePassLockedStatus {
+            get {
+                return ResourceManager.GetString("KeePassLockedStatus", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to (locked).
+        /// </summary>
+        public static string KeePassLockedSuffix {
+            get {
+                return ResourceManager.GetString("KeePassLockedSuffix", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Master password:.
+        /// </summary>
+        public static string KeePassMasterPasswordLabel {
+            get {
+                return ResourceManager.GetString("KeePassMasterPasswordLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A master password, a key file, or both are needed..
+        /// </summary>
+        public static string KeePassNeedsKey {
+            get {
+                return ResourceManager.GetString("KeePassNeedsKey", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to New KeePass entry.
+        /// </summary>
+        public static string KeePassNewEntryTitle {
+            get {
+                return ResourceManager.GetString("KeePassNewEntryTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No server address.
+        /// </summary>
+        public static string KeePassNoHost {
+            get {
+                return ResourceManager.GetString("KeePassNoHost", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The entry “{0}” has no server address: fill in its address (ssh://… or rdp://…)..
+        /// </summary>
+        public static string KeePassNoHostError {
+            get {
+                return ResourceManager.GetString("KeePassNoHostError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The entry “{0}” has no user name for SSH..
+        /// </summary>
+        public static string KeePassNoUserError {
+            get {
+                return ResourceManager.GetString("KeePassNoUserError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Notes:.
+        /// </summary>
+        public static string KeePassNotesLabel {
+            get {
+                return ResourceManager.GetString("KeePassNotesLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Password:.
+        /// </summary>
+        public static string KeePassPasswordLabel {
+            get {
+                return ResourceManager.GetString("KeePassPasswordLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Leave empty to keep the current password.
+        /// </summary>
+        public static string KeePassPasswordUnchanged {
+            get {
+                return ResourceManager.GetString("KeePassPasswordUnchanged", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: Remote Desktop control unavailable, Remote Desktop Connection opened without the password (t[rest of string was truncated].
+        /// </summary>
+        public static string KeePassRdpNoControl {
+            get {
+                return ResourceManager.GetString("KeePassRdpNoControl", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to KeePass vault {0} reloaded.
+        /// </summary>
+        public static string KeePassReloaded {
+            get {
+                return ResourceManager.GetString("KeePassReloaded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Remember the master password in the local vault.
+        /// </summary>
+        public static string KeePassRemember {
+            get {
+                return ResourceManager.GetString("KeePassRemember", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Encrypted with the local vault password and your Windows account..
+        /// </summary>
+        public static string KeePassRememberHint {
+            get {
+                return ResourceManager.GetString("KeePassRememberHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove the KeePass vault “{0}” from the list? The file itself is not deleted..
+        /// </summary>
+        public static string KeePassRemoveConfirm {
+            get {
+                return ResourceManager.GetString("KeePassRemoveConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The KeePass vault {0} was not saved:  {1}.
+        /// </summary>
+        public static string KeePassSaveFailed {
+            get {
+                return ResourceManager.GetString("KeePassSaveFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to KeePass vault {0} saved (previous version kept in {1}).
+        /// </summary>
+        public static string KeePassSaved {
+            get {
+                return ResourceManager.GetString("KeePassSaved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Saving the KeePass vault {0}….
+        /// </summary>
+        public static string KeePassSaving {
+            get {
+                return ResourceManager.GetString("KeePassSaving", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Show.
+        /// </summary>
+        public static string KeePassShowPassword {
+            get {
+                return ResourceManager.GetString("KeePassShowPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Emergency SSH session opened: {0} ({1}).
+        /// </summary>
+        public static string KeePassSshOpened {
+            get {
+                return ResourceManager.GetString("KeePassSshOpened", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · KeePass.
+        /// </summary>
+        public static string KeePassTabLabel {
+            get {
+                return ResourceManager.GetString("KeePassTabLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to → no server address.
+        /// </summary>
+        public static string KeePassTargetNone {
+            get {
+                return ResourceManager.GetString("KeePassTargetNone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to → Remote desktop to {0}.
+        /// </summary>
+        public static string KeePassTargetRdp {
+            get {
+                return ResourceManager.GetString("KeePassTargetRdp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to → SSH to {0}.
+        /// </summary>
+        public static string KeePassTargetSsh {
+            get {
+                return ResourceManager.GetString("KeePassTargetSsh", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to → protocol not specified: you'll be asked SSH or RDP.
+        /// </summary>
+        public static string KeePassTargetUnknown {
+            get {
+                return ResourceManager.GetString("KeePassTargetUnknown", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Title:.
+        /// </summary>
+        public static string KeePassTitleLabel {
+            get {
+                return ResourceManager.GetString("KeePassTitleLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Unlock.
+        /// </summary>
+        public static string KeePassUnlock {
+            get {
+                return ResourceManager.GetString("KeePassUnlock", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Double-click to unlock.
+        /// </summary>
+        public static string KeePassUnlockHint {
+            get {
+                return ResourceManager.GetString("KeePassUnlockHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unlock the KeePass vault.
+        /// </summary>
+        public static string KeePassUnlockTitle {
+            get {
+                return ResourceManager.GetString("KeePassUnlockTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to KeePass vault {0} unlocked ({1} entries).
+        /// </summary>
+        public static string KeePassUnlocked {
+            get {
+                return ResourceManager.GetString("KeePassUnlocked", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unlocking… (the key derivation can take a few seconds).
+        /// </summary>
+        public static string KeePassUnlocking {
+            get {
+                return ResourceManager.GetString("KeePassUnlocking", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ssh://server:22 or rdp://server (or server:port).
+        /// </summary>
+        public static string KeePassUrlHint {
+            get {
+                return ResourceManager.GetString("KeePassUrlHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Address:.
+        /// </summary>
+        public static string KeePassUrlLabel {
+            get {
+                return ResourceManager.GetString("KeePassUrlLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _User:.
+        /// </summary>
+        public static string KeePassUserLabel {
+            get {
+                return ResourceManager.GetString("KeePassUserLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The vault has a _master password.
+        /// </summary>
+        public static string KeePassUsesPassword {
+            get {
+                return ResourceManager.GetString("KeePassUsesPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Keep the PVWA session open while CyberArkTerm runs (a light request every 4 minutes, paused while[rest of string was truncated].
+        /// </summary>
+        public static string KeepAlive {
+            get {
+                return ResourceManager.GetString("KeepAlive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The CyberArk session has expired: log in again to reach the CyberArk accounts..
+        /// </summary>
+        public static string KeepAliveExpired {
+            get {
+                return ResourceManager.GetString("KeepAliveExpired", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Applied after signing out or at the next start..
         /// </summary>
         public static string LanguageHelp {
@@ -1091,6 +1640,168 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to C_hange password….
+        /// </summary>
+        public static string LocalStoreChange {
+            get {
+                return ResourceManager.GetString("LocalStoreChange", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose the new local vault password..
+        /// </summary>
+        public static string LocalStoreChangeIntro {
+            get {
+                return ResourceManager.GetString("LocalStoreChangeIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to C_onfirm:.
+        /// </summary>
+        public static string LocalStoreConfirmLabel {
+            get {
+                return ResourceManager.GetString("LocalStoreConfirmLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to C_reate….
+        /// </summary>
+        public static string LocalStoreCreate {
+            get {
+                return ResourceManager.GetString("LocalStoreCreate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Create.
+        /// </summary>
+        public static string LocalStoreCreateButton {
+            get {
+                return ResourceManager.GetString("LocalStoreCreateButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The local vault keeps the KeePass master passwords you choose to remember. It is encrypted with t[rest of string was truncated].
+        /// </summary>
+        public static string LocalStoreCreateIntro {
+            get {
+                return ResourceManager.GetString("LocalStoreCreateIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to De_lete.
+        /// </summary>
+        public static string LocalStoreDelete {
+            get {
+                return ResourceManager.GetString("LocalStoreDelete", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete the local vault? The remembered KeePass master passwords will be forgotten (the KeePass va[rest of string was truncated].
+        /// </summary>
+        public static string LocalStoreDeleteConfirm {
+            get {
+                return ResourceManager.GetString("LocalStoreDeleteConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Later.
+        /// </summary>
+        public static string LocalStoreLater {
+            get {
+                return ResourceManager.GetString("LocalStoreLater", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The two passwords differ..
+        /// </summary>
+        public static string LocalStoreMismatch {
+            get {
+                return ResourceManager.GetString("LocalStoreMismatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Password:.
+        /// </summary>
+        public static string LocalStorePasswordLabel {
+            get {
+                return ResourceManager.GetString("LocalStorePasswordLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Local vault (KeePass master passwords).
+        /// </summary>
+        public static string LocalStoreSection {
+            get {
+                return ResourceManager.GetString("LocalStoreSection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Local vault locked..
+        /// </summary>
+        public static string LocalStoreStateLocked {
+            get {
+                return ResourceManager.GetString("LocalStoreStateLocked", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No local vault..
+        /// </summary>
+        public static string LocalStoreStateNone {
+            get {
+                return ResourceManager.GetString("LocalStoreStateNone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Local vault unlocked: {0} remembered password(s)..
+        /// </summary>
+        public static string LocalStoreStateUnlocked {
+            get {
+                return ResourceManager.GetString("LocalStoreStateUnlocked", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Local vault.
+        /// </summary>
+        public static string LocalStoreTitle {
+            get {
+                return ResourceManager.GetString("LocalStoreTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unlock the local vault to use the remembered KeePass master passwords..
+        /// </summary>
+        public static string LocalStoreUnlockIntro {
+            get {
+                return ResourceManager.GetString("LocalStoreUnlockIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Unlock….
+        /// </summary>
+        public static string LocalStoreUnlockMenu {
+            get {
+                return ResourceManager.GetString("LocalStoreUnlockMenu", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to PVWA _address:.
         /// </summary>
         public static string LoginAddress {
@@ -1114,6 +1825,24 @@ namespace CyberArkTerm.App.Localization {
         public static string LoginButton {
             get {
                 return ResourceManager.GetString("LoginButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Emergency access (KeePass).
+        /// </summary>
+        public static string LoginEmergency {
+            get {
+                return ResourceManager.GetString("LoginEmergency", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Without CyberArk: open your KeePass vaults to connect directly to servers (SSH, remote desktop)..
+        /// </summary>
+        public static string LoginEmergencyTip {
+            get {
+                return ResourceManager.GetString("LoginEmergencyTip", resourceCulture);
             }
         }
 
@@ -1271,6 +2000,114 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Add a _KeePass vault….
+        /// </summary>
+        public static string MenuKeePassAdd {
+            get {
+                return ResourceManager.GetString("MenuKeePassAdd", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Connect.
+        /// </summary>
+        public static string MenuKeePassConnect {
+            get {
+                return ResourceManager.GetString("MenuKeePassConnect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Delete.
+        /// </summary>
+        public static string MenuKeePassDeleteEntry {
+            get {
+                return ResourceManager.GetString("MenuKeePassDeleteEntry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Edit….
+        /// </summary>
+        public static string MenuKeePassEditEntry {
+            get {
+                return ResourceManager.GetString("MenuKeePassEditEntry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Lock.
+        /// </summary>
+        public static string MenuKeePassLock {
+            get {
+                return ResourceManager.GetString("MenuKeePassLock", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _New entry….
+        /// </summary>
+        public static string MenuKeePassNewEntry {
+            get {
+                return ResourceManager.GetString("MenuKeePassNewEntry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Properties….
+        /// </summary>
+        public static string MenuKeePassProperties {
+            get {
+                return ResourceManager.GetString("MenuKeePassProperties", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connect with _remote desktop (RDP).
+        /// </summary>
+        public static string MenuKeePassRdp {
+            get {
+                return ResourceManager.GetString("MenuKeePassRdp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Reload.
+        /// </summary>
+        public static string MenuKeePassRefresh {
+            get {
+                return ResourceManager.GetString("MenuKeePassRefresh", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Remove from the list.
+        /// </summary>
+        public static string MenuKeePassRemove {
+            get {
+                return ResourceManager.GetString("MenuKeePassRemove", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connect over _SSH.
+        /// </summary>
+        public static string MenuKeePassSsh {
+            get {
+                return ResourceManager.GetString("MenuKeePassSsh", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Unlock….
+        /// </summary>
+        public static string MenuKeePassUnlock {
+            get {
+                return ResourceManager.GetString("MenuKeePassUnlock", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _New subfolder….
         /// </summary>
         public static string MenuNewSubfolder {
@@ -1420,6 +2257,15 @@ namespace CyberArkTerm.App.Localization {
         public static string NoHostKeys {
             get {
                 return ResourceManager.GetString("NoHostKeys", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add a KeePass vault with the vault button above (or right-click here)..
+        /// </summary>
+        public static string NoKeePassHelp {
+            get {
+                return ResourceManager.GetString("NoKeePassHelp", resourceCulture);
             }
         }
 
@@ -1748,6 +2594,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to SSH authentication.
+        /// </summary>
+        public static string PromptTitleServer {
+            get {
+                return ResourceManager.GetString("PromptTitleServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Server properties.
         /// </summary>
         public static string PropertiesTitle {
@@ -1757,7 +2612,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The PVWA generates an RDP file opened in Remote Desktop Connection (mstsc)..
+        ///   Looks up a localized string similar to The PVWA generates an RDP connection, opened in a CyberArkTerm tab or in Remote Desktop Connectio[rest of string was truncated].
         /// </summary>
         public static string PsmHint {
             get {
@@ -1793,11 +2648,200 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to CyberArk session.
+        /// </summary>
+        public static string PvwaSessionSection {
+            get {
+                return ResourceManager.GetString("PvwaSessionSection", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Quick connect: type a server or an account, then press Enter.
         /// </summary>
         public static string QuickPlaceholder {
             get {
                 return ResourceManager.GetString("QuickPlaceholder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote desktop sessions are open ({0}). Disconnect them and close?.
+        /// </summary>
+        public static string RdpCloseAllConfirm {
+            get {
+                return ResourceManager.GetString("RdpCloseAllConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Disconnect the remote desktop session {0}?.
+        /// </summary>
+        public static string RdpCloseTabConfirm {
+            get {
+                return ResourceManager.GetString("RdpCloseTabConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote desktop session {0} closed.
+        /// </summary>
+        public static string RdpClosed {
+            get {
+                return ResourceManager.GetString("RdpClosed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} — connected to {1}.
+        /// </summary>
+        public static string RdpConnected {
+            get {
+                return ResourceManager.GetString("RdpConnected", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connecting to {0}….
+        /// </summary>
+        public static string RdpConnecting {
+            get {
+                return ResourceManager.GetString("RdpConnecting", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote Desktop control error ({0})..
+        /// </summary>
+        public static string RdpControlError {
+            get {
+                return ResourceManager.GetString("RdpControlError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the Remote Desktop control failed ({1}), session opened in Remote Desktop Connection (mstsc)..
+        /// </summary>
+        public static string RdpControlFallback {
+            get {
+                return ResourceManager.GetString("RdpControlFallback", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the Remote Desktop control isn't available on this computer, session opened in Remote Deskto[rest of string was truncated].
+        /// </summary>
+        public static string RdpControlMissing {
+            get {
+                return ResourceManager.GetString("RdpControlMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Disconnect.
+        /// </summary>
+        public static string RdpDisconnect {
+            get {
+                return ResourceManager.GetString("RdpDisconnect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Disconnected (code {0})..
+        /// </summary>
+        public static string RdpDisconnectCode {
+            get {
+                return ResourceManager.GetString("RdpDisconnectCode", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Disconnect the session (the tab stays open to reconnect).
+        /// </summary>
+        public static string RdpDisconnectTip {
+            get {
+                return ResourceManager.GetString("RdpDisconnectTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Full screen.
+        /// </summary>
+        public static string RdpFullScreen {
+            get {
+                return ResourceManager.GetString("RdpFullScreen", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Show the session full screen (use the connection bar at the top to come back).
+        /// </summary>
+        public static string RdpFullScreenTip {
+            get {
+                return ResourceManager.GetString("RdpFullScreenTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open remote desktop sessions in a CyberArkTerm tab, otherwise in Remote Desktop Connection (mstsc).
+        /// </summary>
+        public static string RdpInApp {
+            get {
+                return ResourceManager.GetString("RdpInApp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote desktop session opened: {0}.
+        /// </summary>
+        public static string RdpOpened {
+            get {
+                return ResourceManager.GetString("RdpOpened", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: this PSM component opens a remote application (RemoteApp), opened in Remote Desktop Connecti[rest of string was truncated].
+        /// </summary>
+        public static string RdpRemoteAppFallback {
+            get {
+                return ResourceManager.GetString("RdpRemoteAppFallback", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This connection opens a remote application (RemoteApp), which can't be shown in a tab..
+        /// </summary>
+        public static string RdpRemoteAppInTab {
+            get {
+                return ResourceManager.GetString("RdpRemoteAppInTab", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote desktop (RDP).
+        /// </summary>
+        public static string RdpSection {
+            get {
+                return ResourceManager.GetString("RdpSection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote desktop session {0}: {1}.
+        /// </summary>
+        public static string RdpSessionError {
+            get {
+                return ResourceManager.GetString("RdpSessionError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote desktop.
+        /// </summary>
+        public static string RdpTitle {
+            get {
+                return ResourceManager.GetString("RdpTitle", resourceCulture);
             }
         }
 
@@ -2581,6 +3625,15 @@ namespace CyberArkTerm.App.Localization {
         public static string ToolExportTip {
             get {
                 return ResourceManager.GetString("ToolExportTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add a KeePass vault (emergency access outside CyberArk).
+        /// </summary>
+        public static string ToolKeePassTip {
+            get {
+                return ResourceManager.GetString("ToolKeePassTip", resourceCulture);
             }
         }
 

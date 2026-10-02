@@ -36,9 +36,11 @@ tramite **PSM for SSH (PSMP)** con un **browser dei file** integrato per inviare
 | **Accesso a CyberArk** | Autenticazione CyberArk, LDAP, RADIUS (challenge / OTP compresi) o Windows (sessione corrente). |
 | **Disponibili** | Tutti gli account visibili nel vault, raggruppati per safe, piattaforma o tipo di destinazione, con ricerca immediata. |
 | **I miei server** | I tuoi server di lavoro, organizzati in cartelle e sottocartelle, ognuno con la propria configurazione. |
-| **Sessioni PSM** | Desktop remoto tramite il PSM (come il pulsante «Connect» del PVWA): componente, macchina di destinazione, motivo, ticket. |
+| **Sessioni PSM** | Desktop remoto tramite il PSM (come il pulsante «Connect» del PVWA), in una scheda dell'applicazione: componente, macchina di destinazione, motivo, ticket. |
 | **Sessioni SSH (PSMP)** | Terminale integrato in una scheda (compatibile xterm: colori, vim, less, top…), autenticazione MFA. |
 | **Scheda File** | Browser SFTP del server: `ls`, navigazione, `rm`, invio di file per trascinamento in SCP, modifica nel tuo editor di testo, permessi (`chmod`), segue la cartella del terminale. |
+| **Accesso di emergenza (KeePass)** | Senza CyberArk: archivi KeePass (.kdbx) in «I miei server», connessioni SSH e desktop remoto dirette, creazione e modifica delle voci, registro locale. |
+| **Sessione PVWA mantenuta** | Una richiesta leggera ogni 4 minuti evita la scadenza mentre lavori (sospesa quando Windows è bloccato). |
 | **Home** | Connessione rapida (digita un server, Invio), sessioni recenti. |
 | **Esportazione** | Elenco degli account in CSV, apribile direttamente in Excel (separatore secondo la regione di Windows). |
 | **Lingue** | Interfaccia in italiano, inglese e francese: lingua di Windows per impostazione predefinita, modificabile in qualsiasi momento. |
@@ -64,7 +66,8 @@ L'eseguibile non è firmato: al primo avvio Windows SmartScreen può mostrare un
 **Postazione di lavoro**
 
 - Windows 10 o 11 (x64).
-- Il client Desktop remoto (`mstsc`, presente di default) per le sessioni PSM.
+- Il client Desktop remoto di Windows (presente di default) per le sessioni PSM: il suo controllo integrato
+  per le schede, oppure `mstsc`.
 - Facoltativo: Windows Terminal e il «Client OpenSSH» di Windows, solo se scegli di aprire l'SSH fuori da
   CyberArkTerm.
 
@@ -105,6 +108,20 @@ riapre subito nella lingua scelta, conservando l'indirizzo e il nome utente inse
 
 Fai doppio clic sull'account (oppure Invio, oppure il pulsante «Connetti»). CyberArkTerm richiede la
 connessione al PVWA e apre il Desktop remoto sul PSM, esattamente come il pulsante «Connect» del PVWA.
+
+La sessione si apre **in una scheda di CyberArkTerm**, con il controllo Desktop remoto di Windows (lo stesso
+motore di `mstsc`):
+
+- la risoluzione del desktop remoto segue la dimensione della scheda;
+- «Schermo intero» mostra la sessione su tutto lo schermo (barra di connessione in alto per tornare, o
+  `Ctrl+Alt+Pausa`);
+- «Disconnetti» chiude la sessione e conserva la scheda; «Riconnetti» richiede una nuova connessione al PVWA
+  (il token di una sessione PSM vale una sola volta);
+- chiudere la scheda (croce o clic centrale) disconnette la sessione, dopo conferma.
+
+La sessione si apre in **Connessione Desktop remoto** (`mstsc`) se l'opzione è disattivata nelle
+Impostazioni, se il componente PSM apre un'applicazione remota (RemoteApp) o se il controllo Desktop remoto non
+è utilizzabile sul computer; la barra di stato indica il motivo.
 
 - **Componente PSM**: dedotto dalla piattaforma (`PSM-RDP` per Windows, `PSM-SSH` per Unix e rete,
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Seleziona «Memorizza questo componente» per conservarlo per
@@ -182,6 +199,38 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
 
 Un server il cui account non è più visibile in CyberArk appare in grigio.
 
+### 7. Accesso di emergenza fuori da CyberArk: archivi KeePass
+
+Quando CyberArk non è disponibile, CyberArkTerm apre i tuoi archivi KeePass (`.kdbx`) e si connette
+**direttamente** ai server, in SSH o in desktop remoto, con gli account che contengono.
+
+> Queste connessioni **non passano dal PSM**: nessuna registrazione, nessuna regola CyberArk. Ogni apertura di
+> archivio, connessione e modifica è annotata nel registro locale `%APPDATA%\CyberArkTerm\urgence.log`.
+
+![Accesso di emergenza: archivio KeePass sbloccato in «I miei server»](docs/captures/it/keepass-vault.png)
+
+- **Senza CyberArk**: nella schermata di accesso, «Accesso di emergenza (KeePass)» apre la finestra principale
+  senza PVWA (sono mostrati solo gli archivi KeePass). Con CyberArk, gli archivi compaiono anche in cima a «I miei
+  server».
+- **Aggiungere un archivio**: pulsante cassaforte della scheda «I miei server» (o clic destro → «Aggiungi un
+  archivio KeePass…»): file `.kdbx`, nome, eventuale file chiave.
+- **Sbloccare**: doppio clic sull'archivio. Password principale e/o file chiave (tutti i formati di KeePass).
+  «Memorizza la password principale nel vault locale» evita di ridigitarla (vedi sotto).
+- **Connettersi**: doppio clic su una voce. Il protocollo viene dal suo indirizzo (`ssh://server:22`,
+  `rdp://server`, `server:3389`), da un campo «Protocol» / «Port» o da un'etichetta `ssh` / `rdp`; altrimenti
+  CyberArkTerm chiede SSH o desktop remoto. La password della voce è usata direttamente (schede terminale + File
+  in SSH, scheda desktop remoto in RDP); non è mai mostrata né scritta su disco.
+- **Modificare l'archivio**: clic destro → «Nuova voce…», «Modifica…» (`F2`), «Elimina» (`Canc`, nel cestino
+  dell'archivio). Il resto dell'archivio (allegati, campi, impostazioni) è conservato; la versione precedente di
+  una voce va nella sua cronologia, come in KeePass.
+- **Bloccare**: clic destro → «Blocca». Gli archivi si bloccano anche alla disconnessione, alla chiusura e al
+  **blocco di Windows**.
+
+**Vault locale**: le password principali che scegli di memorizzare sono conservate in
+`%APPDATA%\CyberArkTerm\coffre-local.dat`, cifrato con una tua password (chiesta all'avvio di CyberArkTerm, «Più
+tardi» per farne a meno) e legato al tuo account Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia
+password, elimina.
+
 ## Scorciatoie
 
 | Dove | Azione | Scorciatoia |
@@ -194,8 +243,10 @@ Un server il cui account non è più visibile in CyberArk appare in grigio.
 | Terminale | Copiare | Selezione con il mouse, o `Ctrl+Maiusc+C` |
 | Terminale | Incollare | Clic destro, `Maiusc+Ins` o `Ctrl+Maiusc+V` |
 | Terminale | Cronologia | Rotellina, `Maiusc+Pag su` / `Maiusc+Pag giù` |
-| Scheda SSH | Chiudere | Croce della scheda o clic centrale |
+| Scheda SSH o Desktop remoto | Chiudere | Croce della scheda o clic centrale |
+| Desktop remoto | Schermo intero / ritorno | `Ctrl+Alt+Pausa` |
 | File | Aprire / modificare / cartella superiore / eliminare / aggiornare | `Invio` / `F4` / `Backspace` / `Canc` / `F5` |
+| Archivio KeePass | Connettere / modificare / eliminare una voce | Doppio clic o `Invio` / `F2` / `Canc` |
 
 ## Impostazioni e file di configurazione
 
@@ -206,6 +257,9 @@ Un server il cui account non è più visibile in CyberArk appare in grigio.
 | Lingua dell'interfaccia | Français, English, Italiano o lingua del sistema; applicata dopo la disconnessione o al prossimo avvio | lingua di Windows (inglese se non è tradotta) |
 | Indirizzo e porta PSMP | Server PSM for SSH; vuoto = SSH disattivato | vuoto, 22 |
 | Doppio clic Unix = SSH | Apre gli account Unix in SSH anziché in PSM | no |
+| Mantenere aperta la sessione PVWA | Richiesta leggera ogni 4 minuti; sospesa quando Windows è bloccato | sì |
+| Vault locale | Password principali KeePass memorizzate: crea, sblocca, cambia password, elimina | — |
+| Desktop remoto in CyberArkTerm | Sessioni PSM in una scheda; altrimenti Connessione Desktop remoto (`mstsc`) | sì |
 | SSH in CyberArkTerm | Terminale e scheda File integrati; altrimenti Windows Terminal | sì |
 | Segui la cartella del terminale | Consente di attivare il monitoraggio della cartella nella shell | sì |
 | Invio dei file | SCP o SFTP | SCP |
@@ -215,7 +269,8 @@ Un server il cui account non è più visibile in CyberArk appare in grigio.
 
 Tutte le preferenze sono salvate in `%APPDATA%\CyberArkTerm\settings.json`: lingua, indirizzo del PVWA,
 metodo e nome utente di accesso, impostazioni qui sopra, «I miei server» e le loro cartelle, sessioni
-recenti. Questo file **non contiene password, token né chiavi private**. Per ripartire da zero, chiudi
+recenti, posizione degli archivi KeePass e dei loro file chiave. Questo file **non contiene password, token né
+chiavi private**. Per ripartire da zero, chiudi
 l'applicazione ed eliminalo.
 
 ## Sicurezza
@@ -224,8 +279,26 @@ l'applicazione ed eliminalo.
 - **Nessun segreto su disco**: password CyberArk, token di sessione, chiave MFA e password PSMP restano in
   memoria per la durata della sessione. Disconnessione dal PVWA (`Logoff`) alla chiusura.
 - Sessione PVWA aperta con `concurrentSession`: l'eventuale sessione web del PVWA non viene chiusa.
-- **File RDP** (token PSM monouso) scritti in `%TEMP%\CyberArkTerm` ed eliminati dopo 60 s o alla chiusura.
-- **Chiavi host del PSMP fissate** al primo utilizzo, con avviso in caso di modifica.
+- **Sessioni Desktop remoto in una scheda**: la risposta del PVWA (token PSM monouso) resta in memoria, nulla
+  viene scritto su disco. I reindirizzamenti (unità, stampanti, porte, smart card) sono attivati solo se il
+  PVWA li richiede; gli appunti seguono la sua richiesta (attivi se non dice nulla).
+- **File RDP per `mstsc`** (token PSM monouso) scritti in `%TEMP%\CyberArkTerm` ed eliminati dopo 60 s o alla
+  chiusura.
+- **Chiavi host del PSMP fissate** al primo utilizzo, con avviso in caso di modifica (lo stesso per i server
+  raggiunti in accesso di emergenza).
+- **Mantenimento della sessione PVWA**: evita la scadenza per inattività; non viene inviato nulla mentre Windows
+  è bloccato, e l'opzione si disattiva nelle Impostazioni se la tua politica lo richiede.
+- **Archivi KeePass**:
+  - la password principale non è mai salvata, tranne nel vault locale se lo chiedi: Argon2id (64 MiB, 3 passate)
+    poi AES-256-GCM, parametri di derivazione autenticati, il tutto protetto da DPAPI (account Windows);
+  - in memoria, la chiave dell'archivio e le password delle voci restano mascherate e sono rivelate solo al
+    momento della connessione; archivi bloccati alla disconnessione, alla chiusura e al blocco di Windows;
+  - salvataggio sicuro: il file viene riletto, la modifica è applicata alla sua versione attuale (le modifiche
+    fatte altrove sono conservate), il risultato decifrato è verificato, una copia `.bak` è conservata e il file
+    è sostituito in un solo passo; una voce modificata altrove nel frattempo non viene sovrascritta;
+  - desktop remoto diretto: la password è passata solo al controllo Desktop remoto (nessun file, nessun gestore
+    credenziali), con autenticazione a livello di rete (NLA) e avviso se il server non è riconosciuto;
+  - `urgence.log`: data, account Windows, computer, azione, archivio, voce, destinazione; mai una password.
 - **File modificati**: la copia locale aperta nell'editor si trova in `%TEMP%\CyberArkTerm\edit` e viene
   eliminata alla chiusura della scheda SSH; un avviso segnala le modifiche non rinviate.
 - **Nessuna iniezione di comandi**: percorsi SCP e cartelle iniziali protetti tra apici per la shell remota;
@@ -247,7 +320,25 @@ pubblica).
 | `GET /PasswordVault/API/Accounts?offset=…&limit=1000` | Elenco paginato degli account |
 | `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | File RDP della sessione PSM |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Chiave SSH temporanea «MFA caching» (se attivata) |
+| `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Mantenimento della sessione (ogni 4 minuti) |
 | `POST /PasswordVault/API/Auth/Logoff` | Chiusura della sessione |
+
+### Archivi KeePass
+
+Lettura e scrittura native (senza KeePass installato) dei formati **KDBX 3.1 e 4.x**: cifratura AES-256 o
+ChaCha20, derivazione della chiave AES-KDF (istruzioni AES del processore) o Argon2d / Argon2id, file chiave XML
+1.0 / 2.0, 32 byte, 64 caratteri esadecimali o file qualsiasi. Il file riscritto mantiene la versione, la cifratura
+e la derivazione della chiave originali, con nuovi semi a ogni salvataggio. Gli archivi di test
+(`tests/CyberArkTerm.Core.Tests/KeePass/Vaults`) provengono da KeePassXC e pykeepass, e i file scritti da
+CyberArkTerm sono stati verificati in entrambi gli strumenti.
+
+### Sessioni Desktop remoto
+
+Le schede Desktop remoto ospitano il controllo ActiveX di Windows (`mstscax.dll`, la classe `MsRdpClient` più
+recente disponibile). CyberArkTerm legge il file RDP restituito da `PSMConnect` e ne applica le impostazioni:
+`full address`, `username`, `alternate shell` (avvio della sessione PSM), livello di autenticazione del server,
+NLA (CredSSP), gateway, reindirizzamenti, audio, effetti visivi. Le chiusure di sessione e gli errori di
+connessione sono spiegati nella scheda con il messaggio di Windows.
 
 ### Sessioni PSMP
 
@@ -284,6 +375,12 @@ Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posizion
 | La scheda File indica «Connessione SFTP impossibile» | SFTP non è consentito sul PSMP o per questo account: rivolgiti al team CyberArk. |
 | Il browser non segue i `cd` | La shell remota non è bash o zsh, l'opzione è disattivata nelle Impostazioni, oppure il prompt non è stato riconosciuto: riseleziona «Segui la cartella del terminale» al prompt della shell. |
 | Avviso «la chiave del PSMP è cambiata» | Prosegui solo se il team CyberArk conferma una modifica del server. |
+| «Password principale o file chiave errati.» | Controlla la password e il file chiave; un archivio protetto da YubiKey non è supportato. |
+| L'archivio KeePass chiede la password nonostante «Memorizza» | Vault locale bloccato («Più tardi» all'avvio) o password principale cambiata altrove: digitala, viene memorizzata di nuovo. |
+| «Il file del vault locale è danneggiato o è stato creato da un altro account Windows.» | Il vault locale non segue un cambio di computer o di account: eliminalo nelle Impostazioni e ricrealo. |
+| «La voce … è stata modificata o eliminata nell'archivio nel frattempo» | Qualcuno ha cambiato la stessa voce altrove: l'archivio viene ricaricato, rifai la modifica. |
+| La sessione PSM si apre in `mstsc` e non in una scheda | Componente con applicazione remota (RemoteApp), controllo Desktop remoto non disponibile, oppure opzione disattivata: la barra di stato indica il motivo. |
+| La scheda mostra «Errore del controllo Desktop remoto» | Disattiva «Apri le sessioni Desktop remoto in una scheda di CyberArkTerm» nelle Impostazioni per usare `mstsc`, e segnala il codice mostrato. |
 
 ## Sviluppo
 
@@ -291,9 +388,10 @@ Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posizion
 
 | Progetto | Ruolo |
 | --- | --- |
-| `src/CyberArkTerm.Core` | Logica senza interfaccia, multipiattaforma: client dell'API PVWA, classificazione degli account, emulatore di terminale xterm, connessioni PSMP e browser SFTP/SCP (SSH.NET), cartelle di «I miei server», preferenze. |
-| `src/CyberArkTerm.App` | Applicazione WPF: finestre, schede, controllo terminale, avvio di `mstsc`, icona (`Assets`). |
+| `src/CyberArkTerm.Core` | Logica senza interfaccia, multipiattaforma: client dell'API PVWA, classificazione degli account, emulatore di terminale xterm, connessioni PSMP e browser SFTP/SCP (SSH.NET), cartelle di «I miei server», archivi KeePass (KDBX), vault locale, preferenze. |
+| `src/CyberArkTerm.App` | Applicazione WPF: finestre, schede, controllo terminale, controllo Desktop remoto (schede RDP), avvio di `mstsc`, icona (`Assets`). |
 | `tests/CyberArkTerm.Core.Tests` | Test xUnit di Core (falso PVWA HTTP, terminale, PSMP, cartelle, traduzioni…). |
+| `tests/CyberArkTerm.App.Tests` | Test Windows dell'applicazione (vero controllo Desktop remoto, DPAPI). |
 
 Dipendenza esterna: [SSH.NET](https://github.com/sshnet/SSH.NET) (licenza MIT).
 
@@ -316,7 +414,8 @@ dotnet run --project src/CyberArkTerm.App
 ```
 
 Il progetto si compila anche su Linux o macOS (`EnableWindowsTargeting`); l'applicazione funziona solo su
-Windows.
+Windows. I test di `tests/CyberArkTerm.App.Tests` (tra cui un test del vero controllo Desktop remoto) si
+eseguono solo su Windows; altrove, esegui `dotnet test tests/CyberArkTerm.Core.Tests`.
 
 ### Pubblicare l'eseguibile
 
@@ -346,14 +445,15 @@ e `SHA256SUMS.txt`. Le note di versione vengono lette da `docs/releases/vX.Y.Z.m
 - **Privilege Cloud** (accesso tramite CyberArk Identity) e **SAML** non sono supportati.
 - L'API Accounts non indica quali componenti PSM offre una piattaforma: il componente viene dedotto, poi può
   essere memorizzato.
-- Le sessioni PSM (RDP) si aprono nella finestra Desktop remoto di Windows, non in una scheda.
+- I componenti PSM che aprono un'applicazione remota (RemoteApp) usano `mstsc`, non una scheda.
+- Archivi KeePass: cifratura Twofish e chiavi YubiKey non supportate; nessuna creazione di archivio (crealo con
+  KeePass o KeePassXC); allegati conservati ma non mostrati.
 - Il monitoraggio della cartella del terminale richiede bash o zsh sul server.
 - PSM Gateway (HTML5), doppio controllo (dual control) e accesso esclusivo non sono supportati.
 
 **Sviluppi futuri**
 
 - Eseguibile firmato e programma di installazione MSI.
-- Sessioni RDP in schede integrate.
 - Più PVWA (profili di connessione), Privilege Cloud.
 
 ## Licenza

@@ -149,6 +149,28 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <!-- Coffre KeePass (accès d'urgence) : coffre-fort vert avec cadran. -->
+    <DrawingImage x:Key="IconKeePass">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#1B5E20" Geometry="M4.5,19 H7.5 V21.5 H4.5 Z M16.5,19 H19.5 V21.5 H16.5 Z" />
+                <GeometryDrawing Brush="#2E7D32" Geometry="M2.5,3.5 H21.5 V19.5 H2.5 Z" />
+                <GeometryDrawing Brush="#43A047" Geometry="M4,5 H20 V18 H4 Z" />
+                <GeometryDrawing Brush="#E8F5E9">
+                    <GeometryDrawing.Geometry>
+                        <EllipseGeometry Center="11.5,11.5" RadiusX="4.2" RadiusY="4.2" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#2E7D32">
+                    <GeometryDrawing.Geometry>
+                        <EllipseGeometry Center="11.5,11.5" RadiusX="1.5" RadiusY="1.5" />
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#E8F5E9" Geometry="M17.5,9.5 H19 V13.5 H17.5 Z" />
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
     <DrawingImage x:Key="IconUnix">
         <DrawingImage.Drawing>
             <DrawingGroup>
@@ -579,7 +601,12 @@
                             <StackPanel IsItemsHost="True" Orientation="Horizontal" />
                         </Border>
                         <Border Background="White">
-                            <ContentPresenter ContentSource="SelectedContent" />
+                            <Grid>
+                                <ContentPresenter ContentSource="SelectedContent" />
+                                <!-- Onglets Bureau à distance : leur contenu reste ici en permanence (seulement masqué), pour que
+                                     le contrôle Bureau à distance ne soit jamais retiré de la fenêtre pendant la session. -->
+                                <Grid x:Name="RdpLayer" />
+                            </Grid>
                         </Border>
                     </DockPanel>
                 </ControlTemplate>

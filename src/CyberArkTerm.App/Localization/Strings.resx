@@ -474,7 +474,7 @@ The accounts remain available in the “Available” tab.</value>
     <value>Remember this component for platform {0}</value>
   </data>
   <data name="PsmHint" xml:space="preserve">
-    <value>The PVWA generates an RDP file opened in Remote Desktop Connection (mstsc).</value>
+    <value>The PVWA generates an RDP connection, opened in a CyberArkTerm tab or in Remote Desktop Connection (mstsc) depending on the settings.</value>
   </data>
   <data name="SshCommandHint" xml:space="preserve">
     <value>Command: ssh {0}</value>
@@ -951,5 +951,368 @@ Close anyway? The local copies will be deleted.</value>
   </data>
   <data name="PermissionsDoneCount" xml:space="preserve">
     <value>Permissions {0} applied: {1} items</value>
+  </data>
+  <data name="RdpTitle" xml:space="preserve">
+    <value>Remote desktop</value>
+  </data>
+  <data name="RdpConnecting" xml:space="preserve">
+    <value>Connecting to {0}…</value>
+  </data>
+  <data name="RdpConnected" xml:space="preserve">
+    <value>{0} — connected to {1}</value>
+  </data>
+  <data name="RdpFullScreen" xml:space="preserve">
+    <value>_Full screen</value>
+  </data>
+  <data name="RdpFullScreenTip" xml:space="preserve">
+    <value>Show the session full screen (use the connection bar at the top to come back)</value>
+  </data>
+  <data name="RdpDisconnect" xml:space="preserve">
+    <value>_Disconnect</value>
+  </data>
+  <data name="RdpDisconnectTip" xml:space="preserve">
+    <value>Disconnect the session (the tab stays open to reconnect)</value>
+  </data>
+  <data name="RdpOpened" xml:space="preserve">
+    <value>Remote desktop session opened: {0}</value>
+  </data>
+  <data name="RdpClosed" xml:space="preserve">
+    <value>Remote desktop session {0} closed</value>
+  </data>
+  <data name="RdpSessionError" xml:space="preserve">
+    <value>Remote desktop session {0}: {1}</value>
+  </data>
+  <data name="RdpControlError" xml:space="preserve">
+    <value>Remote Desktop control error ({0}).</value>
+  </data>
+  <data name="RdpDisconnectCode" xml:space="preserve">
+    <value>Disconnected (code {0}).</value>
+  </data>
+  <data name="RdpRemoteAppInTab" xml:space="preserve">
+    <value>This connection opens a remote application (RemoteApp), which can't be shown in a tab.</value>
+  </data>
+  <data name="RdpRemoteAppFallback" xml:space="preserve">
+    <value>{0}: this PSM component opens a remote application (RemoteApp), opened in Remote Desktop Connection (mstsc).</value>
+  </data>
+  <data name="RdpControlMissing" xml:space="preserve">
+    <value>{0}: the Remote Desktop control isn't available on this computer, session opened in Remote Desktop Connection (mstsc).</value>
+  </data>
+  <data name="RdpControlFallback" xml:space="preserve">
+    <value>{0}: the Remote Desktop control failed ({1}), session opened in Remote Desktop Connection (mstsc).</value>
+  </data>
+  <data name="RdpCloseTabConfirm" xml:space="preserve">
+    <value>Disconnect the remote desktop session {0}?</value>
+  </data>
+  <data name="RdpCloseAllConfirm" xml:space="preserve">
+    <value>Remote desktop sessions are open ({0}). Disconnect them and close?</value>
+  </data>
+  <data name="RdpSection" xml:space="preserve">
+    <value>Remote desktop (RDP)</value>
+  </data>
+  <data name="RdpInApp" xml:space="preserve">
+    <value>Open remote desktop sessions in a CyberArkTerm tab, otherwise in Remote Desktop Connection (mstsc)</value>
+  </data>
+  <data name="KeePassFolderTitle" xml:space="preserve">
+    <value>KeePass vault</value>
+  </data>
+  <data name="KeePassEmergencyWarning" xml:space="preserve">
+    <value>Emergency access outside CyberArk: connections made with this vault do not go through the PSM (no recording, no CyberArk rules). They are written to the local log (urgence.log).</value>
+  </data>
+  <data name="KeePassFileLabel" xml:space="preserve">
+    <value>_Vault file:</value>
+  </data>
+  <data name="KeePassKeyFileLabel" xml:space="preserve">
+    <value>_Key file:</value>
+  </data>
+  <data name="KeePassKeyFileHint" xml:space="preserve">
+    <value>Optional. Leave empty if the vault only uses a master password.</value>
+  </data>
+  <data name="KeePassUsesPassword" xml:space="preserve">
+    <value>The vault has a _master password</value>
+  </data>
+  <data name="KeePassFilesFilter" xml:space="preserve">
+    <value>KeePass vaults (*.kdbx)|*.kdbx|All files (*.*)|*.*</value>
+  </data>
+  <data name="AllFilesFilter" xml:space="preserve">
+    <value>All files (*.*)|*.*</value>
+  </data>
+  <data name="KeePassFileMissing" xml:space="preserve">
+    <value>This file doesn't exist: {0}</value>
+  </data>
+  <data name="KeePassNeedsKey" xml:space="preserve">
+    <value>A master password, a key file, or both are needed.</value>
+  </data>
+  <data name="KeePassUnlockTitle" xml:space="preserve">
+    <value>Unlock the KeePass vault</value>
+  </data>
+  <data name="KeePassMasterPasswordLabel" xml:space="preserve">
+    <value>_Master password:</value>
+  </data>
+  <data name="KeePassRemember" xml:space="preserve">
+    <value>_Remember the master password in the local vault</value>
+  </data>
+  <data name="KeePassRememberHint" xml:space="preserve">
+    <value>Encrypted with the local vault password and your Windows account.</value>
+  </data>
+  <data name="KeePassUnlock" xml:space="preserve">
+    <value>_Unlock</value>
+  </data>
+  <data name="KeePassUnlocking" xml:space="preserve">
+    <value>Unlocking… (the key derivation can take a few seconds)</value>
+  </data>
+  <data name="KeePassNewEntryTitle" xml:space="preserve">
+    <value>New KeePass entry</value>
+  </data>
+  <data name="KeePassEditEntryTitle" xml:space="preserve">
+    <value>Edit the KeePass entry</value>
+  </data>
+  <data name="KeePassTitleLabel" xml:space="preserve">
+    <value>_Title:</value>
+  </data>
+  <data name="KeePassGroupLabel" xml:space="preserve">
+    <value>_Group:</value>
+  </data>
+  <data name="KeePassUrlLabel" xml:space="preserve">
+    <value>_Address:</value>
+  </data>
+  <data name="KeePassUrlHint" xml:space="preserve">
+    <value>ssh://server:22 or rdp://server (or server:port)</value>
+  </data>
+  <data name="KeePassUserLabel" xml:space="preserve">
+    <value>_User:</value>
+  </data>
+  <data name="KeePassPasswordLabel" xml:space="preserve">
+    <value>_Password:</value>
+  </data>
+  <data name="KeePassPasswordUnchanged" xml:space="preserve">
+    <value>Leave empty to keep the current password</value>
+  </data>
+  <data name="KeePassShowPassword" xml:space="preserve">
+    <value>_Show</value>
+  </data>
+  <data name="KeePassNotesLabel" xml:space="preserve">
+    <value>_Notes:</value>
+  </data>
+  <data name="KeePassTargetSsh" xml:space="preserve">
+    <value>→ SSH to {0}</value>
+  </data>
+  <data name="KeePassTargetRdp" xml:space="preserve">
+    <value>→ Remote desktop to {0}</value>
+  </data>
+  <data name="KeePassTargetUnknown" xml:space="preserve">
+    <value>→ protocol not specified: you'll be asked SSH or RDP</value>
+  </data>
+  <data name="KeePassTargetNone" xml:space="preserve">
+    <value>→ no server address</value>
+  </data>
+  <data name="KeePassLockedSuffix" xml:space="preserve">
+    <value>(locked)</value>
+  </data>
+  <data name="KeePassFolderTip" xml:space="preserve">
+    <value>KeePass vault — emergency access outside CyberArk</value>
+  </data>
+  <data name="KeePassKeyFileInfo" xml:space="preserve">
+    <value>Key file: {0}</value>
+  </data>
+  <data name="KeePassNoHost" xml:space="preserve">
+    <value>No server address</value>
+  </data>
+  <data name="KeePassEntryOrigin" xml:space="preserve">
+    <value>KeePass vault {0} — outside CyberArk</value>
+  </data>
+  <data name="KeePassUnlockHint" xml:space="preserve">
+    <value>Double-click to unlock</value>
+  </data>
+  <data name="MenuKeePassAdd" xml:space="preserve">
+    <value>Add a _KeePass vault…</value>
+  </data>
+  <data name="MenuKeePassUnlock" xml:space="preserve">
+    <value>_Unlock…</value>
+  </data>
+  <data name="MenuKeePassLock" xml:space="preserve">
+    <value>_Lock</value>
+  </data>
+  <data name="MenuKeePassRefresh" xml:space="preserve">
+    <value>_Reload</value>
+  </data>
+  <data name="MenuKeePassNewEntry" xml:space="preserve">
+    <value>_New entry…</value>
+  </data>
+  <data name="MenuKeePassProperties" xml:space="preserve">
+    <value>_Properties…</value>
+  </data>
+  <data name="MenuKeePassRemove" xml:space="preserve">
+    <value>_Remove from the list</value>
+  </data>
+  <data name="MenuKeePassConnect" xml:space="preserve">
+    <value>_Connect</value>
+  </data>
+  <data name="MenuKeePassSsh" xml:space="preserve">
+    <value>Connect over _SSH</value>
+  </data>
+  <data name="MenuKeePassRdp" xml:space="preserve">
+    <value>Connect with _remote desktop (RDP)</value>
+  </data>
+  <data name="MenuKeePassEditEntry" xml:space="preserve">
+    <value>_Edit…</value>
+  </data>
+  <data name="MenuKeePassDeleteEntry" xml:space="preserve">
+    <value>_Delete</value>
+  </data>
+  <data name="ToolKeePassTip" xml:space="preserve">
+    <value>Add a KeePass vault (emergency access outside CyberArk)</value>
+  </data>
+  <data name="KeePassRemoveConfirm" xml:space="preserve">
+    <value>Remove the KeePass vault “{0}” from the list? The file itself is not deleted.</value>
+  </data>
+  <data name="KeePassDeleteEntryConfirm" xml:space="preserve">
+    <value>Delete the entry “{0}” from the KeePass vault {1}? It goes to the vault's recycle bin.</value>
+  </data>
+  <data name="KeePassUnlocked" xml:space="preserve">
+    <value>KeePass vault {0} unlocked ({1} entries)</value>
+  </data>
+  <data name="KeePassLockedStatus" xml:space="preserve">
+    <value>KeePass vault {0} locked</value>
+  </data>
+  <data name="KeePassAllLocked" xml:space="preserve">
+    <value>KeePass vaults locked (Windows session locked)</value>
+  </data>
+  <data name="KeePassSaving" xml:space="preserve">
+    <value>Saving the KeePass vault {0}…</value>
+  </data>
+  <data name="KeePassSaved" xml:space="preserve">
+    <value>KeePass vault {0} saved (previous version kept in {1})</value>
+  </data>
+  <data name="KeePassSaveFailed" xml:space="preserve">
+    <value>The KeePass vault {0} was not saved:
+
+{1}</value>
+  </data>
+  <data name="KeePassReloaded" xml:space="preserve">
+    <value>KeePass vault {0} reloaded</value>
+  </data>
+  <data name="KeePassNoHostError" xml:space="preserve">
+    <value>The entry “{0}” has no server address: fill in its address (ssh://… or rdp://…).</value>
+  </data>
+  <data name="KeePassNoUserError" xml:space="preserve">
+    <value>The entry “{0}” has no user name for SSH.</value>
+  </data>
+  <data name="KeePassConnecting" xml:space="preserve">
+    <value>Emergency access: connecting to {0} ({1}) outside CyberArk…</value>
+  </data>
+  <data name="KeePassSshOpened" xml:space="preserve">
+    <value>Emergency SSH session opened: {0} ({1})</value>
+  </data>
+  <data name="KeePassTabLabel" xml:space="preserve">
+    <value>{0} · KeePass</value>
+  </data>
+  <data name="KeePassRdpNoControl" xml:space="preserve">
+    <value>{0}: Remote Desktop control unavailable, Remote Desktop Connection opened without the password (take it from the KeePass vault).</value>
+  </data>
+  <data name="ConnectingDirect" xml:space="preserve">
+    <value>Direct connection (emergency access, outside CyberArk)…</value>
+  </data>
+  <data name="HostKeyTitleServer" xml:space="preserve">
+    <value>Server key</value>
+  </data>
+  <data name="HostKeyUnknownServer" xml:space="preserve">
+    <value>First connection to the server {0}:{1}.
+
+Key fingerprint ({2}):
+SHA256:{3}
+
+Check it with the server's administrator if needed. Trust this server?</value>
+  </data>
+  <data name="HostKeyChangedServer" xml:space="preserve">
+    <value>WARNING: the key of the server {0}:{1} has changed!
+
+New fingerprint ({2}):
+SHA256:{3}
+
+This may mean the connection is being intercepted. Only accept if the server's administrator confirmed this change. Accept the new key?</value>
+  </data>
+  <data name="PromptTitleServer" xml:space="preserve">
+    <value>SSH authentication</value>
+  </data>
+  <data name="LocalStoreTitle" xml:space="preserve">
+    <value>Local vault</value>
+  </data>
+  <data name="LocalStoreCreateIntro" xml:space="preserve">
+    <value>The local vault keeps the KeePass master passwords you choose to remember. It is encrypted with the password below (Argon2id, AES-256) and your Windows account (DPAPI). This password is asked when CyberArkTerm starts; it can't be recovered.</value>
+  </data>
+  <data name="LocalStoreUnlockIntro" xml:space="preserve">
+    <value>Unlock the local vault to use the remembered KeePass master passwords.</value>
+  </data>
+  <data name="LocalStoreChangeIntro" xml:space="preserve">
+    <value>Choose the new local vault password.</value>
+  </data>
+  <data name="LocalStorePasswordLabel" xml:space="preserve">
+    <value>_Password:</value>
+  </data>
+  <data name="LocalStoreConfirmLabel" xml:space="preserve">
+    <value>C_onfirm:</value>
+  </data>
+  <data name="LocalStoreMismatch" xml:space="preserve">
+    <value>The two passwords differ.</value>
+  </data>
+  <data name="LocalStoreLater" xml:space="preserve">
+    <value>_Later</value>
+  </data>
+  <data name="LocalStoreCreateButton" xml:space="preserve">
+    <value>_Create</value>
+  </data>
+  <data name="LocalStoreSection" xml:space="preserve">
+    <value>Local vault (KeePass master passwords)</value>
+  </data>
+  <data name="LocalStoreStateNone" xml:space="preserve">
+    <value>No local vault.</value>
+  </data>
+  <data name="LocalStoreStateLocked" xml:space="preserve">
+    <value>Local vault locked.</value>
+  </data>
+  <data name="LocalStoreStateUnlocked" xml:space="preserve">
+    <value>Local vault unlocked: {0} remembered password(s).</value>
+  </data>
+  <data name="LocalStoreCreate" xml:space="preserve">
+    <value>C_reate…</value>
+  </data>
+  <data name="LocalStoreUnlockMenu" xml:space="preserve">
+    <value>_Unlock…</value>
+  </data>
+  <data name="LocalStoreChange" xml:space="preserve">
+    <value>C_hange password…</value>
+  </data>
+  <data name="LocalStoreDelete" xml:space="preserve">
+    <value>De_lete</value>
+  </data>
+  <data name="LocalStoreDeleteConfirm" xml:space="preserve">
+    <value>Delete the local vault? The remembered KeePass master passwords will be forgotten (the KeePass vaults themselves are not affected).</value>
+  </data>
+  <data name="LoginEmergency" xml:space="preserve">
+    <value>_Emergency access (KeePass)</value>
+  </data>
+  <data name="LoginEmergencyTip" xml:space="preserve">
+    <value>Without CyberArk: open your KeePass vaults to connect directly to servers (SSH, remote desktop).</value>
+  </data>
+  <data name="EmergencyTitle" xml:space="preserve">
+    <value>CyberArkTerm — Emergency access (without CyberArk)</value>
+  </data>
+  <data name="EmergencySession" xml:space="preserve">
+    <value>Emergency access — without CyberArk</value>
+  </data>
+  <data name="EmergencyWelcome" xml:space="preserve">
+    <value>Emergency access without CyberArk: open a KeePass vault in “My servers” on the left. Connections are written to the local log (urgence.log).</value>
+  </data>
+  <data name="PvwaSessionSection" xml:space="preserve">
+    <value>CyberArk session</value>
+  </data>
+  <data name="KeepAlive" xml:space="preserve">
+    <value>Keep the PVWA session open while CyberArkTerm runs (a light request every 4 minutes, paused while Windows is locked)</value>
+  </data>
+  <data name="KeepAliveExpired" xml:space="preserve">
+    <value>The CyberArk session has expired: log in again to reach the CyberArk accounts.</value>
+  </data>
+  <data name="NoKeePassHelp" xml:space="preserve">
+    <value>Add a KeePass vault with the vault button above (or right-click here).</value>
   </data>
 </root>

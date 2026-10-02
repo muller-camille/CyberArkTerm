@@ -70,6 +70,15 @@ public partial class LoginWindow : Window
     /// <summary>Vrai si la fenêtre a été fermée pour être rouverte dans une autre langue.</summary>
     public bool LanguageChanged { get; private set; }
 
+    /// <summary>Vrai si l'utilisateur a choisi l'accès d'urgence (coffres KeePass, sans CyberArk).</summary>
+    public bool EmergencyRequested { get; private set; }
+
+    private void OnEmergencyClick(object sender, RoutedEventArgs e)
+    {
+        EmergencyRequested = true;
+        DialogResult = true;
+    }
+
     private AuthMethod SelectedMethod => MethodBox.SelectedItem is AuthMethod m ? m : AuthMethod.CyberArk;
 
     private void FocusFirstField()

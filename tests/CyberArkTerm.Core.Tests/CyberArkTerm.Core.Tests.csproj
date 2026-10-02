@@ -17,6 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Coffres KeePass de test (voir KeePass/Vaults/generate.py). -->
+    <None Include="KeePass\Vaults\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\CyberArkTerm.Core\CyberArkTerm.Core.csproj" />
   </ItemGroup>
 

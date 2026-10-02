@@ -10,8 +10,11 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services;
+using CyberArkTerm.App.Services.KeePass;
+using CyberArkTerm.App.Services.Rdp;
 using CyberArkTerm.Core;
 using CyberArkTerm.Core.Localization;
+using CyberArkTerm.Core.Rdp;
 using Microsoft.Win32;
 
 namespace CyberArkTerm.App.Views;
@@ -22,7 +25,8 @@ namespace CyberArkTerm.App.Views;
 /// </summary>
 public partial class MainWindow : Window
 {
-    private readonly PvwaClient _client;
+    /// <summary>Client du PVWA ; null en accès d'urgence (sans CyberArk, coffres KeePass seulement).</summary>
+    private readonly PvwaClient? _client;
     private readonly AppSettings _settings;
     private readonly string _sessionUser;
     private readonly string _vaultUser;
@@ -39,15 +43,17 @@ public partial class MainWindow : Window
     private bool _connecting;
     private bool _loggedOff;
 
-    public MainWindow(PvwaClient client, AppSettings settings, string sessionUser, string vaultUser)
+    /// <param name="client">Client du PVWA connecté ; null pour l'accès d'urgence sans CyberArk.</param>
+    internal MainWindow(PvwaClient? client, AppSettings settings, string sessionUser, string vaultUser, KeePassManager keePass)
     {
         InitializeComponent();
         _client = client;
         _settings = settings;
         _sessionUser = sessionUser;
         _vaultUser = vaultUser;
-        Title = $"CyberArkTerm — {client.BaseUri.Host}";
-        SessionText.Text = $"{sessionUser} @ {client.BaseUri.Host}";
+        _keePass = keePass;
+        Title = client is null ? Strings.EmergencyTitle : $"CyberArkTerm — {client.BaseUri.Host}";
+        SessionText.Text = client is null ? Strings.EmergencySession : $"{sessionUser} @ {client.BaseUri.Host}";
 
         _searchDebounce = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
         _searchDebounce.Tick += (_, _) =>
@@ -66,14 +72,50 @@ public partial class MainWindow : Window
         };
         GroupByBox.SelectedValue = settings.GroupBy;
 
-        _psmpUi = new PsmpInteraction(this, settings, SaveSettings);
+        _psmpUi = new SshInteraction(this, settings, SaveSettings);
+        _directUi = new SshInteraction(this, settings, SaveSettings, direct: true);
+        _keePass.Changed += OnKeePassChanged;
+        SystemEvents.SessionSwitch += OnWindowsSessionSwitch;
+        Closed += (_, _) =>
+        {
+            _keePass.Changed -= OnKeePassChanged;
+            SystemEvents.SessionSwitch -= OnWindowsSessionSwitch;
+        };
+
         FilesPanel.Initialize(settings, SaveSettings);
-        RefreshRecent();
+        if (IsOffline)
+        {
+            // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de l'onglet « Courants ».
+            AvailableTab.Visibility = AccountsTab.Visibility = Visibility.Collapsed;
+            QuickPanel.Visibility = HomeLists.Visibility = NewFolderButton.Visibility = Visibility.Collapsed;
+            ExportButton.IsEnabled = false;
+            NoSavedText.Text = Strings.NoKeePassHelp;
+            SideTabs.SelectedItem = CurrentTab;
+            CountText.Text = "";
+        }
+        else
+        {
+            RefreshRecent();
+        }
+
         RefreshSaved();
         UpdateWelcome();
         UpdateActions();
-        Loaded += async (_, _) => await LoadAccountsAsync();
+        StartKeepAlive();
+        Loaded += async (_, _) =>
+        {
+            if (!IsOffline)
+            {
+                await LoadAccountsAsync();
+            }
+        };
     }
+
+    /// <summary>Accès d'urgence, sans connexion à CyberArk.</summary>
+    private bool IsOffline => _client is null;
+
+    /// <summary>Client du PVWA, pour les actions qui n'existent qu'avec CyberArk.</summary>
+    private PvwaClient Client => _client ?? throw new InvalidOperationException(Strings.EmergencyWelcome);
 
     /// <summary>Vrai si la fenêtre a été fermée pour revenir à l'écran de connexion.</summary>
     public bool LogoutRequested { get; private set; }
@@ -84,7 +126,7 @@ public partial class MainWindow : Window
 
     private async Task LoadAccountsAsync()
     {
-        if (_loading)
+        if (_loading || IsOffline)
         {
             return;
         }
@@ -106,7 +148,7 @@ public partial class MainWindow : Window
 
         try
         {
-            var accounts = await _client.GetAccountsAsync(progress, _lifetime.Token);
+            var accounts = await Client.GetAccountsAsync(progress, _lifetime.Token);
             accounts.Sort((a, b) =>
             {
                 int c = StringComparer.OrdinalIgnoreCase.Compare(a.Address, b.Address);
@@ -123,7 +165,7 @@ public partial class MainWindow : Window
             _view = new ListCollectionView(_accounts) { Filter = o => AccountFilter.Matches((PvwaAccount)o, _query) };
             AccountsGrid.ItemsSource = _view;
             ApplyFilter();
-            SessionLibrary.MigrateFavorites(_settings, _byId, _client.BaseUri.Host);
+            SessionLibrary.MigrateFavorites(_settings, _byId, Client.BaseUri.Host);
             SaveSettings();
             RefreshSaved();
             RefreshQuickResults();
@@ -179,7 +221,7 @@ public partial class MainWindow : Window
 
     private void UpdateWelcome()
     {
-        WelcomeText.Text = Text.Format(Strings.Welcome, _client.BaseUri.Host, _sessionUser, _accounts.Count);
+        WelcomeText.Text = _client is null ? Strings.EmergencyWelcome : Text.Format(Strings.Welcome, _client.BaseUri.Host, _sessionUser, _accounts.Count);
     }
 
     private void RefreshRecent()
@@ -264,7 +306,7 @@ public partial class MainWindow : Window
         SearchBox.SelectAll();
     }
 
-    private void CanRefresh(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = !_loading;
+    private void CanRefresh(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = !_loading && !IsOffline;
 
     private async void OnRefresh(object sender, ExecutedRoutedEventArgs e) => await LoadAccountsAsync();
 
@@ -280,7 +322,7 @@ public partial class MainWindow : Window
     private void UpdateActions()
     {
         bool has = _current is not null && !_connecting;
-        ConnectButton.IsEnabled = has;
+        ConnectButton.IsEnabled = has || _currentKeePass is not null;
         AdvancedButton.IsEnabled = has;
         AddCurrentButton.IsEnabled = _current is not null && _currentSaved is null;
         SshButton.IsEnabled = has && HasPsmp;
@@ -432,7 +474,11 @@ public partial class MainWindow : Window
 
     private void OnConnectDefault(object sender, RoutedEventArgs e)
     {
-        if (_currentSaved is { } saved)
+        if (_currentKeePass is { } entry)
+        {
+            _ = ConnectKeePassAsync(entry, null);
+        }
+        else if (_currentSaved is { } saved)
         {
             ConnectSaved(saved, advanced: false);
         }
@@ -563,26 +609,48 @@ public partial class MainWindow : Window
             SetStatus(Text.Format(Strings.PsmOpening, label, request.Component));
             LoadProgress.IsIndeterminate = true;
             LoadProgress.Visibility = Visibility.Visible;
+            var options = new PsmConnectOptions
+            {
+                ConnectionComponent = request.Component,
+                Reason = request.Reason,
+                TicketingSystemName = request.TicketingSystem,
+                TicketId = request.TicketId,
+                RemoteMachine = request.RemoteMachine,
+            };
             byte[] rdp;
             try
             {
-                rdp = await _client.PsmConnectAsync(account.Id, new PsmConnectOptions
-                {
-                    ConnectionComponent = request.Component,
-                    Reason = request.Reason,
-                    TicketingSystemName = request.TicketingSystem,
-                    TicketId = request.TicketId,
-                    RemoteMachine = request.RemoteMachine,
-                }, _lifetime.Token);
+                rdp = await Client.PsmConnectAsync(account.Id, options, _lifetime.Token);
             }
             finally
             {
                 LoadProgress.Visibility = _loading ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            _launcher.LaunchRdp(rdp, label);
-            SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
-            AddRecent(account, label, request.Component, request.RemoteMachine);
+            if (EmbeddableRdp(rdp, label, out var fallbackReason) is { } settings)
+            {
+                SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
+                AddRecent(account, label, request.Component, request.RemoteMachine);
+                // Une reconnexion demande un nouveau jeton au PVWA : le précédent ne sert qu'une fois.
+                var session = await OpenRdpTabAsync(label, async ct =>
+                {
+                    var file = await Client.PsmConnectAsync(account.Id, options, ct);
+                    return new RdpConnectionRequest(RdpConnectionSettings.FromRdpFile(file), null);
+                }, new RdpConnectionRequest(settings, null));
+                if (session.ControlFailed)
+                {
+                    // Contrôle Bureau à distance inutilisable sur ce poste : le jeton n'a pas servi, mstsc prend le relais.
+                    await RemoveRdpTabAsync(session);
+                    _launcher.LaunchRdp(rdp, label);
+                    SetStatus(Text.Format(Strings.RdpControlFallback, label, session.Error));
+                }
+            }
+            else
+            {
+                _launcher.LaunchRdp(rdp, label);
+                SetStatus(fallbackReason ?? Text.Format(Strings.PsmStarted, label, request.Component));
+                AddRecent(account, label, request.Component, request.RemoteMachine);
+            }
         }
         else if (_settings.SshInApp)
         {
@@ -706,10 +774,14 @@ public partial class MainWindow : Window
     private void OnSettings(object sender, RoutedEventArgs e)
     {
         var language = _settings.Language;
-        if (new SettingsDialog(_settings) { Owner = this }.ShowDialog() == true)
+        var accepted = new SettingsDialog(_settings, _keePass.Store) { Owner = this }.ShowDialog() == true;
+        // Coffre local supprimé ou créé depuis les paramètres : l'arbre « Courants » peut changer.
+        RefreshSaved();
+        if (accepted)
         {
             SaveSettings();
             UpdateActions();
+            StartKeepAlive();
             SetStatus(_settings.Language == language ? Strings.SettingsSaved : Strings.SettingsSavedLanguage);
         }
     }
@@ -750,9 +822,9 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!ConfirmCloseEditedFiles())
+        if (!ConfirmCloseEditedFiles() || !ConfirmCloseRdpSessions())
         {
-            // Fichiers modifiés dans l'éditeur et pas encore renvoyés : l'utilisateur garde la fenêtre ouverte.
+            // Fichiers modifiés non renvoyés, ou sessions Bureau à distance ouvertes : l'utilisateur garde la fenêtre.
             e.Cancel = true;
             LogoutRequested = false;
             return;
@@ -766,8 +838,11 @@ public partial class MainWindow : Window
         _searchDebounce.Stop();
         try
         {
-            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-            await _client.LogoffAsync(timeout.Token);
+            if (_client is not null)
+            {
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                await _client.LogoffAsync(timeout.Token);
+            }
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -776,8 +851,11 @@ public partial class MainWindow : Window
         finally
         {
             CloseAllSshSessions();
+            CloseAllRdpSessions();
+            // Les coffres KeePass ouverts se referment avec la fenêtre (le coffre local reste déverrouillé).
+            _keePass.LockAll();
             _launcher.Cleanup();
-            _client.Dispose();
+            _client?.Dispose();
             _lifetime.Dispose();
         }
 

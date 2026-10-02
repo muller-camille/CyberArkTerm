@@ -36,9 +36,11 @@ through **PSM for SSH (PSMP)** with a built-in **file browser** to upload files 
 | **CyberArk sign-in** | CyberArk, LDAP, RADIUS (challenge / OTP included) or Windows (current session) authentication. |
 | **Available** | Every account visible in the vault, grouped by safe, platform or target type, with instant search. |
 | **My servers** | Your working servers, organized in folders and subfolders, each with its own settings. |
-| **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button): component, target machine, reason, ticket. |
+| **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in an application tab: component, target machine, reason, ticket. |
 | **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colors, vim, less, top…), MFA authentication. |
 | **Files tab** | SFTP browser of the server: `ls`, navigation, `rm`, drag-and-drop upload over SCP, editing in your text editor, permissions (`chmod`), follows the terminal folder. |
+| **Emergency access (KeePass)** | Without CyberArk: KeePass vaults (.kdbx) in "My servers", direct SSH and remote desktop connections, creating and editing entries, local log. |
+| **PVWA session kept open** | A light request every 4 minutes avoids the timeout while you work (paused while Windows is locked). |
 | **Home** | Quick connect (type a server, press Enter), recent sessions. |
 | **Export** | Account list as CSV, opens directly in Excel (separator follows the Windows region). |
 | **Languages** | Interface in English, French and Italian: Windows language by default, can be changed at any time. |
@@ -64,7 +66,8 @@ The executable is not signed: on first launch, Windows SmartScreen may show a wa
 **Workstation**
 
 - Windows 10 or 11 (x64).
-- The Remote Desktop client (`mstsc`, installed by default) for PSM sessions.
+- The Windows Remote Desktop client (installed by default) for PSM sessions: its built-in control for tabs,
+  or `mstsc`.
 - Optional: Windows Terminal and the Windows "OpenSSH Client", only if you choose to open SSH outside
   CyberArkTerm.
 
@@ -104,6 +107,20 @@ right away in the chosen language, keeping the address and user name you typed.
 
 Double-click the account (or press Enter, or the "Connect" button). CyberArkTerm requests the connection from
 the PVWA and opens Remote Desktop on the PSM, exactly like the PVWA "Connect" button.
+
+The session opens **in a CyberArkTerm tab**, with the Windows Remote Desktop control (the same engine as
+`mstsc`):
+
+- the remote desktop resolution follows the tab size;
+- "Full screen" shows the session on the whole screen (use the connection bar at the top to come back, or
+  `Ctrl+Alt+Break`);
+- "Disconnect" ends the session and keeps the tab; "Reconnect" asks the PVWA for a new connection (the token
+  of a PSM session works only once);
+- closing the tab (cross or middle click) disconnects the session, after confirmation.
+
+The session opens in **Remote Desktop Connection** (`mstsc`) if the option is unticked in the Settings, if the
+PSM component opens a remote application (RemoteApp), or if the Remote Desktop control can't be used on this
+computer; the status bar then says why.
 
 - **PSM component**: deduced from the platform (`PSM-RDP` for Windows, `PSM-SSH` for Unix and network,
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Tick "Remember this component" to keep it for the whole
@@ -175,6 +192,36 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
 
 A server whose account is no longer visible in CyberArk is greyed out.
 
+### 7. Emergency access outside CyberArk: KeePass vaults
+
+When CyberArk is unavailable, CyberArkTerm opens your KeePass vaults (`.kdbx`) and connects **directly** to the
+servers, over SSH or remote desktop, with the accounts they hold.
+
+> These connections **do not go through the PSM**: no recording, no CyberArk rules. Every vault opening,
+> connection and change is written to the local log `%APPDATA%\CyberArkTerm\urgence.log`.
+
+![Emergency access: KeePass vault unlocked in "My servers"](docs/captures/en/keepass-vault.png)
+
+- **Without CyberArk**: on the sign-in screen, "Emergency access (KeePass)" opens the main window without the
+  PVWA (only the KeePass vaults are shown). With CyberArk, the vaults also appear at the top of "My servers".
+- **Add a vault**: vault button of the "My servers" tab (or right-click → "Add a KeePass vault…"): `.kdbx`
+  file, name, optional key file.
+- **Unlock**: double-click the vault. Master password and/or key file (every KeePass format). "Remember the
+  master password in the local vault" saves typing it again (see below).
+- **Connect**: double-click an entry. The protocol comes from its address (`ssh://server:22`, `rdp://server`,
+  `server:3389`), a "Protocol" / "Port" field or an `ssh` / `rdp` tag; otherwise CyberArkTerm asks SSH or
+  remote desktop. The entry's password is used directly (terminal + Files tabs over SSH, remote desktop tab over
+  RDP); it is never shown or written to disk.
+- **Edit the vault**: right-click → "New entry…", "Edit…" (`F2`), "Delete" (`Del`, into the vault's recycle
+  bin). The rest of the vault (attachments, fields, settings) is kept; the previous version of an entry goes to
+  its history, like in KeePass.
+- **Lock**: right-click → "Lock". Vaults also lock on sign-out, on exit and when **Windows is locked**.
+
+**Local vault**: the master passwords you choose to remember are kept in
+`%APPDATA%\CyberArkTerm\coffre-local.dat`, encrypted with a password of your own (asked when CyberArkTerm starts,
+"Later" to skip it) and tied to your Windows account. Manage it in the **Settings**: create, unlock, change the
+password, delete.
+
 ## Shortcuts
 
 | Where | Action | Shortcut |
@@ -187,8 +234,10 @@ A server whose account is no longer visible in CyberArk is greyed out.
 | Terminal | Copy | Mouse selection, or `Ctrl+Shift+C` |
 | Terminal | Paste | Right-click, `Shift+Insert` or `Ctrl+Shift+V` |
 | Terminal | Scrollback | Mouse wheel, `Shift+Page Up` / `Shift+Page Down` |
-| SSH tab | Close | Tab cross or middle click |
+| SSH or remote desktop tab | Close | Tab cross or middle click |
+| Remote desktop | Full screen / back | `Ctrl+Alt+Break` |
 | Files | Open / edit / parent folder / delete / refresh | `Enter` / `F4` / `Backspace` / `Del` / `F5` |
+| KeePass vault | Connect / edit / delete an entry | Double-click or `Enter` / `F2` / `Del` |
 
 ## Settings and configuration file
 
@@ -199,6 +248,9 @@ A server whose account is no longer visible in CyberArk is greyed out.
 | Interface language | Français, English, Italiano or system language; applied after signing out or at the next start | Windows language (English if it is not translated) |
 | PSMP address and port | PSM for SSH server; empty = SSH disabled | empty, 22 |
 | Double-click on Unix = SSH | Opens Unix accounts over SSH rather than PSM | no |
+| Keep the PVWA session open | Light request every 4 minutes; paused while Windows is locked | yes |
+| Local vault | Remembered KeePass master passwords: create, unlock, change password, delete | — |
+| Remote desktop in CyberArkTerm | PSM sessions in a tab; otherwise Remote Desktop Connection (`mstsc`) | yes |
 | SSH in CyberArkTerm | Built-in terminal and Files tab; otherwise Windows Terminal | yes |
 | Follow the terminal folder | Allows setting up folder tracking in the shell | yes |
 | File upload | SCP or SFTP | SCP |
@@ -207,8 +259,8 @@ A server whose account is no longer visible in CyberArk is greyed out.
 | Remembered components | PSM component chosen per platform ("Forget" button) | — |
 
 All preferences are saved in `%APPDATA%\CyberArkTerm\settings.json`: language, PVWA address, sign-in method
-and user name, the settings above, "My servers" and their folders, recent sessions. This file contains
-**no password, token or private key**. To start from scratch, close the application and delete it.
+and user name, the settings above, "My servers" and their folders, recent sessions, location of the KeePass
+vaults and of their key files. This file contains **no password, token or private key**. To start from scratch, close the application and delete it.
 
 ## Security
 
@@ -216,8 +268,26 @@ and user name, the settings above, "My servers" and their folders, recent sessio
 - **No secret on disk**: CyberArk password, session token, MFA key and PSMP password stay in memory for the
   session. The PVWA session is closed (`Logoff`) on exit.
 - PVWA session opened with `concurrentSession`: your PVWA web session, if any, is not closed.
-- **RDP files** (one-time PSM token) written to `%TEMP%\CyberArkTerm` and deleted after 60 s or on exit.
-- **PSMP host keys pinned** on first use, with a warning if they change.
+- **Remote desktop sessions in a tab**: the PVWA response (one-time PSM token) stays in memory, nothing is
+  written to disk. Redirections (drives, printers, ports, smart cards) are only turned on if the PVWA asks for
+  them; the clipboard follows its request (on if it says nothing).
+- **RDP files for `mstsc`** (one-time PSM token) written to `%TEMP%\CyberArkTerm` and deleted after 60 s or on
+  exit.
+- **PSMP host keys pinned** on first use, with a warning if they change (the same for servers reached in
+  emergency access).
+- **PVWA session keep-alive**: it avoids the idle timeout; nothing is sent while Windows is locked, and the option
+  can be turned off in the Settings if your policy requires it.
+- **KeePass vaults**:
+  - the master password is never saved, except in the local vault if you ask for it: Argon2id (64 MiB,
+    3 passes) then AES-256-GCM, key derivation settings authenticated, all protected by DPAPI (Windows account);
+  - in memory, the vault key and the entry passwords stay masked and are only revealed when connecting; vaults
+    lock on sign-out, on exit and when Windows is locked;
+  - safe saving: the file is read again, the change is applied to its current version (changes made elsewhere
+    are kept), the decrypted result is checked, a `.bak` copy is kept and the file is replaced in one step; an
+    entry changed elsewhere in the meantime is not overwritten;
+  - direct remote desktop: the password is only passed to the Remote Desktop control (no file, no credential
+    manager), with network level authentication (NLA) and a warning if the server is not recognized;
+  - `urgence.log`: date, Windows account, computer, action, vault, entry, target; never a password.
 - **Edited files**: the local copy opened in the editor is stored in `%TEMP%\CyberArkTerm\edit` and deleted when
   the SSH tab closes; a warning shows if changes were not sent back.
 - **No command injection**: SCP paths and start folders are quoted for the remote shell; `ssh` / Windows
@@ -238,7 +308,24 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md) (private reporting, no
 | `GET /PasswordVault/API/Accounts?offset=…&limit=1000` | Paged account list |
 | `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | RDP file of the PSM session |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Temporary "MFA caching" SSH key (if enabled) |
+| `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Session keep-alive (every 4 minutes) |
 | `POST /PasswordVault/API/Auth/Logoff` | Sign out |
+
+### KeePass vaults
+
+Native reading and writing (no KeePass installed) of the **KDBX 3.1 and 4.x** formats: AES-256 or ChaCha20
+encryption, AES-KDF (processor AES instructions) or Argon2d / Argon2id key derivation, XML 1.0 / 2.0 key files,
+32 bytes, 64 hexadecimal characters or any file. The rewritten file keeps the original version, encryption and
+key derivation, with new seeds on every save. The test vaults (`tests/CyberArkTerm.Core.Tests/KeePass/Vaults`)
+come from KeePassXC and pykeepass, and files written by CyberArkTerm were checked in both tools.
+
+### Remote desktop sessions
+
+Remote desktop tabs host the Windows ActiveX control (`mstscax.dll`, the most recent `MsRdpClient` class
+available). CyberArkTerm reads the RDP file returned by `PSMConnect` and applies its settings: `full address`,
+`username`, `alternate shell` (start of the PSM session), server authentication level, NLA (CredSSP), gateway,
+redirections, sound, visual effects. Session ends and connection errors are explained in the tab with the
+Windows message.
 
 ### PSMP sessions
 
@@ -274,6 +361,12 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 | The Files tab shows "SFTP connection failed" | SFTP is not allowed on the PSMP or for this account: ask your CyberArk team. |
 | The browser does not follow `cd` | The remote shell is not bash or zsh, the option is off in Settings, or the prompt was not recognized: tick "Follow the terminal folder" again at the shell prompt. |
 | "The key of the PSMP has changed" warning | Only continue if your CyberArk team confirms a server change. |
+| "Wrong master password or key file." | Check the password and the key file; a vault protected by a YubiKey is not supported. |
+| The KeePass vault asks for the password despite "Remember" | Local vault locked ("Later" at start-up) or master password changed elsewhere: type it, it is remembered again. |
+| "The local vault file is damaged or was created by another Windows account." | The local vault does not follow a change of computer or account: delete it in the Settings and create it again. |
+| "The entry … was changed or deleted in the vault in the meantime" | Someone changed the same entry elsewhere: the vault is reloaded, make the change again. |
+| The PSM session opens in `mstsc`, not in a tab | Remote application component (RemoteApp), Remote Desktop control unavailable, or option unticked: the status bar gives the reason. |
+| The tab shows "Remote Desktop control error" | Untick "Open remote desktop sessions in a CyberArkTerm tab" in the Settings to use `mstsc`, and report the code shown. |
 
 ## Development
 
@@ -281,9 +374,10 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 
 | Project | Role |
 | --- | --- |
-| `src/CyberArkTerm.Core` | Cross-platform logic without UI: PVWA API client, account classification, xterm terminal emulator, PSMP connections and SFTP/SCP browser (SSH.NET), "My servers" folders, preferences. |
-| `src/CyberArkTerm.App` | WPF application: windows, tabs, terminal control, `mstsc` launch, icon (`Assets`). |
+| `src/CyberArkTerm.Core` | Cross-platform logic without UI: PVWA API client, account classification, xterm terminal emulator, PSMP connections and SFTP/SCP browser (SSH.NET), "My servers" folders, KeePass vaults (KDBX), local vault, preferences. |
+| `src/CyberArkTerm.App` | WPF application: windows, tabs, terminal control, Remote Desktop control (RDP tabs), `mstsc` launch, icon (`Assets`). |
 | `tests/CyberArkTerm.Core.Tests` | xUnit tests of Core (fake PVWA over HTTP, terminal, PSMP, folders, translations…). |
+| `tests/CyberArkTerm.App.Tests` | Windows tests of the application (real Remote Desktop control, DPAPI). |
 
 External dependency: [SSH.NET](https://github.com/sshnet/SSH.NET) (MIT license).
 
@@ -306,6 +400,8 @@ dotnet run --project src/CyberArkTerm.App
 ```
 
 The project also builds on Linux or macOS (`EnableWindowsTargeting`); the application only runs on Windows.
+The tests in `tests/CyberArkTerm.App.Tests` (including a test of the real Remote Desktop control) only run on
+Windows; elsewhere, run `dotnet test tests/CyberArkTerm.Core.Tests`.
 
 ### Publish the executable
 
@@ -336,14 +432,15 @@ zip and `SHA256SUMS.txt`. Release notes are read from `docs/releases/vX.Y.Z.md` 
 - **Privilege Cloud** (sign-in through CyberArk Identity) and **SAML** are not supported.
 - The Accounts API does not say which PSM components a platform offers: the component is deduced, then can be
   remembered.
-- PSM (RDP) sessions open in the Windows Remote Desktop window, not in a tab.
+- PSM components that open a remote application (RemoteApp) use `mstsc`, not a tab.
+- KeePass vaults: Twofish encryption and YubiKey keys are not supported; no vault creation (create it with KeePass
+  or KeePassXC); attachments are kept but not shown.
 - Following the terminal folder requires bash or zsh on the server.
 - PSM Gateway (HTML5), dual control and exclusive access are not supported.
 
 **Ideas**
 
 - Signed executable and MSI installer.
-- RDP sessions in built-in tabs.
 - Several PVWAs (connection profiles), Privilege Cloud.
 
 ## License

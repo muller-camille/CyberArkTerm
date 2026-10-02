@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Data;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
+using CyberArkTerm.Core.KeePass;
 using CyberArkTerm.Core.Ssh;
 
 namespace CyberArkTerm.App;
@@ -44,6 +45,14 @@ public sealed class KindIconConverter : IValueConverter
             RecentSession r => r.Mode == RecentModes.Ssh ? "IconSsh" : "IconConnect",
             SavedSessionNode n => n.Account is { } a ? IconFor(AccountClassifier.Classify(a)) : IconFor(KindOf(n.Session)),
             SavedSession s => IconFor(KindOf(s)),
+            KeePassFolderNode => "IconKeePass",
+            KeePassHintNode => "IconPermissions",
+            KeePassEntryNode e => e.Target.Protocol switch
+            {
+                RemoteProtocol.Ssh => "IconUnix",
+                RemoteProtocol.Rdp => "IconWindows",
+                _ => "IconOther",
+            },
             _ => "IconOther",
         };
         return Application.Current.TryFindResource(key);

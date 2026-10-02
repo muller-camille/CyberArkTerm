@@ -7,35 +7,42 @@ using Renci.SshNet.Common;
 namespace CyberArkTerm.Core.Ssh;
 
 /// <summary>Interactions avec l'utilisateur, appelées depuis les threads de SSH.NET (à marshaler vers l'UI).</summary>
-public interface IPsmpInteraction
+public interface ISshInteraction
 {
-    /// <summary>Vérifie la clé d'hôte du PSMP ; renvoie vrai pour poursuivre la connexion.</summary>
+    /// <summary>Vérifie la clé d'hôte du serveur ; renvoie vrai pour poursuivre la connexion.</summary>
     bool CheckHostKey(string host, int port, string algorithm, string sha256Fingerprint);
 
-    /// <summary>Question posée par le PSMP (mot de passe, code MFA...) ; null si l'utilisateur annule.</summary>
+    /// <summary>Question posée par le serveur (mot de passe, code MFA...) ; null si l'utilisateur annule.</summary>
     string? Prompt(string instruction, string prompt, bool echo);
 }
 
 /// <summary>
-/// Ouvre les connexions SSH, SFTP et SCP vers une cible via le PSM for SSH
-/// (identifiant <c>coffre@compte[#domaine]@cible</c>). Chaque connexion est une session PSMP distincte.
+/// Ouvre les connexions SSH, SFTP et SCP : vers une cible via le PSM for SSH (identifiant
+/// <c>coffre@compte[#domaine]@cible</c>, chaque connexion est une session PSMP distincte), ou directement vers un
+/// serveur (accès d'urgence avec un mot de passe venant d'un coffre KeePass).
 /// </summary>
-public sealed class PsmpConnector
+public sealed class SshConnector
 {
-    private readonly IPsmpInteraction _ui;
+    private readonly ISshInteraction _ui;
     private readonly PrivateKeyFile? _key;
+    private readonly Func<string?>? _password;
     private readonly Dictionary<string, string> _cachedAnswers = new(StringComparer.Ordinal);
     private readonly object _cacheLock = new();
 
     /// <param name="key">Clé SSH « MFA caching » fournie par le PVWA, si disponible.</param>
-    public PsmpConnector(string host, int port, string login, IPsmpInteraction ui, PrivateKeyFile? key = null)
+    /// <param name="password">
+    /// Mot de passe connu (coffre KeePass), lu au moment de chaque connexion ; s'il est refusé, il est demandé.
+    /// </param>
+    public SshConnector(string host, int port, string login, ISshInteraction ui, PrivateKeyFile? key = null,
+        Func<string?>? password = null, string? addressWhat = null)
     {
-        PsmpTarget.Validate(host, CoreStrings.PsmpAddressWhat);
+        PsmpTarget.Validate(host, addressWhat ?? CoreStrings.PsmpAddressWhat);
         Host = host;
         Port = port;
         Login = login;
         _ui = ui;
         _key = key;
+        _password = password;
     }
 
     public string Host { get; }
@@ -44,7 +51,7 @@ public sealed class PsmpConnector
 
     public string Login { get; }
 
-    /// <summary>Bannière d'authentification envoyée par le PSMP (avertissement d'enregistrement...).</summary>
+    /// <summary>Bannière d'authentification envoyée par le serveur (avertissement d'enregistrement...).</summary>
     public string? Banner { get; private set; }
 
     public Task<SshClient> ConnectShellAsync(CancellationToken ct) => ConnectAsync(info => new SshClient(info), ct);
@@ -61,16 +68,22 @@ public sealed class PsmpConnector
     private async Task<T> ConnectAsync<T>(Func<ConnectionInfo, T> create, CancellationToken ct)
         where T : BaseClient
     {
-        // 1er essai : clé MFA + keyboard-interactive. Ensuite, selon les méthodes que le serveur
-        // annonce dans son refus : keyboard-interactive à nouveau (mauvais mot de passe) ou « password ».
+        // 1er essai : clé MFA (ou mot de passe connu) + keyboard-interactive. Ensuite, selon les méthodes que le
+        // serveur annonce dans son refus : keyboard-interactive à nouveau (mauvais mot de passe) ou « password ».
         bool usePassword = false;
         for (int attempt = 0; ; attempt++)
         {
             bool cancelled = false;
+            var known = attempt == 0 ? _password?.Invoke() : null;
             var methods = new List<AuthenticationMethod>();
             if (_key is not null && attempt == 0)
             {
                 methods.Add(new PrivateKeyAuthenticationMethod(Login, _key));
+            }
+
+            if (known is not null)
+            {
+                methods.Add(new PasswordAuthenticationMethod(Login, known));
             }
 
             if (usePassword)
@@ -89,7 +102,9 @@ public sealed class PsmpConnector
                 {
                     foreach (var prompt in e.Prompts)
                     {
-                        var answer = Answer(e.Instruction, prompt);
+                        var answer = known is not null && !prompt.IsEchoed && IsPasswordPrompt(prompt.Request)
+                            ? known
+                            : Answer(e.Instruction, prompt);
                         if (answer is null)
                         {
                             cancelled = true;

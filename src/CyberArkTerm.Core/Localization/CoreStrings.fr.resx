@@ -27,6 +27,12 @@
   <data name="SshLoginWhat" xml:space="preserve">
     <value>l'identifiant SSH</value>
   </data>
+  <data name="ServerAddressWhat" xml:space="preserve">
+    <value>l'adresse du serveur</value>
+  </data>
+  <data name="UserNameWhat" xml:space="preserve">
+    <value>le nom d'utilisateur</value>
+  </data>
   <data name="CharacterNotAllowed" xml:space="preserve">
     <value>Caractère non autorisé dans {0} : « {1} ».</value>
   </data>
@@ -125,5 +131,59 @@
   </data>
   <data name="RootCannotBeDeleted" xml:space="preserve">
     <value>La racine ne peut pas être supprimée.</value>
+  </data>
+  <data name="KeePassNotKdbx" xml:space="preserve">
+    <value>Ce fichier n'est pas un coffre KeePass 2 (.kdbx).</value>
+  </data>
+  <data name="KeePassUnsupportedVersion" xml:space="preserve">
+    <value>Le format KeePass {0} n'est pas pris en charge (KDBX 3.1 et 4.x le sont).</value>
+  </data>
+  <data name="KeePassUnsupportedCipher" xml:space="preserve">
+    <value>Ce coffre utilise un chiffrement non pris en charge ({0}) ; AES-256 et ChaCha20 le sont.</value>
+  </data>
+  <data name="KeePassUnsupportedKdf" xml:space="preserve">
+    <value>Ce coffre utilise une dérivation de clé non prise en charge ({0}).</value>
+  </data>
+  <data name="KeePassKdfTooCostly" xml:space="preserve">
+    <value>Les paramètres de dérivation de clé du coffre sont trop élevés pour être calculés ici ({0}).</value>
+  </data>
+  <data name="KeePassInvalidKey" xml:space="preserve">
+    <value>Mot de passe maître ou fichier clé incorrect.</value>
+  </data>
+  <data name="KeePassKeyFileDamaged" xml:space="preserve">
+    <value>Le fichier clé est endommagé (sa somme de contrôle ne correspond pas).</value>
+  </data>
+  <data name="KeePassKeyFileVersion" xml:space="preserve">
+    <value>La version {0} du fichier clé n'est pas prise en charge.</value>
+  </data>
+  <data name="KeePassKeyFileTooLarge" xml:space="preserve">
+    <value>Ce fichier est trop gros pour servir de fichier clé.</value>
+  </data>
+  <data name="KeePassCorrupted" xml:space="preserve">
+    <value>Le fichier du coffre est endommagé ({0}).</value>
+  </data>
+  <data name="KeePassConflict" xml:space="preserve">
+    <value>L'entrée « {0} » a été modifiée ou supprimée dans le coffre entre-temps. Actualisez le dossier puis recommencez.</value>
+  </data>
+  <data name="KeePassBusy" xml:space="preserve">
+    <value>Le fichier du coffre change sans cesse (un autre programme l'enregistre). Réessayez dans un instant.</value>
+  </data>
+  <data name="KeePassVerifyFailed" xml:space="preserve">
+    <value>Le coffre n'a pas été enregistré : le nouveau fichier n'a pas passé la vérification, l'original est intact.</value>
+  </data>
+  <data name="LocalStoreWrongPassword" xml:space="preserve">
+    <value>Mot de passe du coffre local incorrect.</value>
+  </data>
+  <data name="LocalStoreDamaged" xml:space="preserve">
+    <value>Le fichier du coffre local est endommagé ou a été créé par un autre compte Windows.</value>
+  </data>
+  <data name="LocalStoreMissing" xml:space="preserve">
+    <value>Il n'y a pas encore de coffre local.</value>
+  </data>
+  <data name="LocalStoreLocked" xml:space="preserve">
+    <value>Le coffre local est verrouillé.</value>
+  </data>
+  <data name="LocalStorePasswordTooShort" xml:space="preserve">
+    <value>Le mot de passe du coffre local doit faire au moins {0} caractères.</value>
   </data>
 </root>

@@ -37,9 +37,11 @@ serveur.
 | **Connexion CyberArk** | Authentification CyberArk, LDAP, RADIUS (challenge / OTP compris) ou Windows (session courante). |
 | **Disponibles** | Tous les comptes visibles dans le coffre, groupés par safe, plateforme ou type de cible, avec recherche instantanée. |
 | **Courants** | Vos serveurs de travail, rangés en dossiers et sous-dossiers, chacun avec sa propre configuration. |
-| **Sessions PSM** | Bureau à distance via le PSM (comme le bouton « Connect » du PVWA) : composant, machine cible, motif, ticket. |
+| **Sessions PSM** | Bureau à distance via le PSM (comme le bouton « Connect » du PVWA), dans un onglet de l'application : composant, machine cible, motif, ticket. |
 | **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), authentification MFA. |
 | **Onglet Fichiers** | Navigateur SFTP du serveur : `ls`, navigation, `rm`, dépôt de fichiers par glisser-déposer en SCP, modification dans votre éditeur de texte, droits (`chmod`), suivi du dossier du terminal. |
+| **Accès d'urgence (KeePass)** | Sans CyberArk : coffres KeePass (.kdbx) dans « Courants », connexions SSH et bureau à distance directes, création et modification des entrées, journal local. |
+| **Session PVWA maintenue** | Une requête légère toutes les 4 minutes évite l'expiration pendant le travail (suspendue quand Windows est verrouillé). |
 | **Accueil** | Connexion rapide (tapez un serveur, Entrée), sessions récentes. |
 | **Export** | Liste des comptes en CSV, ouvrable directement dans Excel (séparateur selon la région Windows). |
 | **Langues** | Interface en français, anglais et italien : langue de Windows par défaut, modifiable à tout moment. |
@@ -65,7 +67,8 @@ L'exécutable n'est pas signé : au premier lancement, Windows SmartScreen peut 
 **Poste de travail**
 
 - Windows 10 ou 11 (x64).
-- Le client Bureau à distance (`mstsc`, présent par défaut) pour les sessions PSM.
+- Le client Bureau à distance de Windows (présent par défaut) pour les sessions PSM : son contrôle intégré pour
+  les onglets, ou `mstsc`.
 - Facultatif : Windows Terminal et le « Client OpenSSH » de Windows, uniquement si vous choisissez d'ouvrir
   le SSH hors de CyberArkTerm.
 
@@ -108,6 +111,20 @@ rouvre aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant 
 
 Double-cliquez sur le compte (ou Entrée, ou bouton « Se connecter »). CyberArkTerm demande la connexion au
 PVWA et ouvre le Bureau à distance sur le PSM, exactement comme le bouton « Connect » du PVWA.
+
+La session s'ouvre **dans un onglet de CyberArkTerm**, avec le contrôle Bureau à distance de Windows (le même
+moteur que `mstsc`) :
+
+- la résolution du bureau distant suit la taille de l'onglet ;
+- « Plein écran » affiche la session sur tout l'écran (barre de connexion en haut pour revenir,
+  ou `Ctrl+Alt+Pause`) ;
+- « Déconnecter » ferme la session et garde l'onglet ; « Reconnecter » redemande une connexion au PVWA
+  (le jeton d'une session PSM ne sert qu'une fois) ;
+- fermer l'onglet (croix ou clic molette) déconnecte la session, après confirmation.
+
+La session s'ouvre dans la **Connexion Bureau à distance** (`mstsc`) si l'option est décochée dans les
+Paramètres, si le composant PSM ouvre une application distante (RemoteApp) ou si le contrôle Bureau à distance
+n'est pas utilisable sur le poste ; la barre d'état indique alors pourquoi.
 
 ![Connexion à un compte de domaine : machine cible, motif exigé par le PVWA](docs/captures/connexion-psm.png)
 
@@ -188,6 +205,38 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
 
 Un serveur dont le compte n'est plus visible dans CyberArk apparaît grisé.
 
+### 7. Accès d'urgence hors CyberArk : coffres KeePass
+
+Quand CyberArk est indisponible, CyberArkTerm ouvre vos coffres KeePass (`.kdbx`) et se connecte **directement**
+aux serveurs, en SSH ou en bureau à distance, avec les comptes qu'ils contiennent.
+
+> Ces connexions **ne passent pas par le PSM** : ni enregistrement, ni règles CyberArk. Chaque ouverture de
+> coffre, connexion et modification est notée dans le journal local `%APPDATA%\CyberArkTerm\urgence.log`.
+
+![Accès d'urgence : coffre KeePass déverrouillé dans « Courants »](docs/captures/coffre-keepass.png)
+
+- **Sans CyberArk** : sur l'écran de connexion, « Accès d'urgence (KeePass) » ouvre la fenêtre principale sans
+  PVWA (seuls les coffres KeePass y figurent). Avec CyberArk, les coffres apparaissent aussi en tête de l'onglet
+  « Courants ».
+- **Ajouter un coffre** : bouton coffre-fort de l'onglet « Courants » (ou clic droit → « Ajouter un coffre
+  KeePass… ») : fichier `.kdbx`, nom, fichier clé éventuel.
+- **Déverrouiller** : double-clic sur le coffre. Mot de passe maître et/ou fichier clé (tous les formats de
+  KeePass). « Mémoriser le mot de passe maître dans le coffre local » évite de le ressaisir (voir ci-dessous).
+- **Se connecter** : double-clic sur une entrée. Le protocole vient de son adresse (`ssh://serveur:22`,
+  `rdp://serveur`, `serveur:3389`), d'un champ « Protocol » / « Port » ou d'une étiquette `ssh` / `rdp` ; sinon
+  CyberArkTerm demande SSH ou bureau à distance. Le mot de passe de l'entrée est utilisé directement (onglet
+  terminal + Fichiers en SSH, onglet bureau à distance en RDP) ; il n'est jamais affiché ni écrit sur disque.
+- **Modifier le coffre** : clic droit → « Nouvelle entrée… », « Modifier… » (`F2`), « Supprimer » (`Suppr`,
+  vers la corbeille du coffre). Les autres données du coffre (pièces jointes, champs, réglages) sont gardées ;
+  l'ancienne version d'une entrée va dans son historique, comme dans KeePass.
+- **Verrouiller** : clic droit → « Verrouiller ». Les coffres se verrouillent aussi à la déconnexion, à la
+  fermeture et au **verrouillage de Windows**.
+
+**Coffre local** : les mots de passe maîtres que vous choisissez de mémoriser sont gardés dans
+`%APPDATA%\CyberArkTerm\coffre-local.dat`, chiffré avec un mot de passe à vous (demandé à l'ouverture de
+CyberArkTerm, « Plus tard » pour s'en passer) et lié à votre compte Windows. Gestion dans les **Paramètres** :
+créer, déverrouiller, changer le mot de passe, supprimer.
+
 ## Raccourcis
 
 | Où | Action | Raccourci |
@@ -200,8 +249,10 @@ Un serveur dont le compte n'est plus visible dans CyberArk apparaît grisé.
 | Terminal | Copier | Sélection à la souris, ou `Ctrl+Maj+C` |
 | Terminal | Coller | Clic droit, `Maj+Inser` ou `Ctrl+Maj+V` |
 | Terminal | Historique | Molette, `Maj+Page préc.` / `Maj+Page suiv.` |
-| Onglet SSH | Fermer | Croix de l'onglet ou clic molette |
+| Onglet SSH ou Bureau à distance | Fermer | Croix de l'onglet ou clic molette |
+| Bureau à distance | Plein écran / retour | `Ctrl+Alt+Pause` |
 | Fichiers | Ouvrir / modifier / dossier parent / supprimer / actualiser | `Entrée` / `F4` / `Retour arrière` / `Suppr` / `F5` |
+| Coffre KeePass | Se connecter / modifier / supprimer une entrée | Double-clic ou `Entrée` / `F2` / `Suppr` |
 
 ## Paramètres et fichier de configuration
 
@@ -210,6 +261,9 @@ Un serveur dont le compte n'est plus visible dans CyberArk apparaît grisé.
 | Paramètre | Rôle | Défaut |
 | --- | --- | --- |
 | Langue de l'interface | Français, English, Italiano ou langue du système ; appliquée après déconnexion ou au prochain démarrage | langue de Windows (anglais si elle n'est pas traduite) |
+| Garder la session PVWA ouverte | Requête légère toutes les 4 minutes ; suspendue quand Windows est verrouillé | oui |
+| Coffre local | Mots de passe maîtres KeePass mémorisés : créer, déverrouiller, changer le mot de passe, supprimer | — |
+| Bureau à distance dans CyberArkTerm | Sessions PSM en onglet ; sinon Connexion Bureau à distance (`mstsc`) | oui |
 | Adresse et port PSMP | Serveur PSM for SSH ; vide = SSH désactivé | vide, 22 |
 | Double-clic Unix = SSH | Ouvre les comptes Unix en SSH plutôt qu'en PSM | non |
 | SSH dans CyberArkTerm | Terminal et onglet Fichiers intégrés ; sinon Windows Terminal | oui |
@@ -221,7 +275,8 @@ Un serveur dont le compte n'est plus visible dans CyberArk apparaît grisé.
 
 Toutes les préférences sont enregistrées dans `%APPDATA%\CyberArkTerm\settings.json` : langue, adresse du PVWA,
 méthode et identifiant de connexion, paramètres ci-dessus, serveurs « Courants » et leurs dossiers, sessions
-récentes. Ce fichier ne contient **aucun mot de passe, jeton ni clé privée**. Pour repartir de zéro, fermez
+récentes, emplacement des coffres KeePass et de leurs fichiers clés. Ce fichier ne contient **aucun mot de passe,
+jeton ni clé privée**. Pour repartir de zéro, fermez
 l'application et supprimez-le.
 
 ## Sécurité
@@ -230,9 +285,26 @@ l'application et supprimez-le.
 - **Aucun secret sur disque** : mot de passe CyberArk, jeton de session, clé MFA et mot de passe PSMP restent
   en mémoire, le temps de la session. Déconnexion du PVWA (`Logoff`) à la fermeture.
 - Session PVWA ouverte avec `concurrentSession` : votre session web PVWA éventuelle n'est pas fermée.
-- **Fichiers RDP** (jeton PSM à usage unique) écrits dans `%TEMP%\CyberArkTerm` et supprimés après 60 s ou
-  à la fermeture.
-- **Clés d'hôte PSMP épinglées** au premier usage, avec alerte en cas de changement.
+- **Sessions Bureau à distance en onglet** : la réponse du PVWA (jeton PSM à usage unique) reste en mémoire,
+  rien n'est écrit sur disque. Les redirections (lecteurs, imprimantes, ports, cartes à puce) ne sont activées
+  que si le PVWA les demande ; le presse-papiers suit sa demande (activé s'il n'en dit rien).
+- **Fichiers RDP pour `mstsc`** (jeton PSM à usage unique) écrits dans `%TEMP%\CyberArkTerm` et supprimés
+  après 60 s ou à la fermeture.
+- **Clés d'hôte PSMP épinglées** au premier usage, avec alerte en cas de changement (de même pour les serveurs
+  joints en accès d'urgence).
+- **Maintien de la session PVWA** : il évite l'expiration par inactivité ; rien n'est envoyé tant que Windows
+  est verrouillé, et l'option se désactive dans les Paramètres si votre politique l'exige.
+- **Coffres KeePass** :
+  - mot de passe maître jamais enregistré, sauf dans le coffre local si vous le demandez : Argon2id (64 Mio,
+    3 passes) puis AES-256-GCM, réglages de dérivation authentifiés, le tout protégé par DPAPI (compte Windows) ;
+  - en mémoire, clé du coffre et mots de passe des entrées restent masqués et ne sont révélés qu'au moment de la
+    connexion ; coffres verrouillés à la déconnexion, à la fermeture et au verrouillage de Windows ;
+  - enregistrement sûr : relecture du fichier, modification appliquée à sa version du moment (les changements
+    faits ailleurs sont gardés), vérification du résultat déchiffré, copie `.bak`, remplacement en une fois ;
+    une entrée modifiée ailleurs entre-temps n'est pas écrasée ;
+  - bureau à distance direct : le mot de passe est transmis au seul contrôle Bureau à distance (ni fichier, ni
+    gestionnaire d'identification), authentification réseau (NLA) et alerte si le serveur n'est pas reconnu ;
+  - journal `urgence.log` : date, compte Windows, poste, action, coffre, entrée, cible ; jamais de mot de passe.
 - **Fichiers modifiés** : la copie locale ouverte dans l'éditeur est placée dans `%TEMP%\CyberArkTerm\edit`
   et supprimée à la fermeture de l'onglet SSH ; une alerte prévient si des modifications n'ont pas été
   renvoyées.
@@ -254,7 +326,25 @@ Pour signaler une vulnérabilité, voir [SECURITY.md](SECURITY.md) (signalement 
 | `GET /PasswordVault/API/Accounts?offset=…&limit=1000` | Liste paginée des comptes |
 | `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | Fichier RDP de la session PSM |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Clé SSH temporaire « MFA caching » (si activée) |
+| `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Maintien de la session (toutes les 4 minutes) |
 | `POST /PasswordVault/API/Auth/Logoff` | Fermeture de session |
+
+### Coffres KeePass
+
+Lecture et écriture natives (sans KeePass installé) des formats **KDBX 3.1 et 4.x** : chiffrement AES-256 ou
+ChaCha20, dérivation de clé AES-KDF (instructions AES du processeur) ou Argon2d / Argon2id, fichiers clés XML
+1.0 / 2.0, 32 octets, 64 caractères hexadécimaux ou fichier quelconque. Le fichier réécrit garde la version, le
+chiffrement et la dérivation de clé d'origine, avec de nouvelles graines à chaque enregistrement. Les coffres de
+test (`tests/CyberArkTerm.Core.Tests/KeePass/Vaults`) viennent de KeePassXC et pykeepass, et les fichiers écrits
+par CyberArkTerm ont été vérifiés dans ces deux outils.
+
+### Sessions Bureau à distance
+
+Les onglets Bureau à distance hébergent le contrôle ActiveX de Windows (`mstscax.dll`, classe `MsRdpClient`
+la plus récente disponible). CyberArkTerm lit le fichier RDP renvoyé par `PSMConnect` et en reprend les
+réglages : `full address`, `username`, `alternate shell` (lancement de la session PSM), niveau
+d'authentification du serveur, NLA (CredSSP), passerelle, redirections, son, effets visuels. Les fermetures
+de session et les erreurs de connexion sont expliquées dans l'onglet avec le message de Windows.
 
 ### Sessions PSMP
 
@@ -290,6 +380,12 @@ Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place d
 | L'onglet Fichiers indique « Connexion SFTP impossible » | SFTP n'est pas autorisé sur le PSMP ou pour ce compte : voir l'équipe CyberArk. |
 | Le navigateur ne suit pas les `cd` | Le shell distant n'est pas bash ou zsh, l'option est désactivée dans les Paramètres, ou l'invite n'a pas été reconnue : recochez « Suivre le dossier du terminal » à l'invite du shell. |
 | Alerte « la clé du PSMP a changé » | Ne continuez que si l'équipe CyberArk confirme un changement du serveur. |
+| « Mot de passe maître ou fichier clé incorrect » | Vérifiez le mot de passe et le fichier clé ; un coffre protégé par YubiKey n'est pas pris en charge. |
+| Le coffre KeePass demande le mot de passe malgré « Mémoriser » | Coffre local verrouillé (« Plus tard » au démarrage) ou mot de passe maître changé ailleurs : saisissez-le, il est remémorisé. |
+| « Le fichier du coffre local est endommagé ou a été créé par un autre compte Windows » | Le coffre local ne suit pas un changement de poste ou de compte : supprimez-le dans les Paramètres et recréez-le. |
+| « L'entrée … a été modifiée ou supprimée dans le coffre entre-temps » | Quelqu'un a changé la même entrée ailleurs : le coffre est rechargé, refaites la modification. |
+| La session PSM s'ouvre dans `mstsc` et pas dans un onglet | Composant en application distante (RemoteApp), contrôle Bureau à distance indisponible, ou option décochée : la barre d'état indique la raison. |
+| L'onglet affiche « Erreur du contrôle Bureau à distance » | Décochez « Ouvrir les sessions Bureau à distance dans un onglet » dans les Paramètres pour passer par `mstsc`, et signalez le code affiché. |
 
 ## Développement
 
@@ -297,9 +393,10 @@ Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place d
 
 | Projet | Rôle |
 | --- | --- |
-| `src/CyberArkTerm.Core` | Logique sans interface, multiplateforme : client de l'API PVWA, classement des comptes, émulateur de terminal xterm, connexions PSMP et navigateur SFTP/SCP (SSH.NET), serveurs « Courants » en dossiers, préférences. |
-| `src/CyberArkTerm.App` | Application WPF : fenêtres, onglets, contrôle terminal, lancement de `mstsc`, icône (`Assets`). |
+| `src/CyberArkTerm.Core` | Logique sans interface, multiplateforme : client de l'API PVWA, classement des comptes, émulateur de terminal xterm, connexions PSMP et navigateur SFTP/SCP (SSH.NET), serveurs « Courants » en dossiers, coffres KeePass (KDBX), coffre local, préférences. |
+| `src/CyberArkTerm.App` | Application WPF : fenêtres, onglets, contrôle terminal, contrôle Bureau à distance (onglets RDP), lancement de `mstsc`, icône (`Assets`). |
 | `tests/CyberArkTerm.Core.Tests` | Tests xUnit de Core (faux PVWA HTTP, terminal, PSMP, dossiers…). |
+| `tests/CyberArkTerm.App.Tests` | Tests Windows de l'application (vrai contrôle Bureau à distance, DPAPI). |
 
 Dépendance externe : [SSH.NET](https://github.com/sshnet/SSH.NET) (licence MIT).
 
@@ -322,7 +419,8 @@ dotnet run --project src/CyberArkTerm.App
 ```
 
 Le projet compile aussi sous Linux ou macOS (`EnableWindowsTargeting`) ; l'application ne s'exécute que sous
-Windows.
+Windows. Les tests de `tests/CyberArkTerm.App.Tests` (dont un test du vrai contrôle Bureau à distance) ne
+s'exécutent que sous Windows ; ailleurs, lancez `dotnet test tests/CyberArkTerm.Core.Tests`.
 
 ### Publier l'exécutable
 
@@ -353,14 +451,15 @@ fichier existe.
 - **Privilege Cloud** (connexion via CyberArk Identity) et **SAML** ne sont pas gérés.
 - L'API Accounts n'indique pas quels composants PSM une plateforme propose : le composant est déduit, puis
   mémorisable.
-- Les sessions PSM (RDP) s'ouvrent dans la fenêtre Bureau à distance de Windows, pas en onglet.
+- Les composants PSM en application distante (RemoteApp) s'ouvrent dans `mstsc`, pas en onglet.
+- Coffres KeePass : chiffrement Twofish et clés YubiKey non pris en charge ; pas de création de coffre (créez-le
+  avec KeePass ou KeePassXC) ; pièces jointes gardées mais non affichées.
 - Le suivi du dossier du terminal nécessite bash ou zsh sur le serveur.
 - PSM Gateway (HTML5), double validation (dual control) et accès exclusif ne sont pas gérés.
 
 **Pistes**
 
 - Exécutable signé et installateur MSI.
-- Sessions RDP en onglets intégrés.
 - Plusieurs PVWA (profils de connexion), Privilege Cloud.
 
 ## Licence

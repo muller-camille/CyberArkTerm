@@ -200,6 +200,123 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to The vault file keeps changing (another program is saving it). Try again in a moment..
+        /// </summary>
+        public static string KeePassBusy {
+            get {
+                return ResourceManager.GetString("KeePassBusy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The entry “{0}” was changed or deleted in the vault in the meantime. Reload the folder and try ag[rest of string was truncated].
+        /// </summary>
+        public static string KeePassConflict {
+            get {
+                return ResourceManager.GetString("KeePassConflict", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The vault file is damaged ({0})..
+        /// </summary>
+        public static string KeePassCorrupted {
+            get {
+                return ResourceManager.GetString("KeePassCorrupted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Wrong master password or key file..
+        /// </summary>
+        public static string KeePassInvalidKey {
+            get {
+                return ResourceManager.GetString("KeePassInvalidKey", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The vault's key derivation settings are too high to be computed here ({0})..
+        /// </summary>
+        public static string KeePassKdfTooCostly {
+            get {
+                return ResourceManager.GetString("KeePassKdfTooCostly", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The key file is damaged (its checksum doesn't match)..
+        /// </summary>
+        public static string KeePassKeyFileDamaged {
+            get {
+                return ResourceManager.GetString("KeePassKeyFileDamaged", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This file is too large to be used as a key file..
+        /// </summary>
+        public static string KeePassKeyFileTooLarge {
+            get {
+                return ResourceManager.GetString("KeePassKeyFileTooLarge", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Key file version {0} is not supported..
+        /// </summary>
+        public static string KeePassKeyFileVersion {
+            get {
+                return ResourceManager.GetString("KeePassKeyFileVersion", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This file is not a KeePass 2 vault (.kdbx)..
+        /// </summary>
+        public static string KeePassNotKdbx {
+            get {
+                return ResourceManager.GetString("KeePassNotKdbx", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This vault uses an encryption that is not supported ({0}); AES-256 and ChaCha20 are..
+        /// </summary>
+        public static string KeePassUnsupportedCipher {
+            get {
+                return ResourceManager.GetString("KeePassUnsupportedCipher", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This vault uses a key derivation that is not supported ({0})..
+        /// </summary>
+        public static string KeePassUnsupportedKdf {
+            get {
+                return ResourceManager.GetString("KeePassUnsupportedKdf", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to KeePass format {0} is not supported (KDBX 3.1 and 4.x are)..
+        /// </summary>
+        public static string KeePassUnsupportedVersion {
+            get {
+                return ResourceManager.GetString("KeePassUnsupportedVersion", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The vault was not saved: the new file failed verification, the original is untouched..
+        /// </summary>
+        public static string KeePassVerifyFailed {
+            get {
+                return ResourceManager.GetString("KeePassVerifyFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Databases.
         /// </summary>
         public static string KindDatabase {
@@ -232,6 +349,51 @@ namespace CyberArkTerm.Core.Localization {
         public static string LanguageSystem {
             get {
                 return ResourceManager.GetString("LanguageSystem", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The local vault file is damaged or was created by another Windows account..
+        /// </summary>
+        public static string LocalStoreDamaged {
+            get {
+                return ResourceManager.GetString("LocalStoreDamaged", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The local vault is locked..
+        /// </summary>
+        public static string LocalStoreLocked {
+            get {
+                return ResourceManager.GetString("LocalStoreLocked", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to There is no local vault yet..
+        /// </summary>
+        public static string LocalStoreMissing {
+            get {
+                return ResourceManager.GetString("LocalStoreMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The local vault password must have at least {0} characters..
+        /// </summary>
+        public static string LocalStorePasswordTooShort {
+            get {
+                return ResourceManager.GetString("LocalStorePasswordTooShort", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Wrong password for the local vault..
+        /// </summary>
+        public static string LocalStoreWrongPassword {
+            get {
+                return ResourceManager.GetString("LocalStoreWrongPassword", resourceCulture);
             }
         }
 
@@ -344,6 +506,15 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to the server address.
+        /// </summary>
+        public static string ServerAddressWhat {
+            get {
+                return ResourceManager.GetString("ServerAddressWhat", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to {0} B.
         /// </summary>
         public static string SizeBytes {
@@ -385,6 +556,15 @@ namespace CyberArkTerm.Core.Localization {
         public static string SshLoginWhat {
             get {
                 return ResourceManager.GetString("SshLoginWhat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to the user name.
+        /// </summary>
+        public static string UserNameWhat {
+            get {
+                return ResourceManager.GetString("UserNameWhat", resourceCulture);
             }
         }
 

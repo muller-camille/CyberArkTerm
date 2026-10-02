@@ -15,7 +15,7 @@ namespace CyberArkTerm.App.Views;
 /// <summary>Sessions SSH intégrées : un onglet terminal par session, panneau « Fichiers » associé.</summary>
 public partial class MainWindow
 {
-    private readonly PsmpInteraction _psmpUi;
+    private readonly SshInteraction _psmpUi;
     private readonly List<SshSession> _sshSessions = [];
     private MfaSshKey? _mfaKey;
     private DateTime _mfaRetryAfter;
@@ -24,19 +24,28 @@ public partial class MainWindow
     {
         SetStatus(Text.Format(Strings.SshOpening, label, _settings.PsmpAddress));
         var key = await GetPsmpKeyAsync();
-        var connector = new PsmpConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi, key);
+        var connector = new SshConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi, key);
         var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved);
+        ShowSshTab(session, $"{login}@{_settings.PsmpAddress}", Strings.ConnectingViaPsmp, "IconSsh",
+            Text.Format(Strings.SshOpened, label, _settings.PsmpAddress));
+    }
+
+    /// <summary>Onglet terminal + panneau « Fichiers » pour une session SSH (via le PSMP ou directe).</summary>
+    /// <param name="target">« utilisateur@serveur », affiché pendant la connexion.</param>
+    private void ShowSshTab(SshSession session, string target, string connectingText, string icon, string openedMessage)
+    {
+        var label = session.Label;
         session.Editor = new RemoteEditor(session, this, _settings, (text, error) => SetStatus(text, error),
             directory => FilesPanel.OnRemoteChanged(session, directory));
-        var view = new SshSessionView(session, $"{login}@{_settings.PsmpAddress}");
+        var view = new SshSessionView(session, target, connectingText);
         var tab = new TabItem { Content = view, Tag = session };
-        tab.Header = TabHeader(label, tab);
+        tab.Header = TabHeader(label, icon, () => CloseSshTab(tab));
         session.StateChanged += () =>
         {
             switch (session.State)
             {
                 case SshSessionState.Connected:
-                    SetStatus(Text.Format(Strings.SshOpened, label, _settings.PsmpAddress));
+                    SetStatus(openedMessage);
                     break;
                 case SshSessionState.Failed:
                     SetStatus(Text.Format(Strings.SshSessionError, label, session.Error), isError: true);
@@ -52,25 +61,25 @@ public partial class MainWindow
         _ = view.ConnectAsync();
     }
 
-    private object TabHeader(string label, TabItem tab)
+    private object TabHeader(string label, string icon, Action close)
     {
-        var close = new Button
+        var closeButton = new Button
         {
             Style = (Style)FindResource("TabCloseButton"),
             Content = new Image { Source = (System.Windows.Media.ImageSource)FindResource("IconClose"), Width = 11, Height = 11 },
             ToolTip = Strings.CloseSessionTip,
         };
-        close.Click += (_, _) => CloseSshTab(tab);
+        closeButton.Click += (_, _) => close();
         var header = new StackPanel { Orientation = Orientation.Horizontal, Background = System.Windows.Media.Brushes.Transparent };
-        header.Children.Add(new Image { Source = (System.Windows.Media.ImageSource)FindResource("IconSsh"), Width = 16, Height = 16, Margin = new Thickness(0, 0, 6, 0) });
+        header.Children.Add(new Image { Source = (System.Windows.Media.ImageSource)FindResource(icon), Width = 16, Height = 16, Margin = new Thickness(0, 0, 6, 0) });
         header.Children.Add(new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center });
-        header.Children.Add(close);
+        header.Children.Add(closeButton);
         // Clic molette sur l'onglet : fermeture.
         header.MouseDown += (_, e) =>
         {
             if (e.ChangedButton == MouseButton.Middle)
             {
-                CloseSshTab(tab);
+                close();
             }
         };
         return header;
@@ -119,6 +128,7 @@ public partial class MainWindow
 
         var tab = MainTabs.SelectedItem as TabItem;
         FilesPanel.Attach(tab?.Tag as SshSession);
+        ShowRdpView(tab);
         if (tab?.Content is SshSessionView view)
         {
             view.FocusTerminal();
@@ -141,7 +151,7 @@ public partial class MainWindow
 
             try
             {
-                _mfaKey = await _client.GetMfaCachingSshKeyAsync(_lifetime.Token);
+                _mfaKey = await Client.GetMfaCachingSshKeyAsync(_lifetime.Token);
             }
             catch (Exception ex) when (ex is HttpRequestException or (PvwaException and not PvwaException { IsUnauthorized: true })
                                            || (ex is TaskCanceledException && !_lifetime.IsCancellationRequested))

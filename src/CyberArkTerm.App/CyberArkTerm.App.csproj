@@ -4,6 +4,10 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <!-- Contrôle Bureau à distance de Windows (ActiveX), hébergé dans les onglets RDP. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- Le manifeste règle la prise en charge des DPI pour WPF ; l'avis WinForms qui suggère une autre méthode ne s'applique pas. -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
     <!-- Permet de compiler depuis Linux/macOS (CI) ; l'exécution reste Windows uniquement. -->
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <AssemblyName>CyberArkTerm</AssemblyName>
@@ -29,12 +33,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- WinForms ne sert qu'à héberger le contrôle Bureau à distance : pas d'usings implicites qui masqueraient ceux de WPF. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Icône des fenêtres (barre de titre, barre des tâches, Alt+Tab). -->
     <Resource Include="Assets\CyberArkTerm.ico" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CyberArkTerm.Core\CyberArkTerm.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CyberArkTerm.App.Tests" />
   </ItemGroup>
 
 </Project>

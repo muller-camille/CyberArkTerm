@@ -141,5 +141,5 @@ public class SshSupportTests
     [InlineData("Mot de passe :", true)]
     [InlineData("Enter your one-time passcode:", false)]
     [InlineData("Verification code: ", false)]
-    public void OnlyPasswordPromptsAreCached(string prompt, bool cached) => Assert.Equal(cached, PsmpConnector.IsPasswordPrompt(prompt));
+    public void OnlyPasswordPromptsAreCached(string prompt, bool cached) => Assert.Equal(cached, SshConnector.IsPasswordPrompt(prompt));
 }

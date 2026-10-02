@@ -27,6 +27,12 @@
   <data name="SshLoginWhat" xml:space="preserve">
     <value>l'identificativo SSH</value>
   </data>
+  <data name="ServerAddressWhat" xml:space="preserve">
+    <value>l'indirizzo del server</value>
+  </data>
+  <data name="UserNameWhat" xml:space="preserve">
+    <value>il nome utente</value>
+  </data>
   <data name="CharacterNotAllowed" xml:space="preserve">
     <value>Carattere non consentito in {0}: «{1}».</value>
   </data>
@@ -125,5 +131,59 @@
   </data>
   <data name="RootCannotBeDeleted" xml:space="preserve">
     <value>La radice non può essere eliminata.</value>
+  </data>
+  <data name="KeePassNotKdbx" xml:space="preserve">
+    <value>Questo file non è un archivio KeePass 2 (.kdbx).</value>
+  </data>
+  <data name="KeePassUnsupportedVersion" xml:space="preserve">
+    <value>Il formato KeePass {0} non è supportato (KDBX 3.1 e 4.x lo sono).</value>
+  </data>
+  <data name="KeePassUnsupportedCipher" xml:space="preserve">
+    <value>Questo archivio usa una cifratura non supportata ({0}); AES-256 e ChaCha20 lo sono.</value>
+  </data>
+  <data name="KeePassUnsupportedKdf" xml:space="preserve">
+    <value>Questo archivio usa una derivazione della chiave non supportata ({0}).</value>
+  </data>
+  <data name="KeePassKdfTooCostly" xml:space="preserve">
+    <value>I parametri di derivazione della chiave dell'archivio sono troppo elevati per essere calcolati qui ({0}).</value>
+  </data>
+  <data name="KeePassInvalidKey" xml:space="preserve">
+    <value>Password principale o file chiave errati.</value>
+  </data>
+  <data name="KeePassKeyFileDamaged" xml:space="preserve">
+    <value>Il file chiave è danneggiato (il checksum non corrisponde).</value>
+  </data>
+  <data name="KeePassKeyFileVersion" xml:space="preserve">
+    <value>La versione {0} del file chiave non è supportata.</value>
+  </data>
+  <data name="KeePassKeyFileTooLarge" xml:space="preserve">
+    <value>Questo file è troppo grande per essere usato come file chiave.</value>
+  </data>
+  <data name="KeePassCorrupted" xml:space="preserve">
+    <value>Il file dell'archivio è danneggiato ({0}).</value>
+  </data>
+  <data name="KeePassConflict" xml:space="preserve">
+    <value>La voce «{0}» è stata modificata o eliminata nell'archivio nel frattempo. Aggiorna la cartella e riprova.</value>
+  </data>
+  <data name="KeePassBusy" xml:space="preserve">
+    <value>Il file dell'archivio continua a cambiare (un altro programma lo sta salvando). Riprova tra poco.</value>
+  </data>
+  <data name="KeePassVerifyFailed" xml:space="preserve">
+    <value>L'archivio non è stato salvato: il nuovo file non ha superato la verifica, l'originale è intatto.</value>
+  </data>
+  <data name="LocalStoreWrongPassword" xml:space="preserve">
+    <value>Password del vault locale errata.</value>
+  </data>
+  <data name="LocalStoreDamaged" xml:space="preserve">
+    <value>Il file del vault locale è danneggiato o è stato creato da un altro account Windows.</value>
+  </data>
+  <data name="LocalStoreMissing" xml:space="preserve">
+    <value>Non c'è ancora un vault locale.</value>
+  </data>
+  <data name="LocalStoreLocked" xml:space="preserve">
+    <value>Il vault locale è bloccato.</value>
+  </data>
+  <data name="LocalStorePasswordTooShort" xml:space="preserve">
+    <value>La password del vault locale deve avere almeno {0} caratteri.</value>
   </data>
 </root>

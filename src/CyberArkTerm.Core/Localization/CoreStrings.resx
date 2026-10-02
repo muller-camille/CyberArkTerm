@@ -27,6 +27,12 @@
   <data name="SshLoginWhat" xml:space="preserve">
     <value>the SSH login</value>
   </data>
+  <data name="ServerAddressWhat" xml:space="preserve">
+    <value>the server address</value>
+  </data>
+  <data name="UserNameWhat" xml:space="preserve">
+    <value>the user name</value>
+  </data>
   <data name="CharacterNotAllowed" xml:space="preserve">
     <value>Character not allowed in {0}: “{1}”.</value>
   </data>
@@ -125,5 +131,59 @@
   </data>
   <data name="RootCannotBeDeleted" xml:space="preserve">
     <value>The root cannot be deleted.</value>
+  </data>
+  <data name="KeePassNotKdbx" xml:space="preserve">
+    <value>This file is not a KeePass 2 vault (.kdbx).</value>
+  </data>
+  <data name="KeePassUnsupportedVersion" xml:space="preserve">
+    <value>KeePass format {0} is not supported (KDBX 3.1 and 4.x are).</value>
+  </data>
+  <data name="KeePassUnsupportedCipher" xml:space="preserve">
+    <value>This vault uses an encryption that is not supported ({0}); AES-256 and ChaCha20 are.</value>
+  </data>
+  <data name="KeePassUnsupportedKdf" xml:space="preserve">
+    <value>This vault uses a key derivation that is not supported ({0}).</value>
+  </data>
+  <data name="KeePassKdfTooCostly" xml:space="preserve">
+    <value>The vault's key derivation settings are too high to be computed here ({0}).</value>
+  </data>
+  <data name="KeePassInvalidKey" xml:space="preserve">
+    <value>Wrong master password or key file.</value>
+  </data>
+  <data name="KeePassKeyFileDamaged" xml:space="preserve">
+    <value>The key file is damaged (its checksum doesn't match).</value>
+  </data>
+  <data name="KeePassKeyFileVersion" xml:space="preserve">
+    <value>Key file version {0} is not supported.</value>
+  </data>
+  <data name="KeePassKeyFileTooLarge" xml:space="preserve">
+    <value>This file is too large to be used as a key file.</value>
+  </data>
+  <data name="KeePassCorrupted" xml:space="preserve">
+    <value>The vault file is damaged ({0}).</value>
+  </data>
+  <data name="KeePassConflict" xml:space="preserve">
+    <value>The entry “{0}” was changed or deleted in the vault in the meantime. Reload the folder and try again.</value>
+  </data>
+  <data name="KeePassBusy" xml:space="preserve">
+    <value>The vault file keeps changing (another program is saving it). Try again in a moment.</value>
+  </data>
+  <data name="KeePassVerifyFailed" xml:space="preserve">
+    <value>The vault was not saved: the new file failed verification, the original is untouched.</value>
+  </data>
+  <data name="LocalStoreWrongPassword" xml:space="preserve">
+    <value>Wrong password for the local vault.</value>
+  </data>
+  <data name="LocalStoreDamaged" xml:space="preserve">
+    <value>The local vault file is damaged or was created by another Windows account.</value>
+  </data>
+  <data name="LocalStoreMissing" xml:space="preserve">
+    <value>There is no local vault yet.</value>
+  </data>
+  <data name="LocalStoreLocked" xml:space="preserve">
+    <value>The local vault is locked.</value>
+  </data>
+  <data name="LocalStorePasswordTooShort" xml:space="preserve">
+    <value>The local vault password must have at least {0} characters.</value>
   </data>
 </root>

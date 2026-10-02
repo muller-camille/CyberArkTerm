@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:loc="clr-namespace:CyberArkTerm.App.Localization"
         Title="{x:Static loc:Strings.SettingsTitle}"
-        Width="500" SizeToContent="Height" ResizeMode="NoResize"
+        Width="580" SizeToContent="Height" ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <StackPanel Margin="16">
         <TextBlock Text="{x:Static loc:Strings.LanguageSection}" Style="{StaticResource SectionTitle}" />
@@ -21,6 +21,16 @@
             <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Static loc:Strings.LanguageHelp}" Foreground="{StaticResource MutedBrush}"
                        TextWrapping="Wrap" Margin="0,4,0,0" />
         </Grid>
+
+        <TextBlock Text="{x:Static loc:Strings.PvwaSessionSection}" Style="{StaticResource SectionTitle}" />
+        <CheckBox x:Name="KeepAliveBox" Margin="0,0,0,16">
+            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.KeepAlive}" />
+        </CheckBox>
+
+        <TextBlock Text="{x:Static loc:Strings.RdpSection}" Style="{StaticResource SectionTitle}" />
+        <CheckBox x:Name="RdpInAppBox" Margin="0,0,0,16">
+            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.RdpInApp}" />
+        </CheckBox>
 
         <TextBlock Text="{x:Static loc:Strings.SettingsSshSection}" Style="{StaticResource SectionTitle}" />
         <TextBlock Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10"
@@ -70,6 +80,17 @@
         <DockPanel Margin="0,0,0,16">
             <Button DockPanel.Dock="Right" Content="{x:Static loc:Strings.ForgetKeys}" Click="OnForgetHostKeys" VerticalAlignment="Center" />
             <TextBlock x:Name="HostKeysText" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0" />
+        </DockPanel>
+
+        <TextBlock Text="{x:Static loc:Strings.LocalStoreSection}" Style="{StaticResource SectionTitle}" />
+        <DockPanel Margin="0,0,0,16">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button x:Name="StoreCreateButton" Content="{x:Static loc:Strings.LocalStoreCreate}" Click="OnStoreCreate" Margin="8,0,0,0" />
+                <Button x:Name="StoreUnlockButton" Content="{x:Static loc:Strings.LocalStoreUnlockMenu}" Click="OnStoreUnlock" Margin="8,0,0,0" />
+                <Button x:Name="StoreChangeButton" Content="{x:Static loc:Strings.LocalStoreChange}" Click="OnStoreChange" Margin="8,0,0,0" />
+                <Button x:Name="StoreDeleteButton" Content="{x:Static loc:Strings.LocalStoreDelete}" Click="OnStoreDelete" Margin="8,0,0,0" />
+            </StackPanel>
+            <TextBlock x:Name="StoreText" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
         </DockPanel>
 
         <TextBlock Text="{x:Static loc:Strings.ComponentsSection}" Style="{StaticResource SectionTitle}" />

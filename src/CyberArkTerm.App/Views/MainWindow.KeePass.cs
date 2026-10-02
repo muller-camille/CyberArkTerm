@@ -1,0 +1,544 @@
+using System.IO;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using CyberArkTerm.App.Localization;
+using CyberArkTerm.App.Services;
+using CyberArkTerm.App.Services.KeePass;
+using CyberArkTerm.App.Services.Rdp;
+using CyberArkTerm.Core.KeePass;
+using CyberArkTerm.Core.Localization;
+using CyberArkTerm.Core.Rdp;
+using Microsoft.Win32;
+
+namespace CyberArkTerm.App.Views;
+
+/// <summary>
+/// Coffres KeePass dans l'onglet « Courants » : accès d'urgence aux serveurs hors CyberArk (SSH et bureau à distance
+/// directs), avec lecture et écriture des entrées. Chaque ouverture, connexion et modification est journalisée.
+/// </summary>
+public partial class MainWindow
+{
+    private readonly KeePassManager _keePass;
+    private readonly SshInteraction _directUi;
+    private readonly HashSet<string> _collapsedKeePass = new(StringComparer.Ordinal);
+    private KeePassEntryNode? _currentKeePass;
+
+    // ===================== Arbre =====================
+
+    private List<object> KeePassNodes()
+    {
+        var nodes = new List<object>();
+        foreach (var folder in _settings.KeePassFolders)
+        {
+            var database = _keePass.Get(folder.Id)?.Database;
+            var children = database is null
+                ? [new KeePassHintNode(folder, Strings.KeePassUnlockHint)]
+                : KeePassChildren(folder, database.Groups, database.Entries, "");
+            nodes.Add(new KeePassFolderNode(folder, database, children, !_collapsedKeePass.Contains(folder.Id)));
+        }
+
+        return nodes;
+    }
+
+    /// <summary>Sous-dossiers non vides puis entrées du dossier <paramref name="path"/> du coffre.</summary>
+    private List<object> KeePassChildren(KeePassFolder folder, IReadOnlyList<string> groups, IReadOnlyList<KeePassEntry> entries, string path)
+    {
+        var items = new List<object>();
+        foreach (var group in groups.Where(g => g.Length > 0 && ParentGroup(g) == path).Order(StringComparer.OrdinalIgnoreCase))
+        {
+            int count = entries.Count(e => e.Group == group || e.Group.StartsWith(group + "/", StringComparison.Ordinal));
+            if (count > 0)
+            {
+                items.Add(new KeePassGroupNode(folder, group, KeePassChildren(folder, groups, entries, group),
+                    !_collapsedKeePass.Contains($"{folder.Id}/{group}")) { Count = count });
+            }
+        }
+
+        items.AddRange(entries.Where(e => e.Group == path).OrderBy(e => e.Title, StringComparer.OrdinalIgnoreCase)
+            .Select(e => new KeePassEntryNode(folder, e)));
+        return items;
+    }
+
+    private static string ParentGroup(string path) => path.LastIndexOf('/') is var i and >= 0 ? path[..i] : "";
+
+    private void RememberKeePassExpansion(object node)
+    {
+        var (key, expanded, children) = node switch
+        {
+            KeePassFolderNode f => (f.Folder.Id, f.IsExpanded, f.Children),
+            KeePassGroupNode g => ($"{g.Folder.Id}/{g.Path}", g.IsExpanded, g.Children),
+            _ => (null, false, null),
+        };
+        if (key is null)
+        {
+            return;
+        }
+
+        if (expanded)
+        {
+            _collapsedKeePass.Remove(key);
+        }
+        else
+        {
+            _collapsedKeePass.Add(key);
+        }
+
+        foreach (var child in children!)
+        {
+            RememberKeePassExpansion(child);
+        }
+    }
+
+    private KeePassFolder? SelectedKeePassFolder => SavedTree.SelectedItem switch
+    {
+        KeePassFolderNode f => f.Folder,
+        KeePassGroupNode g => g.Folder,
+        KeePassEntryNode e => e.Folder,
+        KeePassHintNode h => h.Folder,
+        _ => null,
+    };
+
+    /// <summary>Double-clic ou Entrée sur un élément KeePass ; vrai si l'élément en était un.</summary>
+    private bool ActivateKeePassNode(object? node)
+    {
+        switch (node)
+        {
+            case KeePassEntryNode entry:
+                _ = ConnectKeePassAsync(entry, null);
+                return true;
+            case KeePassHintNode hint:
+                _ = UnlockKeePassAsync(hint.Folder);
+                return true;
+            case KeePassFolderNode { IsUnlocked: false } folder:
+                _ = UnlockKeePassAsync(folder.Folder);
+                return true;
+            default:
+                return node is KeePassFolderNode or KeePassGroupNode;
+        }
+    }
+
+    // ===================== Ajout, déverrouillage, verrouillage =====================
+
+    private async void OnAddKeePass(object sender, RoutedEventArgs e)
+    {
+        var folder = new KeePassFolder();
+        if (new KeePassFolderDialog(folder) { Owner = this }.ShowDialog() != true)
+        {
+            return;
+        }
+
+        _settings.KeePassFolders.Add(folder);
+        SaveSettings();
+        SideTabs.SelectedItem = CurrentTab;
+        RefreshSaved();
+        await UnlockKeePassAsync(folder);
+    }
+
+    /// <summary>
+    /// Déverrouille le coffre : avec le mot de passe mémorisé dans le coffre local s'il y en a un, sinon (ou s'il est
+    /// refusé) en le demandant. Vrai si le coffre est ouvert.
+    /// </summary>
+    private async Task<bool> UnlockKeePassAsync(KeePassFolder folder)
+    {
+        if (_keePass.IsOpen(folder.Id))
+        {
+            return true;
+        }
+
+        string? message = null;
+        if (folder.RememberPassword && folder.UsesPassword)
+        {
+            if (!_keePass.Store.IsUnlocked && _keePass.Store.Exists)
+            {
+                new LocalStoreDialog(_keePass.Store, LocalStoreDialog.Mode.Unlock) { Owner = this }.ShowDialog();
+            }
+
+            if (_keePass.StoredPassword(folder) is { } stored)
+            {
+                SetStatus(Strings.KeePassUnlocking);
+                try
+                {
+                    await _keePass.UnlockAsync(folder, stored, folder.KeyFilePath, _lifetime.Token);
+                    OnKeePassUnlocked(folder);
+                    return true;
+                }
+                catch (Exception ex) when (ex is KeePassException or IOException or UnauthorizedAccessException)
+                {
+                    // Mot de passe mémorisé périmé, fichier clé déplacé... : on le demande.
+                    message = ex.Message;
+                }
+                finally
+                {
+                    System.Security.Cryptography.CryptographicOperations.ZeroMemory(stored);
+                }
+            }
+        }
+
+        var dialog = new KeePassUnlockDialog(folder, _keePass, EnsureLocalStore, message) { Owner = this };
+        if (dialog.ShowDialog() != true)
+        {
+            SetStatus("");
+            return false;
+        }
+
+        SaveSettings();
+        OnKeePassUnlocked(folder);
+        return true;
+    }
+
+    private void OnKeePassUnlocked(KeePassFolder folder)
+    {
+        _collapsedKeePass.Remove(folder.Id);
+        RefreshSaved();
+        SetStatus(Text.Format(Strings.KeePassUnlocked, folder.DisplayName, _keePass.Get(folder.Id)?.Database.Entries.Count ?? 0));
+    }
+
+    /// <summary>Coffre local déverrouillé (ou créé à la demande) ; faux si l'utilisateur renonce.</summary>
+    private bool EnsureLocalStore()
+    {
+        var store = _keePass.Store;
+        if (store.IsUnlocked)
+        {
+            return true;
+        }
+
+        var owner = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive) ?? this;
+        var mode = store.Exists ? LocalStoreDialog.Mode.Unlock : LocalStoreDialog.Mode.Create;
+        return new LocalStoreDialog(store, mode) { Owner = owner }.ShowDialog() == true;
+    }
+
+    private void OnKeePassFolderMenuOpened(object sender, RoutedEventArgs e)
+    {
+        if (sender is not ContextMenu menu || SelectedKeePassFolder is not { } folder)
+        {
+            return;
+        }
+
+        bool open = _keePass.IsOpen(folder.Id);
+        foreach (var item in menu.Items.OfType<MenuItem>())
+        {
+            item.Visibility = item.Tag switch
+            {
+                "unlock" => open ? Visibility.Collapsed : Visibility.Visible,
+                "lock" or "open" => open ? Visibility.Visible : Visibility.Collapsed,
+                _ => Visibility.Visible,
+            };
+        }
+    }
+
+    private async void OnKeePassUnlock(object sender, RoutedEventArgs e)
+    {
+        if (SelectedKeePassFolder is { } folder)
+        {
+            await UnlockKeePassAsync(folder);
+        }
+    }
+
+    private void OnKeePassLock(object sender, RoutedEventArgs e)
+    {
+        if (SelectedKeePassFolder is { } folder)
+        {
+            _keePass.Lock(folder.Id);
+            SetStatus(Text.Format(Strings.KeePassLockedStatus, folder.DisplayName));
+        }
+    }
+
+    private async void OnKeePassReload(object sender, RoutedEventArgs e)
+    {
+        if (SelectedKeePassFolder is { } folder && _keePass.Get(folder.Id) is { } vault)
+        {
+            try
+            {
+                await vault.ReloadAsync(_lifetime.Token);
+                RefreshSaved();
+                SetStatus(Text.Format(Strings.KeePassReloaded, folder.DisplayName));
+            }
+            catch (Exception ex) when (ex is KeePassException or IOException or UnauthorizedAccessException)
+            {
+                SetStatus(ex.Message, isError: true);
+            }
+        }
+    }
+
+    private void OnKeePassProperties(object sender, RoutedEventArgs e)
+    {
+        if (SelectedKeePassFolder is not { } folder)
+        {
+            return;
+        }
+
+        var before = (folder.FilePath, folder.KeyFilePath, folder.UsesPassword);
+        if (new KeePassFolderDialog(folder) { Owner = this }.ShowDialog() == true)
+        {
+            if (before != (folder.FilePath, folder.KeyFilePath, folder.UsesPassword))
+            {
+                // Autre fichier ou autre clé : le coffre ouvert ne correspond plus.
+                _keePass.Lock(folder.Id);
+            }
+
+            SaveSettings();
+            RefreshSaved();
+        }
+    }
+
+    private void OnKeePassRemove(object sender, RoutedEventArgs e)
+    {
+        if (SelectedKeePassFolder is not { } folder
+            || MessageBox.Show(this, Text.Format(Strings.KeePassRemoveConfirm, folder.DisplayName), Strings.KeePassFolderTitle,
+                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        _keePass.Lock(folder.Id);
+        if (_keePass.Store.IsUnlocked)
+        {
+            _keePass.Store.Remove(folder.Id);
+        }
+
+        _settings.KeePassFolders.Remove(folder);
+        SaveSettings();
+        RefreshSaved();
+    }
+
+    // ===================== Entrées =====================
+
+    private async void OnKeePassNewEntry(object sender, RoutedEventArgs e)
+    {
+        if (SelectedKeePassFolder is not { } folder || _keePass.Get(folder.Id) is not { } vault)
+        {
+            return;
+        }
+
+        var group = SavedTree.SelectedItem switch
+        {
+            KeePassGroupNode g => g.Path,
+            KeePassEntryNode n => n.Entry.Group,
+            _ => "",
+        };
+        var dialog = new KeePassEntryDialog(folder.DisplayName, vault.Database.Groups, null, group) { Owner = this };
+        if (dialog.ShowDialog() == true && dialog.Result is { } data)
+        {
+            await SaveKeePassAsync(folder, db => db.AddEntry(data, dialog.Group), "entry-add", data.Title);
+        }
+    }
+
+    private async void OnKeePassEditEntry(object sender, RoutedEventArgs e)
+    {
+        if (SavedTree.SelectedItem is KeePassEntryNode node)
+        {
+            await EditKeePassEntryAsync(node);
+        }
+    }
+
+    private async Task EditKeePassEntryAsync(KeePassEntryNode node)
+    {
+        if (_keePass.Get(node.Folder.Id) is not { } vault)
+        {
+            return;
+        }
+
+        var entry = node.Entry;
+        var dialog = new KeePassEntryDialog(node.Folder.DisplayName, vault.Database.Groups, entry, entry.Group) { Owner = this };
+        if (dialog.ShowDialog() == true && dialog.Result is { } data)
+        {
+            bool unchanged = data.Password is null && data.Title == entry.Title && data.UserName == entry.UserName
+                             && data.Url == entry.Url && data.Notes == entry.Notes && dialog.Group == entry.Group;
+            if (unchanged)
+            {
+                // Rien de modifié : ni enregistrement ni nouvelle version dans l'historique.
+                return;
+            }
+
+            await SaveKeePassAsync(node.Folder, db =>
+            {
+                db.UpdateEntry(entry.Id, data, entry.Modified);
+                if (!string.Equals(dialog.Group, entry.Group, StringComparison.Ordinal))
+                {
+                    db.MoveEntry(entry.Id, dialog.Group);
+                }
+            }, "entry-edit", data.Title);
+        }
+    }
+
+    private async void OnKeePassDeleteEntry(object sender, RoutedEventArgs e)
+    {
+        if (SavedTree.SelectedItem is KeePassEntryNode node)
+        {
+            await DeleteKeePassEntryAsync(node);
+        }
+    }
+
+    private async Task DeleteKeePassEntryAsync(KeePassEntryNode node)
+    {
+        if (MessageBox.Show(this, Text.Format(Strings.KeePassDeleteEntryConfirm, node.Title, node.Folder.DisplayName), Strings.KeePassFolderTitle,
+                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
+        {
+            await SaveKeePassAsync(node.Folder, db => db.DeleteEntry(node.Entry.Id, node.Entry.Modified), "entry-delete", node.Entry.Title);
+        }
+    }
+
+    /// <summary>Modifie le coffre et l'enregistre (relecture, vérification, copie .bak, remplacement atomique).</summary>
+    private async Task SaveKeePassAsync(KeePassFolder folder, Action<KeePassDatabase> change, string action, string entryTitle)
+    {
+        if (_keePass.Get(folder.Id) is not { } vault)
+        {
+            return;
+        }
+
+        SetStatus(Text.Format(Strings.KeePassSaving, folder.DisplayName));
+        try
+        {
+            await vault.SaveAsync(change, _lifetime.Token);
+            _keePass.Log.Write(action, ("vault", folder.FilePath), ("entry", entryTitle));
+            RefreshSaved();
+            SetStatus(Text.Format(Strings.KeePassSaved, folder.DisplayName, Path.GetFileName(vault.BackupPath)));
+        }
+        catch (KeePassException ex) when (ex.Kind == KeePassError.Conflict)
+        {
+            SetStatus(ex.Message, isError: true);
+            MessageBox.Show(this, ex.Message, Strings.KeePassFolderTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+            try
+            {
+                await vault.ReloadAsync(_lifetime.Token);
+            }
+            catch (Exception reload) when (reload is KeePassException or IOException or UnauthorizedAccessException)
+            {
+            }
+
+            RefreshSaved();
+        }
+        catch (Exception ex) when (ex is KeePassException or IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            SetStatus(ex.Message, isError: true);
+            MessageBox.Show(this, Text.Format(Strings.KeePassSaveFailed, folder.DisplayName, ex.Message), Strings.KeePassFolderTitle,
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    // ===================== Connexions directes =====================
+
+    private void OnKeePassConnect(object sender, RoutedEventArgs e) => ConnectSelectedKeePass(null);
+
+    private void OnKeePassConnectSsh(object sender, RoutedEventArgs e) => ConnectSelectedKeePass(RemoteProtocol.Ssh);
+
+    private void OnKeePassConnectRdp(object sender, RoutedEventArgs e) => ConnectSelectedKeePass(RemoteProtocol.Rdp);
+
+    private void ConnectSelectedKeePass(RemoteProtocol? protocol)
+    {
+        if (SavedTree.SelectedItem is KeePassEntryNode node)
+        {
+            _ = ConnectKeePassAsync(node, protocol);
+        }
+    }
+
+    /// <summary>
+    /// Connexion directe au serveur d'une entrée KeePass : SSH (terminal + Fichiers) ou bureau à distance, avec le mot
+    /// de passe de l'entrée lu au moment de la connexion. Protocole inconnu : l'utilisateur choisit.
+    /// </summary>
+    private async Task ConnectKeePassAsync(KeePassEntryNode node, RemoteProtocol? protocol)
+    {
+        var target = protocol is { } chosen ? node.Target.WithProtocol(chosen) : node.Target;
+        if (target.Host.Length == 0)
+        {
+            MessageBox.Show(this, Text.Format(Strings.KeePassNoHostError, node.Title), Strings.KeePassFolderTitle,
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        if (target.Protocol == RemoteProtocol.Unknown)
+        {
+            AskProtocol(node);
+            return;
+        }
+
+        if (target.Protocol == RemoteProtocol.Ssh && target.UserName.Length == 0)
+        {
+            MessageBox.Show(this, Text.Format(Strings.KeePassNoUserError, node.Title), Strings.KeePassFolderTitle,
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var folder = node.Folder;
+        if (!await UnlockKeePassAsync(folder))
+        {
+            return;
+        }
+
+        var entryId = node.Entry.Id;
+        // Lu à chaque connexion (terminal, puis SFTP et SCP de l'onglet Fichiers) ; rien si le coffre a été verrouillé.
+        string? Password() => _keePass.Get(folder.Id)?.Database.RevealPassword(entryId);
+
+        var label = Text.Format(Strings.KeePassTabLabel, node.Title);
+        _keePass.Log.Write(target.Protocol == RemoteProtocol.Ssh ? "ssh" : "rdp", ("vault", folder.FilePath), ("entry", node.Entry.Title),
+            ("user", target.UserName), ("target", target.Address));
+        SetStatus(Text.Format(Strings.KeePassConnecting, node.Title, target.Address));
+        try
+        {
+            if (target.Protocol == RemoteProtocol.Ssh)
+            {
+                var connector = new Core.Ssh.SshConnector(target.Host, target.Port, target.UserName, _directUi,
+                    password: Password, addressWhat: CoreStrings.ServerAddressWhat);
+                var session = new SshSession(null, label, connector, Dispatcher, _settings.FollowTerminalFolder, null);
+                ShowSshTab(session, $"{target.UserName}@{target.Address}", Strings.ConnectingDirect, "IconKeePass",
+                    Text.Format(Strings.KeePassSshOpened, node.Title, target.Address));
+            }
+            else if (RdpClientHost.IsAvailable)
+            {
+                var settings = RdpConnectionSettings.Direct(target.Host, target.Port, target.UserName);
+                await OpenRdpTabAsync(label, _ => Task.FromResult(new RdpConnectionRequest(settings, Password())));
+            }
+            else
+            {
+                // Sans contrôle Bureau à distance, mstsc demandera le mot de passe : il n'est écrit nulle part.
+                var address = target.Host.Contains(':') ? $"[{target.Host}]:{target.Port}" : $"{target.Host}:{target.Port}";
+                var file = $"full address:s:{address}\r\nusername:s:{target.UserName}\r\nprompt for credentials:i:1\r\n";
+                _launcher.LaunchRdp([.. Encoding.Unicode.GetPreamble(), .. Encoding.Unicode.GetBytes(file)], label);
+                SetStatus(Text.Format(Strings.KeePassRdpNoControl, node.Title));
+            }
+        }
+        catch (Exception ex) when (ex is ArgumentException or IOException or System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            SetStatus(Text.Format(Strings.ConnectFailed, ErrorText.Describe(ex)), isError: true);
+        }
+    }
+
+    /// <summary>Protocole non précisé dans l'entrée : petit menu SSH / bureau à distance sous la souris.</summary>
+    private void AskProtocol(KeePassEntryNode node)
+    {
+        var menu = new ContextMenu { PlacementTarget = SavedTree, Placement = PlacementMode.MousePoint };
+        menu.Items.Add(MenuEntry(Strings.MenuKeePassSsh.Replace("_", ""), () => _ = ConnectKeePassAsync(node, RemoteProtocol.Ssh)));
+        menu.Items.Add(MenuEntry(Strings.MenuKeePassRdp.Replace("_", ""), () => _ = ConnectKeePassAsync(node, RemoteProtocol.Rdp)));
+        // Ouvert après le double-clic : sinon le relâchement du bouton le refermerait aussitôt.
+        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, () => menu.IsOpen = true);
+    }
+
+    // ===================== Verrouillage automatique =====================
+
+    /// <summary>Session Windows verrouillée : coffres KeePass et coffre local sont verrouillés.</summary>
+    private void OnWindowsSessionSwitch(object sender, SessionSwitchEventArgs e)
+    {
+        // Maintien de la session PVWA suspendu tant que Windows est verrouillé.
+        if (e.Reason is SessionSwitchReason.SessionUnlock or SessionSwitchReason.ConsoleConnect or SessionSwitchReason.RemoteConnect)
+        {
+            Dispatcher.BeginInvoke(() => _windowsLocked = false);
+        }
+
+        if (e.Reason is SessionSwitchReason.SessionLock or SessionSwitchReason.ConsoleDisconnect or SessionSwitchReason.RemoteDisconnect)
+        {
+            Dispatcher.BeginInvoke(() => _windowsLocked = true);
+            Dispatcher.BeginInvoke(() =>
+            {
+                if (_settings.KeePassFolders.Any(f => _keePass.IsOpen(f.Id)) || _keePass.Store.IsUnlocked)
+                {
+                    _keePass.LockAll(localStore: true);
+                    SetStatus(Strings.KeePassAllLocked);
+                }
+            });
+        }
+    }
+
+    private void OnKeePassChanged() => Dispatcher.BeginInvoke(RefreshSaved);
+}
