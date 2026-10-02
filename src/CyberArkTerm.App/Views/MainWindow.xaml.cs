@@ -68,7 +68,7 @@ public partial class MainWindow : Window
         };
         GroupByBox.SelectedValue = settings.GroupBy;
 
-        _psmpUi = new PsmpInteraction(this, settings, SaveSettings);
+        _psmpUi = new SshInteraction(this, settings, SaveSettings);
         FilesPanel.Initialize(settings, SaveSettings);
         RefreshRecent();
         RefreshSaved();

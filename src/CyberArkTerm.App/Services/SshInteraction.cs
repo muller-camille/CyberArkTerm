@@ -11,7 +11,7 @@ namespace CyberArkTerm.App.Services;
 /// Questions posées par SSH.NET pendant la connexion au PSMP (clé d'hôte, mot de passe, code MFA),
 /// relayées sur le thread de l'interface.
 /// </summary>
-internal sealed class PsmpInteraction(Window owner, AppSettings settings, Action saveSettings) : IPsmpInteraction
+internal sealed class SshInteraction(Window owner, AppSettings settings, Action saveSettings) : ISshInteraction
 {
     private Dispatcher Dispatcher => owner.Dispatcher;
 

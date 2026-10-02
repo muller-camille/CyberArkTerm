@@ -15,7 +15,7 @@ namespace CyberArkTerm.App.Views;
 /// <summary>Sessions SSH intégrées : un onglet terminal par session, panneau « Fichiers » associé.</summary>
 public partial class MainWindow
 {
-    private readonly PsmpInteraction _psmpUi;
+    private readonly SshInteraction _psmpUi;
     private readonly List<SshSession> _sshSessions = [];
     private MfaSshKey? _mfaKey;
     private DateTime _mfaRetryAfter;
@@ -24,7 +24,7 @@ public partial class MainWindow
     {
         SetStatus(Text.Format(Strings.SshOpening, label, _settings.PsmpAddress));
         var key = await GetPsmpKeyAsync();
-        var connector = new PsmpConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi, key);
+        var connector = new SshConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi, key);
         var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved);
         session.Editor = new RemoteEditor(session, this, _settings, (text, error) => SetStatus(text, error),
             directory => FilesPanel.OnRemoteChanged(session, directory));

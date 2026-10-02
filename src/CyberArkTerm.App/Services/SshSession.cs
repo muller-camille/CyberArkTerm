@@ -24,7 +24,7 @@ public enum SshSessionState
 /// </summary>
 public sealed class SshSession : IDisposable
 {
-    private readonly PsmpConnector _connector;
+    private readonly SshConnector _connector;
     private readonly Dispatcher _dispatcher;
     private readonly bool _followTerminal;
     private readonly ConcurrentQueue<string> _pending = new();
@@ -37,7 +37,7 @@ public sealed class SshSession : IDisposable
     private DateTime _lastData;
     private bool _userTyped;
 
-    public SshSession(PvwaAccount account, string label, PsmpConnector connector, Dispatcher dispatcher,
+    public SshSession(PvwaAccount account, string label, SshConnector connector, Dispatcher dispatcher,
         bool followTerminal, SavedSession? saved)
     {
         Account = account;
