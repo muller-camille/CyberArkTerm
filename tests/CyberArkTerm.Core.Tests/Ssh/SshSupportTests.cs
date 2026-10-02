@@ -60,6 +60,8 @@ public class SshSupportTests
         Assert.Equal(["alpha", "Zeta", "a.txt", "b.txt"], sorted.Select(e => e.Name));
         Assert.Equal("drwxr-x---", RemoteEntry.FormatPermissions(true, false, true, true, true, true, false, true, false, false, false));
         Assert.Equal("lrw-r--r--", RemoteEntry.FormatPermissions(false, true, true, true, false, true, false, false, true, false, false));
+        Assert.Equal("drwxrwxrwt", RemoteEntry.FormatPermissions(true, false, 0b001_111_111_111));
+        Assert.Equal("-rwsr-x---", RemoteEntry.FormatPermissions(false, false, 0b100_111_101_000));
     }
 
     [Fact]

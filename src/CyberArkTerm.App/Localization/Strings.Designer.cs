@@ -128,6 +128,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _Browse….
+        /// </summary>
+        public static string Browse {
+            get {
+                return ResourceManager.GetString("Browse", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         public static string Cancel {
@@ -488,11 +497,128 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to “{0}” is {1}. Open it in the text editor anyway?.
+        /// </summary>
+        public static string EditLargeFile {
+            get {
+                return ResourceManager.GetString("EditLargeFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} opened in the editor: each save offers to send it back to the server.
+        /// </summary>
+        public static string EditOpened {
+            get {
+                return ResourceManager.GetString("EditOpened", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Opening {0} in the editor….
+        /// </summary>
+        public static string EditOpening {
+            get {
+                return ResourceManager.GetString("EditOpening", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to These edited files were not sent back to the server:  {0}  Close anyway? The local copies will be[rest of string was truncated].
+        /// </summary>
+        public static string EditPendingOnClose {
+            get {
+                return ResourceManager.GetString("EditPendingOnClose", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unsent changes.
+        /// </summary>
+        public static string EditPendingTitle {
+            get {
+                return ResourceManager.GetString("EditPendingTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to “{0}” was changed on the server since you opened it.  Replace it with your version?.
+        /// </summary>
+        public static string EditRemoteChanged {
+            get {
+                return ResourceManager.GetString("EditRemoteChanged", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Properties / rename.
         /// </summary>
         public static string EditSavedTip {
             get {
                 return ResourceManager.GetString("EditSavedTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Edit in the text editor (F4).
+        /// </summary>
+        public static string EditTip {
+            get {
+                return ResourceManager.GetString("EditTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot send {0} back to the server:  {1}  Your changes stay in the editor: save again to retry..
+        /// </summary>
+        public static string EditUploadFailed {
+            get {
+                return ResourceManager.GetString("EditUploadFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to “{0}” was saved in the editor.  Send it back to the server? {1}.
+        /// </summary>
+        public static string EditUploadPrompt {
+            get {
+                return ResourceManager.GetString("EditUploadPrompt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send back to the server.
+        /// </summary>
+        public static string EditUploadTitle {
+            get {
+                return ResourceManager.GetString("EditUploadTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} sent back to the server.
+        /// </summary>
+        public static string EditUploaded {
+            get {
+                return ResourceManager.GetString("EditUploaded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Sending {0} back to the server….
+        /// </summary>
+        public static string EditUploading {
+            get {
+                return ResourceManager.GetString("EditUploading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot start the text editor “{0}”: {1}  Choose another editor in the settings..
+        /// </summary>
+        public static string EditorLaunchFailed {
+            get {
+                return ResourceManager.GetString("EditorLaunchFailed", resourceCulture);
             }
         }
 
@@ -614,11 +740,29 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _Edit.
+        /// </summary>
+        public static string FileEdit {
+            get {
+                return ResourceManager.GetString("FileEdit", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Open.
         /// </summary>
         public static string FileOpen {
             get {
                 return ResourceManager.GetString("FileOpen", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Permissions….
+        /// </summary>
+        public static string FilePermissions {
+            get {
+                return ResourceManager.GetString("FilePermissions", resourceCulture);
             }
         }
 
@@ -722,7 +866,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The browser automatically moves to the shell's current folder (cd).
+        ///   Looks up a localized string similar to The browser follows the shell's current folder (cd). Tick it again to re-enable tracking in the c[rest of string was truncated].
         /// </summary>
         public static string FollowTip {
             get {
@@ -862,6 +1006,24 @@ namespace CyberArkTerm.App.Localization {
         public static string ItemError {
             get {
                 return ResourceManager.GetString("ItemError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} items.
+        /// </summary>
+        public static string ItemsCount {
+            get {
+                return ResourceManager.GetString("ItemsCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} items in {1}.
+        /// </summary>
+        public static string ItemsIn {
+            get {
+                return ResourceManager.GetString("ItemsIn", resourceCulture);
             }
         }
 
@@ -1352,6 +1514,177 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Changing the permissions of {0}….
+        /// </summary>
+        public static string PermissionsApplying {
+            get {
+                return ResourceManager.GetString("PermissionsApplying", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Permissions {0} applied to {1}.
+        /// </summary>
+        public static string PermissionsDone {
+            get {
+                return ResourceManager.GetString("PermissionsDone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Permissions {0} applied: {1} items.
+        /// </summary>
+        public static string PermissionsDoneCount {
+            get {
+                return ResourceManager.GetString("PermissionsDoneCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Execute.
+        /// </summary>
+        public static string PermissionsExecute {
+            get {
+                return ResourceManager.GetString("PermissionsExecute", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Permissions not changed: {0}.
+        /// </summary>
+        public static string PermissionsFailed {
+            get {
+                return ResourceManager.GetString("PermissionsFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Group.
+        /// </summary>
+        public static string PermissionsGroup {
+            get {
+                return ResourceManager.GetString("PermissionsGroup", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The owner is not changed. Special bits only apply to the selected items..
+        /// </summary>
+        public static string PermissionsHint {
+            get {
+                return ResourceManager.GetString("PermissionsHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter three or four digits from 0 to 7 (e.g. 644, 1777)..
+        /// </summary>
+        public static string PermissionsInvalid {
+            get {
+                return ResourceManager.GetString("PermissionsInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Octal:.
+        /// </summary>
+        public static string PermissionsOctal {
+            get {
+                return ResourceManager.GetString("PermissionsOctal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Others.
+        /// </summary>
+        public static string PermissionsOthers {
+            get {
+                return ResourceManager.GetString("PermissionsOthers", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Owner.
+        /// </summary>
+        public static string PermissionsOwner {
+            get {
+                return ResourceManager.GetString("PermissionsOwner", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Changing permissions… {0} items done.
+        /// </summary>
+        public static string PermissionsProgress {
+            get {
+                return ResourceManager.GetString("PermissionsProgress", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Read.
+        /// </summary>
+        public static string PermissionsRead {
+            get {
+                return ResourceManager.GetString("PermissionsRead", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Apply to the folder contents too (subfolders and files).
+        /// </summary>
+        public static string PermissionsRecursive {
+            get {
+                return ResourceManager.GetString("PermissionsRecursive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to E_xecute (x) only for folders and files that are already executable.
+        /// </summary>
+        public static string PermissionsSmartExecute {
+            get {
+                return ResourceManager.GetString("PermissionsSmartExecute", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Special:.
+        /// </summary>
+        public static string PermissionsSpecial {
+            get {
+                return ResourceManager.GetString("PermissionsSpecial", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Permissions (chmod).
+        /// </summary>
+        public static string PermissionsTip {
+            get {
+                return ResourceManager.GetString("PermissionsTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Permissions.
+        /// </summary>
+        public static string PermissionsTitle {
+            get {
+                return ResourceManager.GetString("PermissionsTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Write.
+        /// </summary>
+        public static string PermissionsWrite {
+            get {
+                return ResourceManager.GetString("PermissionsWrite", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Platform {0} · Safe {1}.
         /// </summary>
         public static string PlatformAndSafe {
@@ -1384,6 +1717,15 @@ namespace CyberArkTerm.App.Localization {
         public static string PreferencesNotSaved {
             get {
                 return ResourceManager.GetString("PreferencesNotSaved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Programs (*.exe;*.cmd;*.bat)|*.exe;*.cmd;*.bat.
+        /// </summary>
+        public static string ProgramsFilter {
+            get {
+                return ResourceManager.GetString("ProgramsFilter", resourceCulture);
             }
         }
 
@@ -1667,11 +2009,29 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Runs with the rights of the file's group; on a folder, new files inherit its group.
+        /// </summary>
+        public static string SetGidTip {
+            get {
+                return ResourceManager.GetString("SetGidTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Set the PSMP address in the settings..
         /// </summary>
         public static string SetPsmpAddress {
             get {
                 return ResourceManager.GetString("SetPsmpAddress", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Runs with the rights of the file's owner.
+        /// </summary>
+        public static string SetUidTip {
+            get {
+                return ResourceManager.GetString("SetUidTip", resourceCulture);
             }
         }
 
@@ -1964,6 +2324,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to On a folder: only a file's owner can delete or rename it (e.g. /tmp).
+        /// </summary>
+        public static string StickyTip {
+            get {
+                return ResourceManager.GetString("StickyTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to All accounts.
         /// </summary>
         public static string TabAllAccounts {
@@ -2050,6 +2419,33 @@ namespace CyberArkTerm.App.Localization {
         public static string TargetMachineTip {
             get {
                 return ResourceManager.GetString("TargetMachineTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose the text editor.
+        /// </summary>
+        public static string TextEditorDialogTitle {
+            get {
+                return ResourceManager.GetString("TextEditorDialogTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Used by “Edit” in the Files tab. Empty: Notepad..
+        /// </summary>
+        public static string TextEditorHelp {
+            get {
+                return ResourceManager.GetString("TextEditorHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Text _editor:.
+        /// </summary>
+        public static string TextEditorLabel {
+            get {
+                return ResourceManager.GetString("TextEditorLabel", resourceCulture);
             }
         }
 

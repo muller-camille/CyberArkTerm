@@ -30,6 +30,10 @@ public sealed record RemoteEntry(
                .ThenBy(e => e.Name, StringComparer.Ordinal)
                .ToList();
 
+    /// <summary>Droits au format <c>ls -l</c>, bits spéciaux compris (ex. <c>drwxrwxrwt</c>, <c>-rwsr-xr-x</c>).</summary>
+    public static string FormatPermissions(bool isDirectory, bool isSymbolicLink, int mode) =>
+        (isSymbolicLink ? 'l' : isDirectory ? 'd' : '-') + UnixPermissions.ToSymbolic(mode);
+
     /// <summary>Droits au format <c>ls -l</c> (ex. <c>drwxr-x---</c>).</summary>
     public static string FormatPermissions(bool isDirectory, bool isSymbolicLink, params bool[] rwx)
     {
@@ -42,6 +46,14 @@ public sealed record RemoteEntry(
 
         return new string(chars);
     }
+}
+
+/// <summary>Résultat d'un changement de droits : éléments modifiés et erreurs rencontrées (chemin : message).</summary>
+public sealed class PermissionsResult
+{
+    public int Changed { get; set; }
+
+    public List<string> Errors { get; } = [];
 }
 
 public enum TransferProtocol

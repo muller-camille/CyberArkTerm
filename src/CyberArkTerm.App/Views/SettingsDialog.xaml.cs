@@ -28,6 +28,7 @@ public partial class SettingsDialog : Window
         PreferSshBox.IsChecked = settings.PreferSshForUnix;
         SshInAppBox.IsChecked = settings.SshInApp;
         FollowBox.IsChecked = settings.FollowTerminalFolder;
+        EditorBox.Text = settings.TextEditor;
         (settings.UploadProtocol == TransferProtocol.Sftp ? SftpRadio : ScpRadio).IsChecked = true;
         HostKeysText.Text = settings.KnownHosts.Count == 0
             ? Strings.NoHostKeys
@@ -72,6 +73,7 @@ public partial class SettingsDialog : Window
         _settings.SshInApp = SshInAppBox.IsChecked == true;
         _settings.FollowTerminalFolder = FollowBox.IsChecked == true;
         _settings.UploadProtocol = SftpRadio.IsChecked == true ? TransferProtocol.Sftp : TransferProtocol.Scp;
+        _settings.TextEditor = EditorBox.Text.Trim().Trim('"');
         if (_forgetHostKeys)
         {
             _settings.KnownHosts.Clear();
@@ -83,6 +85,15 @@ public partial class SettingsDialog : Window
         }
 
         DialogResult = true;
+    }
+
+    private void OnBrowseEditor(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog { Title = Strings.TextEditorDialogTitle, Filter = Strings.ProgramsFilter };
+        if (dialog.ShowDialog(this) == true)
+        {
+            EditorBox.Text = dialog.FileName;
+        }
     }
 
     private void ShowError(string message)

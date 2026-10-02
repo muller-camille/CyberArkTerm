@@ -38,7 +38,7 @@ tramite **PSM for SSH (PSMP)** con un **browser dei file** integrato per inviare
 | **I miei server** | I tuoi server di lavoro, organizzati in cartelle e sottocartelle, ognuno con la propria configurazione. |
 | **Sessioni PSM** | Desktop remoto tramite il PSM (come il pulsante «Connect» del PVWA): componente, macchina di destinazione, motivo, ticket. |
 | **Sessioni SSH (PSMP)** | Terminale integrato in una scheda (compatibile xterm: colori, vim, less, top…), autenticazione MFA. |
-| **Scheda File** | Browser SFTP del server: `ls`, navigazione, `rm`, invio di file per trascinamento in SCP, segue la cartella del terminale. |
+| **Scheda File** | Browser SFTP del server: `ls`, navigazione, `rm`, invio di file per trascinamento in SCP, modifica nel tuo editor di testo, permessi (`chmod`), segue la cartella del terminale. |
 | **Home** | Connessione rapida (digita un server, Invio), sessioni recenti. |
 | **Esportazione** | Elenco degli account in CSV, apribile direttamente in Excel (separatore secondo la regione di Windows). |
 | **Lingue** | Interfaccia in italiano, inglese e francese: lingua di Windows per impostazione predefinita, modificabile in qualsiasi momento. |
@@ -146,9 +146,19 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   esistente.
 - **Eliminare**: selezione poi Canc (o clic destro → «Elimina (rm)»), con conferma. Le cartelle devono essere
   vuote.
+- **Modificare un file**: selezionalo, poi `F4` (o clic destro → «Modifica», o il pulsante matita). Il file si
+  apre nell'editor di testo scelto nelle Impostazioni (Blocco note per impostazione predefinita). A ogni
+  salvataggio, CyberArkTerm propone di rinviarlo al server: invio in SFTP, permessi del file conservati. Se il
+  file è cambiato sul server dopo l'apertura, un avviso chiede conferma prima di sovrascriverlo.
+- **Permessi**: clic destro → «Permessi…» (o il pulsante lucchetto). Caselle lettura / scrittura / esecuzione
+  per proprietario, gruppo e altri, bit speciali (setuid, setgid, sticky) e valore ottale (`644`, `1777`…), per
+  uno o più elementi. Per una cartella, «Applica anche al contenuto» propaga i permessi a sottocartelle e file;
+  per impostazione predefinita, l'esecuzione (x) viene data solo alle cartelle e ai file già eseguibili. I link
+  simbolici non vengono seguiti e il proprietario non viene modificato.
 - Inoltre: nuova cartella, download, copia del percorso, visualizzazione dei file nascosti.
 - **Segui la cartella del terminale**: se la casella è selezionata, ogni `cd` nel terminale sposta il browser
-  nella stessa cartella (vedi [Funzionamento tecnico](#funzionamento-tecnico)).
+  nella stessa cartella (vedi [Funzionamento tecnico](#funzionamento-tecnico)). Dopo `sudo -i` o `su`,
+  riseleziona la casella al prompt della shell per riattivare il monitoraggio nella nuova shell.
 
 ### 6. Organizzare i server: scheda «I miei server»
 
@@ -185,7 +195,7 @@ Un server il cui account non è più visibile in CyberArk appare in grigio.
 | Terminale | Incollare | Clic destro, `Maiusc+Ins` o `Ctrl+Maiusc+V` |
 | Terminale | Cronologia | Rotellina, `Maiusc+Pag su` / `Maiusc+Pag giù` |
 | Scheda SSH | Chiudere | Croce della scheda o clic centrale |
-| File | Aprire / cartella superiore / eliminare / aggiornare | `Invio` / `Backspace` / `Canc` / `F5` |
+| File | Aprire / modificare / cartella superiore / eliminare / aggiornare | `Invio` / `F4` / `Backspace` / `Canc` / `F5` |
 
 ## Impostazioni e file di configurazione
 
@@ -199,6 +209,7 @@ Un server il cui account non è più visibile in CyberArk appare in grigio.
 | SSH in CyberArkTerm | Terminale e scheda File integrati; altrimenti Windows Terminal | sì |
 | Segui la cartella del terminale | Consente di attivare il monitoraggio della cartella nella shell | sì |
 | Invio dei file | SCP o SFTP | SCP |
+| Editor di testo | Programma aperto da «Modifica» nella scheda File | Blocco note |
 | Chiavi PSMP accettate | Impronte memorizzate (pulsante «Dimentica le chiavi») | — |
 | Componenti memorizzati | Componente PSM scelto per piattaforma (pulsante «Dimentica») | — |
 
@@ -215,6 +226,8 @@ l'applicazione ed eliminalo.
 - Sessione PVWA aperta con `concurrentSession`: l'eventuale sessione web del PVWA non viene chiusa.
 - **File RDP** (token PSM monouso) scritti in `%TEMP%\CyberArkTerm` ed eliminati dopo 60 s o alla chiusura.
 - **Chiavi host del PSMP fissate** al primo utilizzo, con avviso in caso di modifica.
+- **File modificati**: la copia locale aperta nell'editor si trova in `%TEMP%\CyberArkTerm\edit` e viene
+  eliminata alla chiusura della scheda SSH; un avviso segnala le modifiche non rinviate.
 - **Nessuna iniezione di comandi**: percorsi SCP e cartelle iniziali protetti tra apici per la shell remota;
   argomenti `ssh` / Windows Terminal convalidati e passati senza shell.
 - Esportazione CSV protetta contro l'iniezione di formule Excel.
@@ -244,8 +257,11 @@ connessione SCP al primo invio in SCP. Ognuna è una sessione PSMP, registrata d
 
 ### Monitoraggio della cartella del terminale
 
-All'apertura di una sessione SSH (se l'opzione è attiva), CyberArkTerm invia alla shell un comando di una
-riga, preceduto da uno spazio per non finire nella cronologia:
+All'apertura di una sessione SSH (se l'opzione è attiva), CyberArkTerm attende che la shell del server di
+destinazione mostri il prompt (fino a 60 s: il PSMP a volte impiega diversi secondi a raggiungere la
+destinazione), poi le invia un comando di una riga, preceduto da uno spazio per non finire nella cronologia.
+Non viene inviato nulla se hai già iniziato a digitare; il comando può essere reinviato senza effetti doppi
+(casella «Segui»):
 
 - definizione di `PROMPT_COMMAND` (bash) o `precmd` (zsh) che emette la sequenza standard **OSC 7** con la
   cartella corrente a ogni prompt;
@@ -266,7 +282,7 @@ Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posizion
 | L'account non compare | Non hai il permesso «List accounts» sul suo safe, oppure l'elenco va ricaricato (`F5`). |
 | La password PSMP viene chiesta per ogni scheda | MFA caching non attivato sul PVWA: comportamento normale (una volta per scheda). |
 | La scheda File indica «Connessione SFTP impossibile» | SFTP non è consentito sul PSMP o per questo account: rivolgiti al team CyberArk. |
-| Il browser non segue i `cd` | La shell remota non è bash o zsh, oppure l'opzione è disattivata nelle Impostazioni. |
+| Il browser non segue i `cd` | La shell remota non è bash o zsh, l'opzione è disattivata nelle Impostazioni, oppure il prompt non è stato riconosciuto: riseleziona «Segui la cartella del terminale» al prompt della shell. |
 | Avviso «la chiave del PSMP è cambiata» | Prosegui solo se il team CyberArk conferma una modifica del server. |
 
 ## Sviluppo

@@ -4,8 +4,8 @@ using Renci.SshNet.Sftp;
 namespace CyberArkTerm.Core.Ssh;
 
 /// <summary>
-/// Navigation dans les fichiers du serveur via SFTP (ls, cd, rm, téléchargement) et dépôt de fichiers
-/// par SCP ou SFTP. Les opérations sont sérialisées : une seule à la fois sur la connexion.
+/// Navigation dans les fichiers du serveur via SFTP (ls, cd, rm, chmod, téléchargement, modification) et dépôt
+/// de fichiers par SCP ou SFTP. Les opérations sont sérialisées : une seule à la fois sur la connexion.
 /// </summary>
 public sealed class RemoteFileBrowser : IDisposable
 {
@@ -158,6 +158,149 @@ public sealed class RemoteFileBrowser : IDisposable
         }
     }
 
+    /// <summary>Date de modification et taille actuelles d'un fichier.</summary>
+    public async Task<(DateTime LastWriteTime, long Length)> GetStatAsync(string path, CancellationToken ct)
+    {
+        await _gate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            var attributes = await _sftp.GetAttributesAsync(path, ct).ConfigureAwait(false);
+            return (attributes.LastWriteTime, attributes.Size);
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    /// <summary>
+    /// Remplace le contenu d'un fichier existant par SFTP : ses droits et son propriétaire sont conservés
+    /// (contrairement à SCP qui recrée le fichier en 644). Renvoie sa nouvelle date et sa taille.
+    /// </summary>
+    public async Task<(DateTime LastWriteTime, long Length)> WriteFileAsync(string remotePath, byte[] content, CancellationToken ct)
+    {
+        await _gate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            using var stream = new MemoryStream(content, writable: false);
+            await _sftp.UploadFileAsync(stream, remotePath, ct).ConfigureAwait(false);
+            var attributes = await _sftp.GetAttributesAsync(remotePath, ct).ConfigureAwait(false);
+            return (attributes.LastWriteTime, attributes.Size);
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    /// <summary>
+    /// Change les droits (chmod) d'un fichier ou d'un dossier, et si <paramref name="recursive"/> de tout son contenu.
+    /// Seuls les droits sont envoyés au serveur : taille, dates et propriétaire restent inchangés.
+    /// </summary>
+    /// <param name="includeSpecial">
+    /// Applique aussi les bits spéciaux (setuid, setgid, sticky) à l'élément choisi ; sinon les siens sont conservés.
+    /// Le contenu garde toujours ses propres bits spéciaux.
+    /// </param>
+    /// <param name="executeOnlyIfAlready">
+    /// Pour le contenu : les bits x ne sont donnés qu'aux dossiers et aux fichiers déjà exécutables (« X » de chmod),
+    /// pour ne pas rendre tous les fichiers exécutables.
+    /// </param>
+    /// <param name="progress">Nombre d'éléments traités.</param>
+    public async Task<PermissionsResult> SetPermissionsAsync(string path, int mode, bool includeSpecial, bool recursive,
+        bool executeOnlyIfAlready, IProgress<int>? progress, CancellationToken ct)
+    {
+        await _gate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            var result = new PermissionsResult();
+            var attributes = await _sftp.GetAttributesAsync(path, ct).ConfigureAwait(false);
+            await ApplyPermissionsAsync(path, attributes, mode, includeSpecial, ct).ConfigureAwait(false);
+            result.Changed++;
+            progress?.Report(result.Changed);
+            if (recursive && attributes.IsDirectory)
+            {
+                await ApplyToContentsAsync(path, mode & UnixPermissions.RwxMask, executeOnlyIfAlready, result, progress, ct).ConfigureAwait(false);
+            }
+
+            return result;
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    private async Task ApplyToContentsAsync(string directory, int mode, bool executeOnlyIfAlready, PermissionsResult result,
+        IProgress<int>? progress, CancellationToken ct)
+    {
+        var entries = new List<ISftpFile>();
+        try
+        {
+            await foreach (var file in _sftp.ListDirectoryAsync(directory, ct).ConfigureAwait(false))
+            {
+                // Comme « chmod -R », les liens symboliques ne sont pas suivis.
+                if (file.Name is not ("." or "..") && !file.IsSymbolicLink)
+                {
+                    entries.Add(file);
+                }
+            }
+        }
+        catch (Exception e) when (e is Renci.SshNet.Common.SshException or InvalidOperationException)
+        {
+            result.Errors.Add($"{directory} : {e.Message}");
+            return;
+        }
+
+        foreach (var file in entries)
+        {
+            ct.ThrowIfCancellationRequested();
+            var target = mode;
+            const int executeBits = 0x49;
+            if (executeOnlyIfAlready && !file.IsDirectory && (UnixPermissions.FromAttributes(file.Attributes) & executeBits) == 0)
+            {
+                target &= ~executeBits;
+            }
+
+            try
+            {
+                await ApplyPermissionsAsync(file.FullName, file.Attributes, target, includeSpecial: false, ct).ConfigureAwait(false);
+                result.Changed++;
+                progress?.Report(result.Changed);
+            }
+            catch (Exception e) when (e is Renci.SshNet.Common.SshException or InvalidOperationException)
+            {
+                result.Errors.Add($"{file.FullName} : {e.Message}");
+            }
+
+            if (file.IsDirectory)
+            {
+                await ApplyToContentsAsync(file.FullName, mode, executeOnlyIfAlready, result, progress, ct).ConfigureAwait(false);
+            }
+        }
+    }
+
+    private Task ApplyPermissionsAsync(string path, SftpFileAttributes attributes, int mode, bool includeSpecial, CancellationToken ct)
+    {
+        attributes.OwnerCanRead = (mode & 0x100) != 0;
+        attributes.OwnerCanWrite = (mode & 0x80) != 0;
+        attributes.OwnerCanExecute = (mode & 0x40) != 0;
+        attributes.GroupCanRead = (mode & 0x20) != 0;
+        attributes.GroupCanWrite = (mode & 0x10) != 0;
+        attributes.GroupCanExecute = (mode & 0x08) != 0;
+        attributes.OthersCanRead = (mode & 0x04) != 0;
+        attributes.OthersCanWrite = (mode & 0x02) != 0;
+        attributes.OthersCanExecute = (mode & 0x01) != 0;
+        if (includeSpecial)
+        {
+            attributes.IsUIDBitSet = (mode & UnixPermissions.SetUid) != 0;
+            attributes.IsGroupIDBitSet = (mode & UnixPermissions.SetGid) != 0;
+            attributes.IsStickyBitSet = (mode & UnixPermissions.Sticky) != 0;
+        }
+
+        // SSH.NET n'envoie que les attributs modifiés : seuls les droits changent sur le serveur.
+        return Task.Run(() => _sftp.SetAttributes(path, attributes), ct);
+    }
+
     public async Task DownloadAsync(RemoteEntry entry, string localPath, IProgress<TransferProgress>? progress, CancellationToken ct)
     {
         await _gate.WaitAsync(ct).ConfigureAwait(false);
@@ -250,8 +393,5 @@ public sealed class RemoteFileBrowser : IDisposable
         f.IsSymbolicLink,
         f.Length,
         f.LastWriteTime,
-        RemoteEntry.FormatPermissions(isDirectory, f.IsSymbolicLink,
-            f.OwnerCanRead, f.OwnerCanWrite, f.OwnerCanExecute,
-            f.GroupCanRead, f.GroupCanWrite, f.GroupCanExecute,
-            f.OthersCanRead, f.OthersCanWrite, f.OthersCanExecute));
+        RemoteEntry.FormatPermissions(isDirectory, f.IsSymbolicLink, UnixPermissions.FromAttributes(f.Attributes)));
 }

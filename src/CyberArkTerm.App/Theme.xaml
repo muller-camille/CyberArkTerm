@@ -381,6 +381,28 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <!-- Cadenas : droits des fichiers (chmod). -->
+    <DrawingImage x:Key="IconPermissions">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Geometry="M8,11 V8 A4,4 0 0 1 16,8 V11">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#5A6573" Thickness="2" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#F2B01E" Geometry="M5,11 H19 V21 H5 Z" />
+                <GeometryDrawing Brush="#5A6573">
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <EllipseGeometry Center="12,15" RadiusX="1.6" RadiusY="1.6" />
+                            <RectangleGeometry Rect="11.2,15,1.6,3.5" />
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
     <DrawingImage x:Key="IconClose">
         <DrawingImage.Drawing>
             <GeometryDrawing Geometry="M6,6 L18,18 M18,6 L6,18">

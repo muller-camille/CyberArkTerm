@@ -11,16 +11,27 @@ public static class WorkingDirectory
     /// <summary>
     /// Commande injectée dans le shell bash/zsh à l'ouverture de la session pour qu'il annonce son
     /// dossier courant à chaque invite. Préfixée d'une espace pour ne pas entrer dans l'historique.
-    /// <paramref name="linesToErase"/> lignes sont ensuite effacées pour masquer la commande tapée.
+    /// Sans effet en double si elle est renvoyée dans le même shell. <paramref name="linesToErase"/> lignes
+    /// sont ensuite effacées pour masquer la commande tapée.
     /// </summary>
     public static string InjectionCommand(int linesToErase, string? startDirectory = null)
     {
         var erase = linesToErase > 0 ? $"printf '\\033[{linesToErase}A\\r\\033[J'" : "true";
         var cd = startDirectory is null ? "" : $"cd -- {ShellQuote(startDirectory)} 2>/dev/null;";
         return " " + cd + "__catosc7(){ printf '\\033]7;%s\\007' \"$PWD\";};" +
-               "PROMPT_COMMAND=\"__catosc7${PROMPT_COMMAND:+;$PROMPT_COMMAND}\";" +
-               "[ -n \"$ZSH_VERSION\" ]&&eval 'precmd_functions+=(__catosc7)';" +
+               "case \";$PROMPT_COMMAND;\" in *\";__catosc7;\"*);;*)PROMPT_COMMAND=\"__catosc7${PROMPT_COMMAND:+;$PROMPT_COMMAND}\";;esac;" +
+               "[ -n \"$ZSH_VERSION\" ]&&eval '(( ${precmd_functions[(I)__catosc7]} ))||precmd_functions+=(__catosc7)';" +
                erase + "\r";
+    }
+
+    /// <summary>
+    /// Vrai si le texte de la ligne avant le curseur ressemble à une invite de shell en attente de saisie :
+    /// il se termine par « $ », « # », « > » ou « % » (espaces de fin ignorés).
+    /// </summary>
+    public static bool LooksLikePrompt(string textBeforeCursor)
+    {
+        var text = textBeforeCursor.TrimEnd();
+        return text.Length > 0 && text[^1] is '$' or '#' or '>' or '%';
     }
 
     /// <summary>

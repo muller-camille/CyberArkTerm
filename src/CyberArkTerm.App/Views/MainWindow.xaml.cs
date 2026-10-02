@@ -750,6 +750,14 @@ public partial class MainWindow : Window
             return;
         }
 
+        if (!ConfirmCloseEditedFiles())
+        {
+            // Fichiers modifiés dans l'éditeur et pas encore renvoyés : l'utilisateur garde la fenêtre ouverte.
+            e.Cancel = true;
+            LogoutRequested = false;
+            return;
+        }
+
         // Fermeture de la session PVWA avant de quitter (au plus 5 s d'attente).
         e.Cancel = true;
         _loggedOff = true;

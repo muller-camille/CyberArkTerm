@@ -38,7 +38,7 @@ through **PSM for SSH (PSMP)** with a built-in **file browser** to upload files 
 | **My servers** | Your working servers, organized in folders and subfolders, each with its own settings. |
 | **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button): component, target machine, reason, ticket. |
 | **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colors, vim, less, top…), MFA authentication. |
-| **Files tab** | SFTP browser of the server: `ls`, navigation, `rm`, drag-and-drop upload over SCP, follows the terminal folder. |
+| **Files tab** | SFTP browser of the server: `ls`, navigation, `rm`, drag-and-drop upload over SCP, editing in your text editor, permissions (`chmod`), follows the terminal folder. |
 | **Home** | Quick connect (type a server, press Enter), recent sessions. |
 | **Export** | Account list as CSV, opens directly in Excel (separator follows the Windows region). |
 | **Languages** | Interface in English, French and Italian: Windows language by default, can be changed at any time. |
@@ -141,9 +141,19 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
 - **Upload files**: drag them from Explorer onto the list (or the "Upload" button). Sent over **SCP** by
   default (SFTP as an option), folders included; confirmation before overwriting an existing file.
 - **Delete**: select, then Del (or right-click → "Delete (rm)"), with confirmation. Folders must be empty.
+- **Edit a file**: select it, then `F4` (or right-click → "Edit", or the pencil button). The file opens in the
+  text editor chosen in Settings (Notepad by default). Every time you save, CyberArkTerm offers to send it back
+  to the server: sent over SFTP, the file's permissions are kept. If the file changed on the server since you
+  opened it, a warning asks before overwriting it.
+- **Permissions**: right-click → "Permissions…" (or the padlock button). Read / write / execute boxes for owner,
+  group and others, special bits (setuid, setgid, sticky) and the octal value (`644`, `1777`…), for one or
+  several items. For a folder, "Apply to the folder contents too" propagates the permissions to subfolders and
+  files; by default, execute (x) is only given to folders and to files that are already executable. Symbolic
+  links are not followed and the owner is not changed.
 - Also: new folder, download, copy path, show hidden files.
 - **Follow the terminal folder**: when ticked, every `cd` in the terminal moves the browser to the same
-  folder (see [How it works](#how-it-works)).
+  folder (see [How it works](#how-it-works)). After `sudo -i` or `su`, tick the box again at the shell prompt to
+  re-enable tracking in that new shell.
 
 ### 6. Organize your servers: "My servers" tab
 
@@ -178,7 +188,7 @@ A server whose account is no longer visible in CyberArk is greyed out.
 | Terminal | Paste | Right-click, `Shift+Insert` or `Ctrl+Shift+V` |
 | Terminal | Scrollback | Mouse wheel, `Shift+Page Up` / `Shift+Page Down` |
 | SSH tab | Close | Tab cross or middle click |
-| Files | Open / parent folder / delete / refresh | `Enter` / `Backspace` / `Del` / `F5` |
+| Files | Open / edit / parent folder / delete / refresh | `Enter` / `F4` / `Backspace` / `Del` / `F5` |
 
 ## Settings and configuration file
 
@@ -192,6 +202,7 @@ A server whose account is no longer visible in CyberArk is greyed out.
 | SSH in CyberArkTerm | Built-in terminal and Files tab; otherwise Windows Terminal | yes |
 | Follow the terminal folder | Allows setting up folder tracking in the shell | yes |
 | File upload | SCP or SFTP | SCP |
+| Text editor | Program opened by "Edit" in the Files tab | Notepad |
 | Accepted PSMP keys | Remembered fingerprints ("Forget keys" button) | — |
 | Remembered components | PSM component chosen per platform ("Forget" button) | — |
 
@@ -207,6 +218,8 @@ and user name, the settings above, "My servers" and their folders, recent sessio
 - PVWA session opened with `concurrentSession`: your PVWA web session, if any, is not closed.
 - **RDP files** (one-time PSM token) written to `%TEMP%\CyberArkTerm` and deleted after 60 s or on exit.
 - **PSMP host keys pinned** on first use, with a warning if they change.
+- **Edited files**: the local copy opened in the editor is stored in `%TEMP%\CyberArkTerm\edit` and deleted when
+  the SSH tab closes; a warning shows if changes were not sent back.
 - **No command injection**: SCP paths and start folders are quoted for the remote shell; `ssh` / Windows
   Terminal arguments are validated and passed without a shell.
 - CSV export protected against Excel formula injection.
@@ -235,8 +248,10 @@ connection on the first SCP upload. Each one is a PSMP session, recorded by the 
 
 ### Following the terminal folder
 
-When an SSH session opens (if the option is on), CyberArkTerm sends the shell a one-line command, preceded by
-a space so it stays out of the history:
+When an SSH session opens (if the option is on), CyberArkTerm waits for the target server's shell to show its
+prompt (up to 60 s: the PSMP sometimes takes several seconds to reach the target), then sends it a one-line
+command, preceded by a space so it stays out of the history. Nothing is sent if you already started typing;
+the command can be sent again without duplicate effect (the "Follow" box):
 
 - sets `PROMPT_COMMAND` (bash) or `precmd` (zsh) to emit the standard **OSC 7** sequence with the current
   folder at each prompt;
@@ -257,7 +272,7 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 | The account does not show up | You lack the "List accounts" permission on its safe, or the list needs reloading (`F5`). |
 | The PSMP password is asked for each tab | MFA caching is not enabled on the PVWA: expected behavior (once per tab). |
 | The Files tab shows "SFTP connection failed" | SFTP is not allowed on the PSMP or for this account: ask your CyberArk team. |
-| The browser does not follow `cd` | The remote shell is not bash or zsh, or the option is off in Settings. |
+| The browser does not follow `cd` | The remote shell is not bash or zsh, the option is off in Settings, or the prompt was not recognized: tick "Follow the terminal folder" again at the shell prompt. |
 | "The key of the PSMP has changed" warning | Only continue if your CyberArk team confirms a server change. |
 
 ## Development

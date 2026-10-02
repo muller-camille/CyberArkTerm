@@ -15,7 +15,7 @@ public partial class SshSessionView : UserControl
         Session = session;
         Target = target;
         Terminal.Emulator = session.Emulator;
-        Terminal.Input += session.Send;
+        Terminal.Input += session.SendInput;
         Terminal.TerminalResized += session.Resize;
         session.ScreenUpdated += Terminal.Refresh;
         session.StateChanged += UpdateOverlay;

@@ -13,6 +13,11 @@
                     <Image Source="{StaticResource IconDownload}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <MenuItem Tag="edit" Header="{x:Static loc:Strings.FileEdit}" Click="OnEdit" InputGestureText="F4">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.FileUploadHere}" Click="OnUploadDialog">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconUpload}" Width="16" Height="16" />
@@ -27,6 +32,11 @@
             <MenuItem Tag="delete" Header="{x:Static loc:Strings.FileDelete}" Click="OnDelete">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Tag="chmod" Header="{x:Static loc:Strings.FilePermissions}" Click="OnPermissions">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconPermissions}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
@@ -60,8 +70,14 @@
                 <Button Style="{StaticResource SmallToolButton}" Click="OnDownload" ToolTip="{x:Static loc:Strings.DownloadTip}">
                     <Image Source="{StaticResource IconDownload}" Style="{StaticResource SmallIcon}" />
                 </Button>
+                <Button Style="{StaticResource SmallToolButton}" Click="OnEdit" ToolTip="{x:Static loc:Strings.EditTip}">
+                    <Image Source="{StaticResource IconEdit}" Style="{StaticResource SmallIcon}" />
+                </Button>
                 <Button Style="{StaticResource SmallToolButton}" Click="OnNewFolder" ToolTip="{x:Static loc:Strings.NewFolder}">
                     <Image Source="{StaticResource IconNewFolder}" Style="{StaticResource SmallIcon}" />
+                </Button>
+                <Button Style="{StaticResource SmallToolButton}" Click="OnPermissions" ToolTip="{x:Static loc:Strings.PermissionsTip}">
+                    <Image Source="{StaticResource IconPermissions}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Button Style="{StaticResource SmallToolButton}" Click="OnDelete" ToolTip="{x:Static loc:Strings.DeleteTip}">
                     <Image Source="{StaticResource IconDelete}" Style="{StaticResource SmallIcon}" />

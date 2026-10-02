@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using CyberArkTerm.App.Services;
 using CyberArkTerm.App.Views;
 using CyberArkTerm.Core;
 using CyberArkTerm.Core.Localization;
@@ -29,6 +30,7 @@ public partial class App : Application
         }));
         _systemCulture = CultureInfo.CurrentUICulture;
         _settings = AppSettings.Load(AppSettings.DefaultPath);
+        RemoteEditor.CleanupStale();
         StartSession();
     }
 

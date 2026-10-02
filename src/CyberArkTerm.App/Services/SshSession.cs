@@ -35,6 +35,7 @@ public sealed class SshSession : IDisposable
     private Task<RemoteFileBrowser>? _browser;
     private int _drainScheduled;
     private DateTime _lastData;
+    private bool _userTyped;
 
     public SshSession(PvwaAccount account, string label, PsmpConnector connector, Dispatcher dispatcher,
         bool followTerminal, SavedSession? saved)
@@ -72,6 +73,9 @@ public sealed class SshSession : IDisposable
     public SshSessionState State { get; private set; } = SshSessionState.Connecting;
 
     public string? Error { get; private set; }
+
+    /// <summary>Fichiers de cette session ouverts dans l'éditeur de texte (créé par la fenêtre principale).</summary>
+    public RemoteEditor? Editor { get; set; }
 
     public string? TerminalDirectory { get; private set; }
 
@@ -118,6 +122,28 @@ public sealed class SshSession : IDisposable
             SetState(SshSessionState.Failed, ex is OperationCanceledException ? Strings.ConnectionCancelled : ex.Message);
             throw;
         }
+    }
+
+    /// <summary>Saisie de l'utilisateur dans le terminal.</summary>
+    public void SendInput(string text)
+    {
+        _userTyped = true;
+        Send(text);
+    }
+
+    /// <summary>
+    /// Installe le suivi du dossier dans le shell courant (case « Suivre » cochée, nouveau shell après « sudo -i »...).
+    /// Seulement si le shell attend une commande, pour ne rien écrire au milieu d'une saisie ou d'un éditeur.
+    /// </summary>
+    public bool InstallFolderTracking()
+    {
+        if (!_followTerminal || State != SshSessionState.Connected || !IsAtPrompt())
+        {
+            return false;
+        }
+
+        Send(WorkingDirectory.InjectionFor(Emulator.CursorColumn, Emulator.Columns));
+        return true;
     }
 
     public void Send(string text)
@@ -174,6 +200,7 @@ public sealed class SshSession : IDisposable
 
     public void Dispose()
     {
+        Editor?.Dispose();
         _lifetime.Cancel();
         try
         {
@@ -225,25 +252,36 @@ public sealed class SshSession : IDisposable
     /// du serveur courant et installe PROMPT_COMMAND (séquence OSC 7), puis efface la commande tapée.
     /// Sans suivi du dossier, seul le « cd » (visible) est envoyé.
     /// </summary>
+    /// <summary>
+    /// Installe le suivi du dossier (et le « cd » de départ) dès que le shell du serveur cible affiche son invite.
+    /// Avec un vrai PSMP, la connexion à la cible peut prendre plusieurs secondes après la bannière, et ce qui est
+    /// envoyé avant que le shell soit prêt est perdu : on attend donc une invite, pas seulement un silence.
+    /// </summary>
     private async Task PrepareShellAsync(string? startDirectory)
     {
-        var deadline = DateTime.UtcNow.AddSeconds(8);
+        var deadline = DateTime.UtcNow.AddSeconds(60);
         while (DateTime.UtcNow < deadline && State == SshSessionState.Connected)
         {
             await Task.Delay(250);
-            if (_lastData != default && DateTime.UtcNow - _lastData > TimeSpan.FromMilliseconds(700))
+            if (_userTyped)
             {
-                if (!Emulator.IsAlternateScreen)
-                {
-                    Send(_followTerminal
-                        ? WorkingDirectory.InjectionFor(Emulator.CursorColumn, Emulator.Columns, startDirectory)
-                        : WorkingDirectory.ChangeDirectoryCommand(startDirectory!));
-                }
+                // L'utilisateur a pris la main : on n'écrit pas dans sa ligne (la case « Suivre » permet d'installer le suivi).
+                return;
+            }
 
+            if (_lastData != default && DateTime.UtcNow - _lastData > TimeSpan.FromMilliseconds(400) && IsAtPrompt())
+            {
+                Send(_followTerminal
+                    ? WorkingDirectory.InjectionFor(Emulator.CursorColumn, Emulator.Columns, startDirectory)
+                    : WorkingDirectory.ChangeDirectoryCommand(startDirectory!));
                 return;
             }
         }
     }
+
+    private bool IsAtPrompt() =>
+        !Emulator.IsAlternateScreen && Emulator.CursorColumn > 0
+        && WorkingDirectory.LooksLikePrompt(Emulator.GetText(Emulator.CursorRow, 0, Emulator.CursorRow, Emulator.CursorColumn - 1));
 
     private void SetState(SshSessionState state, string? error)
     {
