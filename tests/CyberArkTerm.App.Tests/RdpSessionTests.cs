@@ -642,9 +642,15 @@ public class RdpSessionTests(ITestOutputHelper output)
                 Thread.Sleep(TimeSpan.FromSeconds(8));
                 return true;
             });
-            await Task.Delay(TimeSpan.FromSeconds(7));
+            // Signalé en un peu plus de 7 s au pire : sollicitation envoyée jusqu'à 1 s après le blocage, délai de 5 s,
+            // surveillance toutes les secondes (en priorité basse). Le contrôle reste bloqué 8 s.
+            while (!sawNotResponding && watch.ElapsedMilliseconds < 7800)
+            {
+                await Task.Delay(100);
+            }
+
             output.WriteLine($"Interface : {ticks} tops de 100 ms en {watch.ElapsedMilliseconds} ms, « ne répond pas » : {sawNotResponding}");
-            Assert.True(ticks >= 35, $"{ticks} tops seulement : l'interface a été bloquée");
+            Assert.True(ticks >= watch.ElapsedMilliseconds / 200, $"{ticks} tops seulement : l'interface a été bloquée");
             Assert.True(sawNotResponding);
 
             Assert.True(await blocked);
