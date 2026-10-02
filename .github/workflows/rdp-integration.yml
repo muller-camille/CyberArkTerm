@@ -1,0 +1,69 @@
+name: rdp-integration
+
+# Sessions Bureau à distance réelles sur le poste de CI (connexion à 127.0.0.2) : bureau dans un onglet et
+# application distante (RemoteApp). Le poste est éphémère : on y active le Bureau à distance, les applications
+# distantes non publiées, et un compte local de test au mot de passe aléatoire, masqué dans les journaux.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/CyberArkTerm.App/Services/Rdp/**'
+      - 'src/CyberArkTerm.Core/Rdp/**'
+      - 'tests/CyberArkTerm.App.Tests/RdpSessionTests.cs'
+      - '.github/workflows/rdp-integration.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  rdp:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Bureau à distance et compte de test
+        shell: pwsh
+        run: |
+          $bytes = [System.Security.Cryptography.RandomNumberGenerator]::GetBytes(18)
+          $password = [Convert]::ToBase64String($bytes).Replace('/', 'x').Replace('+', 'y') + 'aA1!'
+          Write-Output "::add-mask::$password"
+          $user = 'cattest'
+          New-LocalUser -Name $user -Password (ConvertTo-SecureString $password -AsPlainText -Force) -PasswordNeverExpires | Out-Null
+          Add-LocalGroupMember -SID 'S-1-5-32-555' -Member $user   # Utilisateurs du Bureau à distance
+          Add-LocalGroupMember -SID 'S-1-5-32-544' -Member $user   # Administrateurs (deux sessions sans licence RDS)
+
+          $ts = 'HKLM:\System\CurrentControlSet\Control\Terminal Server'
+          Set-ItemProperty $ts -Name fDenyTSConnections -Value 0 -Type DWord
+          # Applications distantes sans publication (liste d'autorisation désactivée), comme sur un hôte RemoteApp.
+          $allow = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Terminal Server\TSAppAllowList'
+          New-Item $allow -Force | Out-Null
+          Set-ItemProperty $allow -Name fDisabledAllowList -Value 1 -Type DWord
+          $policy = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+          New-Item $policy -Force | Out-Null
+          Set-ItemProperty $policy -Name fAllowUnlistedRemotePrograms -Value 1 -Type DWord
+          # Délégation des identifiants (CredSSP) vers ce poste, authentifié par NTLM seulement.
+          $deleg = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation'
+          New-Item "$deleg\AllowFreshCredentialsWhenNTLMOnly" -Force | Out-Null
+          Set-ItemProperty $deleg -Name AllowFreshCredentialsWhenNTLMOnly -Value 1 -Type DWord
+          Set-ItemProperty $deleg -Name ConcatenateDefaults_AllowFreshNTLMOnly -Value 1 -Type DWord
+          Set-ItemProperty "$deleg\AllowFreshCredentialsWhenNTLMOnly" -Name 1 -Value 'TERMSRV/*'
+
+          # Le service lit ces réglages à chaque connexion : il suffit qu'il tourne (pas de redémarrage).
+          Set-Service TermService -StartupType Automatic
+          if ((Get-Service TermService).Status -ne 'Running') { Start-Service TermService }
+          Start-Sleep -Seconds 3
+          Get-Service TermService | Format-Table -AutoSize | Out-String | Write-Output
+          Test-NetConnection 127.0.0.2 -Port 3389 | Select-Object TcpTestSucceeded | Out-String | Write-Output
+
+          "RDP_TEST_USER=$user" >> $env:GITHUB_ENV
+          "RDP_TEST_PASSWORD=$password" >> $env:GITHUB_ENV
+
+      - name: Tests de sessions réelles
+        run: >
+          dotnet test tests/CyberArkTerm.App.Tests -c Release
+          --filter Category=RdpIntegration
+          --logger "console;verbosity=detailed"

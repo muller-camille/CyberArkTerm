@@ -76,12 +76,30 @@ public class RdpConnectionSettingsTests
     }
 
     [Fact]
-    public void DetectsRemoteApp()
+    public void ReadsRemoteAppSettings()
     {
         var s = RdpConnectionSettings.FromRdpFile(Encoding.UTF8.GetBytes(
-            "full address:s:psm\r\nremoteapplicationmode:i:1\r\nremoteapplicationprogram:s:||PSM_RemoteApp\r\n"));
+            "full address:s:psm\r\nremoteapplicationmode:i:1\r\nremoteapplicationprogram:s:||PSMInitSession\r\n" +
+            "remoteapplicationname:s:PSM Session\r\nremoteapplicationcmdline:s:/u admin /a srv01 /c PSM-RDP\r\n" +
+            "disableremoteappcapscheck:i:1\r\n"));
 
         Assert.True(s.IsRemoteApp);
+        Assert.Equal("||PSMInitSession", s.RemoteApplicationProgram);
+        Assert.Equal("/u admin /a srv01 /c PSM-RDP", s.RemoteApplicationArgs);
+        Assert.True(s.DisableRemoteAppCapsCheck);
+        Assert.Equal("PSM Session", s.RemoteApplicationTitle);
+    }
+
+    [Theory]
+    [InlineData("||PSMInitSession", "PSMInitSession")]
+    [InlineData(@"C:\Windows\System32\notepad.exe", "notepad.exe")]
+    public void RemoteAppTitleFallsBackToTheProgram(string program, string expected)
+    {
+        var s = RdpConnectionSettings.FromRdpFile(Encoding.UTF8.GetBytes(
+            $"full address:s:psm\r\nremoteapplicationmode:i:1\r\nremoteapplicationprogram:s:{program}\r\n"));
+
+        Assert.Equal(expected, s.RemoteApplicationTitle);
+        Assert.False(s.DisableRemoteAppCapsCheck);
     }
 
     [Fact]

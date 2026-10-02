@@ -988,11 +988,23 @@ Fermer quand même ? Les copies locales seront supprimées.</value>
   <data name="RdpDisconnectCode" xml:space="preserve">
     <value>Déconnecté (code {0}).</value>
   </data>
-  <data name="RdpRemoteAppInTab" xml:space="preserve">
-    <value>Cette connexion ouvre une application distante (RemoteApp), qui ne peut pas s'afficher dans un onglet.</value>
+  <data name="RdpRemoteAppOpened" xml:space="preserve">
+    <value>Application distante « {0} » ouverte</value>
   </data>
-  <data name="RdpRemoteAppFallback" xml:space="preserve">
-    <value>{0} : ce composant PSM ouvre une application distante (RemoteApp), ouverte dans la Connexion Bureau à distance (mstsc).</value>
+  <data name="RdpRemoteAppHint" xml:space="preserve">
+    <value>Ses fenêtres s'ouvrent à part, comme celles de ce poste. Fermer l'application termine la session ; Déconnecter la ferme d'ici.</value>
+  </data>
+  <data name="RdpRemoteAppFailed" xml:space="preserve">
+    <value>L'application distante « {0} » n'a pas pu être lancée : {1}</value>
+  </data>
+  <data name="RdpRemoteAppNotAllowed" xml:space="preserve">
+    <value>elle n'est pas autorisée sur le serveur.</value>
+  </data>
+  <data name="RdpRemoteAppNotFound" xml:space="preserve">
+    <value>elle est introuvable sur le serveur.</value>
+  </data>
+  <data name="RdpRemoteAppErrorCode" xml:space="preserve">
+    <value>erreur {0}.</value>
   </data>
   <data name="RdpControlMissing" xml:space="preserve">
     <value>{0} : le contrôle Bureau à distance n'est pas disponible sur ce poste, session ouverte dans la Connexion Bureau à distance (mstsc).</value>

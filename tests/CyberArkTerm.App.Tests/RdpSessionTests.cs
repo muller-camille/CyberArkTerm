@@ -59,6 +59,165 @@ public class RdpSessionTests(ITestOutputHelper output)
         }
     }
 
+    /// <summary>
+    /// Vraie session sur ce poste (127.0.0.2) avec le compte de test créé par le workflow « rdp-integration » :
+    /// ouverture de session dans l'onglet, puis déconnexion. Ignoré sans RDP_TEST_USER / RDP_TEST_PASSWORD.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "RdpIntegration")]
+    public async Task DesktopSessionOpensOnARealServer()
+    {
+        if (IntegrationAccount() is not { } account)
+        {
+            return;
+        }
+
+        var request = new RdpConnectionRequest(RdpConnectionSettings.FromRdpFile(Encoding.Unicode.GetBytes(
+            $"full address:s:127.0.0.2:3389\r\nusername:s:{account.User}\r\nauthentication level:i:0\r\nenablecredsspsupport:i:1\r\n")),
+            account.Password);
+
+        await RunOnStaAsync(request, async session =>
+        {
+            await session.ConnectAsync();
+            var state = await WaitForAsync(session, s => s != RdpSessionState.Connecting, TimeSpan.FromSeconds(90));
+            output.WriteLine($"Bureau : {state}, raison {session.DisconnectReason}, {session.Error}");
+            Assert.Equal(RdpSessionState.Connected, state);
+            Assert.True(session.ShowsDesktop);
+
+            session.Disconnect();
+            Assert.Equal(RdpSessionState.Ended, await WaitForAsync(session, s => s is RdpSessionState.Ended or RdpSessionState.Failed, TimeSpan.FromSeconds(30)));
+        });
+    }
+
+    /// <summary>
+    /// Application distante (RemoteApp) sur ce poste : le Bloc-notes est lancé dans une nouvelle session, l'onglet
+    /// n'affiche pas de bureau, et Déconnecter ferme la session.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "RdpIntegration")]
+    public async Task RemoteAppStartsOnARealServer()
+    {
+        if (IntegrationAccount() is not { } account)
+        {
+            return;
+        }
+
+        var request = new RdpConnectionRequest(RdpConnectionSettings.FromRdpFile(Encoding.Unicode.GetBytes(
+            $"full address:s:127.0.0.2:3389\r\nusername:s:{account.User}\r\nauthentication level:i:0\r\nenablecredsspsupport:i:1\r\n" +
+            "remoteapplicationmode:i:1\r\nremoteapplicationprogram:s:C:\\Windows\\System32\\notepad.exe\r\n" +
+            "remoteapplicationname:s:Bloc-notes\r\ndisableremoteappcapscheck:i:1\r\nalternate shell:s:rdpinit.exe\r\n")),
+            account.Password);
+        int ourSession = System.Diagnostics.Process.GetCurrentProcess().SessionId;
+
+        await RunOnStaAsync(request, async session =>
+        {
+            await session.ConnectAsync();
+            var state = await WaitForAsync(session, s => s != RdpSessionState.Connecting, TimeSpan.FromSeconds(90));
+            output.WriteLine($"Application distante : {state}, raison {session.DisconnectReason}, {session.Error}");
+            Assert.Equal(RdpSessionState.Connected, state);
+            Assert.True(session.IsRemoteApp);
+            Assert.False(session.ShowsDesktop);
+            Assert.Equal("Bloc-notes", session.RemoteAppName);
+
+            // Le Bloc-notes tourne dans la session ouverte pour l'application (pas dans celle des tests).
+            bool started = false;
+            for (int i = 0; i < 60 && !started; i++)
+            {
+                started = System.Diagnostics.Process.GetProcessesByName("notepad").Any(p => p.SessionId != ourSession);
+                if (!started)
+                {
+                    await Task.Delay(500);
+                }
+            }
+
+            output.WriteLine($"Bloc-notes dans une autre session : {started} ; état {session.State}, {session.Error}");
+            Assert.True(started, "Bloc-notes non lancé dans la session distante");
+            Assert.Equal(RdpSessionState.Connected, session.State);
+
+            session.Disconnect();
+            var end = await WaitForAsync(session, s => s is RdpSessionState.Ended or RdpSessionState.Failed, TimeSpan.FromSeconds(30));
+            output.WriteLine($"Fin : {end}, raison {session.DisconnectReason}, {session.Error}");
+            Assert.Equal(RdpSessionState.Ended, end);
+        });
+    }
+
+    /// <summary>Compte de test fourni par le workflow d'intégration, ou null (tests ignorés).</summary>
+    private (string User, string Password)? IntegrationAccount()
+    {
+        var user = Environment.GetEnvironmentVariable("RDP_TEST_USER");
+        var password = Environment.GetEnvironmentVariable("RDP_TEST_PASSWORD");
+        if (!OperatingSystem.IsWindows() || string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password) || !RdpClientHost.IsAvailable)
+        {
+            output.WriteLine("Pas de compte RDP de test : test d'intégration ignoré.");
+            return null;
+        }
+
+        return ($"{Environment.MachineName}\\{user}", password);
+    }
+
+    /// <summary>Exécute <paramref name="scenario"/> sur un thread STA, la session étant affichée dans une fenêtre.</summary>
+    private static async Task RunOnStaAsync(RdpConnectionRequest request, Func<RdpSession, Task> scenario)
+    {
+        var done = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var thread = new Thread(() =>
+        {
+            var session = new RdpSession("test", _ => Task.FromResult(request));
+            var window = new Window { Width = 900, Height = 650, ShowInTaskbar = false, ShowActivated = false, Content = session.Host };
+            window.Show();
+            window.Dispatcher.BeginInvoke(DispatcherPriority.Loaded, async () =>
+            {
+                try
+                {
+                    await scenario(session);
+                    done.TrySetResult();
+                }
+                catch (Exception e)
+                {
+                    done.TrySetException(e);
+                }
+                finally
+                {
+                    session.Dispose();
+                    window.Close();
+                    window.Dispatcher.InvokeShutdown();
+                }
+            });
+            Dispatcher.Run();
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.IsBackground = true;
+        thread.Start();
+        await done.Task.WaitAsync(TimeSpan.FromMinutes(4));
+    }
+
+    /// <summary>Attend (sur le thread de la session) un état qui vérifie <paramref name="until"/>.</summary>
+    private static async Task<RdpSessionState> WaitForAsync(RdpSession session, Func<RdpSessionState, bool> until, TimeSpan timeout)
+    {
+        var reached = new TaskCompletionSource<RdpSessionState>();
+        void Check()
+        {
+            if (until(session.State))
+            {
+                reached.TrySetResult(session.State);
+            }
+        }
+
+        session.StateChanged += Check;
+        try
+        {
+            Check();
+            return await reached.Task.WaitAsync(timeout);
+        }
+        catch (TimeoutException)
+        {
+            throw new Xunit.Sdk.XunitException($"Délai dépassé : état {session.State}, raison {session.DisconnectReason}, {session.Error}");
+        }
+        finally
+        {
+            session.StateChanged -= Check;
+        }
+    }
+
     /// <summary>Fermer l'onglet pendant que la connexion se prépare (appel au PVWA) ne doit pas lever d'erreur.</summary>
     [Fact]
     public async Task ClosingWhilePreparingDoesNotThrow()

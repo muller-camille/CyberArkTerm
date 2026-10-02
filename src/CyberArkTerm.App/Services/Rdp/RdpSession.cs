@@ -31,6 +31,8 @@ internal sealed class RdpSession : IDisposable
     private const int DispIdEnterFullScreen = 5;
     private const int DispIdLeaveFullScreen = 6;
     private const int DispIdFatalError = 10;
+    private const int DispIdRemoteProgramResult = 20;
+    private const int DispIdRemoteProgramDisplayed = 21;
 
     // Raisons de déconnexion normales : par ce poste, par l'utilisateur distant, par le serveur.
     private static readonly int[] NormalDisconnects = [1, 2, 3];
@@ -44,6 +46,7 @@ internal sealed class RdpSession : IDisposable
     private bool _loggedIn;
     private bool _dynamicResize = true;
     private (int Width, int Height) _sessionSize;
+    private string? _programError;
     private bool _disposed;
 
     /// <param name="label">« compte@cible », titre de l'onglet et du plein écran.</param>
@@ -91,13 +94,26 @@ internal sealed class RdpSession : IDisposable
 
     public bool IsConnected => State == RdpSessionState.Connected;
 
-    /// <summary>Vrai tant que le contrôle Bureau à distance est affiché (connexion en cours ou établie).</summary>
+    /// <summary>Vrai tant que le contrôle Bureau à distance existe (connexion en cours ou établie).</summary>
     public bool HasControl => _client is not null;
+
+    /// <summary>
+    /// Vrai pour une application distante (RemoteApp) : ses fenêtres s'ouvrent directement sur le bureau de ce poste,
+    /// l'onglet n'affiche que son état.
+    /// </summary>
+    public bool IsRemoteApp { get; private set; }
+
+    /// <summary>Nom de l'application distante (vide pour un bureau).</summary>
+    public string RemoteAppName { get; private set; } = "";
+
+    /// <summary>Vrai si l'onglet affiche le bureau distant.</summary>
+    public bool ShowsDesktop => HasControl && !IsRemoteApp;
 
     public async Task ConnectAsync()
     {
         ReleaseClient();
         Error = null;
+        _programError = null;
         ControlFailed = false;
         DisconnectReason = null;
         SetState(RdpSessionState.Connecting);
@@ -105,10 +121,6 @@ internal sealed class RdpSession : IDisposable
         try
         {
             request = await _prepare(_lifetime.Token);
-            if (request.Settings.IsRemoteApp)
-            {
-                throw new NotSupportedException(Strings.RdpRemoteAppInTab);
-            }
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -130,6 +142,8 @@ internal sealed class RdpSession : IDisposable
         try
         {
             Server = request.Settings.Server;
+            IsRemoteApp = request.Settings.IsRemoteApp;
+            RemoteAppName = IsRemoteApp ? request.Settings.RemoteApplicationTitle : "";
             StartClient(request);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
@@ -197,7 +211,7 @@ internal sealed class RdpSession : IDisposable
 
     public void EnterFullScreen()
     {
-        if (_ocx is not null && IsConnected)
+        if (_ocx is not null && IsConnected && !IsRemoteApp)
         {
             TryCall(() => Dispatch.Set(_ocx, "FullScreen", true));
         }
@@ -205,7 +219,7 @@ internal sealed class RdpSession : IDisposable
 
     public void Focus()
     {
-        if (_client is { IsHandleCreated: true } client && IsConnected)
+        if (_client is { IsHandleCreated: true } client && IsConnected && !IsRemoteApp)
         {
             client.Focus();
         }
@@ -241,6 +255,8 @@ internal sealed class RdpSession : IDisposable
         Subscribe(ocx, DispIdLoginComplete, new Action(OnLoginComplete));
         Subscribe(ocx, DispIdDisconnected, new Action<int>(OnDisconnected));
         Subscribe(ocx, DispIdFatalError, new Action<int>(OnFatalError));
+        Subscribe(ocx, DispIdRemoteProgramResult, new Action<string, int, bool>(OnRemoteProgramResult));
+        Subscribe(ocx, DispIdRemoteProgramDisplayed, new Action<bool, uint>(OnRemoteProgramDisplayed));
         Subscribe(ocx, DispIdEnterFullScreen, new Action(() => IsFullScreen = true));
         Subscribe(ocx, DispIdLeaveFullScreen, new Action(() =>
         {
@@ -250,7 +266,14 @@ internal sealed class RdpSession : IDisposable
 
         Configure(ocx, request);
         Dispatch.Call(ocx, "Connect");
-        // Le contrôle s'affiche : l'onglet masque son message.
+        if (IsRemoteApp)
+        {
+            // Application distante : rien à montrer dans l'onglet (ses fenêtres s'ouvrent à part, comme avec mstsc),
+            // qui affiche à la place l'état de l'application.
+            Host.Visibility = Visibility.Hidden;
+        }
+
+        // Le contrôle existe : l'onglet affiche le bureau, ou l'état de l'application distante.
         SetState(RdpSessionState.Connecting);
     }
 
@@ -258,8 +281,9 @@ internal sealed class RdpSession : IDisposable
     private void Configure(object ocx, RdpConnectionRequest request)
     {
         var s = request.Settings;
-        _sessionSize = DesktopSize(PixelSize());
-        _dynamicResize = !s.SmartSizing;
+        // Application distante : bureau de la taille de tous les écrans, pour que ses fenêtres puissent aller partout.
+        _sessionSize = DesktopSize(s.IsRemoteApp ? VirtualScreenSize() : PixelSize());
+        _dynamicResize = !s.SmartSizing && !s.IsRemoteApp;
         _loggedIn = false;
 
         Dispatch.Set(ocx, "Server", s.Server);
@@ -314,18 +338,47 @@ internal sealed class RdpSession : IDisposable
             Dispatch.Set(advanced, "ClearTextPassword", password);
         }
 
-        if (s.StartProgram.Length > 0 || s.WorkDir.Length > 0 || s.KeyboardHookMode != 2)
+        if (s.IsRemoteApp)
+        {
+            // L'application est lancée à l'ouverture de session (programme, nom et arguments du fichier .rdp, comme
+            // mstsc) ; « alternate shell » ne sert pas dans ce mode.
+            var program = Dispatch.First(ocx, "RemoteProgram2") ?? throw new COMException("RemoteProgram2", unchecked((int)0x80004002));
+            Dispatch.Set(program, "RemoteProgramMode", true);
+            if (s.RemoteApplicationProgram.Length > 0)
+            {
+                Dispatch.Set(program, "RemoteApplicationProgram", s.RemoteApplicationProgram);
+            }
+
+            if (s.RemoteApplicationName.Length > 0)
+            {
+                Dispatch.Set(program, "RemoteApplicationName", s.RemoteApplicationName);
+            }
+
+            if (s.RemoteApplicationArgs.Length > 0)
+            {
+                Dispatch.Set(program, "RemoteApplicationArgs", s.RemoteApplicationArgs);
+            }
+
+            if (s.DisableRemoteAppCapsCheck && ocx is IMsRdpClientNonScriptable5 nonScriptable)
+            {
+                Optional(() => nonScriptable.SetDisableRemoteAppCapsCheck(true));
+            }
+        }
+
+        var startProgram = s.IsRemoteApp ? "" : s.StartProgram;
+        var workDir = s.IsRemoteApp ? "" : s.WorkDir;
+        if (startProgram.Length > 0 || workDir.Length > 0 || s.KeyboardHookMode != 2)
         {
             var secured = Dispatch.First(ocx, "SecuredSettings3", "SecuredSettings2")
                           ?? throw new COMException("SecuredSettings", unchecked((int)0x80004002));
-            if (s.StartProgram.Length > 0)
+            if (startProgram.Length > 0)
             {
-                Dispatch.Set(secured, "StartProgram", s.StartProgram);
+                Dispatch.Set(secured, "StartProgram", startProgram);
             }
 
-            if (s.WorkDir.Length > 0)
+            if (workDir.Length > 0)
             {
-                Dispatch.Set(secured, "WorkDir", s.WorkDir);
+                Dispatch.Set(secured, "WorkDir", workDir);
             }
 
             Optional(() => Dispatch.Set(secured, "KeyboardHookMode", s.KeyboardHookMode));
@@ -380,12 +433,48 @@ internal sealed class RdpSession : IDisposable
         }
 
         DisconnectReason = reason;
-        bool normal = NormalDisconnects.Contains(reason);
-        Error = normal && reason == 1 ? null : string.IsNullOrWhiteSpace(description) ? Text.Format(Strings.RdpDisconnectCode, reason) : description.Trim();
+        bool normal = NormalDisconnects.Contains(reason) && _programError is null;
+        Error = _programError
+                ?? (normal && reason == 1 ? null : string.IsNullOrWhiteSpace(description) ? Text.Format(Strings.RdpDisconnectCode, reason) : description.Trim());
         IsFullScreen = false;
         _loggedIn = false;
         SetState(normal ? RdpSessionState.Ended : RdpSessionState.Failed);
         ReleaseLater();
+    }
+
+    /// <summary>Résultat du lancement de l'application distante ; en cas d'échec, la session est fermée avec l'explication.</summary>
+    private void OnRemoteProgramResult(string program, int result, bool isExecutable)
+    {
+        if (result == 0 || _disposed)
+        {
+            return;
+        }
+
+        var why = result switch
+        {
+            3 => Strings.RdpRemoteAppNotAllowed,
+            4 or 5 => Strings.RdpRemoteAppNotFound,
+            _ => Text.Format(Strings.RdpRemoteAppErrorCode, result.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+        };
+        _programError = Text.Format(Strings.RdpRemoteAppFailed, RemoteAppName.Length > 0 ? RemoteAppName : program, why);
+        // Sans application, la session n'afficherait rien : on la ferme (hors de l'événement du contrôle).
+        Host.Dispatcher.BeginInvoke(() =>
+        {
+            if (!_disposed && _ocx is { } ocx)
+            {
+                TryCall(() => Dispatch.Call(ocx, "Disconnect"));
+            }
+        });
+    }
+
+    private void OnRemoteProgramDisplayed(bool displayed, uint information)
+    {
+        // Normalement signalé par l'ouverture de session ; certains serveurs n'envoient que l'affichage de l'application.
+        if (displayed && !_disposed && State == RdpSessionState.Connecting)
+        {
+            _loggedIn = true;
+            SetState(RdpSessionState.Connected);
+        }
     }
 
     private void OnFatalError(int code)
@@ -431,6 +520,13 @@ internal sealed class RdpSession : IDisposable
     /// <summary>Taille du bureau distant : entre 200 et 8192 pixels, largeur paire.</summary>
     internal static (int Width, int Height) DesktopSize((int Width, int Height) pixels) =>
         (Math.Clamp(pixels.Width, 200, 8192) & ~1, Math.Clamp(pixels.Height, 200, 8192));
+
+    /// <summary>Taille de l'ensemble des écrans de ce poste, en pixels.</summary>
+    private static (int Width, int Height) VirtualScreenSize()
+    {
+        var screen = System.Windows.Forms.SystemInformation.VirtualScreen;
+        return (screen.Width, screen.Height);
+    }
 
     /// <summary>Taille de la zone d'affichage en pixels de l'écran.</summary>
     private (int Width, int Height) PixelSize()
