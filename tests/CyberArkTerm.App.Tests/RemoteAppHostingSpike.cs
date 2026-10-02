@@ -159,13 +159,17 @@ public class RemoteAppHostingSpike(ITestOutputHelper output)
         // E2. Après redimensionnement, même mesure.
         await RightClick(main, host, "E2 redimensionnée");
 
-        // F. Agrandissement demandé à l'application (bouton du titre) : que fait la fenêtre rattachée ?
-        PostMessage(main, 0x112, new IntPtr(0xF030), IntPtr.Zero);
-        await Track(main, "F agrandie", 3000);
-        GetClientRect(slot, out slotRect);
-        SetWindowPos(main, IntPtr.Zero, 0, 0, slotRect.Width, slotRect.Height, SwpNoZOrder | SwpNoActivate);
-        await Track(main, "F réajustée", 3000);
-        await RightClick(main, host, "E3 après agrandissement");
+        // K. Vrai clavier : clic gauche dans la fenêtre, frappe, Ctrl+A, Ctrl+C ; le presse-papiers (redirigé) le dit.
+        await TypeAndCopy(main, host, "K clic", "bonjour", setFocus: false);
+        await TypeAndCopy(main, host, "K SetFocus", "monde", setFocus: true);
+
+        // H. Changement d'onglet : emplacement masqué puis réaffiché.
+        session.Host.Visibility = Visibility.Hidden;
+        await Track(main, "H masquée", 2000);
+        session.Host.Visibility = Visibility.Visible;
+        await Track(main, "H réaffichée", 2000);
+        ShotScreen(Screen(slot), "5-shown-again");
+        await RightClick(main, host, "E3 réaffichée");
 
         output.WriteLine("Fenêtres après :");
         foreach (var h in Ours().Where(IsWindowVisible))
@@ -210,6 +214,77 @@ public class RemoteAppHostingSpike(ITestOutputHelper output)
         Key(0x1B);
         await Task.Delay(800);
     }
+
+    private async Task TypeAndCopy(IntPtr main, IntPtr host, string step, string text, bool setFocus)
+    {
+        SetForegroundWindow(host);
+        await Task.Delay(300);
+        GetWindowRect(main, out var r);
+        SetCursorPos(r.Left + (r.Width / 2), r.Top + (r.Height / 2));
+        await Task.Delay(200);
+        Click(0x0002, 0x0004);
+        await Task.Delay(500);
+        if (setFocus)
+        {
+            output.WriteLine($"{step} : SetFocus → précédent {SetFocus(main)}");
+        }
+
+        int railThread = GetWindowThreadProcessId(main, out _);
+        var info = new GuiThreadInfo { Size = Marshal.SizeOf<GuiThreadInfo>() };
+        GetGUIThreadInfo(railThread, ref info);
+        output.WriteLine($"{step} : premier plan {GetForegroundWindow()}, actif {info.Active}, focus {info.Focus} (fenêtre {main})");
+        var inputs = new List<Input>();
+        foreach (var c in text)
+        {
+            inputs.Add(new Input { Type = 1, Keyboard = new KeyboardInput { Scan = c, Flags = 4 } });
+            inputs.Add(new Input { Type = 1, Keyboard = new KeyboardInput { Scan = c, Flags = 4 | 2 } });
+        }
+
+        foreach (ushort vk in new ushort[] { 'A', 'C' })
+        {
+            inputs.Add(new Input { Type = 1, Keyboard = new KeyboardInput { Vk = 0x11 } });
+            inputs.Add(new Input { Type = 1, Keyboard = new KeyboardInput { Vk = vk } });
+            inputs.Add(new Input { Type = 1, Keyboard = new KeyboardInput { Vk = vk, Flags = 2 } });
+            inputs.Add(new Input { Type = 1, Keyboard = new KeyboardInput { Vk = 0x11, Flags = 2 } });
+        }
+
+        SendInput((uint)inputs.Count, inputs.ToArray(), Marshal.SizeOf<Input>());
+        await Task.Delay(2500);
+        string clip;
+        try
+        {
+            clip = Clipboard.GetText();
+        }
+        catch (Exception e)
+        {
+            clip = "(" + e.GetType().Name + ")";
+        }
+
+        output.WriteLine($"{step} : presse-papiers « {clip.Replace("\r", "\\r").Replace("\n", "\\n")} » (attendu : contient « {text} »)");
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct GuiThreadInfo
+    {
+        public int Size;
+        public int Flags;
+        public IntPtr Active;
+        public IntPtr Focus;
+        public IntPtr Capture;
+        public IntPtr MenuOwner;
+        public IntPtr MoveSize;
+        public IntPtr Caret;
+        public Rect CaretRect;
+    }
+
+    [DllImport("user32.dll")]
+    private static extern bool GetGUIThreadInfo(int thread, ref GuiThreadInfo info);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr SetFocus(IntPtr h);
 
     private static void Click(uint down, uint up)
     {
