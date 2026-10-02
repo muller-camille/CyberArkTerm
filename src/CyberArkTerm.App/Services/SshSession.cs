@@ -113,6 +113,12 @@ public sealed class SshSession : IDisposable
             _client = await _connector.ConnectShellAsync(_lifetime.Token);
             DebugLog.Write("ssh", $"{Label} : connecté ({_client.ConnectionInfo.ServerVersion}, {_client.ConnectionInfo.CurrentServerEncryption}, bannière {!string.IsNullOrWhiteSpace(_connector.Banner)})");
             _client.KeepAliveInterval = TimeSpan.FromSeconds(30);
+            if (connection > 1 && Emulator.CursorColumn > 0)
+            {
+                // Reconnexion : la nouvelle session commence sur une nouvelle ligne, après l'invite de la précédente.
+                Emulator.Feed("\r\n");
+            }
+
             if (!string.IsNullOrWhiteSpace(_connector.Banner))
             {
                 // Bannière du PSMP (avertissement d'enregistrement) affichée en gris.

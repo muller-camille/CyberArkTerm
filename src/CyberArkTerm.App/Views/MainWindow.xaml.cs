@@ -686,6 +686,8 @@ public partial class MainWindow : Window
 
             if (EmbeddableRdp(rdp, label, out var fallbackReason) is { } embeddable)
             {
+                // « Dupliquer l'onglet » : même compte, même composant, même motif ; nouvelle demande au PVWA.
+                Task Duplicate() => ConnectAsync(account, request, saved: saved);
                 var settings = ForPsmTab(embeddable);
                 SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
                 AddRecent(account, label, request.Component, request.RemoteMachine);
@@ -696,7 +698,7 @@ public partial class MainWindow : Window
                     var file = await Client.PsmConnectAsync(account.Id, options, ct);
                     LogRdpFile(file);
                     return new RdpConnectionRequest(ForPsmTab(RdpConnectionSettings.FromRdpFile(file)), null);
-                }, new RdpConnectionRequest(settings, null));
+                }, new RdpConnectionRequest(settings, null), Duplicate);
                 if (session.ControlFailed)
                 {
                     // Contrôle Bureau à distance inutilisable sur ce poste : le jeton n'a pas servi, mstsc prend le relais.
@@ -717,7 +719,7 @@ public partial class MainWindow : Window
         else if (_settings.SshInApp)
         {
             var login = PsmpTarget.BuildLogin(_vaultUser, account, request.RemoteMachine);
-            await OpenSshTabAsync(account, login, label, saved);
+            await OpenSshTabAsync(account, login, label, saved, () => ConnectAsync(account, request, saved: saved));
             AddRecent(account, label, RecentModes.Ssh, request.RemoteMachine);
         }
         else

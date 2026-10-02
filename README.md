@@ -258,6 +258,7 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Terminal | Coller | Clic droit, `Maj+Inser` ou `Ctrl+Maj+V` |
 | Terminal | Historique | Molette, `Maj+Page préc.` / `Maj+Page suiv.` |
 | Onglet SSH ou Bureau à distance | Fermer | Croix de l'onglet ou clic molette |
+| Onglet SSH ou Bureau à distance | Reconnecter, dupliquer (autre session sur le même compte ou la même entrée), fermer, fermer les autres onglets | Clic droit sur l'onglet |
 | Bureau à distance | Plein écran / retour | `Ctrl+Alt+Pause` |
 | Fichiers | Ouvrir / modifier / dossier parent / supprimer / actualiser | `Entrée` / `F4` / `Retour arrière` / `Suppr` / `F5` |
 | Coffre KeePass | Se connecter / modifier / supprimer une entrée | Double-clic ou `Entrée` / `F2` / `Suppr` |

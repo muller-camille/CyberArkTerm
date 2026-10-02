@@ -1039,6 +1039,30 @@ Close anyway? The local copies will be deleted.</value>
   <data name="RdpDisconnectCodes" xml:space="preserve">
     <value>code {0}, extended code {1}</value>
   </data>
+  <data name="MenuTabReconnect" xml:space="preserve">
+    <value>_Reconnect</value>
+  </data>
+  <data name="MenuTabDuplicate" xml:space="preserve">
+    <value>_Duplicate tab</value>
+  </data>
+  <data name="MenuTabDuplicateTip" xml:space="preserve">
+    <value>Opens another session on the same account or entry, in a new tab</value>
+  </data>
+  <data name="MenuTabClose" xml:space="preserve">
+    <value>_Close tab</value>
+  </data>
+  <data name="MenuTabCloseOthers" xml:space="preserve">
+    <value>Close _other tabs</value>
+  </data>
+  <data name="TabReconnectConfirm" xml:space="preserve">
+    <value>Reconnect {0}? The open session will be closed.</value>
+  </data>
+  <data name="TabCloseOtherConfirm" xml:space="preserve">
+    <value>Close the other session tab? Its session will be closed.</value>
+  </data>
+  <data name="TabCloseOthersConfirm" xml:space="preserve">
+    <value>Close the {0} other session tabs? Their sessions will be closed.</value>
+  </data>
   <data name="MenuSettings" xml:space="preserve">
     <value>_Settings…</value>
   </data>

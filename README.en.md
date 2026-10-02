@@ -241,6 +241,7 @@ password, delete.
 | Terminal | Paste | Right-click, `Shift+Insert` or `Ctrl+Shift+V` |
 | Terminal | Scrollback | Mouse wheel, `Shift+Page Up` / `Shift+Page Down` |
 | SSH or remote desktop tab | Close | Tab cross or middle click |
+| SSH or remote desktop tab | Reconnect, duplicate (another session on the same account or entry), close, close the other tabs | Right-click on the tab |
 | Remote desktop | Full screen / back | `Ctrl+Alt+Break` |
 | Files | Open / edit / parent folder / delete / refresh | `Enter` / `F4` / `Backspace` / `Del` / `F5` |
 | KeePass vault | Connect / edit / delete an entry | Double-click or `Enter` / `F2` / `Del` |

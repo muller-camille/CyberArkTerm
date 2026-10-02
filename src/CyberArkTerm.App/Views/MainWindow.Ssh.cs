@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services;
+using CyberArkTerm.App.Services.Rdp;
 using CyberArkTerm.Core;
 using CyberArkTerm.Core.Ssh;
 using Renci.SshNet;
@@ -20,26 +21,28 @@ public partial class MainWindow
     private MfaSshKey? _mfaKey;
     private DateTime _mfaRetryAfter;
 
-    private async Task OpenSshTabAsync(PvwaAccount account, string login, string label, SavedSession? saved)
+    private async Task OpenSshTabAsync(PvwaAccount account, string login, string label, SavedSession? saved, Func<Task>? duplicate)
     {
         SetStatus(Text.Format(Strings.SshOpening, label, _settings.PsmpAddress));
         var key = await GetPsmpKeyAsync();
         var connector = new SshConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi, key);
         var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved);
         ShowSshTab(session, $"{login}@{_settings.PsmpAddress}", Strings.ConnectingViaPsmp, "IconSsh",
-            Text.Format(Strings.SshOpened, label, _settings.PsmpAddress));
+            Text.Format(Strings.SshOpened, label, _settings.PsmpAddress), duplicate);
     }
 
     /// <summary>Onglet terminal + panneau « Fichiers » pour une session SSH (via le PSMP ou directe).</summary>
     /// <param name="target">« utilisateur@serveur », affiché pendant la connexion.</param>
-    private void ShowSshTab(SshSession session, string target, string connectingText, string icon, string openedMessage)
+    /// <param name="duplicate">Ouvre une autre session sur le même compte ou la même entrée (menu de l'onglet).</param>
+    private void ShowSshTab(SshSession session, string target, string connectingText, string icon, string openedMessage,
+        Func<Task>? duplicate)
     {
         var label = session.Label;
         session.Editor = new RemoteEditor(session, this, _settings, (text, error) => SetStatus(text, error),
             directory => FilesPanel.OnRemoteChanged(session, directory));
         var view = new SshSessionView(session, target, connectingText);
         var tab = new TabItem { Content = view, Tag = session };
-        tab.Header = TabHeader(label, icon, () => CloseSshTab(tab));
+        tab.Header = TabHeader(tab, label, icon, duplicate);
         session.StateChanged += () =>
         {
             switch (session.State)
@@ -61,7 +64,8 @@ public partial class MainWindow
         _ = view.ConnectAsync();
     }
 
-    private object TabHeader(string label, string icon, Action close)
+    /// <summary>En-tête d'un onglet de session : icône, nom, bouton de fermeture, menu (clic droit).</summary>
+    private object TabHeader(TabItem tab, string label, string icon, Func<Task>? duplicate)
     {
         var closeButton = new Button
         {
@@ -69,7 +73,7 @@ public partial class MainWindow
             Content = new Image { Source = (System.Windows.Media.ImageSource)FindResource("IconClose"), Width = 11, Height = 11 },
             ToolTip = Strings.CloseSessionTip,
         };
-        closeButton.Click += (_, _) => close();
+        closeButton.Click += (_, _) => CloseSessionTab(tab);
         var header = new StackPanel { Orientation = Orientation.Horizontal, Background = System.Windows.Media.Brushes.Transparent };
         header.Children.Add(new Image { Source = (System.Windows.Media.ImageSource)FindResource(icon), Width = 16, Height = 16, Margin = new Thickness(0, 0, 6, 0) });
         header.Children.Add(new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center });
@@ -79,10 +83,115 @@ public partial class MainWindow
         {
             if (e.ChangedButton == MouseButton.Middle)
             {
-                close();
+                CloseSessionTab(tab);
             }
         };
+        header.ContextMenu = TabMenu(tab, duplicate);
         return header;
+    }
+
+    /// <summary>Menu de l'en-tête d'un onglet de session : reconnecter, dupliquer, fermer, fermer les autres.</summary>
+    private ContextMenu TabMenu(TabItem tab, Func<Task>? duplicate)
+    {
+        static Image MenuIcon(object source) => new() { Source = (System.Windows.Media.ImageSource)source, Width = 16, Height = 16 };
+
+        var reconnect = new MenuItem { Header = Strings.MenuTabReconnect, Icon = MenuIcon(FindResource("IconRefresh")) };
+        reconnect.Click += async (_, _) => await ReconnectTabAsync(tab);
+        var copy = new MenuItem
+        {
+            Header = Strings.MenuTabDuplicate,
+            ToolTip = Strings.MenuTabDuplicateTip,
+            Icon = MenuIcon(FindResource("IconConnect")),
+            IsEnabled = duplicate is not null,
+        };
+        copy.Click += async (_, _) =>
+        {
+            if (duplicate is not null)
+            {
+                await duplicate();
+            }
+        };
+        var close = new MenuItem { Header = Strings.MenuTabClose, Icon = MenuIcon(FindResource("IconClose")) };
+        close.Click += (_, _) => CloseSessionTab(tab);
+        var closeOthers = new MenuItem { Header = Strings.MenuTabCloseOthers };
+        closeOthers.Click += async (_, _) => await CloseOtherTabsAsync(tab);
+        var menu = new ContextMenu { Items = { reconnect, copy, new Separator(), close, closeOthers } };
+        menu.Opened += (_, _) => closeOthers.IsEnabled = SessionTabs().Any(t => t != tab);
+        return menu;
+    }
+
+    /// <summary>Onglets de session (SSH, Bureau à distance), dans l'ordre affiché.</summary>
+    private IEnumerable<TabItem> SessionTabs() => MainTabs.Items.OfType<TabItem>().Where(t => t.Tag is SshSession or RdpSession);
+
+    private void CloseSessionTab(TabItem tab)
+    {
+        switch (tab.Tag)
+        {
+            case SshSession:
+                CloseSshTab(tab);
+                break;
+            case RdpSession:
+                _ = CloseRdpTabAsync(tab);
+                break;
+        }
+    }
+
+    /// <summary>Nouvelle connexion dans le même onglet (nouvelle demande au PVWA) ; confirmation si la session est ouverte.</summary>
+    private async Task ReconnectTabAsync(TabItem tab)
+    {
+        MainTabs.SelectedItem = tab;
+        bool Confirm(string label) =>
+            MessageBox.Show(this, Text.Format(Strings.TabReconnectConfirm, label), "CyberArkTerm",
+                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes;
+
+        switch (tab.Tag)
+        {
+            case SshSession ssh when tab.Content is SshSessionView view:
+                if (ssh.State != SshSessionState.Connected || Confirm(ssh.Label))
+                {
+                    await view.ConnectAsync();
+                }
+
+                break;
+            case RdpSession rdp:
+                if (!rdp.IsConnected || Confirm(rdp.Label))
+                {
+                    await rdp.ReconnectAsync();
+                }
+
+                break;
+        }
+    }
+
+    /// <summary>Ferme les autres onglets de session, après une seule confirmation.</summary>
+    private async Task CloseOtherTabsAsync(TabItem keep)
+    {
+        var others = SessionTabs().Where(t => t != keep).ToList();
+        if (others.Count == 0
+            || MessageBox.Show(this, others.Count == 1 ? Strings.TabCloseOtherConfirm : Text.Format(Strings.TabCloseOthersConfirm, others.Count), "CyberArkTerm",
+                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        MainTabs.SelectedItem = keep;
+        var closing = new List<Task>();
+        foreach (var tab in others)
+        {
+            switch (tab.Tag)
+            {
+                case SshSession:
+                    // Seule question possible : des fichiers modifiés pas encore renvoyés.
+                    CloseSshTab(tab);
+                    break;
+                case RdpSession rdp:
+                    closing.Add(RemoveRdpTabAsync(rdp));
+                    break;
+            }
+        }
+
+        await Task.WhenAll(closing);
+        MainTabs.SelectedItem = keep;
     }
 
     private void CloseSshTab(TabItem tab)

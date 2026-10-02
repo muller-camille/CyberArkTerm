@@ -251,6 +251,7 @@ password, elimina.
 | Terminale | Incollare | Clic destro, `Maiusc+Ins` o `Ctrl+Maiusc+V` |
 | Terminale | Cronologia | Rotellina, `Maiusc+Pag su` / `Maiusc+Pag giù` |
 | Scheda SSH o Desktop remoto | Chiudere | Croce della scheda o clic centrale |
+| Scheda SSH o Desktop remoto | Riconnettere, duplicare (altra sessione sullo stesso account o sulla stessa voce), chiudere, chiudere le altre schede | Clic destro sulla scheda |
 | Desktop remoto | Schermo intero / ritorno | `Ctrl+Alt+Pausa` |
 | File | Aprire / modificare / cartella superiore / eliminare / aggiornare | `Invio` / `F4` / `Backspace` / `Canc` / `F5` |
 | Archivio KeePass | Connettere / modificare / eliminare una voce | Doppio clic o `Invio` / `F2` / `Canc` |
