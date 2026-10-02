@@ -189,4 +189,7 @@
   <data name="WriteIncomplete" xml:space="preserve">
     <value>Il server ha ricevuto {0} byte invece di {1}: il file sul server è incompleto.</value>
   </data>
+  <data name="TooManyFiles" xml:space="preserve">
+    <value>Più di {0} file o cartelle: trascinane meno alla volta.</value>
+  </data>
 </root>

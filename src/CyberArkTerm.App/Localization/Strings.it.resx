@@ -793,6 +793,18 @@ Continuare?</value>
   <data name="Downloaded" xml:space="preserve">
     <value>File scaricati in {1}: {0}</value>
   </data>
+  <data name="DragPreparing" xml:space="preserve">
+    <value>Lettura delle cartelle da trascinare…</value>
+  </data>
+  <data name="DragDownloadTitle" xml:space="preserve">
+    <value>Download verso Esplora risorse</value>
+  </data>
+  <data name="DragDownloaded" xml:space="preserve">
+    <value>{0} elemento/i scaricato/i trascinando.</value>
+  </data>
+  <data name="DragCancelled" xml:space="preserve">
+    <value>Download annullato.</value>
+  </data>
   <data name="DownloadFailed" xml:space="preserve">
     <value>Download non riuscito: {0}</value>
   </data>

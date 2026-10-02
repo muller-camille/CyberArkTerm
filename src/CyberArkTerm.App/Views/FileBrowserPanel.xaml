@@ -109,6 +109,8 @@
             <ListView x:Name="FileList" BorderThickness="0" Background="White" SelectionMode="Extended" AllowDrop="True"
                       ContextMenu="{StaticResource FileMenu}" KeyDown="OnListKeyDown"
                       DragEnter="OnDragEnter" DragOver="OnDragEnter" DragLeave="OnDragLeave" Drop="OnDrop"
+                      PreviewMouseLeftButtonDown="OnListPreviewMouseDown" PreviewMouseMove="OnListPreviewMouseMove"
+                      PreviewMouseLeftButtonUp="OnListPreviewMouseUp"
                       VirtualizingPanel.IsVirtualizing="True">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">

@@ -333,6 +333,80 @@ public sealed class RemoteFileBrowser : IDisposable
         return Task.Run(() => _sftp.SetAttributes(path, attributes), ct);
     }
 
+    /// <summary>
+    /// Éléments choisis et, pour les dossiers, tout leur contenu (fichiers cachés compris), chacun avec son chemin
+    /// relatif ; un dossier vient avant son contenu. À l'intérieur, les liens vers des dossiers ne sont pas suivis
+    /// (boucles, sortie de l'arborescence) ; le dossier courant du navigateur ne change pas.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Plus de <paramref name="maxItems"/> éléments.</exception>
+    public async Task<List<RemoteTreeItem>> ListTreeAsync(IReadOnlyList<RemoteEntry> roots, int maxItems, CancellationToken ct)
+    {
+        await _gate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            var items = new List<RemoteTreeItem>();
+            foreach (var root in roots)
+            {
+                await AddTreeAsync(root, [root.Name], items, maxItems, ct).ConfigureAwait(false);
+            }
+
+            return items;
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    private async Task AddTreeAsync(RemoteEntry entry, IReadOnlyList<string> path, List<RemoteTreeItem> items, int maxItems,
+        CancellationToken ct)
+    {
+        if (items.Count >= maxItems)
+        {
+            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, CoreStrings.TooManyFiles, maxItems));
+        }
+
+        items.Add(new RemoteTreeItem(entry, path));
+        if (!entry.IsDirectory)
+        {
+            return;
+        }
+
+        var children = new List<RemoteEntry>();
+        await foreach (var file in _sftp.ListDirectoryAsync(entry.FullPath, ct).ConfigureAwait(false))
+        {
+            if (file.Name is "." or "..")
+            {
+                continue;
+            }
+
+            if (!file.IsSymbolicLink)
+            {
+                children.Add(ToEntry(file, file.IsDirectory));
+                continue;
+            }
+
+            try
+            {
+                // Lien vers un dossier : pas suivi. Lien vers un fichier : téléchargé (le contenu et la taille de la cible).
+                var target = await _sftp.GetAttributesAsync(file.FullName, ct).ConfigureAwait(false);
+                if (!target.IsDirectory)
+                {
+                    children.Add(ToEntry(file, false) with { Length = target.Size });
+                }
+            }
+            catch (Exception e) when (e is Renci.SshNet.Common.SshException or InvalidOperationException)
+            {
+                // Lien cassé : rien à télécharger.
+            }
+        }
+
+        foreach (var child in RemoteEntry.Sort(children))
+        {
+            await AddTreeAsync(child, [.. path, child.Name], items, maxItems, ct).ConfigureAwait(false);
+        }
+    }
+
     public async Task DownloadAsync(RemoteEntry entry, string localPath, IProgress<TransferProgress>? progress, CancellationToken ct)
     {
         await _gate.WaitAsync(ct).ConfigureAwait(false);

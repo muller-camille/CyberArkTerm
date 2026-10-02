@@ -163,6 +163,10 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   go up, "parent folder" and "home folder" buttons.
 - **Upload files**: drag them from Explorer onto the list (or the "Upload" button). Sent over **SCP** by
   default (SFTP as an option), folders included; confirmation before overwriting an existing file.
+- **Download by dragging**: drag files or folders from the list to Explorer or the desktop. Nothing is
+  downloaded while dragging: on drop, a window shows the progress (Cancel stops it), then Explorer copies the
+  files where you dropped them. Unix names are made valid for Windows (`\`, `:`, `..`, `CON`… replaced), never
+  writing outside the drop folder; the temporary download folder is deleted afterwards.
 - **Delete**: select, then Del (or right-click → "Delete (rm)"), with confirmation. Folders must be empty.
 - **Edit a file**: select it, then `F4` (or right-click → "Edit", or the pencil button). The file opens in the
   text editor chosen in Settings (Notepad by default). Every time you save, CyberArkTerm offers to send it back

@@ -793,6 +793,18 @@ Continue?</value>
   <data name="Downloaded" xml:space="preserve">
     <value>Files downloaded to {1}: {0}</value>
   </data>
+  <data name="DragPreparing" xml:space="preserve">
+    <value>Reading the folders to drag…</value>
+  </data>
+  <data name="DragDownloadTitle" xml:space="preserve">
+    <value>Download to Explorer</value>
+  </data>
+  <data name="DragDownloaded" xml:space="preserve">
+    <value>{0} item(s) downloaded by drag and drop.</value>
+  </data>
+  <data name="DragCancelled" xml:space="preserve">
+    <value>Download cancelled.</value>
+  </data>
   <data name="DownloadFailed" xml:space="preserve">
     <value>Download failed: {0}</value>
   </data>

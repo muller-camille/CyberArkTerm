@@ -168,6 +168,11 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
 - **Inviare file**: trascinali da Esplora file sull'elenco (o il pulsante «Invia»). Invio in **SCP** per
   impostazione predefinita (SFTP in opzione), cartelle comprese; conferma prima di sovrascrivere un file
   esistente.
+- **Scaricare trascinando**: trascina file o cartelle dall'elenco verso Esplora file o il desktop. Nulla viene
+  scaricato durante il trascinamento: al rilascio, una finestra mostra l'avanzamento (Annulla lo interrompe), poi
+  Esplora file copia i file dove li hai rilasciati. I nomi Unix vengono resi validi per Windows (`\`, `:`, `..`,
+  `CON`… sostituiti), senza mai scrivere fuori dalla cartella di rilascio; la cartella temporanea del download
+  viene poi eliminata.
 - **Eliminare**: selezione poi Canc (o clic destro → «Elimina (rm)»), con conferma. Le cartelle devono essere
   vuote.
 - **Modificare un file**: selezionalo, poi `F4` (o clic destro → «Modifica», o il pulsante matita). Il file si

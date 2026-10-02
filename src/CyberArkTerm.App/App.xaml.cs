@@ -43,6 +43,7 @@ public partial class App : Application
         };
         TaskScheduler.UnobservedTaskException += (_, args) => DebugLog.Write("app", "Exception d'une tâche non observée", args.Exception);
         RemoteEditor.CleanupStale();
+        FileBrowserPanel.CleanupDragFolders();
         _keePass = new KeePassManager();
         UiLanguage.Apply(UiLanguage.Resolve(_settings.Language, _systemCulture));
         UnlockLocalStore();

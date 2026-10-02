@@ -48,6 +48,9 @@ public sealed record RemoteEntry(
     }
 }
 
+/// <summary>Élément à télécharger avec son chemin relatif (noms Unix, depuis l'élément choisi).</summary>
+public sealed record RemoteTreeItem(RemoteEntry Entry, IReadOnlyList<string> Path);
+
 /// <summary>Résultat d'un changement de droits : éléments modifiés et erreurs rencontrées (chemin : message).</summary>
 public sealed class PermissionsResult
 {

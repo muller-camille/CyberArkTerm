@@ -793,6 +793,18 @@ Continuer ?</value>
   <data name="Downloaded" xml:space="preserve">
     <value>Fichiers téléchargés dans {1} : {0}</value>
   </data>
+  <data name="DragPreparing" xml:space="preserve">
+    <value>Lecture des dossiers à glisser…</value>
+  </data>
+  <data name="DragDownloadTitle" xml:space="preserve">
+    <value>Téléchargement vers l'Explorateur</value>
+  </data>
+  <data name="DragDownloaded" xml:space="preserve">
+    <value>{0} élément(s) téléchargé(s) par glisser-déposer.</value>
+  </data>
+  <data name="DragCancelled" xml:space="preserve">
+    <value>Téléchargement annulé.</value>
+  </data>
   <data name="DownloadFailed" xml:space="preserve">
     <value>Échec du téléchargement : {0}</value>
   </data>

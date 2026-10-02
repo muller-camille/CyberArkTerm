@@ -542,6 +542,42 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Download cancelled..
+        /// </summary>
+        public static string DragCancelled {
+            get {
+                return ResourceManager.GetString("DragCancelled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Download to Explorer.
+        /// </summary>
+        public static string DragDownloadTitle {
+            get {
+                return ResourceManager.GetString("DragDownloadTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} item(s) downloaded by drag and drop..
+        /// </summary>
+        public static string DragDownloaded {
+            get {
+                return ResourceManager.GetString("DragDownloaded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reading the folders to drag….
+        /// </summary>
+        public static string DragPreparing {
+            get {
+                return ResourceManager.GetString("DragPreparing", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Drop to upload over {0} to {1}.
         /// </summary>
         public static string DropHint {
