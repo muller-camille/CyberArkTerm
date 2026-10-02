@@ -87,6 +87,8 @@ public class RdpConnectionSettingsTests
         Assert.Equal("||PSMInitSession", s.RemoteApplicationProgram);
         Assert.Equal("/u admin /a srv01 /c PSM-RDP", s.RemoteApplicationArgs);
         Assert.True(s.DisableRemoteAppCapsCheck);
+        Assert.True(s.RemoteApplicationExpandArgs);
+        Assert.Equal("", s.RemoteApplicationFile);
         Assert.Equal("PSM Session", s.RemoteApplicationTitle);
     }
 

@@ -47,6 +47,8 @@ internal sealed class RdpSession : IDisposable
     private bool _dynamicResize = true;
     private (int Width, int Height) _sessionSize;
     private string? _programError;
+    private RdpConnectionSettings? _remoteApp;
+    private bool _programStarted;
     private bool _disposed;
 
     /// <param name="label">« compte@cible », titre de l'onglet et du plein écran.</param>
@@ -112,14 +114,13 @@ internal sealed class RdpSession : IDisposable
     /// <summary>Événements « application distante » reçus du contrôle (diagnostic).</summary>
     internal List<string> RemoteAppEvents { get; } = [];
 
-    /// <summary>Contrôle Bureau à distance de la connexion en cours (tests).</summary>
-    internal object? Control => _ocx;
-
     public async Task ConnectAsync()
     {
         ReleaseClient();
         Error = null;
         _programError = null;
+        _remoteApp = null;
+        _programStarted = false;
         ControlFailed = false;
         DisconnectReason = null;
         SetState(RdpSessionState.Connecting);
@@ -346,25 +347,11 @@ internal sealed class RdpSession : IDisposable
 
         if (s.IsRemoteApp)
         {
-            // L'application est lancée à l'ouverture de session (programme, nom et arguments du fichier .rdp, comme
-            // mstsc) ; « alternate shell » ne sert pas dans ce mode.
-            var program = Dispatch.First(ocx, "RemoteProgram2") ?? throw new COMException("RemoteProgram2", unchecked((int)0x80004002));
+            // Mode application distante ; l'application elle-même est lancée une fois la session ouverte
+            // (StartRemoteProgram). « alternate shell » ne sert pas dans ce mode.
+            var program = Dispatch.First(ocx, "RemoteProgram") ?? throw new COMException("RemoteProgram", unchecked((int)0x80004002));
             Dispatch.Set(program, "RemoteProgramMode", true);
-            if (s.RemoteApplicationProgram.Length > 0)
-            {
-                Dispatch.Set(program, "RemoteApplicationProgram", s.RemoteApplicationProgram);
-            }
-
-            if (s.RemoteApplicationName.Length > 0)
-            {
-                Dispatch.Set(program, "RemoteApplicationName", s.RemoteApplicationName);
-            }
-
-            if (s.RemoteApplicationArgs.Length > 0)
-            {
-                Dispatch.Set(program, "RemoteApplicationArgs", s.RemoteApplicationArgs);
-            }
-
+            _remoteApp = s;
             if (s.DisableRemoteAppCapsCheck && ocx is IMsRdpClientNonScriptable5 nonScriptable)
             {
                 Optional(() => nonScriptable.SetDisableRemoteAppCapsCheck(true));
@@ -416,6 +403,12 @@ internal sealed class RdpSession : IDisposable
     private void OnLoginComplete()
     {
         _loggedIn = true;
+        if (_remoteApp is not null)
+        {
+            // Hors de l'événement du contrôle.
+            Host.Dispatcher.BeginInvoke(StartRemoteProgram);
+        }
+
         SetState(RdpSessionState.Connected);
         // La taille de l'onglet a pu changer pendant l'ouverture de session.
         _resizeTimer.Start();
@@ -446,6 +439,33 @@ internal sealed class RdpSession : IDisposable
         _loggedIn = false;
         SetState(normal ? RdpSessionState.Ended : RdpSessionState.Failed);
         ReleaseLater();
+    }
+
+    /// <summary>
+    /// Lance l'application distante dans la session ouverte, une seule fois par connexion (pas de second lancement
+    /// après une reconnexion automatique : pour le PSM, la demande de session ne sert qu'une fois). Le programme
+    /// indiqué au contrôle avant la connexion n'est pas lancé par lui (vérifié sur un vrai serveur) : il faut le
+    /// demander, comme ici.
+    /// </summary>
+    private void StartRemoteProgram()
+    {
+        if (_programStarted || _disposed || _ocx is not { } ocx || _remoteApp is not { } s)
+        {
+            return;
+        }
+
+        _programStarted = true;
+        try
+        {
+            var program = Dispatch.Get(ocx, "RemoteProgram") ?? throw new COMException("RemoteProgram", unchecked((int)0x80004002));
+            Dispatch.Call(program, "ServerStartProgram", s.RemoteApplicationProgram, s.RemoteApplicationFile, "", true,
+                s.RemoteApplicationArgs, s.RemoteApplicationExpandArgs);
+        }
+        catch (Exception e) when (Dispatch.IsDispatchError(e))
+        {
+            _programError = Text.Format(Strings.RdpRemoteAppFailed, RemoteAppName, ErrorText.Describe(e));
+            TryCall(() => Dispatch.Call(ocx, "Disconnect"));
+        }
     }
 
     /// <summary>Résultat du lancement de l'application distante ; en cas d'échec, la session est fermée avec l'explication.</summary>

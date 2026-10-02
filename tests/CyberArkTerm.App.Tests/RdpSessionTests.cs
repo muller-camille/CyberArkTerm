@@ -133,28 +133,6 @@ public class RdpSessionTests(ITestOutputHelper output)
             output.WriteLine($"Bloc-notes dans une autre session : {started} ; état {session.State}, {session.Error}");
             output.WriteLine($"Événements : {string.Join(" | ", session.RemoteAppEvents)}");
             output.WriteLine(OtherSessions(ourSession));
-            if (!started && session.Control is { } control)
-            {
-                // Diagnostic : lancement explicite une fois connecté (ITSRemoteProgram.ServerStartProgram).
-                try
-                {
-                    var program = Dispatch.Get(control, "RemoteProgram")!;
-                    Dispatch.Call(program, "ServerStartProgram", @"C:\Windows\System32\notepad.exe", "", "%SYSTEMROOT%", true, "", false);
-                    for (int i = 0; i < 40 && !System.Diagnostics.Process.GetProcessesByName("notepad").Any(p => p.SessionId != ourSession); i++)
-                    {
-                        await Task.Delay(500);
-                    }
-
-                    output.WriteLine($"Après ServerStartProgram : {System.Diagnostics.Process.GetProcessesByName("notepad").Any(p => p.SessionId != ourSession)} ; " +
-                                     $"événements {string.Join(" | ", session.RemoteAppEvents)}");
-                    output.WriteLine(OtherSessions(ourSession));
-                }
-                catch (Exception e)
-                {
-                    output.WriteLine($"ServerStartProgram : {e.GetType().Name} {e.Message}");
-                }
-            }
-
             Assert.True(started, "Bloc-notes non lancé dans la session distante");
             Assert.Equal(RdpSessionState.Connected, session.State);
 
@@ -166,12 +144,12 @@ public class RdpSessionTests(ITestOutputHelper output)
     }
 
     /// <summary>
-    /// Diagnostic : le serveur de CI annonce-t-il les applications distantes ? (sans « disableremoteappcapscheck »,
-    /// le contrôle refuse la connexion sinon). N'échoue pas : il renseigne seulement le journal du test.
+    /// Application distante inconnue du serveur : la session se termine avec une explication, au lieu de rester
+    /// ouverte sans rien afficher. (Le serveur annonce les applications distantes : pas de « disableremoteappcapscheck ».)
     /// </summary>
     [Fact]
     [Trait("Category", "RdpIntegration")]
-    public async Task RemoteAppServerCapabilities()
+    public async Task UnknownRemoteAppIsReported()
     {
         if (IntegrationAccount() is not { } account)
         {
@@ -180,20 +158,17 @@ public class RdpSessionTests(ITestOutputHelper output)
 
         var request = new RdpConnectionRequest(RdpConnectionSettings.FromRdpFile(Encoding.Unicode.GetBytes(
             $"full address:s:127.0.0.2:3389\r\nusername:s:{account.User}\r\nauthentication level:i:0\r\nenablecredsspsupport:i:1\r\n" +
-            "remoteapplicationmode:i:1\r\nremoteapplicationprogram:s:||notepad\r\nremoteapplicationname:s:Bloc-notes\r\n")),
+            "remoteapplicationmode:i:1\r\nremoteapplicationprogram:s:||CyberArkTermInexistant\r\nremoteapplicationname:s:Inexistante\r\n")),
             account.Password);
-        int ourSession = System.Diagnostics.Process.GetCurrentProcess().SessionId;
 
         await RunOnStaAsync(request, async session =>
         {
             await session.ConnectAsync();
-            var state = await WaitForAsync(session, s => s != RdpSessionState.Connecting, TimeSpan.FromSeconds(90));
-            output.WriteLine($"Sans désactiver la vérification : {state}, raison {session.DisconnectReason}, {session.Error}");
-            await Task.Delay(TimeSpan.FromSeconds(15));
-            output.WriteLine($"Événements : {string.Join(" | ", session.RemoteAppEvents)}");
-            output.WriteLine(OtherSessions(ourSession));
-            session.Disconnect();
-            await Task.Delay(TimeSpan.FromSeconds(3));
+            var state = await WaitForAsync(session, s => s is RdpSessionState.Ended or RdpSessionState.Failed, TimeSpan.FromSeconds(120));
+            output.WriteLine($"Application inconnue : {state}, raison {session.DisconnectReason}, {session.Error} ; " +
+                             $"événements {string.Join(" | ", session.RemoteAppEvents)}");
+            Assert.Equal(RdpSessionState.Failed, state);
+            Assert.Contains("Inexistante", session.Error);
         });
     }
 

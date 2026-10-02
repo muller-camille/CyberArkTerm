@@ -108,6 +108,12 @@ public sealed class RdpConnectionSettings
     /// <summary>Arguments de l'application distante (pour le PSM : la demande de session).</summary>
     public string RemoteApplicationArgs { get; init; } = "";
 
+    /// <summary>Variables d'environnement des arguments développées sur le serveur (« remoteapplicationexpandcmdline »).</summary>
+    public bool RemoteApplicationExpandArgs { get; init; } = true;
+
+    /// <summary>Fichier à ouvrir avec l'application distante (« remoteapplicationfile »), le plus souvent vide.</summary>
+    public string RemoteApplicationFile { get; init; } = "";
+
     /// <summary>Connexion en application distante même si le serveur ne l'annonce pas (« disableremoteappcapscheck »).</summary>
     public bool DisableRemoteAppCapsCheck { get; init; }
 
@@ -180,6 +186,8 @@ public sealed class RdpConnectionSettings
             RemoteApplicationProgram = Text("remoteapplicationprogram"),
             RemoteApplicationName = Text("remoteapplicationname"),
             RemoteApplicationArgs = Text("remoteapplicationcmdline"),
+            RemoteApplicationExpandArgs = Bool("remoteapplicationexpandcmdline", true),
+            RemoteApplicationFile = Text("remoteapplicationfile"),
             DisableRemoteAppCapsCheck = Bool("disableremoteappcapscheck", false),
         };
     }
