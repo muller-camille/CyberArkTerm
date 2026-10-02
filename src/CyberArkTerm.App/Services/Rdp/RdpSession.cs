@@ -120,6 +120,9 @@ internal sealed class RdpSession : IDisposable
     /// <summary>Événements « application distante » reçus du contrôle (diagnostic).</summary>
     internal List<string> RemoteAppEvents { get; } = [];
 
+    /// <summary>Contrôle Bureau à distance de la connexion en cours (tests).</summary>
+    internal object? Control => _ocx;
+
     public async Task ConnectAsync()
     {
         ReleaseClient();
