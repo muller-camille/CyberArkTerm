@@ -122,9 +122,13 @@ moteur que `mstsc`) :
   (le jeton d'une session PSM ne sert qu'une fois) ;
 - fermer l'onglet (croix ou clic molette) déconnecte la session, après confirmation.
 
+Un composant PSM en **application distante** (RemoteApp) passe aussi par le contrôle intégré : ses fenêtres
+s'ouvrent à part, sur le bureau du poste comme avec `mstsc`, et l'onglet affiche son état (« Déconnecter » la
+ferme, « Reconnecter » la relance).
+
 La session s'ouvre dans la **Connexion Bureau à distance** (`mstsc`) si l'option est décochée dans les
-Paramètres, si le composant PSM ouvre une application distante (RemoteApp) ou si le contrôle Bureau à distance
-n'est pas utilisable sur le poste ; la barre d'état indique alors pourquoi.
+Paramètres ou si le contrôle Bureau à distance n'est pas utilisable sur le poste ; la barre d'état indique alors
+pourquoi.
 
 ![Connexion à un compte de domaine : machine cible, motif exigé par le PVWA](docs/captures/connexion-psm.png)
 
@@ -346,6 +350,13 @@ réglages : `full address`, `username`, `alternate shell` (lancement de la sessi
 d'authentification du serveur, NLA (CredSSP), passerelle, redirections, son, effets visuels. Les fermetures
 de session et les erreurs de connexion sont expliquées dans l'onglet avec le message de Windows.
 
+Pour une application distante (`remoteapplicationmode:i:1`), le contrôle passe en mode RemoteApp avec
+`remoteapplicationprogram` (pour le PSM, `||PSMInitSession`), `remoteapplicationname`,
+`remoteapplicationcmdline` et `disableremoteappcapscheck`, comme `mstsc` ; `alternate shell` ne sert pas.
+Le bureau distant prend la taille de l'ensemble des écrans pour que les fenêtres puissent aller partout. Un
+test d'intégration (workflow `rdp-integration`) ouvre de vraies sessions sur le poste de CI : bureau en onglet,
+et Bloc-notes en application distante.
+
 ### Sessions PSMP
 
 Chaque onglet SSH ouvre jusqu'à trois connexions au PSMP, avec le même identifiant
@@ -384,7 +395,8 @@ Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place d
 | Le coffre KeePass demande le mot de passe malgré « Mémoriser » | Coffre local verrouillé (« Plus tard » au démarrage) ou mot de passe maître changé ailleurs : saisissez-le, il est remémorisé. |
 | « Le fichier du coffre local est endommagé ou a été créé par un autre compte Windows » | Le coffre local ne suit pas un changement de poste ou de compte : supprimez-le dans les Paramètres et recréez-le. |
 | « L'entrée … a été modifiée ou supprimée dans le coffre entre-temps » | Quelqu'un a changé la même entrée ailleurs : le coffre est rechargé, refaites la modification. |
-| La session PSM s'ouvre dans `mstsc` et pas dans un onglet | Composant en application distante (RemoteApp), contrôle Bureau à distance indisponible, ou option décochée : la barre d'état indique la raison. |
+| La session PSM s'ouvre dans `mstsc` et pas dans un onglet | Contrôle Bureau à distance indisponible ou en échec, ou option décochée : la barre d'état indique la raison. |
+| Application distante (RemoteApp) : « n'est pas autorisée sur le serveur » | L'application demandée n'est pas publiée sur le serveur PSM : voyez avec l'administrateur CyberArk. |
 | L'onglet affiche « Erreur du contrôle Bureau à distance » | Décochez « Ouvrir les sessions Bureau à distance dans un onglet » dans les Paramètres pour passer par `mstsc`, et signalez le code affiché. |
 
 ## Développement
@@ -451,7 +463,6 @@ fichier existe.
 - **Privilege Cloud** (connexion via CyberArk Identity) et **SAML** ne sont pas gérés.
 - L'API Accounts n'indique pas quels composants PSM une plateforme propose : le composant est déduit, puis
   mémorisable.
-- Les composants PSM en application distante (RemoteApp) s'ouvrent dans `mstsc`, pas en onglet.
 - Coffres KeePass : chiffrement Twofish et clés YubiKey non pris en charge ; pas de création de coffre (créez-le
   avec KeePass ou KeePassXC) ; pièces jointes gardées mais non affichées.
 - Le suivi du dossier du terminal nécessite bash ou zsh sur le serveur.

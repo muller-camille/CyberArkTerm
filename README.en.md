@@ -118,9 +118,12 @@ The session opens **in a CyberArkTerm tab**, with the Windows Remote Desktop con
   of a PSM session works only once);
 - closing the tab (cross or middle click) disconnects the session, after confirmation.
 
-The session opens in **Remote Desktop Connection** (`mstsc`) if the option is unticked in the Settings, if the
-PSM component opens a remote application (RemoteApp), or if the Remote Desktop control can't be used on this
-computer; the status bar then says why.
+A PSM component that opens a **remote application** (RemoteApp) also goes through the built-in control: its
+windows open on their own, on this computer's desktop as with `mstsc`, and the tab shows its state
+("Disconnect" closes it, "Reconnect" starts it again).
+
+The session opens in **Remote Desktop Connection** (`mstsc`) if the option is unticked in the Settings or if the
+Remote Desktop control can't be used on this computer; the status bar then says why.
 
 - **PSM component**: deduced from the platform (`PSM-RDP` for Windows, `PSM-SSH` for Unix and network,
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Tick "Remember this component" to keep it for the whole
@@ -327,6 +330,12 @@ available). CyberArkTerm reads the RDP file returned by `PSMConnect` and applies
 redirections, sound, visual effects. Session ends and connection errors are explained in the tab with the
 Windows message.
 
+For a remote application (`remoteapplicationmode:i:1`), the control switches to RemoteApp mode with
+`remoteapplicationprogram` (for PSM, `||PSMInitSession`), `remoteapplicationname`, `remoteapplicationcmdline` and
+`disableremoteappcapscheck`, like `mstsc`; `alternate shell` is not used. The remote desktop takes the size of all
+screens so the windows can go anywhere. An integration test (`rdp-integration` workflow) opens real sessions on
+the CI machine: a desktop in a tab, and Notepad as a remote application.
+
 ### PSMP sessions
 
 Each SSH tab opens up to three connections to the PSMP, with the same login
@@ -365,7 +374,8 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 | The KeePass vault asks for the password despite "Remember" | Local vault locked ("Later" at start-up) or master password changed elsewhere: type it, it is remembered again. |
 | "The local vault file is damaged or was created by another Windows account." | The local vault does not follow a change of computer or account: delete it in the Settings and create it again. |
 | "The entry … was changed or deleted in the vault in the meantime" | Someone changed the same entry elsewhere: the vault is reloaded, make the change again. |
-| The PSM session opens in `mstsc`, not in a tab | Remote application component (RemoteApp), Remote Desktop control unavailable, or option unticked: the status bar gives the reason. |
+| The PSM session opens in `mstsc`, not in a tab | Remote Desktop control unavailable or failing, or option unticked: the status bar gives the reason. |
+| Remote application (RemoteApp): "not allowed on the server" | The requested application is not published on the PSM server: check with the CyberArk administrator. |
 | The tab shows "Remote Desktop control error" | Untick "Open remote desktop sessions in a CyberArkTerm tab" in the Settings to use `mstsc`, and report the code shown. |
 
 ## Development
@@ -432,7 +442,6 @@ zip and `SHA256SUMS.txt`. Release notes are read from `docs/releases/vX.Y.Z.md` 
 - **Privilege Cloud** (sign-in through CyberArk Identity) and **SAML** are not supported.
 - The Accounts API does not say which PSM components a platform offers: the component is deduced, then can be
   remembered.
-- PSM components that open a remote application (RemoteApp) use `mstsc`, not a tab.
 - KeePass vaults: Twofish encryption and YubiKey keys are not supported; no vault creation (create it with KeePass
   or KeePassXC); attachments are kept but not shown.
 - Following the terminal folder requires bash or zsh on the server.

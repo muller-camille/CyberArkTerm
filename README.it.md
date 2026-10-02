@@ -119,9 +119,12 @@ motore di `mstsc`):
   (il token di una sessione PSM vale una sola volta);
 - chiudere la scheda (croce o clic centrale) disconnette la sessione, dopo conferma.
 
-La sessione si apre in **Connessione Desktop remoto** (`mstsc`) se l'opzione è disattivata nelle
-Impostazioni, se il componente PSM apre un'applicazione remota (RemoteApp) o se il controllo Desktop remoto non
-è utilizzabile sul computer; la barra di stato indica il motivo.
+Un componente PSM che apre un'**applicazione remota** (RemoteApp) passa anch'esso dal controllo integrato: le
+sue finestre si aprono a parte, sul desktop del computer come con `mstsc`, e la scheda ne mostra lo stato
+(«Disconnetti» la chiude, «Riconnetti» la riavvia).
+
+La sessione si apre in **Connessione Desktop remoto** (`mstsc`) se l'opzione è disattivata nelle Impostazioni o
+se il controllo Desktop remoto non è utilizzabile sul computer; la barra di stato indica il motivo.
 
 - **Componente PSM**: dedotto dalla piattaforma (`PSM-RDP` per Windows, `PSM-SSH` per Unix e rete,
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Seleziona «Memorizza questo componente» per conservarlo per
@@ -340,6 +343,13 @@ recente disponibile). CyberArkTerm legge il file RDP restituito da `PSMConnect` 
 NLA (CredSSP), gateway, reindirizzamenti, audio, effetti visivi. Le chiusure di sessione e gli errori di
 connessione sono spiegati nella scheda con il messaggio di Windows.
 
+Per un'applicazione remota (`remoteapplicationmode:i:1`), il controllo passa in modalità RemoteApp con
+`remoteapplicationprogram` (per il PSM, `||PSMInitSession`), `remoteapplicationname`, `remoteapplicationcmdline` e
+`disableremoteappcapscheck`, come `mstsc`; `alternate shell` non viene usato. Il desktop remoto prende la
+dimensione di tutti gli schermi perché le finestre possano andare ovunque. Un test di integrazione (workflow
+`rdp-integration`) apre sessioni reali sul computer di CI: un desktop in una scheda e il Blocco note come
+applicazione remota.
+
 ### Sessioni PSMP
 
 Ogni scheda SSH apre fino a tre connessioni al PSMP, con lo stesso identificativo
@@ -379,7 +389,8 @@ Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posizion
 | L'archivio KeePass chiede la password nonostante «Memorizza» | Vault locale bloccato («Più tardi» all'avvio) o password principale cambiata altrove: digitala, viene memorizzata di nuovo. |
 | «Il file del vault locale è danneggiato o è stato creato da un altro account Windows.» | Il vault locale non segue un cambio di computer o di account: eliminalo nelle Impostazioni e ricrealo. |
 | «La voce … è stata modificata o eliminata nell'archivio nel frattempo» | Qualcuno ha cambiato la stessa voce altrove: l'archivio viene ricaricato, rifai la modifica. |
-| La sessione PSM si apre in `mstsc` e non in una scheda | Componente con applicazione remota (RemoteApp), controllo Desktop remoto non disponibile, oppure opzione disattivata: la barra di stato indica il motivo. |
+| La sessione PSM si apre in `mstsc` e non in una scheda | Controllo Desktop remoto non disponibile o in errore, oppure opzione disattivata: la barra di stato indica il motivo. |
+| Applicazione remota (RemoteApp): «non è consentita sul server» | L'applicazione richiesta non è pubblicata sul server PSM: verifica con l'amministratore CyberArk. |
 | La scheda mostra «Errore del controllo Desktop remoto» | Disattiva «Apri le sessioni Desktop remoto in una scheda di CyberArkTerm» nelle Impostazioni per usare `mstsc`, e segnala il codice mostrato. |
 
 ## Sviluppo
@@ -445,7 +456,6 @@ e `SHA256SUMS.txt`. Le note di versione vengono lette da `docs/releases/vX.Y.Z.m
 - **Privilege Cloud** (accesso tramite CyberArk Identity) e **SAML** non sono supportati.
 - L'API Accounts non indica quali componenti PSM offre una piattaforma: il componente viene dedotto, poi può
   essere memorizzato.
-- I componenti PSM che aprono un'applicazione remota (RemoteApp) usano `mstsc`, non una scheda.
 - Archivi KeePass: cifratura Twofish e chiavi YubiKey non supportate; nessuna creazione di archivio (crealo con
   KeePass o KeePassXC); allegati conservati ma non mostrati.
 - Il monitoraggio della cartella del terminale richiede bash o zsh sul server.
