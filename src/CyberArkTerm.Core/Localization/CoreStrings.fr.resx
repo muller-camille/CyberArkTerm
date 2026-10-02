@@ -186,4 +186,7 @@
   <data name="LocalStorePasswordTooShort" xml:space="preserve">
     <value>Le mot de passe du coffre local doit faire au moins {0} caractères.</value>
   </data>
+  <data name="WriteIncomplete" xml:space="preserve">
+    <value>Le serveur a reçu {0} octets au lieu de {1} : le fichier sur le serveur est incomplet.</value>
+  </data>
 </root>

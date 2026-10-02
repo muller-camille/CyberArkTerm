@@ -54,7 +54,8 @@ internal static class KdbxFile
         {
             return ReadCore(file, key, cache, cancellation);
         }
-        catch (Exception e) when (e is EndOfStreamException or ArgumentOutOfRangeException or IndexOutOfRangeException
+        // ArgumentException : valeurs d'en-tête incohérentes (vecteur d'initialisation de mauvaise taille…).
+        catch (Exception e) when (e is EndOfStreamException or ArgumentException or IndexOutOfRangeException
                                       or FormatException or InvalidDataException or XmlException or OverflowException)
         {
             throw Corrupted(e.GetType().Name, e);
@@ -356,7 +357,12 @@ internal static class KdbxFile
                 xmlStart = ReadInnerHeader(plain, db, out streamKey);
             }
 
-            using (var stream = CreateInnerStream(db.InnerStreamId, streamKey!))
+            if (streamKey is null)
+            {
+                throw Corrupted("ProtectedStreamKey");
+            }
+
+            using (var stream = CreateInnerStream(db.InnerStreamId, streamKey))
             {
                 db.LoadXml(plain.AsMemory(xmlStart), stream);
             }

@@ -37,6 +37,9 @@ public sealed class SshSession : IDisposable
     private DateTime _lastData;
     private bool _userTyped;
 
+    // Numéro de la connexion en cours : la préparation du shell d'une connexion précédente s'arrête à la reconnexion.
+    private int _connection;
+
     /// <param name="account">Compte CyberArk ; null pour une connexion directe (accès d'urgence KeePass).</param>
     public SshSession(PvwaAccount? account, string label, SshConnector connector, Dispatcher dispatcher,
         bool followTerminal, SavedSession? saved)
@@ -92,11 +95,15 @@ public sealed class SshSession : IDisposable
     {
         SetState(SshSessionState.Connecting, null);
         Emulator.Resize(columns, rows);
-        // Reconnexion : on libère la connexion précédente avant d'en ouvrir une nouvelle.
+        // Reconnexion : on libère la connexion précédente avant d'en ouvrir une nouvelle, et on oublie ce qu'elle a
+        // reçu ou ce qui y a été tapé (sinon le suivi du dossier ne s'installerait pas, ou trop tôt).
         _shell?.Dispose();
         _client?.Dispose();
         _shell = null;
         _client = null;
+        int connection = ++_connection;
+        _userTyped = false;
+        _lastData = default;
         try
         {
             _client = await _connector.ConnectShellAsync(_lifetime.Token);
@@ -115,7 +122,7 @@ public sealed class SshSession : IDisposable
             ScreenUpdated?.Invoke();
             if (_followTerminal || Saved?.StartDirectory is not null)
             {
-                _ = PrepareShellAsync(Saved?.StartDirectory);
+                _ = PrepareShellAsync(Saved?.StartDirectory, connection);
             }
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
@@ -249,19 +256,15 @@ public sealed class SshSession : IDisposable
     }
 
     /// <summary>
-    /// Dès que l'invite est affichée (pas de données depuis 700 ms) : place le shell dans le dossier de départ
-    /// du serveur courant et installe PROMPT_COMMAND (séquence OSC 7), puis efface la commande tapée.
-    /// Sans suivi du dossier, seul le « cd » (visible) est envoyé.
-    /// </summary>
-    /// <summary>
     /// Installe le suivi du dossier (et le « cd » de départ) dès que le shell du serveur cible affiche son invite.
     /// Avec un vrai PSMP, la connexion à la cible peut prendre plusieurs secondes après la bannière, et ce qui est
     /// envoyé avant que le shell soit prêt est perdu : on attend donc une invite, pas seulement un silence.
+    /// Sans suivi du dossier, seul le « cd » (visible) est envoyé.
     /// </summary>
-    private async Task PrepareShellAsync(string? startDirectory)
+    private async Task PrepareShellAsync(string? startDirectory, int connection)
     {
         var deadline = DateTime.UtcNow.AddSeconds(60);
-        while (DateTime.UtcNow < deadline && State == SshSessionState.Connected)
+        while (DateTime.UtcNow < deadline && State == SshSessionState.Connected && connection == _connection)
         {
             await Task.Delay(250);
             if (_userTyped)

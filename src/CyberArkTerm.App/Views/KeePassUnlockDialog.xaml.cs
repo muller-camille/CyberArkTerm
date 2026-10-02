@@ -19,6 +19,7 @@ public partial class KeePassUnlockDialog : Window
     private readonly KeePassManager _manager;
     private readonly Func<bool> _ensureLocalStore;
     private CancellationTokenSource? _unlocking;
+    private bool _closed;
 
     /// <param name="ensureLocalStore">Déverrouille ou crée le coffre local ; faux si l'utilisateur renonce.</param>
     internal KeePassUnlockDialog(KeePassFolder folder, KeePassManager manager, Func<bool> ensureLocalStore, string? message = null)
@@ -86,6 +87,13 @@ public partial class KeePassUnlockDialog : Window
         try
         {
             await _manager.UnlockAsync(_folder, password, keyFile.Length > 0 ? keyFile : null, _unlocking.Token);
+            if (_closed)
+            {
+                // Fenêtre fermée pendant la dérivation de clé : l'utilisateur a renoncé, le coffre ne reste pas ouvert.
+                _manager.Lock(_folder.Id);
+                return;
+            }
+
             _folder.KeyFilePath = keyFile.Length > 0 ? Path.GetFullPath(keyFile) : null;
             SaveRemembered(password, remember);
             DialogResult = true;
@@ -130,6 +138,19 @@ public partial class KeePassUnlockDialog : Window
     }
 
     private void OnCancel(object sender, RoutedEventArgs e) => _unlocking?.Cancel();
+
+    /// <summary>Fermer la fenêtre (croix, Échap) pendant le déverrouillage l'annule aussi.</summary>
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        _unlocking?.Cancel();
+        base.OnClosing(e);
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        _closed = true;
+        base.OnClosed(e);
+    }
 
     private void SetBusy(bool busy)
     {

@@ -80,6 +80,12 @@ public sealed class EditedFile : IDisposable
         }
     }
 
+    /// <summary>
+    /// Un renvoi a été coupé pendant l'écriture : le fichier du serveur est peut-être incomplet, et c'est nous qui
+    /// l'avons modifié (le prochain renvoi ne doit pas le signaler comme changé par quelqu'un d'autre).
+    /// </summary>
+    public bool WriteInterrupted { get; private set; }
+
     /// <summary>Le contenu <paramref name="content"/> vient d'être écrit sur le serveur.</summary>
     public void MarkSent(byte[] content, DateTime remoteWriteTime, long remoteLength)
     {
@@ -90,6 +96,15 @@ public sealed class EditedFile : IDisposable
             _seenHash = hash;
             RemoteWriteTime = remoteWriteTime;
             RemoteLength = remoteLength;
+            WriteInterrupted = false;
+        }
+    }
+
+    public void MarkWriteInterrupted()
+    {
+        lock (_lock)
+        {
+            WriteInterrupted = true;
         }
     }
 

@@ -1,3 +1,5 @@
+using System.Globalization;
+using CyberArkTerm.Core.Localization;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
 
@@ -174,9 +176,15 @@ public sealed class RemoteFileBrowser : IDisposable
     }
 
     /// <summary>
-    /// Remplace le contenu d'un fichier existant par SFTP : ses droits et son propriétaire sont conservés
-    /// (contrairement à SCP qui recrée le fichier en 644). Renvoie sa nouvelle date et sa taille.
+    /// Remplace le contenu d'un fichier existant par SFTP, sur place : propriétaire, droits, ACL, contexte SELinux,
+    /// liens physiques et symboliques sont conservés (un fichier temporaire renommé les perdrait, et SCP recrée le
+    /// fichier en 644). Renvoie sa nouvelle date et sa taille.
     /// </summary>
+    /// <exception cref="IOException">Le serveur n'a pas reçu tout le contenu.</exception>
+    /// <remarks>
+    /// Une coupure pendant l'écriture laisse le fichier du serveur incomplet : l'appelant garde le contenu et le renvoie
+    /// en entier à la tentative suivante.
+    /// </remarks>
     public async Task<(DateTime LastWriteTime, long Length)> WriteFileAsync(string remotePath, byte[] content, CancellationToken ct)
     {
         await _gate.WaitAsync(ct).ConfigureAwait(false);
@@ -185,7 +193,31 @@ public sealed class RemoteFileBrowser : IDisposable
             using var stream = new MemoryStream(content, writable: false);
             await _sftp.UploadFileAsync(stream, remotePath, ct).ConfigureAwait(false);
             var attributes = await _sftp.GetAttributesAsync(remotePath, ct).ConfigureAwait(false);
+            if (attributes.Size != content.Length)
+            {
+                throw new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.WriteIncomplete, attributes.Size, content.Length));
+            }
+
             return (attributes.LastWriteTime, attributes.Size);
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    /// <summary>
+    /// Droits actuels (12 bits) de <paramref name="path"/>. Pour un lien symbolique, ceux de sa cible, celle que chmod
+    /// modifie ; null si le serveur ne donne que ceux du lien.
+    /// </summary>
+    public async Task<int?> GetModeAsync(string path, CancellationToken ct)
+    {
+        await _gate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            // SSH.NET résout le chemin (realpath) avant de lire les attributs : on obtient ceux de la cible.
+            var attributes = await _sftp.GetAttributesAsync(path, ct).ConfigureAwait(false);
+            return attributes.IsSymbolicLink ? null : UnixPermissions.FromAttributes(attributes);
         }
         finally
         {

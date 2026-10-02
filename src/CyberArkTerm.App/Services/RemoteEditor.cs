@@ -217,6 +217,7 @@ public sealed class RemoteEditor : IDisposable
 
     private async Task<bool> UploadAsync(EditedFile file)
     {
+        bool writing = false;
         try
         {
             var browser = await _session.GetBrowserAsync();
@@ -231,7 +232,8 @@ public sealed class RemoteEditor : IDisposable
                 changed = true;
             }
 
-            if (changed && MessageBox.Show(_owner, Text.Format(Strings.EditRemoteChanged, file.Name), Strings.EditUploadTitle,
+            // Après un envoi coupé, c'est notre propre écriture partielle qui a changé le fichier : on le remplace.
+            if (changed && !file.WriteInterrupted && MessageBox.Show(_owner, Text.Format(Strings.EditRemoteChanged, file.Name), Strings.EditUploadTitle,
                     MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
             {
                 return false;
@@ -239,7 +241,9 @@ public sealed class RemoteEditor : IDisposable
 
             _status(Text.Format(Strings.EditUploading, file.Name), false);
             var content = EditedFile.ReadAllBytesShared(file.LocalPath);
+            writing = true;
             var (newTime, newLength) = await browser.WriteFileAsync(file.RemotePath, content, CancellationToken.None);
+            writing = false;
             file.MarkSent(content, newTime, newLength);
             _status(Text.Format(Strings.EditUploaded, file.Name), false);
             _remoteChanged(RemotePath.Parent(file.RemotePath));
@@ -252,9 +256,14 @@ public sealed class RemoteEditor : IDisposable
                 Renci.SshNet.Common.SftpPermissionDeniedException => Strings.PermissionDenied,
                 _ => ErrorText.Describe(ex),
             };
+            if (writing)
+            {
+                file.MarkWriteInterrupted();
+            }
+
             _status(Text.Format(Strings.UploadFailed, file.Name, message), true);
-            MessageBox.Show(_owner, Text.Format(Strings.EditUploadFailed, file.Name, message), Strings.EditUploadTitle,
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(_owner, Text.Format(writing ? Strings.EditWriteInterrupted : Strings.EditUploadFailed, file.Name, message),
+                Strings.EditUploadTitle, MessageBoxButton.OK, MessageBoxImage.Error);
             return false;
         }
     }

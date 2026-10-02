@@ -110,10 +110,15 @@ internal sealed class RdpSession : IDisposable
                 throw new NotSupportedException(Strings.RdpRemoteAppInTab);
             }
         }
-        catch (Exception ex) when (ex is not OutOfMemoryException && !_disposed)
+        catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            Error = ErrorText.Describe(ex);
-            SetState(RdpSessionState.Failed);
+            // Onglet fermé pendant la préparation (appel au PVWA annulé) : plus rien à afficher.
+            if (!_disposed)
+            {
+                Error = ErrorText.Describe(ex);
+                SetState(RdpSessionState.Failed);
+            }
+
             return;
         }
 
@@ -127,8 +132,13 @@ internal sealed class RdpSession : IDisposable
             Server = request.Settings.Server;
             StartClient(request);
         }
-        catch (Exception ex) when (ex is not OutOfMemoryException && !_disposed)
+        catch (Exception ex) when (ex is not OutOfMemoryException)
         {
+            if (_disposed)
+            {
+                return;
+            }
+
             ReleaseClient();
             ControlFailed = true;
             Error = ex is COMException com ? Text.Format(Strings.RdpControlError, $"0x{com.HResult:X8}") : ErrorText.Describe(ex);
@@ -159,11 +169,29 @@ internal sealed class RdpSession : IDisposable
         Dispose();
     }
 
+    /// <summary>Déconnecte la session ; pendant la connexion (serveur ou PSM qui ne répond pas), l'abandonne.</summary>
     public void Disconnect()
     {
-        if (_ocx is not null && IsConnected)
+        if (_ocx is not { } ocx)
         {
-            TryCall(() => Dispatch.Call(_ocx, "Disconnect"));
+            return;
+        }
+
+        if (IsConnected)
+        {
+            TryCall(() => Dispatch.Call(ocx, "Disconnect"));
+        }
+        else if (State == RdpSessionState.Connecting && !_disposed)
+        {
+            TryCall(() => Dispatch.Call(ocx, "Disconnect"));
+            if (State == RdpSessionState.Connecting)
+            {
+                // Le contrôle ne signale pas toujours la fin d'une connexion abandonnée : on la termine nous-mêmes.
+                Error = null;
+                IsFullScreen = false;
+                SetState(RdpSessionState.Ended);
+                ReleaseLater();
+            }
         }
     }
 

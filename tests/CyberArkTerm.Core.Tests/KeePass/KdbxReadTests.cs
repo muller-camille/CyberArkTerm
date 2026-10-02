@@ -133,4 +133,37 @@ public class KdbxReadTests
 
         Assert.Equal(KeePassError.Corrupted, ex.Kind);
     }
+
+    /// <summary>En-tête incohérent (vecteur d'initialisation AES de 12 octets) : « coffre endommagé », pas une erreur brute.</summary>
+    [Fact]
+    public void InconsistentHeaderIsReportedAsCorrupted()
+    {
+        // KDBX 3.1 : signature et version (12 octets), puis champs « identifiant (1), taille (2), données ».
+        var file = File.ReadAllBytes(VaultPath("kxc-kdbx31.kdbx"));
+        var changed = new List<byte>(file[..12]);
+        int pos = 12;
+        byte id;
+        do
+        {
+            id = file[pos];
+            var data = file.AsSpan(pos + 3, BitConverter.ToUInt16(file, pos + 1)).ToArray();
+            pos += 3 + data.Length;
+            if (id == 7)
+            {
+                data = data[..12];
+            }
+
+            changed.Add(id);
+            changed.AddRange(BitConverter.GetBytes((ushort)data.Length));
+            changed.AddRange(data);
+        }
+        while (id != 0);
+
+        changed.AddRange(file[pos..]);
+        using var key = KeePassKey.Create(Password, (string?)null);
+        using var cache = new TransformCache();
+
+        var error = Assert.Throws<KeePassException>(() => KdbxFile.Read([.. changed], key, cache));
+        Assert.Equal(KeePassError.Corrupted, error.Kind);
+    }
 }

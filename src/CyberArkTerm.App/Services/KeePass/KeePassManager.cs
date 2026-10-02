@@ -28,9 +28,16 @@ internal sealed class KeePassManager : IDisposable
 
     public EmergencyLog Log { get; }
 
-    public KeePassVault? Get(string folderId) => _open.GetValueOrDefault(folderId);
+    /// <summary>Coffre ouvert pour ce dossier ; utilisable depuis n'importe quel thread (connexions SSH).</summary>
+    public KeePassVault? Get(string folderId)
+    {
+        lock (_open)
+        {
+            return _open.GetValueOrDefault(folderId);
+        }
+    }
 
-    public bool IsOpen(string folderId) => _open.ContainsKey(folderId);
+    public bool IsOpen(string folderId) => Get(folderId) is not null;
 
     /// <summary>Mot de passe maître mémorisé pour ce dossier (UTF-8, à effacer), si le coffre local est déverrouillé.</summary>
     public byte[]? StoredPassword(KeePassFolder folder) =>
@@ -66,14 +73,29 @@ internal sealed class KeePassManager : IDisposable
         }
         catch (Exception ex) when (ex is KeePassException or IOException or UnauthorizedAccessException)
         {
-            Log.Write("keepass-open-failed", ("vault", folder.FilePath), ("reason", ex is KeePassException k ? k.Kind.ToString() : ex.GetType().Name));
+            Log.TryWrite("keepass-open-failed", ("vault", folder.FilePath), ("reason", ex is KeePassException k ? k.Kind.ToString() : ex.GetType().Name));
+            throw;
+        }
+
+        try
+        {
+            // Pas d'accès d'urgence sans trace : si le journal ne peut pas être écrit, le coffre n'est pas ouvert.
+            Log.Write("keepass-open", ("vault", folder.FilePath), ("format", vault.Database.FormatName),
+                ("keyfile", string.IsNullOrEmpty(keyFilePath) ? "no" : "yes"),
+                ("entries", vault.Database.Entries.Count.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+        }
+        catch
+        {
+            vault.Dispose();
             throw;
         }
 
         Lock(folder.Id, notify: false);
-        _open[folder.Id] = vault;
-        Log.Write("keepass-open", ("vault", folder.FilePath), ("format", vault.Database.FormatName),
-            ("keyfile", string.IsNullOrEmpty(keyFilePath) ? "no" : "yes"), ("entries", vault.Database.Entries.Count.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+        lock (_open)
+        {
+            _open[folder.Id] = vault;
+        }
+
         Changed?.Invoke();
         return vault;
     }
@@ -83,7 +105,13 @@ internal sealed class KeePassManager : IDisposable
     /// <summary>Verrouille tous les coffres KeePass (le coffre local aussi si <paramref name="localStore"/>).</summary>
     public void LockAll(bool localStore = false)
     {
-        foreach (var id in _open.Keys.ToList())
+        List<string> ids;
+        lock (_open)
+        {
+            ids = [.. _open.Keys];
+        }
+
+        foreach (var id in ids)
         {
             Lock(id, notify: false);
         }
@@ -104,10 +132,17 @@ internal sealed class KeePassManager : IDisposable
 
     private void Lock(string folderId, bool notify)
     {
-        if (_open.Remove(folderId, out var vault))
+        KeePassVault? vault;
+        lock (_open)
         {
-            Log.Write("keepass-lock", ("vault", vault.FilePath));
+            _open.Remove(folderId, out vault);
+        }
+
+        if (vault is not null)
+        {
+            // D'abord effacer les secrets : un journal inaccessible ne doit jamais laisser un coffre ouvert.
             vault.Dispose();
+            Log.TryWrite("keepass-lock", ("vault", vault.FilePath));
             if (notify)
             {
                 Changed?.Invoke();

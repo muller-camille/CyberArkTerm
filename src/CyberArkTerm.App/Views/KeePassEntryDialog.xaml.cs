@@ -101,7 +101,7 @@ public partial class KeePassEntryDialog : Window
         var password = Password;
         Result = new KeePassEntryData(title, UserBox.Text.Trim(), _editing && password.Length == 0 ? null : password,
             UrlBox.Text.Trim(), NotesBox.Text);
-        Group = string.Join('/', GroupBox.Text.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+        Group = KeePassGroupPath.Normalize(GroupBox.Text);
         PasswordBox.Clear();
         PasswordText.Clear();
         DialogResult = true;

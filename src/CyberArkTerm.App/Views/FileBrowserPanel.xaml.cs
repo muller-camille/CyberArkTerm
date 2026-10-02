@@ -415,8 +415,32 @@ public partial class FileBrowserPanel : UserControl
         }
 
         var target = selected.Count == 1 ? selected[0].Name : Text.Format(Strings.ItemsCount, selected.Count);
-        var dialog = new PermissionsDialog(target, browser.CurrentDirectory, UnixPermissions.FromSymbolic(selected[0].Permissions),
-            selected.Any(s => s.IsDirectory && !s.IsSymbolicLink))
+        int mode = UnixPermissions.FromSymbolic(selected[0].Permissions);
+        if (selected[0].IsSymbolicLink)
+        {
+            // La liste montre les droits du lien lui-même (lrwxrwxrwx) alors que chmod change ceux de sa cible :
+            // partir de 777 rendrait la cible accessible à tous si l'on validait sans rien changer.
+            int? targetMode;
+            try
+            {
+                targetMode = await browser.GetModeAsync(selected[0].FullPath, CancellationToken.None);
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                SetStatus(Text.Format(Strings.PermissionsFailed, Describe(ex)), error: true);
+                return;
+            }
+
+            if (targetMode is not { } resolved)
+            {
+                SetStatus(Text.Format(Strings.PermissionsLinkUnknown, selected[0].Name), error: true);
+                return;
+            }
+
+            mode = resolved;
+        }
+
+        var dialog = new PermissionsDialog(target, browser.CurrentDirectory, mode, selected.Any(s => s.IsDirectory && !s.IsSymbolicLink))
         {
             Owner = Window.GetWindow(this),
         };

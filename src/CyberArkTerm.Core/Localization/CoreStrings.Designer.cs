@@ -576,5 +576,14 @@ namespace CyberArkTerm.Core.Localization {
                 return ResourceManager.GetString("VaultUserUnknown", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The server received {0} bytes instead of {1}: the file on the server is incomplete..
+        /// </summary>
+        public static string WriteIncomplete {
+            get {
+                return ResourceManager.GetString("WriteIncomplete", resourceCulture);
+            }
+        }
     }
 }

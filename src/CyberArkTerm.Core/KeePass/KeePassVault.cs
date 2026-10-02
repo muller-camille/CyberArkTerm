@@ -14,8 +14,16 @@ public sealed class KeePassVault : IDisposable
 
     private readonly KeePassKey _key;
     private readonly TransformCache _cache;
+
+    // Une seule opération sur le fichier à la fois (jamais libéré : sans AvailableWaitHandle, rien à rendre).
     private readonly SemaphoreSlim _lock = new(1, 1);
+
+    // Protège Database, _disposed et _operations : les mots de passe sont lus depuis d'autres threads (connexions
+    // SSH) pendant qu'un enregistrement remplace la base, et le coffre peut être verrouillé pendant un enregistrement.
+    private readonly object _state = new();
     private byte[] _fileHash = [];
+    private bool _disposed;
+    private int _operations;
 
     private KeePassVault(string path, KeePassKey key, TransformCache cache, KeePassDatabase database, byte[] fileHash)
     {
@@ -28,8 +36,20 @@ public sealed class KeePassVault : IDisposable
 
     public string FilePath { get; }
 
-    /// <summary>Contenu lu au dernier chargement ou enregistrement.</summary>
+    /// <summary>Contenu lu au dernier chargement ou enregistrement (vide une fois le coffre verrouillé).</summary>
     public KeePassDatabase Database { get; private set; }
+
+    /// <summary>
+    /// Mot de passe de l'entrée, ou null si elle n'existe plus ou si le coffre a été verrouillé. Utilisable depuis
+    /// n'importe quel thread, même pendant un enregistrement.
+    /// </summary>
+    public string? RevealPassword(string entryId)
+    {
+        lock (_state)
+        {
+            return _disposed ? null : Database.RevealPassword(entryId);
+        }
+    }
 
     public string BackupPath => FilePath + ".bak";
 
@@ -61,18 +81,16 @@ public sealed class KeePassVault : IDisposable
     /// <summary>Relit le fichier (après une modification faite par un autre programme).</summary>
     public async Task ReloadAsync(CancellationToken cancellation = default)
     {
-        await _lock.WaitAsync(cancellation).ConfigureAwait(false);
+        await BeginAsync(cancellation).ConfigureAwait(false);
         try
         {
             var bytes = await ReadSharedAsync(FilePath, cancellation).ConfigureAwait(false);
             var database = await Task.Run(() => KdbxFile.Read(bytes, _key, _cache, cancellation), cancellation).ConfigureAwait(false);
-            Database.Dispose();
-            Database = database;
-            _fileHash = SHA256.HashData(bytes);
+            Replace(database, bytes);
         }
         finally
         {
-            _lock.Release();
+            End();
         }
     }
 
@@ -82,7 +100,7 @@ public sealed class KeePassVault : IDisposable
     /// </summary>
     public async Task<T> SaveAsync<T>(Func<KeePassDatabase, T> change, CancellationToken cancellation = default)
     {
-        await _lock.WaitAsync(cancellation).ConfigureAwait(false);
+        await BeginAsync(cancellation).ConfigureAwait(false);
         try
         {
             for (int attempt = 0; attempt < SaveAttempts; attempt++)
@@ -104,9 +122,7 @@ public sealed class KeePassVault : IDisposable
                     throw;
                 }
 
-                Database.Dispose();
-                Database = database;
-                _fileHash = SHA256.HashData(output);
+                Replace(database, output);
                 return result;
             }
 
@@ -114,7 +130,7 @@ public sealed class KeePassVault : IDisposable
         }
         finally
         {
-            _lock.Release();
+            End();
         }
     }
 
@@ -125,12 +141,91 @@ public sealed class KeePassVault : IDisposable
             return true;
         }, cancellation);
 
+    /// <summary>
+    /// Verrouille le coffre : secrets effacés tout de suite s'il est inactif, sinon dès la fin de l'enregistrement en
+    /// cours (qui a besoin de la clé pour finir d'écrire le fichier).
+    /// </summary>
     public void Dispose()
     {
-        Database.Dispose();
+        lock (_state)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+            if (_operations > 0)
+            {
+                return;
+            }
+        }
+
+        ReleaseSecrets();
+    }
+
+    private async Task BeginAsync(CancellationToken cancellation)
+    {
+        await _lock.WaitAsync(cancellation).ConfigureAwait(false);
+        lock (_state)
+        {
+            if (!_disposed)
+            {
+                _operations++;
+                return;
+            }
+        }
+
+        _lock.Release();
+        throw new ObjectDisposedException(nameof(KeePassVault));
+    }
+
+    private void End()
+    {
+        bool release;
+        lock (_state)
+        {
+            _operations--;
+            release = _disposed && _operations == 0;
+        }
+
+        _lock.Release();
+        if (release)
+        {
+            ReleaseSecrets();
+        }
+    }
+
+    /// <summary>Met en place la base qui vient d'être lue ou écrite ; si le coffre a été verrouillé entre-temps, elle est effacée.</summary>
+    private void Replace(KeePassDatabase database, byte[] file)
+    {
+        KeePassDatabase old;
+        lock (_state)
+        {
+            if (_disposed)
+            {
+                old = database;
+            }
+            else
+            {
+                old = Database;
+                Database = database;
+                _fileHash = SHA256.HashData(file);
+            }
+        }
+
+        old.Dispose();
+    }
+
+    private void ReleaseSecrets()
+    {
+        lock (_state)
+        {
+            Database.Dispose();
+        }
+
         _cache.Dispose();
         _key.Dispose();
-        _lock.Dispose();
     }
 
     private (KeePassDatabase Database, T Result, byte[] Output) Prepare<T>(byte[] original, Func<KeePassDatabase, T> change, CancellationToken cancellation)
@@ -191,17 +286,7 @@ public sealed class KeePassVault : IDisposable
                 return false;
             }
 
-            try
-            {
-                File.Replace(temp, FilePath, BackupPath, ignoreMetadataErrors: true);
-            }
-            catch (Exception e) when (e is IOException or PlatformNotSupportedException or UnauthorizedAccessException)
-            {
-                // Système de fichiers sans remplacement atomique (certains partages réseau) : copie de sauvegarde puis déplacement.
-                File.Copy(FilePath, BackupPath, overwrite: true);
-                File.Move(temp, FilePath, overwrite: true);
-            }
-
+            Install(temp, FilePath, BackupPath);
             return true;
         }
         finally
@@ -209,6 +294,41 @@ public sealed class KeePassVault : IDisposable
             if (File.Exists(temp))
             {
                 File.Delete(temp);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Met <paramref name="temp"/> à la place de <paramref name="path"/>, dont la version précédente devient
+    /// <paramref name="backup"/>. À aucun moment le coffre ne disparaît : au pire il reste à son ancienne version.
+    /// </summary>
+    /// <param name="replace">Remplacement atomique (File.Replace) ; remplaçable pour les tests.</param>
+    internal static void Install(string temp, string path, string backup, Action<string, string, string>? replace = null)
+    {
+        try
+        {
+            (replace ?? ((t, p, b) => File.Replace(t, p, b, ignoreMetadataErrors: true)))(temp, path, backup);
+        }
+        catch (Exception e) when (e is IOException or PlatformNotSupportedException or UnauthorizedAccessException)
+        {
+            if (File.Exists(path))
+            {
+                // Système de fichiers sans remplacement atomique (certains partages réseau) : copie de sauvegarde puis déplacement.
+                File.Copy(path, backup, overwrite: true);
+                File.Move(temp, path, overwrite: true);
+                return;
+            }
+
+            // ReplaceFile a renommé l'original en sauvegarde avant d'échouer : il reste à mettre le nouveau en place,
+            // ou, si c'est impossible, à remettre l'original.
+            try
+            {
+                File.Move(temp, path);
+            }
+            catch (Exception) when (File.Exists(backup) && !File.Exists(path))
+            {
+                File.Copy(backup, path);
+                throw;
             }
         }
     }

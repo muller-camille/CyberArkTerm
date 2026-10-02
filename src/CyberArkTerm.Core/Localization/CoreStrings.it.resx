@@ -186,4 +186,7 @@
   <data name="LocalStorePasswordTooShort" xml:space="preserve">
     <value>La password del vault locale deve avere almeno {0} caratteri.</value>
   </data>
+  <data name="WriteIncomplete" xml:space="preserve">
+    <value>Il server ha ricevuto {0} byte invece di {1}: il file sul server è incompleto.</value>
+  </data>
 </root>

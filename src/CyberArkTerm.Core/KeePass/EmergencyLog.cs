@@ -12,6 +12,8 @@ public sealed class EmergencyLog(string path)
     /// <summary>Au-delà, le journal est renommé en « .1 » (une génération gardée).</summary>
     public const long MaxSize = 5 * 1024 * 1024;
 
+    private const int WriteAttempts = 5;
+
     private static readonly object Lock = new();
 
     public string FilePath { get; } = path;
@@ -33,17 +35,58 @@ public sealed class EmergencyLog(string path)
         }
 
         line.Append(Environment.NewLine);
+        var bytes = new UTF8Encoding(false).GetBytes(line.ToString());
         lock (Lock)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(FilePath))!);
-            var info = new FileInfo(FilePath);
-            if (info.Exists && info.Length > MaxSize)
+            for (int attempt = 1; ; attempt++)
+            {
+                try
+                {
+                    Append(bytes);
+                    return;
+                }
+                catch (IOException) when (attempt < WriteAttempts)
+                {
+                    // Une autre instance de l'application écrit au même moment.
+                    Thread.Sleep(50 * attempt);
+                }
+            }
+        }
+    }
+
+    /// <summary>Comme <see cref="Write"/>, sans erreur si le journal est inaccessible (renvoie faux).</summary>
+    public bool TryWrite(string action, params (string Name, string? Value)[] details)
+    {
+        try
+        {
+            Write(action, details);
+            return true;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+
+    private void Append(byte[] bytes)
+    {
+        var info = new FileInfo(FilePath);
+        if (info.Exists && info.Length > MaxSize)
+        {
+            try
             {
                 File.Move(FilePath, FilePath + ".1", overwrite: true);
             }
-
-            File.AppendAllText(FilePath, line.ToString(), new UTF8Encoding(false));
+            catch (IOException)
+            {
+                // Une autre instance vient de le faire, ou le fichier est ouvert : on réessaiera à la ligne suivante.
+            }
         }
+
+        // Partagé en écriture : plusieurs instances peuvent ajouter leurs lignes ; chaque ligne part en une écriture.
+        using var stream = new FileStream(FilePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete);
+        stream.Write(bytes);
     }
 
     private static string Clean(string text) =>
