@@ -330,11 +330,13 @@ available). CyberArkTerm reads the RDP file returned by `PSMConnect` and applies
 redirections, sound, visual effects. Session ends and connection errors are explained in the tab with the
 Windows message.
 
-For a remote application (`remoteapplicationmode:i:1`), the control switches to RemoteApp mode with
-`remoteapplicationprogram` (for PSM, `||PSMInitSession`), `remoteapplicationname`, `remoteapplicationcmdline` and
-`disableremoteappcapscheck`, like `mstsc`; `alternate shell` is not used. The remote desktop takes the size of all
-screens so the windows can go anywhere. An integration test (`rdp-integration` workflow) opens real sessions on
-the CI machine: a desktop in a tab, and Notepad as a remote application.
+For a remote application (`remoteapplicationmode:i:1`), the control switches to RemoteApp mode
+(`disableremoteappcapscheck` applied), then starts the application once the session is open, once per
+connection: `remoteapplicationprogram` (for PSM, `||PSMInitSession`) with the `remoteapplicationcmdline`
+arguments; `remoteapplicationname` is used for display and `alternate shell` is not used. If the server refuses
+the application, the session ends with the reason. The remote desktop takes the size of all screens so the
+windows can go anywhere. An integration test (`rdp-integration` workflow) opens real sessions on the CI machine:
+a desktop in a tab, Notepad as a remote application, and an unknown application (error message).
 
 ### PSMP sessions
 

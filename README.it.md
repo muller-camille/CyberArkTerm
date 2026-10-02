@@ -343,12 +343,14 @@ recente disponibile). CyberArkTerm legge il file RDP restituito da `PSMConnect` 
 NLA (CredSSP), gateway, reindirizzamenti, audio, effetti visivi. Le chiusure di sessione e gli errori di
 connessione sono spiegati nella scheda con il messaggio di Windows.
 
-Per un'applicazione remota (`remoteapplicationmode:i:1`), il controllo passa in modalità RemoteApp con
-`remoteapplicationprogram` (per il PSM, `||PSMInitSession`), `remoteapplicationname`, `remoteapplicationcmdline` e
-`disableremoteappcapscheck`, come `mstsc`; `alternate shell` non viene usato. Il desktop remoto prende la
+Per un'applicazione remota (`remoteapplicationmode:i:1`), il controllo passa in modalità RemoteApp
+(`disableremoteappcapscheck` applicato), poi avvia l'applicazione una volta aperta la sessione, una sola volta per
+connessione: `remoteapplicationprogram` (per il PSM, `||PSMInitSession`) con gli argomenti
+`remoteapplicationcmdline`; `remoteapplicationname` serve per la visualizzazione e `alternate shell` non viene
+usato. Se il server rifiuta l'applicazione, la sessione termina con il motivo. Il desktop remoto prende la
 dimensione di tutti gli schermi perché le finestre possano andare ovunque. Un test di integrazione (workflow
-`rdp-integration`) apre sessioni reali sul computer di CI: un desktop in una scheda e il Blocco note come
-applicazione remota.
+`rdp-integration`) apre sessioni reali sul computer di CI: un desktop in una scheda, il Blocco note come
+applicazione remota e un'applicazione sconosciuta (messaggio di errore).
 
 ### Sessioni PSMP
 

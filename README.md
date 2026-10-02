@@ -350,12 +350,14 @@ réglages : `full address`, `username`, `alternate shell` (lancement de la sessi
 d'authentification du serveur, NLA (CredSSP), passerelle, redirections, son, effets visuels. Les fermetures
 de session et les erreurs de connexion sont expliquées dans l'onglet avec le message de Windows.
 
-Pour une application distante (`remoteapplicationmode:i:1`), le contrôle passe en mode RemoteApp avec
-`remoteapplicationprogram` (pour le PSM, `||PSMInitSession`), `remoteapplicationname`,
-`remoteapplicationcmdline` et `disableremoteappcapscheck`, comme `mstsc` ; `alternate shell` ne sert pas.
-Le bureau distant prend la taille de l'ensemble des écrans pour que les fenêtres puissent aller partout. Un
-test d'intégration (workflow `rdp-integration`) ouvre de vraies sessions sur le poste de CI : bureau en onglet,
-et Bloc-notes en application distante.
+Pour une application distante (`remoteapplicationmode:i:1`), le contrôle passe en mode RemoteApp
+(`disableremoteappcapscheck` repris), puis lance l'application une fois la session ouverte, une seule fois par
+connexion : `remoteapplicationprogram` (pour le PSM, `||PSMInitSession`) avec les arguments
+`remoteapplicationcmdline` ; `remoteapplicationname` sert à l'affichage et `alternate shell` ne sert pas. Si le
+serveur refuse l'application, la session se termine avec la raison. Le bureau distant prend la taille de
+l'ensemble des écrans pour que les fenêtres puissent aller partout. Un test d'intégration (workflow
+`rdp-integration`) ouvre de vraies sessions sur le poste de CI : bureau en onglet, Bloc-notes en application
+distante, et application inconnue (message d'erreur).
 
 ### Sessions PSMP
 
