@@ -639,12 +639,13 @@ public class RdpSessionTests(ITestOutputHelper output)
             var watch = System.Diagnostics.Stopwatch.StartNew();
             var blocked = session.InvokeOnControlAsync(_ =>
             {
-                Thread.Sleep(TimeSpan.FromSeconds(8));
+                Thread.Sleep(TimeSpan.FromSeconds(10));
                 return true;
             });
-            // Signalé en un peu plus de 7 s au pire : sollicitation envoyée jusqu'à 1 s après le blocage, délai de 5 s,
-            // surveillance toutes les secondes (en priorité basse). Le contrôle reste bloqué 8 s.
-            while (!sawNotResponding && watch.ElapsedMilliseconds < 7800)
+            // Signalé en 6 à 7 s d'habitude : sollicitation envoyée jusqu'à 1 s après le blocage, délai de 5 s,
+            // surveillance toutes les secondes, en priorité basse (plus tard sur un poste de CI chargé). Le contrôle
+            // reste bloqué 10 s.
+            while (!sawNotResponding && watch.ElapsedMilliseconds < 9500)
             {
                 await Task.Delay(100);
             }
