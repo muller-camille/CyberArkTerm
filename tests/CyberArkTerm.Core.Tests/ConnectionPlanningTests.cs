@@ -59,8 +59,32 @@ public class ConnectionPlanningTests
         Assert.Equal("jdupont@adm-t0#CORP@srv02", PsmpTarget.BuildLogin("jdupont", account, "srv02"));
     }
 
+    [Fact]
+    public void PsmpLogin_RejectsSpacesInDomainAndRemoteMachine()
+    {
+        Assert.Throws<ArgumentException>(() => PsmpTarget.BuildLogin("jdupont", Account("WinDomain", "adm", "corp.local", domain: "MY CORP")));
+        Assert.Throws<ArgumentException>(() => PsmpTarget.BuildLogin("jdupont", Account("WinDomain", "adm", "corp.local"), "srv 02"));
+    }
+
+    [Fact]
+    public void Validate_RejectsSpacesUnlessAllowed()
+    {
+        Assert.Throws<ArgumentException>(() => PsmpTarget.Validate("psmp host", "x"));
+        PsmpTarget.Validate("Jean Dupont@root@srv01", "x", allowSpaces: true);
+        Assert.Throws<ArgumentException>(() => PsmpTarget.Validate("Jean\u00a0Dupont@root@srv01", "x", allowSpaces: true));
+    }
+
+    [Theory]
+    [InlineData("Jean Dupont", "root", "Jean Dupont@root@srv01.corp.local")]
+    [InlineData("jdupont", "Admin Local", "jdupont@Admin Local@srv01.corp.local")]
+    [InlineData("  jdupont ", " root ", "jdupont@root@srv01.corp.local")]
+    public void PsmpLogin_AcceptsSpacesInUserNames(string vaultUser, string user, string expected) =>
+        Assert.Equal(expected, PsmpTarget.BuildLogin(vaultUser, Account("UnixSSH", user)));
+
     [Theory]
     [InlineData("jdupont", "root;calc", "srv01")]
+    [InlineData("jdupont", "root\tadmin", "srv01")]
+    [InlineData("jdupont", "root", "srv 01")]
     [InlineData("jdupont", "root", "srv01 -oProxyCommand=x")]
     [InlineData("j\"dupont", "root", "srv01")]
     [InlineData("", "root", "srv01")]

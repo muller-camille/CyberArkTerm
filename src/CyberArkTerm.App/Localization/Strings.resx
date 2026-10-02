@@ -477,7 +477,7 @@ The accounts remain available in the “Available” tab.</value>
     <value>The PVWA generates an RDP file opened in Remote Desktop Connection (mstsc).</value>
   </data>
   <data name="SshCommandHint" xml:space="preserve">
-    <value>Command: ssh {0}@{1}</value>
+    <value>Command: ssh {0}</value>
   </data>
   <data name="SettingsTitle" xml:space="preserve">
     <value>Settings</value>

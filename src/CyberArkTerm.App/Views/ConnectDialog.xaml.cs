@@ -97,7 +97,8 @@ public partial class ConnectDialog : Window
         try
         {
             var login = PsmpTarget.BuildLogin(_vaultUser, _account, MachineBox.Text);
-            SshHint.Text = Text.Format(Strings.SshCommandHint, login, _settings.PsmpAddress);
+            var target = $"{login}@{_settings.PsmpAddress}";
+            SshHint.Text = Text.Format(Strings.SshCommandHint, target.Contains(' ') ? $"\"{target}\"" : target);
         }
         catch (ArgumentException ex)
         {

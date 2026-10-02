@@ -477,7 +477,7 @@ Les comptes restent disponibles dans l'onglet « Disponibles ».</value>
     <value>Le PVWA génère un fichier RDP ouvert dans la Connexion Bureau à distance (mstsc).</value>
   </data>
   <data name="SshCommandHint" xml:space="preserve">
-    <value>Commande : ssh {0}@{1}</value>
+    <value>Commande : ssh {0}</value>
   </data>
   <data name="SettingsTitle" xml:space="preserve">
     <value>Paramètres</value>

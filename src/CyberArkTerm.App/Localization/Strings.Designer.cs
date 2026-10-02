@@ -1856,7 +1856,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Command: ssh {0}@{1}.
+        ///   Looks up a localized string similar to Command: ssh {0}.
         /// </summary>
         public static string SshCommandHint {
             get {
