@@ -120,8 +120,17 @@ internal sealed class RdpSession : IDisposable
     /// <summary>Nom de l'application distante (vide pour un bureau).</summary>
     public string RemoteAppName { get; private set; } = "";
 
-    /// <summary>Vrai si l'onglet affiche le bureau distant.</summary>
-    public bool ShowsDesktop => HasControl && !IsRemoteApp;
+    /// <summary>
+    /// Application distante : sa fenêtre principale s'affiche dans l'onglet (ses menus et boîtes de dialogue restent à
+    /// part) ; sinon toutes ses fenêtres s'ouvrent à part.
+    /// </summary>
+    public bool RemoteAppInTab { get; init; }
+
+    /// <summary>Vrai quand la fenêtre de l'application distante est affichée dans l'onglet.</summary>
+    public bool RemoteAppShown { get; private set; }
+
+    /// <summary>Vrai si l'onglet affiche le bureau distant, ou la fenêtre de l'application distante.</summary>
+    public bool ShowsDesktop => HasControl && (!IsRemoteApp || RemoteAppShown);
 
     /// <summary>Application distante PSM ouverte comme un bureau (le serveur peut refuser ce mode).</summary>
     public bool DesktopFromRemoteApp { get; private set; }
@@ -150,6 +159,7 @@ internal sealed class RdpSession : IDisposable
     public async Task ConnectAsync()
     {
         ReleaseConnection(disconnect: false);
+        RemoteAppShown = false;
         RemoteAppFallback = _fallbackRequested;
         _fallbackRequested = false;
         Error = null;
@@ -197,7 +207,7 @@ internal sealed class RdpSession : IDisposable
         RdpConnection connection;
         try
         {
-            connection = new RdpConnection(this, request, Label);
+            connection = new RdpConnection(this, request, Label, RemoteAppInTab);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -323,7 +333,7 @@ internal sealed class RdpSession : IDisposable
 
     public void Focus()
     {
-        if (IsConnected && !IsRemoteApp && !IsNotResponding)
+        if (IsConnected && ShowsDesktop && !IsNotResponding)
         {
             _connection?.Focus();
         }
@@ -374,6 +384,24 @@ internal sealed class RdpSession : IDisposable
         if (connection == _connection && !_disposed && State == RdpSessionState.Connecting)
         {
             SetState(RdpSessionState.Connected);
+        }
+    }
+
+    /// <summary>Fenêtre de l'application distante affichée dans l'onglet, ou plus (fermée, masquée par le serveur).</summary>
+    internal void OnRemoteAppShown(RdpConnection connection, bool shown)
+    {
+        if (connection != _connection || _disposed || shown == RemoteAppShown)
+        {
+            return;
+        }
+
+        RemoteAppShown = shown;
+        UpdateHost();
+        StateChanged?.Invoke();
+        if (shown && Host.IsVisible)
+        {
+            // L'application vient de s'ouvrir dans l'onglet affiché : elle prend le clavier.
+            Focus();
         }
     }
 
@@ -453,6 +481,7 @@ internal sealed class RdpSession : IDisposable
         _watchdog.Stop();
         _pingPending = false;
         IsNotResponding = false;
+        RemoteAppShown = false;
         UpdateHost();
         StateChanged?.Invoke();
     }
@@ -479,6 +508,7 @@ internal sealed class RdpSession : IDisposable
         _watchdog.Stop();
         _pingPending = false;
         IsNotResponding = false;
+        RemoteAppShown = false;
         connection.Release(disconnect);
         UpdateHost();
     }

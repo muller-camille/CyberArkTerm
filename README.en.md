@@ -118,13 +118,18 @@ The session opens **in a CyberArkTerm tab**, with the Windows Remote Desktop con
   of a PSM session works only once);
 - closing the tab (cross or middle click) disconnects the session, after confirmation.
 
-A PSM component that opens a **remote application** (RemoteApp) opens in **separate windows**, on this computer's
-desktop as with `mstsc`; the tab shows its state ("Disconnect" closes it, "Reconnect" starts it again). If "Show PSM
-remote applications in the tab" is ticked in the Settings, CyberArkTerm first tries to show it **in the tab**, as a
-desktop that starts the program published by the PSM (`||PSMInitSession`): the PSM server must accept this mode. If
-it closes the session as soon as it opens, the tab opens the application again in separate windows (new request to
-the PVWA) and the option is unticked; if the session ends a little later, the tab offers "Open in separate
-windows".
+A PSM component that opens a **remote application** (RemoteApp, for example PSM-SSH) also shows **in the tab**: its
+main window takes the whole tab and follows its size; its menus and dialog boxes open above, where the server puts
+them. Clicking in the application gives it the keyboard. Closing the application ends the session; "Disconnect"
+closes it from here, "Reconnect" starts it again. If "Show the window of remote applications in the tab" is
+unticked in the Settings, its windows open on their own, on this computer's desktop as with `mstsc`, and the tab
+shows its state.
+
+With "Open PSM remote applications as a desktop instead" (unticked by default), CyberArkTerm first tries to open it
+as a desktop that starts the program published by the PSM (`||PSMInitSession`): the PSM server must accept this
+mode. If it closes the session as soon as it opens, the tab opens the application again as a remote application
+(new request to the PVWA) and the option is unticked; if the session ends a little later, the tab offers "Open as a
+remote application".
 
 The session opens in **Remote Desktop Connection** (`mstsc`) if the option is unticked in the Settings or if the
 Remote Desktop control can't be used on this computer; the status bar then says why.
@@ -263,7 +268,8 @@ password, delete.
 | Keep the PVWA session open | Light request every 4 minutes; paused while Windows is locked | yes |
 | Local vault | Remembered KeePass master passwords: create, unlock, change password, delete | — |
 | Remote desktop in CyberArkTerm | PSM sessions in a tab; otherwise Remote Desktop Connection (`mstsc`) | yes |
-| PSM remote applications in the tab | PSM RemoteApp components opened as a desktop in the tab (the PSM must accept it; unticked automatically if it refuses); otherwise separate windows | no |
+| Remote applications in the tab | Main window of remote applications (RemoteApp) in the tab, menus and dialog boxes above; otherwise windows on their own, on the desktop | yes |
+| PSM remote applications as a desktop | PSM RemoteApp components opened as a desktop instead (the PSM must accept it; unticked automatically if it refuses) | no |
 | Debug log | Settings button menu: how connections unfold, in a file, without secrets (see [Security](#security)); "Show the debug log file" opens it in Explorer | no |
 | SSH in CyberArkTerm | Built-in terminal and Files tab; otherwise Windows Terminal | yes |
 | Follow the terminal folder | Allows setting up folder tracking in the shell | yes |
@@ -347,17 +353,17 @@ available). CyberArkTerm reads the RDP file returned by `PSMConnect` and applies
 redirections, sound, visual effects. Session ends and connection errors are explained in the tab with the
 Windows message.
 
-With "Show PSM remote applications in the tab" (unticked by default), a PSM component that opens a remote
-application is opened as a desktop: RemoteApp mode off, and the session starts `remoteapplicationprogram` (for PSM,
+With "Open PSM remote applications as a desktop instead" (unticked by default), a PSM component that opens a
+remote application is opened as a desktop: RemoteApp mode off, and the session starts `remoteapplicationprogram` (for PSM,
 `||PSMInitSession`, followed by `remoteapplicationcmdline` if any), with the same user (`PSM@…`). A server in
 RemoteApp mode usually only accepts its published programs when a session starts: a PSM closed the session that
 started `alternate shell` (`PSM@…`) directly (version 0.4.1), then the one that started `||PSMInitSession`, 3.4 s
 after logon (version 0.4.2, reason 2, extended reason 12). The file's signature (`signature`) is checked only by
 `mstsc`, not by the control nor by the server. If the server (not this computer) closes the session less than 15 s
 after logon, the tab requests the PVWA again, opens the file as it is and unticks the option. If the session ends
-later within its first minute, the tab offers "Open in separate windows", which does the same.
+later within its first minute, the tab offers "Open as a remote application", which does the same.
 
-Otherwise (option unticked, file without `alternate shell`, or separate windows requested), for a remote application
+Otherwise (option unticked, file without `alternate shell`, or remote application requested), for a remote application
 (`remoteapplicationmode:i:1`), the control switches to RemoteApp mode
 (`disableremoteappcapscheck` applied), then starts the application once the session is open, once per
 connection: `remoteapplicationprogram` (for PSM, `||PSMInitSession`) with the `remoteapplicationcmdline`
@@ -365,10 +371,22 @@ arguments; `remoteapplicationname` is used for display and `alternate shell` is 
 the application, the session ends with the reason. The remote desktop takes the size of all screens so the
 windows can go anywhere. An integration test (`rdp-integration` workflow) opens real sessions on the CI machine:
 a desktop in a tab, Notepad as a remote application, a remote application file opened as a desktop (the CI
-machine, without the Session Host role, does not run the start program: only its transfer is checked) then in
-separate windows, a refused desktop (session closed on the server side as soon as it opens: reopened in separate
-windows), and an unknown application (error message). Session end messages give the Windows codes
-(reason, extended reason).
+machine, without the Session Host role, does not run the start program: only its transfer is checked) then as a
+remote application, a refused desktop (session closed on the server side as soon as it opens: reopened as a remote
+application), Notepad shown in the tab, and an unknown application (error message). Session end messages give the
+Windows codes (reason, extended reason).
+
+**Remote application in the tab.** The control creates the application's windows in this process, on a thread of
+its own, as top-level windows (class `RAIL_WINDOW`) that it places where the server puts them, and reports each one
+(`OnRemoteWindowDisplayed` event): each tab thus knows which windows are its own. The main window (the first that is
+neither a tool window, like menus and dialog boxes, nor a pop-up window without a Minimize or Maximize button) is
+attached to the control's container (connection thread), takes the whole tab and follows its size; if the server
+moves or minimizes it, it is put back. The control keeps sending positions to the server: clicks land in the right
+place and menus open under the pointer. A mouse button pressed in the application gives it the keyboard
+(`WM_PARENTNOTIFY`), as selecting the tab does. When the connection ends, the window leaves the container before it
+is destroyed; the control destroys it itself. Checked by the integration test: rendering, keyboard (text typed then
+copied, read from the redirected clipboard), size, context menu opened under the pointer, window taken out of the
+tab on disconnection.
 
 **One thread per remote desktop connection.** The control, its window and its events live on a separate thread
 (STA, with its own message loop); the interface never waits for it. The tab holds a window of the interface thread,
@@ -419,7 +437,7 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 | "The local vault file is damaged or was created by another Windows account." | The local vault does not follow a change of computer or account: delete it in the Settings and create it again. |
 | "The entry … was changed or deleted in the vault in the meantime" | Someone changed the same entry elsewhere: the vault is reloaded, make the change again. |
 | The PSM session opens in `mstsc`, not in a tab | Remote Desktop control unavailable or failing, or option unticked: the status bar gives the reason. |
-| PSM session of a remote application ends at once ("An internal error has occurred"…) | The PSM refuses the remote application opened as a desktop: CyberArkTerm opens it again in separate windows and unticks "Show PSM remote applications in the tab". If the session ended later, "Open in separate windows" in the tab. |
+| PSM session of a remote application ends at once ("An internal error has occurred"…) | The PSM refuses the remote application opened as a desktop: CyberArkTerm opens it again as a remote application and unticks "Open PSM remote applications as a desktop instead". If the session ended later, "Open as a remote application" in the tab. |
 | Understanding a connection failure | Settings → Debug log, reproduce the problem, then Settings → "Show the debug log file". |
 | Remote application (RemoteApp): "not allowed on the server" | The requested application is not published on the PSM server: check with the CyberArk administrator. |
 | The tab shows "Remote Desktop control error" | Untick "Open remote desktop sessions in a CyberArkTerm tab" in the Settings to use `mstsc`, and report the code shown. |

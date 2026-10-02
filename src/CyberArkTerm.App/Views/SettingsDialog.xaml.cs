@@ -35,6 +35,7 @@ public partial class SettingsDialog : Window
         SshInAppBox.IsChecked = settings.SshInApp;
         FollowBox.IsChecked = settings.FollowTerminalFolder;
         RdpInAppBox.IsChecked = settings.RdpInApp;
+        RemoteAppInTabBox.IsChecked = settings.RemoteAppInTab;
         PsmRemoteAppAsDesktopBox.IsChecked = settings.PsmRemoteAppAsDesktop;
         EditorBox.Text = settings.TextEditor;
         (settings.UploadProtocol == TransferProtocol.Sftp ? SftpRadio : ScpRadio).IsChecked = true;
@@ -81,6 +82,7 @@ public partial class SettingsDialog : Window
         _settings.SshInApp = SshInAppBox.IsChecked == true;
         _settings.FollowTerminalFolder = FollowBox.IsChecked == true;
         _settings.RdpInApp = RdpInAppBox.IsChecked == true;
+        _settings.RemoteAppInTab = RemoteAppInTabBox.IsChecked == true;
         _settings.PsmRemoteAppAsDesktop = PsmRemoteAppAsDesktopBox.IsChecked == true;
         _settings.KeepPvwaSessionAlive = KeepAliveBox.IsChecked == true;
         _settings.UploadProtocol = SftpRadio.IsChecked == true ? TransferProtocol.Sftp : TransferProtocol.Scp;

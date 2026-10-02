@@ -47,9 +47,10 @@ public partial class RdpSessionView : UserControl
                     // Les fenêtres de l'application distante sont sur le bureau de ce poste : l'onglet dit où elles sont.
                     OverlayText.Text = Text.Format(Strings.RdpRemoteAppOpened, session.RemoteAppName);
                     // Après un refus du bureau, la raison reste affichée : la barre d'état est vite remplacée.
+                    var hint = session.RemoteAppInTab ? Strings.RdpRemoteAppInTabHint : Strings.RdpRemoteAppHint;
                     OverlayDetail.Text = session.RemoteAppFallback
-                        ? Text.Format(Strings.PsmDesktopRefused, session.Label) + "\n\n" + Strings.RdpRemoteAppHint
-                        : Strings.RdpRemoteAppHint;
+                        ? Text.Format(Strings.PsmDesktopRefused, session.Label) + "\n\n" + hint
+                        : hint;
                     ReconnectButton.Visibility = Visibility.Collapsed;
                 }
 

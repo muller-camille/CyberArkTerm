@@ -37,6 +37,7 @@ internal sealed class RdpConnection
     private const int DispIdServiceMessageReceived = 28;
     private const int DispIdAutoReconnected = 33;
     private const int DispIdAutoReconnecting2 = 34;
+    private const int DispIdRemoteWindowDisplayed = 29;
 
     private static readonly IntPtr MessageOnlyParent = new(-3);
 
@@ -44,6 +45,7 @@ internal sealed class RdpConnection
     private readonly Dispatcher _ui;
     private readonly RdpThread _thread;
     private readonly string _label;
+    private readonly bool _remoteAppInTab;
     private readonly TaskCompletionSource _detachedTask = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private RdpConnectionRequest _request;
     private readonly List<(int DispId, Delegate Handler)> _handlers = [];
@@ -51,6 +53,7 @@ internal sealed class RdpConnection
     // Thread de la connexion uniquement.
     private Container? _container;
     private RdpClientHost? _client;
+    private RemoteAppDock? _dock;
     private object? _ocx;
     private System.Windows.Forms.Timer? _resizeTimer;
     private (int Width, int Height) _pixels;
@@ -61,12 +64,14 @@ internal sealed class RdpConnection
     private bool _released;
 
     /// <summary>Démarre le thread de la connexion (thread de l'interface).</summary>
-    public RdpConnection(RdpSession session, RdpConnectionRequest request, string label)
+    /// <param name="remoteAppInTab">Application distante : sa fenêtre principale s'affiche dans l'onglet.</param>
+    public RdpConnection(RdpSession session, RdpConnectionRequest request, string label, bool remoteAppInTab = false)
     {
         _session = session;
         _ui = Dispatcher.CurrentDispatcher;
         _request = request;
         _label = label;
+        _remoteAppInTab = remoteAppInTab && request.Settings.IsRemoteApp;
         _thread = RdpThread.Start($"Bureau à distance {label}");
         DebugLog.Write("rdp", $"{label} : thread de la connexion {_thread.ManagedThreadId}");
     }
@@ -92,6 +97,7 @@ internal sealed class RdpConnection
 
         _pixels = pixels;
         container.Size = new Size(Math.Max(pixels.Width, 1), Math.Max(pixels.Height, 1));
+        _dock?.Fit();
         _resizeTimer?.Stop();
         _resizeTimer?.Start();
     });
@@ -173,11 +179,23 @@ internal sealed class RdpConnection
         client.CreateControl();
         var ocx = client.Ocx ?? throw new COMException("MsRdpClient", unchecked((int)0x80004005));
         _ocx = ocx;
+        if (_remoteAppInTab)
+        {
+            _dock = new RemoteAppDock(container, shown => ToSession(s => s.OnRemoteAppShown(this, shown)), _label);
+            // Clic dans la fenêtre de l'application : elle prend le clavier (elle est d'un autre thread que l'onglet).
+            container.ChildPressed += () => container.BeginInvoke(() => _dock?.Focus());
+        }
+
         Subscribe(ocx, DispIdLoginComplete, new Action(OnLoginComplete));
         Subscribe(ocx, DispIdDisconnected, new Action<int>(OnDisconnected));
         Subscribe(ocx, DispIdFatalError, new Action<int>(OnFatalError));
         Subscribe(ocx, DispIdRemoteProgramResult, new Action<string, int, bool>(OnRemoteProgramResult));
         Subscribe(ocx, DispIdRemoteProgramDisplayed, new Action<bool, uint>(OnRemoteProgramDisplayed));
+        if (Settings.IsRemoteApp)
+        {
+            Subscribe(ocx, DispIdRemoteWindowDisplayed, new Action<object?, object?, object?>(OnRemoteWindowDisplayed));
+        }
+
         Subscribe(ocx, DispIdEnterFullScreen, new Action(() => ToSession(s => s.OnFullScreenChanged(this, true))));
         Subscribe(ocx, DispIdLeaveFullScreen, new Action(() =>
         {
@@ -426,6 +444,30 @@ internal sealed class RdpConnection
         }
     }
 
+    /// <summary>
+    /// Fenêtre d'application distante affichée ou masquée (OnRemoteWindowDisplayed) : le deuxième argument est son
+    /// handle (constaté : entier 32 bits non signé ; nul quand une fenêtre est masquée).
+    /// </summary>
+    private void OnRemoteWindowDisplayed(object? displayed, object? window, object? attribute)
+    {
+        var handle = window switch
+        {
+            uint u => new IntPtr(unchecked((int)u)),
+            int i => new IntPtr(i),
+            long l => new IntPtr(l),
+            ulong ul => new IntPtr(unchecked((long)ul)),
+            IntPtr p => p,
+            _ => IntPtr.Zero,
+        };
+        if (handle == IntPtr.Zero || _released)
+        {
+            return;
+        }
+
+        DebugLog.Write("rdp", $"{_label} : fenêtre d'application distante 0x{handle.ToInt64():X} ({displayed}, {attribute})");
+        _dock?.Add(handle);
+    }
+
     private void OnFatalError(int code)
     {
         DebugLog.Write("rdp", $"{_label} : erreur fatale du contrôle (OnFatalError) {code}");
@@ -435,7 +477,12 @@ internal sealed class RdpConnection
 
     private void FocusControl()
     {
-        if (!_released && _loggedIn && !Settings.IsRemoteApp && _client is { IsHandleCreated: true } client)
+        if (_released || !_loggedIn || _dock?.Focus() == true)
+        {
+            return;
+        }
+
+        if (!Settings.IsRemoteApp && _client is { IsHandleCreated: true } client)
         {
             client.Focus();
         }
@@ -460,6 +507,9 @@ internal sealed class RdpConnection
         }
 
         _detachedTask.TrySetResult();
+        // Fenêtre de l'application (d'un autre thread) retirée du conteneur avant sa destruction.
+        _dock?.Dispose();
+        _dock = null;
         DebugLog.Write("rdp", $"{_label} : libération du contrôle{(disconnect ? " (avec déconnexion)" : "")}");
         if (_ocx is { } ocx)
         {
@@ -621,6 +671,21 @@ internal sealed class RdpConnection
         private const int WsChild = 0x40000000;
         private const int WsClipChildren = 0x02000000;
         private const int WsExNoParentNotify = 0x00000004;
+        private const int WmParentNotify = 0x0210;
+
+        /// <summary>Bouton de la souris enfoncé dans une fenêtre contenue (WM_PARENTNOTIFY).</summary>
+        public event Action? ChildPressed;
+
+        protected override void WndProc(ref Message m)
+        {
+            // WM_LBUTTONDOWN, WM_RBUTTONDOWN, WM_MBUTTONDOWN, WM_XBUTTONDOWN, WM_POINTERDOWN.
+            if (m.Msg == WmParentNotify && (m.WParam.ToInt64() & 0xFFFF) is 0x0201 or 0x0204 or 0x0207 or 0x020B or 0x0246)
+            {
+                ChildPressed?.Invoke();
+            }
+
+            base.WndProc(ref m);
+        }
 
         protected override CreateParams CreateParams
         {

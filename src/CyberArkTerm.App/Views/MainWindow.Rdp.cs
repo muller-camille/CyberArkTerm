@@ -90,7 +90,10 @@ public partial class MainWindow
             var request = pending;
             pending = null;
             return request is not null ? Task.FromResult(request) : prepare(ct);
-        });
+        })
+        {
+            RemoteAppInTab = _settings.RemoteAppInTab,
+        };
         session.DesktopRefused += () =>
         {
             // Ce PSM n'accepte que l'application distante : les suivantes s'ouvrent directement en fenêtres séparées.
