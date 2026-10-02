@@ -2927,6 +2927,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to {0}: Remote Desktop is not responding. The rest of CyberArkTerm stays usable; you can close this [rest of string was truncated].
+        /// </summary>
+        public static string RdpNotResponding {
+            get {
+                return ResourceManager.GetString("RdpNotResponding", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Open in _separate windows.
         /// </summary>
         public static string RdpOpenRemoteAppWindows {

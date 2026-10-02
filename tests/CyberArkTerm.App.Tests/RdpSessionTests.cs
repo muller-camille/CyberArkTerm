@@ -15,7 +15,7 @@ public class RdpSessionTests(ITestOutputHelper output)
     [InlineData(9000, 9000, 8192, 8192)]
     public void DesktopSizeStaysInRangeWithEvenWidth(int width, int height, int expectedWidth, int expectedHeight)
     {
-        Assert.Equal((expectedWidth, expectedHeight), RdpSession.DesktopSize((width, height)));
+        Assert.Equal((expectedWidth, expectedHeight), RdpConnection.DesktopSize((width, height)));
     }
 
     [Theory]
@@ -25,7 +25,7 @@ public class RdpSessionTests(ITestOutputHelper output)
     [InlineData(192, 200u, 180u)]
     public void ScaleFactorsFollowScreenDpi(int dpi, uint desktop, uint device)
     {
-        Assert.Equal((desktop, device), RdpSession.ScaleFactors(dpi));
+        Assert.Equal((desktop, device), RdpConnection.ScaleFactors(dpi));
     }
 
     /// <summary>
@@ -175,8 +175,9 @@ public class RdpSessionTests(ITestOutputHelper output)
             Assert.False(session.IsRemoteApp);
             Assert.True(session.DesktopFromRemoteApp);
 
-            var secured = Dispatch.First(session.Control!, "SecuredSettings3", "SecuredSettings2");
-            Assert.Equal(@"C:\Windows\System32\notepad.exe", Dispatch.Get(secured!, "StartProgram") as string);
+            var startProgram = await session.InvokeOnControlAsync(ocx =>
+                Dispatch.Get(Dispatch.First(ocx, "SecuredSettings3", "SecuredSettings2")!, "StartProgram") as string);
+            Assert.Equal(@"C:\Windows\System32\notepad.exe", startProgram);
 
             await Task.Delay(TimeSpan.FromSeconds(5));
             output.WriteLine($"Programme de démarrage lancé par ce serveur : " +
@@ -310,9 +311,7 @@ public class RdpSessionTests(ITestOutputHelper output)
                 }
                 finally
                 {
-                    session.Dispose();
-                    window.Close();
-                    window.Dispatcher.InvokeShutdown();
+                    await CloseWindowAsync(session, window);
                 }
             });
             Dispatcher.Run();
@@ -321,6 +320,24 @@ public class RdpSessionTests(ITestOutputHelper output)
         thread.IsBackground = true;
         thread.Start();
         await done.Task.WaitAsync(TimeSpan.FromMinutes(4));
+    }
+
+    /// <summary>
+    /// Ferme la session puis la fenêtre, une fois la fenêtre du contrôle sortie de l'onglet (elle appartient au thread
+    /// de la connexion : la fenêtre principale ne doit pas être détruite avec elle).
+    /// </summary>
+    private static async Task CloseWindowAsync(RdpSession session, Window window)
+    {
+        session.Dispose();
+        try
+        {
+            await session.Closed.WaitAsync(TimeSpan.FromSeconds(30));
+        }
+        finally
+        {
+            window.Close();
+            window.Dispatcher.InvokeShutdown();
+        }
     }
 
     /// <summary>Attend (sur le thread de la session) un état qui vérifie <paramref name="until"/>.</summary>
@@ -349,6 +366,87 @@ public class RdpSessionTests(ITestOutputHelper output)
         {
             session.StateChanged -= Check;
         }
+    }
+
+    /// <summary>
+    /// Le contrôle vit sur son propre thread : bloqué plusieurs secondes (connexion vers une adresse qui ne répond pas),
+    /// il ne fige pas l'interface, qui le signale (« ne répond pas ») puis le voit répondre de nouveau.
+    /// </summary>
+    [Fact]
+    public async Task InterfaceStaysResponsiveWhileTheControlIsBlocked()
+    {
+        if (!OperatingSystem.IsWindows() || !RdpClientHost.IsAvailable)
+        {
+            Assert.True(Environment.GetEnvironmentVariable("GITHUB_ACTIONS") is null, "Contrôle Bureau à distance absent du poste de CI");
+            return;
+        }
+
+        var request = new RdpConnectionRequest(RdpConnectionSettings.Direct("10.255.255.1", 3389, @"TEST\user"), null);
+        await RunOnStaAsync(request, async session =>
+        {
+            await session.ConnectAsync();
+            Assert.True(session.HasControl, session.Error);
+            int controlThread = await session.InvokeOnControlAsync(_ => Environment.CurrentManagedThreadId);
+            Assert.NotEqual(Environment.CurrentManagedThreadId, controlThread);
+
+            bool sawNotResponding = false;
+            session.StateChanged += () => sawNotResponding |= session.IsNotResponding;
+            int ticks = 0;
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+            timer.Tick += (_, _) => ticks++;
+            timer.Start();
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            var blocked = session.InvokeOnControlAsync(_ =>
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(8));
+                return true;
+            });
+            await Task.Delay(TimeSpan.FromSeconds(7));
+            output.WriteLine($"Interface : {ticks} tops de 100 ms en {watch.ElapsedMilliseconds} ms, « ne répond pas » : {sawNotResponding}");
+            Assert.True(ticks >= 35, $"{ticks} tops seulement : l'interface a été bloquée");
+            Assert.True(sawNotResponding);
+
+            Assert.True(await blocked);
+            for (int i = 0; i < 40 && session.IsNotResponding; i++)
+            {
+                await Task.Delay(100);
+            }
+
+            timer.Stop();
+            Assert.False(session.IsNotResponding);
+        });
+    }
+
+    /// <summary>Fermer une session dont le contrôle est bloqué rend la main aussitôt ; il quitte l'onglet dès qu'il répond.</summary>
+    [Fact]
+    public async Task ClosingDoesNotWaitForABlockedControl()
+    {
+        if (!OperatingSystem.IsWindows() || !RdpClientHost.IsAvailable)
+        {
+            Assert.True(Environment.GetEnvironmentVariable("GITHUB_ACTIONS") is null, "Contrôle Bureau à distance absent du poste de CI");
+            return;
+        }
+
+        var request = new RdpConnectionRequest(RdpConnectionSettings.Direct("10.255.255.1", 3389, @"TEST\user"), null);
+        await RunOnStaAsync(request, async session =>
+        {
+            await session.ConnectAsync();
+            Assert.True(session.HasControl, session.Error);
+            _ = session.InvokeOnControlAsync(_ =>
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(4));
+                return true;
+            });
+            await Task.Delay(200);
+
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            session.Dispose();
+            long disposeMs = watch.ElapsedMilliseconds;
+            Assert.False(session.Closed.IsCompleted);
+            await session.Closed.WaitAsync(TimeSpan.FromSeconds(30));
+            output.WriteLine($"Fermeture : {disposeMs} ms pour rendre la main, fenêtre retirée après {watch.ElapsedMilliseconds} ms");
+            Assert.True(disposeMs < 500, $"{disposeMs} ms");
+        });
     }
 
     /// <summary>Fermer l'onglet pendant que la connexion se prépare (appel au PVWA) ne doit pas lever d'erreur.</summary>
@@ -430,12 +528,7 @@ public class RdpSessionTests(ITestOutputHelper output)
             void Finish()
             {
                 result.TrySetResult((session.State, abandoned));
-                window.Dispatcher.BeginInvoke(() =>
-                {
-                    session.Dispose();
-                    window.Close();
-                    window.Dispatcher.InvokeShutdown();
-                });
+                window.Dispatcher.BeginInvoke(async () => await CloseWindowAsync(session, window));
             }
 
             var disconnect = new DispatcherTimer { Interval = disconnectAfter };
@@ -488,12 +581,7 @@ public class RdpSessionTests(ITestOutputHelper output)
             void Finish(RdpSessionState state)
             {
                 result.TrySetResult((state, session.ControlFailed, session.DisconnectReason, session.Error));
-                window.Dispatcher.BeginInvoke(() =>
-                {
-                    session.Dispose();
-                    window.Close();
-                    window.Dispatcher.InvokeShutdown();
-                });
+                window.Dispatcher.BeginInvoke(async () => await CloseWindowAsync(session, window));
             }
 
             session.StateChanged += () =>

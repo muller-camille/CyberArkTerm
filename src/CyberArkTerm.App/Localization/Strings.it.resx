@@ -1033,6 +1033,9 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
   <data name="RdpOpenRemoteAppWindows" xml:space="preserve">
     <value>Apri in _finestre separate</value>
   </data>
+  <data name="RdpNotResponding" xml:space="preserve">
+    <value>{0}: Desktop remoto non risponde. Il resto di CyberArkTerm resta utilizzabile; puoi chiudere questa scheda.</value>
+  </data>
   <data name="RdpDisconnectCodes" xml:space="preserve">
     <value>codice {0}, codice esteso {1}</value>
   </data>

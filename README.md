@@ -383,11 +383,21 @@ distante, fichier d'application distante ouvert en bureau (le poste de CI, sans 
 le programme de démarrage : seule sa transmission est vérifiée) puis en fenêtres séparées, et application
 inconnue (message d'erreur). Les messages de fin de session donnent les codes de Windows (raison, raison étendue).
 
+**Un thread par connexion Bureau à distance.** Le contrôle, sa fenêtre et ses événements vivent sur un thread à
+part (STA, avec sa boucle de messages) ; l'interface ne l'attend jamais. L'onglet contient une fenêtre du thread de
+l'interface, dans laquelle ce thread place la fenêtre du contrôle. Avant de libérer le contrôle, il l'en retire :
+une déconnexion ou une libération qui tarde ne fige plus l'application. Si le thread ne répond plus pendant 5 s,
+la barre de l'onglet le signale, et le reste de l'application reste utilisable. Limite : Windows partage le clavier
+et la souris entre une fenêtre et celles qu'elle contient, même d'un autre thread ; un contrôle bloqué pour de bon
+peut encore retenir un clic dans sa zone ou un changement de focus.
+
 ### Sessions PSMP
 
 Chaque onglet SSH ouvre jusqu'à trois connexions au PSMP, avec le même identifiant
 `<vous>@<compte>[#domaine]@<cible>` : le terminal, la connexion SFTP de l'onglet Fichiers, et une connexion
 SCP au premier dépôt de fichier en SCP. Chacune est une session PSMP, enregistrée par le PSM.
+Les envois au serveur (frappe, taille du terminal) et la fermeture des connexions se font hors du thread de
+l'interface, dans l'ordre : un serveur ou un PSMP qui ne lit plus ne fige pas l'application.
 
 ### Suivi du dossier du terminal
 

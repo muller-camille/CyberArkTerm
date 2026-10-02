@@ -361,11 +361,21 @@ machine, without the Session Host role, does not run the start program: only its
 separate windows, and an unknown application (error message). Session end messages give the Windows codes
 (reason, extended reason).
 
+**One thread per remote desktop connection.** The control, its window and its events live on a separate thread
+(STA, with its own message loop); the interface never waits for it. The tab holds a window of the interface thread,
+in which that thread places the control's window. Before releasing the control, it takes the window out: a slow
+disconnection or release no longer freezes the application. If the thread stops responding for 5 s, the tab bar
+says so, and the rest of the application stays usable. Limit: Windows shares keyboard and mouse input between a
+window and the windows it contains, even from another thread; a control that is stuck for good can still hold up a
+click in its area or a focus change.
+
 ### PSMP sessions
 
 Each SSH tab opens up to three connections to the PSMP, with the same login
 `<you>@<account>[#domain]@<target>`: the terminal, the SFTP connection of the Files tab, and an SCP
 connection on the first SCP upload. Each one is a PSMP session, recorded by the PSM.
+Sending to the server (typing, terminal size) and closing connections happen off the interface thread, in order:
+a server or PSMP that stops reading does not freeze the application.
 
 ### Following the terminal folder
 

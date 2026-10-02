@@ -975,12 +975,19 @@ public partial class MainWindow : Window
         finally
         {
             CloseAllSshSessions();
-            CloseAllRdpSessions();
             // Les coffres KeePass ouverts se referment avec la fenêtre (le coffre local reste déverrouillé).
             _keePass.LockAll();
             _launcher.Cleanup();
             _client?.Dispose();
             _lifetime.Dispose();
+        }
+
+        if (!await CloseAllRdpSessionsAsync() && !LogoutRequested)
+        {
+            // Un contrôle Bureau à distance bloqué garde sa fenêtre dans celle-ci : la détruire attendrait son thread.
+            // Tout le reste est déjà fermé (session PVWA, coffres) : on quitte directement.
+            DebugLog.Write("app", "Session Bureau à distance bloquée à la fermeture : arrêt immédiat de l'application.");
+            Environment.Exit(0);
         }
 
         Close();
