@@ -1012,4 +1012,307 @@ Fermer quand même ? Les copies locales seront supprimées.</value>
   <data name="RdpInApp" xml:space="preserve">
     <value>Ouvrir les sessions Bureau à distance dans un onglet de CyberArkTerm, sinon dans la Connexion Bureau à distance (mstsc)</value>
   </data>
+  <data name="KeePassFolderTitle" xml:space="preserve">
+    <value>Coffre KeePass</value>
+  </data>
+  <data name="KeePassEmergencyWarning" xml:space="preserve">
+    <value>Accès d'urgence hors CyberArk : les connexions faites avec ce coffre ne passent pas par le PSM (ni enregistrement, ni règles CyberArk). Elles sont notées dans le journal local (urgence.log).</value>
+  </data>
+  <data name="KeePassFileLabel" xml:space="preserve">
+    <value>_Fichier du coffre :</value>
+  </data>
+  <data name="KeePassKeyFileLabel" xml:space="preserve">
+    <value>Fichier _clé :</value>
+  </data>
+  <data name="KeePassKeyFileHint" xml:space="preserve">
+    <value>Facultatif. Laissez vide si le coffre n'utilise qu'un mot de passe maître.</value>
+  </data>
+  <data name="KeePassUsesPassword" xml:space="preserve">
+    <value>Le coffre a un _mot de passe maître</value>
+  </data>
+  <data name="KeePassFilesFilter" xml:space="preserve">
+    <value>Coffres KeePass (*.kdbx)|*.kdbx|Tous les fichiers (*.*)|*.*</value>
+  </data>
+  <data name="AllFilesFilter" xml:space="preserve">
+    <value>Tous les fichiers (*.*)|*.*</value>
+  </data>
+  <data name="KeePassFileMissing" xml:space="preserve">
+    <value>Ce fichier n'existe pas : {0}</value>
+  </data>
+  <data name="KeePassNeedsKey" xml:space="preserve">
+    <value>Il faut un mot de passe maître, un fichier clé, ou les deux.</value>
+  </data>
+  <data name="KeePassUnlockTitle" xml:space="preserve">
+    <value>Déverrouiller le coffre KeePass</value>
+  </data>
+  <data name="KeePassMasterPasswordLabel" xml:space="preserve">
+    <value>_Mot de passe maître :</value>
+  </data>
+  <data name="KeePassRemember" xml:space="preserve">
+    <value>Mé_moriser le mot de passe maître dans le coffre local</value>
+  </data>
+  <data name="KeePassRememberHint" xml:space="preserve">
+    <value>Chiffré avec le mot de passe du coffre local et votre compte Windows.</value>
+  </data>
+  <data name="KeePassUnlock" xml:space="preserve">
+    <value>_Déverrouiller</value>
+  </data>
+  <data name="KeePassUnlocking" xml:space="preserve">
+    <value>Déverrouillage… (la dérivation de la clé peut prendre quelques secondes)</value>
+  </data>
+  <data name="KeePassNewEntryTitle" xml:space="preserve">
+    <value>Nouvelle entrée KeePass</value>
+  </data>
+  <data name="KeePassEditEntryTitle" xml:space="preserve">
+    <value>Modifier l'entrée KeePass</value>
+  </data>
+  <data name="KeePassTitleLabel" xml:space="preserve">
+    <value>_Titre :</value>
+  </data>
+  <data name="KeePassGroupLabel" xml:space="preserve">
+    <value>_Dossier :</value>
+  </data>
+  <data name="KeePassUrlLabel" xml:space="preserve">
+    <value>_Adresse :</value>
+  </data>
+  <data name="KeePassUrlHint" xml:space="preserve">
+    <value>ssh://serveur:22 ou rdp://serveur (ou serveur:port)</value>
+  </data>
+  <data name="KeePassUserLabel" xml:space="preserve">
+    <value>_Utilisateur :</value>
+  </data>
+  <data name="KeePassPasswordLabel" xml:space="preserve">
+    <value>Mot de _passe :</value>
+  </data>
+  <data name="KeePassPasswordUnchanged" xml:space="preserve">
+    <value>Laisser vide pour garder le mot de passe actuel</value>
+  </data>
+  <data name="KeePassShowPassword" xml:space="preserve">
+    <value>_Afficher</value>
+  </data>
+  <data name="KeePassNotesLabel" xml:space="preserve">
+    <value>_Notes :</value>
+  </data>
+  <data name="KeePassTargetSsh" xml:space="preserve">
+    <value>→ SSH vers {0}</value>
+  </data>
+  <data name="KeePassTargetRdp" xml:space="preserve">
+    <value>→ Bureau à distance vers {0}</value>
+  </data>
+  <data name="KeePassTargetUnknown" xml:space="preserve">
+    <value>→ protocole non précisé : SSH ou RDP vous sera demandé</value>
+  </data>
+  <data name="KeePassTargetNone" xml:space="preserve">
+    <value>→ pas d'adresse de serveur</value>
+  </data>
+  <data name="KeePassLockedSuffix" xml:space="preserve">
+    <value>(verrouillé)</value>
+  </data>
+  <data name="KeePassFolderTip" xml:space="preserve">
+    <value>Coffre KeePass — accès d'urgence hors CyberArk</value>
+  </data>
+  <data name="KeePassKeyFileInfo" xml:space="preserve">
+    <value>Fichier clé : {0}</value>
+  </data>
+  <data name="KeePassNoHost" xml:space="preserve">
+    <value>Pas d'adresse de serveur</value>
+  </data>
+  <data name="KeePassEntryOrigin" xml:space="preserve">
+    <value>Coffre KeePass {0} — hors CyberArk</value>
+  </data>
+  <data name="KeePassUnlockHint" xml:space="preserve">
+    <value>Double-cliquez pour déverrouiller</value>
+  </data>
+  <data name="MenuKeePassAdd" xml:space="preserve">
+    <value>Ajouter un coffre _KeePass…</value>
+  </data>
+  <data name="MenuKeePassUnlock" xml:space="preserve">
+    <value>_Déverrouiller…</value>
+  </data>
+  <data name="MenuKeePassLock" xml:space="preserve">
+    <value>_Verrouiller</value>
+  </data>
+  <data name="MenuKeePassRefresh" xml:space="preserve">
+    <value>_Actualiser</value>
+  </data>
+  <data name="MenuKeePassNewEntry" xml:space="preserve">
+    <value>_Nouvelle entrée…</value>
+  </data>
+  <data name="MenuKeePassProperties" xml:space="preserve">
+    <value>_Propriétés…</value>
+  </data>
+  <data name="MenuKeePassRemove" xml:space="preserve">
+    <value>_Retirer de la liste</value>
+  </data>
+  <data name="MenuKeePassConnect" xml:space="preserve">
+    <value>Se _connecter</value>
+  </data>
+  <data name="MenuKeePassSsh" xml:space="preserve">
+    <value>Se connecter en _SSH</value>
+  </data>
+  <data name="MenuKeePassRdp" xml:space="preserve">
+    <value>Se connecter en _bureau à distance (RDP)</value>
+  </data>
+  <data name="MenuKeePassEditEntry" xml:space="preserve">
+    <value>_Modifier…</value>
+  </data>
+  <data name="MenuKeePassDeleteEntry" xml:space="preserve">
+    <value>_Supprimer</value>
+  </data>
+  <data name="ToolKeePassTip" xml:space="preserve">
+    <value>Ajouter un coffre KeePass (accès d'urgence hors CyberArk)</value>
+  </data>
+  <data name="KeePassRemoveConfirm" xml:space="preserve">
+    <value>Retirer le coffre KeePass « {0} » de la liste ? Le fichier lui-même n'est pas supprimé.</value>
+  </data>
+  <data name="KeePassDeleteEntryConfirm" xml:space="preserve">
+    <value>Supprimer l'entrée « {0} » du coffre KeePass {1} ? Elle part dans la corbeille du coffre.</value>
+  </data>
+  <data name="KeePassUnlocked" xml:space="preserve">
+    <value>Coffre KeePass {0} déverrouillé ({1} entrées)</value>
+  </data>
+  <data name="KeePassLockedStatus" xml:space="preserve">
+    <value>Coffre KeePass {0} verrouillé</value>
+  </data>
+  <data name="KeePassAllLocked" xml:space="preserve">
+    <value>Coffres KeePass verrouillés (session Windows verrouillée)</value>
+  </data>
+  <data name="KeePassSaving" xml:space="preserve">
+    <value>Enregistrement du coffre KeePass {0}…</value>
+  </data>
+  <data name="KeePassSaved" xml:space="preserve">
+    <value>Coffre KeePass {0} enregistré (version précédente gardée dans {1})</value>
+  </data>
+  <data name="KeePassSaveFailed" xml:space="preserve">
+    <value>Le coffre KeePass {0} n'a pas été enregistré :
+
+{1}</value>
+  </data>
+  <data name="KeePassReloaded" xml:space="preserve">
+    <value>Coffre KeePass {0} actualisé</value>
+  </data>
+  <data name="KeePassNoHostError" xml:space="preserve">
+    <value>L'entrée « {0} » n'a pas d'adresse de serveur : renseignez son adresse (ssh://… ou rdp://…).</value>
+  </data>
+  <data name="KeePassNoUserError" xml:space="preserve">
+    <value>L'entrée « {0} » n'a pas de nom d'utilisateur pour SSH.</value>
+  </data>
+  <data name="KeePassConnecting" xml:space="preserve">
+    <value>Accès d'urgence : connexion à {0} ({1}) hors CyberArk…</value>
+  </data>
+  <data name="KeePassSshOpened" xml:space="preserve">
+    <value>Session SSH d'urgence ouverte : {0} ({1})</value>
+  </data>
+  <data name="KeePassTabLabel" xml:space="preserve">
+    <value>{0} · KeePass</value>
+  </data>
+  <data name="KeePassRdpNoControl" xml:space="preserve">
+    <value>{0} : contrôle Bureau à distance indisponible, Connexion Bureau à distance ouverte sans le mot de passe (prenez-le dans le coffre KeePass).</value>
+  </data>
+  <data name="ConnectingDirect" xml:space="preserve">
+    <value>Connexion directe (accès d'urgence, hors CyberArk)…</value>
+  </data>
+  <data name="HostKeyTitleServer" xml:space="preserve">
+    <value>Clé du serveur</value>
+  </data>
+  <data name="HostKeyUnknownServer" xml:space="preserve">
+    <value>Première connexion au serveur {0}:{1}.
+
+Empreinte de sa clé ({2}) :
+SHA256:{3}
+
+Vérifiez-la auprès de l'administrateur du serveur si besoin. Faire confiance à ce serveur ?</value>
+  </data>
+  <data name="HostKeyChangedServer" xml:space="preserve">
+    <value>ATTENTION : la clé du serveur {0}:{1} a changé !
+
+Nouvelle empreinte ({2}) :
+SHA256:{3}
+
+Cela peut indiquer une interception de la connexion. N'acceptez que si l'administrateur du serveur vous a confirmé ce changement. Accepter la nouvelle clé ?</value>
+  </data>
+  <data name="PromptTitleServer" xml:space="preserve">
+    <value>Authentification SSH</value>
+  </data>
+  <data name="LocalStoreTitle" xml:space="preserve">
+    <value>Coffre local</value>
+  </data>
+  <data name="LocalStoreCreateIntro" xml:space="preserve">
+    <value>Le coffre local garde les mots de passe maîtres KeePass que vous choisissez de mémoriser. Il est chiffré avec le mot de passe ci-dessous (Argon2id, AES-256) et votre compte Windows (DPAPI). Ce mot de passe est demandé au démarrage de CyberArkTerm ; il ne peut pas être récupéré.</value>
+  </data>
+  <data name="LocalStoreUnlockIntro" xml:space="preserve">
+    <value>Déverrouillez le coffre local pour utiliser les mots de passe maîtres KeePass mémorisés.</value>
+  </data>
+  <data name="LocalStoreChangeIntro" xml:space="preserve">
+    <value>Choisissez le nouveau mot de passe du coffre local.</value>
+  </data>
+  <data name="LocalStorePasswordLabel" xml:space="preserve">
+    <value>Mot de _passe :</value>
+  </data>
+  <data name="LocalStoreConfirmLabel" xml:space="preserve">
+    <value>C_onfirmation :</value>
+  </data>
+  <data name="LocalStoreMismatch" xml:space="preserve">
+    <value>Les deux mots de passe sont différents.</value>
+  </data>
+  <data name="LocalStoreLater" xml:space="preserve">
+    <value>_Plus tard</value>
+  </data>
+  <data name="LocalStoreCreateButton" xml:space="preserve">
+    <value>_Créer</value>
+  </data>
+  <data name="LocalStoreSection" xml:space="preserve">
+    <value>Coffre local (mots de passe maîtres KeePass)</value>
+  </data>
+  <data name="LocalStoreStateNone" xml:space="preserve">
+    <value>Pas de coffre local.</value>
+  </data>
+  <data name="LocalStoreStateLocked" xml:space="preserve">
+    <value>Coffre local verrouillé.</value>
+  </data>
+  <data name="LocalStoreStateUnlocked" xml:space="preserve">
+    <value>Coffre local déverrouillé : {0} mot(s) de passe mémorisé(s).</value>
+  </data>
+  <data name="LocalStoreCreate" xml:space="preserve">
+    <value>C_réer…</value>
+  </data>
+  <data name="LocalStoreUnlockMenu" xml:space="preserve">
+    <value>_Déverrouiller…</value>
+  </data>
+  <data name="LocalStoreChange" xml:space="preserve">
+    <value>C_hanger le mot de passe…</value>
+  </data>
+  <data name="LocalStoreDelete" xml:space="preserve">
+    <value>Su_pprimer</value>
+  </data>
+  <data name="LocalStoreDeleteConfirm" xml:space="preserve">
+    <value>Supprimer le coffre local ? Les mots de passe maîtres KeePass mémorisés seront oubliés (les coffres KeePass eux-mêmes ne sont pas touchés).</value>
+  </data>
+  <data name="LoginEmergency" xml:space="preserve">
+    <value>Accès d'_urgence (KeePass)</value>
+  </data>
+  <data name="LoginEmergencyTip" xml:space="preserve">
+    <value>Sans CyberArk : ouvrez vos coffres KeePass pour vous connecter directement aux serveurs (SSH, bureau à distance).</value>
+  </data>
+  <data name="EmergencyTitle" xml:space="preserve">
+    <value>CyberArkTerm — Accès d'urgence (sans CyberArk)</value>
+  </data>
+  <data name="EmergencySession" xml:space="preserve">
+    <value>Accès d'urgence — sans CyberArk</value>
+  </data>
+  <data name="EmergencyWelcome" xml:space="preserve">
+    <value>Accès d'urgence sans CyberArk : ouvrez un coffre KeePass dans « Serveurs courants », à gauche. Les connexions sont notées dans le journal local (urgence.log).</value>
+  </data>
+  <data name="PvwaSessionSection" xml:space="preserve">
+    <value>Session CyberArk</value>
+  </data>
+  <data name="KeepAlive" xml:space="preserve">
+    <value>Garder la session PVWA ouverte tant que CyberArkTerm tourne (une requête légère toutes les 4 minutes, suspendue quand Windows est verrouillé)</value>
+  </data>
+  <data name="KeepAliveExpired" xml:space="preserve">
+    <value>La session CyberArk a expiré : reconnectez-vous pour accéder aux comptes CyberArk.</value>
+  </data>
+  <data name="NoKeePassHelp" xml:space="preserve">
+    <value>Ajoutez un coffre KeePass avec le bouton coffre-fort ci-dessus (ou clic droit ici).</value>
+  </data>
 </root>

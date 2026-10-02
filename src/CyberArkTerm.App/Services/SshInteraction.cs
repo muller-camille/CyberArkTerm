@@ -8,10 +8,10 @@ using CyberArkTerm.Core.Ssh;
 namespace CyberArkTerm.App.Services;
 
 /// <summary>
-/// Questions posées par SSH.NET pendant la connexion au PSMP (clé d'hôte, mot de passe, code MFA),
-/// relayées sur le thread de l'interface.
+/// Questions posées par SSH.NET pendant la connexion (clé d'hôte, mot de passe, code MFA), relayées sur le thread de
+/// l'interface. <paramref name="direct"/> : serveur joint directement (accès d'urgence) plutôt que le PSMP.
 /// </summary>
-internal sealed class SshInteraction(Window owner, AppSettings settings, Action saveSettings) : ISshInteraction
+internal sealed class SshInteraction(Window owner, AppSettings settings, Action saveSettings, bool direct = false) : ISshInteraction
 {
     private Dispatcher Dispatcher => owner.Dispatcher;
 
@@ -24,9 +24,11 @@ internal sealed class SshInteraction(Window owner, AppSettings settings, Action 
                 return true;
             }
 
-            string message = Text.Format(status == HostKeyStatus.Unknown ? Strings.HostKeyUnknown : Strings.HostKeyChanged,
-                host, port, algorithm, sha256Fingerprint);
-            var answer = MessageBox.Show(owner, message, Strings.HostKeyTitle, MessageBoxButton.YesNo,
+            var text = status == HostKeyStatus.Unknown
+                ? (direct ? Strings.HostKeyUnknownServer : Strings.HostKeyUnknown)
+                : (direct ? Strings.HostKeyChangedServer : Strings.HostKeyChanged);
+            string message = Text.Format(text, host, port, algorithm, sha256Fingerprint);
+            var answer = MessageBox.Show(owner, message, direct ? Strings.HostKeyTitleServer : Strings.HostKeyTitle, MessageBoxButton.YesNo,
                 status == HostKeyStatus.Unknown ? MessageBoxImage.Question : MessageBoxImage.Warning, MessageBoxResult.No);
             if (answer != MessageBoxResult.Yes)
             {
@@ -42,6 +44,11 @@ internal sealed class SshInteraction(Window owner, AppSettings settings, Action 
         Dispatcher.Invoke(() =>
         {
             var dialog = new PromptDialog(instruction, prompt, echo) { Owner = owner };
+            if (direct)
+            {
+                dialog.Title = Strings.PromptTitleServer;
+            }
+
             return dialog.ShowDialog() == true ? dialog.Answer : null;
         });
 }

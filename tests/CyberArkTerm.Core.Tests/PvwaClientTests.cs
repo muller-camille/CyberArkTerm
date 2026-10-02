@@ -260,4 +260,31 @@ public class PvwaClientTests
     {
         public void Report(T value) => report(value);
     }
+
+    [Fact]
+    public async Task KeepAlive_GetsOneAccountWithTheSessionToken()
+    {
+        var pvwa = new FakePvwa(r => FakePvwa.IsLogon(r) ? FakePvwa.Json("\"tok\"") : FakePvwa.Json("{\"value\":[],\"count\":0}"));
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+
+        await client.KeepAliveAsync();
+
+        var (method, path, auth, _) = pvwa.Requests[^1];
+        Assert.Equal(HttpMethod.Get, method);
+        Assert.Equal("/PasswordVault/API/Accounts?offset=0&limit=1", path);
+        Assert.Equal("tok", auth);
+    }
+
+    [Fact]
+    public async Task KeepAlive_ReportsAnExpiredSession()
+    {
+        var pvwa = new FakePvwa(r => FakePvwa.IsLogon(r)
+            ? FakePvwa.Json("\"tok\"")
+            : FakePvwa.Json("{\"ErrorCode\":\"PASWS006E\",\"ErrorMessage\":\"Session expired\"}", HttpStatusCode.Unauthorized));
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+
+        var ex = await Assert.ThrowsAsync<PvwaException>(() => client.KeepAliveAsync());
+
+        Assert.True(ex.IsUnauthorized);
+    }
 }

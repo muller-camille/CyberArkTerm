@@ -134,6 +134,30 @@ public sealed class KeePassDatabase : IDisposable
         SetTime(entry, "LastAccessTime", now);
     }
 
+    /// <summary>Range l'entrée dans le dossier <paramref name="groupPath"/> (créé si besoin).</summary>
+    public void MoveEntry(string entryId, string groupPath)
+    {
+        var entry = FindEntry(entryId) ?? throw new KeePassException(KeePassError.Conflict,
+            string.Format(CultureInfo.CurrentCulture, CoreStrings.KeePassConflict, ""));
+        var group = EnsureGroup(groupPath);
+        if (entry.Parent == group)
+        {
+            return;
+        }
+
+        entry.Remove();
+        if (group.Elements("Group").FirstOrDefault() is { } firstGroup)
+        {
+            firstGroup.AddBeforeSelf(entry);
+        }
+        else
+        {
+            group.Add(entry);
+        }
+
+        SetTime(entry, "LocationChanged", DateTime.UtcNow);
+    }
+
     /// <summary>Supprime une entrée : dans la corbeille si elle est activée, définitivement sinon (ou si elle y est déjà).</summary>
     public void DeleteEntry(string entryId, DateTime expectedModified)
     {

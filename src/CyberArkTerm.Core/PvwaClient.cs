@@ -180,6 +180,20 @@ public sealed class PvwaClient : IDisposable
         return MfaSshKey.Parse(await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false));
     }
 
+    /// <summary>
+    /// Requête légère (un compte au plus) qui garde la session PVWA active : le délai d'inactivité du PVWA repart
+    /// de zéro. <see cref="PvwaException.IsUnauthorized"/> si la session a déjà expiré.
+    /// </summary>
+    public async Task KeepAliveAsync(CancellationToken ct = default)
+    {
+        using var request = CreateAuthenticatedRequest(HttpMethod.Get, "API/Accounts?offset=0&limit=1");
+        using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw await CreateErrorAsync(response, ct).ConfigureAwait(false);
+        }
+    }
+
     /// <summary>Ferme la session côté PVWA. Sans effet si aucune session n'est ouverte.</summary>
     public async Task LogoffAsync(CancellationToken ct = default)
     {

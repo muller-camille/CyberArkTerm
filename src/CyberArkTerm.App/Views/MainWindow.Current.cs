@@ -17,7 +17,7 @@ public partial class MainWindow
     private Point _dragStart;
     private object? _dragCandidate;
 
-    private string PvwaHost => _client.BaseUri.Host;
+    private string PvwaHost => _client?.BaseUri.Host ?? "";
 
     private void RefreshSaved()
     {
@@ -26,9 +26,15 @@ public partial class MainWindow
             RememberExpansion(previous);
         }
 
-        var root = SessionLibrary.BuildTree(_settings, PvwaHost);
-        SavedTree.ItemsSource = Children(root);
-        NoSavedText.Visibility = root.TotalSessions == 0 && root.Folders.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        // Coffres KeePass en tête ; serveurs CyberArk ensuite (pas en accès d'urgence).
+        var items = KeePassNodes();
+        if (!IsOffline)
+        {
+            items.AddRange(Children(SessionLibrary.BuildTree(_settings, PvwaHost)));
+        }
+
+        SavedTree.ItemsSource = items;
+        NoSavedText.Visibility = items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private List<object> Children(SessionFolderNode node)
@@ -49,6 +55,11 @@ public partial class MainWindow
 
     private void RememberExpansion(IEnumerable<object> nodes)
     {
+        foreach (var node in nodes.Where(n => n is KeePassFolderNode or KeePassGroupNode))
+        {
+            RememberKeePassExpansion(node);
+        }
+
         foreach (var folder in nodes.OfType<SavedFolderNode>())
         {
             if (folder.IsExpanded)
@@ -87,6 +98,7 @@ public partial class MainWindow
 
     private void OnSavedSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
     {
+        _currentKeePass = e.NewValue as KeePassEntryNode;
         if (e.NewValue is SavedSessionNode node)
         {
             SetCurrent(node.Account, node.Session);
@@ -99,10 +111,21 @@ public partial class MainWindow
 
     private void OnSavedItemDoubleClick(object sender, MouseButtonEventArgs e)
     {
-        if (sender is TreeViewItem { DataContext: SavedSessionNode node })
+        // L'événement remonte aux éléments parents : seul l'élément double-cliqué compte.
+        if (sender is not TreeViewItem { IsSelected: true } item)
+        {
+            return;
+        }
+
+        if (item.DataContext is SavedSessionNode node)
         {
             e.Handled = true;
             ConnectSaved(node.Session, advanced: false);
+        }
+        else if (item.DataContext is KeePassEntryNode or KeePassHintNode or KeePassFolderNode { IsUnlocked: false })
+        {
+            e.Handled = true;
+            ActivateKeePassNode(item.DataContext);
         }
     }
 
@@ -113,6 +136,17 @@ public partial class MainWindow
             case Key.Enter when SavedTree.SelectedItem is SavedSessionNode node:
                 e.Handled = true;
                 ConnectSaved(node.Session, advanced: false);
+                break;
+            case Key.Enter:
+                e.Handled = ActivateKeePassNode(SavedTree.SelectedItem);
+                break;
+            case Key.F2 when SavedTree.SelectedItem is KeePassEntryNode entry:
+                e.Handled = true;
+                _ = EditKeePassEntryAsync(entry);
+                break;
+            case Key.Delete when SavedTree.SelectedItem is KeePassEntryNode entry:
+                e.Handled = true;
+                _ = DeleteKeePassEntryAsync(entry);
                 break;
             case Key.F2:
                 e.Handled = true;

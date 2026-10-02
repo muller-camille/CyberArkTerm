@@ -26,17 +26,26 @@ public partial class MainWindow
         var key = await GetPsmpKeyAsync();
         var connector = new SshConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi, key);
         var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved);
+        ShowSshTab(session, $"{login}@{_settings.PsmpAddress}", Strings.ConnectingViaPsmp, "IconSsh",
+            Text.Format(Strings.SshOpened, label, _settings.PsmpAddress));
+    }
+
+    /// <summary>Onglet terminal + panneau « Fichiers » pour une session SSH (via le PSMP ou directe).</summary>
+    /// <param name="target">« utilisateur@serveur », affiché pendant la connexion.</param>
+    private void ShowSshTab(SshSession session, string target, string connectingText, string icon, string openedMessage)
+    {
+        var label = session.Label;
         session.Editor = new RemoteEditor(session, this, _settings, (text, error) => SetStatus(text, error),
             directory => FilesPanel.OnRemoteChanged(session, directory));
-        var view = new SshSessionView(session, $"{login}@{_settings.PsmpAddress}");
+        var view = new SshSessionView(session, target, connectingText);
         var tab = new TabItem { Content = view, Tag = session };
-        tab.Header = TabHeader(label, "IconSsh", () => CloseSshTab(tab));
+        tab.Header = TabHeader(label, icon, () => CloseSshTab(tab));
         session.StateChanged += () =>
         {
             switch (session.State)
             {
                 case SshSessionState.Connected:
-                    SetStatus(Text.Format(Strings.SshOpened, label, _settings.PsmpAddress));
+                    SetStatus(openedMessage);
                     break;
                 case SshSessionState.Failed:
                     SetStatus(Text.Format(Strings.SshSessionError, label, session.Error), isError: true);
@@ -142,7 +151,7 @@ public partial class MainWindow
 
             try
             {
-                _mfaKey = await _client.GetMfaCachingSshKeyAsync(_lifetime.Token);
+                _mfaKey = await Client.GetMfaCachingSshKeyAsync(_lifetime.Token);
             }
             catch (Exception ex) when (ex is HttpRequestException or (PvwaException and not PvwaException { IsUnauthorized: true })
                                            || (ex is TaskCanceledException && !_lifetime.IsCancellationRequested))

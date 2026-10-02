@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CyberArkTerm.Core.KeePass;
 using CyberArkTerm.Core.Ssh;
 
 namespace CyberArkTerm.Core;
@@ -37,6 +38,12 @@ public sealed class AppSettings
 
     /// <summary>Serveurs de l'onglet « Courants », avec leur configuration.</summary>
     public List<SavedSession> Sessions { get; set; } = [];
+
+    /// <summary>Requête légère régulière pour que la session PVWA n'expire pas par inactivité.</summary>
+    public bool KeepPvwaSessionAlive { get; set; } = true;
+
+    /// <summary>Coffres KeePass affichés comme dossiers de l'onglet « Courants » (accès d'urgence hors CyberArk).</summary>
+    public List<KeePassFolder> KeePassFolders { get; set; } = [];
 
     /// <summary>Sessions SSH dans un onglet CyberArkTerm (terminal + navigateur de fichiers) plutôt que Windows Terminal.</summary>
     public bool SshInApp { get; set; } = true;

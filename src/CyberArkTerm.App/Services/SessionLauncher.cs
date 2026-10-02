@@ -127,10 +127,10 @@ internal sealed class SessionLauncher
         }
     }
 
+    /// <summary>Nom de fichier en ASCII simple (lettres, chiffres, « . », « - », « _ ») : sûr pour tout système de fichiers.</summary>
     private static string SafeFileName(string label)
     {
-        var invalid = Path.GetInvalidFileNameChars();
-        var clean = new string(label.Select(c => invalid.Contains(c) || c == '@' ? '_' : c).ToArray());
+        var clean = new string(label.Select(c => char.IsAsciiLetterOrDigit(c) || c is '.' or '-' or '_' ? c : '_').ToArray()).Trim('.');
         return clean.Length > 60 ? clean[..60] : clean;
     }
 }

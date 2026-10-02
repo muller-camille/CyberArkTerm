@@ -9,11 +9,13 @@ namespace CyberArkTerm.App.Views;
 /// <summary>Contenu d'un onglet de session SSH : le terminal, et un voile pendant la connexion ou après la fermeture.</summary>
 public partial class SshSessionView : UserControl
 {
-    public SshSessionView(SshSession session, string target)
+    /// <param name="connectingText">Message pendant la connexion (via le PSMP, ou directe pour un accès d'urgence).</param>
+    public SshSessionView(SshSession session, string target, string connectingText)
     {
         InitializeComponent();
         Session = session;
         Target = target;
+        _connectingText = connectingText;
         Terminal.Emulator = session.Emulator;
         Terminal.Input += session.SendInput;
         Terminal.TerminalResized += session.Resize;
@@ -21,6 +23,8 @@ public partial class SshSessionView : UserControl
         session.StateChanged += UpdateOverlay;
         UpdateOverlay();
     }
+
+    private readonly string _connectingText;
 
     public SshSession Session { get; }
 
@@ -56,7 +60,7 @@ public partial class SshSessionView : UserControl
                 break;
             case SshSessionState.Connecting:
                 Overlay.Visibility = Visibility.Visible;
-                OverlayText.Text = Strings.ConnectingViaPsmp;
+                OverlayText.Text = _connectingText;
                 OverlayDetail.Text = Target;
                 ReconnectButton.Visibility = Visibility.Collapsed;
                 break;

@@ -506,6 +506,15 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to the server address.
+        /// </summary>
+        public static string ServerAddressWhat {
+            get {
+                return ResourceManager.GetString("ServerAddressWhat", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to {0} B.
         /// </summary>
         public static string SizeBytes {
@@ -547,6 +556,15 @@ namespace CyberArkTerm.Core.Localization {
         public static string SshLoginWhat {
             get {
                 return ResourceManager.GetString("SshLoginWhat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to the user name.
+        /// </summary>
+        public static string UserNameWhat {
+            get {
+                return ResourceManager.GetString("UserNameWhat", resourceCulture);
             }
         }
 

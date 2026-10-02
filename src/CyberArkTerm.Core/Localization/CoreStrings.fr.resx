@@ -27,6 +27,12 @@
   <data name="SshLoginWhat" xml:space="preserve">
     <value>l'identifiant SSH</value>
   </data>
+  <data name="ServerAddressWhat" xml:space="preserve">
+    <value>l'adresse du serveur</value>
+  </data>
+  <data name="UserNameWhat" xml:space="preserve">
+    <value>le nom d'utilisateur</value>
+  </data>
   <data name="CharacterNotAllowed" xml:space="preserve">
     <value>Caractère non autorisé dans {0} : « {1} ».</value>
   </data>

@@ -48,6 +48,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- DPAPI : le coffre local n'est lisible que par le compte Windows qui l'a créé (Microsoft, licence MIT). -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="CyberArkTerm.App.Tests" />
   </ItemGroup>
 

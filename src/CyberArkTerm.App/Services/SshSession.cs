@@ -37,7 +37,8 @@ public sealed class SshSession : IDisposable
     private DateTime _lastData;
     private bool _userTyped;
 
-    public SshSession(PvwaAccount account, string label, SshConnector connector, Dispatcher dispatcher,
+    /// <param name="account">Compte CyberArk ; null pour une connexion directe (accès d'urgence KeePass).</param>
+    public SshSession(PvwaAccount? account, string label, SshConnector connector, Dispatcher dispatcher,
         bool followTerminal, SavedSession? saved)
     {
         Account = account;
@@ -62,7 +63,7 @@ public sealed class SshSession : IDisposable
     /// <summary>Dossier courant du shell (OSC 7), pour l'option « suivre le terminal ».</summary>
     public event Action<string>? TerminalDirectoryChanged;
 
-    public PvwaAccount Account { get; }
+    public PvwaAccount? Account { get; }
 
     public SavedSession? Saved { get; }
 

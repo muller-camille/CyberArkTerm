@@ -79,6 +79,20 @@ public sealed class KeePassVaultTests : IDisposable
     }
 
     [Fact]
+    public async Task MovesEntryToAnotherGroup()
+    {
+        var path = Copy("kxc-kdbx31.kdbx");
+        using var v = await Open(path, KdbxReadTests.Password, null);
+        var entry = v.Database.Entries.Single(e => e.Title == "srv-lnx01");
+
+        await v.SaveAsync(db => db.MoveEntry(entry.Id, "Linux/Prod"));
+
+        using var reopened = await Open(path, KdbxReadTests.Password, null);
+        Assert.Equal("Linux/Prod", reopened.Database.Entries.Single(e => e.Id == entry.Id).Group);
+        Assert.Equal("Root-Pass 1", reopened.Database.RevealPassword(entry.Id));
+    }
+
+    [Fact]
     public async Task StaleEditIsRefused()
     {
         var path = Copy("py-kdbx4-argon2d-aes.kdbx");
