@@ -988,11 +988,23 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
   <data name="RdpDisconnectCode" xml:space="preserve">
     <value>Disconnesso (codice {0}).</value>
   </data>
-  <data name="RdpRemoteAppInTab" xml:space="preserve">
-    <value>Questa connessione apre un'applicazione remota (RemoteApp), che non può essere mostrata in una scheda.</value>
+  <data name="RdpRemoteAppOpened" xml:space="preserve">
+    <value>Applicazione remota «{0}» aperta</value>
   </data>
-  <data name="RdpRemoteAppFallback" xml:space="preserve">
-    <value>{0}: questo componente PSM apre un'applicazione remota (RemoteApp), aperta in Connessione Desktop remoto (mstsc).</value>
+  <data name="RdpRemoteAppHint" xml:space="preserve">
+    <value>Le sue finestre si aprono a parte, come quelle di questo computer. Chiudere l'applicazione termina la sessione; Disconnetti la chiude da qui.</value>
+  </data>
+  <data name="RdpRemoteAppFailed" xml:space="preserve">
+    <value>Impossibile avviare l'applicazione remota «{0}»: {1}</value>
+  </data>
+  <data name="RdpRemoteAppNotAllowed" xml:space="preserve">
+    <value>non è consentita sul server.</value>
+  </data>
+  <data name="RdpRemoteAppNotFound" xml:space="preserve">
+    <value>non è stata trovata sul server.</value>
+  </data>
+  <data name="RdpRemoteAppErrorCode" xml:space="preserve">
+    <value>errore {0}.</value>
   </data>
   <data name="RdpControlMissing" xml:space="preserve">
     <value>{0}: il controllo Desktop remoto non è disponibile su questo computer, sessione aperta in Connessione Desktop remoto (mstsc).</value>

@@ -2837,20 +2837,56 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0}: this PSM component opens a remote application (RemoteApp), opened in Remote Desktop Connecti[rest of string was truncated].
+        ///   Looks up a localized string similar to error {0}..
         /// </summary>
-        public static string RdpRemoteAppFallback {
+        public static string RdpRemoteAppErrorCode {
             get {
-                return ResourceManager.GetString("RdpRemoteAppFallback", resourceCulture);
+                return ResourceManager.GetString("RdpRemoteAppErrorCode", resourceCulture);
             }
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to This connection opens a remote application (RemoteApp), which can't be shown in a tab..
+        ///   Looks up a localized string similar to The remote application “{0}” could not be started: {1}.
         /// </summary>
-        public static string RdpRemoteAppInTab {
+        public static string RdpRemoteAppFailed {
             get {
-                return ResourceManager.GetString("RdpRemoteAppInTab", resourceCulture);
+                return ResourceManager.GetString("RdpRemoteAppFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Its windows open on their own, like the windows of this computer. Closing the application ends th[rest of string was truncated].
+        /// </summary>
+        public static string RdpRemoteAppHint {
+            get {
+                return ResourceManager.GetString("RdpRemoteAppHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to it is not allowed on the server..
+        /// </summary>
+        public static string RdpRemoteAppNotAllowed {
+            get {
+                return ResourceManager.GetString("RdpRemoteAppNotAllowed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to it was not found on the server..
+        /// </summary>
+        public static string RdpRemoteAppNotFound {
+            get {
+                return ResourceManager.GetString("RdpRemoteAppNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote application “{0}” is open.
+        /// </summary>
+        public static string RdpRemoteAppOpened {
+            get {
+                return ResourceManager.GetString("RdpRemoteAppOpened", resourceCulture);
             }
         }
 

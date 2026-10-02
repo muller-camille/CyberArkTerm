@@ -7,7 +7,7 @@ namespace CyberArkTerm.App.Views;
 
 /// <summary>
 /// Contenu d'un onglet Bureau à distance : barre d'état, contrôle Bureau à distance, et message quand la session
-/// n'est pas affichée (demande de connexion en cours, fin de session, erreur).
+/// n'est pas affichée (demande de connexion en cours, application distante ouverte à part, fin de session, erreur).
 /// </summary>
 public partial class RdpSessionView : UserControl
 {
@@ -25,10 +25,10 @@ public partial class RdpSessionView : UserControl
     private void Update()
     {
         var session = Session;
-        bool shown = session.HasControl;
-        Overlay.Visibility = shown ? Visibility.Collapsed : Visibility.Visible;
+        Overlay.Visibility = session.ShowsDesktop ? Visibility.Collapsed : Visibility.Visible;
+        FullScreenButton.Visibility = session.IsRemoteApp ? Visibility.Collapsed : Visibility.Visible;
         FullScreenButton.IsEnabled = session.IsConnected;
-        DisconnectButton.IsEnabled = shown;
+        DisconnectButton.IsEnabled = session.HasControl;
         var server = session.Server.Length > 0 ? session.Server : session.Label;
         switch (session.State)
         {
@@ -40,6 +40,14 @@ public partial class RdpSessionView : UserControl
                 break;
             case RdpSessionState.Connected:
                 StatusLine.Text = Text.Format(Strings.RdpConnected, session.Label, server);
+                if (session.IsRemoteApp)
+                {
+                    // Les fenêtres de l'application distante sont sur le bureau de ce poste : l'onglet dit où elles sont.
+                    OverlayText.Text = Text.Format(Strings.RdpRemoteAppOpened, session.RemoteAppName);
+                    OverlayDetail.Text = Strings.RdpRemoteAppHint;
+                    ReconnectButton.Visibility = Visibility.Collapsed;
+                }
+
                 break;
             default:
                 var failed = session.State == RdpSessionState.Failed;

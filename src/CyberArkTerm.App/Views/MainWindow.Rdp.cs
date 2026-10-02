@@ -17,8 +17,8 @@ public partial class MainWindow
     private Grid RdpLayer => _rdpLayer ??= (Grid)MainTabs.Template.FindName("RdpLayer", MainTabs);
 
     /// <summary>
-    /// Réglages pour ouvrir ce fichier .rdp dans un onglet, ou null s'il faut le confier à mstsc : option désactivée,
-    /// application distante (RemoteApp) ou contrôle Bureau à distance absent (<paramref name="reason"/> dit pourquoi).
+    /// Réglages pour ouvrir ce fichier .rdp dans un onglet (bureau ou application distante), ou null s'il faut le confier
+    /// à mstsc : option désactivée ou contrôle Bureau à distance absent (<paramref name="reason"/> dit pourquoi).
     /// </summary>
     private RdpConnectionSettings? EmbeddableRdp(byte[] rdpFile, string label, out string? reason)
     {
@@ -38,12 +38,9 @@ public partial class MainWindow
             return null;
         }
 
-        var why = settings.IsRemoteApp ? Strings.RdpRemoteAppFallback
-            : !RdpClientHost.IsAvailable ? Strings.RdpControlMissing
-            : null;
-        if (why is not null)
+        if (!RdpClientHost.IsAvailable)
         {
-            reason = Text.Format(why, label);
+            reason = Text.Format(Strings.RdpControlMissing, label);
             return null;
         }
 

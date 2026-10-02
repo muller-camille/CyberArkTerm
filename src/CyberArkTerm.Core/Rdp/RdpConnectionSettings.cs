@@ -94,10 +94,33 @@ public sealed class RdpConnectionSettings
     public bool SmartSizing { get; init; }
 
     /// <summary>
-    /// Vrai si le fichier demande une application distante (RemoteApp) : ses fenêtres s'ouvrent directement sur le
-    /// bureau de ce poste, pas dans un onglet. Ce fichier doit être ouvert dans la Connexion Bureau à distance (mstsc).
+    /// Vrai si le fichier demande une application distante (RemoteApp) : pas de bureau, les fenêtres de l'application
+    /// s'ouvrent directement sur le bureau de ce poste. « alternate shell » ne sert pas dans ce mode.
     /// </summary>
     public bool IsRemoteApp { get; init; }
+
+    /// <summary>Application distante : alias publié (« ||PSMInitSession ») ou chemin du programme sur le serveur.</summary>
+    public string RemoteApplicationProgram { get; init; } = "";
+
+    /// <summary>Nom affiché de l'application distante.</summary>
+    public string RemoteApplicationName { get; init; } = "";
+
+    /// <summary>Arguments de l'application distante (pour le PSM : la demande de session).</summary>
+    public string RemoteApplicationArgs { get; init; } = "";
+
+    /// <summary>Variables d'environnement des arguments développées sur le serveur (« remoteapplicationexpandcmdline »).</summary>
+    public bool RemoteApplicationExpandArgs { get; init; } = true;
+
+    /// <summary>Fichier à ouvrir avec l'application distante (« remoteapplicationfile »), le plus souvent vide.</summary>
+    public string RemoteApplicationFile { get; init; } = "";
+
+    /// <summary>Connexion en application distante même si le serveur ne l'annonce pas (« disableremoteappcapscheck »).</summary>
+    public bool DisableRemoteAppCapsCheck { get; init; }
+
+    /// <summary>Nom à afficher pour l'application distante : son nom, sinon son programme sans « || » ni chemin.</summary>
+    public string RemoteApplicationTitle =>
+        RemoteApplicationName.Trim() is { Length: > 0 } name ? name
+        : RemoteApplicationProgram.Trim().TrimStart('|').Split('\\', '/')[^1];
 
     /// <summary>Réglages d'une connexion directe : authentification réseau, alerte si le serveur n'est pas reconnu.</summary>
     public static RdpConnectionSettings Direct(string server, int port, string userName) => new()
@@ -160,6 +183,12 @@ public sealed class RdpConnectionSettings
             ConnectToAdministerServer = Bool("administrative session", false) || Bool("connect to console", false),
             SmartSizing = Bool("smart sizing", false),
             IsRemoteApp = Bool("remoteapplicationmode", false),
+            RemoteApplicationProgram = Text("remoteapplicationprogram"),
+            RemoteApplicationName = Text("remoteapplicationname"),
+            RemoteApplicationArgs = Text("remoteapplicationcmdline"),
+            RemoteApplicationExpandArgs = Bool("remoteapplicationexpandcmdline", true),
+            RemoteApplicationFile = Text("remoteapplicationfile"),
+            DisableRemoteAppCapsCheck = Bool("disableremoteappcapscheck", false),
         };
     }
 

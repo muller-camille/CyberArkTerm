@@ -988,11 +988,23 @@ Close anyway? The local copies will be deleted.</value>
   <data name="RdpDisconnectCode" xml:space="preserve">
     <value>Disconnected (code {0}).</value>
   </data>
-  <data name="RdpRemoteAppInTab" xml:space="preserve">
-    <value>This connection opens a remote application (RemoteApp), which can't be shown in a tab.</value>
+  <data name="RdpRemoteAppOpened" xml:space="preserve">
+    <value>Remote application “{0}” is open</value>
   </data>
-  <data name="RdpRemoteAppFallback" xml:space="preserve">
-    <value>{0}: this PSM component opens a remote application (RemoteApp), opened in Remote Desktop Connection (mstsc).</value>
+  <data name="RdpRemoteAppHint" xml:space="preserve">
+    <value>Its windows open on their own, like the windows of this computer. Closing the application ends the session; Disconnect closes it from here.</value>
+  </data>
+  <data name="RdpRemoteAppFailed" xml:space="preserve">
+    <value>The remote application “{0}” could not be started: {1}</value>
+  </data>
+  <data name="RdpRemoteAppNotAllowed" xml:space="preserve">
+    <value>it is not allowed on the server.</value>
+  </data>
+  <data name="RdpRemoteAppNotFound" xml:space="preserve">
+    <value>it was not found on the server.</value>
+  </data>
+  <data name="RdpRemoteAppErrorCode" xml:space="preserve">
+    <value>error {0}.</value>
   </data>
   <data name="RdpControlMissing" xml:space="preserve">
     <value>{0}: the Remote Desktop control isn't available on this computer, session opened in Remote Desktop Connection (mstsc).</value>
