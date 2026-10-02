@@ -252,9 +252,15 @@ public partial class FileBrowserPanel : UserControl
         }
 
         _session.FollowTerminal = FollowBox.IsChecked == true;
-        if (_session.FollowTerminal && _session.TerminalDirectory is { } dir)
+        if (_session.FollowTerminal)
         {
-            _ = NavigateAsync(dir);
+            // (Ré)installe le suivi dans le shell courant : utile après « sudo -i » ou si l'installation automatique
+            // n'a pas pu se faire (sans effet en double si le suivi est déjà actif).
+            _session.InstallFolderTracking();
+            if (_session.TerminalDirectory is { } dir)
+            {
+                _ = NavigateAsync(dir);
+            }
         }
     }
 
@@ -306,6 +312,10 @@ public partial class FileBrowserPanel : UserControl
                 _ = DeleteAsync();
                 e.Handled = true;
                 break;
+            case Key.F4:
+                OnEdit(sender, e);
+                e.Handled = true;
+                break;
             case Key.Back:
                 OnParent(sender, e);
                 e.Handled = true;
@@ -325,8 +335,9 @@ public partial class FileBrowserPanel : UserControl
             item.IsEnabled = item.Tag switch
             {
                 "open" => selected.Count == 1,
+                "edit" => selected is [{ IsDirectory: false }],
                 "download" => selected.Count > 0 && selected.All(s => !s.IsDirectory),
-                "delete" or "copy" => selected.Count > 0,
+                "delete" or "copy" or "chmod" => selected.Count > 0,
                 _ => _browser is not null,
             };
         }
@@ -374,6 +385,89 @@ public partial class FileBrowserPanel : UserControl
     }
 
     private void OnDelete(object sender, RoutedEventArgs e) => _ = DeleteAsync();
+
+    /// <summary>Le contenu d'un dossier du serveur a changé (fichier renvoyé depuis l'éditeur) : actualisation s'il est affiché.</summary>
+    public void OnRemoteChanged(SshSession session, string directory)
+    {
+        if (ReferenceEquals(session, _session) && _browser is { } browser && browser.CurrentDirectory == directory && _busy == 0)
+        {
+            _ = NavigateAsync(directory);
+        }
+    }
+
+    private async void OnEdit(object sender, RoutedEventArgs e)
+    {
+        if (_session?.Editor is { } editor && _browser is not null && SelectedEntries() is [{ IsDirectory: false } entry])
+        {
+            await editor.EditAsync(entry);
+        }
+    }
+
+    private void OnPermissions(object sender, RoutedEventArgs e) => _ = ChangePermissionsAsync();
+
+    private async Task ChangePermissionsAsync()
+    {
+        var browser = _browser;
+        var selected = SelectedEntries();
+        if (browser is null || selected.Count == 0 || _busy > 0)
+        {
+            return;
+        }
+
+        var target = selected.Count == 1 ? selected[0].Name : Text.Format(Strings.ItemsCount, selected.Count);
+        var dialog = new PermissionsDialog(target, browser.CurrentDirectory, UnixPermissions.FromSymbolic(selected[0].Permissions),
+            selected.Any(s => s.IsDirectory && !s.IsSymbolicLink))
+        {
+            Owner = Window.GetWindow(this),
+        };
+        if (dialog.ShowDialog() != true)
+        {
+            return;
+        }
+
+        var octal = UnixPermissions.ToOctal(dialog.Mode);
+        var errors = new List<string>();
+        int changed = 0;
+        Interlocked.Increment(ref _busy);
+        try
+        {
+            foreach (var entry in selected)
+            {
+                SetStatus(Text.Format(Strings.PermissionsApplying, entry.Name));
+                int before = changed;
+                var progress = new Progress<int>(n => SetStatus(Text.Format(Strings.PermissionsProgress, before + n)));
+                try
+                {
+                    // Pas de propagation à travers un lien symbolique sélectionné (seule sa cible change de droits).
+                    bool recursive = dialog.Recursive && entry.IsDirectory && !entry.IsSymbolicLink;
+                    var result = await browser.SetPermissionsAsync(entry.FullPath, dialog.Mode, dialog.SpecialChanged,
+                        recursive, dialog.ExecuteOnlyIfAlready, progress, CancellationToken.None);
+                    changed += result.Changed;
+                    errors.AddRange(result.Errors);
+                }
+                catch (Exception ex) when (ex is not OutOfMemoryException)
+                {
+                    errors.Add(Text.Format(Strings.ItemError, entry.Name, Describe(ex)));
+                }
+            }
+        }
+        finally
+        {
+            Interlocked.Decrement(ref _busy);
+        }
+
+        await NavigateAsync(browser.CurrentDirectory);
+        if (errors.Count > 0)
+        {
+            SetStatus(Text.Format(Strings.PermissionsFailed, string.Join(" ; ", errors.Take(5))), error: true);
+        }
+        else
+        {
+            SetStatus(dialog.Recursive
+                ? Text.Format(Strings.PermissionsDoneCount, octal, changed)
+                : Text.Format(Strings.PermissionsDone, octal, target));
+        }
+    }
 
     private async Task DeleteAsync()
     {

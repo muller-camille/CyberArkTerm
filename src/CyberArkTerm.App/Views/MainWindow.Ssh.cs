@@ -26,6 +26,8 @@ public partial class MainWindow
         var key = await GetPsmpKeyAsync();
         var connector = new PsmpConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi, key);
         var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved);
+        session.Editor = new RemoteEditor(session, this, _settings, (text, error) => SetStatus(text, error),
+            directory => FilesPanel.OnRemoteChanged(session, directory));
         var view = new SshSessionView(session, $"{login}@{_settings.PsmpAddress}");
         var tab = new TabItem { Content = view, Tag = session };
         tab.Header = TabHeader(label, tab);
@@ -81,12 +83,21 @@ public partial class MainWindow
             return;
         }
 
+        if (session.Editor is { } editor && !RemoteEditor.ConfirmClose(this, [editor]))
+        {
+            return;
+        }
+
         MainTabs.Items.Remove(tab);
         _sshSessions.Remove(session);
         session.Dispose();
         MainTabs.SelectedItem ??= HomeTab;
         SetStatus(Text.Format(Strings.SshClosed, session.Label));
     }
+
+    /// <summary>Vrai si l'on peut fermer : aucun fichier modifié non renvoyé, ou l'utilisateur accepte de les perdre.</summary>
+    private bool ConfirmCloseEditedFiles() =>
+        RemoteEditor.ConfirmClose(this, _sshSessions.Select(s => s.Editor).OfType<RemoteEditor>());
 
     private void CloseAllSshSessions()
     {

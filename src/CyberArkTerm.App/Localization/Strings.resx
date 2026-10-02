@@ -664,7 +664,7 @@ This may mean the connection is being intercepted. Only accept if your CyberArk 
     <value>Follow the terminal folder</value>
   </data>
   <data name="FollowTip" xml:space="preserve">
-    <value>The browser automatically moves to the shell's current folder (cd)</value>
+    <value>The browser follows the shell's current folder (cd). Tick it again to re-enable tracking in the current shell (after sudo -i, su…).</value>
   </data>
   <data name="FollowDisabledTip" xml:space="preserve">
     <value>Enable terminal folder following in the settings</value>
@@ -804,5 +804,152 @@ Continue?</value>
   </data>
   <data name="DirectoryNotEmpty" xml:space="preserve">
     <value>the folder is not empty or cannot be deleted</value>
+  </data>
+  <data name="FileEdit" xml:space="preserve">
+    <value>_Edit</value>
+  </data>
+  <data name="FilePermissions" xml:space="preserve">
+    <value>_Permissions…</value>
+  </data>
+  <data name="EditTip" xml:space="preserve">
+    <value>Edit in the text editor (F4)</value>
+  </data>
+  <data name="PermissionsTip" xml:space="preserve">
+    <value>Permissions (chmod)</value>
+  </data>
+  <data name="EditOpening" xml:space="preserve">
+    <value>Opening {0} in the editor…</value>
+  </data>
+  <data name="EditOpened" xml:space="preserve">
+    <value>{0} opened in the editor: each save offers to send it back to the server</value>
+  </data>
+  <data name="EditorLaunchFailed" xml:space="preserve">
+    <value>Cannot start the text editor “{0}”: {1}
+
+Choose another editor in the settings.</value>
+  </data>
+  <data name="EditLargeFile" xml:space="preserve">
+    <value>“{0}” is {1}. Open it in the text editor anyway?</value>
+  </data>
+  <data name="EditUploadTitle" xml:space="preserve">
+    <value>Send back to the server</value>
+  </data>
+  <data name="EditUploadPrompt" xml:space="preserve">
+    <value>“{0}” was saved in the editor.
+
+Send it back to the server?
+{1}</value>
+  </data>
+  <data name="EditRemoteChanged" xml:space="preserve">
+    <value>“{0}” was changed on the server since you opened it.
+
+Replace it with your version?</value>
+  </data>
+  <data name="EditUploading" xml:space="preserve">
+    <value>Sending {0} back to the server…</value>
+  </data>
+  <data name="EditUploaded" xml:space="preserve">
+    <value>{0} sent back to the server</value>
+  </data>
+  <data name="EditUploadFailed" xml:space="preserve">
+    <value>Cannot send {0} back to the server:
+
+{1}
+
+Your changes stay in the editor: save again to retry.</value>
+  </data>
+  <data name="EditPendingTitle" xml:space="preserve">
+    <value>Unsent changes</value>
+  </data>
+  <data name="EditPendingOnClose" xml:space="preserve">
+    <value>These edited files were not sent back to the server:
+
+{0}
+
+Close anyway? The local copies will be deleted.</value>
+  </data>
+  <data name="PermissionsTitle" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="PermissionsOwner" xml:space="preserve">
+    <value>Owner</value>
+  </data>
+  <data name="PermissionsGroup" xml:space="preserve">
+    <value>Group</value>
+  </data>
+  <data name="PermissionsOthers" xml:space="preserve">
+    <value>Others</value>
+  </data>
+  <data name="PermissionsRead" xml:space="preserve">
+    <value>Read</value>
+  </data>
+  <data name="PermissionsWrite" xml:space="preserve">
+    <value>Write</value>
+  </data>
+  <data name="PermissionsExecute" xml:space="preserve">
+    <value>Execute</value>
+  </data>
+  <data name="PermissionsOctal" xml:space="preserve">
+    <value>_Octal:</value>
+  </data>
+  <data name="PermissionsHint" xml:space="preserve">
+    <value>The owner is not changed. Special bits only apply to the selected items.</value>
+  </data>
+  <data name="PermissionsInvalid" xml:space="preserve">
+    <value>Enter three or four digits from 0 to 7 (e.g. 644, 1777).</value>
+  </data>
+  <data name="ItemsIn" xml:space="preserve">
+    <value>{0} items in {1}</value>
+  </data>
+  <data name="ItemsCount" xml:space="preserve">
+    <value>{0} items</value>
+  </data>
+  <data name="PermissionsApplying" xml:space="preserve">
+    <value>Changing the permissions of {0}…</value>
+  </data>
+  <data name="PermissionsDone" xml:space="preserve">
+    <value>Permissions {0} applied to {1}</value>
+  </data>
+  <data name="PermissionsFailed" xml:space="preserve">
+    <value>Permissions not changed: {0}</value>
+  </data>
+  <data name="TextEditorLabel" xml:space="preserve">
+    <value>Text _editor:</value>
+  </data>
+  <data name="TextEditorHelp" xml:space="preserve">
+    <value>Used by “Edit” in the Files tab. Empty: Notepad.</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>_Browse…</value>
+  </data>
+  <data name="TextEditorDialogTitle" xml:space="preserve">
+    <value>Choose the text editor</value>
+  </data>
+  <data name="ProgramsFilter" xml:space="preserve">
+    <value>Programs (*.exe;*.cmd;*.bat)|*.exe;*.cmd;*.bat</value>
+  </data>
+  <data name="PermissionsSpecial" xml:space="preserve">
+    <value>Special:</value>
+  </data>
+  <data name="SetUidTip" xml:space="preserve">
+    <value>Runs with the rights of the file's owner</value>
+  </data>
+  <data name="SetGidTip" xml:space="preserve">
+    <value>Runs with the rights of the file's group; on a folder, new files inherit its group</value>
+  </data>
+  <data name="StickyTip" xml:space="preserve">
+    <value>On a folder: only a file's owner can delete or rename it (e.g. /tmp)</value>
+  </data>
+  <data name="PermissionsRecursive" xml:space="preserve">
+    <value>_Apply to the folder contents too (subfolders and files)</value>
+  </data>
+  <data name="PermissionsSmartExecute" xml:space="preserve">
+    <value>E_xecute (x) only for folders and files that are already executable</value>
+  </data>
+  <data name="PermissionsProgress" xml:space="preserve">
+    <value>Changing permissions… {0} items done</value>
+  </data>
+  <data name="PermissionsDoneCount" xml:space="preserve">
+    <value>Permissions {0} applied: {1} items</value>
   </data>
 </root>

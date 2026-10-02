@@ -664,7 +664,7 @@ Potrebbe indicare un'intercettazione della connessione. Accetta solo se il team 
     <value>Segui la cartella del terminale</value>
   </data>
   <data name="FollowTip" xml:space="preserve">
-    <value>Il browser si sposta automaticamente nella cartella corrente della shell (cd)</value>
+    <value>Il browser segue la cartella corrente della shell (cd). Riseleziona per riattivare il monitoraggio nella shell corrente (dopo sudo -i, su…).</value>
   </data>
   <data name="FollowDisabledTip" xml:space="preserve">
     <value>Attiva il monitoraggio della cartella del terminale nelle impostazioni</value>
@@ -804,5 +804,152 @@ Continuare?</value>
   </data>
   <data name="DirectoryNotEmpty" xml:space="preserve">
     <value>la cartella non è vuota o non può essere eliminata</value>
+  </data>
+  <data name="FileEdit" xml:space="preserve">
+    <value>_Modifica</value>
+  </data>
+  <data name="FilePermissions" xml:space="preserve">
+    <value>_Permessi…</value>
+  </data>
+  <data name="EditTip" xml:space="preserve">
+    <value>Modifica nell'editor di testo (F4)</value>
+  </data>
+  <data name="PermissionsTip" xml:space="preserve">
+    <value>Permessi (chmod)</value>
+  </data>
+  <data name="EditOpening" xml:space="preserve">
+    <value>Apertura di {0} nell'editor…</value>
+  </data>
+  <data name="EditOpened" xml:space="preserve">
+    <value>{0} aperto nell'editor: a ogni salvataggio verrà proposto di rinviarlo al server</value>
+  </data>
+  <data name="EditorLaunchFailed" xml:space="preserve">
+    <value>Impossibile avviare l'editor di testo «{0}»: {1}
+
+Scegli un altro editor nelle impostazioni.</value>
+  </data>
+  <data name="EditLargeFile" xml:space="preserve">
+    <value>«{0}» occupa {1}. Aprirlo comunque nell'editor di testo?</value>
+  </data>
+  <data name="EditUploadTitle" xml:space="preserve">
+    <value>Rinvia al server</value>
+  </data>
+  <data name="EditUploadPrompt" xml:space="preserve">
+    <value>«{0}» è stato salvato nell'editor.
+
+Rinviarlo al server?
+{1}</value>
+  </data>
+  <data name="EditRemoteChanged" xml:space="preserve">
+    <value>«{0}» è stato modificato sul server dopo l'apertura.
+
+Sostituirlo con la tua versione?</value>
+  </data>
+  <data name="EditUploading" xml:space="preserve">
+    <value>Invio di {0} al server…</value>
+  </data>
+  <data name="EditUploaded" xml:space="preserve">
+    <value>{0} rinviato al server</value>
+  </data>
+  <data name="EditUploadFailed" xml:space="preserve">
+    <value>Impossibile rinviare {0} al server:
+
+{1}
+
+Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
+  </data>
+  <data name="EditPendingTitle" xml:space="preserve">
+    <value>Modifiche non inviate</value>
+  </data>
+  <data name="EditPendingOnClose" xml:space="preserve">
+    <value>Questi file modificati non sono stati rinviati al server:
+
+{0}
+
+Chiudere comunque? Le copie locali verranno eliminate.</value>
+  </data>
+  <data name="PermissionsTitle" xml:space="preserve">
+    <value>Permessi</value>
+  </data>
+  <data name="PermissionsOwner" xml:space="preserve">
+    <value>Proprietario</value>
+  </data>
+  <data name="PermissionsGroup" xml:space="preserve">
+    <value>Gruppo</value>
+  </data>
+  <data name="PermissionsOthers" xml:space="preserve">
+    <value>Altri</value>
+  </data>
+  <data name="PermissionsRead" xml:space="preserve">
+    <value>Lettura</value>
+  </data>
+  <data name="PermissionsWrite" xml:space="preserve">
+    <value>Scrittura</value>
+  </data>
+  <data name="PermissionsExecute" xml:space="preserve">
+    <value>Esecuzione</value>
+  </data>
+  <data name="PermissionsOctal" xml:space="preserve">
+    <value>_Ottale:</value>
+  </data>
+  <data name="PermissionsHint" xml:space="preserve">
+    <value>Il proprietario non viene modificato. I bit speciali si applicano solo agli elementi selezionati.</value>
+  </data>
+  <data name="PermissionsInvalid" xml:space="preserve">
+    <value>Inserisci tre o quattro cifre da 0 a 7 (es. 644, 1777).</value>
+  </data>
+  <data name="ItemsIn" xml:space="preserve">
+    <value>{0} elementi in {1}</value>
+  </data>
+  <data name="ItemsCount" xml:space="preserve">
+    <value>{0} elementi</value>
+  </data>
+  <data name="PermissionsApplying" xml:space="preserve">
+    <value>Modifica dei permessi di {0}…</value>
+  </data>
+  <data name="PermissionsDone" xml:space="preserve">
+    <value>Permessi {0} applicati a {1}</value>
+  </data>
+  <data name="PermissionsFailed" xml:space="preserve">
+    <value>Permessi non modificati: {0}</value>
+  </data>
+  <data name="TextEditorLabel" xml:space="preserve">
+    <value>_Editor di testo:</value>
+  </data>
+  <data name="TextEditorHelp" xml:space="preserve">
+    <value>Usato da «Modifica» nella scheda File. Vuoto: Blocco note.</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>S_foglia…</value>
+  </data>
+  <data name="TextEditorDialogTitle" xml:space="preserve">
+    <value>Scegli l'editor di testo</value>
+  </data>
+  <data name="ProgramsFilter" xml:space="preserve">
+    <value>Programmi (*.exe;*.cmd;*.bat)|*.exe;*.cmd;*.bat</value>
+  </data>
+  <data name="PermissionsSpecial" xml:space="preserve">
+    <value>Speciali:</value>
+  </data>
+  <data name="SetUidTip" xml:space="preserve">
+    <value>Esecuzione con i diritti del proprietario del file</value>
+  </data>
+  <data name="SetGidTip" xml:space="preserve">
+    <value>Esecuzione con i diritti del gruppo del file; su una cartella, i nuovi file ne ereditano il gruppo</value>
+  </data>
+  <data name="StickyTip" xml:space="preserve">
+    <value>Su una cartella: solo il proprietario di un file può eliminarlo o rinominarlo (es. /tmp)</value>
+  </data>
+  <data name="PermissionsRecursive" xml:space="preserve">
+    <value>_Applica anche al contenuto (sottocartelle e file)</value>
+  </data>
+  <data name="PermissionsSmartExecute" xml:space="preserve">
+    <value>E_secuzione (x) solo per le cartelle e i file già eseguibili</value>
+  </data>
+  <data name="PermissionsProgress" xml:space="preserve">
+    <value>Modifica dei permessi… {0} elementi elaborati</value>
+  </data>
+  <data name="PermissionsDoneCount" xml:space="preserve">
+    <value>Permessi {0} applicati: {1} elementi</value>
   </data>
 </root>

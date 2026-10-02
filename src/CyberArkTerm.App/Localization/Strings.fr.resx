@@ -664,7 +664,7 @@ Cela peut indiquer une interception de la connexion. N'acceptez que si l'équipe
     <value>Suivre le dossier du terminal</value>
   </data>
   <data name="FollowTip" xml:space="preserve">
-    <value>Le navigateur se place automatiquement dans le dossier courant du shell (cd)</value>
+    <value>Le navigateur suit le dossier courant du shell (cd). Recochez pour réactiver le suivi dans le shell courant (après sudo -i, su…).</value>
   </data>
   <data name="FollowDisabledTip" xml:space="preserve">
     <value>Activez le suivi du dossier du terminal dans les paramètres</value>
@@ -804,5 +804,152 @@ Continuer ?</value>
   </data>
   <data name="DirectoryNotEmpty" xml:space="preserve">
     <value>le dossier n'est pas vide ou ne peut pas être supprimé</value>
+  </data>
+  <data name="FileEdit" xml:space="preserve">
+    <value>_Modifier</value>
+  </data>
+  <data name="FilePermissions" xml:space="preserve">
+    <value>_Droits…</value>
+  </data>
+  <data name="EditTip" xml:space="preserve">
+    <value>Modifier dans l'éditeur de texte (F4)</value>
+  </data>
+  <data name="PermissionsTip" xml:space="preserve">
+    <value>Droits (chmod)</value>
+  </data>
+  <data name="EditOpening" xml:space="preserve">
+    <value>Ouverture de {0} dans l'éditeur…</value>
+  </data>
+  <data name="EditOpened" xml:space="preserve">
+    <value>{0} ouvert dans l'éditeur : chaque enregistrement proposera de le renvoyer sur le serveur</value>
+  </data>
+  <data name="EditorLaunchFailed" xml:space="preserve">
+    <value>Impossible de lancer l'éditeur de texte « {0} » : {1}
+
+Choisissez un autre éditeur dans les paramètres.</value>
+  </data>
+  <data name="EditLargeFile" xml:space="preserve">
+    <value>« {0} » fait {1}. L'ouvrir quand même dans l'éditeur de texte ?</value>
+  </data>
+  <data name="EditUploadTitle" xml:space="preserve">
+    <value>Renvoyer sur le serveur</value>
+  </data>
+  <data name="EditUploadPrompt" xml:space="preserve">
+    <value>« {0} » a été enregistré dans l'éditeur.
+
+Le renvoyer sur le serveur ?
+{1}</value>
+  </data>
+  <data name="EditRemoteChanged" xml:space="preserve">
+    <value>« {0} » a été modifié sur le serveur depuis son ouverture.
+
+Le remplacer par votre version ?</value>
+  </data>
+  <data name="EditUploading" xml:space="preserve">
+    <value>Renvoi de {0} sur le serveur…</value>
+  </data>
+  <data name="EditUploaded" xml:space="preserve">
+    <value>{0} renvoyé sur le serveur</value>
+  </data>
+  <data name="EditUploadFailed" xml:space="preserve">
+    <value>Impossible de renvoyer {0} sur le serveur :
+
+{1}
+
+Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessayer.</value>
+  </data>
+  <data name="EditPendingTitle" xml:space="preserve">
+    <value>Modifications non renvoyées</value>
+  </data>
+  <data name="EditPendingOnClose" xml:space="preserve">
+    <value>Ces fichiers modifiés n'ont pas été renvoyés sur le serveur :
+
+{0}
+
+Fermer quand même ? Les copies locales seront supprimées.</value>
+  </data>
+  <data name="PermissionsTitle" xml:space="preserve">
+    <value>Droits</value>
+  </data>
+  <data name="PermissionsOwner" xml:space="preserve">
+    <value>Propriétaire</value>
+  </data>
+  <data name="PermissionsGroup" xml:space="preserve">
+    <value>Groupe</value>
+  </data>
+  <data name="PermissionsOthers" xml:space="preserve">
+    <value>Autres</value>
+  </data>
+  <data name="PermissionsRead" xml:space="preserve">
+    <value>Lecture</value>
+  </data>
+  <data name="PermissionsWrite" xml:space="preserve">
+    <value>Écriture</value>
+  </data>
+  <data name="PermissionsExecute" xml:space="preserve">
+    <value>Exécution</value>
+  </data>
+  <data name="PermissionsOctal" xml:space="preserve">
+    <value>_Octal :</value>
+  </data>
+  <data name="PermissionsHint" xml:space="preserve">
+    <value>Le propriétaire n'est pas modifié. Les bits spéciaux ne s'appliquent qu'aux éléments sélectionnés.</value>
+  </data>
+  <data name="PermissionsInvalid" xml:space="preserve">
+    <value>Saisissez trois ou quatre chiffres de 0 à 7 (ex. 644, 1777).</value>
+  </data>
+  <data name="ItemsIn" xml:space="preserve">
+    <value>{0} éléments dans {1}</value>
+  </data>
+  <data name="ItemsCount" xml:space="preserve">
+    <value>{0} éléments</value>
+  </data>
+  <data name="PermissionsApplying" xml:space="preserve">
+    <value>Modification des droits de {0}…</value>
+  </data>
+  <data name="PermissionsDone" xml:space="preserve">
+    <value>Droits {0} appliqués à {1}</value>
+  </data>
+  <data name="PermissionsFailed" xml:space="preserve">
+    <value>Droits non modifiés : {0}</value>
+  </data>
+  <data name="TextEditorLabel" xml:space="preserve">
+    <value>Éditeur de _texte :</value>
+  </data>
+  <data name="TextEditorHelp" xml:space="preserve">
+    <value>Utilisé par « Modifier » dans l'onglet Fichiers. Vide : Bloc-notes.</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>Parcou_rir…</value>
+  </data>
+  <data name="TextEditorDialogTitle" xml:space="preserve">
+    <value>Choisir l'éditeur de texte</value>
+  </data>
+  <data name="ProgramsFilter" xml:space="preserve">
+    <value>Programmes (*.exe;*.cmd;*.bat)|*.exe;*.cmd;*.bat</value>
+  </data>
+  <data name="PermissionsSpecial" xml:space="preserve">
+    <value>Spéciaux :</value>
+  </data>
+  <data name="SetUidTip" xml:space="preserve">
+    <value>Exécution avec les droits du propriétaire du fichier</value>
+  </data>
+  <data name="SetGidTip" xml:space="preserve">
+    <value>Exécution avec les droits du groupe du fichier ; sur un dossier, les nouveaux fichiers héritent de son groupe</value>
+  </data>
+  <data name="StickyTip" xml:space="preserve">
+    <value>Sur un dossier : seul le propriétaire d'un fichier peut le supprimer ou le renommer (ex. /tmp)</value>
+  </data>
+  <data name="PermissionsRecursive" xml:space="preserve">
+    <value>_Appliquer aussi au contenu (sous-dossiers et fichiers)</value>
+  </data>
+  <data name="PermissionsSmartExecute" xml:space="preserve">
+    <value>E_xécution (x) seulement pour les dossiers et les fichiers déjà exécutables</value>
+  </data>
+  <data name="PermissionsProgress" xml:space="preserve">
+    <value>Modification des droits… {0} éléments traités</value>
+  </data>
+  <data name="PermissionsDoneCount" xml:space="preserve">
+    <value>Droits {0} appliqués : {1} éléments</value>
   </data>
 </root>

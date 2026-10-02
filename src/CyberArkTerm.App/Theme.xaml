@@ -11,6 +11,11 @@
     <SolidColorBrush x:Key="StatusBrush" Color="#2B3A4A" />
     <SolidColorBrush x:Key="MutedBrush" Color="#6B7785" />
     <SolidColorBrush x:Key="SidePanelForeground" Color="#1F2933" />
+
+    <!-- Sélection toujours visible quand la liste n'a pas le focus (menu contextuel ouvert, clic ailleurs) :
+         le gris « inactif » de Windows se confond avec le fond des panneaux. -->
+    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#CCE4F7" />
+    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#1F2933" />
     <LinearGradientBrush x:Key="ToolbarBrush" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="#FBFCFD" Offset="0" />
         <GradientStop Color="#E8EDF2" Offset="1" />
@@ -372,6 +377,28 @@
             <DrawingGroup>
                 <GeometryDrawing Brush="#F2B01E" Geometry="M4,17 L15,6 L18,9 L7,20 H4 Z" />
                 <GeometryDrawing Brush="#5A6573" Geometry="M16,5 L17.5,3.5 A1.4,1.4 0 0 1 19.5,3.5 L20.5,4.5 A1.4,1.4 0 0 1 20.5,6.5 L19,8 Z" />
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <!-- Cadenas : droits des fichiers (chmod). -->
+    <DrawingImage x:Key="IconPermissions">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Geometry="M8,11 V8 A4,4 0 0 1 16,8 V11">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#5A6573" Thickness="2" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#F2B01E" Geometry="M5,11 H19 V21 H5 Z" />
+                <GeometryDrawing Brush="#5A6573">
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <EllipseGeometry Center="12,15" RadiusX="1.6" RadiusY="1.6" />
+                            <RectangleGeometry Rect="11.2,15,1.6,3.5" />
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>

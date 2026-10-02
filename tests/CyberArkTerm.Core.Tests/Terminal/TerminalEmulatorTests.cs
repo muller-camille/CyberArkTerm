@@ -374,4 +374,25 @@ public class TerminalSupportTests
         Assert.Contains("\\033[2A", command);
         Assert.Contains("PROMPT_COMMAND=", command);
     }
+
+    [Fact]
+    public void InjectionCommandIsIdempotent()
+    {
+        var command = WorkingDirectory.InjectionCommand(1);
+
+        Assert.Contains("case \";$PROMPT_COMMAND;\" in *\";__catosc7;\"*)", command);
+        Assert.Contains("precmd_functions[(I)__catosc7]", command);
+    }
+
+    [Theory]
+    [InlineData("[root@srv01 log]# ", true)]
+    [InlineData("jdupont@srv01:~$", true)]
+    [InlineData("srv01% ", true)]
+    [InlineData("> ", true)]
+    [InlineData("[root@srv01 log]# ls", false)]
+    [InlineData("Password:", false)]
+    [InlineData("PSM for SSH (demo): this session is recorded.", false)]
+    [InlineData("   ", false)]
+    [InlineData("", false)]
+    public void LooksLikePrompt(string text, bool expected) => Assert.Equal(expected, WorkingDirectory.LooksLikePrompt(text));
 }

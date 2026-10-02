@@ -39,7 +39,7 @@ serveur.
 | **Courants** | Vos serveurs de travail, rangés en dossiers et sous-dossiers, chacun avec sa propre configuration. |
 | **Sessions PSM** | Bureau à distance via le PSM (comme le bouton « Connect » du PVWA) : composant, machine cible, motif, ticket. |
 | **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), authentification MFA. |
-| **Onglet Fichiers** | Navigateur SFTP du serveur : `ls`, navigation, `rm`, dépôt de fichiers par glisser-déposer en SCP, suivi du dossier du terminal. |
+| **Onglet Fichiers** | Navigateur SFTP du serveur : `ls`, navigation, `rm`, dépôt de fichiers par glisser-déposer en SCP, modification dans votre éditeur de texte, droits (`chmod`), suivi du dossier du terminal. |
 | **Accueil** | Connexion rapide (tapez un serveur, Entrée), sessions récentes. |
 | **Export** | Liste des comptes en CSV, ouvrable directement dans Excel (séparateur selon la région Windows). |
 | **Langues** | Interface en français, anglais et italien : langue de Windows par défaut, modifiable à tout moment. |
@@ -151,9 +151,19 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   **SCP** par défaut (SFTP en option), dossiers compris ; confirmation avant d'écraser un fichier existant.
 - **Supprimer** : sélection puis Suppr (ou clic droit → « Supprimer (rm) »), avec confirmation. Les dossiers
   doivent être vides.
+- **Modifier un fichier** : sélection puis `F4` (ou clic droit → « Modifier », ou bouton crayon). Le fichier
+  s'ouvre dans l'éditeur de texte choisi dans les Paramètres (Bloc-notes par défaut). À chaque enregistrement,
+  CyberArkTerm propose de le renvoyer sur le serveur : envoi en SFTP, droits du fichier conservés. Si le
+  fichier a changé sur le serveur depuis son ouverture, une alerte demande confirmation avant de l'écraser.
+- **Droits** : clic droit → « Droits… » (ou bouton cadenas). Cases lecture / écriture / exécution pour le
+  propriétaire, le groupe et les autres, bits spéciaux (setuid, setgid, sticky) et valeur octale (`644`,
+  `1777`…), pour un ou plusieurs éléments. Pour un dossier, l'option « Appliquer aussi au contenu » propage
+  les droits aux sous-dossiers et fichiers ; par défaut, l'exécution (x) n'est donnée qu'aux dossiers et aux
+  fichiers déjà exécutables. Les liens symboliques ne sont pas suivis, le propriétaire n'est pas modifié.
 - Aussi : nouveau dossier, téléchargement, copie du chemin, affichage des fichiers cachés.
 - **Suivre le dossier du terminal** : quand la case est cochée, chaque `cd` dans le terminal déplace le
-  navigateur dans le même dossier (voir [Fonctionnement technique](#fonctionnement-technique)).
+  navigateur dans le même dossier (voir [Fonctionnement technique](#fonctionnement-technique)). Après un
+  `sudo -i` ou un `su`, recochez la case à l'invite du shell pour réactiver le suivi dans ce nouveau shell.
 
 ### 6. Organiser ses serveurs : onglet « Courants »
 
@@ -191,7 +201,7 @@ Un serveur dont le compte n'est plus visible dans CyberArk apparaît grisé.
 | Terminal | Coller | Clic droit, `Maj+Inser` ou `Ctrl+Maj+V` |
 | Terminal | Historique | Molette, `Maj+Page préc.` / `Maj+Page suiv.` |
 | Onglet SSH | Fermer | Croix de l'onglet ou clic molette |
-| Fichiers | Ouvrir / dossier parent / supprimer / actualiser | `Entrée` / `Retour arrière` / `Suppr` / `F5` |
+| Fichiers | Ouvrir / modifier / dossier parent / supprimer / actualiser | `Entrée` / `F4` / `Retour arrière` / `Suppr` / `F5` |
 
 ## Paramètres et fichier de configuration
 
@@ -205,6 +215,7 @@ Un serveur dont le compte n'est plus visible dans CyberArk apparaît grisé.
 | SSH dans CyberArkTerm | Terminal et onglet Fichiers intégrés ; sinon Windows Terminal | oui |
 | Suivre le dossier du terminal | Autorise l'installation du suivi de dossier dans le shell | oui |
 | Dépôt de fichiers | SCP ou SFTP | SCP |
+| Éditeur de texte | Programme ouvert par « Modifier » dans l'onglet Fichiers | Bloc-notes |
 | Clés de PSMP acceptées | Empreintes mémorisées (bouton « Oublier les clés ») | — |
 | Composants mémorisés | Composant PSM choisi par plateforme (bouton « Oublier ») | — |
 
@@ -222,6 +233,9 @@ l'application et supprimez-le.
 - **Fichiers RDP** (jeton PSM à usage unique) écrits dans `%TEMP%\CyberArkTerm` et supprimés après 60 s ou
   à la fermeture.
 - **Clés d'hôte PSMP épinglées** au premier usage, avec alerte en cas de changement.
+- **Fichiers modifiés** : la copie locale ouverte dans l'éditeur est placée dans `%TEMP%\CyberArkTerm\edit`
+  et supprimée à la fermeture de l'onglet SSH ; une alerte prévient si des modifications n'ont pas été
+  renvoyées.
 - **Pas d'injection de commande** : chemins SCP et dossiers de départ protégés entre apostrophes pour le
   shell distant ; arguments `ssh` / Windows Terminal validés et passés sans shell.
 - Export CSV protégé contre l'injection de formules Excel.
@@ -250,8 +264,10 @@ SCP au premier dépôt de fichier en SCP. Chacune est une session PSMP, enregist
 
 ### Suivi du dossier du terminal
 
-À l'ouverture d'une session SSH (si l'option est active), CyberArkTerm envoie au shell une commande d'une
-ligne, précédée d'une espace pour ne pas entrer dans l'historique :
+À l'ouverture d'une session SSH (si l'option est active), CyberArkTerm attend que le shell du serveur cible
+affiche son invite (jusqu'à 60 s : le PSMP met parfois plusieurs secondes à joindre la cible), puis lui envoie
+une commande d'une ligne, précédée d'une espace pour ne pas entrer dans l'historique. Rien n'est envoyé si
+vous avez déjà commencé à taper ; la commande peut être renvoyée sans effet en double (case « Suivre ») :
 
 - définition de `PROMPT_COMMAND` (bash) ou `precmd` (zsh) qui émet la séquence standard **OSC 7** avec le
   dossier courant à chaque invite ;
@@ -272,7 +288,7 @@ Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place d
 | Le compte n'apparaît pas | Vous n'avez pas le droit « List accounts » sur son safe, ou la liste doit être rechargée (`F5`). |
 | Le mot de passe PSMP est demandé à chaque onglet | MFA caching non activé sur le PVWA : comportement normal (une fois par onglet). |
 | L'onglet Fichiers indique « Connexion SFTP impossible » | SFTP n'est pas autorisé sur le PSMP ou pour ce compte : voir l'équipe CyberArk. |
-| Le navigateur ne suit pas les `cd` | Le shell distant n'est pas bash ou zsh, ou l'option est désactivée dans les Paramètres. |
+| Le navigateur ne suit pas les `cd` | Le shell distant n'est pas bash ou zsh, l'option est désactivée dans les Paramètres, ou l'invite n'a pas été reconnue : recochez « Suivre le dossier du terminal » à l'invite du shell. |
 | Alerte « la clé du PSMP a changé » | Ne continuez que si l'équipe CyberArk confirme un changement du serveur. |
 
 ## Développement

@@ -49,6 +49,9 @@ public sealed class AppSettings
 
     public bool ShowHiddenFiles { get; set; }
 
+    /// <summary>Éditeur de texte pour « Modifier » dans l'onglet Fichiers (chemin d'un exécutable) ; vide = Bloc-notes.</summary>
+    public string TextEditor { get; set; } = "";
+
     /// <summary>Empreintes des clés d'hôte PSMP acceptées (« hôte:port » → « algorithme SHA256:... »).</summary>
     public Dictionary<string, string> KnownHosts { get; set; } = [];
 
