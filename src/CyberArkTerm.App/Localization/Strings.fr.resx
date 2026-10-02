@@ -1037,13 +1037,19 @@ Fermer quand même ? Les copies locales seront supprimées.</value>
     <value>Ouvrir les sessions Bureau à distance dans un onglet de CyberArkTerm, sinon dans la Connexion Bureau à distance (mstsc)</value>
   </data>
   <data name="PsmRemoteAppAsDesktop" xml:space="preserve">
-    <value>Afficher les applications distantes PSM (RemoteApp) dans l'onglet, comme un bureau, si le PSM l'accepte ; sinon leurs fenêtres s'ouvrent à part</value>
+    <value>Afficher les applications distantes PSM (RemoteApp) dans l'onglet, comme un bureau, si le PSM l'accepte (décochée d'elle-même s'il le refuse) ; sinon leurs fenêtres s'ouvrent à part</value>
   </data>
   <data name="RdpDesktopFromRemoteAppHint" xml:space="preserve">
     <value>Ce composant PSM est une application distante, ouverte ici comme un bureau. Si le PSM ne l'accepte pas, « Ouvrir en fenêtres séparées » la relance comme une application distante (nouvelle demande au PVWA). Pour le faire à chaque fois, décochez « Afficher les applications distantes PSM dans l'onglet » dans les Paramètres.</value>
   </data>
   <data name="RdpOpenRemoteAppWindows" xml:space="preserve">
     <value>Ouvrir en _fenêtres séparées</value>
+  </data>
+  <data name="RdpRemoteAppFallback" xml:space="preserve">
+    <value>Le PSM a fermé la session ouverte comme un bureau : nouvelle demande au PVWA pour ouvrir l'application en fenêtres séparées.</value>
+  </data>
+  <data name="PsmDesktopRefused" xml:space="preserve">
+    <value>{0} : le PSM refuse les applications distantes en bureau ; elles s'ouvrent maintenant en fenêtres séparées (option décochée dans les Paramètres).</value>
   </data>
   <data name="RdpNotResponding" xml:space="preserve">
     <value>{0} : le Bureau à distance ne répond pas. Le reste de CyberArkTerm reste utilisable ; vous pouvez fermer cet onglet.</value>

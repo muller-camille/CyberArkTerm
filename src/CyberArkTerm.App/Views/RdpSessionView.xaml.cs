@@ -37,7 +37,7 @@ public partial class RdpSessionView : UserControl
             case RdpSessionState.Connecting:
                 StatusLine.Text = Text.Format(Strings.RdpConnecting, server);
                 OverlayText.Text = Text.Format(Strings.RdpConnecting, session.Label);
-                OverlayDetail.Text = "";
+                OverlayDetail.Text = session.RemoteAppFallback ? Strings.RdpRemoteAppFallback : "";
                 ReconnectButton.Visibility = Visibility.Collapsed;
                 break;
             case RdpSessionState.Connected:
@@ -46,7 +46,10 @@ public partial class RdpSessionView : UserControl
                 {
                     // Les fenêtres de l'application distante sont sur le bureau de ce poste : l'onglet dit où elles sont.
                     OverlayText.Text = Text.Format(Strings.RdpRemoteAppOpened, session.RemoteAppName);
-                    OverlayDetail.Text = Strings.RdpRemoteAppHint;
+                    // Après un refus du bureau, la raison reste affichée : la barre d'état est vite remplacée.
+                    OverlayDetail.Text = session.RemoteAppFallback
+                        ? Text.Format(Strings.PsmDesktopRefused, session.Label) + "\n\n" + Strings.RdpRemoteAppHint
+                        : Strings.RdpRemoteAppHint;
                     ReconnectButton.Visibility = Visibility.Collapsed;
                 }
 
@@ -56,6 +59,14 @@ public partial class RdpSessionView : UserControl
                 StatusLine.Text = failed ? Strings.ConnectionImpossible : Strings.SessionEnded;
                 OverlayText.Text = StatusLine.Text;
                 OverlayDetail.Text = session.Error ?? "";
+                if (session.RemoteAppFallback)
+                {
+                    // Bureau refusé : la session est déjà rouverte en fenêtres séparées, rien à proposer.
+                    OverlayDetail.Text = Strings.RdpRemoteAppFallback;
+                    ReconnectButton.Visibility = Visibility.Collapsed;
+                    break;
+                }
+
                 if (session.DesktopFromRemoteApp && (session.ConnectedAt is not { } opened || DateTime.UtcNow - opened < TimeSpan.FromMinutes(1)))
                 {
                     // Fin rapide d'une application distante ouverte en bureau : le serveur refuse peut-être ce mode.

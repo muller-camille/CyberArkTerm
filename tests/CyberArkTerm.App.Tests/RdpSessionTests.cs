@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Threading;
@@ -235,6 +236,120 @@ public class RdpSessionTests(ITestOutputHelper output)
             Assert.Equal(RdpSessionState.Ended, await WaitForAsync(session, s => s is RdpSessionState.Ended or RdpSessionState.Failed, TimeSpan.FromSeconds(30)));
         });
     }
+
+    /// <summary>
+    /// Application distante ouverte comme un bureau que le serveur ferme aussitôt la session ouverte (comme un PSM qui
+    /// n'accepte que l'application distante) : l'onglet la rouvre de lui-même en fenêtres séparées. Le serveur de CI
+    /// accepte le bureau : le refus est simulé en fermant la session de test côté serveur.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "RdpIntegration")]
+    public async Task RemoteAppRefusedAsDesktopReopensInSeparateWindows()
+    {
+        if (IntegrationAccount() is not { } account)
+        {
+            return;
+        }
+
+        var settings = PsmRemoteAppFile(account.User).RemoteAppAsDesktop();
+        Assert.NotNull(settings);
+        var request = new RdpConnectionRequest(settings, account.Password);
+        var user = account.User.Split('\\')[^1];
+
+        await RunOnStaAsync(request, async session =>
+        {
+            int refused = 0;
+            session.DesktopRefused += () => refused++;
+            await session.ConnectAsync();
+            Assert.Equal(RdpSessionState.Connected, await WaitForAsync(session, s => s != RdpSessionState.Connecting, TimeSpan.FromSeconds(90)));
+            Assert.True(session.DesktopFromRemoteApp);
+
+            var closed = LogoffActiveSessions(user);
+            output.WriteLine($"Sessions de {user} fermées côté serveur : {string.Join(", ", closed)}");
+            Assert.NotEmpty(closed);
+
+            // Fin de session (le refus est signalé juste après), puis nouvelle connexion en fenêtres séparées.
+            var state = await WaitForAsync(session, s => refused > 0 && s != RdpSessionState.Connecting, TimeSpan.FromSeconds(90));
+            output.WriteLine($"Après le refus : {state}, raison {session.DisconnectReason}, {session.Error}");
+            Assert.Equal(1, refused);
+            Assert.Equal(RdpSessionState.Connected, state);
+            Assert.True(session.IsRemoteApp);
+            Assert.True(session.RemoteAppFallback);
+            Assert.False(session.DesktopFromRemoteApp);
+
+            session.Disconnect();
+            Assert.Equal(RdpSessionState.Ended, await WaitForAsync(session, s => s is RdpSessionState.Ended or RdpSessionState.Failed, TimeSpan.FromSeconds(30)));
+            Assert.Equal(1, refused);
+            Assert.False(session.RemoteAppFallback);
+        });
+    }
+
+    /// <summary>Ferme (côté serveur) les sessions actives de <paramref name="user"/> sur ce poste ; renvoie leurs numéros.</summary>
+    private static List<int> LogoffActiveSessions(string user)
+    {
+        const int WtsActive = 0;
+        const int WtsUserName = 5;
+        var closed = new List<int>();
+        if (!WTSEnumerateSessions(IntPtr.Zero, 0, 1, out var sessions, out int count))
+        {
+            throw new System.ComponentModel.Win32Exception();
+        }
+
+        try
+        {
+            int size = Marshal.SizeOf<WtsSessionInfo>();
+            for (int i = 0; i < count; i++)
+            {
+                var info = Marshal.PtrToStructure<WtsSessionInfo>(sessions + (i * size));
+                if (info.State != WtsActive || !WTSQuerySessionInformation(IntPtr.Zero, info.SessionId, WtsUserName, out var name, out _))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    if (string.Equals(Marshal.PtrToStringUni(name), user, StringComparison.OrdinalIgnoreCase)
+                        && WTSLogoffSession(IntPtr.Zero, info.SessionId, false))
+                    {
+                        closed.Add(info.SessionId);
+                    }
+                }
+                finally
+                {
+                    WTSFreeMemory(name);
+                }
+            }
+        }
+        finally
+        {
+            WTSFreeMemory(sessions);
+        }
+
+        return closed;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct WtsSessionInfo
+    {
+        public int SessionId;
+        public IntPtr WinStationName;
+        public int State;
+    }
+
+    [DllImport("wtsapi32.dll", EntryPoint = "WTSEnumerateSessionsW", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool WTSEnumerateSessions(IntPtr server, int reserved, int version, out IntPtr sessions, out int count);
+
+    [DllImport("wtsapi32.dll", EntryPoint = "WTSQuerySessionInformationW", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool WTSQuerySessionInformation(IntPtr server, int sessionId, int infoClass, out IntPtr buffer, out int bytes);
+
+    [DllImport("wtsapi32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool WTSLogoffSession(IntPtr server, int sessionId, [MarshalAs(UnmanagedType.Bool)] bool wait);
+
+    [DllImport("wtsapi32.dll")]
+    private static extern void WTSFreeMemory(IntPtr memory);
 
     /// <summary>Fichier RemoteApp structuré comme celui du PVWA, avec le Bloc-notes comme application publiée.</summary>
     private static RdpConnectionSettings PsmRemoteAppFile(string user) => RdpConnectionSettings.FromRdpFile(Encoding.Unicode.GetBytes(
