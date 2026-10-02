@@ -29,6 +29,8 @@ internal sealed class RemoteAppDock : IDisposable
     private const uint SwpFrameChanged = 0x0020;
     private const uint SwpShowWindow = 0x0040;
     private const int SwRestore = 9;
+    private const int WmActivate = 0x0006;
+    private const int WaActive = 1;
 
     private static readonly IntPtr MessageOnlyParent = new(-3);
 
@@ -64,7 +66,12 @@ internal sealed class RemoteAppDock : IDisposable
         Update();
     }
 
-    /// <summary>Donne le clavier à la fenêtre de l'application ; faux s'il n'y en a pas dans l'onglet.</summary>
+    /// <summary>
+    /// Donne le clavier à la fenêtre de l'application ; faux s'il n'y en a pas dans l'onglet. Le serveur envoie la
+    /// frappe à sa fenêtre active : rattachée à l'onglet, la fenêtre n'est plus activée par Windows, et le contrôle
+    /// ne le signale plus au serveur ; l'activation lui est donc envoyée (constaté : sans elle, ni clic préalable, la
+    /// frappe n'arrive pas à l'application).
+    /// </summary>
     public bool Focus()
     {
         if (_docked == IntPtr.Zero || !IsWindow(_docked))
@@ -72,6 +79,7 @@ internal sealed class RemoteAppDock : IDisposable
             return false;
         }
 
+        PostMessage(_docked, WmActivate, new IntPtr(WaActive), IntPtr.Zero);
         var focus = GetFocus();
         if (focus != _docked && !IsChild(_docked, focus))
         {
@@ -212,6 +220,10 @@ internal sealed class RemoteAppDock : IDisposable
 
     [DllImport("user32.dll")]
     private static extern IntPtr GetFocus();
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool PostMessage(IntPtr window, int message, IntPtr wParam, IntPtr lParam);
 
     [DllImport("user32.dll")]
     private static extern IntPtr SetFocus(IntPtr window);
