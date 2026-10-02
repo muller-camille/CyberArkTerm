@@ -382,6 +382,8 @@ public class RdpSessionTests(ITestOutputHelper output)
             var slot = session.Host.SlotHandle;
             var app = Win32Input.Descendants(slot).FirstOrDefault(h => Win32Input.ClassName(h) == "RAIL_WINDOW");
             Assert.NotEqual(IntPtr.Zero, app);
+            // Le serveur peut encore donner sa taille d'origine à la fenêtre juste après : elle est remise en place.
+            await FitsAsync(slot, app);
             output.WriteLine($"Dans l'onglet : « {Win32Input.Title(app)} » {Win32Input.ScreenBounds(app)}, onglet {Win32Input.ScreenBounds(slot)}");
             Assert.Equal(Win32Input.ScreenBounds(slot), Win32Input.ScreenBounds(app));
 
@@ -398,7 +400,8 @@ public class RdpSessionTests(ITestOutputHelper output)
             // Taille de l'onglet : l'application suit.
             window.Width -= 160;
             window.Height -= 100;
-            await Task.Delay(1500);
+            await Task.Delay(500);
+            await FitsAsync(slot, app);
             output.WriteLine($"Après redimensionnement : {Win32Input.ScreenBounds(app)}, onglet {Win32Input.ScreenBounds(slot)}");
             Assert.Equal(Win32Input.ScreenBounds(slot), Win32Input.ScreenBounds(app));
 
@@ -428,6 +431,15 @@ public class RdpSessionTests(ITestOutputHelper output)
             Assert.False(session.RemoteAppShown);
             Assert.False(Win32Input.IsChild(slot, app), "Fenêtre de l'application encore dans l'onglet");
         }, remoteAppInTab: true);
+    }
+
+    /// <summary>Attend (5 s au plus) que <paramref name="app"/> occupe exactement <paramref name="slot"/>.</summary>
+    private static async Task FitsAsync(IntPtr slot, IntPtr app)
+    {
+        for (int i = 0; i < 50 && Win32Input.ScreenBounds(slot) != Win32Input.ScreenBounds(app); i++)
+        {
+            await Task.Delay(100);
+        }
     }
 
     /// <summary>

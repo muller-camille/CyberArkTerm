@@ -31,6 +31,8 @@ internal sealed class RemoteAppDock : IDisposable
     private const int SwRestore = 9;
     private const int WmActivate = 0x0006;
     private const int WaActive = 1;
+    private const uint EventObjectLocationChange = 0x800B;
+    private const uint WinEventOutOfContext = 0;
 
     private static readonly IntPtr MessageOnlyParent = new(-3);
 
@@ -39,7 +41,10 @@ internal sealed class RemoteAppDock : IDisposable
     private readonly string _label;
     private readonly List<IntPtr> _windows = [];
     private readonly System.Windows.Forms.Timer _timer;
+    private readonly WinEventProc _onLocationChange;
     private IntPtr _docked;
+    private IntPtr _hook;
+    private int _hookedThread;
     private bool _shown;
 
     /// <param name="container">Conteneur du contrôle dans l'onglet (thread de la connexion).</param>
@@ -49,6 +54,7 @@ internal sealed class RemoteAppDock : IDisposable
         _container = container;
         _changed = changed;
         _label = label;
+        _onLocationChange = OnLocationChange;
         // Filet de sécurité : fenêtre fermée, déplacée ou réduite par le serveur.
         _timer = new System.Windows.Forms.Timer { Interval = 500 };
         _timer.Tick += (_, _) => Update();
@@ -121,6 +127,12 @@ internal sealed class RemoteAppDock : IDisposable
     {
         _timer.Stop();
         _timer.Dispose();
+        if (_hook != IntPtr.Zero)
+        {
+            UnhookWinEvent(_hook);
+            _hook = IntPtr.Zero;
+        }
+
         if (_docked != IntPtr.Zero && IsWindow(_docked))
         {
             ShowWindow(_docked, 0);
@@ -166,6 +178,29 @@ internal sealed class RemoteAppDock : IDisposable
         SetWindowPos(window, IntPtr.Zero, 0, 0, Math.Max(target.Width, 1), Math.Max(target.Height, 1),
             SwpFrameChanged | SwpShowWindow | SwpNoActivate);
         _docked = window;
+        // Le serveur peut encore lui donner sa taille d'origine juste après (constaté) : remise en place aussitôt,
+        // sans attendre la minuterie.
+        int thread = GetWindowThreadProcessId(window, out int process);
+        if (thread != _hookedThread)
+        {
+            if (_hook != IntPtr.Zero)
+            {
+                UnhookWinEvent(_hook);
+            }
+
+            _hook = SetWinEventHook(EventObjectLocationChange, EventObjectLocationChange, IntPtr.Zero, _onLocationChange,
+                process, thread, WinEventOutOfContext);
+            _hookedThread = thread;
+        }
+    }
+
+    /// <summary>Fenêtre déplacée ou redimensionnée (notification de Windows, sur le thread de la connexion).</summary>
+    private void OnLocationChange(IntPtr hook, uint eventType, IntPtr window, int objectId, int childId, int thread, uint time)
+    {
+        if (window == _docked && objectId == 0)
+        {
+            Fit();
+        }
     }
 
     /// <summary>
@@ -201,6 +236,19 @@ internal sealed class RemoteAppDock : IDisposable
 
         public readonly int Height => Bottom - Top;
     }
+
+    private delegate void WinEventProc(IntPtr hook, uint eventType, IntPtr window, int objectId, int childId, int thread, uint time);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr module, WinEventProc callback, int process,
+        int thread, uint flags);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool UnhookWinEvent(IntPtr hook);
+
+    [DllImport("user32.dll")]
+    private static extern int GetWindowThreadProcessId(IntPtr window, out int process);
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
