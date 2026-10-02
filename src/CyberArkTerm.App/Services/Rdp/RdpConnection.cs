@@ -178,6 +178,9 @@ internal sealed class RdpConnection
         Subscribe(ocx, DispIdFatalError, new Action<int>(OnFatalError));
         Subscribe(ocx, DispIdRemoteProgramResult, new Action<string, int, bool>(OnRemoteProgramResult));
         Subscribe(ocx, DispIdRemoteProgramDisplayed, new Action<bool, uint>(OnRemoteProgramDisplayed));
+        // Expérience : fenêtres d'application distante signalées par le contrôle (OnRemoteWindowDisplayed).
+        Subscribe(ocx, 29, new Action<object, object, object>((displayed, hwnd, attribute) =>
+            ToSession(s => s.AddRemoteAppEvent($"window {displayed} {hwnd?.GetType().Name}:{hwnd} {attribute}"))));
         Subscribe(ocx, DispIdEnterFullScreen, new Action(() => ToSession(s => s.OnFullScreenChanged(this, true))));
         Subscribe(ocx, DispIdLeaveFullScreen, new Action(() =>
         {

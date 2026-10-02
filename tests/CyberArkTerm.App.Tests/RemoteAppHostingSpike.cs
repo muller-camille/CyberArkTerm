@@ -86,8 +86,6 @@ public class RemoteAppHostingSpike(ITestOutputHelper output)
 
         output.WriteLine($"État : {session.State}, {session.Error}");
         Assert.Equal(RdpSessionState.Connected, session.State);
-
-        // Fenêtres de l'application distante : créées par le contrôle, dans ce processus.
         IntPtr main = IntPtr.Zero;
         for (int i = 0; i < 40 && main == IntPtr.Zero; i++)
         {
@@ -96,81 +94,58 @@ public class RemoteAppHostingSpike(ITestOutputHelper output)
                 .OrderByDescending(h => Area(h)).FirstOrDefault();
         }
 
-        output.WriteLine("Fenêtres visibles du processus :");
-        foreach (var h in Ours().Where(IsWindowVisible))
-        {
-            output.WriteLine("  " + Describe(h));
-        }
-
         Assert.NotEqual(IntPtr.Zero, main);
         output.WriteLine($"Fenêtre principale : {Describe(main)}");
-        Shot(main, "1-toplevel");
+        output.WriteLine($"Événements : {string.Join(" | ", session.RemoteAppEvents)}");
         int connectionThread = await session.InvokeOnControlAsync(_ => GetCurrentThreadId());
         output.WriteLine($"Thread de la connexion : {connectionThread}");
         var host = new System.Windows.Interop.WindowInteropHelper(window).Handle;
 
-        // E0. Clic droit au centre de la fenêtre encore à part : où s'ouvre le menu contextuel ? (référence)
-        await RightClick(main, host, "E0 à part");
-
-        // A. Déplacement d'une fenêtre de premier niveau : le serveur le garde-t-il ?
-        SetWindowPos(main, IntPtr.Zero, 300, 200, 640, 420, SwpNoZOrder | SwpNoActivate);
-        await Track(main, "A déplacement", 4000);
-        Shot(main, "2-moved");
-
-        // B. Rattachement à l'emplacement de l'onglet (fenêtre enfant).
+        // Rattachement au conteneur du contrôle (thread de la connexion), lui-même dans l'emplacement de l'onglet.
         session.Host.Visibility = Visibility.Visible;
         session.Host.UpdateLayout();
         await Task.Delay(300);
         var slot = session.Host.SlotHandle;
-        GetClientRect(slot, out var slotRect);
-        output.WriteLine($"Emplacement : {slot} {slotRect.Width}x{slotRect.Height}, écran {Screen(slot)}");
-        long style = GetWindowLongPtr(main, GwlStyle).ToInt64();
-        var previous = SetParent(main, slot);
-        output.WriteLine($"SetParent : précédent {previous}, erreur {Marshal.GetLastWin32Error()}");
-        SetWindowLongPtr(main, GwlStyle, new IntPtr((style & ~WsPopup) | WsChild));
-        SetWindowPos(main, IntPtr.Zero, 0, 0, slotRect.Width, slotRect.Height, SwpNoZOrder | SwpFrameChanged | SwpShowWindow);
-        await Track(main, "B enfant", 6000);
-        ShotScreen(Screen(slot), "3-child-slot");
-
-        // C. Saisie : la frappe atteint-elle l'application (titre « *… ») ?
-        var before = Title(main);
-        foreach (var c in "abc")
+        var container = GetWindow(slot, 5);
+        output.WriteLine($"Conteneur : {Describe(container)}");
+        await session.InvokeOnControlAsync(_ =>
         {
-            uint scan = MapVirtualKey(char.ToUpperInvariant(c), 0);
-            PostMessage(main, WmKeyDown, new IntPtr(char.ToUpperInvariant(c)), new IntPtr(1 | (scan << 16)));
-            PostMessage(main, WmKeyUp, new IntPtr(char.ToUpperInvariant(c)), new IntPtr(1 | (scan << 16) | (3u << 30)));
-        }
+            long style = GetWindowLongPtr(main, GwlStyle).ToInt64();
+            SetParent(main, container);
+            SetWindowLongPtr(main, GwlStyle, new IntPtr((style & ~WsPopup) | WsChild));
+            GetClientRect(container, out var c);
+            SetWindowPos(main, new IntPtr(0), 0, 0, c.Width, c.Height, SwpFrameChanged | SwpShowWindow);
+            return 0;
+        });
+        await Track(main, "B conteneur", 2000);
+        ShotScreen(Screen(slot), "3-container");
+        await RightClick(main, host, "E1 conteneur");
+        await TypeAndCopy(main, host, "K conteneur", "bonjour", setFocus: false);
+        await session.InvokeOnControlAsync(_ => SetFocus(main));
+        await TypeAndCopy(main, host, "K conteneur SetFocus", "monde", setFocus: false);
 
-        await Task.Delay(2500);
-        output.WriteLine($"C saisie (PostMessage) : titre « {before} » → « {Title(main)} »");
+        // Boutons du titre dessiné par le serveur : réduire, puis agrandir.
+        GetWindowRect(main, out var r);
+        await ClickAt(host, r.Right - 115, r.Top + 15, "M réduire");
+        await Track(main, "M réduite", 2000);
+        output.WriteLine($"M : réduite {IsIconic(main)}");
+        await session.InvokeOnControlAsync(_ => ShowWindow(main, 9));
+        await Track(main, "M restaurée", 2000);
+        output.WriteLine($"M : réduite {IsIconic(main)}");
+        GetWindowRect(main, out r);
+        await ClickAt(host, r.Right - 69, r.Top + 15, "X agrandir");
+        await Track(main, "X agrandie", 2000);
+        await session.InvokeOnControlAsync(_ =>
+        {
+            GetClientRect(container, out var c);
+            SetWindowPos(main, IntPtr.Zero, 0, 0, c.Width, c.Height, SwpNoZOrder | SwpNoActivate);
+            return 0;
+        });
+        await Track(main, "X réajustée", 2000);
+        await RightClick(main, host, "E2 après agrandissement");
+        ShotScreen(Screen(slot), "4-after-maximize");
 
-        // E1. Clic droit dans la fenêtre rattachée : le menu s'ouvre-t-il sous la souris ?
-        await RightClick(main, host, "E1 dans l'onglet");
-
-        // D. Redimensionnement de l'onglet : la fenêtre suit-elle si on la redimensionne ?
-        window.Width = 800;
-        window.Height = 560;
-        await Task.Delay(500);
-        GetClientRect(slot, out slotRect);
-        SetWindowPos(main, IntPtr.Zero, 0, 0, slotRect.Width, slotRect.Height, SwpNoZOrder | SwpNoActivate);
-        await Track(main, "D redimensionnée", 4000);
-        ShotScreen(Screen(slot), "4-child-resized");
-
-        // E2. Après redimensionnement, même mesure.
-        await RightClick(main, host, "E2 redimensionnée");
-
-        // K. Vrai clavier : clic gauche dans la fenêtre, frappe, Ctrl+A, Ctrl+C ; le presse-papiers (redirigé) le dit.
-        await TypeAndCopy(main, host, "K clic", "bonjour", setFocus: false);
-        await TypeAndCopy(main, host, "K SetFocus", "monde", setFocus: true);
-
-        // H. Changement d'onglet : emplacement masqué puis réaffiché.
-        session.Host.Visibility = Visibility.Hidden;
-        await Track(main, "H masquée", 2000);
-        session.Host.Visibility = Visibility.Visible;
-        await Track(main, "H réaffichée", 2000);
-        ShotScreen(Screen(slot), "5-shown-again");
-        await RightClick(main, host, "E3 réaffichée");
-
+        output.WriteLine($"Événements : {string.Join(" | ", session.RemoteAppEvents)}");
         output.WriteLine("Fenêtres après :");
         foreach (var h in Ours().Where(IsWindowVisible))
         {
@@ -181,6 +156,23 @@ public class RemoteAppHostingSpike(ITestOutputHelper output)
         await Task.Delay(3000);
         output.WriteLine($"Fin : {session.State}");
     }
+
+    private async Task ClickAt(IntPtr host, int x, int y, string step)
+    {
+        SetForegroundWindow(host);
+        await Task.Delay(300);
+        SetCursorPos(x, y);
+        await Task.Delay(200);
+        output.WriteLine($"{step} : clic en ({x},{y}) sur {Describe(WindowFromPoint(new Point32 { X = x, Y = y }))}");
+        Click(0x0002, 0x0004);
+        await Task.Delay(1500);
+    }
+
+    [DllImport("user32.dll")]
+    private static extern bool IsIconic(IntPtr h);
+
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(IntPtr h, int cmd);
 
     /// <summary>
     /// Clic droit au centre de <paramref name="main"/> (vraie souris) : nouvelles fenêtres de l'application distante et
