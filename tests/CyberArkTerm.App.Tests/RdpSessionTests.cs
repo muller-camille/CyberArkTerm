@@ -144,6 +144,56 @@ public class RdpSessionTests(ITestOutputHelper output)
     }
 
     /// <summary>
+    /// Fichier d'application distante ouvert comme un bureau (option des composants PSM en RemoteApp) : la session
+    /// s'affiche dans l'onglet et son programme de démarrage (« alternate shell ») tourne dans la session distante.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "RdpIntegration")]
+    public async Task RemoteAppFileOpensAsDesktopOnARealServer()
+    {
+        if (IntegrationAccount() is not { } account)
+        {
+            return;
+        }
+
+        var settings = RdpConnectionSettings.FromRdpFile(Encoding.Unicode.GetBytes(
+            $"full address:s:127.0.0.2:3389\r\nusername:s:{account.User}\r\nauthentication level:i:0\r\nenablecredsspsupport:i:1\r\n" +
+            "alternate shell:s:C:\\Windows\\System32\\notepad.exe\r\nremoteapplicationmode:i:1\r\n" +
+            "remoteapplicationprogram:s:||PSMInitSession\r\nremoteapplicationname:s:PSM-RDP\r\n")).RemoteAppAsDesktop();
+        Assert.NotNull(settings);
+        var request = new RdpConnectionRequest(settings, account.Password);
+        int ourSession = System.Diagnostics.Process.GetCurrentProcess().SessionId;
+
+        await RunOnStaAsync(request, async session =>
+        {
+            await session.ConnectAsync();
+            var state = await WaitForAsync(session, s => s != RdpSessionState.Connecting, TimeSpan.FromSeconds(90));
+            output.WriteLine($"Application distante en bureau : {state}, raison {session.DisconnectReason}, {session.Error}");
+            Assert.Equal(RdpSessionState.Connected, state);
+            Assert.True(session.ShowsDesktop);
+            Assert.False(session.IsRemoteApp);
+            Assert.True(session.DesktopFromRemoteApp);
+
+            bool started = false;
+            for (int i = 0; i < 60 && !started; i++)
+            {
+                started = System.Diagnostics.Process.GetProcessesByName("notepad").Any(p => p.SessionId != ourSession);
+                if (!started)
+                {
+                    await Task.Delay(500);
+                }
+            }
+
+            output.WriteLine($"Programme de démarrage lancé : {started}");
+            output.WriteLine(OtherSessions(ourSession));
+            Assert.True(started, "Programme de démarrage non lancé dans la session distante");
+
+            session.Disconnect();
+            Assert.Equal(RdpSessionState.Ended, await WaitForAsync(session, s => s is RdpSessionState.Ended or RdpSessionState.Failed, TimeSpan.FromSeconds(30)));
+        });
+    }
+
+    /// <summary>
     /// Application distante inconnue du serveur : la session se termine avec une explication, au lieu de rester
     /// ouverte sans rien afficher. (Le serveur annonce les applications distantes : pas de « disableremoteappcapscheck ».)
     /// </summary>

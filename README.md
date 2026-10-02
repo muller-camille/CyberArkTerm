@@ -122,7 +122,10 @@ moteur que `mstsc`) :
   (le jeton d'une session PSM ne sert qu'une fois) ;
 - fermer l'onglet (croix ou clic molette) déconnecte la session, après confirmation.
 
-Un composant PSM en **application distante** (RemoteApp) passe aussi par le contrôle intégré : ses fenêtres
+Un composant PSM en **application distante** (RemoteApp) s'affiche lui aussi **dans l'onglet** : CyberArkTerm
+ouvre la même connexion comme un bureau, avec la même demande de session PSM, comme une connexion PSM classique.
+Le serveur PSM doit accepter les sessions en bureau ; sinon, décochez « Afficher les applications distantes PSM
+dans l'onglet » dans les Paramètres : l'application passe alors aussi par le contrôle intégré, mais ses fenêtres
 s'ouvrent à part, sur le bureau du poste comme avec `mstsc`, et l'onglet affiche son état (« Déconnecter » la
 ferme, « Reconnecter » la relance).
 
@@ -268,6 +271,7 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Garder la session PVWA ouverte | Requête légère toutes les 4 minutes ; suspendue quand Windows est verrouillé | oui |
 | Coffre local | Mots de passe maîtres KeePass mémorisés : créer, déverrouiller, changer le mot de passe, supprimer | — |
 | Bureau à distance dans CyberArkTerm | Sessions PSM en onglet ; sinon Connexion Bureau à distance (`mstsc`) | oui |
+| Applications distantes PSM dans l'onglet | Composants PSM en RemoteApp ouverts comme un bureau dans l'onglet (le PSM doit l'accepter) ; sinon fenêtres à part | oui |
 | Adresse et port PSMP | Serveur PSM for SSH ; vide = SSH désactivé | vide, 22 |
 | Double-clic Unix = SSH | Ouvre les comptes Unix en SSH plutôt qu'en PSM | non |
 | SSH dans CyberArkTerm | Terminal et onglet Fichiers intégrés ; sinon Windows Terminal | oui |
@@ -350,14 +354,19 @@ réglages : `full address`, `username`, `alternate shell` (lancement de la sessi
 d'authentification du serveur, NLA (CredSSP), passerelle, redirections, son, effets visuels. Les fermetures
 de session et les erreurs de connexion sont expliquées dans l'onglet avec le message de Windows.
 
-Pour une application distante (`remoteapplicationmode:i:1`), le contrôle passe en mode RemoteApp
+Un composant PSM en application distante est ouvert par défaut comme un bureau : mode RemoteApp désactivé, et
+`alternate shell` (pour le PSM, la demande de session `PSM@…`) lance la session comme une connexion PSM classique.
+La signature du fichier (`signature`) n'est vérifiée que par `mstsc`, ni par le contrôle ni par le serveur.
+
+Sinon (option décochée, ou fichier sans `alternate shell`), pour une application distante
+(`remoteapplicationmode:i:1`), le contrôle passe en mode RemoteApp
 (`disableremoteappcapscheck` repris), puis lance l'application une fois la session ouverte, une seule fois par
 connexion : `remoteapplicationprogram` (pour le PSM, `||PSMInitSession`) avec les arguments
 `remoteapplicationcmdline` ; `remoteapplicationname` sert à l'affichage et `alternate shell` ne sert pas. Si le
 serveur refuse l'application, la session se termine avec la raison. Le bureau distant prend la taille de
 l'ensemble des écrans pour que les fenêtres puissent aller partout. Un test d'intégration (workflow
 `rdp-integration`) ouvre de vraies sessions sur le poste de CI : bureau en onglet, Bloc-notes en application
-distante, et application inconnue (message d'erreur).
+distante, fichier d'application distante ouvert en bureau, et application inconnue (message d'erreur).
 
 ### Sessions PSMP
 

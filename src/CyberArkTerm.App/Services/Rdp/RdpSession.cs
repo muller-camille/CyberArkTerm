@@ -111,6 +111,12 @@ internal sealed class RdpSession : IDisposable
     /// <summary>Vrai si l'onglet affiche le bureau distant.</summary>
     public bool ShowsDesktop => HasControl && !IsRemoteApp;
 
+    /// <summary>Application distante PSM ouverte comme un bureau (le serveur peut refuser ce mode).</summary>
+    public bool DesktopFromRemoteApp { get; private set; }
+
+    /// <summary>Ouverture de la session (fin de l'ouverture de session Windows), ou null.</summary>
+    public DateTime? ConnectedAt { get; private set; }
+
     /// <summary>Événements « application distante » reçus du contrôle (diagnostic).</summary>
     internal List<string> RemoteAppEvents { get; } = [];
 
@@ -121,6 +127,7 @@ internal sealed class RdpSession : IDisposable
         _programError = null;
         _remoteApp = null;
         _programStarted = false;
+        ConnectedAt = null;
         ControlFailed = false;
         DisconnectReason = null;
         SetState(RdpSessionState.Connecting);
@@ -150,6 +157,7 @@ internal sealed class RdpSession : IDisposable
         {
             Server = request.Settings.Server;
             IsRemoteApp = request.Settings.IsRemoteApp;
+            DesktopFromRemoteApp = request.Settings.DesktopFromRemoteApp;
             RemoteAppName = IsRemoteApp ? request.Settings.RemoteApplicationTitle : "";
             StartClient(request);
         }
@@ -403,6 +411,7 @@ internal sealed class RdpSession : IDisposable
     private void OnLoginComplete()
     {
         _loggedIn = true;
+        ConnectedAt = DateTime.UtcNow;
         if (_remoteApp is not null)
         {
             // Hors de l'événement du contrôle.

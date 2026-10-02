@@ -119,9 +119,12 @@ motore di `mstsc`):
   (il token di una sessione PSM vale una sola volta);
 - chiudere la scheda (croce o clic centrale) disconnette la sessione, dopo conferma.
 
-Un componente PSM che apre un'**applicazione remota** (RemoteApp) passa anch'esso dal controllo integrato: le
-sue finestre si aprono a parte, sul desktop del computer come con `mstsc`, e la scheda ne mostra lo stato
-(«Disconnetti» la chiude, «Riconnetti» la riavvia).
+Anche un componente PSM che apre un'**applicazione remota** (RemoteApp) si mostra **nella scheda**: CyberArkTerm
+apre la stessa connessione come desktop, con la stessa richiesta di sessione PSM, come una connessione PSM classica.
+Il server PSM deve accettare le sessioni desktop; altrimenti, disattiva «Mostra le applicazioni remote PSM nella
+scheda» nelle Impostazioni: l'applicazione passa comunque dal controllo integrato, ma le sue finestre si aprono a
+parte, sul desktop del computer come con `mstsc`, e la scheda ne mostra lo stato («Disconnetti» la chiude,
+«Riconnetti» la riavvia).
 
 La sessione si apre in **Connessione Desktop remoto** (`mstsc`) se l'opzione è disattivata nelle Impostazioni o
 se il controllo Desktop remoto non è utilizzabile sul computer; la barra di stato indica il motivo.
@@ -263,6 +266,7 @@ password, elimina.
 | Mantenere aperta la sessione PVWA | Richiesta leggera ogni 4 minuti; sospesa quando Windows è bloccato | sì |
 | Vault locale | Password principali KeePass memorizzate: crea, sblocca, cambia password, elimina | — |
 | Desktop remoto in CyberArkTerm | Sessioni PSM in una scheda; altrimenti Connessione Desktop remoto (`mstsc`) | sì |
+| Applicazioni remote PSM nella scheda | Componenti PSM RemoteApp aperti come desktop nella scheda (il PSM deve accettarlo); altrimenti finestre separate | sì |
 | SSH in CyberArkTerm | Terminale e scheda File integrati; altrimenti Windows Terminal | sì |
 | Segui la cartella del terminale | Consente di attivare il monitoraggio della cartella nella shell | sì |
 | Invio dei file | SCP o SFTP | SCP |
@@ -343,14 +347,21 @@ recente disponibile). CyberArkTerm legge il file RDP restituito da `PSMConnect` 
 NLA (CredSSP), gateway, reindirizzamenti, audio, effetti visivi. Le chiusure di sessione e gli errori di
 connessione sono spiegati nella scheda con il messaggio di Windows.
 
-Per un'applicazione remota (`remoteapplicationmode:i:1`), il controllo passa in modalità RemoteApp
+Un componente PSM con applicazione remota viene aperto per impostazione predefinita come desktop: modalità
+RemoteApp disattivata, e `alternate shell` (per il PSM, la richiesta di sessione `PSM@…`) avvia la sessione come
+una connessione PSM classica. La firma del file (`signature`) è verificata solo da `mstsc`, non dal controllo né
+dal server.
+
+Altrimenti (opzione disattivata, o file senza `alternate shell`), per un'applicazione remota
+(`remoteapplicationmode:i:1`), il controllo passa in modalità RemoteApp
 (`disableremoteappcapscheck` applicato), poi avvia l'applicazione una volta aperta la sessione, una sola volta per
 connessione: `remoteapplicationprogram` (per il PSM, `||PSMInitSession`) con gli argomenti
 `remoteapplicationcmdline`; `remoteapplicationname` serve per la visualizzazione e `alternate shell` non viene
 usato. Se il server rifiuta l'applicazione, la sessione termina con il motivo. Il desktop remoto prende la
 dimensione di tutti gli schermi perché le finestre possano andare ovunque. Un test di integrazione (workflow
 `rdp-integration`) apre sessioni reali sul computer di CI: un desktop in una scheda, il Blocco note come
-applicazione remota e un'applicazione sconosciuta (messaggio di errore).
+applicazione remota, un file di applicazione remota aperto come desktop e un'applicazione sconosciuta (messaggio
+di errore).
 
 ### Sessioni PSMP
 

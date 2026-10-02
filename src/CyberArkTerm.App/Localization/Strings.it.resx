@@ -1024,6 +1024,12 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
   <data name="RdpInApp" xml:space="preserve">
     <value>Apri le sessioni Desktop remoto in una scheda di CyberArkTerm, altrimenti in Connessione Desktop remoto (mstsc)</value>
   </data>
+  <data name="PsmRemoteAppAsDesktop" xml:space="preserve">
+    <value>Mostra le applicazioni remote PSM (RemoteApp) nella scheda come desktop, se il PSM lo accetta; altrimenti le loro finestre si aprono a parte</value>
+  </data>
+  <data name="RdpDesktopFromRemoteAppHint" xml:space="preserve">
+    <value>Questo componente PSM è un'applicazione remota, aperta qui come desktop. Se il PSM non lo accetta, disattiva «Mostra le applicazioni remote PSM nella scheda» nelle Impostazioni: le sue finestre si apriranno allora a parte.</value>
+  </data>
   <data name="KeePassFolderTitle" xml:space="preserve">
     <value>Archivio KeePass</value>
   </data>

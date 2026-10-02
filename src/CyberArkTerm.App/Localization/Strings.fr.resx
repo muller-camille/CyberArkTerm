@@ -1024,6 +1024,12 @@ Fermer quand même ? Les copies locales seront supprimées.</value>
   <data name="RdpInApp" xml:space="preserve">
     <value>Ouvrir les sessions Bureau à distance dans un onglet de CyberArkTerm, sinon dans la Connexion Bureau à distance (mstsc)</value>
   </data>
+  <data name="PsmRemoteAppAsDesktop" xml:space="preserve">
+    <value>Afficher les applications distantes PSM (RemoteApp) dans l'onglet, comme un bureau, si le PSM l'accepte ; sinon leurs fenêtres s'ouvrent à part</value>
+  </data>
+  <data name="RdpDesktopFromRemoteAppHint" xml:space="preserve">
+    <value>Ce composant PSM est une application distante, ouverte ici comme un bureau. Si le PSM ne l'accepte pas, décochez « Afficher les applications distantes PSM dans l'onglet » dans les Paramètres : ses fenêtres s'ouvriront alors à part.</value>
+  </data>
   <data name="KeePassFolderTitle" xml:space="preserve">
     <value>Coffre KeePass</value>
   </data>
