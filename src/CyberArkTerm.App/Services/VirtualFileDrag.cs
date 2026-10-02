@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Windows.Threading;
 using CyberArkTerm.Core.Diagnostics;
 using CyberArkTerm.Core.Ssh;
 using ComDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
@@ -11,9 +12,12 @@ namespace CyberArkTerm.App.Services;
 /// l'Explorateur ne voit que leurs noms, tailles et dates (FileGroupDescriptorW) ; au dépôt, il demande leur contenu
 /// (FileContents) et ce n'est qu'alors qu'ils sont téléchargés, puis lus par l'Explorateur qui les écrit dans le
 /// dossier de dépôt. En mode asynchrone, l'Explorateur fait la copie dans son propre thread : il reste utilisable.
+/// Les appels de l'Explorateur arrivent sur le thread de l'interface qui a créé l'objet (marshaling OLE standard,
+/// au lieu de celui de .NET qui les ferait arriver sur n'importe quel thread) : la fenêtre de progression du
+/// téléchargement doit s'ouvrir sur ce thread.
 /// </summary>
 [ComVisible(true)]
-internal sealed class VirtualFileDataObject : ComDataObject, IDataObjectAsyncCapability
+internal sealed class VirtualFileDataObject : StandardOleMarshalObject, ComDataObject, IDataObjectAsyncCapability
 {
     private const int S_OK = 0;
     private const int DV_E_FORMATETC = unchecked((int)0x80040064);
@@ -23,6 +27,7 @@ internal sealed class VirtualFileDataObject : ComDataObject, IDataObjectAsyncCap
     private const int OLE_E_ADVISENOTSUPPORTED = unchecked((int)0x80040003);
     private const int E_NOTIMPL = unchecked((int)0x80004001);
     private const int E_ABORT = unchecked((int)0x80004004);
+    private const int RPC_E_SERVERCALL_RETRYLATER = unchecked((int)0x8001010A);
     private const int DropEffectCopy = 1;
 
     internal static readonly short DescriptorFormat = Format("FileGroupDescriptorW");
@@ -32,11 +37,14 @@ internal sealed class VirtualFileDataObject : ComDataObject, IDataObjectAsyncCap
     private readonly byte[] _descriptor;
     private readonly IReadOnlyList<VirtualFile> _files;
     private readonly Func<IReadOnlyList<string?>?> _fetch;
+    private readonly Dispatcher _dispatcher;
     private IReadOnlyList<string?>? _local;
     private bool _fetchFailed;
+    private bool _fetching;
     private bool _asyncMode = true;
 
-    /// <param name="files">Fichiers et dossiers proposés, dans l'ordre de <paramref name="descriptor"/>.</param>
+    /// <summary>Crée l'objet sur le thread de l'interface, où <paramref name="fetch"/> sera toujours appelé.</summary>
+    /// <param name="files">Fichiers et dossiers proposés, dans l'ordre de la description.</param>
     /// <param name="fetch">
     /// Télécharge tout au premier contenu demandé (dépôt) et renvoie le fichier local de chaque élément (null pour un
     /// dossier), ou null si le téléchargement a été annulé ou a échoué.
@@ -46,16 +54,29 @@ internal sealed class VirtualFileDataObject : ComDataObject, IDataObjectAsyncCap
         _files = files;
         _descriptor = VirtualFiles.BuildDescriptor(files);
         _fetch = fetch;
+        _dispatcher = Dispatcher.CurrentDispatcher;
     }
 
-    /// <summary>Opération asynchrone de l'Explorateur terminée (ou jamais commencée) : les fichiers locaux peuvent être effacés.</summary>
+    /// <summary>
+    /// Opération asynchrone de l'Explorateur terminée (résultat dans <see cref="OperationResult"/>) : les fichiers
+    /// locaux peuvent être effacés.
+    /// </summary>
     public event Action? Finished;
+
+    /// <summary>Résultat de la copie asynchrone de l'Explorateur (négatif : échec), 0 tant qu'elle n'est pas finie.</summary>
+    public int OperationResult { get; private set; }
+
+    /// <summary>Erreur survenue pendant le téléchargement au dépôt, ou null.</summary>
+    public Exception? FetchError { get; private set; }
 
     /// <summary>Vrai pendant que l'Explorateur copie les fichiers dans son propre thread.</summary>
     public bool InOperation { get; private set; }
 
     /// <summary>Vrai si l'Explorateur a obtenu le contenu des fichiers.</summary>
     public bool Fetched => _local is not null;
+
+    /// <summary>Vrai si le téléchargement a été lancé (réussi, annulé ou en échec).</summary>
+    public bool FetchAttempted => _local is not null || _fetchFailed;
 
     public void GetData(ref FORMATETC format, out STGMEDIUM medium)
     {
@@ -75,7 +96,7 @@ internal sealed class VirtualFileDataObject : ComDataObject, IDataObjectAsyncCap
                 throw new COMException(null, DV_E_LINDEX);
             }
 
-            var local = Fetch() ?? throw new COMException(null, E_ABORT);
+            var local = Fetch() ?? throw new COMException(FetchError?.Message, E_ABORT);
             var path = local[format.lindex] ?? throw new COMException(null, DV_E_LINDEX);
             Marshal.ThrowExceptionForHR(SHCreateStreamOnFileEx(path, StgmRead | StgmShareDenyWrite, 0, false, IntPtr.Zero, out var stream));
             medium = new STGMEDIUM { tymed = TYMED.TYMED_ISTREAM, unionmember = stream };
@@ -163,16 +184,46 @@ internal sealed class VirtualFileDataObject : ComDataObject, IDataObjectAsyncCap
     public void EndOperation(int result, IntPtr bindContext, uint effects)
     {
         DebugLog.Write("files", $"Glisser-déposer : copie de l'Explorateur terminée (0x{result:X8}, effet {effects})");
+        OperationResult = result;
         InOperation = false;
         Finished?.Invoke();
     }
 
-    /// <summary>Téléchargement unique, au premier contenu demandé ; un échec ou une annulation n'est pas retenté.</summary>
+    /// <summary>
+    /// Téléchargement unique, au premier contenu demandé, toujours sur le thread de l'interface ; un échec ou une
+    /// annulation n'est pas retenté.
+    /// </summary>
     private IReadOnlyList<string?>? Fetch()
     {
+        if (!_dispatcher.CheckAccess())
+        {
+            // Appel venu d'un autre thread : le téléchargement (et sa fenêtre) se fait sur celui de l'interface.
+            return _dispatcher.Invoke(Fetch);
+        }
+
+        if (_fetching)
+        {
+            // Autre demande pendant que la fenêtre de téléchargement est ouverte : à refaire plus tard.
+            throw new COMException(null, RPC_E_SERVERCALL_RETRYLATER);
+        }
+
         if (_local is null && !_fetchFailed)
         {
-            _local = _fetch();
+            _fetching = true;
+            try
+            {
+                _local = _fetch();
+            }
+            catch (Exception e) when (e is not OutOfMemoryException)
+            {
+                DebugLog.Write("files", "Glisser-déposer : échec du téléchargement au dépôt", e);
+                FetchError = e;
+            }
+            finally
+            {
+                _fetching = false;
+            }
+
             _fetchFailed = _local is null;
         }
 
