@@ -109,6 +109,12 @@ internal sealed class RdpSession : IDisposable
     /// <summary>Vrai si l'onglet affiche le bureau distant.</summary>
     public bool ShowsDesktop => HasControl && !IsRemoteApp;
 
+    /// <summary>Événements « application distante » reçus du contrôle (diagnostic).</summary>
+    internal List<string> RemoteAppEvents { get; } = [];
+
+    /// <summary>Contrôle Bureau à distance de la connexion en cours (tests).</summary>
+    internal object? Control => _ocx;
+
     public async Task ConnectAsync()
     {
         ReleaseClient();
@@ -445,6 +451,7 @@ internal sealed class RdpSession : IDisposable
     /// <summary>Résultat du lancement de l'application distante ; en cas d'échec, la session est fermée avec l'explication.</summary>
     private void OnRemoteProgramResult(string program, int result, bool isExecutable)
     {
+        RemoteAppEvents.Add($"result {program} {result} {isExecutable}");
         if (result == 0 || _disposed)
         {
             return;
@@ -469,6 +476,7 @@ internal sealed class RdpSession : IDisposable
 
     private void OnRemoteProgramDisplayed(bool displayed, uint information)
     {
+        RemoteAppEvents.Add($"displayed {displayed} {information}");
         // Normalement signalé par l'ouverture de session ; certains serveurs n'envoient que l'affichage de l'application.
         if (displayed && !_disposed && State == RdpSessionState.Connecting)
         {
