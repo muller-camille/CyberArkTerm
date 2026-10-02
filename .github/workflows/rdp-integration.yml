@@ -62,8 +62,16 @@ jobs:
           "RDP_TEST_USER=$user" >> $env:GITHUB_ENV
           "RDP_TEST_PASSWORD=$password" >> $env:GITHUB_ENV
 
-      - name: Tests de sessions réelles
+      - name: Expérience (application distante dans l'onglet)
+        env:
+          SPIKE_SHOTS: ${{ runner.temp }}/spike
         run: >
           dotnet test tests/CyberArkTerm.App.Tests -c Release
-          --filter Category=RdpIntegration
+          --filter Category=RdpSpike
           --logger "console;verbosity=detailed"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spike-shots
+          path: ${{ runner.temp }}/spike
