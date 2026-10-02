@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using CyberArkTerm.App.Views;
 using CyberArkTerm.Core;
@@ -16,6 +17,16 @@ public partial class App : Application
     {
         base.OnStartup(e);
         DispatcherUnhandledException += OnUnhandledException;
+
+        // Même icône pour toutes les fenêtres (connexion, fenêtre principale, dialogues).
+        var icon = BitmapFrame.Create(new Uri("pack://application:,,,/Assets/CyberArkTerm.ico", UriKind.Absolute));
+        EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent, new RoutedEventHandler((sender, _) =>
+        {
+            if (sender is Window { Icon: null } window)
+            {
+                window.Icon = icon;
+            }
+        }));
         _systemCulture = CultureInfo.CurrentUICulture;
         _settings = AppSettings.Load(AppSettings.DefaultPath);
         StartSession();
