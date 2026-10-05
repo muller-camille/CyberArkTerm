@@ -299,6 +299,13 @@
                             <TextBlock Text="{x:Static loc:Strings.ToolAdvanced}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
+                    <Button x:Name="ParallelButton" Style="{StaticResource ToolButton}" Click="OnParallel"
+                            ToolTip="{x:Static loc:Strings.ToolParallelTip}">
+                        <StackPanel>
+                            <Image Source="{StaticResource IconParallel}" Style="{StaticResource ToolIcon}" />
+                            <TextBlock Text="{x:Static loc:Strings.ToolParallel}" Style="{StaticResource ToolLabel}" />
+                        </StackPanel>
+                    </Button>
                     <Rectangle Style="{StaticResource ToolSeparator}" />
                     <Button x:Name="AddCurrentButton" Style="{StaticResource ToolButton}" Click="OnAddToCurrent"
                             ToolTip="{x:Static loc:Strings.ToolAddToMyServersTip}">

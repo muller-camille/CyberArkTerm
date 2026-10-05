@@ -175,6 +175,19 @@ The session opens **in a CyberArkTerm tab**, with the standard PSMP login
   window", "Bring it back here") and the Files tab works on this session when it is selected. Closing the
   separate window brings the terminal back to its tab without closing the session. Remote desktop tabs do not
   detach (use "Full screen"); PSM sessions already open in Windows Remote Desktop Connection, a window of its own.
+- **Parallel view** (up to 8 sessions on screen): "Parallel" toolbar button, or right-click an SSH tab → "Add to
+  the parallel view". Tick the open SSH sessions to show together (8 at most): they are laid out as a grid in the
+  "Parallel" tab, side by side up to 3, then on two rows. Each session has its title and state; "⤢" (or a
+  double-click on the title) enlarges it alone, "✕" sends it back to its tab. The Files tab follows the session you
+  work in. "Close the view" gives each terminal back to its tab without closing the sessions. Remote desktop
+  sessions cannot go there.
+  - **Simultaneous typing**: "Simultaneous typing" button of the view. What you type in a ticked session
+    ("Receives the typing") is also sent to the other ticked, connected sessions: the same command on several
+    servers. It is **off every time the view opens**; when on, an orange banner gives the number and names of the
+    sessions receiving the typing, and an orange frame surrounds them. A session added while it is on is not
+    ticked; what is typed in an unticked session only goes to it. Each key is encoded by the session that receives
+    it (arrows work in a shell as in vim). The mouse wheel is not copied, and pasting several lines into several
+    sessions asks first.
 
 ### 5. Browse and upload files: "Files" tab
 
@@ -336,6 +349,7 @@ password, delete.
 | SSH or remote desktop tab | Close | Tab cross or middle click |
 | SSH or remote desktop tab | Reconnect, duplicate (another session on the same account or entry), detach (SSH), close, close the other tabs | Right-click on the tab |
 | SSH tab | Detach to a separate window (another screen) | Drag the tab out of the window |
+| SSH tab | Add to the parallel view, or take it out | Right-click the tab |
 | Remote desktop | Full screen / back | `Ctrl+Alt+Break` |
 | Files | Open / edit / parent folder / delete / refresh | `Enter` / `F4` / `Backspace` / `Del` / `F5` |
 | KeePass vault | Connect / edit / delete an entry | Double-click or `Enter` / `F2` / `Del` |
@@ -379,6 +393,9 @@ checksums, never their content).
   the PVWA over HTTPS, then wiped from memory; it is neither saved nor written to the debug log.
 - **PSM sessions**: the PVWA's RDP file (one-time PSM token) is written to `%TEMP%\CyberArkTerm` for `mstsc`,
   which checks its signature, then deleted after 60 s or on exit.
+- **Simultaneous typing** (parallel view): off every time the view opens, shown by an orange banner and frame that
+  name the sessions concerned; an added session is not included by default, and pasting several lines into several
+  sessions asks first. Each session stays a separate PSMP session, recorded as usual.
 - **PSMP host keys pinned** on first use, with a warning if they change (the same for servers reached in
   emergency access).
 - **PVWA session keep-alive**: it avoids the idle timeout; nothing is sent while Windows is locked, and the option

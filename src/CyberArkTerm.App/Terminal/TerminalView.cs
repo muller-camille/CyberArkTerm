@@ -39,8 +39,8 @@ public sealed class TerminalView : FrameworkElement
         _cellHeight = Math.Ceiling(MonoFamily.LineSpacing * _fontSize);
     }
 
-    /// <summary>Texte à envoyer au serveur (frappe clavier, collage).</summary>
-    public event Action<string>? Input;
+    /// <summary>Saisie à envoyer au serveur (frappe clavier, collage, molette), encodée par le destinataire.</summary>
+    public event Action<TerminalInput>? Input;
 
     /// <summary>Nouvelle taille en caractères (colonnes, lignes) après redimensionnement.</summary>
     public event Action<int, int>? TerminalResized;
@@ -286,7 +286,7 @@ public sealed class TerminalView : FrameworkElement
                 return;
             }
 
-            Send(TerminalKeys.Encode(terminalKey, shift, alt, ctrl, _emulator.ApplicationCursorKeys));
+            Send(TerminalInput.Special(terminalKey, shift, alt, ctrl));
             e.Handled = true;
             return;
         }
@@ -294,7 +294,7 @@ public sealed class TerminalView : FrameworkElement
         // Ctrl+lettre → caractère de contrôle. Ctrl+Alt = AltGr sur clavier français : laissé à la saisie de texte.
         if (ctrl && !alt && KeyChar(key) is { } c && TerminalKeys.Control(c) is { } control)
         {
-            Send(control);
+            Send(TerminalInput.Typed(control));
             e.Handled = true;
         }
     }
@@ -304,15 +304,15 @@ public sealed class TerminalView : FrameworkElement
         base.OnTextInput(e);
         if (!string.IsNullOrEmpty(e.Text))
         {
-            Send(e.Text);
+            Send(TerminalInput.Typed(e.Text));
         }
         else if (!string.IsNullOrEmpty(e.SystemText))
         {
-            Send("\x1b" + e.SystemText); // Alt+touche : préfixe Échap (« Meta »).
+            Send(TerminalInput.Typed("\x1b" + e.SystemText)); // Alt+touche : préfixe Échap (« Meta »).
         }
         else if (!string.IsNullOrEmpty(e.ControlText))
         {
-            Send(e.ControlText);
+            Send(TerminalInput.Typed(e.ControlText));
         }
 
         e.Handled = true;
@@ -348,9 +348,9 @@ public sealed class TerminalView : FrameworkElement
         _ => null,
     };
 
-    private void Send(string text)
+    private void Send(TerminalInput input)
     {
-        if (text.Length == 0)
+        if (input.IsEmpty)
         {
             return;
         }
@@ -362,7 +362,7 @@ public sealed class TerminalView : FrameworkElement
             InvalidateVisual();
         }
 
-        Input?.Invoke(text);
+        Input?.Invoke(input);
     }
 
     // ===================== Souris : focus, historique, sélection, collage =====================
@@ -382,7 +382,7 @@ public sealed class TerminalView : FrameworkElement
             var key = lines > 0 ? TerminalKey.Up : TerminalKey.Down;
             for (int i = 0; i < Math.Abs(lines); i++)
             {
-                Input?.Invoke(TerminalKeys.Encode(key, applicationCursor: _emulator.ApplicationCursorKeys));
+                Input?.Invoke(TerminalInput.Scrolled(key));
             }
         }
         else
@@ -571,7 +571,7 @@ public sealed class TerminalView : FrameworkElement
         {
             if (Clipboard.ContainsText())
             {
-                Send(TerminalKeys.Paste(Clipboard.GetText(), _emulator.BracketedPaste));
+                Send(TerminalInput.Pasted(Clipboard.GetText()));
             }
         }
         catch (System.Runtime.InteropServices.COMException)

@@ -1203,6 +1203,99 @@ Inviarli in un unico archivio .tar.gz? Un solo file da trasferire e verificare i
   <data name="TailRemovedMarker" xml:space="preserve">
     <value>— non più seguito —</value>
   </data>
+  <data name="ToolParallel" xml:space="preserve">
+    <value>Parallelo</value>
+  </data>
+  <data name="ToolParallelTip" xml:space="preserve">
+    <value>Mostra fino a 8 sessioni SSH affiancate, con la digitazione simultanea come opzione</value>
+  </data>
+  <data name="ParallelTitle" xml:space="preserve">
+    <value>Vista parallela</value>
+  </data>
+  <data name="ParallelTabHeader" xml:space="preserve">
+    <value>Parallelo ({0})</value>
+  </data>
+  <data name="ParallelHeading" xml:space="preserve">
+    <value>{0} / {1} sessioni</value>
+  </data>
+  <data name="ParallelDialogIntro" xml:space="preserve">
+    <value>Scegli fino a 8 sessioni SSH aperte da mostrare affiancate. I loro terminali passano nella vista parallela e tornano nella loro scheda quando la lasciano; le sessioni non vengono chiuse. Le sessioni Desktop remoto non possono esservi inserite.</value>
+  </data>
+  <data name="ParallelDialogBroadcast" xml:space="preserve">
+    <value>Nella vista, «Digitazione simultanea» invia ciò che digiti in una sessione alle altre sessioni selezionate. È disattivata all'apertura della vista.</value>
+  </data>
+  <data name="ParallelSelected" xml:space="preserve">
+    <value>{0} / {1} selezionata/e</value>
+  </data>
+  <data name="ParallelShow" xml:space="preserve">
+    <value>_Mostra</value>
+  </data>
+  <data name="ParallelNoSession" xml:space="preserve">
+    <value>Apri prima almeno una sessione SSH.</value>
+  </data>
+  <data name="ParallelFull" xml:space="preserve">
+    <value>La vista parallela mostra già 8 sessioni: rimuovine prima una.</value>
+  </data>
+  <data name="ParallelChoose" xml:space="preserve">
+    <value>_Scegli le sessioni…</value>
+  </data>
+  <data name="ParallelClose" xml:space="preserve">
+    <value>Chiudi la vista</value>
+  </data>
+  <data name="ParallelCloseTip" xml:space="preserve">
+    <value>Chiudi la vista parallela: le sessioni tornano nella loro scheda, non vengono chiuse</value>
+  </data>
+  <data name="ParallelBroadcast" xml:space="preserve">
+    <value>Digitazione _simultanea</value>
+  </data>
+  <data name="ParallelBroadcastTip" xml:space="preserve">
+    <value>Ciò che digiti in una sessione selezionata viene inviato anche alle altre sessioni selezionate e connesse. La rotellina non viene copiata; incollare più righe chiede conferma.</value>
+  </data>
+  <data name="ParallelBroadcastBanner" xml:space="preserve">
+    <value>⚠ Digitazione simultanea: ciò che digiti viene inviato a {0} sessione/i: {1}. Deseleziona una sessione per escluderla.</value>
+  </data>
+  <data name="ParallelBroadcastHidden" xml:space="preserve">
+    <value>Di cui {0} nascosta/e dalla sessione ingrandita.</value>
+  </data>
+  <data name="ParallelInclude" xml:space="preserve">
+    <value>Riceve la digitazione</value>
+  </data>
+  <data name="ParallelIncludeTip" xml:space="preserve">
+    <value>Con la digitazione simultanea, questa sessione riceve ciò che viene digitato nelle altre sessioni selezionate (e invia loro ciò che vi viene digitato)</value>
+  </data>
+  <data name="ParallelZoomTip" xml:space="preserve">
+    <value>Mostra solo questa sessione (fai di nuovo clic, o doppio clic sul titolo, per mostrarle tutte)</value>
+  </data>
+  <data name="ParallelRemoveTip" xml:space="preserve">
+    <value>Togli questa sessione dalla vista parallela (torna nella sua scheda)</value>
+  </data>
+  <data name="ParallelStateConnected" xml:space="preserve">
+    <value>Connessa</value>
+  </data>
+  <data name="ParallelStateConnecting" xml:space="preserve">
+    <value>Connessione…</value>
+  </data>
+  <data name="ParallelStateClosed" xml:space="preserve">
+    <value>Chiusa</value>
+  </data>
+  <data name="ParallelPasteConfirm" xml:space="preserve">
+    <value>Incollare {0} righe in {1} sessioni? Ogni riga viene eseguita come comando su ogni server.</value>
+  </data>
+  <data name="ParallelPlaceholder" xml:space="preserve">
+    <value>Questa sessione è mostrata nella vista parallela.</value>
+  </data>
+  <data name="ParallelPlaceholderHint" xml:space="preserve">
+    <value>Continua: lavoraci dalla vista parallela, o riportala qui.</value>
+  </data>
+  <data name="ParallelShowView" xml:space="preserve">
+    <value>_Mostra la vista parallela</value>
+  </data>
+  <data name="MenuTabAddParallel" xml:space="preserve">
+    <value>Aggiungi alla vista _parallela</value>
+  </data>
+  <data name="MenuTabRemoveParallel" xml:space="preserve">
+    <value>Togli dalla vista _parallela</value>
+  </data>
   <data name="HistoryTip" xml:space="preserve">
     <value>Cronologia dei trasferimenti (invii e download)</value>
   </data>

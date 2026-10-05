@@ -188,6 +188,19 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   est sélectionné. Fermer la fenêtre séparée ramène le terminal dans son onglet, sans fermer la session. Les
   onglets Bureau à distance ne se détachent pas (utilisez « Plein écran ») ; les sessions PSM s'ouvrent déjà dans
   la Connexion Bureau à distance de Windows, une fenêtre à part.
+- **Vue parallèle** (jusqu'à 8 sessions à l'écran) : bouton « Parallèle » de la barre d'outils, ou clic droit sur
+  un onglet SSH → « Ajouter à la vue parallèle ». Cochez les sessions SSH ouvertes à afficher ensemble (8 au plus) :
+  elles s'affichent en grille dans l'onglet « Parallèle », côte à côte jusqu'à 3, puis sur deux lignes. Chaque
+  session a son titre et son état ; « ⤢ » (ou double-clic sur le titre) l'agrandit seule, « ✕ » la renvoie dans son
+  onglet. L'onglet Fichiers suit la session où vous travaillez. « Fermer la vue » rend chaque terminal à son onglet,
+  sans fermer les sessions. Les sessions Bureau à distance n'y vont pas.
+  - **Saisie simultanée** : bouton « Saisie simultanée » de la vue. Ce que vous tapez dans une session cochée
+    (« Reçoit la saisie ») est aussi envoyé aux autres sessions cochées et connectées : la même commande sur
+    plusieurs serveurs. Elle est **désactivée à chaque ouverture de la vue** ; active, un bandeau orange donne le
+    nombre et le nom des sessions qui reçoivent la saisie, et un cadre orange les entoure. Une session ajoutée
+    pendant qu'elle est active n'est pas cochée ; ce qui est tapé dans une session décochée ne va qu'à elle. Chaque
+    touche est encodée par la session qui la reçoit (les flèches fonctionnent dans un shell comme dans vim). La
+    molette n'est pas recopiée, et coller plusieurs lignes dans plusieurs sessions demande confirmation.
 
 ### 5. Parcourir et déposer des fichiers : onglet « Fichiers »
 
@@ -364,6 +377,7 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Onglet SSH ou Bureau à distance | Fermer | Croix de l'onglet ou clic molette |
 | Onglet SSH ou Bureau à distance | Reconnecter, dupliquer (autre session sur le même compte ou la même entrée), détacher (SSH), fermer, fermer les autres onglets | Clic droit sur l'onglet |
 | Onglet SSH | Détacher dans une fenêtre séparée (autre écran) | Glisser l'onglet hors de la fenêtre |
+| Onglet SSH | Ajouter à la vue parallèle, ou l'en retirer | Clic droit sur l'onglet |
 | Bureau à distance | Plein écran / retour | `Ctrl+Alt+Pause` |
 | Fichiers | Ouvrir / modifier / dossier parent / supprimer / actualiser | `Entrée` / `F4` / `Retour arrière` / `Suppr` / `F5` |
 | Coffre KeePass | Se connecter / modifier / supprimer une entrée | Double-clic ou `Entrée` / `F2` / `Suppr` |
@@ -410,6 +424,10 @@ l'application et supprimez-le. L'historique des transferts de l'onglet Fichiers 
   débogage.
 - **Sessions PSM** : le fichier RDP du PVWA (jeton PSM à usage unique) est écrit dans `%TEMP%\CyberArkTerm` pour
   `mstsc`, qui en vérifie la signature, puis supprimé après 60 s ou à la fermeture.
+- **Saisie simultanée** (vue parallèle) : désactivée à chaque ouverture de la vue, signalée par un bandeau et un cadre
+  orange qui nomment les sessions concernées ; une session ajoutée n'y est pas incluse d'office, et un collage de
+  plusieurs lignes vers plusieurs sessions demande confirmation. Chaque session reste une session PSMP distincte,
+  enregistrée comme d'habitude.
 - **Clés d'hôte PSMP épinglées** au premier usage, avec alerte en cas de changement (de même pour les serveurs
   joints en accès d'urgence).
 - **Maintien de la session PVWA** : il évite l'expiration par inactivité ; rien n'est envoyé tant que Windows

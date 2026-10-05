@@ -3710,6 +3710,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Add to the _parallel view.
+        /// </summary>
+        public static string MenuTabAddParallel {
+            get {
+                return ResourceManager.GetString("MenuTabAddParallel", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Close tab.
         /// </summary>
         public static string MenuTabClose {
@@ -3760,6 +3769,15 @@ namespace CyberArkTerm.App.Localization {
         public static string MenuTabReconnect {
             get {
                 return ResourceManager.GetString("MenuTabReconnect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Take out of the _parallel view.
+        /// </summary>
+        public static string MenuTabRemoveParallel {
+            get {
+                return ResourceManager.GetString("MenuTabRemoveParallel", resourceCulture);
             }
         }
 
@@ -3940,6 +3958,249 @@ namespace CyberArkTerm.App.Localization {
         public static string Ok {
             get {
                 return ResourceManager.GetString("Ok", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Simultaneous _typing.
+        /// </summary>
+        public static string ParallelBroadcast {
+            get {
+                return ResourceManager.GetString("ParallelBroadcast", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠ Simultaneous typing: what you type is sent to {0} session(s): {1}. Untick a session to exclude it..
+        /// </summary>
+        public static string ParallelBroadcastBanner {
+            get {
+                return ResourceManager.GetString("ParallelBroadcastBanner", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} of them hidden by the enlarged session..
+        /// </summary>
+        public static string ParallelBroadcastHidden {
+            get {
+                return ResourceManager.GetString("ParallelBroadcastHidden", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to What you type in a ticked session is also sent to the other ticked, connected sessions. The mouse[rest of string was truncated].
+        /// </summary>
+        public static string ParallelBroadcastTip {
+            get {
+                return ResourceManager.GetString("ParallelBroadcastTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Choose the sessions….
+        /// </summary>
+        public static string ParallelChoose {
+            get {
+                return ResourceManager.GetString("ParallelChoose", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close the view.
+        /// </summary>
+        public static string ParallelClose {
+            get {
+                return ResourceManager.GetString("ParallelClose", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close the parallel view: the sessions go back to their tabs, they are not closed.
+        /// </summary>
+        public static string ParallelCloseTip {
+            get {
+                return ResourceManager.GetString("ParallelCloseTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to In the view, "Simultaneous typing" sends what you type in one session to the other ticked session[rest of string was truncated].
+        /// </summary>
+        public static string ParallelDialogBroadcast {
+            get {
+                return ResourceManager.GetString("ParallelDialogBroadcast", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose up to 8 open SSH sessions to show side by side. Their terminals move to the parallel view [rest of string was truncated].
+        /// </summary>
+        public static string ParallelDialogIntro {
+            get {
+                return ResourceManager.GetString("ParallelDialogIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The parallel view already shows 8 sessions: take one out first..
+        /// </summary>
+        public static string ParallelFull {
+            get {
+                return ResourceManager.GetString("ParallelFull", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} / {1} sessions.
+        /// </summary>
+        public static string ParallelHeading {
+            get {
+                return ResourceManager.GetString("ParallelHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Receives the typing.
+        /// </summary>
+        public static string ParallelInclude {
+            get {
+                return ResourceManager.GetString("ParallelInclude", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to With simultaneous typing, this session receives what is typed in the other ticked sessions (and s[rest of string was truncated].
+        /// </summary>
+        public static string ParallelIncludeTip {
+            get {
+                return ResourceManager.GetString("ParallelIncludeTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open at least one SSH session first..
+        /// </summary>
+        public static string ParallelNoSession {
+            get {
+                return ResourceManager.GetString("ParallelNoSession", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Paste {0} lines in {1} sessions? Each line runs as a command on every server..
+        /// </summary>
+        public static string ParallelPasteConfirm {
+            get {
+                return ResourceManager.GetString("ParallelPasteConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This session is shown in the parallel view..
+        /// </summary>
+        public static string ParallelPlaceholder {
+            get {
+                return ResourceManager.GetString("ParallelPlaceholder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to It goes on: work in it from the parallel view, or bring it back here..
+        /// </summary>
+        public static string ParallelPlaceholderHint {
+            get {
+                return ResourceManager.GetString("ParallelPlaceholderHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Take this session out of the parallel view (it goes back to its tab).
+        /// </summary>
+        public static string ParallelRemoveTip {
+            get {
+                return ResourceManager.GetString("ParallelRemoveTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} / {1} selected.
+        /// </summary>
+        public static string ParallelSelected {
+            get {
+                return ResourceManager.GetString("ParallelSelected", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Show.
+        /// </summary>
+        public static string ParallelShow {
+            get {
+                return ResourceManager.GetString("ParallelShow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Show the parallel view.
+        /// </summary>
+        public static string ParallelShowView {
+            get {
+                return ResourceManager.GetString("ParallelShowView", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Closed.
+        /// </summary>
+        public static string ParallelStateClosed {
+            get {
+                return ResourceManager.GetString("ParallelStateClosed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connected.
+        /// </summary>
+        public static string ParallelStateConnected {
+            get {
+                return ResourceManager.GetString("ParallelStateConnected", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connecting….
+        /// </summary>
+        public static string ParallelStateConnecting {
+            get {
+                return ResourceManager.GetString("ParallelStateConnecting", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Parallel ({0}).
+        /// </summary>
+        public static string ParallelTabHeader {
+            get {
+                return ResourceManager.GetString("ParallelTabHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Parallel view.
+        /// </summary>
+        public static string ParallelTitle {
+            get {
+                return ResourceManager.GetString("ParallelTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Show this session alone (click again, or double-click the title, to show them all).
+        /// </summary>
+        public static string ParallelZoomTip {
+            get {
+                return ResourceManager.GetString("ParallelZoomTip", resourceCulture);
             }
         }
 
@@ -6946,6 +7207,24 @@ namespace CyberArkTerm.App.Localization {
         public static string ToolLogoutTip {
             get {
                 return ResourceManager.GetString("ToolLogoutTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Parallel.
+        /// </summary>
+        public static string ToolParallel {
+            get {
+                return ResourceManager.GetString("ToolParallel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Show up to 8 SSH sessions side by side, with simultaneous typing as an option.
+        /// </summary>
+        public static string ToolParallelTip {
+            get {
+                return ResourceManager.GetString("ToolParallelTip", resourceCulture);
             }
         }
 

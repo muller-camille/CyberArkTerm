@@ -124,11 +124,27 @@ public partial class MainWindow
         // Fenêtre séparée : terminal SSH seulement (voir MainWindow.Detach.cs).
         var detach = new MenuItem { Header = Strings.MenuTabDetach, Visibility = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed };
         detach.Click += (_, _) => DetachTab(tab);
-        var menu = new ContextMenu { Items = { reconnect, copy, detach, new Separator(), close, closeOthers } };
+        // Vue parallèle : terminal SSH seulement (voir MainWindow.Parallel.cs).
+        var parallel = new MenuItem
+        {
+            Header = Strings.MenuTabAddParallel,
+            Icon = MenuIcon(FindResource("IconParallel")),
+            Visibility = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed,
+        };
+        parallel.Click += (_, _) =>
+        {
+            if (tab.Tag is SshSession session)
+            {
+                ToggleParallel(session);
+            }
+        };
+        var menu = new ContextMenu { Items = { reconnect, copy, detach, parallel, new Separator(), close, closeOthers } };
         menu.Opened += (_, _) =>
         {
             closeOthers.IsEnabled = SessionTabs().Any(t => t != tab);
             detach.IsEnabled = tab.Content is SshSessionView;
+            bool inParallel = tab.Tag is SshSession session && _parallel?.Contains(session) == true;
+            parallel.Header = inParallel ? Strings.MenuTabRemoveParallel : Strings.MenuTabAddParallel;
         };
         return menu;
     }
@@ -152,7 +168,8 @@ public partial class MainWindow
     /// <summary>Nouvelle connexion dans le même onglet (nouvelle demande au PVWA) ; confirmation si la session est ouverte.</summary>
     private async Task ReconnectTabAsync(TabItem tab)
     {
-        MainTabs.SelectedItem = tab;
+        // Session de la vue parallèle : c'est là que son terminal est affiché.
+        MainTabs.SelectedItem = tab.Tag is SshSession inView && _parallel?.Contains(inView) == true ? _parallelTab : tab;
         bool Confirm(string label) =>
             MessageBox.Show(this, Text.Format(Strings.TabReconnectConfirm, label), "CyberArkTerm",
                 MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes;
@@ -225,6 +242,7 @@ public partial class MainWindow
         }
 
         CloseDetachedWindow(session);
+        DropFromParallel(session);
         FilesPanel.ReleaseTails(session);
         MainTabs.Items.Remove(tab);
         _sshSessions.Remove(session);
@@ -252,6 +270,7 @@ public partial class MainWindow
 
     private void CloseAllSshSessions()
     {
+        CloseParallel();
         CloseAllDetachedWindows();
         FilesPanel.CloseTailWindows();
         foreach (var session in _sshSessions)
@@ -271,11 +290,16 @@ public partial class MainWindow
         }
 
         var tab = MainTabs.SelectedItem as TabItem;
-        FilesPanel.Attach(tab?.Tag as SshSession);
+        // Vue parallèle : l'onglet Fichiers suit la session où l'on travaille.
+        FilesPanel.Attach(tab?.Tag as SshSession ?? (tab?.Tag as ParallelView)?.ActiveSession);
         ShowRdpView(tab);
         if (tab?.Content is SshSessionView view)
         {
             view.FocusTerminal();
+        }
+        else if (tab?.Content is ParallelView parallel)
+        {
+            parallel.FocusActive();
         }
     }
 

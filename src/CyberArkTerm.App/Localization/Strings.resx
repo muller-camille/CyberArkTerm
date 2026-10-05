@@ -1203,6 +1203,99 @@ Send them in a single .tar.gz archive? One file to transfer and check instead of
   <data name="TailRemovedMarker" xml:space="preserve">
     <value>— no longer followed —</value>
   </data>
+  <data name="ToolParallel" xml:space="preserve">
+    <value>Parallel</value>
+  </data>
+  <data name="ToolParallelTip" xml:space="preserve">
+    <value>Show up to 8 SSH sessions side by side, with simultaneous typing as an option</value>
+  </data>
+  <data name="ParallelTitle" xml:space="preserve">
+    <value>Parallel view</value>
+  </data>
+  <data name="ParallelTabHeader" xml:space="preserve">
+    <value>Parallel ({0})</value>
+  </data>
+  <data name="ParallelHeading" xml:space="preserve">
+    <value>{0} / {1} sessions</value>
+  </data>
+  <data name="ParallelDialogIntro" xml:space="preserve">
+    <value>Choose up to 8 open SSH sessions to show side by side. Their terminals move to the parallel view and go back to their tabs when they leave it; the sessions are not closed. Remote desktop sessions cannot be placed there.</value>
+  </data>
+  <data name="ParallelDialogBroadcast" xml:space="preserve">
+    <value>In the view, "Simultaneous typing" sends what you type in one session to the other ticked sessions. It is off when the view opens.</value>
+  </data>
+  <data name="ParallelSelected" xml:space="preserve">
+    <value>{0} / {1} selected</value>
+  </data>
+  <data name="ParallelShow" xml:space="preserve">
+    <value>_Show</value>
+  </data>
+  <data name="ParallelNoSession" xml:space="preserve">
+    <value>Open at least one SSH session first.</value>
+  </data>
+  <data name="ParallelFull" xml:space="preserve">
+    <value>The parallel view already shows 8 sessions: take one out first.</value>
+  </data>
+  <data name="ParallelChoose" xml:space="preserve">
+    <value>_Choose the sessions…</value>
+  </data>
+  <data name="ParallelClose" xml:space="preserve">
+    <value>Close the view</value>
+  </data>
+  <data name="ParallelCloseTip" xml:space="preserve">
+    <value>Close the parallel view: the sessions go back to their tabs, they are not closed</value>
+  </data>
+  <data name="ParallelBroadcast" xml:space="preserve">
+    <value>Simultaneous _typing</value>
+  </data>
+  <data name="ParallelBroadcastTip" xml:space="preserve">
+    <value>What you type in a ticked session is also sent to the other ticked, connected sessions. The mouse wheel is not copied; pasting several lines asks first.</value>
+  </data>
+  <data name="ParallelBroadcastBanner" xml:space="preserve">
+    <value>⚠ Simultaneous typing: what you type is sent to {0} session(s): {1}. Untick a session to exclude it.</value>
+  </data>
+  <data name="ParallelBroadcastHidden" xml:space="preserve">
+    <value>{0} of them hidden by the enlarged session.</value>
+  </data>
+  <data name="ParallelInclude" xml:space="preserve">
+    <value>Receives the typing</value>
+  </data>
+  <data name="ParallelIncludeTip" xml:space="preserve">
+    <value>With simultaneous typing, this session receives what is typed in the other ticked sessions (and sends them what is typed in it)</value>
+  </data>
+  <data name="ParallelZoomTip" xml:space="preserve">
+    <value>Show this session alone (click again, or double-click the title, to show them all)</value>
+  </data>
+  <data name="ParallelRemoveTip" xml:space="preserve">
+    <value>Take this session out of the parallel view (it goes back to its tab)</value>
+  </data>
+  <data name="ParallelStateConnected" xml:space="preserve">
+    <value>Connected</value>
+  </data>
+  <data name="ParallelStateConnecting" xml:space="preserve">
+    <value>Connecting…</value>
+  </data>
+  <data name="ParallelStateClosed" xml:space="preserve">
+    <value>Closed</value>
+  </data>
+  <data name="ParallelPasteConfirm" xml:space="preserve">
+    <value>Paste {0} lines in {1} sessions? Each line runs as a command on every server.</value>
+  </data>
+  <data name="ParallelPlaceholder" xml:space="preserve">
+    <value>This session is shown in the parallel view.</value>
+  </data>
+  <data name="ParallelPlaceholderHint" xml:space="preserve">
+    <value>It goes on: work in it from the parallel view, or bring it back here.</value>
+  </data>
+  <data name="ParallelShowView" xml:space="preserve">
+    <value>_Show the parallel view</value>
+  </data>
+  <data name="MenuTabAddParallel" xml:space="preserve">
+    <value>Add to the _parallel view</value>
+  </data>
+  <data name="MenuTabRemoveParallel" xml:space="preserve">
+    <value>Take out of the _parallel view</value>
+  </data>
   <data name="HistoryTip" xml:space="preserve">
     <value>Transfer history (uploads and downloads)</value>
   </data>

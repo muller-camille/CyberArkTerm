@@ -183,6 +183,19 @@ La sessione si apre **in una scheda di CyberArkTerm**, con l'identificativo PSMP
   selezionata. Chiudere la finestra separata riporta il terminale nella sua scheda senza chiudere la sessione. Le
   schede Desktop remoto non si staccano (usa «Schermo intero»); le sessioni PSM si aprono già in Connessione
   Desktop remoto di Windows, una finestra a parte.
+- **Vista parallela** (fino a 8 sessioni sullo schermo): pulsante «Parallelo» della barra degli strumenti, o clic
+  destro su una scheda SSH → «Aggiungi alla vista parallela». Seleziona le sessioni SSH aperte da mostrare insieme
+  (8 al massimo): vengono disposte a griglia nella scheda «Parallelo», affiancate fino a 3, poi su due righe. Ogni
+  sessione ha il suo titolo e il suo stato; «⤢» (o doppio clic sul titolo) la ingrandisce da sola, «✕» la rimanda
+  nella sua scheda. La scheda File segue la sessione in cui lavori. «Chiudi la vista» restituisce ogni terminale
+  alla sua scheda senza chiudere le sessioni. Le sessioni Desktop remoto non possono esservi inserite.
+  - **Digitazione simultanea**: pulsante «Digitazione simultanea» della vista. Ciò che digiti in una sessione
+    selezionata («Riceve la digitazione») viene inviato anche alle altre sessioni selezionate e connesse: lo
+    stesso comando su più server. È **disattivata a ogni apertura della vista**; quando è attiva, una fascia
+    arancione indica il numero e il nome delle sessioni che ricevono la digitazione, e una cornice arancione le
+    circonda. Una sessione aggiunta mentre è attiva non è selezionata; ciò che viene digitato in una sessione non
+    selezionata va solo a lei. Ogni tasto viene codificato dalla sessione che lo riceve (le frecce funzionano in
+    una shell come in vim). La rotellina non viene copiata, e incollare più righe in più sessioni chiede conferma.
 
 ### 5. Sfogliare e inviare file: scheda «File»
 
@@ -357,6 +370,7 @@ password, elimina.
 | Scheda SSH o Desktop remoto | Chiudere | Croce della scheda o clic centrale |
 | Scheda SSH o Desktop remoto | Riconnettere, duplicare (altra sessione sullo stesso account o sulla stessa voce), staccare (SSH), chiudere, chiudere le altre schede | Clic destro sulla scheda |
 | Scheda SSH | Staccare in una finestra separata (altro schermo) | Trascinare la scheda fuori dalla finestra |
+| Scheda SSH | Aggiungere alla vista parallela, o toglierla | Clic destro sulla scheda |
 | Desktop remoto | Schermo intero / ritorno | `Ctrl+Alt+Pausa` |
 | File | Aprire / modificare / cartella superiore / eliminare / aggiornare | `Invio` / `F4` / `Backspace` / `Canc` / `F5` |
 | Archivio KeePass | Connettere / modificare / eliminare una voce | Doppio clic o `Invio` / `F2` / `Canc` |
@@ -402,6 +416,10 @@ l'applicazione ed eliminalo. La cronologia dei trasferimenti della scheda File �
   sola volta al PVWA in HTTPS, poi cancellata dalla memoria; non viene né salvata né scritta nel registro di debug.
 - **Sessioni PSM**: il file RDP del PVWA (token PSM monouso) viene scritto in `%TEMP%\CyberArkTerm` per
   `mstsc`, che ne verifica la firma, poi eliminato dopo 60 s o alla chiusura.
+- **Digitazione simultanea** (vista parallela): disattivata a ogni apertura della vista, segnalata da una fascia e
+  una cornice arancioni che nominano le sessioni interessate; una sessione aggiunta non vi è inclusa d'ufficio, e
+  incollare più righe in più sessioni chiede conferma. Ogni sessione resta una sessione PSMP distinta, registrata
+  come di consueto.
 - **Chiavi host del PSMP fissate** al primo utilizzo, con avviso in caso di modifica (lo stesso per i server
   raggiunti in accesso di emergenza).
 - **Mantenimento della sessione PVWA**: evita la scadenza per inattività; non viene inviato nulla mentre Windows

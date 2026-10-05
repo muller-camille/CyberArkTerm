@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services;
+using CyberArkTerm.Core.Terminal;
 
 namespace CyberArkTerm.App.Views;
 
@@ -17,7 +18,7 @@ public partial class SshSessionView : UserControl
         Target = target;
         _connectingText = connectingText;
         Terminal.Emulator = session.Emulator;
-        Terminal.Input += session.SendInput;
+        Terminal.Input += OnInput;
         Terminal.TerminalResized += session.Resize;
         session.ScreenUpdated += Terminal.Refresh;
         session.StateChanged += UpdateOverlay;
@@ -30,6 +31,26 @@ public partial class SshSessionView : UserControl
 
     /// <summary>« coffre@compte@cible via psmp », affiché pendant la connexion.</summary>
     public string Target { get; }
+
+    /// <summary>
+    /// Destinataires de la saisie (vue parallèle avec saisie simultanée) ; sans aiguillage, elle va à cette session.
+    /// </summary>
+    public Action<SshSessionView, TerminalInput>? InputRouter { get; set; }
+
+    /// <summary>Saisie reçue, encodée selon l'état du terminal de cette session.</summary>
+    public void Send(TerminalInput input) => Session.SendInput(input.Encode(Session.Emulator));
+
+    private void OnInput(TerminalInput input)
+    {
+        if (InputRouter is { } router && input.IsTyping)
+        {
+            router(this, input);
+        }
+        else
+        {
+            Send(input);
+        }
+    }
 
     public (int Columns, int Rows) TerminalSize => Terminal.ActualWidth > 0 ? Terminal.SizeInCells : (100, 30);
 

@@ -17,9 +17,12 @@ public partial class MainWindow
 {
     private readonly Dictionary<SshSession, DetachedSessionWindow> _detached = [];
 
-    /// <summary>Terminal d'un onglet SSH, qu'il soit dans l'onglet ou dans une fenêtre séparée.</summary>
+    /// <summary>Terminal d'un onglet SSH, qu'il soit dans l'onglet, dans une fenêtre séparée ou dans la vue parallèle.</summary>
     private SshSessionView? SshViewOf(TabItem tab) =>
-        tab.Content as SshSessionView ?? (tab.Tag is SshSession session && _detached.TryGetValue(session, out var window) ? window.View : null);
+        tab.Content as SshSessionView
+        ?? (tab.Tag is SshSession session
+            ? _detached.TryGetValue(session, out var window) ? window.View : _parallel?.ViewOf(session)
+            : null);
 
     /// <param name="screenPoint">Position du curseur (pixels de l'écran) quand l'onglet est glissé hors de la fenêtre.</param>
     private void DetachTab(TabItem tab, Point? screenPoint = null)
