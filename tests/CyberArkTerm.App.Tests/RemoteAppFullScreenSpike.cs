@@ -11,17 +11,46 @@ using Xunit.Abstractions;
 namespace CyberArkTerm.App.Tests;
 
 /// <summary>
-/// Expérience (non fusionnée) : comme le composant RDP du PSM, l'application distante est un client Bureau à distance
-/// ouvert en plein écran (ici mstsc vers ce même poste), affiché dans l'onglet, puis remis en fenêtre
-/// (Ctrl+Alt+Attn) et de nouveau en plein écran. Où vont les fenêtres, et les clics ?
+/// Expérience (non fusionnée) : une application distante qui, comme un client Bureau à distance, a une fenêtre
+/// principale, affiche une boîte « connexion » puis une fenêtre plein écran (modale : la principale est désactivée),
+/// fermée par Échap. Chaque clic reçu s'affiche dans le titre de la fenêtre : la souris arrive-t-elle ?
 /// </summary>
 public class RemoteAppFullScreenSpike(ITestOutputHelper output)
 {
-    private const long WsMaximize = 0x01000000;
+    private const string Script = """
+        Add-Type -AssemblyName System.Windows.Forms
+        $script:main = New-Object System.Windows.Forms.Form
+        $main.Text = 'Spike main'; $main.Width = 640; $main.Height = 420; $main.StartPosition = 'CenterScreen'
+        $main.Add_MouseDown({ param($s, $e) $script:main.Text = "clic $($e.X),$($e.Y)" })
+        $script:timer = New-Object System.Windows.Forms.Timer
+        $timer.Interval = 15000
+        $timer.Add_Tick({
+          $script:timer.Stop()
+          $script:dlg = New-Object System.Windows.Forms.Form
+          $dlg.Text = 'Spike connecting'; $dlg.FormBorderStyle = 'FixedDialog'; $dlg.MinimizeBox = $false; $dlg.MaximizeBox = $false
+          $dlg.Width = 400; $dlg.Height = 150; $dlg.StartPosition = 'CenterParent'; $dlg.ShowInTaskbar = $false
+          $script:t2 = New-Object System.Windows.Forms.Timer; $t2.Interval = 3000
+          $t2.Add_Tick({ $script:t2.Stop(); $script:dlg.Close() })
+          $t2.Start()
+          [void]$dlg.ShowDialog($script:main)
+          $script:full = New-Object System.Windows.Forms.Form
+          $full.Text = 'Spike full'; $full.FormBorderStyle = 'None'; $full.MinimizeBox = $false; $full.MaximizeBox = $false
+          $full.ShowInTaskbar = $false; $full.KeyPreview = $true; $full.StartPosition = 'Manual'
+          $full.Bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          $full.Add_MouseDown({ param($s, $e) $script:full.Text = "clic $($e.X),$($e.Y)" })
+          $full.Add_KeyDown({ param($s, $e) if ($e.KeyCode -eq 'Escape') { $script:full.Close() } })
+          [void]$full.ShowDialog($script:main)
+          $script:timer.Start()
+        })
+        $main.Add_Shown({ $script:timer.Start() })
+        [System.Windows.Forms.Application]::Run($main)
+        """;
+
+    private const long WsDisabled = 0x08000000;
 
     [Fact]
     [Trait("Category", "RdpSpike")]
-    public async Task FullScreenRdpClientInTheTab()
+    public async Task FullScreenWindowInTheTab()
     {
         var user = Environment.GetEnvironmentVariable("RDP_TEST_USER");
         var password = Environment.GetEnvironmentVariable("RDP_TEST_PASSWORD");
@@ -30,20 +59,16 @@ public class RemoteAppFullScreenSpike(ITestOutputHelper output)
             return;
         }
 
-        // Réglages par défaut de mstsc dans la session distante : plein écran, ni NLA ni avertissement de certificat
-        // (il s'arrête à l'écran d'ouverture de session du poste imbriqué, ce qui suffit).
-        File.WriteAllText(@"C:\Users\Public\spike-default.rdp",
-            "screen mode id:i:2\r\nauthentication level:i:0\r\nenablecredsspsupport:i:0\r\nprompt for credentials:i:0\r\n" +
-            "displayconnectionbar:i:1\r\npinconnectionbar:i:1\r\ndesktopwidth:i:1024\r\ndesktopheight:i:768\r\n", Encoding.Unicode);
+        File.WriteAllText(@"C:\Users\Public\spike.ps1", Script);
         var log = Path.Combine(Path.GetTempPath(), "spike-debug.log");
         File.Delete(log);
         DebugLog.Start(log, "spike");
+        // conhost --headless : PowerShell sans fenêtre de console.
         var settings = RdpConnectionSettings.FromRdpFile(Encoding.Unicode.GetBytes(
             $"full address:s:127.0.0.2:3389\r\nusername:s:{Environment.MachineName}\\{user}\r\nauthentication level:i:0\r\nenablecredsspsupport:i:1\r\n" +
             "remoteapplicationmode:i:1\r\ndisableremoteappcapscheck:i:1\r\n" +
-            "remoteapplicationprogram:s:C:\\Windows\\System32\\cmd.exe\r\nremoteapplicationname:s:PSM-RDP\r\n" +
-            "remoteapplicationcmdline:s:/c copy /y C:\\Users\\Public\\spike-default.rdp \"%USERPROFILE%\\Documents\\Default.rdp\" " +
-            "& start \"\" C:\\Windows\\System32\\mstsc.exe /v:127.0.0.3 /f\r\n"));
+            "remoteapplicationprogram:s:C:\\Windows\\System32\\conhost.exe\r\nremoteapplicationname:s:PSM-RDP\r\n" +
+            "remoteapplicationcmdline:s:--headless C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\\Users\\Public\\spike.ps1\r\n"));
         var request = new RdpConnectionRequest(settings, password);
 
         var done = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -84,7 +109,7 @@ public class RemoteAppFullScreenSpike(ITestOutputHelper output)
         thread.Start();
         try
         {
-            await done.Task.WaitAsync(TimeSpan.FromMinutes(7));
+            await done.Task.WaitAsync(TimeSpan.FromMinutes(5));
         }
         finally
         {
@@ -111,128 +136,78 @@ public class RemoteAppFullScreenSpike(ITestOutputHelper output)
         output.WriteLine($"État : {session.State}, {session.Error}");
         var host = new System.Windows.Interop.WindowInteropHelper(window).Handle;
         var slot = session.Host.SlotHandle;
-        output.WriteLine($"Onglet {Win32Input.ScreenBounds(slot)}, écran {System.Windows.Forms.SystemInformation.VirtualScreen}");
-        IntPtr full = IntPtr.Zero;
-        for (int i = 0; i < 240 && full == IntPtr.Zero; i++)
-        {
-            await Task.Delay(500);
-            full = FullScreenWindow(slot);
-        }
+        output.WriteLine($"Onglet {Win32Input.ScreenBounds(slot)}");
+        var main = await Find("Spike main", 60);
+        Dump("A0 fenêtre principale", slot);
+        await ClickAndRead(host, main, "A0 principale");
 
-        await Task.Delay(3000);
-        Dump("A1 plein écran, version publiée", slot);
-        if (full == IntPtr.Zero)
+        for (int cycle = 0; cycle < 2; cycle++)
         {
-            output.WriteLine("Pas de fenêtre plein écran");
-            return;
-        }
-
-        // Retour en fenêtre : clic dans la fenêtre plein écran (où qu'elle soit), puis Ctrl+Alt+Attn.
-        await ToggleFullScreen(host, full);
-        Dump("A2 après Ctrl+Alt+Attn", slot);
-        await RightClickTitle(host, slot, "A2");
-
-        // B : nouvelle version (plein écran dans l'onglet, fenêtre visible affichée).
-        RemoteAppDock.Legacy = false;
-        await Task.Delay(1500);
-        Dump("B0 nouvelle version", slot);
-        var docked = Docked(slot);
-        if (docked != IntPtr.Zero)
-        {
-            await ToggleFullScreen(host, docked);
-            Dump("B1 après Ctrl+Alt+Attn (plein écran)", slot);
-            await RightClick(host, Docked(slot), "B1 centre");
-            var current = Docked(slot) is var d && d != IntPtr.Zero ? d : FullScreenWindow(slot);
-            if (current != IntPtr.Zero)
-            {
-                await ToggleFullScreen(host, current);
-                Dump("B2 après Ctrl+Alt+Attn (fenêtre)", slot);
-                await RightClickTitle(host, slot, "B2");
-            }
+            var step = cycle == 0 ? "A" : "B";
+            var full = await Find("Spike full", 60);
+            await Task.Delay(1500);
+            Dump($"{step}1 plein écran", slot);
+            await ClickAndRead(host, full, $"{step}1 plein écran");
+            Win32Input.Keys((0x1B, 0x01, false));
+            await Task.Delay(3000);
+            Dump($"{step}2 après Échap", slot);
+            await ClickAndRead(host, main, $"{step}2 principale");
+            await Task.Delay(1500);
+            await ClickAndRead(host, main, $"{step}2 principale (2e clic)");
+            // B : nouvelle version.
+            RemoteAppDock.Legacy = false;
         }
 
         session.Disconnect();
         await Task.Delay(3000);
     }
 
-    /// <summary>Clic gauche au centre de la fenêtre (le serveur lui donne le clavier), puis Ctrl+Alt+Attn.</summary>
-    private static async Task ToggleFullScreen(IntPtr host, IntPtr window)
+    /// <summary>Fenêtre de l'application (dans l'onglet ou non) dont le titre commence par <paramref name="title"/>, ou par « clic ».</summary>
+    private async Task<IntPtr> Find(string title, int seconds)
     {
-        Win32Input.BringToFront(IsTopLevel(window) ? window : host);
-        await Task.Delay(300);
-        var b = Win32Input.ScreenBounds(window);
-        Win32Input.Click((b.Left + (b.Width / 2), b.Top + (b.Height / 2)));
-        await Task.Delay(1000);
-        Win32Input.Keys((0x11, 0x1D, false), (0x12, 0x38, false), (0x03, 0x46, true));
-        await Task.Delay(5000);
+        for (int i = 0; i < seconds * 2; i++)
+        {
+            var found = AllWindows().FirstOrDefault(h => Win32Input.IsWindowVisible(h) && Win32Input.Title(h).StartsWith(title, StringComparison.Ordinal));
+            if (found != IntPtr.Zero)
+            {
+                return found;
+            }
+
+            await Task.Delay(500);
+        }
+
+        output.WriteLine($"« {title} » introuvable");
+        return IntPtr.Zero;
     }
 
-    /// <summary>Clic droit sur la barre de titre (dessinée par le serveur) de la fenêtre de l'onglet : menu système ?</summary>
-    private async Task RightClickTitle(IntPtr host, IntPtr slot, string step)
+    /// <summary>Clic gauche au milieu de la fenêtre : le titre (mis à jour par le serveur) dit si le clic est arrivé, et où.</summary>
+    private async Task ClickAndRead(IntPtr host, IntPtr window, string step)
     {
-        var docked = Docked(slot);
-        if (docked == IntPtr.Zero)
+        if (window == IntPtr.Zero || !Win32Input.IsWindowVisible(window))
         {
-            output.WriteLine($"{step} : aucune fenêtre dans l'onglet");
+            output.WriteLine($"{step} : fenêtre absente ou masquée");
             return;
         }
 
-        var b = Win32Input.ScreenBounds(docked);
-        await RightClickAt(host, (b.Left + (b.Width / 3), b.Top + 10), $"{step} titre");
-    }
-
-    private async Task RightClick(IntPtr host, IntPtr window, string step)
-    {
-        if (window == IntPtr.Zero)
-        {
-            output.WriteLine($"{step} : aucune fenêtre dans l'onglet");
-            return;
-        }
-
+        var before = Win32Input.Title(window);
         var b = Win32Input.ScreenBounds(window);
-        await RightClickAt(host, (b.Left + (b.Width / 3), b.Top + (b.Height / 3)), step);
-    }
-
-    /// <summary>Clic droit : où s'ouvre un menu (fenêtre de l'application) par rapport au point cliqué ?</summary>
-    private async Task RightClickAt(IntPtr host, (int X, int Y) point, string step)
-    {
-        var before = Win32Input.ProcessWindows().ToHashSet();
-        Win32Input.BringToFront(host);
+        (int X, int Y) point = (b.Left + (b.Width / 2), b.Top + (b.Height / 2));
+        Win32Input.BringToFront(GetParent(window) == IntPtr.Zero ? window : host);
         await Task.Delay(300);
-        Win32Input.Click(point, right: true);
-        IntPtr menu = IntPtr.Zero;
-        for (int i = 0; i < 12 && menu == IntPtr.Zero; i++)
+        Win32Input.Click(point);
+        string after = before;
+        for (int i = 0; i < 12 && after == before; i++)
         {
             await Task.Delay(250);
-            menu = Win32Input.ProcessWindows().FirstOrDefault(h => !before.Contains(h) && Win32Input.IsWindowVisible(h)
-                                                                   && Win32Input.ClassName(h) == "RAIL_WINDOW");
+            after = Win32Input.Title(window);
         }
 
-        if (menu == IntPtr.Zero)
-        {
-            output.WriteLine($"{step} : clic droit en {point}, aucun menu");
-            return;
-        }
-
-        var m = Win32Input.ScreenBounds(menu);
-        output.WriteLine($"{step} : clic droit en {point}, menu {Describe(menu)} (écart {m.Left - point.X},{m.Top - point.Y})");
-        Win32Input.Keys((0x1B, 0x01, false));
-        await Task.Delay(800);
+        output.WriteLine($"{step} : clic en {point} (fenêtre {b}, {(IsDisabled(window) ? "désactivée" : "active")}) : titre « {before} » -> « {after} »");
     }
 
-    private static IntPtr Docked(IntPtr slot) =>
-        Win32Input.Descendants(slot).FirstOrDefault(h => Win32Input.ClassName(h) == "RAIL_WINDOW" && Win32Input.IsWindowVisible(h));
-
-    /// <summary>Fenêtre de l'application (dans l'onglet ou non) qui couvre tout l'écran.</summary>
-    private static IntPtr FullScreenWindow(IntPtr slot)
-    {
-        var screen = System.Windows.Forms.SystemInformation.VirtualScreen;
-        return Win32Input.ProcessWindows().Concat(Win32Input.Descendants(slot))
-            .FirstOrDefault(h => Win32Input.ClassName(h) == "RAIL_WINDOW" && Win32Input.IsWindowVisible(h)
-                                 && Win32Input.ScreenBounds(h) is var b && b.Width >= screen.Width && b.Height >= screen.Height);
-    }
-
-    private static bool IsTopLevel(IntPtr window) => GetParent(window) == IntPtr.Zero;
+    private IEnumerable<IntPtr> AllWindows() =>
+        Win32Input.ProcessWindows().Concat(Win32Input.ProcessWindows().SelectMany(Win32Input.Descendants))
+            .Where(h => Win32Input.ClassName(h) == "RAIL_WINDOW").Distinct();
 
     private void Dump(string title, IntPtr slot)
     {
@@ -248,12 +223,14 @@ public class RemoteAppFullScreenSpike(ITestOutputHelper output)
         }
     }
 
+    private static bool IsDisabled(IntPtr h) => (GetWindowLongPtr(h, -16).ToInt64() & WsDisabled) != 0;
+
     private static string Describe(IntPtr h)
     {
         long style = GetWindowLongPtr(h, -16).ToInt64();
         long ex = GetWindowLongPtr(h, -20).ToInt64();
         return $"0x{h.ToInt64():X} « {Win32Input.Title(h)} » {Win32Input.ScreenBounds(h)} style 0x{style:X} ex 0x{ex:X} " +
-               $"agrandie {(style & WsMaximize) != 0} visible {Win32Input.IsWindowVisible(h)} parent 0x{GetParent(h).ToInt64():X}";
+               $"visible {Win32Input.IsWindowVisible(h)} parent 0x{GetParent(h).ToInt64():X}";
     }
 
     [DllImport("user32.dll")]
