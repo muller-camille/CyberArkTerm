@@ -1,3 +1,5 @@
+using System.IO;
+using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Text.Json;
 using System.Windows;
@@ -108,12 +110,82 @@ public sealed class DialogTests
 
         RunWithTheme(() =>
         {
-            var import = new ImportAccountsDialog(["Prod"], ["WinDomain"], "Prod", "WinDomain", (_, _) => Task.FromResult(new PvwaAccount()));
-            Assert.Equal(("Prod", "WinDomain"), (import.SafeBox.Text, import.PlatformBox.Text));
-            Assert.False(import.ImportButton.IsEnabled);
-            Assert.Equal(8, import.RowsGrid.Columns.Count);
-            import.Close();
+            var choose = new ImportAccountsDialog(["Prod"], ["WinDomain"], "Prod", "WinDomain");
+            Assert.Equal(("Prod", "WinDomain"), (choose.SafeBox.Text, choose.PlatformBox.Text));
+            Assert.False(choose.ImportButton.IsEnabled);
+            choose.Close();
+            Assert.Null(choose.Confirmed);
         });
+    }
+
+    /// <summary>
+    /// Import sur un PVWA fictif : une ligne créée, une refusée, une incomplète, puis la session expire ; les lignes
+    /// suivantes ne sont pas envoyées, les mots de passe sont effacés et le résultat CSV ne les contient pas.
+    /// </summary>
+    [Fact]
+    public void ImportShowsEachLineAndSavesTheResult()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        const string csv = "safe,platform,address,userName,password\n"
+            + "Prod,WinDomain,srv01,adm1,Secret-1\n"
+            + "Prod,WinDomain,srv02,dup,\n"
+            + "Prod,WinDomain,,adm3,\n"
+            + "Prod,WinDomain,srv04,expire,Secret-4\n"
+            + "Prod,WinDomain,srv05,adm5,Secret-5\n";
+        var import = AccountCsv.Parse(csv, null, null);
+        var sent = new List<string>();
+        Task<PvwaAccount> Create(NewAccount account, CancellationToken ct)
+        {
+            sent.Add(account.UserName);
+            return account.UserName switch
+            {
+                "dup" => Task.FromException<PvwaAccount>(new PvwaException(HttpStatusCode.BadRequest, "PASWS027E", "Account already exists")),
+                "expire" => Task.FromException<PvwaAccount>(new PvwaException(HttpStatusCode.Unauthorized, null, "Session expired")),
+                _ => Task.FromResult(new PvwaAccount { Id = "id-" + account.UserName }),
+            };
+        }
+
+        var path = Path.Combine(Path.GetTempPath(), $"cat-import-{Guid.NewGuid():N}.csv");
+        try
+        {
+            RunWithTheme(() =>
+            {
+                string? asked = null;
+                var progress = new ImportProgressDialog(import, Create) { AskToSave = summary => { asked = summary; return false; } };
+                Assert.Equal(8, progress.RowsGrid.Columns.Count);
+
+                // Les PVWA fictifs répondent tout de suite : l'import se termine sans boucle de messages.
+                progress.RunAsync().GetAwaiter().GetResult();
+
+                Assert.Equal(["adm1", "dup", "expire"], sent);
+                Assert.Equal(
+                    [ImportOutcome.Created, ImportOutcome.Refused, ImportOutcome.NotImported, ImportOutcome.NotSent, ImportOutcome.NotSent],
+                    progress.Rows.Select(r => r.Outcome));
+                Assert.Equal(("id-adm1", "Account already exists"), (import.Rows[0].AccountId, import.Rows[1].Detail));
+                Assert.Equal(1, progress.Created);
+                Assert.True(progress.SessionExpired);
+                Assert.NotNull(asked);
+
+                // Session expirée : la fenêtre s'est fermée et a effacé tous les mots de passe.
+                Assert.All(import.Rows, r => Assert.True(r.Account?.Secret is null || r.Account.Secret.All(c => c == '\0')));
+
+                progress.WriteResult(path);
+            });
+
+            var result = File.ReadAllText(path);
+            Assert.Equal(6, result.Split("\r\n", StringSplitOptions.RemoveEmptyEntries).Length);
+            Assert.Contains("id-adm1", result);
+            Assert.Contains("Account already exists", result);
+            Assert.DoesNotContain("Secret-", result);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
     }
 
     /// <summary>

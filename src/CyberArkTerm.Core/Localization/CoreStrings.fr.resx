@@ -228,4 +228,31 @@
   <data name="ImportColumnCpm" xml:space="preserve">
     <value>gestion CPM</value>
   </data>
+  <data name="ImportResultLine" xml:space="preserve">
+    <value>Ligne</value>
+  </data>
+  <data name="ImportResultStatus" xml:space="preserve">
+    <value>Résultat</value>
+  </data>
+  <data name="ImportResultDetail" xml:space="preserve">
+    <value>Détail</value>
+  </data>
+  <data name="ImportOutcomePending" xml:space="preserve">
+    <value>À créer</value>
+  </data>
+  <data name="ImportOutcomeSending" xml:space="preserve">
+    <value>Envoi…</value>
+  </data>
+  <data name="ImportOutcomeCreated" xml:space="preserve">
+    <value>Créé</value>
+  </data>
+  <data name="ImportOutcomeRefused" xml:space="preserve">
+    <value>Refusé</value>
+  </data>
+  <data name="ImportOutcomeNotImported" xml:space="preserve">
+    <value>Non importé</value>
+  </data>
+  <data name="ImportOutcomeNotSent" xml:space="preserve">
+    <value>Non envoyé</value>
+  </data>
 </root>

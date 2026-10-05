@@ -116,13 +116,15 @@ riapre subito nella lingua scelta, conservando l'indirizzo e il nome utente inse
   fa da modello (safe, piattaforma, dominio). L'account viene creato con i diritti della tua sessione: serve il
   diritto «Aggiungere account» sul safe e, in genere, «Aggiornare il contenuto degli account» per fornire la
   password. L'elenco viene poi ricaricato e il nuovo account selezionato.
-- **Importare account (CSV)**: clic destro su un account o un safe → «Importa account (CSV)…». Colonne
-  obbligatorie: indirizzo e utente (più safe e piattaforma, altrimenti i valori predefiniti della finestra);
-  facoltative: nome, dominio, password, macchine consentite, gestione CPM (sì/no), motivo. Separatore `;`, `,` o
-  tabulazione, nomi delle colonne in italiano, francese o inglese; un file prodotto da «Esporta» si può reimportare
-  e «Salva un modello…» fornisce un esempio. Anteprima prima dell'invio, poi creazione riga per riga con il risultato
-  di ciascuna («Interrompi» disponibile). Le password del file non vengono mai mostrate; elimina il file dopo
-  l'importazione.
+- **Importare account (CSV)**: pulsante «Importa» della barra degli strumenti, o clic destro su un account o un
+  safe → «Importa account (CSV)…». Una piccola finestra chiede il file («Salva un modello…» fornisce un esempio), il
+  safe e la piattaforma predefiniti e riassume cosa verrà creato; nulla viene inviato prima di «Importa». Colonne
+  obbligatorie: indirizzo e utente (più safe e piattaforma, altrimenti i valori predefiniti); facoltative: nome,
+  dominio, password, macchine consentite, gestione CPM (sì/no), motivo. Separatore `;`, `,` o tabulazione, nomi delle
+  colonne in italiano, francese o inglese; un file prodotto da «Esporta» si può reimportare. Una seconda finestra crea
+  poi gli account riga per riga e mostra lo stato di ciascuna (creato, rifiutato con il messaggio del PVWA, non
+  importato, non inviato; «Interrompi» disponibile). Alla fine propone di salvare il risultato in CSV (senza le
+  password). Le password del file non vengono mai mostrate; elimina il file dopo l'importazione.
 - **Modificare / eliminare un account**: clic destro → «Modifica l'account…» (piattaforma, indirizzo, utente,
   dominio, nome, macchine consentite, gestione da parte del CPM; vengono inviati solo i campi modificati) oppure
   «Elimina l'account…» (dopo conferma). Diritti «Aggiornare le proprietà degli account» ed «Eliminare account».

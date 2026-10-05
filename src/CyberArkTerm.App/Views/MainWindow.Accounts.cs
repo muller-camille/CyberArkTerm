@@ -85,21 +85,36 @@ public partial class MainWindow
             return;
         }
 
-        var safe = (sender as System.Windows.Controls.MenuItem)?.CommandParameter as string;
+        // Clic droit : safe cliqué ; barre d'outils : safe du compte sélectionné, s'il y en a un.
+        var safe = (sender as System.Windows.Controls.MenuItem)?.CommandParameter as string ?? _current?.SafeName;
         var platform = _current?.PlatformId ?? MostCommonPlatform(safe);
-        var dialog = new ImportAccountsDialog(KnownValues(a => a.SafeName), KnownValues(a => a.PlatformId), safe, platform,
-            client.AddAccountAsync) { Owner = this };
-        dialog.ShowDialog();
-        if (dialog.SessionExpired)
+        var choose = new ImportAccountsDialog(KnownValues(a => a.SafeName), KnownValues(a => a.PlatformId), safe, platform) { Owner = this };
+        if (choose.ShowDialog() != true || choose.Confirmed is not { } import)
+        {
+            return;
+        }
+
+        var progress = new ImportProgressDialog(import, client.AddAccountAsync) { Owner = this };
+        try
+        {
+            progress.ShowDialog();
+        }
+        finally
+        {
+            // Mots de passe pas encore envoyés (import arrêté) : effacés même si la fenêtre n'a pas pu s'ouvrir.
+            import.Clear();
+        }
+
+        if (progress.SessionExpired)
         {
             OnSessionExpired();
             return;
         }
 
-        if (dialog.Created > 0)
+        if (progress.Created > 0)
         {
             await LoadAccountsAsync();
-            SetStatus(Text.Format(Strings.AccountsImported, dialog.Created));
+            SetStatus(Text.Format(Strings.AccountsImported, progress.Created));
         }
     }
 

@@ -30,6 +30,36 @@ public sealed class ImportRow
     public NewAccount? Account { get; init; }
 
     public string? Error { get; init; }
+
+    /// <summary>État de la ligne pendant et après l'import.</summary>
+    public ImportOutcome Outcome { get; set; }
+
+    /// <summary>Message du PVWA quand la création est refusée.</summary>
+    public string? Detail { get; set; }
+
+    /// <summary>Identifiant du compte créé.</summary>
+    public string? AccountId { get; set; }
+}
+
+/// <summary>État d'une ligne d'import.</summary>
+public enum ImportOutcome
+{
+    /// <summary>Compte prêt, pas encore envoyé.</summary>
+    Pending,
+
+    /// <summary>Envoi en cours.</summary>
+    Sending,
+
+    Created,
+
+    /// <summary>Refusé par le PVWA (voir <see cref="ImportRow.Detail"/>).</summary>
+    Refused,
+
+    /// <summary>Ligne incomplète, jamais envoyée (voir <see cref="ImportRow.Error"/>).</summary>
+    NotImported,
+
+    /// <summary>Import arrêté avant cette ligne.</summary>
+    NotSent,
 }
 
 /// <summary>Contenu d'un fichier d'import ; <see cref="Clear"/> efface les mots de passe lus.</summary>
@@ -126,6 +156,37 @@ public static class AccountCsv
         encoding.GetChars(bytes, chars);
         return chars;
     }
+
+    /// <summary>
+    /// Résultat d'un import en CSV, une ligne par ligne du fichier, sans les mots de passe : état, message du PVWA ou
+    /// raison du rejet, identifiant du compte créé. En-têtes dans la langue de l'interface.
+    /// </summary>
+    public static void WriteResults(TextWriter writer, IEnumerable<ImportRow> rows, char separator)
+    {
+        CsvExporter.WriteLine(writer, separator,
+        [
+            CoreStrings.ImportResultLine, CoreStrings.ColumnSafe, CoreStrings.ColumnPlatform, CoreStrings.ColumnServer, CoreStrings.ColumnUser,
+            CoreStrings.ColumnDomain, CoreStrings.ColumnName, CoreStrings.ImportResultStatus, CoreStrings.ImportResultDetail, "ID",
+        ]);
+        foreach (var row in rows)
+        {
+            CsvExporter.WriteLine(writer, separator,
+            [
+                row.Line.ToString(CultureInfo.InvariantCulture), row.Safe, row.Platform, row.Address, row.UserName, row.LogonDomain, row.Name,
+                OutcomeText(row.Outcome), row.Detail ?? row.Error ?? "", row.AccountId ?? "",
+            ]);
+        }
+    }
+
+    public static string OutcomeText(ImportOutcome outcome) => outcome switch
+    {
+        ImportOutcome.Pending => CoreStrings.ImportOutcomePending,
+        ImportOutcome.Sending => CoreStrings.ImportOutcomeSending,
+        ImportOutcome.Created => CoreStrings.ImportOutcomeCreated,
+        ImportOutcome.Refused => CoreStrings.ImportOutcomeRefused,
+        ImportOutcome.NotImported => CoreStrings.ImportOutcomeNotImported,
+        _ => CoreStrings.ImportOutcomeNotSent,
+    };
 
     private static Encoding AnsiEncoding()
     {
@@ -231,6 +292,7 @@ public static class AccountCsv
             LogonDomain = Text(Column.LogonDomain),
             HasPassword = password.Length > 0,
             Error = error,
+            Outcome = error is null ? ImportOutcome.Pending : ImportOutcome.NotImported,
             Account = error is not null ? null : new NewAccount
             {
                 SafeName = safe,

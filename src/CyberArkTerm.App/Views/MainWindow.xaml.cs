@@ -91,7 +91,7 @@ public partial class MainWindow : Window
             // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de l'onglet « Courants ».
             AvailableTab.Visibility = Visibility.Collapsed;
             QuickPanel.Visibility = HomeLists.Visibility = NewFolderButton.Visibility = Visibility.Collapsed;
-            ExportButton.IsEnabled = false;
+            ExportButton.IsEnabled = ImportToolButton.IsEnabled = false;
             NoSavedText.Text = Strings.NoKeePassHelp;
             SideTabs.SelectedItem = CurrentTab;
             CountText.Text = "";

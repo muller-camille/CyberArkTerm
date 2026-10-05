@@ -319,6 +319,12 @@
                             <TextBlock Text="{x:Static loc:Strings.ToolExport}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
+                    <Button x:Name="ImportToolButton" Style="{StaticResource ToolButton}" Click="OnImportAccounts" ToolTip="{x:Static loc:Strings.ToolImportTip}">
+                        <StackPanel>
+                            <Image Source="{StaticResource IconImport}" Style="{StaticResource ToolIcon}" />
+                            <TextBlock Text="{x:Static loc:Strings.ToolImport}" Style="{StaticResource ToolLabel}" />
+                        </StackPanel>
+                    </Button>
                     <Rectangle Style="{StaticResource ToolSeparator}" />
                     <Button Style="{StaticResource ToolButton}" Click="OnSettingsMenu" ToolTip="{x:Static loc:Strings.ToolSettingsTip}">
                         <StackPanel>

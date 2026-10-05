@@ -1649,6 +1649,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Nothing is sent before you click Import; the next window then shows the result of each line..
+        /// </summary>
+        public static string ImportConfirmHint {
+            get {
+                return ResourceManager.GetString("ImportConfirmHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Default _platform:.
         /// </summary>
         public static string ImportDefaultPlatform {
@@ -1712,6 +1721,24 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Line {0}: {1}.
+        /// </summary>
+        public static string ImportLineError {
+            get {
+                return ResourceManager.GetString("ImportLineError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to … and {0} more line(s) with an error..
+        /// </summary>
+        public static string ImportMoreErrors {
+            get {
+                return ResourceManager.GetString("ImportMoreErrors", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to No file chosen.
         /// </summary>
         public static string ImportNoFile {
@@ -1748,11 +1775,56 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Created.
+        ///   Looks up a localized string similar to import-result.
         /// </summary>
-        public static string ImportStatusCreated {
+        public static string ImportResultFileName {
             get {
-                return ResourceManager.GetString("ImportStatusCreated", resourceCulture);
+                return ResourceManager.GetString("ImportResultFileName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Result saved: {0}.
+        /// </summary>
+        public static string ImportResultSaved {
+            get {
+                return ResourceManager.GetString("ImportResultSaved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Creating {0} account(s) in CyberArk, one line at a time..
+        /// </summary>
+        public static string ImportRunning {
+            get {
+                return ResourceManager.GetString("ImportRunning", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Save the result….
+        /// </summary>
+        public static string ImportSaveResult {
+            get {
+                return ResourceManager.GetString("ImportSaveResult", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}  Save the result to a CSV file (one line per line of the file, without the passwords)?.
+        /// </summary>
+        public static string ImportSaveResultAsk {
+            get {
+                return ResourceManager.GetString("ImportSaveResultAsk", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA session has expired: import stopped, {0} created, {1} refused; the other lines were not [rest of string was truncated].
+        /// </summary>
+        public static string ImportSessionExpired {
+            get {
+                return ResourceManager.GetString("ImportSessionExpired", resourceCulture);
             }
         }
 
@@ -1762,15 +1834,6 @@ namespace CyberArkTerm.App.Localization {
         public static string ImportStatusError {
             get {
                 return ResourceManager.GetString("ImportStatusError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to To create.
-        /// </summary>
-        public static string ImportStatusReady {
-            get {
-                return ResourceManager.GetString("ImportStatusReady", resourceCulture);
             }
         }
 
@@ -5308,6 +5371,24 @@ namespace CyberArkTerm.App.Localization {
         public static string ToolExportTip {
             get {
                 return ResourceManager.GetString("ToolExportTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import.
+        /// </summary>
+        public static string ToolImport {
+            get {
+                return ResourceManager.GetString("ToolImport", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Create accounts from a CSV file.
+        /// </summary>
+        public static string ToolImportTip {
+            get {
+                return ResourceManager.GetString("ToolImportTip", resourceCulture);
             }
         }
 

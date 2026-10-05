@@ -38,7 +38,7 @@ public static class CsvExporter
     public static char DefaultSeparator(CultureInfo culture) =>
         culture.TextInfo.ListSeparator is { Length: 1 } s && s[0] is not ('"' or '\r' or '\n') ? s[0] : ';';
 
-    private static void WriteLine(TextWriter writer, char separator, IReadOnlyList<string> values)
+    internal static void WriteLine(TextWriter writer, char separator, IReadOnlyList<string> values)
     {
         for (int i = 0; i < values.Count; i++)
         {

@@ -114,12 +114,14 @@ right away in the chosen language, keeping the address and user name you typed.
   domain). The account is created with the rights of your session: the "Add accounts" right on the safe is
   required, and usually "Update account content" to give the password. The list is then reloaded and the new
   account selected.
-- **Import accounts (CSV)**: right-click an account or a safe → "Import accounts (CSV)…". Required columns: address
-  and user name (plus safe and platform, otherwise the window's defaults); optional: name, domain, password, allowed
-  machines, CPM management (yes/no), reason. Separator `;`, `,` or tab, column names in English, French or Italian; a
-  file made with "Export" can be imported again, and "Save a template…" gives an example. Preview before sending,
-  then line-by-line creation with each line's result ("Stop" available). The file's passwords are never shown;
-  delete the file after the import.
+- **Import accounts (CSV)**: "Import" toolbar button, or right-click an account or a safe → "Import accounts
+  (CSV)…". A small window asks for the file ("Save a template…" gives an example), the default safe and platform,
+  and sums up what will be created; nothing is sent before "Import". Required columns: address and user name (plus
+  safe and platform, otherwise the defaults); optional: name, domain, password, allowed machines, CPM management
+  (yes/no), reason. Separator `;`, `,` or tab, column names in English, French or Italian; a file made with "Export"
+  can be imported again. A second window then creates the accounts line by line and shows each line's status
+  (created, refused with the PVWA message, not imported, not sent; "Stop" available). At the end it offers to save
+  the result as CSV (without the passwords). The file's passwords are never shown; delete the file after the import.
 - **Edit / delete an account**: right-click → "Edit the account…" (platform, address, user name, domain, name,
   allowed machines, CPM management; only the changed fields are sent) or "Delete the account…" (after
   confirmation). Rights "Update account properties" and "Delete accounts".

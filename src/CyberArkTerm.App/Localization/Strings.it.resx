@@ -180,6 +180,12 @@
   <data name="ToolExportTip" xml:space="preserve">
     <value>Esporta l'elenco filtrato in CSV</value>
   </data>
+  <data name="ToolImport" xml:space="preserve">
+    <value>Importa</value>
+  </data>
+  <data name="ToolImportTip" xml:space="preserve">
+    <value>Crea account da un file CSV</value>
+  </data>
   <data name="ToolSettings" xml:space="preserve">
     <value>Impostazioni</value>
   </data>
@@ -1787,12 +1793,6 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
   <data name="ImportColResult" xml:space="preserve">
     <value>Risultato</value>
   </data>
-  <data name="ImportStatusReady" xml:space="preserve">
-    <value>Da creare</value>
-  </data>
-  <data name="ImportStatusCreated" xml:space="preserve">
-    <value>Creato</value>
-  </data>
   <data name="ImportStatusRefused" xml:space="preserve">
     <value>Rifiutato: {0}</value>
   </data>
@@ -1801,6 +1801,35 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
   </data>
   <data name="AccountsImported" xml:space="preserve">
     <value>{0} account importato/i</value>
+  </data>
+  <data name="ImportLineError" xml:space="preserve">
+    <value>Riga {0}: {1}</value>
+  </data>
+  <data name="ImportMoreErrors" xml:space="preserve">
+    <value>… e altre {0} riga/righe con errore.</value>
+  </data>
+  <data name="ImportConfirmHint" xml:space="preserve">
+    <value>Nulla viene inviato prima di «Importa»; la finestra successiva mostra poi il risultato di ogni riga.</value>
+  </data>
+  <data name="ImportRunning" xml:space="preserve">
+    <value>Creazione di {0} account in CyberArk, una riga alla volta.</value>
+  </data>
+  <data name="ImportSessionExpired" xml:space="preserve">
+    <value>La sessione PVWA è scaduta: importazione interrotta, {0} creato/i, {1} rifiutato/i; le altre righe non sono state inviate.</value>
+  </data>
+  <data name="ImportSaveResult" xml:space="preserve">
+    <value>_Salva il risultato…</value>
+  </data>
+  <data name="ImportSaveResultAsk" xml:space="preserve">
+    <value>{0}
+
+Salvare il risultato in un file CSV (una riga per ogni riga del file, senza le password)?</value>
+  </data>
+  <data name="ImportResultFileName" xml:space="preserve">
+    <value>risultato-importazione</value>
+  </data>
+  <data name="ImportResultSaved" xml:space="preserve">
+    <value>Risultato salvato: {0}</value>
   </data>
   <data name="SafeMembersAdd" xml:space="preserve">
     <value>_Aggiungi un membro…</value>

@@ -119,13 +119,16 @@ rouvre aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant 
   cliqué sert de modèle (safe, plateforme, domaine). Le compte est créé avec les droits de votre session : il faut
   le droit « Ajouter des comptes » sur le safe, et en général « Modifier le contenu des comptes » pour fournir le
   mot de passe. La liste est rechargée ensuite et le nouveau compte sélectionné.
-- **Importer des comptes (CSV)** : clic droit sur un compte ou un safe → « Importer des comptes (CSV)… ». Colonnes
-  obligatoires : adresse et utilisateur (plus safe et plateforme, sinon les valeurs par défaut de la fenêtre) ;
+- **Importer des comptes (CSV)** : bouton « Importer » de la barre d'outils, ou clic droit sur un compte ou un safe →
+  « Importer des comptes (CSV)… ». Une petite fenêtre demande le fichier (« Enregistrer un modèle… » donne un
+  exemple), le safe et la plateforme par défaut, et résume ce qui sera créé ; rien n'est envoyé avant « Importer ».
+  Colonnes obligatoires : adresse et utilisateur (plus safe et plateforme, sinon les valeurs par défaut) ;
   facultatives : nom, domaine, mot de passe, machines autorisées, gestion CPM (oui/non), motif. Séparateur `;`, `,` ou
-  tabulation, noms de colonnes en français, anglais ou italien ; un fichier produit par « Exporter » se réimporte, et
-  « Enregistrer un modèle… » donne un exemple. Aperçu avant l'envoi, puis création ligne par ligne avec le résultat
-  de chacune (« Arrêter » possible). Les mots de passe du fichier ne sont jamais affichés ; supprimez le fichier
-  après l'import.
+  tabulation, noms de colonnes en français, anglais ou italien ; un fichier produit par « Exporter » se réimporte.
+  Une seconde fenêtre crée ensuite les comptes ligne par ligne et affiche l'état de chacune (créé, refusé avec le
+  message du PVWA, non importé, non envoyé ; « Arrêter » possible). À la fin, elle propose d'enregistrer le résultat
+  en CSV (sans les mots de passe). Les mots de passe du fichier ne sont jamais affichés ; supprimez le fichier après
+  l'import.
 - **Modifier / supprimer un compte** : clic droit → « Modifier le compte… » (plateforme, adresse, utilisateur,
   domaine, nom, machines autorisées, gestion par le CPM ; seuls les champs changés sont envoyés) ou « Supprimer le
   compte… » (après confirmation). Droits « Modifier les propriétés des comptes » et « Supprimer des comptes ».

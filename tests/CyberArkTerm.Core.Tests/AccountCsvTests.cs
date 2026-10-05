@@ -60,6 +60,44 @@ public sealed class AccountCsvTests
         }
     }
 
+    /// <summary>
+    /// Résultat d'un import : une ligne par ligne du fichier avec état, détail et identifiant, jamais le mot de passe ;
+    /// une valeur qui ressemble à une formule est neutralisée comme dans l'export.
+    /// </summary>
+    [Fact]
+    public void WritesTheResultWithoutPasswords()
+    {
+        var previous = CultureInfo.CurrentUICulture;
+        try
+        {
+            CultureInfo.CurrentUICulture = new CultureInfo("en");
+            var import = AccountCsv.Parse("safe;platform;address;userName;password\nProd;P;srv01;adm;Secret-1\nProd;P;;u;\nProd;P;srv03;=cmd;\nProd;P;srv04;v;\n", null, null);
+            import.Rows[0].Outcome = ImportOutcome.Created;
+            import.Rows[0].AccountId = "12_3";
+            import.Rows[2].Outcome = ImportOutcome.Refused;
+            import.Rows[2].Detail = "Account already exists";
+            import.Rows[3].Outcome = ImportOutcome.NotSent;
+            var writer = new StringWriter();
+
+            AccountCsv.WriteResults(writer, import.Rows, ';');
+
+            Assert.Equal(
+            [
+                "Line;Safe;Platform;Server;User;Domain;Name;Result;Detail;ID",
+                "2;Prod;P;srv01;adm;;;Created;;12_3",
+                "3;Prod;P;;u;;;Not imported;address missing;",
+                "4;Prod;P;srv03;'=cmd;;;Refused;Account already exists;",
+                "5;Prod;P;srv04;v;;;Not sent;;",
+            ], writer.ToString().Split("\r\n", StringSplitOptions.RemoveEmptyEntries));
+            Assert.DoesNotContain("Secret", writer.ToString());
+            Assert.Equal(ImportOutcome.Pending, AccountCsv.Parse("safe,platform,address,userName\nS,P,a,u\n", null, null).Rows[0].Outcome);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = previous;
+        }
+    }
+
     [Fact]
     public void IncompleteRowsKeepTheirError()
     {

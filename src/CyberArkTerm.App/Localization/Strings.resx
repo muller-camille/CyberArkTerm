@@ -180,6 +180,12 @@
   <data name="ToolExportTip" xml:space="preserve">
     <value>Export the filtered list to CSV</value>
   </data>
+  <data name="ToolImport" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="ToolImportTip" xml:space="preserve">
+    <value>Create accounts from a CSV file</value>
+  </data>
   <data name="ToolSettings" xml:space="preserve">
     <value>Settings</value>
   </data>
@@ -1787,12 +1793,6 @@ Your changes stay in the editor: save again to send the whole file once the conn
   <data name="ImportColResult" xml:space="preserve">
     <value>Result</value>
   </data>
-  <data name="ImportStatusReady" xml:space="preserve">
-    <value>To create</value>
-  </data>
-  <data name="ImportStatusCreated" xml:space="preserve">
-    <value>Created</value>
-  </data>
   <data name="ImportStatusRefused" xml:space="preserve">
     <value>Refused: {0}</value>
   </data>
@@ -1801,6 +1801,35 @@ Your changes stay in the editor: save again to send the whole file once the conn
   </data>
   <data name="AccountsImported" xml:space="preserve">
     <value>{0} account(s) imported</value>
+  </data>
+  <data name="ImportLineError" xml:space="preserve">
+    <value>Line {0}: {1}</value>
+  </data>
+  <data name="ImportMoreErrors" xml:space="preserve">
+    <value>… and {0} more line(s) with an error.</value>
+  </data>
+  <data name="ImportConfirmHint" xml:space="preserve">
+    <value>Nothing is sent before you click Import; the next window then shows the result of each line.</value>
+  </data>
+  <data name="ImportRunning" xml:space="preserve">
+    <value>Creating {0} account(s) in CyberArk, one line at a time.</value>
+  </data>
+  <data name="ImportSessionExpired" xml:space="preserve">
+    <value>The PVWA session has expired: import stopped, {0} created, {1} refused; the other lines were not sent.</value>
+  </data>
+  <data name="ImportSaveResult" xml:space="preserve">
+    <value>_Save the result…</value>
+  </data>
+  <data name="ImportSaveResultAsk" xml:space="preserve">
+    <value>{0}
+
+Save the result to a CSV file (one line per line of the file, without the passwords)?</value>
+  </data>
+  <data name="ImportResultFileName" xml:space="preserve">
+    <value>import-result</value>
+  </data>
+  <data name="ImportResultSaved" xml:space="preserve">
+    <value>Result saved: {0}</value>
   </data>
   <data name="SafeMembersAdd" xml:space="preserve">
     <value>_Add a member…</value>
