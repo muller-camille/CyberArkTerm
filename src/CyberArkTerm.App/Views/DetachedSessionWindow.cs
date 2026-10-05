@@ -10,11 +10,12 @@ namespace CyberArkTerm.App.Views;
 /// </summary>
 public sealed class DetachedSessionWindow : Window
 {
-    public DetachedSessionWindow(SshSessionView view, string label)
+    /// <param name="icon">Icône de l'application (celle de la fenêtre principale).</param>
+    public DetachedSessionWindow(SshSessionView view, string label, System.Windows.Media.ImageSource? icon = null)
     {
         View = view;
         Title = Text.Format(Strings.DetachedTitle, label);
-        Icon = Application.Current?.MainWindow?.Icon;
+        Icon = icon;
         Background = System.Windows.Media.Brushes.White;
         ShowInTaskbar = true;
         Content = view;
