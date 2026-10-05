@@ -416,6 +416,168 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to ✓ The {0} file(s) are identical on both sides..
+        /// </summary>
+        public static string ChecksAllOk {
+            get {
+                return ResourceManager.GetString("ChecksAllOk", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to File on the server.
+        /// </summary>
+        public static string ChecksColFile {
+            get {
+                return ResourceManager.GetString("ChecksColFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SHA-256 on this computer.
+        /// </summary>
+        public static string ChecksColLocal {
+            get {
+                return ResourceManager.GetString("ChecksColLocal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SHA-256 on the server.
+        /// </summary>
+        public static string ChecksColRemote {
+            get {
+                return ResourceManager.GetString("ChecksColRemote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Result.
+        /// </summary>
+        public static string ChecksColResult {
+            get {
+                return ResourceManager.GetString("ChecksColResult", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Size.
+        /// </summary>
+        public static string ChecksColSize {
+            get {
+                return ResourceManager.GetString("ChecksColSize", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copied: {0} line(s).
+        /// </summary>
+        public static string ChecksCopied {
+            get {
+                return ResourceManager.GetString("ChecksCopied", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Copy for sha256sum -c.
+        /// </summary>
+        public static string ChecksCopy {
+            get {
+                return ResourceManager.GetString("ChecksCopy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copies one line per file (checksum of the original and path on the server), to check again on the[rest of string was truncated].
+        /// </summary>
+        public static string ChecksCopyTip {
+            get {
+                return ResourceManager.GetString("ChecksCopyTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✗ Different.
+        /// </summary>
+        public static string ChecksDifferent {
+            get {
+                return ResourceManager.GetString("ChecksDifferent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✓ Identical.
+        /// </summary>
+        public static string ChecksIdentical {
+            get {
+                return ResourceManager.GetString("ChecksIdentical", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The data received from the server was hashed (SHA-256), then the file written on this computer wa[rest of string was truncated].
+        /// </summary>
+        public static string ChecksIntroDownload {
+            get {
+                return ResourceManager.GetString("ChecksIntroDownload", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Each file was hashed (SHA-256) while it was sent, then read again on the server over SFTP and has[rest of string was truncated].
+        /// </summary>
+        public static string ChecksIntroUpload {
+            get {
+                return ResourceManager.GetString("ChecksIntroUpload", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Checksums….
+        /// </summary>
+        public static string ChecksLink {
+            get {
+                return ResourceManager.GetString("ChecksLink", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✗ {0} file(s) out of {1} differ: transfer them again..
+        /// </summary>
+        public static string ChecksSomeDiffer {
+            get {
+                return ResourceManager.GetString("ChecksSomeDiffer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠ {0} file(s) out of {1} could not be read again: transferred but not checked..
+        /// </summary>
+        public static string ChecksSomeUnverified {
+            get {
+                return ResourceManager.GetString("ChecksSomeUnverified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Check of the transferred files.
+        /// </summary>
+        public static string ChecksTitle {
+            get {
+                return ResourceManager.GetString("ChecksTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠ Not checked: {0}.
+        /// </summary>
+        public static string ChecksUnverified {
+            get {
+                return ResourceManager.GetString("ChecksUnverified", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to The clipboard is used by another application: try again..
         /// </summary>
         public static string ClipboardBusy {
@@ -5465,6 +5627,51 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to ✗ {0} file(s) differ from the original: transfer them again.
+        /// </summary>
+        public static string TransferMismatch {
+            get {
+                return ResourceManager.GetString("TransferMismatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the downloaded file differs from the server's (SHA-256)..
+        /// </summary>
+        public static string TransferMismatchFile {
+            get {
+                return ResourceManager.GetString("TransferMismatchFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠ {0} file(s) could not be checked.
+        /// </summary>
+        public static string TransferNotVerified {
+            get {
+                return ResourceManager.GetString("TransferNotVerified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✓ {0} file(s) identical on both sides (SHA-256).
+        /// </summary>
+        public static string TransferVerified {
+            get {
+                return ResourceManager.GetString("TransferVerified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✓ identical on both sides, SHA-256 {0}….
+        /// </summary>
+        public static string TransferVerifiedOne {
+            get {
+                return ResourceManager.GetString("TransferVerifiedOne", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to These items already exist in {0} and will be replaced:  {1}  Continue?.
         /// </summary>
         public static string UploadConflicts {
@@ -5542,6 +5749,15 @@ namespace CyberArkTerm.App.Localization {
         public static string Uploading {
             get {
                 return ResourceManager.GetString("Uploading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Checking {0} (SHA-256)….
+        /// </summary>
+        public static string VerifyingFile {
+            get {
+                return ResourceManager.GetString("VerifyingFile", resourceCulture);
             }
         }
 

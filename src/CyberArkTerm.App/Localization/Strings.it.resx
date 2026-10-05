@@ -820,6 +820,78 @@ Continuare?</value>
   <data name="DownloadFailed" xml:space="preserve">
     <value>Download non riuscito: {0}</value>
   </data>
+  <data name="VerifyingFile" xml:space="preserve">
+    <value>Verifica di {0} (SHA-256)…</value>
+  </data>
+  <data name="TransferVerified" xml:space="preserve">
+    <value>✓ {0} file identico/i su entrambi i lati (SHA-256)</value>
+  </data>
+  <data name="TransferVerifiedOne" xml:space="preserve">
+    <value>✓ identico su entrambi i lati, SHA-256 {0}…</value>
+  </data>
+  <data name="TransferNotVerified" xml:space="preserve">
+    <value>⚠ {0} file non verificato/i</value>
+  </data>
+  <data name="TransferMismatch" xml:space="preserve">
+    <value>✗ {0} file diverso/i dall'originale: trasferiscili di nuovo</value>
+  </data>
+  <data name="TransferMismatchFile" xml:space="preserve">
+    <value>{0}: il file scaricato è diverso da quello del server (SHA-256).</value>
+  </data>
+  <data name="ChecksLink" xml:space="preserve">
+    <value>Checksum…</value>
+  </data>
+  <data name="ChecksTitle" xml:space="preserve">
+    <value>Verifica dei file trasferiti</value>
+  </data>
+  <data name="ChecksIntroUpload" xml:space="preserve">
+    <value>Ogni file è stato sottoposto a hash (SHA-256) durante l'invio, poi riletto sul server via SFTP e sottoposto di nuovo a hash: le due somme devono essere identiche.</value>
+  </data>
+  <data name="ChecksIntroDownload" xml:space="preserve">
+    <value>I dati ricevuti dal server sono stati sottoposti a hash (SHA-256), poi il file scritto su questo computer è stato riletto e sottoposto a hash: le due somme devono essere identiche.</value>
+  </data>
+  <data name="ChecksAllOk" xml:space="preserve">
+    <value>✓ I {0} file sono identici su entrambi i lati.</value>
+  </data>
+  <data name="ChecksSomeDiffer" xml:space="preserve">
+    <value>✗ {0} file su {1} sono diversi: trasferiscili di nuovo.</value>
+  </data>
+  <data name="ChecksSomeUnverified" xml:space="preserve">
+    <value>⚠ {0} file su {1} non sono stati riletti: trasferiti ma non verificati.</value>
+  </data>
+  <data name="ChecksColFile" xml:space="preserve">
+    <value>File sul server</value>
+  </data>
+  <data name="ChecksColSize" xml:space="preserve">
+    <value>Dimensione</value>
+  </data>
+  <data name="ChecksColLocal" xml:space="preserve">
+    <value>SHA-256 su questo computer</value>
+  </data>
+  <data name="ChecksColRemote" xml:space="preserve">
+    <value>SHA-256 sul server</value>
+  </data>
+  <data name="ChecksColResult" xml:space="preserve">
+    <value>Risultato</value>
+  </data>
+  <data name="ChecksIdentical" xml:space="preserve">
+    <value>✓ Identico</value>
+  </data>
+  <data name="ChecksDifferent" xml:space="preserve">
+    <value>✗ Diverso</value>
+  </data>
+  <data name="ChecksUnverified" xml:space="preserve">
+    <value>⚠ Non verificato: {0}</value>
+  </data>
+  <data name="ChecksCopy" xml:space="preserve">
+    <value>_Copia per sha256sum -c</value>
+  </data>
+  <data name="ChecksCopyTip" xml:space="preserve">
+    <value>Copia una riga per file (checksum dell'originale e percorso sul server), per riverificare sul server con sha256sum -c.</value>
+  </data>
+  <data name="ChecksCopied" xml:space="preserve">
+    <value>Copiato: {0} riga/righe</value>
+  </data>
   <data name="PermissionDenied" xml:space="preserve">
     <value>permesso negato</value>
   </data>

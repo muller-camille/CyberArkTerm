@@ -38,7 +38,7 @@ through **PSM for SSH (PSMP)** with a built-in **file browser** to upload files 
 | **My servers** | Your working servers, organized in folders and subfolders, each with its own settings. |
 | **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in Windows Remote Desktop Connection: component, target machine, reason, ticket. |
 | **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colors, vim, less, top…), MFA authentication. |
-| **Files tab** | SFTP browser of the server: `ls`, navigation, `rm`, drag-and-drop upload over SCP, editing in your text editor, permissions (`chmod`), follows the terminal folder. |
+| **Files tab** | SFTP browser of the server: `ls`, navigation, `rm`, drag-and-drop upload over SCP, SHA-256 check of every transferred file, editing in your text editor, permissions (`chmod`), follows the terminal folder. |
 | **Emergency access (KeePass)** | Without CyberArk: KeePass vaults (.kdbx) in "My servers", direct SSH and remote desktop connections, creating and editing entries, local log. |
 | **PVWA session kept open** | A light request every 4 minutes avoids the timeout while you work (paused while Windows is locked). |
 | **Home** | Quick connect (type a server, press Enter), recent sessions. |
@@ -183,6 +183,14 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   downloaded while dragging: on drop, a window shows the progress (Cancel stops it), then Explorer copies the
   files where you dropped them. Unix names are made valid for Windows (`\`, `:`, `..`, `CON`… replaced), never
   writing outside the drop folder; the temporary download folder is deleted afterwards.
+- **Transfer check (SHA-256)**: every uploaded or downloaded file is checked. On upload (SCP or SFTP), the local
+  file is hashed, then the file on the server is read again over SFTP and hashed. On download, the data received
+  from the server is hashed, then the file written on this computer is read again. The status bar confirms
+  "✓ identical on both sides"; "Checksums…" shows each file's size, both checksums and the result, and copies the
+  checksums in the `sha256sum -c` format to check again on the server. If a file differs, the error is shown and
+  the details open; a drag-and-drop download fails rather than deliver a wrong copy. A file that cannot be read
+  again (permissions) is reported as "not checked". Reading an upload again doubles the data exchanged with the
+  server.
 - **Delete**: select, then Del (or right-click → "Delete (rm)"), with confirmation. Folders must be empty.
 - **Edit a file**: select it, then `F4` (or right-click → "Edit", or the pencil button). The file opens in the
   text editor chosen in Settings (Notepad by default). Every time you save, CyberArkTerm offers to send it back

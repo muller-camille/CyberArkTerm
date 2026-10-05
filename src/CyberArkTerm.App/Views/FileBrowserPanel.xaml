@@ -100,7 +100,13 @@
 
         <Border DockPanel.Dock="Bottom" BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="0,1,0,0" Padding="8,4">
             <StackPanel>
-                <TextBlock x:Name="StatusText" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
+                <DockPanel>
+                    <!-- Détail de la vérification SHA-256 du dernier transfert. -->
+                    <TextBlock x:Name="ChecksLink" DockPanel.Dock="Right" Margin="8,0,0,0" Visibility="Collapsed">
+                        <Hyperlink Click="OnShowChecks"><Run Text="{x:Static loc:Strings.ChecksLink}" /></Hyperlink>
+                    </TextBlock>
+                    <TextBlock x:Name="StatusText" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
+                </DockPanel>
                 <ProgressBar x:Name="TransferBar" Height="6" Margin="0,4,0,0" Visibility="Collapsed" Maximum="100" />
             </StackPanel>
         </Border>

@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Windows;
 using CyberArkTerm.App.Views;
 using CyberArkTerm.Core;
+using CyberArkTerm.Core.Ssh;
 
 namespace CyberArkTerm.App.Tests;
 
@@ -186,6 +187,37 @@ public sealed class DialogTests
         {
             File.Delete(path);
         }
+    }
+
+    /// <summary>
+    /// Vérification d'un transfert : fichiers à revoir en premier (différent, puis non vérifié), bilan sur deux lignes,
+    /// motif d'un fichier non vérifié.
+    /// </summary>
+    [Fact]
+    public void TransferChecksWindowOpens()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            byte[] hash = [.. Enumerable.Range(0, 32).Select(i => (byte)i)];
+            var ok = new TransferCheck("a", @"C:\a", "/srv/a", 10, hash, 10, [.. hash]);
+            var different = ok with { Name = "b", RemotePath = "/srv/b", RemoteSha256 = new byte[32] };
+            var unverified = ok with { Name = "c", RemotePath = "/srv/c", RemoteLength = -1, RemoteSha256 = [], Error = "Permission denied" };
+
+            var dialog = new TransferChecksDialog([ok, different, unverified], upload: true);
+
+            Assert.Equal(5, dialog.ChecksGrid.Columns.Count);
+            Assert.Equal(["/srv/b", "/srv/c", "/srv/a"], ((IEnumerable<TransferCheck>)dialog.ChecksGrid.ItemsSource).Select(c => c.RemotePath));
+            Assert.Equal(2, dialog.HeadingText.Text.Split(Environment.NewLine).Length);
+            Assert.Contains("Permission denied", TransferChecksDialog.Result(unverified));
+            Assert.NotEqual(TransferChecksDialog.Result(ok), TransferChecksDialog.Result(different));
+            Assert.Single(TransferChecksDialog.Heading([ok]).Split(Environment.NewLine));
+            dialog.Close();
+        });
     }
 
     /// <summary>

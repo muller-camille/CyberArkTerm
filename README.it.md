@@ -38,7 +38,7 @@ tramite **PSM for SSH (PSMP)** con un **browser dei file** integrato per inviare
 | **I miei server** | I tuoi server di lavoro, organizzati in cartelle e sottocartelle, ognuno con la propria configurazione. |
 | **Sessioni PSM** | Desktop remoto tramite il PSM (come il pulsante «Connect» del PVWA), in Connessione Desktop remoto di Windows: componente, macchina di destinazione, motivo, ticket. |
 | **Sessioni SSH (PSMP)** | Terminale integrato in una scheda (compatibile xterm: colori, vim, less, top…), autenticazione MFA. |
-| **Scheda File** | Browser SFTP del server: `ls`, navigazione, `rm`, invio di file per trascinamento in SCP, modifica nel tuo editor di testo, permessi (`chmod`), segue la cartella del terminale. |
+| **Scheda File** | Browser SFTP del server: `ls`, navigazione, `rm`, invio di file per trascinamento in SCP, verifica SHA-256 di ogni file trasferito, modifica nel tuo editor di testo, permessi (`chmod`), segue la cartella del terminale. |
 | **Accesso di emergenza (KeePass)** | Senza CyberArk: archivi KeePass (.kdbx) in «I miei server», connessioni SSH e desktop remoto dirette, creazione e modifica delle voci, registro locale. |
 | **Sessione PVWA mantenuta** | Una richiesta leggera ogni 4 minuti evita la scadenza mentre lavori (sospesa quando Windows è bloccato). |
 | **Home** | Connessione rapida (digita un server, Invio), sessioni recenti. |
@@ -192,6 +192,14 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   Esplora file copia i file dove li hai rilasciati. I nomi Unix vengono resi validi per Windows (`\`, `:`, `..`,
   `CON`… sostituiti), senza mai scrivere fuori dalla cartella di rilascio; la cartella temporanea del download
   viene poi eliminata.
+- **Verifica dei trasferimenti (SHA-256)**: ogni file inviato o scaricato viene verificato. All'invio (SCP o
+  SFTP), il file locale viene sottoposto a hash, poi il file arrivato sul server viene riletto via SFTP e
+  sottoposto a hash. Al download, i dati ricevuti dal server vengono sottoposti a hash, poi il file scritto sul
+  computer viene riletto. La barra di stato conferma «✓ identico su entrambi i lati»; «Checksum…» mostra per
+  ogni file la dimensione, le due somme e il risultato, e copia le somme nel formato di `sha256sum -c` per
+  riverificare sul server. Se un file è diverso, l'errore viene mostrato e il dettaglio si apre; un download per
+  trascinamento fallisce invece di consegnare una copia errata. Un file che non può essere riletto (permessi) è
+  segnalato «non verificato». La rilettura di un invio raddoppia il volume scambiato con il server.
 - **Eliminare**: selezione poi Canc (o clic destro → «Elimina (rm)»), con conferma. Le cartelle devono essere
   vuote.
 - **Modificare un file**: selezionalo, poi `F4` (o clic destro → «Modifica», o il pulsante matita). Il file si

@@ -820,6 +820,78 @@ Continue?</value>
   <data name="DownloadFailed" xml:space="preserve">
     <value>Download failed: {0}</value>
   </data>
+  <data name="VerifyingFile" xml:space="preserve">
+    <value>Checking {0} (SHA-256)…</value>
+  </data>
+  <data name="TransferVerified" xml:space="preserve">
+    <value>✓ {0} file(s) identical on both sides (SHA-256)</value>
+  </data>
+  <data name="TransferVerifiedOne" xml:space="preserve">
+    <value>✓ identical on both sides, SHA-256 {0}…</value>
+  </data>
+  <data name="TransferNotVerified" xml:space="preserve">
+    <value>⚠ {0} file(s) could not be checked</value>
+  </data>
+  <data name="TransferMismatch" xml:space="preserve">
+    <value>✗ {0} file(s) differ from the original: transfer them again</value>
+  </data>
+  <data name="TransferMismatchFile" xml:space="preserve">
+    <value>{0}: the downloaded file differs from the server's (SHA-256).</value>
+  </data>
+  <data name="ChecksLink" xml:space="preserve">
+    <value>Checksums…</value>
+  </data>
+  <data name="ChecksTitle" xml:space="preserve">
+    <value>Check of the transferred files</value>
+  </data>
+  <data name="ChecksIntroUpload" xml:space="preserve">
+    <value>Each file was hashed (SHA-256) while it was sent, then read again on the server over SFTP and hashed again: both checksums must be identical.</value>
+  </data>
+  <data name="ChecksIntroDownload" xml:space="preserve">
+    <value>The data received from the server was hashed (SHA-256), then the file written on this computer was read again and hashed: both checksums must be identical.</value>
+  </data>
+  <data name="ChecksAllOk" xml:space="preserve">
+    <value>✓ The {0} file(s) are identical on both sides.</value>
+  </data>
+  <data name="ChecksSomeDiffer" xml:space="preserve">
+    <value>✗ {0} file(s) out of {1} differ: transfer them again.</value>
+  </data>
+  <data name="ChecksSomeUnverified" xml:space="preserve">
+    <value>⚠ {0} file(s) out of {1} could not be read again: transferred but not checked.</value>
+  </data>
+  <data name="ChecksColFile" xml:space="preserve">
+    <value>File on the server</value>
+  </data>
+  <data name="ChecksColSize" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="ChecksColLocal" xml:space="preserve">
+    <value>SHA-256 on this computer</value>
+  </data>
+  <data name="ChecksColRemote" xml:space="preserve">
+    <value>SHA-256 on the server</value>
+  </data>
+  <data name="ChecksColResult" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="ChecksIdentical" xml:space="preserve">
+    <value>✓ Identical</value>
+  </data>
+  <data name="ChecksDifferent" xml:space="preserve">
+    <value>✗ Different</value>
+  </data>
+  <data name="ChecksUnverified" xml:space="preserve">
+    <value>⚠ Not checked: {0}</value>
+  </data>
+  <data name="ChecksCopy" xml:space="preserve">
+    <value>_Copy for sha256sum -c</value>
+  </data>
+  <data name="ChecksCopyTip" xml:space="preserve">
+    <value>Copies one line per file (checksum of the original and path on the server), to check again on the server with sha256sum -c.</value>
+  </data>
+  <data name="ChecksCopied" xml:space="preserve">
+    <value>Copied: {0} line(s)</value>
+  </data>
   <data name="PermissionDenied" xml:space="preserve">
     <value>permission denied</value>
   </data>

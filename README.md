@@ -39,7 +39,7 @@ serveur.
 | **Courants** | Vos serveurs de travail, rangés en dossiers et sous-dossiers, chacun avec sa propre configuration. |
 | **Sessions PSM** | Bureau à distance via le PSM (comme le bouton « Connect » du PVWA), dans la Connexion Bureau à distance de Windows : composant, machine cible, motif, ticket. |
 | **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), authentification MFA. |
-| **Onglet Fichiers** | Navigateur SFTP du serveur : `ls`, navigation, `rm`, dépôt de fichiers par glisser-déposer en SCP, modification dans votre éditeur de texte, droits (`chmod`), suivi du dossier du terminal. |
+| **Onglet Fichiers** | Navigateur SFTP du serveur : `ls`, navigation, `rm`, dépôt de fichiers par glisser-déposer en SCP, vérification SHA-256 de chaque fichier transféré, modification dans votre éditeur de texte, droits (`chmod`), suivi du dossier du terminal. |
 | **Accès d'urgence (KeePass)** | Sans CyberArk : coffres KeePass (.kdbx) dans « Courants », connexions SSH et bureau à distance directes, création et modification des entrées, journal local. |
 | **Session PVWA maintenue** | Une requête légère toutes les 4 minutes évite l'expiration pendant le travail (suspendue quand Windows est verrouillé). |
 | **Accueil** | Connexion rapide (tapez un serveur, Entrée), sessions récentes. |
@@ -198,6 +198,14 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   l'interrompt), puis l'Explorateur copie les fichiers là où vous les avez déposés. Les noms Unix sont rendus
   valides pour Windows (`\`, `:`, `..`, `CON`… remplacés), sans jamais écrire hors du dossier de dépôt ; le
   dossier temporaire du téléchargement est effacé ensuite.
+- **Vérification des transferts (SHA-256)** : chaque fichier envoyé ou téléchargé est vérifié. À l'envoi (SCP ou
+  SFTP), le fichier local est haché, puis le fichier arrivé sur le serveur est relu par SFTP et haché. Au
+  téléchargement, les données reçues du serveur sont hachées, puis le fichier écrit sur le poste est relu. La barre
+  d'état confirme « ✓ identique des deux côtés » ; « Sommes de contrôle… » montre, pour chaque fichier, la taille,
+  les deux sommes et le résultat, et copie les sommes au format de `sha256sum -c` pour revérifier sur le serveur.
+  Si un fichier diffère, l'erreur est affichée et le détail s'ouvre ; un téléchargement par glisser-déposer
+  échoue plutôt que de livrer une copie fausse. Un fichier qui ne peut pas être relu (droits) est signalé
+  « non vérifié ». La relecture d'un envoi double le volume échangé avec le serveur.
 - **Supprimer** : sélection puis Suppr (ou clic droit → « Supprimer (rm) »), avec confirmation. Les dossiers
   doivent être vides.
 - **Modifier un fichier** : sélection puis `F4` (ou clic droit → « Modifier », ou bouton crayon). Le fichier
