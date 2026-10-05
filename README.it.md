@@ -101,7 +101,7 @@ riapre subito nella lingua scelta, conservando l'indirizzo e il nome utente inse
 - La casella di ricerca filtra su tutti i campi (server, utente, safe, piattaforma, dominio…), anche con più
   parole (`prd sql`).
 - «Raggruppa per» ordina gli account per safe, piattaforma o tipo di destinazione.
-- La scheda «Tutti gli account» mostra lo stesso elenco come tabella ordinabile, esportabile in CSV.
+- Il pulsante «Esporta» della barra degli strumenti salva in CSV gli account mostrati (filtrati dalla ricerca).
 - Nella scheda Home, la **connessione rapida** trova un server mentre digiti: Invio per connetterti.
 
 ### 3. Aprire una sessione PSM (desktop remoto)
@@ -180,8 +180,14 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
 - **Aggiungere** un account: clic destro in «Disponibili» → «Aggiungi ai miei server» e poi la cartella
   desiderata, oppure trascina l'account sulla scheda «I miei server», oppure il pulsante «Aggiungi» della
   barra degli strumenti.
+- **Aggiungere una connessione recente**: clic destro nelle sessioni recenti della home → «Aggiungi ai miei
+  server» e poi la cartella desiderata. Il server mantiene il tipo di connessione (PSM o SSH), il componente PSM
+  e la macchina di destinazione usati.
 - **Cartelle**: clic destro → nuova cartella o sottocartella, rinomina, elimina; trascina server e cartelle per
   spostarli.
+- **Cercare**: campo in cima alla scheda (o `Ctrl+F` nella scheda). Filtra i server per nome, server, utente,
+  cartella, componente, macchina di destinazione, e le voci degli archivi KeePass sbloccati; le cartelle dei
+  risultati vengono espanse. `Invio` o `↓` seleziona il primo risultato, `Esc` cancella.
 - **Configurazione propria di ogni server** (clic destro → «Proprietà…»):
 
 | Impostazione | Effetto |
@@ -234,7 +240,7 @@ password, elimina.
 | Dove | Azione | Scorciatoia |
 | --- | --- | --- |
 | Ovunque | Ricaricare gli account dal PVWA | `F5` |
-| Ovunque | Filtrare gli account | `Ctrl+F` |
+| Ovunque | Filtrare gli account (in «I miei server»: cercare un server) | `Ctrl+F` |
 | Elenchi e alberi | Aprire la sessione | Doppio clic o `Invio` |
 | Ricerca | Cancellare il filtro | `Esc` |
 | I miei server | Rinominare / rimuovere o eliminare | `F2` / `Canc` |

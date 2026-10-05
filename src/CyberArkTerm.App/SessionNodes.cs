@@ -75,7 +75,7 @@ public sealed class KindIconConverter : IValueConverter
 
 internal static class RecentModes
 {
-    public const string Ssh = "SSH";
+    public const string Ssh = RecentSession.SshMode;
 }
 
 /// <summary>Dossier de l'onglet « Courants ».</summary>

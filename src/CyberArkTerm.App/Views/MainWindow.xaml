@@ -20,7 +20,7 @@
     <Window.Resources>
         <app:KindIconConverter x:Key="KindIcon" />
 
-        <!-- Menu contextuel commun à l'arbre, à la liste, aux favoris et à l'accueil. -->
+        <!-- Menu contextuel des comptes : arbre « Disponibles » et résultats de la connexion rapide de l'accueil. -->
         <ContextMenu x:Key="AccountMenu" x:Shared="False" Opened="OnAccountMenuOpened">
             <MenuItem Tag="psm" Header="{x:Static loc:Strings.MenuConnectPsm}" Click="OnConnectPsm" FontWeight="SemiBold">
                 <MenuItem.Icon>
@@ -47,6 +47,21 @@
             <MenuItem Header="{x:Static loc:Strings.MenuCopyServer}" Click="OnCopyAddress" />
             <MenuItem Header="{x:Static loc:Strings.MenuCopyUser}" Click="OnCopyUser" />
             <MenuItem Header="{x:Static loc:Strings.MenuCopyDomainUser}" Click="OnCopyDomainUser" />
+        </ContextMenu>
+
+        <!-- Menu des connexions récentes de l'accueil. -->
+        <ContextMenu x:Key="RecentMenu" Opened="OnRecentMenuOpened">
+            <MenuItem Header="{x:Static loc:Strings.Connect}" Click="OnConnectRecent" FontWeight="SemiBold">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconConnect}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator />
+            <MenuItem Tag="addcurrent" Header="{x:Static loc:Strings.MenuAddToMyServers}" ToolTipService.ShowOnDisabled="True">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconBookmark}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
         </ContextMenu>
 
         <!-- Menus de l'onglet « Courants ». -->
@@ -384,6 +399,15 @@
                             </StackPanel>
                             <TextBlock Text="{x:Static loc:Strings.MyServersHeading}" Style="{StaticResource SectionTitle}" Margin="0" VerticalAlignment="Center" />
                         </DockPanel>
+                        <Grid DockPanel.Dock="Top" Margin="8,2,8,6">
+                            <TextBox x:Name="SavedSearchBox" TextChanged="OnSavedSearchChanged" Padding="24,4,4,4"
+                                     PreviewKeyDown="OnSavedSearchKeyDown"
+                                     ToolTip="{x:Static loc:Strings.SavedSearchTip}" />
+                            <Image Source="{StaticResource IconSearch}" Width="14" Height="14" HorizontalAlignment="Left"
+                                   Margin="6,0,0,0" IsHitTestVisible="False" />
+                            <TextBlock Style="{StaticResource Placeholder}" Tag="{Binding ElementName=SavedSearchBox}"
+                                       Text="{x:Static loc:Strings.SavedSearchPlaceholder}" Margin="26,0,0,0" />
+                        </Grid>
                         <TextBlock DockPanel.Dock="Top" x:Name="NoSavedText" Margin="10,4,10,0" TextWrapping="Wrap"
                                    Foreground="{StaticResource MutedBrush}"
                                    Text="{x:Static loc:Strings.NoSavedHelp}" />
@@ -529,7 +553,8 @@
                                             <TextBlock x:Name="NoRecentText" Margin="12" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"
                                                        Text="{x:Static loc:Strings.NoRecent}" />
                                             <ListBox x:Name="RecentList" BorderThickness="0" Background="Transparent" MaxHeight="360"
-                                                     MouseDoubleClick="OnRecentDoubleClick" KeyDown="OnRecentKeyDown">
+                                                     MouseDoubleClick="OnRecentDoubleClick" KeyDown="OnRecentKeyDown"
+                                                     ContextMenu="{StaticResource RecentMenu}" ContextMenuOpening="OnRecentMenuOpening">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate DataType="{x:Type core:RecentSession}">
                                                         <DockPanel Margin="2,3">
@@ -565,47 +590,6 @@
                     </ScrollViewer>
                 </TabItem>
 
-                <TabItem x:Name="AccountsTab">
-                    <TabItem.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="{StaticResource IconList}" Width="16" Height="16" Margin="0,0,6,0" />
-                            <TextBlock Text="{x:Static loc:Strings.TabAllAccounts}" />
-                        </StackPanel>
-                    </TabItem.Header>
-                    <DataGrid x:Name="AccountsGrid" Margin="0"
-                              AutoGenerateColumns="False" IsReadOnly="True" BorderThickness="0"
-                              CanUserAddRows="False" CanUserDeleteRows="False"
-                              SelectionMode="Extended" SelectionUnit="FullRow"
-                              GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E5E9EE"
-                              HeadersVisibility="Column" AlternatingRowBackground="#F7F9FC"
-                              EnableRowVirtualization="True" EnableColumnVirtualization="True"
-                              VirtualizingPanel.VirtualizationMode="Recycling"
-                              ClipboardCopyMode="IncludeHeader" ContextMenu="{StaticResource AccountMenu}"
-                              SelectionChanged="OnGridSelectionChanged" PreviewKeyDown="OnGridKeyDown"
-                              IsKeyboardFocusWithinChanged="OnSelectorFocusChanged">
-                        <DataGrid.RowStyle>
-                            <Style TargetType="DataGridRow">
-                                <EventSetter Event="MouseDoubleClick" Handler="OnGridRowDoubleClick" />
-                            </Style>
-                        </DataGrid.RowStyle>
-                        <DataGrid.Columns>
-                            <DataGridTemplateColumn Width="30" CanUserResize="False">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Image Source="{Binding Converter={StaticResource KindIcon}}" Width="16" Height="16" />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="{x:Static corel:CoreStrings.ColumnServer}" Binding="{Binding Address}" Width="2*" SortDirection="Ascending" />
-                            <DataGridTextColumn Header="{x:Static corel:CoreStrings.ColumnUser}" Binding="{Binding UserName}" Width="1.3*" />
-                            <DataGridTextColumn Header="{x:Static corel:CoreStrings.ColumnDomain}" Binding="{Binding LogonDomain}" Width="*" />
-                            <DataGridTextColumn Header="{x:Static corel:CoreStrings.ColumnPlatform}" Binding="{Binding PlatformId}" Width="1.3*" />
-                            <DataGridTextColumn Header="{x:Static corel:CoreStrings.ColumnSafe}" Binding="{Binding SafeName}" Width="1.3*" />
-                            <DataGridTextColumn Header="{x:Static corel:CoreStrings.ColumnAllowedMachines}" Binding="{Binding RemoteMachines}" Width="1.5*" />
-                            <DataGridTextColumn Header="{x:Static corel:CoreStrings.ColumnName}" Binding="{Binding Name}" Width="2*" />
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </TabItem>
             </TabControl>
         </Grid>
     </DockPanel>

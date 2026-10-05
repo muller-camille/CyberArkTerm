@@ -104,7 +104,7 @@ rouvre aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant 
 - La zone de recherche filtre sur tous les champs (serveur, utilisateur, safe, plateforme, domaine…),
   plusieurs mots possibles (`prd sql`).
 - « Grouper par » range les comptes par safe, plateforme ou type de cible.
-- L'onglet « Tous les comptes » présente la même liste en tableau triable, exportable en CSV.
+- Le bouton « Exporter » de la barre d'outils enregistre en CSV les comptes affichés (filtrés par la recherche).
 - Sur l'accueil, la **connexion rapide** trouve un serveur au fil de la frappe : Entrée pour s'y connecter.
 
 ### 3. Ouvrir une session PSM (bureau à distance)
@@ -184,8 +184,14 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
 
 - **Ajouter** un compte : clic droit dans « Disponibles » → « Ajouter aux serveurs courants » puis le
   dossier voulu, ou glissez le compte sur l'onglet « Courants », ou bouton « Courant » de la barre d'outils.
+- **Ajouter une session récente** : clic droit dans « Sessions récentes » sur l'accueil → « Ajouter aux
+  serveurs courants » puis le dossier voulu. Le serveur garde le type de connexion (PSM ou SSH), le composant
+  PSM et la machine cible utilisés.
 - **Dossiers** : clic droit → nouveau dossier ou sous-dossier, renommer, supprimer ; glissez serveurs et
   dossiers pour les déplacer.
+- **Rechercher** : champ en haut de l'onglet (ou `Ctrl+F` dans l'onglet). Il filtre les serveurs par nom, serveur,
+  utilisateur, dossier, composant, machine cible, ainsi que les entrées des coffres KeePass déverrouillés ; les
+  dossiers des résultats sont dépliés. `Entrée` ou `↓` sélectionne le premier résultat, `Échap` efface.
 - **Configuration propre à chaque serveur** (clic droit → « Propriétés… ») :
 
 <img src="docs/captures/proprietes-serveur.png" alt="Propriétés d'un serveur courant" width="800">
@@ -240,7 +246,7 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Où | Action | Raccourci |
 | --- | --- | --- |
 | Partout | Recharger les comptes depuis le PVWA | `F5` |
-| Partout | Filtrer les comptes | `Ctrl+F` |
+| Partout | Filtrer les comptes (dans « Courants » : rechercher un serveur) | `Ctrl+F` |
 | Listes et arbres | Ouvrir la session | Double-clic ou `Entrée` |
 | Recherche | Effacer le filtre | `Échap` |
 | Courants | Renommer / retirer ou supprimer | `F2` / `Suppr` |

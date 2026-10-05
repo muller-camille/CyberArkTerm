@@ -64,4 +64,22 @@ public class KeePassTargetTests
         Assert.Equal("srv:2222", new KeePassTarget(RemoteProtocol.Ssh, "srv", 2222, "u").Address);
         Assert.Equal("srv", new KeePassTarget(RemoteProtocol.Rdp, "srv", 3389, "u").Address);
     }
+
+    /// <summary>Recherche dans « Courants » : titre, serveur, utilisateur, dossier, étiquettes, protocole ; pas les notes.</summary>
+    [Fact]
+    public void SearchMatchesTheVisibleFields()
+    {
+        var entry = new KeePassEntry
+        {
+            Id = "id", Title = "Web front", Url = "ssh://srv-lnx01.corp.local", UserName = "root", Group = "Prod/Linux",
+            Tags = "urgence", Notes = "secret-note",
+        };
+
+        Assert.True(KeePassTarget.Matches(entry, null));
+        Assert.True(KeePassTarget.Matches(entry, "front lnx01"));
+        Assert.True(KeePassTarget.Matches(entry, "prod ssh"));
+        Assert.True(KeePassTarget.Matches(entry, "URGENCE root"));
+        Assert.False(KeePassTarget.Matches(entry, "front rdp"));
+        Assert.False(KeePassTarget.Matches(entry, "secret-note"));
+    }
 }

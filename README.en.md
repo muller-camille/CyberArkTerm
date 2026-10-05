@@ -100,7 +100,7 @@ right away in the chosen language, keeping the address and user name you typed.
 - The search box filters on every field (server, user, safe, platform, domain…), several words allowed
   (`prd sql`).
 - "Group by" sorts accounts by safe, platform or target type.
-- The "All accounts" tab shows the same list as a sortable table, exportable to CSV.
+- The "Export" toolbar button saves the accounts shown (filtered by the search) to CSV.
 - On the Home tab, **quick connect** finds a server as you type: press Enter to connect.
 
 ### 3. Open a PSM session (remote desktop)
@@ -172,7 +172,13 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
 
 - **Add** an account: right-click in "Available" → "Add to my servers" then the folder you want, or drag the
   account onto the "My servers" tab, or the "Add" toolbar button.
+- **Add a recent connection**: right-click in the recent sessions of the home page → "Add to my servers" then
+  the folder you want. The server keeps the connection type (PSM or SSH), the PSM component and the target
+  machine used.
 - **Folders**: right-click → new folder or subfolder, rename, delete; drag servers and folders to move them.
+- **Search**: box at the top of the tab (or `Ctrl+F` in the tab). It filters servers by name, server, user, folder,
+  component, target machine, and the entries of unlocked KeePass vaults; the folders of the results are expanded.
+  `Enter` or `↓` selects the first result, `Esc` clears.
 - **Settings of each server** (right-click → "Properties…"):
 
 | Setting | Effect |
@@ -222,7 +228,7 @@ password, delete.
 | Where | Action | Shortcut |
 | --- | --- | --- |
 | Everywhere | Reload the accounts from the PVWA | `F5` |
-| Everywhere | Filter the accounts | `Ctrl+F` |
+| Everywhere | Filter the accounts (in "My servers": search a server) | `Ctrl+F` |
 | Lists and trees | Open the session | Double-click or `Enter` |
 | Search | Clear the filter | `Esc` |
 | My servers | Rename / remove or delete | `F2` / `Del` |
