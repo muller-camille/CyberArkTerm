@@ -101,7 +101,7 @@ riapre subito nella lingua scelta, conservando l'indirizzo e il nome utente inse
 - La casella di ricerca filtra su tutti i campi (server, utente, safe, piattaforma, dominio…), anche con più
   parole (`prd sql`).
 - «Raggruppa per» ordina gli account per safe, piattaforma o tipo di destinazione.
-- La scheda «Tutti gli account» mostra lo stesso elenco come tabella ordinabile, esportabile in CSV.
+- Il pulsante «Esporta» della barra degli strumenti salva in CSV gli account mostrati (filtrati dalla ricerca).
 - Nella scheda Home, la **connessione rapida** trova un server mentre digiti: Invio per connetterti.
 
 ### 3. Aprire una sessione PSM (desktop remoto)

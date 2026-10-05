@@ -276,9 +276,6 @@
   <data name="ShortcutReload" xml:space="preserve">
     <value> : recharger depuis le PVWA</value>
   </data>
-  <data name="TabAllAccounts" xml:space="preserve">
-    <value>Tous les comptes</value>
-  </data>
   <data name="LoadingAccounts" xml:space="preserve">
     <value>Chargement des comptes…</value>
   </data>

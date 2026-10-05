@@ -100,7 +100,7 @@ right away in the chosen language, keeping the address and user name you typed.
 - The search box filters on every field (server, user, safe, platform, domain…), several words allowed
   (`prd sql`).
 - "Group by" sorts accounts by safe, platform or target type.
-- The "All accounts" tab shows the same list as a sortable table, exportable to CSV.
+- The "Export" toolbar button saves the accounts shown (filtered by the search) to CSV.
 - On the Home tab, **quick connect** finds a server as you type: press Enter to connect.
 
 ### 3. Open a PSM session (remote desktop)

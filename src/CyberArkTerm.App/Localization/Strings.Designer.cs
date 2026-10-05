@@ -3557,15 +3557,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to All accounts.
-        /// </summary>
-        public static string TabAllAccounts {
-            get {
-                return ResourceManager.GetString("TabAllAccounts", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Available.
         /// </summary>
         public static string TabAvailable {

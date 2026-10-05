@@ -104,7 +104,7 @@ rouvre aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant 
 - La zone de recherche filtre sur tous les champs (serveur, utilisateur, safe, plateforme, domaine…),
   plusieurs mots possibles (`prd sql`).
 - « Grouper par » range les comptes par safe, plateforme ou type de cible.
-- L'onglet « Tous les comptes » présente la même liste en tableau triable, exportable en CSV.
+- Le bouton « Exporter » de la barre d'outils enregistre en CSV les comptes affichés (filtrés par la recherche).
 - Sur l'accueil, la **connexion rapide** trouve un serveur au fil de la frappe : Entrée pour s'y connecter.
 
 ### 3. Ouvrir une session PSM (bureau à distance)

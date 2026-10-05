@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 using CyberArkTerm.App.Localization;
@@ -22,7 +21,7 @@ namespace CyberArkTerm.App.Views;
 
 /// <summary>
 /// Fenêtre principale : barre d'outils, arbre des sessions à gauche,
-/// onglets Accueil / Tous les comptes, connexion PSM ou SSH (PSMP) sur double-clic.
+/// onglet Accueil, connexion PSM ou SSH (PSMP) sur double-clic.
 /// </summary>
 public partial class MainWindow : Window
 {
@@ -35,8 +34,10 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _searchDebounce;
     private readonly CancellationTokenSource _lifetime = new();
     private List<PvwaAccount> _accounts = [];
+
+    /// <summary>Comptes qui répondent à la recherche de « Disponibles » (affichés, comptés, exportés).</summary>
+    private List<PvwaAccount> _shown = [];
     private Dictionary<string, PvwaAccount> _byId = [];
-    private ListCollectionView? _view;
     private string _query = "";
     private PvwaAccount? _current;
     private SavedSession? _currentSaved;
@@ -88,7 +89,7 @@ public partial class MainWindow : Window
         if (IsOffline)
         {
             // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de l'onglet « Courants ».
-            AvailableTab.Visibility = AccountsTab.Visibility = Visibility.Collapsed;
+            AvailableTab.Visibility = Visibility.Collapsed;
             QuickPanel.Visibility = HomeLists.Visibility = NewFolderButton.Visibility = Visibility.Collapsed;
             ExportButton.IsEnabled = false;
             NoSavedText.Text = Strings.NoKeePassHelp;
@@ -164,8 +165,6 @@ public partial class MainWindow : Window
             }
 
             _current = null;
-            _view = new ListCollectionView(_accounts) { Filter = o => AccountFilter.Matches((PvwaAccount)o, _query) };
-            AccountsGrid.ItemsSource = _view;
             ApplyFilter();
             SessionLibrary.MigrateFavorites(_settings, _byId, Client.BaseUri.Host);
             SaveSettings();
@@ -199,14 +198,14 @@ public partial class MainWindow : Window
     private void ApplyFilter()
     {
         _query = SearchBox.Text;
-        _view?.Refresh();
+        _shown = _accounts.Where(a => AccountFilter.Matches(a, _query)).ToList();
         RebuildTree();
         UpdateCount();
     }
 
     private void RebuildTree()
     {
-        var groups = AccountGrouping.Group(_accounts.Where(a => AccountFilter.Matches(a, _query)), _settings.GroupBy);
+        var groups = AccountGrouping.Group(_shown, _settings.GroupBy);
         bool expand = _query.Trim().Length > 0 || groups.Count == 1;
         SessionTree.ItemsSource = groups
             .Select(g => new FolderNode(g.Name, g.Accounts.Select(a => new AccountNode(a)).ToList(), expand))
@@ -215,7 +214,7 @@ public partial class MainWindow : Window
 
     private void UpdateCount()
     {
-        int shown = _view?.Count ?? 0;
+        int shown = _shown.Count;
         CountText.Text = shown == _accounts.Count
             ? Text.Format(Strings.AccountCount, _accounts.Count)
             : Text.Format(Strings.AccountCountFiltered, shown, _accounts.Count);
@@ -392,14 +391,6 @@ public partial class MainWindow : Window
 
     private void OnTreeSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e) => SetCurrentFrom(e.NewValue);
 
-    private void OnGridSelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (AccountsGrid.SelectedItem is PvwaAccount account)
-        {
-            SetCurrent(account);
-        }
-    }
-
     private void OnListSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (sender is ListBox { SelectedItem: PvwaAccount account })
@@ -451,24 +442,6 @@ public partial class MainWindow : Window
     private void OnListKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter && sender is ListBox { SelectedItem: PvwaAccount account })
-        {
-            e.Handled = true;
-            _ = ConnectAsync(account, DefaultRequest(account, null));
-        }
-    }
-
-    private void OnGridRowDoubleClick(object sender, MouseButtonEventArgs e)
-    {
-        if (sender is DataGridRow { DataContext: PvwaAccount account })
-        {
-            e.Handled = true;
-            _ = ConnectAsync(account, DefaultRequest(account, null));
-        }
-    }
-
-    private void OnGridKeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Enter && AccountsGrid.SelectedItem is PvwaAccount account)
         {
             e.Handled = true;
             _ = ConnectAsync(account, DefaultRequest(account, null));
@@ -803,23 +776,18 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnCopyAddress(object sender, RoutedEventArgs e) => CopyAccounts(sender, a => a.Address ?? "");
+    private void OnCopyAddress(object sender, RoutedEventArgs e) => CopyCurrent(a => a.Address ?? "");
 
-    private void OnCopyUser(object sender, RoutedEventArgs e) => CopyAccounts(sender, a => a.UserName ?? "");
+    private void OnCopyUser(object sender, RoutedEventArgs e) => CopyCurrent(a => a.UserName ?? "");
 
     private void OnCopyDomainUser(object sender, RoutedEventArgs e) =>
-        CopyAccounts(sender, a => a.LogonDomain.Length > 0 ? $"{a.LogonDomain}\\{a.UserName}" : a.UserName ?? "");
+        CopyCurrent(a => a.LogonDomain.Length > 0 ? $"{a.LogonDomain}\\{a.UserName}" : a.UserName ?? "");
 
-    private void CopyAccounts(object sender, Func<PvwaAccount, string> selector)
+    private void CopyCurrent(Func<PvwaAccount, string> selector)
     {
-        // Depuis la liste « Tous les comptes », on copie toute la sélection ; ailleurs, le compte courant.
-        var target = (sender as MenuItem)?.Parent is ContextMenu { PlacementTarget: DataGrid grid } ? grid : null;
-        var accounts = target is { SelectedItems.Count: > 1 }
-            ? target.SelectedItems.Cast<PvwaAccount>().ToList()
-            : _current is null ? [] : [_current];
-        if (accounts.Count > 0)
+        if (_current is { } account)
         {
-            Clipboard.SetText(string.Join(Environment.NewLine, accounts.Select(selector)));
+            Clipboard.SetText(selector(account));
         }
     }
 
@@ -827,7 +795,7 @@ public partial class MainWindow : Window
 
     private void OnExport(object sender, RoutedEventArgs e)
     {
-        var rows = _view?.Cast<PvwaAccount>().ToList() ?? [];
+        var rows = _shown;
         if (rows.Count == 0)
         {
             MessageBox.Show(this, Strings.NothingToExport, "CyberArkTerm", MessageBoxButton.OK, MessageBoxImage.Information);
