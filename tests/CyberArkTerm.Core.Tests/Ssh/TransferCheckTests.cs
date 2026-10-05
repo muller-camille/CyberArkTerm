@@ -89,8 +89,8 @@ public sealed class TransferCheckTests
     {
         var check = new TransferCheck("f", @"C:\f", "/srv/app/f.tar.gz", 1, [0xAB, 0x01], 1, [0xCD, 0x02]);
 
-        Assert.Equal("ab01  /srv/app/f.tar.gz", check.ToSha256SumLine(upload: true));
-        Assert.Equal("cd02  /srv/app/f.tar.gz", check.ToSha256SumLine(upload: false));
-        Assert.Equal("\\ab01  /srv/a\\\\b\\nc", (check with { RemotePath = "/srv/a\\b\nc" }).ToSha256SumLine(upload: true));
+        Assert.Equal("ab01  /srv/app/f.tar.gz", (check with { Upload = true }).ToSha256SumLine());
+        Assert.Equal("cd02  /srv/app/f.tar.gz", check.ToSha256SumLine());
+        Assert.Equal("\\ab01  /srv/a\\\\b\\nc", (check with { Upload = true, RemotePath = "/srv/a\\b\nc" }).ToSha256SumLine());
     }
 }

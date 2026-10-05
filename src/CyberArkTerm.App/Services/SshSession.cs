@@ -37,6 +37,8 @@ public sealed class SshSession : IDisposable
     private SshClient? _client;
     private ShellStream? _shell;
     private Task<RemoteFileBrowser>? _browser;
+    private readonly List<RemoteFileBrowser> _dedicated = [];
+    private bool _disposed;
     private int _drainScheduled;
     private DateTime _lastData;
     private bool _userTyped;
@@ -278,11 +280,71 @@ public sealed class SshSession : IDisposable
         return new RemoteFileBrowser(sftp, _connector.ConnectScpAsync);
     }
 
+    /// <summary>Connexion SFTP du panneau Fichiers si elle est ouverte (sans en ouvrir une).</summary>
+    public RemoteFileBrowser? OpenedBrowser
+    {
+        get
+        {
+            try
+            {
+                return _browser is { IsCompletedSuccessfully: true } task && task.Result.IsConnected ? task.Result : null;
+            }
+            catch (ObjectDisposedException)
+            {
+                return null;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Connexion SFTP dédiée (une session PSMP de plus), pour un suivi de fichier indépendant de l'onglet Fichiers.
+    /// Elle est fermée par <see cref="CloseDedicatedBrowser"/>, ou avec la session.
+    /// </summary>
+    public async Task<RemoteFileBrowser> OpenDedicatedBrowserAsync()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        DebugLog.Write("ssh", $"{Label} : connexion SFTP dédiée au suivi d'un fichier");
+        var sftp = await _connector.ConnectSftpAsync(_lifetime.Token);
+        sftp.KeepAliveInterval = TimeSpan.FromSeconds(30);
+        var browser = new RemoteFileBrowser(sftp, _connector.ConnectScpAsync);
+        if (_disposed)
+        {
+            // Session fermée pendant la connexion : rien ne doit rester ouvert.
+            DisposeInBackground(null, null, browser);
+            throw new ObjectDisposedException(nameof(SshSession));
+        }
+
+        _dedicated.Add(browser);
+        return browser;
+    }
+
+    public void CloseDedicatedBrowser(RemoteFileBrowser browser)
+    {
+        if (_dedicated.Remove(browser))
+        {
+            DisposeInBackground(null, null, browser);
+        }
+    }
+
+    public bool IsDisposed => _disposed;
+
     public void Dispose()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
         Editor?.Dispose();
         _lifetime.Cancel();
         DisposeInBackground(_shell, _client, _browser is { IsCompletedSuccessfully: true } browser ? browser.Result : null);
+        foreach (var dedicated in _dedicated)
+        {
+            DisposeInBackground(null, null, dedicated);
+        }
+
+        _dedicated.Clear();
         _shell = null;
         _client = null;
         _lifetime.Dispose();

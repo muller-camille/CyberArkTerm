@@ -68,5 +68,8 @@ public enum TransferProtocol
     Sftp,
 }
 
-/// <summary>Avancement d'un transfert ; <paramref name="Verifying"/> : relecture pour la vérification SHA-256.</summary>
-public sealed record TransferProgress(string FileName, long Transferred, long Total, bool Verifying = false);
+/// <summary>
+/// Avancement d'un transfert ; <paramref name="Verifying"/> : relecture pour la vérification SHA-256 ;
+/// <paramref name="Packing"/> : création de l'archive .tar.gz d'un envoi.
+/// </summary>
+public sealed record TransferProgress(string FileName, long Transferred, long Total, bool Verifying = false, bool Packing = false);

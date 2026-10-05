@@ -43,6 +43,23 @@ public sealed class SavedSession
     /// <summary>Dossier ouvert par le navigateur de fichiers à la connexion SSH ; vide = dossier personnel.</summary>
     public string? StartDirectory { get; set; }
 
+    /// <summary>Fichiers suivis (tail -f) sur ce serveur, le plus récent en tête, pour les suivre à nouveau d'un clic.</summary>
+    public List<string> TailFiles { get; set; } = [];
+
+    public const int MaxTailFiles = 12;
+
+    /// <summary>Mémorise un fichier suivi (en tête de liste).</summary>
+    public void RememberTail(string path)
+    {
+        TailFiles ??= [];
+        TailFiles.RemoveAll(p => string.Equals(p, path, StringComparison.Ordinal));
+        TailFiles.Insert(0, path);
+        if (TailFiles.Count > MaxTailFiles)
+        {
+            TailFiles.RemoveRange(MaxTailFiles, TailFiles.Count - MaxTailFiles);
+        }
+    }
+
     // Copie des informations du compte, pour l'affichage tant que la liste du PVWA n'est pas chargée.
     public string? Address { get; set; }
 

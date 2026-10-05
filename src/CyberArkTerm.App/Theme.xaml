@@ -302,6 +302,20 @@
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
+    <!-- Fichier suivi (tail -f) : document et flèche vers la fin. -->
+    <DrawingImage x:Key="IconTail">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="White" Geometry="M4,2 H13 L17,6 V20 H4 Z">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#7A8693" Thickness="1.2" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#B0BAC5" Geometry="M7,8 H14 V9.2 H7 Z M7,11 H14 V12.2 H7 Z M7,14 H11 V15.2 H7 Z" />
+                <GeometryDrawing Brush="#1565C0" Geometry="M15.5,12 H19.5 V17 H22.5 L17.5,22.5 L12.5,17 H15.5 Z" />
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
 
     <DrawingImage x:Key="IconFileLink">
         <DrawingImage.Drawing>

@@ -3,9 +3,68 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:app="clr-namespace:CyberArkTerm.App"
              xmlns:corel="clr-namespace:CyberArkTerm.Core.Localization;assembly=CyberArkTerm.Core"
-             xmlns:loc="clr-namespace:CyberArkTerm.App.Localization">
+             xmlns:loc="clr-namespace:CyberArkTerm.App.Localization"
+             xmlns:views="clr-namespace:CyberArkTerm.App.Views">
     <UserControl.Resources>
         <app:FileIconConverter x:Key="FileIcon" />
+        <views:TransferStatusConverter x:Key="TransferStatus" />
+        <!-- Transfert de la file : sens, élément → destination, état et avancement, bouton retirer / annuler. -->
+        <DataTemplate x:Key="TransferTemplate">
+            <Grid Margin="0,4,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="Arrow" Text="⬆" Foreground="#1565C0" Margin="0,0,6,0" VerticalAlignment="Top" />
+                <StackPanel Grid.Column="1">
+                    <TextBlock TextTrimming="CharacterEllipsis" ToolTip="{Binding Destination, Mode=OneWay}">
+                        <Run Text="{Binding Label, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" → " /><Run Text="{Binding Destination, Mode=OneWay}" />
+                    </TextBlock>
+                    <TextBlock x:Name="StateText" FontSize="11" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis">
+                        <TextBlock.Text>
+                            <MultiBinding Converter="{StaticResource TransferStatus}">
+                                <Binding />
+                                <Binding Path="State" />
+                                <Binding Path="Percent" />
+                                <Binding Path="Verifying" />
+                                <Binding Path="Packing" />
+                                <Binding Path="CancelRequested" />
+                                <Binding Path="FileCount" />
+                                <Binding Path="CurrentFile" />
+                                <Binding Path="Error" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                    <ProgressBar x:Name="Bar" Height="4" Margin="0,2,0,0" Maximum="100" Value="{Binding Percent, Mode=OneWay}" Visibility="Collapsed" />
+                </StackPanel>
+                <Button x:Name="ItemButton" Grid.Column="2" Content="✕" ToolTip="{x:Static loc:Strings.QueueRemoveTip}" Click="OnCancelTransfer"
+                        Margin="6,0,0,0" Padding="6,0" VerticalAlignment="Top" />
+            </Grid>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Upload}" Value="False">
+                    <Setter TargetName="Arrow" Property="Text" Value="⬇" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding State}" Value="Running">
+                    <Setter TargetName="Bar" Property="Visibility" Value="Visible" />
+                    <Setter TargetName="ItemButton" Property="Content" Value="{x:Static loc:Strings.QueueCancel}" />
+                    <Setter TargetName="ItemButton" Property="ToolTip" Value="{x:Static loc:Strings.QueueCancelTip}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CancelRequested}" Value="True">
+                    <Setter TargetName="ItemButton" Property="IsEnabled" Value="False" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding State}" Value="Done">
+                    <Setter TargetName="ItemButton" Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding State}" Value="Failed">
+                    <Setter TargetName="ItemButton" Property="Visibility" Value="Collapsed" />
+                    <Setter TargetName="StateText" Property="Foreground" Value="Firebrick" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding State}" Value="Cancelled">
+                    <Setter TargetName="ItemButton" Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
         <ContextMenu x:Key="FileMenu" Opened="OnMenuOpened">
             <MenuItem Tag="open" Header="{x:Static loc:Strings.FileOpen}" Click="OnOpenSelected" FontWeight="SemiBold" />
             <MenuItem Tag="download" Header="{x:Static loc:Strings.FileDownload}" Click="OnDownload">
@@ -18,6 +77,13 @@
                     <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <MenuItem Tag="tail" Header="{x:Static loc:Strings.FileTail}" Click="OnTail">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconTail}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <!-- Sous-menu rempli à l'ouverture : une entrée par fenêtre de suivi ouverte. -->
+            <MenuItem Tag="tailadd" Header="{x:Static loc:Strings.FileTailAdd}" />
             <MenuItem Header="{x:Static loc:Strings.FileUploadHere}" Click="OnUploadDialog">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconUpload}" Width="16" Height="16" />
@@ -48,6 +114,14 @@
     <DockPanel Background="{StaticResource SidePanelBrush}">
         <StackPanel DockPanel.Dock="Top" Margin="8,8,8,4">
             <DockPanel>
+                <Button DockPanel.Dock="Right" Style="{StaticResource SmallToolButton}" Click="OnHistory" ToolTip="{x:Static loc:Strings.HistoryTip}">
+                    <Image Source="{StaticResource IconHistory}" Style="{StaticResource SmallIcon}" />
+                </Button>
+                <!-- Fichiers déjà suivis sur ce serveur « Courants » : les suivre à nouveau d'un clic. -->
+                <Button x:Name="TailFilesButton" DockPanel.Dock="Right" Style="{StaticResource SmallToolButton}" Click="OnTailFiles"
+                        ToolTip="{x:Static loc:Strings.TailFilesTip}" Visibility="Collapsed">
+                    <Image Source="{StaticResource IconTail}" Style="{StaticResource SmallIcon}" />
+                </Button>
                 <Image Source="{StaticResource IconFiles}" Width="18" Height="18" Margin="0,0,6,0" />
                 <TextBlock x:Name="HeaderText" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
             </DockPanel>
@@ -100,14 +174,31 @@
 
         <Border DockPanel.Dock="Bottom" BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="0,1,0,0" Padding="8,4">
             <StackPanel>
+                <!-- File d'attente des transferts : visible tant qu'une série est en cours. -->
+                <Border x:Name="QueuePanel" Visibility="Collapsed" BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="0,0,0,1"
+                        Padding="0,0,0,6" Margin="0,0,0,4">
+                    <DockPanel>
+                        <DockPanel DockPanel.Dock="Top">
+                            <Button x:Name="CancelAllButton" DockPanel.Dock="Right" Content="{x:Static loc:Strings.QueueCancelAll}" Padding="6,0"
+                                    Click="OnCancelAllTransfers" />
+                            <TextBlock Text="{x:Static loc:Strings.QueueTitle}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        </DockPanel>
+                        <ScrollViewer MaxHeight="170" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl x:Name="QueueList" ItemTemplate="{StaticResource TransferTemplate}" />
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
                 <DockPanel>
-                    <!-- Détail de la vérification SHA-256 du dernier transfert. -->
+                    <!-- Détail de la vérification SHA-256 des derniers transferts. -->
                     <TextBlock x:Name="ChecksLink" DockPanel.Dock="Right" Margin="8,0,0,0" Visibility="Collapsed">
                         <Hyperlink Click="OnShowChecks"><Run Text="{x:Static loc:Strings.ChecksLink}" /></Hyperlink>
                     </TextBlock>
+                    <!-- Archive .tar.gz envoyée : commande d'extraction à coller dans le terminal. -->
+                    <TextBlock x:Name="ExtractLink" DockPanel.Dock="Right" Margin="8,0,0,0" Visibility="Collapsed">
+                        <Hyperlink Click="OnCopyExtractCommand"><Run Text="{x:Static loc:Strings.ArchiveCopyCommand}" /></Hyperlink>
+                    </TextBlock>
                     <TextBlock x:Name="StatusText" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
                 </DockPanel>
-                <ProgressBar x:Name="TransferBar" Height="6" Margin="0,4,0,0" Visibility="Collapsed" Maximum="100" />
             </StackPanel>
         </Border>
 

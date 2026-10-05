@@ -35,6 +35,9 @@ public partial class SettingsDialog : Window
         FollowBox.IsChecked = settings.FollowTerminalFolder;
         EditorBox.Text = settings.TextEditor;
         (settings.UploadProtocol == TransferProtocol.Sftp ? SftpRadio : ScpRadio).IsChecked = true;
+        ArchiveBox.IsChecked = settings.OfferArchive;
+        ArchiveThresholdBox.Text = settings.ArchiveThreshold.ToString(CultureInfo.InvariantCulture);
+        TailSessionBox.IsChecked = settings.TailIndependentSession;
         HostKeysText.Text = settings.KnownHosts.Count == 0
             ? Strings.NoHostKeys
             : Text.Format(Strings.HostKeys, string.Join(", ", settings.KnownHosts.Keys));
@@ -71,6 +74,12 @@ public partial class SettingsDialog : Window
             return;
         }
 
+        if (!int.TryParse(ArchiveThresholdBox.Text.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var threshold) || threshold < 2)
+        {
+            ShowError(Strings.InvalidArchiveThreshold);
+            return;
+        }
+
         _settings.Language = LanguageBox.SelectedValue as string ?? "";
         _settings.PsmpAddress = host;
         _settings.PsmpPort = port;
@@ -78,6 +87,9 @@ public partial class SettingsDialog : Window
         _settings.FollowTerminalFolder = FollowBox.IsChecked == true;
         _settings.KeepPvwaSessionAlive = KeepAliveBox.IsChecked == true;
         _settings.UploadProtocol = SftpRadio.IsChecked == true ? TransferProtocol.Sftp : TransferProtocol.Scp;
+        _settings.OfferArchive = ArchiveBox.IsChecked == true;
+        _settings.ArchiveThreshold = threshold;
+        _settings.TailIndependentSession = TailSessionBox.IsChecked == true;
         _settings.TextEditor = EditorBox.Text.Trim().Trim('"');
         if (_forgetHostKeys)
         {

@@ -892,6 +892,446 @@ Continue?</value>
   <data name="ChecksCopied" xml:space="preserve">
     <value>Copied: {0} line(s)</value>
   </data>
+  <data name="ChecksColDirection" xml:space="preserve">
+    <value>Direction</value>
+  </data>
+  <data name="ChecksUploaded" xml:space="preserve">
+    <value>⬆ sent</value>
+  </data>
+  <data name="ChecksDownloaded" xml:space="preserve">
+    <value>⬇ downloaded</value>
+  </data>
+  <data name="ChecksInterrupted" xml:space="preserve">
+    <value>⏹ Cancelled: {0}</value>
+  </data>
+  <data name="ChecksFailed" xml:space="preserve">
+    <value>✗ Failed: {0}</value>
+  </data>
+  <data name="ChecksSomeFailed" xml:space="preserve">
+    <value>✗ {0} file(s) out of {1} failed.</value>
+  </data>
+  <data name="ChecksSomeInterrupted" xml:space="preserve">
+    <value>⏹ {0} file(s) out of {1} interrupted by a cancellation: incomplete copy deleted.</value>
+  </data>
+  <data name="SettingsTailSession" xml:space="preserve">
+    <value>Follow files (tail -f) in an independent session</value>
+  </data>
+  <data name="SettingsTailSessionHelp" xml:space="preserve">
+    <value>Each follow window opens its own SFTP connection instead of sharing the one of the Files tab: it does not wait for transfers, but it is one more PSMP session (recorded separately, and an MFA validation may be asked).</value>
+  </data>
+  <data name="SettingsArchiveOffer" xml:space="preserve">
+    <value>Offer a single ._tar.gz archive from</value>
+  </data>
+  <data name="SettingsArchiveFiles" xml:space="preserve">
+    <value>files dropped at once</value>
+  </data>
+  <data name="SettingsArchiveTip" xml:space="preserve">
+    <value>When you drop many files at once in the Files tab, CyberArkTerm offers to pack them into one .tar.gz archive: one file to transfer and check instead of thousands, much faster through the PSMP. You then extract it on the server with the command given.</value>
+  </data>
+  <data name="InvalidArchiveThreshold" xml:space="preserve">
+    <value>The number of files for the archive must be 2 or more.</value>
+  </data>
+  <data name="ArchiveOfferTitle" xml:space="preserve">
+    <value>Many files</value>
+  </data>
+  <data name="ArchiveOfferText" xml:space="preserve">
+    <value>You are sending {0} files ({1}) to {2}.
+
+Send them in a single .tar.gz archive? One file to transfer and check instead of {0}: much faster through the PSMP. The archive is made on this computer, sent, checked (SHA-256), then deleted from this computer; you extract it on the server with the command given at the end (to copy and paste in the terminal).</value>
+  </data>
+  <data name="ArchiveOfferArchive" xml:space="preserve">
+    <value>Send a ._tar.gz archive</value>
+  </data>
+  <data name="ArchiveOfferFiles" xml:space="preserve">
+    <value>Send the _files one by one</value>
+  </data>
+  <data name="ArchiveOfferNever" xml:space="preserve">
+    <value>_Don't offer again (can be turned back on in Settings)</value>
+  </data>
+  <data name="ArchiveLabel" xml:space="preserve">
+    <value>{0} ({1} files)</value>
+  </data>
+  <data name="ArchivePacking" xml:space="preserve">
+    <value>Preparing the archive {0}…</value>
+  </data>
+  <data name="QueueStatePacking" xml:space="preserve">
+    <value>packing .tar.gz · {0} %</value>
+  </data>
+  <data name="ArchiveSent" xml:space="preserve">
+    <value>Archive {0} sent to {1}: copy the extraction command and paste it in the terminal of the session</value>
+  </data>
+  <data name="ArchiveCopyCommand" xml:space="preserve">
+    <value>Copy the extraction command</value>
+  </data>
+  <data name="ArchiveCommandCopied" xml:space="preserve">
+    <value>Extraction command copied: paste it in the terminal of the session (it deletes the archive once extracted).</value>
+  </data>
+  <data name="FileTail" xml:space="preserve">
+    <value>_Follow (tail -f)</value>
+  </data>
+  <data name="FileTailAdd" xml:space="preserve">
+    <value>Add to a follow _window</value>
+  </data>
+  <data name="TailFilesTip" xml:space="preserve">
+    <value>Files already followed on this server: follow them again</value>
+  </data>
+  <data name="TailFilesAll" xml:space="preserve">
+    <value>Follow them _all in one window</value>
+  </data>
+  <data name="TailFilesForget" xml:space="preserve">
+    <value>_Forget these files</value>
+  </data>
+  <data name="TailTitle" xml:space="preserve">
+    <value>tail -f {0} — {1}</value>
+  </data>
+  <data name="TailTitleMany" xml:space="preserve">
+    <value>tail -f — {0} files</value>
+  </data>
+  <data name="TailPause" xml:space="preserve">
+    <value>_Pause</value>
+  </data>
+  <data name="TailResume" xml:space="preserve">
+    <value>_Resume</value>
+  </data>
+  <data name="TailFollowEnd" xml:space="preserve">
+    <value>Scroll to the _end</value>
+  </data>
+  <data name="TailWrap" xml:space="preserve">
+    <value>_Wrap lines</value>
+  </data>
+  <data name="TailClear" xml:space="preserve">
+    <value>_Clear</value>
+  </data>
+  <data name="TailMarker" xml:space="preserve">
+    <value>_Marker</value>
+  </data>
+  <data name="TailMarkerTip" xml:space="preserve">
+    <value>Insert a line with the time (—— 14:32:05 ——) to find a moment again</value>
+  </data>
+  <data name="TailMarkerText" xml:space="preserve">
+    <value>—— {0} ——</value>
+  </data>
+  <data name="TailSearchButton" xml:space="preserve">
+    <value>Searc_h…</value>
+  </data>
+  <data name="TailSearchTip" xml:space="preserve">
+    <value>Search in the lines without filtering them (Ctrl+F); F3: next, Shift+F3: previous</value>
+  </data>
+  <data name="TailSave" xml:space="preserve">
+    <value>_Save…</value>
+  </data>
+  <data name="TailSaveTip" xml:space="preserve">
+    <value>Save the displayed lines (with the current filter) to a file on this computer</value>
+  </data>
+  <data name="TailSaveTitle" xml:space="preserve">
+    <value>Save the lines</value>
+  </data>
+  <data name="TailSaveFilter" xml:space="preserve">
+    <value>Log files (*.log)|*.log|Text files (*.txt)|*.txt|All files (*.*)|*.*</value>
+  </data>
+  <data name="TailSaved" xml:space="preserve">
+    <value>{0} lines saved to {1}</value>
+  </data>
+  <data name="TailSaveFailed" xml:space="preserve">
+    <value>Cannot save: {0}</value>
+  </data>
+  <data name="TailRecord" xml:space="preserve">
+    <value>Record c_ontinuously…</value>
+  </data>
+  <data name="TailRecordTip" xml:space="preserve">
+    <value>Write the lines already received, then each new line as it arrives (without the filter), to a file on this computer, as long as the box is ticked</value>
+  </data>
+  <data name="TailRecordTitle" xml:space="preserve">
+    <value>Record continuously to</value>
+  </data>
+  <data name="TailRecording" xml:space="preserve">
+    <value>● recording to {0}</value>
+  </data>
+  <data name="TailRecordFailed" xml:space="preserve">
+    <value>Recording stopped: {0}</value>
+  </data>
+  <data name="TailReconnect" xml:space="preserve">
+    <value>Re_connect</value>
+  </data>
+  <data name="TailReconnectTip" xml:space="preserve">
+    <value>Open the follow connection again (the SSH tab must be connected)</value>
+  </data>
+  <data name="TailFilter" xml:space="preserve">
+    <value>_Filter:</value>
+  </data>
+  <data name="TailFilterTip" xml:space="preserve">
+    <value>Show only the lines containing this text (case-insensitive), like grep</value>
+  </data>
+  <data name="TailExclude" xml:space="preserve">
+    <value>E_xclude:</value>
+  </data>
+  <data name="TailExcludeTip" xml:space="preserve">
+    <value>Hide the lines containing this text, like grep -v</value>
+  </data>
+  <data name="TailRegex" xml:space="preserve">
+    <value>Regular e_xpressions</value>
+  </data>
+  <data name="TailRegexTip" xml:space="preserve">
+    <value>Filter and exclusion are regular expressions (.NET syntax, case-insensitive), e.g. user=\w+ (denied|refused)</value>
+  </data>
+  <data name="TailRegexInvalid" xml:space="preserve">
+    <value>Invalid regular expression: {0}</value>
+  </data>
+  <data name="TailRegexSlow" xml:space="preserve">
+    <value>Regular expression too slow on a line: it no longer finds anything</value>
+  </data>
+  <data name="TailContext" xml:space="preserve">
+    <value>Con_text:</value>
+  </data>
+  <data name="TailContextTip" xml:space="preserve">
+    <value>Lines shown before and after each line kept by the filter, like grep -C</value>
+  </data>
+  <data name="TailColors" xml:space="preserve">
+    <value>Colours by _level</value>
+  </data>
+  <data name="TailColorsTip" xml:space="preserve">
+    <value>Errors (ERROR, FATAL, CRITICAL…) in red, warnings (WARN, WARNING) in orange</value>
+  </data>
+  <data name="TailHighlight" xml:space="preserve">
+    <value>_Highlight:</value>
+  </data>
+  <data name="TailHighlightTip" xml:space="preserve">
+    <value>Words highlighted in yellow, separated by commas (kept for the next windows)</value>
+  </data>
+  <data name="TailAlert" xml:space="preserve">
+    <value>_Alert on:</value>
+  </data>
+  <data name="TailAlertTip" xml:space="preserve">
+    <value>Words that raise an alert when a new line contains them, separated by commas (e.g. ERROR, OutOfMemory, Connection refused): the line is marked, the counter goes up and the taskbar button flashes</value>
+  </data>
+  <data name="TailNotify" xml:space="preserve">
+    <value>Windows _notification</value>
+  </data>
+  <data name="TailNotifyTip" xml:space="preserve">
+    <value>Also show a Windows notification when the window is not in front (at most one every 30 seconds). It gives the number of lines and the file name, never the content of the lines.</value>
+  </data>
+  <data name="TailAlertCount" xml:space="preserve">
+    <value>⚠ {0} alerts</value>
+  </data>
+  <data name="TailAlertCountTip" xml:space="preserve">
+    <value>Go to the next alert line; right-click: reset the counter</value>
+  </data>
+  <data name="TailAlertReset" xml:space="preserve">
+    <value>_Reset the counter</value>
+  </data>
+  <data name="TailAlertNone" xml:space="preserve">
+    <value>No alert line among the displayed lines</value>
+  </data>
+  <data name="TailNotificationTitle" xml:space="preserve">
+    <value>tail -f: alert</value>
+  </data>
+  <data name="TailNotificationText" xml:space="preserve">
+    <value>{0} new alert line(s) in {1}</value>
+  </data>
+  <data name="TailSearch" xml:space="preserve">
+    <value>Searc_h:</value>
+  </data>
+  <data name="TailSearchRegex" xml:space="preserve">
+    <value>Regular e_xpression</value>
+  </data>
+  <data name="TailSearchPreviousTip" xml:space="preserve">
+    <value>Previous (Shift+Enter, Shift+F3)</value>
+  </data>
+  <data name="TailSearchNextTip" xml:space="preserve">
+    <value>Next (Enter, F3)</value>
+  </data>
+  <data name="TailSearchCloseTip" xml:space="preserve">
+    <value>Close the search (Esc)</value>
+  </data>
+  <data name="TailSearchCount" xml:space="preserve">
+    <value>{0} / {1}</value>
+  </data>
+  <data name="TailSearchTotal" xml:space="preserve">
+    <value>{0} lines</value>
+  </data>
+  <data name="TailSearchNone" xml:space="preserve">
+    <value>No result</value>
+  </data>
+  <data name="TailCopy" xml:space="preserve">
+    <value>_Copy</value>
+  </data>
+  <data name="TailSelectAll" xml:space="preserve">
+    <value>Select _all</value>
+  </data>
+  <data name="TailSourceRemoveTip" xml:space="preserve">
+    <value>Stop following this file</value>
+  </data>
+  <data name="TailUpdated" xml:space="preserve">
+    <value>Updated at {0}</value>
+  </data>
+  <data name="TailPausedState" xml:space="preserve">
+    <value>Paused</value>
+  </data>
+  <data name="TailConnecting" xml:space="preserve">
+    <value>connecting…</value>
+  </data>
+  <data name="TailOpeningDedicated" xml:space="preserve">
+    <value>opening an independent session…</value>
+  </data>
+  <data name="TailWaiting" xml:space="preserve">
+    <value>connection lost: resumes when the tab reconnects (or Reconnect)</value>
+  </data>
+  <data name="TailConnectFailed" xml:space="preserve">
+    <value>connection failed: {0}</value>
+  </data>
+  <data name="TailSessionClosed" xml:space="preserve">
+    <value>session closed</value>
+  </data>
+  <data name="TailError" xml:space="preserve">
+    <value>cannot read the file: {0} (new attempt in a few seconds)</value>
+  </data>
+  <data name="TailRestarted" xml:space="preserve">
+    <value>— file truncated or replaced: read again from the start —</value>
+  </data>
+  <data name="TailSkipped" xml:space="preserve">
+    <value>— {0} skipped —</value>
+  </data>
+  <data name="TailLostMarker" xml:space="preserve">
+    <value>— connection lost —</value>
+  </data>
+  <data name="TailResumedMarker" xml:space="preserve">
+    <value>— connection back: following again —</value>
+  </data>
+  <data name="TailSessionClosedMarker" xml:space="preserve">
+    <value>— session closed: the file is no longer followed —</value>
+  </data>
+  <data name="TailRemovedMarker" xml:space="preserve">
+    <value>— no longer followed —</value>
+  </data>
+  <data name="HistoryTip" xml:space="preserve">
+    <value>Transfer history (uploads and downloads)</value>
+  </data>
+  <data name="HistoryTitle" xml:space="preserve">
+    <value>Transfer history</value>
+  </data>
+  <data name="HistoryNote" xml:space="preserve">
+    <value>Kept on this computer (last 200 transfers), without the content of the files; the SHA-256 checksums let you check a file again later.</value>
+  </data>
+  <data name="HistoryFilterAll" xml:space="preserve">
+    <value>All transfers</value>
+  </data>
+  <data name="HistoryFilterUploads" xml:space="preserve">
+    <value>Uploads</value>
+  </data>
+  <data name="HistoryFilterDownloads" xml:space="preserve">
+    <value>Downloads</value>
+  </data>
+  <data name="HistoryColTime" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="HistoryColServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="HistoryColItem" xml:space="preserve">
+    <value>Item</value>
+  </data>
+  <data name="HistoryColDestination" xml:space="preserve">
+    <value>Destination</value>
+  </data>
+  <data name="HistoryColFiles" xml:space="preserve">
+    <value>Files</value>
+  </data>
+  <data name="HistoryDone" xml:space="preserve">
+    <value>✓ done · {0} identical</value>
+  </data>
+  <data name="HistoryChecks" xml:space="preserve">
+    <value>_Checksums…</value>
+  </data>
+  <data name="HistoryOpenFolder" xml:space="preserve">
+    <value>_Open the folder</value>
+  </data>
+  <data name="HistoryClear" xml:space="preserve">
+    <value>C_lear the history</value>
+  </data>
+  <data name="HistoryClearConfirm" xml:space="preserve">
+    <value>Clear the transfer history ({0} transfer(s))? The files themselves are not touched.</value>
+  </data>
+  <data name="HistoryEmpty" xml:space="preserve">
+    <value>No transfer yet.</value>
+  </data>
+  <data name="HistoryExplorer" xml:space="preserve">
+    <value>Explorer (drag and drop)</value>
+  </data>
+  <data name="QueueTitle" xml:space="preserve">
+    <value>Transfers</value>
+  </data>
+  <data name="QueueCancelAll" xml:space="preserve">
+    <value>Cancel _all</value>
+  </data>
+  <data name="QueueRemoveTip" xml:space="preserve">
+    <value>Remove from the queue</value>
+  </data>
+  <data name="QueueCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="QueueCancelTip" xml:space="preserve">
+    <value>Stop this transfer: the file being transferred, incomplete, is deleted; files already transferred stay.</value>
+  </data>
+  <data name="QueueItems" xml:space="preserve">
+    <value>{0} items</value>
+  </data>
+  <data name="QueueFiles" xml:space="preserve">
+    <value>{0} files</value>
+  </data>
+  <data name="QueuePending" xml:space="preserve">
+    <value>{0} waiting</value>
+  </data>
+  <data name="QueueStateWaiting" xml:space="preserve">
+    <value>waiting</value>
+  </data>
+  <data name="QueueStateRunning" xml:space="preserve">
+    <value>{0} % · file {1}/{2}</value>
+  </data>
+  <data name="QueueStateVerifying" xml:space="preserve">
+    <value>checking (SHA-256) · file {0}/{1}</value>
+  </data>
+  <data name="QueueStateCancelling" xml:space="preserve">
+    <value>cancelling…</value>
+  </data>
+  <data name="QueueStateDone" xml:space="preserve">
+    <value>✓ done</value>
+  </data>
+  <data name="QueueStateDifferent" xml:space="preserve">
+    <value>✗ {0} file(s) differ</value>
+  </data>
+  <data name="QueueStateCancelled" xml:space="preserve">
+    <value>cancelled</value>
+  </data>
+  <data name="QueueAdded" xml:space="preserve">
+    <value>Added to the transfer queue: {0} ({1} waiting)</value>
+  </data>
+  <data name="QueueSummary" xml:space="preserve">
+    <value>Transfers finished: {0}</value>
+  </data>
+  <data name="QueueSummaryDone" xml:space="preserve">
+    <value>{0} done</value>
+  </data>
+  <data name="QueueSummaryFailed" xml:space="preserve">
+    <value>{0} failed</value>
+  </data>
+  <data name="QueueSummaryCancelled" xml:space="preserve">
+    <value>{0} cancelled</value>
+  </data>
+  <data name="QueueCancelledOne" xml:space="preserve">
+    <value>Transfer cancelled: {0}</value>
+  </data>
+  <data name="QueueDownloadFailed" xml:space="preserve">
+    <value>Download of {0} failed: {1}</value>
+  </data>
+  <data name="QueueCloseConfirm" xml:space="preserve">
+    <value>{0} transfer(s) running or waiting will be cancelled (the file being transferred, incomplete, is deleted).
+
+Close anyway?</value>
+  </data>
+  <data name="DropHintQueued" xml:space="preserve">
+    <value>Drop to add to the transfer queue: {0} to
+{1}</value>
+  </data>
   <data name="PermissionDenied" xml:space="preserve">
     <value>permission denied</value>
   </data>
@@ -1110,6 +1550,27 @@ Close anyway? The local copies will be deleted.</value>
   </data>
   <data name="MenuTabCloseOthers" xml:space="preserve">
     <value>Close _other tabs</value>
+  </data>
+  <data name="MenuTabDetach" xml:space="preserve">
+    <value>_Detach to a new window</value>
+  </data>
+  <data name="TabDetachTip" xml:space="preserve">
+    <value>Drag the tab out of the window, or right-click, to show the session in a separate window (another screen…)</value>
+  </data>
+  <data name="DetachedTitle" xml:space="preserve">
+    <value>{0} — CyberArkTerm</value>
+  </data>
+  <data name="DetachedPlaceholder" xml:space="preserve">
+    <value>This session is shown in a separate window.</value>
+  </data>
+  <data name="DetachedHint" xml:space="preserve">
+    <value>Closing that window brings the session back here; it stays open. The Files tab works on this session while this tab is selected.</value>
+  </data>
+  <data name="DetachedShow" xml:space="preserve">
+    <value>_Show the window</value>
+  </data>
+  <data name="DetachedReattach" xml:space="preserve">
+    <value>_Bring it back here</value>
   </data>
   <data name="TabReconnectConfirm" xml:space="preserve">
     <value>Reconnect {0}? The open session will be closed.</value>

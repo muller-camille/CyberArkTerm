@@ -87,6 +87,12 @@ public partial class MainWindow
             }
         };
         header.ContextMenu = TabMenu(tab, duplicate);
+        if (tab.Tag is SshSession)
+        {
+            header.ToolTip = Strings.TabDetachTip;
+            EnableDragToDetach(tab, header);
+        }
+
         return header;
     }
 
@@ -115,8 +121,15 @@ public partial class MainWindow
         close.Click += (_, _) => CloseSessionTab(tab);
         var closeOthers = new MenuItem { Header = Strings.MenuTabCloseOthers };
         closeOthers.Click += async (_, _) => await CloseOtherTabsAsync(tab);
-        var menu = new ContextMenu { Items = { reconnect, copy, new Separator(), close, closeOthers } };
-        menu.Opened += (_, _) => closeOthers.IsEnabled = SessionTabs().Any(t => t != tab);
+        // Fenêtre séparée : terminal SSH seulement (voir MainWindow.Detach.cs).
+        var detach = new MenuItem { Header = Strings.MenuTabDetach, Visibility = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed };
+        detach.Click += (_, _) => DetachTab(tab);
+        var menu = new ContextMenu { Items = { reconnect, copy, detach, new Separator(), close, closeOthers } };
+        menu.Opened += (_, _) =>
+        {
+            closeOthers.IsEnabled = SessionTabs().Any(t => t != tab);
+            detach.IsEnabled = tab.Content is SshSessionView;
+        };
         return menu;
     }
 
@@ -146,7 +159,7 @@ public partial class MainWindow
 
         switch (tab.Tag)
         {
-            case SshSession ssh when tab.Content is SshSessionView view:
+            case SshSession ssh when SshViewOf(tab) is { } view:
                 if (ssh.State != SshSessionState.Connected || Confirm(ssh.Label))
                 {
                     await view.ConnectAsync();
@@ -206,11 +219,31 @@ public partial class MainWindow
             return;
         }
 
+        if (!FilesPanel.ConfirmCancelTransfers(this, session))
+        {
+            return;
+        }
+
+        CloseDetachedWindow(session);
+        FilesPanel.ReleaseTails(session);
         MainTabs.Items.Remove(tab);
         _sshSessions.Remove(session);
-        session.Dispose();
+        _ = DisposeAfterTransfersAsync(session);
         MainTabs.SelectedItem ??= HomeTab;
         SetStatus(Text.Format(Strings.SshClosed, session.Label));
+    }
+
+    /// <summary>Annule les transferts de la session, laisse le fichier interrompu être supprimé, puis ferme ses connexions.</summary>
+    private async Task DisposeAfterTransfersAsync(SshSession session)
+    {
+        try
+        {
+            await FilesPanel.CancelTransfersAsync(session);
+        }
+        finally
+        {
+            session.Dispose();
+        }
     }
 
     /// <summary>Vrai si l'on peut fermer : aucun fichier modifié non renvoyé, ou l'utilisateur accepte de les perdre.</summary>
@@ -219,6 +252,8 @@ public partial class MainWindow
 
     private void CloseAllSshSessions()
     {
+        CloseAllDetachedWindows();
+        FilesPanel.CloseTailWindows();
         foreach (var session in _sshSessions)
         {
             session.Dispose();

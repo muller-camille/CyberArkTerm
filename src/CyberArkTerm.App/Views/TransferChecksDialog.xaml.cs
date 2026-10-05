@@ -14,50 +14,64 @@ namespace CyberArkTerm.App.Views;
 public partial class TransferChecksDialog : Window
 {
     private readonly IReadOnlyList<TransferCheck> _checks;
-    private readonly bool _upload;
 
-    /// <param name="upload">Envoi vers le serveur (sinon téléchargement) : explique comment les sommes ont été obtenues.</param>
-    public TransferChecksDialog(IReadOnlyList<TransferCheck> checks, bool upload)
+    public TransferChecksDialog(IReadOnlyList<TransferCheck> checks)
     {
         InitializeComponent();
         _checks = checks;
-        _upload = upload;
         HeadingText.Text = Heading(checks);
-        HeadingText.Foreground = new SolidColorBrush(checks.Any(c => c.Verified && !c.Matches) ? Colors.Firebrick
-            : checks.Any(c => !c.Verified) ? Color.FromRgb(0xB2, 0x6A, 0x00)
+        HeadingText.Foreground = new SolidColorBrush(checks.Any(c => c.Failed || (c.Verified && !c.Matches)) ? Colors.Firebrick
+            : checks.Any(c => !c.Verified && !c.Interrupted) ? Color.FromRgb(0xB2, 0x6A, 0x00)
             : Color.FromRgb(0x1E, 0x7B, 0x45));
-        IntroText.Text = upload ? Strings.ChecksIntroUpload : Strings.ChecksIntroDownload;
+        // Comment les sommes ont été obtenues, selon les sens présents.
+        IntroText.Text = string.Join(Environment.NewLine, new[]
+        {
+            checks.Any(c => c.Upload) ? Strings.ChecksIntroUpload : null,
+            checks.Any(c => !c.Upload) ? Strings.ChecksIntroDownload : null,
+        }.OfType<string>());
         BuildColumns();
         // Les fichiers à revoir d'abord.
-        ChecksGrid.ItemsSource = checks.OrderBy(c => c.Matches ? 2 : c.Verified ? 0 : 1).ToList();
+        ChecksGrid.ItemsSource = checks.OrderBy(Rank).ToList();
     }
 
-    /// <summary>Résumé : tous identiques, ou combien diffèrent et combien n'ont pas pu être vérifiés.</summary>
+    /// <summary>Résumé : tous identiques, ou combien diffèrent, sont en échec, interrompus ou non vérifiés.</summary>
     public static string Heading(IReadOnlyList<TransferCheck> checks)
     {
-        int different = checks.Count(c => c.Verified && !c.Matches);
-        int unverified = checks.Count(c => !c.Verified);
+        int Count(int rank) => checks.Count(c => Rank(c) == rank);
         var lines = new List<string>();
-        if (different > 0)
+        void Add(int count, string format)
         {
-            lines.Add(Text.Format(Strings.ChecksSomeDiffer, different, checks.Count));
+            if (count > 0)
+            {
+                lines.Add(Text.Format(format, count, checks.Count));
+            }
         }
 
-        if (unverified > 0)
-        {
-            lines.Add(Text.Format(Strings.ChecksSomeUnverified, unverified, checks.Count));
-        }
-
+        Add(Count(0), Strings.ChecksSomeDiffer);
+        Add(Count(1), Strings.ChecksSomeFailed);
+        Add(Count(2), Strings.ChecksSomeUnverified);
+        Add(Count(3), Strings.ChecksSomeInterrupted);
         return lines.Count == 0 ? Text.Format(Strings.ChecksAllOk, checks.Count) : string.Join(Environment.NewLine, lines);
     }
 
     /// <summary>Texte de la colonne « Résultat ».</summary>
     public static string Result(TransferCheck check) =>
-        !check.Verified ? Text.Format(Strings.ChecksUnverified, check.Error) : check.Matches ? Strings.ChecksIdentical : Strings.ChecksDifferent;
+        check.Interrupted ? Text.Format(Strings.ChecksInterrupted, check.Error)
+        : check.Failed ? Text.Format(Strings.ChecksFailed, check.Error)
+        : !check.Verified ? Text.Format(Strings.ChecksUnverified, check.Error)
+        : check.Matches ? Strings.ChecksIdentical : Strings.ChecksDifferent;
+
+    /// <summary>Ordre d'affichage : différents, en échec, non vérifiés, interrompus, identiques.</summary>
+    private static int Rank(TransferCheck check) =>
+        check.Interrupted ? 3 : check.Failed ? 1 : !check.Verified ? 2 : check.Matches ? 4 : 0;
 
     private void BuildColumns()
     {
         var hash = (Style)FindResource("HashText");
+        ChecksGrid.Columns.Add(new DataGridTextColumn
+        {
+            Header = Strings.ChecksColDirection, Binding = new Binding(nameof(TransferCheck.Upload)) { Converter = new DirectionConverter() },
+        });
         ChecksGrid.Columns.Add(new DataGridTextColumn
         {
             Header = Strings.ChecksColFile, Binding = new Binding(nameof(TransferCheck.RemotePath)), Width = new DataGridLength(1, DataGridLengthUnitType.Star),
@@ -78,7 +92,7 @@ public partial class TransferChecksDialog : Window
     private void OnCopy(object sender, RoutedEventArgs e)
     {
         // Somme de l'original seulement pour les fichiers vérifiés ; une ligne par fichier, fin de ligne Unix.
-        var lines = _checks.Where(c => c.Verified).Select(c => c.ToSha256SumLine(_upload)).ToList();
+        var lines = _checks.Where(c => c.Verified).Select(c => c.ToSha256SumLine()).ToList();
         try
         {
             Clipboard.SetText(string.Join("\n", lines) + "\n");
@@ -88,6 +102,15 @@ public partial class TransferChecksDialog : Window
         {
             CopiedText.Text = Strings.ClipboardBusy;
         }
+    }
+
+    private sealed class DirectionConverter : IValueConverter
+    {
+        public object Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) =>
+            value is true ? Strings.ChecksUploaded : Strings.ChecksDownloaded;
+
+        public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) =>
+            throw new NotSupportedException();
     }
 
     private sealed class SizeConverter : IValueConverter

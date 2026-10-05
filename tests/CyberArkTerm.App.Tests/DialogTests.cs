@@ -3,6 +3,7 @@ using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Text.Json;
 using System.Windows;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Views;
 using CyberArkTerm.Core;
 using CyberArkTerm.Core.Ssh;
@@ -204,13 +205,13 @@ public sealed class DialogTests
         RunWithTheme(() =>
         {
             byte[] hash = [.. Enumerable.Range(0, 32).Select(i => (byte)i)];
-            var ok = new TransferCheck("a", @"C:\a", "/srv/a", 10, hash, 10, [.. hash]);
+            var ok = new TransferCheck("a", @"C:\a", "/srv/a", 10, hash, 10, [.. hash]) { Upload = true };
             var different = ok with { Name = "b", RemotePath = "/srv/b", RemoteSha256 = new byte[32] };
             var unverified = ok with { Name = "c", RemotePath = "/srv/c", RemoteLength = -1, RemoteSha256 = [], Error = "Permission denied" };
 
-            var dialog = new TransferChecksDialog([ok, different, unverified], upload: true);
+            var dialog = new TransferChecksDialog([ok, different, unverified]);
 
-            Assert.Equal(5, dialog.ChecksGrid.Columns.Count);
+            Assert.Equal(6, dialog.ChecksGrid.Columns.Count);
             Assert.Equal(["/srv/b", "/srv/c", "/srv/a"], ((IEnumerable<TransferCheck>)dialog.ChecksGrid.ItemsSource).Select(c => c.RemotePath));
             Assert.Equal(2, dialog.HeadingText.Text.Split(Environment.NewLine).Length);
             Assert.Contains("Permission denied", TransferChecksDialog.Result(unverified));
@@ -218,6 +219,414 @@ public sealed class DialogTests
             Assert.Single(TransferChecksDialog.Heading([ok]).Split(Environment.NewLine));
             dialog.Close();
         });
+    }
+
+    /// <summary>
+    /// Panneau de la file des transferts : visible pendant la série, élément en cours dans la barre d'état, élément en
+    /// attente retiré, puis bilan unique à la fin.
+    /// </summary>
+    [Fact]
+    public void TransferQueuePanelFollowsTheQueue()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            // Sans contexte de synchronisation, la fin d'un transfert se poursuit sur ce fil (pas de boucle de messages ici).
+            SynchronizationContext.SetSynchronizationContext(null);
+            var panel = new FileBrowserPanel();
+            Assert.Equal(Visibility.Collapsed, panel.QueuePanel.Visibility);
+            var release = new TaskCompletionSource();
+            var running = new TransferItem(true, "deploy/", "/opt/app", async (_, _) => await release.Task) { Protocol = "SCP", FileCount = 12 };
+            var waiting = new TransferItem(false, "app.log", @"C:\Temp", (_, _) => Task.CompletedTask);
+
+            panel.Queue.Enqueue(running);
+            panel.Queue.Enqueue(waiting);
+
+            Assert.Equal(Visibility.Visible, panel.QueuePanel.Visibility);
+            Assert.Equal(2, panel.ActiveTransfers(null));
+            Assert.Contains("deploy/", panel.StatusText.Text);
+            Assert.Contains("(1/12)", panel.StatusText.Text);
+            Assert.Contains(Text.Format(Strings.QueuePending, 1), panel.StatusText.Text);
+            Assert.Equal(Strings.QueueStateWaiting, TransferStatusConverter.StateText(waiting));
+
+            panel.Queue.Cancel(waiting);
+            release.SetResult();
+
+            Assert.Equal((TransferState.Done, TransferState.Cancelled), (running.State, waiting.State));
+            Assert.Equal(Visibility.Collapsed, panel.QueuePanel.Visibility);
+            Assert.Equal(0, panel.ActiveTransfers(null));
+            Assert.Contains(Text.Format(Strings.QueueSummaryCancelled, 1), panel.StatusText.Text);
+
+            // Historique : l'envoi terminé y figure ; l'élément retiré avant d'avoir commencé, non.
+            var record = Assert.Single(panel.History.Records);
+            Assert.Equal(("deploy/", true, TransferState.Done, "SCP"), (record.Label, record.Upload, record.State, record.Protocol));
+        });
+    }
+
+    /// <summary>Historique : filtre par sens, résultat lisible, sommes et dossier disponibles pour un téléchargement.</summary>
+    [Fact]
+    public void TransferHistoryWindowOpens()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            byte[] hash = [1, 2, 3];
+            var history = new TransferHistory();
+            history.Add(new TransferRecord
+            {
+                Upload = false, Label = "app.log", Destination = Path.GetTempPath(), State = TransferState.Done, FileCount = 1,
+                Files = [new TransferCheck("app.log", @"C:\Temp\app.log", "/var/log/app.log", 3, hash, 3, [.. hash])],
+            });
+            history.Add(new TransferRecord { Upload = true, Label = "deploy/", Destination = "/opt/app", State = TransferState.Failed, Error = "permission refusée" });
+            int saved = 0;
+
+            var dialog = new TransferHistoryDialog(history, () => saved++);
+
+            Assert.Equal(7, dialog.RecordsGrid.Columns.Count);
+            Assert.Equal(2, ((IEnumerable<TransferRecord>)dialog.RecordsGrid.ItemsSource).Count());
+            dialog.FilterBox.SelectedIndex = 2;
+            var download = Assert.Single((IEnumerable<TransferRecord>)dialog.RecordsGrid.ItemsSource);
+            dialog.RecordsGrid.SelectedItem = download;
+            Assert.True(dialog.ChecksButton.IsEnabled);
+            Assert.True(dialog.OpenFolderButton.IsEnabled);
+            Assert.Equal(Text.Format(Strings.HistoryDone, 1), TransferHistoryDialog.Result(download));
+            Assert.Equal("✗ permission refusée", TransferHistoryDialog.Result(history.Records[0]));
+            Assert.Equal(0, saved);
+            dialog.Close();
+        });
+    }
+
+    /// <summary>
+    /// Gros envoi : la proposition d'archive donne le nombre de fichiers, la taille et la destination ; l'option des
+    /// Paramètres (case et seuil) est lue et enregistrée ; l'état « archive » s'affiche dans la file.
+    /// </summary>
+    [Fact]
+    public void ArchiveOfferAndSettingOpen()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var offer = new ArchiveOfferDialog(2345, 5L * 1024 * 1024, "/opt/app");
+            Assert.Contains("/opt/app", offer.MessageText.Text);
+            Assert.Contains(RemotePath.FormatSize(5L * 1024 * 1024), offer.MessageText.Text);
+            Assert.False(offer.UseArchive);
+            Assert.False(offer.DontOfferAgain);
+            offer.Close();
+
+            var settings = new AppSettings { OfferArchive = true, ArchiveThreshold = 500 };
+            var dialog = new SettingsDialog(settings);
+            Assert.Equal((true, "500"), (dialog.ArchiveBox.IsChecked, dialog.ArchiveThresholdBox.Text));
+            dialog.Close();
+
+            var item = new TransferItem(true, "deploy.tar.gz (2345)", "/opt/app", (_, _) => Task.CompletedTask);
+            item.Report(new TransferProgress("deploy.tar.gz", 50, 200, Packing: true));
+            Assert.True(item.Packing);
+        });
+    }
+
+    /// <summary>Suivi d'un fichier : nouvelles lignes, filtre, exclusion, contexte, recherche, repère.</summary>
+    [Fact]
+    public void TailWindowFollowsFiltersAndSearches()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            SynchronizationContext.SetSynchronizationContext(null);
+            var link = new MemoryLink("root@srv01");
+            var file = link.Add("/var/log/app.log");
+            file.Append("a\nERROR disque\nb\nc\nd\nerror réseau\n");
+            var window = new TailWindow(new AppSettings(), () => { });
+            window.AddFeed(link, "/var/log/app.log");
+            Assert.Contains("/var/log/app.log", window.Title);
+
+            window.PollAsync().GetAwaiter().GetResult();
+            Assert.Equal("a\nERROR disque\nb\nc\nd\nerror réseau\n", window.Shown);
+            Assert.Equal(RemotePath.FormatSize(file.Length), window.Feeds[0].Status);
+
+            window.FilterBox.Text = "error";
+            Assert.Equal("ERROR disque\nerror réseau\n", window.Shown);
+            window.ExcludeBox.Text = "DISQUE";
+            Assert.Equal("error réseau\n", window.Shown);
+            window.ExcludeBox.Text = "";
+
+            // Contexte d'une ligne, comme grep -C 1.
+            window.ContextBox.SelectedItem = 1;
+            Assert.Equal("a\nERROR disque\nb\n--\nd\nerror réseau\n", window.Shown);
+            window.ContextBox.SelectedItem = 0;
+
+            // Expression régulière ; une expression invalide n'est pas appliquée.
+            window.FilterBox.Text = "r(é|e)seau$";
+            window.RegexBox.IsChecked = true;
+            window.RegexBox.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+            Assert.Equal("error réseau\n", window.Shown);
+            window.FilterBox.Text = "(";
+            Assert.Equal(6, window.Shown.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length);
+            window.FilterBox.Text = "";
+
+            // Les lignes qui arrivent passent par le filtre.
+            window.FilterBox.Text = "error";
+            file.Append("info\nERROR base\n");
+            window.PollAsync().GetAwaiter().GetResult();
+            Assert.EndsWith("error réseau\nERROR base\n", window.Shown);
+            window.FilterBox.Text = "";
+
+            // Recherche sans filtrer : sélection de la ligne trouvée, la vue ne suit plus la fin.
+            window.SearchBox.Text = "réseau";
+            window.FindNext(1);
+            Assert.Equal(5, window.LogList.SelectedIndex);
+            Assert.False(window.FollowBox.IsChecked);
+            Assert.Equal(Text.Format(Strings.TailSearchCount, 1, 1), window.SearchCount.Text);
+            window.SearchBox.Text = "introuvable";
+            window.FindNext(1);
+            Assert.Equal(Strings.TailSearchNone, window.SearchCount.Text);
+
+            window.AddUserMarker();
+            Assert.Matches("—— \\d\\d:\\d\\d:\\d\\d ——\n$", window.Shown);
+            window.Close();
+            Assert.True(link.Disposed);
+        });
+    }
+
+    /// <summary>Alertes : seulement sur les nouvelles lignes ; la notification ne contient pas la ligne.</summary>
+    [Fact]
+    public void TailWindowRaisesAlerts()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            SynchronizationContext.SetSynchronizationContext(null);
+            var link = new MemoryLink("root@srv01");
+            var file = link.Add("/var/log/app.log");
+            file.Append("java.lang.OutOfMemoryError: ancien\n");
+            var notes = new List<string>();
+            var window = new TailWindow(new AppSettings { TailAlerts = "OutOfMemory, refused" }, () => { }) { Notifier = (_, text) => notes.Add(text) };
+            window.AddFeed(link, "/var/log/app.log");
+            window.PollAsync().GetAwaiter().GetResult();
+            Assert.Equal(0, window.AlertCount);
+
+            file.Append("Connection REFUSED by db01\nok\njava.lang.OutOfMemoryError: Java heap space\n");
+            window.PollAsync().GetAwaiter().GetResult();
+            Assert.Equal(2, window.AlertCount);
+            Assert.Equal(Visibility.Visible, window.AlertButton.Visibility);
+            var note = Assert.Single(notes);
+            Assert.Contains("app.log", note);
+            Assert.DoesNotContain("heap", note);
+            Assert.DoesNotContain("db01", note);
+
+            // Une seule notification par période, même si d'autres alertes arrivent.
+            file.Append("refused again\n");
+            window.PollAsync().GetAwaiter().GetResult();
+            Assert.Equal(3, window.AlertCount);
+            Assert.Single(notes);
+            window.Close();
+        });
+    }
+
+    /// <summary>Vue combinée, connexion perdue puis reprise, fin de session, enregistrement.</summary>
+    [Fact]
+    public void TailWindowCombinesResumesAndRecords()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            SynchronizationContext.SetSynchronizationContext(null);
+            var connector = new CyberArkTerm.Core.Ssh.SshConnector("127.0.0.1", 22, "root", new NoInteraction());
+            var session = new CyberArkTerm.App.Services.SshSession(null, "root@srv02", connector,
+                System.Windows.Threading.Dispatcher.CurrentDispatcher, followTerminal: false, saved: null);
+            var first = new MemoryLink("root@srv01");
+            var second = new MemoryLink("root@srv02", session);
+            first.Add("/var/log/app.log").Append("un\n");
+            var other = second.Add("/var/log/other.log");
+            other.Append("deux\n");
+            var window = new TailWindow(new AppSettings(), () => { });
+            window.AddFeed(first, "/var/log/app.log");
+            window.AddFeed(second, "/var/log/other.log");
+            Assert.Equal(Text.Format(Strings.TailTitleMany, 2), window.Title);
+            window.PollAsync().GetAwaiter().GetResult();
+            Assert.Contains("[root@srv01 app.log] un\n", window.Shown);
+            Assert.Contains("[root@srv02 other.log] deux\n", window.Shown);
+
+            var directory = Path.Combine(Path.GetTempPath(), $"cat-tail-{Guid.NewGuid():N}");
+            Directory.CreateDirectory(directory);
+            try
+            {
+                var record = Path.Combine(directory, "record.log");
+                window.StartRecording(record);
+
+                // Connexion perdue : repère, attente ; reconnexion : les lignes écrites entre-temps arrivent.
+                second.Connected = false;
+                window.PollAsync().GetAwaiter().GetResult();
+                Assert.Contains("[root@srv02 other.log] " + Strings.TailLostMarker, window.Shown);
+                Assert.Equal(Strings.TailWaiting, window.Feeds[1].Status);
+                Assert.Equal(Visibility.Visible, window.ReconnectButton.Visibility);
+                other.Append("trois\n");
+                second.Connected = true;
+                second.Generation++;
+                window.PollAsync().GetAwaiter().GetResult();
+                Assert.EndsWith("[root@srv02 other.log] " + Strings.TailResumedMarker + "\n[root@srv02 other.log] trois\n", window.Shown);
+
+                // Session fermée : le fichier n'est plus suivi, les lignes restent.
+                window.EndSession(session);
+                Assert.True(second.Disposed);
+                Assert.Equal(Strings.TailSessionClosed, window.Feeds[1].Status);
+                Assert.Contains(Strings.TailSessionClosedMarker, window.Shown);
+
+                var save = Path.Combine(directory, "save.log");
+                window.SaveTo(save);
+                Assert.Equal(window.Shown.TrimEnd('\n').Split('\n'), File.ReadAllLines(save));
+
+                window.Close();
+                var recorded = File.ReadAllText(record);
+                Assert.StartsWith("[root@srv01 app.log] un\r\n[root@srv02 other.log] deux\r\n", recorded);
+                Assert.Contains("[root@srv02 other.log] trois\r\n", recorded);
+            }
+            finally
+            {
+                Directory.Delete(directory, recursive: true);
+                session.Dispose();
+            }
+        });
+    }
+
+    /// <summary>Couleur du niveau, mots surlignés et préfixe du fichier dans le texte affiché d'une ligne.</summary>
+    [Fact]
+    public void TailLinesAreColoured()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var feed = new TailFeed(new MemoryLink("root@srv01"), "/var/log/app.log", TailBrushes.Sources[0]);
+            var style = new TailStyle(["db01"], null, Colors: true, Prefixes: true, Wrap: false);
+            var block = new System.Windows.Controls.TextBlock();
+            TailRowText.SetRow(block, new TailRow(new TailLine("12:00 ERROR db01 down", feed, TailLevel.Error, false), TailShownKind.Line, style));
+            Assert.Same(TailBrushes.Error, block.Foreground);
+            var runs = block.Inlines.OfType<System.Windows.Documents.Run>().ToList();
+            Assert.Equal("[root@srv01 app.log] ", runs[0].Text);
+            Assert.Contains(runs, r => r.Text == "db01" && ReferenceEquals(r.Background, TailBrushes.Highlight));
+
+            TailRowText.SetRow(block, new TailRow(new TailLine("12:00 INFO ok", feed, TailLevel.None, false), TailShownKind.Line, style with { Colors = false }));
+            Assert.NotSame(TailBrushes.Error, block.Foreground);
+
+            var settings = new AppSettings { TailIndependentSession = true };
+            var dialog = new SettingsDialog(settings);
+            Assert.True(dialog.TailSessionBox.IsChecked);
+            dialog.Close();
+        });
+    }
+
+    /// <summary>Onglet détaché : le terminal passe dans la fenêtre séparée, puis en ressort pour revenir dans l'onglet.</summary>
+    [Fact]
+    public void DetachedWindowHoldsTheTerminal()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var connector = new CyberArkTerm.Core.Ssh.SshConnector("127.0.0.1", 22, "root", new NoInteraction());
+            var session = new CyberArkTerm.App.Services.SshSession(null, "root@srv01", connector,
+                System.Windows.Threading.Dispatcher.CurrentDispatcher, followTerminal: false, saved: null);
+            var view = new SshSessionView(session, "root@srv01", "…");
+
+            var window = new DetachedSessionWindow(view, session.Label);
+            Assert.Same(view, window.Content);
+            Assert.Contains("root@srv01", window.Title);
+
+            Assert.Same(view, window.TakeView());
+            Assert.Null(window.Content);
+            window.SessionClosed = true;
+            window.Close();
+            session.Dispose();
+        });
+    }
+
+    private sealed class NoInteraction : CyberArkTerm.Core.Ssh.ISshInteraction
+    {
+        public bool CheckHostKey(string host, int port, string algorithm, string sha256Fingerprint) => false;
+
+        public string? Prompt(string instruction, string prompt, bool echo) => null;
+    }
+
+    private sealed class MemoryFile : ITailSource
+    {
+        private readonly List<byte> _content = [];
+
+        public long Length => _content.Count;
+
+        public void Append(string text) => _content.AddRange(System.Text.Encoding.UTF8.GetBytes(text));
+
+        public Task<long> GetSizeAsync(CancellationToken ct) => Task.FromResult((long)_content.Count);
+
+        public Task<byte[]> ReadAsync(long offset, int count, CancellationToken ct) =>
+            Task.FromResult(_content.Skip((int)offset).Take(count).ToArray());
+    }
+
+    /// <summary>Connexion de suivi en mémoire : fichiers par chemin, coupure et reconnexion à la demande.</summary>
+    private sealed class MemoryLink(string server, CyberArkTerm.App.Services.SshSession? session = null) : ITailLink
+    {
+        private readonly Dictionary<string, MemoryFile> _files = [];
+
+        public bool Connected { get; set; } = true;
+
+        public bool Disposed { get; private set; }
+
+        public string Server => server;
+
+        public CyberArkTerm.App.Services.SshSession? Session => session;
+
+        public bool Dedicated => false;
+
+        public int Generation { get; set; } = 1;
+
+        public bool IsConnecting => false;
+
+        public string? Error => null;
+
+        public bool CanReconnect => false;
+
+        public MemoryFile Add(string path) => _files[path] = new MemoryFile();
+
+        public bool CheckConnected() => Connected && !Disposed;
+
+        public void RequestReconnect()
+        {
+        }
+
+        public Task ReconnectAsync() => Task.CompletedTask;
+
+        public ITailSource Source(string path) => _files[path];
+
+        public void Dispose() => Disposed = true;
     }
 
     /// <summary>

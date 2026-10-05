@@ -255,4 +255,13 @@
   <data name="ImportOutcomeNotSent" xml:space="preserve">
     <value>Non envoyé</value>
   </data>
+  <data name="TransferIncompleteDeleted" xml:space="preserve">
+    <value>fichier incomplet supprimé</value>
+  </data>
+  <data name="TransferIncompleteNotDeleted" xml:space="preserve">
+    <value>fichier incomplet non supprimé : {0}</value>
+  </data>
+  <data name="TransferCheckCancelled" xml:space="preserve">
+    <value>vérification annulée, fichier transféré</value>
+  </data>
 </root>

@@ -182,6 +182,12 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   change ensuite, une alerte s'affiche.
 - **Terminal** : la sélection copie, le clic droit colle, la molette remonte l'historique,
   AltGr fonctionne sur clavier français. Fermez l'onglet avec la croix ou un clic molette.
+- **Détacher un onglet** (autre écran) : glissez l'onglet SSH hors de la fenêtre, ou clic droit → « Détacher dans
+  une nouvelle fenêtre ». Le terminal passe dans une fenêtre séparée, la session continue. L'onglet garde sa place
+  (« Afficher la fenêtre », « Ramener dans l'onglet ») et l'onglet Fichiers travaille sur cette session quand il
+  est sélectionné. Fermer la fenêtre séparée ramène le terminal dans son onglet, sans fermer la session. Les
+  onglets Bureau à distance ne se détachent pas (utilisez « Plein écran ») ; les sessions PSM s'ouvrent déjà dans
+  la Connexion Bureau à distance de Windows, une fenêtre à part.
 
 ### 5. Parcourir et déposer des fichiers : onglet « Fichiers »
 
@@ -198,6 +204,31 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   l'interrompt), puis l'Explorateur copie les fichiers là où vous les avez déposés. Les noms Unix sont rendus
   valides pour Windows (`\`, `:`, `..`, `CON`… remplacés), sans jamais écrire hors du dossier de dépôt ; le
   dossier temporaire du téléchargement est effacé ensuite.
+- **File d'attente des transferts** : envois et téléchargements s'exécutent un par un, dans l'ordre des demandes ;
+  ce qui est demandé pendant un transfert s'ajoute à la file au lieu d'être ignoré. La destination d'un envoi est le
+  dossier affiché au moment du dépôt, et la confirmation d'écrasement tient compte des envois encore en attente. Un
+  panneau au-dessus de la barre d'état montre chaque élément (en attente, avancement et fichier n/N, vérification,
+  résultat) : ✕ retire un élément en attente, « Annuler » arrête celui en cours, « Tout annuler » vide la file.
+  Un transfert arrêté supprime le fichier en cours, incomplet (sur le serveur pour un envoi, sur le poste pour un
+  téléchargement) ; les fichiers déjà transférés restent. Attention : si l'envoi remplaçait un fichier existant,
+  son ancien contenu est perdu. En SCP, l'arrêt ferme la connexion SCP ; l'envoi SCP suivant en rouvre une (nouvelle
+  session PSMP). Une erreur est affichée dans la file et la file continue ; à la fin, un seul bilan. La navigation,
+  la suppression, les droits, l'éditeur et le glisser vers l'Explorateur passent entre deux fichiers. Fermer
+  l'onglet ou l'application avec des transferts en cours demande confirmation.
+- **Beaucoup de fichiers d'un coup : archive .tar.gz** : à partir de 200 fichiers déposés (seuil réglable, option
+  « Proposer une archive .tar.gz » des Paramètres), CyberArkTerm propose de les envoyer dans une seule archive :
+  un fichier à transférer et à vérifier au lieu de milliers, beaucoup plus rapide via le PSMP. L'archive est créée
+  sur le poste (dans la file, annulable), envoyée et vérifiée (SHA-256), puis supprimée du poste ; chaque élément
+  déposé est à la racine de l'archive (droits 0644 et 0755). Rien n'est exécuté sur le serveur : « Copier la
+  commande d'extraction » (barre d'état) donne la commande à coller dans le terminal, par exemple
+  `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (l'archive est supprimée
+  du serveur une fois extraite). « Envoyer les fichiers un par un » garde l'envoi habituel ; « Ne plus proposer »
+  décoche l'option.
+- **Historique des transferts** : bouton horloge dans l'en-tête de l'onglet Fichiers, disponible même sans
+  session. Il liste les 200 derniers envois et téléchargements (y compris par glisser-déposer) : date, sens,
+  serveur, élément, destination, nombre de fichiers, résultat. Filtre « Envois » / « Téléchargements » ;
+  « Sommes de contrôle… » (ou double-clic) montre les sommes SHA-256 de chaque fichier, à recopier pour revérifier
+  plus tard ; « Ouvrir le dossier » pour un téléchargement ; « Effacer l'historique ».
 - **Vérification des transferts (SHA-256)** : chaque fichier envoyé ou téléchargé est vérifié. À l'envoi (SCP ou
   SFTP), le fichier local est haché, puis le fichier arrivé sur le serveur est relu par SFTP et haché. Au
   téléchargement, les données reçues du serveur sont hachées, puis le fichier écrit sur le poste est relu. La barre
@@ -212,6 +243,38 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   s'ouvre dans l'éditeur de texte choisi dans les Paramètres (Bloc-notes par défaut). À chaque enregistrement,
   CyberArkTerm propose de le renvoyer sur le serveur : envoi en SFTP, droits du fichier conservés. Si le
   fichier a changé sur le serveur depuis son ouverture, une alerte demande confirmation avant de l'écraser.
+- **Suivre un fichier (tail -f)** : clic droit sur un ou plusieurs fichiers → « Suivre (tail -f) ». Une fenêtre
+  montre la fin du fichier puis chaque nouvelle ligne dès qu'elle est écrite, comme `tail -f`, en lisant le fichier
+  par SFTP chaque seconde : aucune commande n'est lancée sur le serveur. Un fichier tronqué ou remplacé par une
+  rotation est relu depuis le début ; les 10 000 dernières lignes sont gardées.
+  - **Couleurs et alertes** : erreurs (ERROR, FATAL, CRITICAL…) en rouge, avertissements (WARN) en orange ; mots
+    surlignés en jaune au choix (« Surligner », séparés par des virgules). « Alerte si » (par ex. `ERROR,
+    OutOfMemory, Connection refused`) : chaque nouvelle ligne qui contient l'un de ces mots est marquée, le compteur
+    « ⚠ n alertes » augmente (un clic va à la ligne suivante) et le bouton de la fenêtre clignote dans la barre des
+    tâches ; une notification Windows est possible, au plus une toutes les 30 s, avec le nombre de lignes et le nom
+    du fichier seulement, **jamais le contenu des lignes** (elle peut s'afficher sur l'écran verrouillé). Ces
+    réglages sont gardés pour les fenêtres suivantes.
+  - **Vue combinée** : plusieurs fichiers sélectionnés s'ouvrent dans une seule fenêtre, et « Ajouter à une fenêtre
+    de suivi » y ajoute un fichier d'un autre onglet, donc d'un autre serveur. Les lignes s'intercalent dans l'ordre
+    d'arrivée, préfixées et colorées par fichier (`[root@srv01 app.log]`) ; en bas, chaque fichier a son état et un
+    bouton pour arrêter de le suivre.
+  - **Filtre et recherche** : filtre (comme `grep`), exclusion (comme `grep -v`), lignes de contexte (comme
+    `grep -C 3`), en texte simple ou en expressions régulières. `Ctrl+F` cherche dans les lignes sans les filtrer
+    (Entrée / `F3` : suivant, `Maj+F3` : précédent). Remonter dans les lignes arrête de suivre la fin.
+  - **Coupures** : si la connexion est perdue, un repère l'indique ; quand l'onglet SSH se reconnecte (ou avec
+    « Reconnecter »), le suivi reprend là où il s'était arrêté, avec les lignes écrites entre-temps. Fermer l'onglet
+    arrête le suivi de ses fichiers ; la fenêtre garde les lignes reçues.
+  - **Fichiers mémorisés** : sur un serveur de l'onglet « Courants », les fichiers suivis sont mémorisés (les 12
+    derniers) ; à la connexion suivante, le bouton de suivi de l'onglet Fichiers les propose : « Tout suivre dans
+    une fenêtre » en un clic, ou un seul.
+  - **Garder une trace** : « Enregistrer… » écrit les lignes affichées dans un fichier de ce poste ; « Enregistrer en
+    continu… » écrit les lignes déjà reçues puis chaque nouvelle ligne dès son arrivée, tant que la case est cochée ;
+    « Repère » insère une ligne `—— 14:32:05 ——` pour retrouver un moment (avant une manipulation, par exemple).
+  - **Connexion** : par défaut, le suivi utilise la connexion SFTP de l'onglet Fichiers ; il passe alors entre deux
+    fichiers d'un transfert. L'option « Suivre les fichiers (tail -f) dans une session indépendante » des
+    Paramètres lui donne sa propre connexion, une par fenêtre et par serveur : il n'attend plus les transferts, mais
+    c'est une session PSMP de plus (enregistrée à part, et une validation MFA peut être demandée). Elle est fermée
+    avec la fenêtre. Une connexion perdue n'est jamais rouverte en boucle.
 - **Droits** : clic droit → « Droits… » (ou bouton cadenas). Cases lecture / écriture / exécution pour le
   propriétaire, le groupe et les autres, bits spéciaux (setuid, setgid, sticky) et valeur octale (`644`,
   `1777`…), pour un ou plusieurs éléments. Pour un dossier, l'option « Appliquer aussi au contenu » propage
@@ -299,7 +362,8 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Terminal | Coller | Clic droit, `Maj+Inser` ou `Ctrl+Maj+V` |
 | Terminal | Historique | Molette, `Maj+Page préc.` / `Maj+Page suiv.` |
 | Onglet SSH ou Bureau à distance | Fermer | Croix de l'onglet ou clic molette |
-| Onglet SSH ou Bureau à distance | Reconnecter, dupliquer (autre session sur le même compte ou la même entrée), fermer, fermer les autres onglets | Clic droit sur l'onglet |
+| Onglet SSH ou Bureau à distance | Reconnecter, dupliquer (autre session sur le même compte ou la même entrée), détacher (SSH), fermer, fermer les autres onglets | Clic droit sur l'onglet |
+| Onglet SSH | Détacher dans une fenêtre séparée (autre écran) | Glisser l'onglet hors de la fenêtre |
 | Bureau à distance | Plein écran / retour | `Ctrl+Alt+Pause` |
 | Fichiers | Ouvrir / modifier / dossier parent / supprimer / actualiser | `Entrée` / `F4` / `Retour arrière` / `Suppr` / `F5` |
 | Coffre KeePass | Se connecter / modifier / supprimer une entrée | Double-clic ou `Entrée` / `F2` / `Suppr` |
@@ -319,14 +383,16 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Suivre le dossier du terminal | Autorise l'installation du suivi de dossier dans le shell | oui |
 | Dépôt de fichiers | SCP ou SFTP | SCP |
 | Éditeur de texte | Programme ouvert par « Modifier » dans l'onglet Fichiers | Bloc-notes |
+| Suivi dans une session indépendante | Le suivi d'un fichier (tail -f) ouvre sa propre connexion SFTP (une session PSMP de plus) | Non |
 | Clés de PSMP acceptées | Empreintes mémorisées (bouton « Oublier les clés ») | — |
 | Composants mémorisés | Composant PSM choisi par plateforme (bouton « Oublier ») | — |
 
 Toutes les préférences sont enregistrées dans `%APPDATA%\CyberArkTerm\settings.json` : langue, adresse du PVWA,
-méthode et identifiant de connexion, paramètres ci-dessus, serveurs « Courants » et leurs dossiers, sessions
+méthode et identifiant de connexion, paramètres ci-dessus, serveurs « Courants », leurs dossiers et les fichiers qui y ont été suivis (chemins), sessions
 récentes, emplacement des coffres KeePass et de leurs fichiers clés. Ce fichier ne contient **aucun mot de passe,
 jeton ni clé privée**. Pour repartir de zéro, fermez
-l'application et supprimez-le.
+l'application et supprimez-le. L'historique des transferts de l'onglet Fichiers est à côté, dans
+`transfers.json` (noms et chemins des fichiers, sommes SHA-256, jamais leur contenu).
 
 ## Sécurité
 
