@@ -221,7 +221,7 @@ public class RemoteAppFullScreenSpike(ITestOutputHelper output)
         using var bitmap = new Bitmap(b.Width, b.Height);
         using (var g = Graphics.FromImage(bitmap))
         {
-            g.CopyFromScreen(b.Left, b.Top, 0, 0, new System.Drawing.Size(b.Width, b.Height), CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
+            g.CopyFromScreen(b.Left, b.Top, 0, 0, new System.Drawing.Size(b.Width, b.Height), CopyPixelOperation.SourceCopy);
         }
 
         int left = int.MaxValue, top = int.MaxValue, right = -1, bottom = -1;
