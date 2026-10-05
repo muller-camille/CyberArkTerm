@@ -477,7 +477,7 @@ The accounts remain available in the “Available” tab.</value>
     <value>Remember this component for platform {0}</value>
   </data>
   <data name="PsmHint" xml:space="preserve">
-    <value>The PVWA generates an RDP connection, opened in a CyberArkTerm tab or in Remote Desktop Connection (mstsc) depending on the settings.</value>
+    <value>The PVWA generates an RDP connection, opened in Remote Desktop Connection (mstsc).</value>
   </data>
   <data name="SshCommandHint" xml:space="preserve">
     <value>Command: ssh {0}</value>
@@ -498,16 +498,13 @@ The accounts remain available in the “Available” tab.</value>
     <value>SSH via PSM for SSH (PSMP)</value>
   </data>
   <data name="SettingsSshHelp" xml:space="preserve">
-    <value>Lets you open Unix accounts directly over SSH. Leave empty to disable.</value>
+    <value>Unix accounts then open over SSH by default (PSM stays available in “Advanced connection”). Leave empty to disable SSH.</value>
   </data>
   <data name="PsmpAddressLabel" xml:space="preserve">
     <value>PSMP _address:</value>
   </data>
   <data name="PortLabel" xml:space="preserve">
     <value>_Port:</value>
-  </data>
-  <data name="PreferSsh" xml:space="preserve">
-    <value>Double-click on a Unix account: connect over SSH through the PSMP</value>
   </data>
   <data name="SshInApp" xml:space="preserve">
     <value>Open SSH sessions in CyberArkTerm (terminal tab + “Files” tab), otherwise in Windows Terminal</value>
@@ -1003,62 +1000,11 @@ Close anyway? The local copies will be deleted.</value>
   <data name="RdpDisconnectCode" xml:space="preserve">
     <value>Disconnected ({0}).</value>
   </data>
-  <data name="RdpRemoteAppOpened" xml:space="preserve">
-    <value>Remote application “{0}” is open</value>
-  </data>
-  <data name="RdpRemoteAppHint" xml:space="preserve">
-    <value>Its windows open on their own, like the windows of this computer. Closing the application ends the session; Disconnect closes it from here.</value>
-  </data>
-  <data name="RdpRemoteAppFailed" xml:space="preserve">
-    <value>The remote application “{0}” could not be started: {1}</value>
-  </data>
-  <data name="RdpRemoteAppNotAllowed" xml:space="preserve">
-    <value>it is not allowed on the server.</value>
-  </data>
-  <data name="RdpRemoteAppNotFound" xml:space="preserve">
-    <value>it was not found on the server.</value>
-  </data>
-  <data name="RdpRemoteAppErrorCode" xml:space="preserve">
-    <value>error {0}.</value>
-  </data>
-  <data name="RdpControlMissing" xml:space="preserve">
-    <value>{0}: the Remote Desktop control isn't available on this computer, session opened in Remote Desktop Connection (mstsc).</value>
-  </data>
-  <data name="RdpControlFallback" xml:space="preserve">
-    <value>{0}: the Remote Desktop control failed ({1}), session opened in Remote Desktop Connection (mstsc).</value>
-  </data>
   <data name="RdpCloseTabConfirm" xml:space="preserve">
     <value>Disconnect the remote desktop session {0}?</value>
   </data>
   <data name="RdpCloseAllConfirm" xml:space="preserve">
     <value>Remote desktop sessions are open ({0}). Disconnect them and close?</value>
-  </data>
-  <data name="RdpSection" xml:space="preserve">
-    <value>Remote desktop (RDP)</value>
-  </data>
-  <data name="RdpInApp" xml:space="preserve">
-    <value>Open remote desktop sessions in a CyberArkTerm tab, otherwise in Remote Desktop Connection (mstsc)</value>
-  </data>
-  <data name="PsmRemoteAppAsDesktop" xml:space="preserve">
-    <value>Open PSM remote applications as a desktop instead, if the PSM accepts it (unticked automatically if it refuses)</value>
-  </data>
-  <data name="RdpDesktopFromRemoteAppHint" xml:space="preserve">
-    <value>This PSM component is a remote application, opened here as a desktop. If the PSM does not accept it, “Open as a remote application” starts it again as a remote application (new request to the PVWA). To do so every time, untick “Open PSM remote applications as a desktop instead” in Settings.</value>
-  </data>
-  <data name="RdpOpenRemoteAppWindows" xml:space="preserve">
-    <value>Open as a remote _application</value>
-  </data>
-  <data name="RemoteAppInTab" xml:space="preserve">
-    <value>Show the window of remote applications (RemoteApp) in the tab; otherwise they open on their own, on the desktop</value>
-  </data>
-  <data name="RdpRemoteAppInTabHint" xml:space="preserve">
-    <value>Its window shows here as soon as it opens; its menus and dialog boxes open above. Closing the application ends the session; Disconnect closes it from here.</value>
-  </data>
-  <data name="RdpRemoteAppFallback" xml:space="preserve">
-    <value>The PSM closed the session opened as a desktop: new request to the PVWA to open it as a remote application.</value>
-  </data>
-  <data name="PsmDesktopRefused" xml:space="preserve">
-    <value>{0}: the PSM refuses remote applications as a desktop; they now open as remote applications (option unticked in Settings).</value>
   </data>
   <data name="RdpNotResponding" xml:space="preserve">
     <value>{0}: Remote Desktop is not responding. The rest of CyberArkTerm stays usable; you can close this tab.</value>

@@ -570,13 +570,14 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>Requête par défaut : SSH pour Unix si l'utilisateur l'a choisi, sinon PSM avec le composant mémorisé.</summary>
+    /// <summary>
+    /// Requête par défaut : SSH via le PSMP pour un compte Unix (si le PSMP est renseigné), sinon PSM avec le composant
+    /// mémorisé. « Connexion avancée » permet de choisir l'autre.
+    /// </summary>
     private ConnectRequest DefaultRequest(PvwaAccount account, ConnectMode? mode)
     {
         var effective = mode
-            ?? (_settings.PreferSshForUnix && HasPsmp && AccountClassifier.Classify(account) == AccountKind.Unix
-                ? ConnectMode.Ssh
-                : ConnectMode.Psm);
+            ?? (HasPsmp && AccountClassifier.Classify(account) == AccountKind.Unix ? ConnectMode.Ssh : ConnectMode.Psm);
         var machines = AccountClassifier.RemoteMachineList(account);
         return new ConnectRequest(effective, _settings.ResolveComponent(account), machines.Count == 1 ? machines[0] : null);
     }
@@ -689,38 +690,10 @@ public partial class MainWindow : Window
             }
 
             LogRdpFile(rdp);
-
-            if (EmbeddableRdp(rdp, label, out var fallbackReason) is { } embeddable)
-            {
-                // « Dupliquer l'onglet » : même compte, même composant, même motif ; nouvelle demande au PVWA.
-                Task Duplicate() => ConnectAsync(account, request, saved: saved);
-                var settings = ForPsmTab(embeddable);
-                SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
-                AddRecent(account, label, request.Component, request.RemoteMachine);
-                // Une reconnexion demande un nouveau jeton au PVWA : le précédent ne sert qu'une fois.
-                var session = await OpenRdpTabAsync(label, async ct =>
-                {
-                    DebugLog.Write("psm", $"Nouvelle demande de connexion PSM pour {label} (reconnexion)");
-                    var file = await Client.PsmConnectAsync(account.Id, options, ct);
-                    LogRdpFile(file);
-                    return new RdpConnectionRequest(ForPsmTab(RdpConnectionSettings.FromRdpFile(file)), null);
-                }, new RdpConnectionRequest(settings, null), Duplicate);
-                if (session.ControlFailed)
-                {
-                    // Contrôle Bureau à distance inutilisable sur ce poste : le jeton n'a pas servi, mstsc prend le relais.
-                    DebugLog.Write("psm", $"Contrôle Bureau à distance inutilisable ({session.Error}) : ouverture avec mstsc.");
-                    await RemoveRdpTabAsync(session);
-                    _launcher.LaunchRdp(rdp, label);
-                    SetStatus(Text.Format(Strings.RdpControlFallback, label, session.Error));
-                }
-            }
-            else
-            {
-                DebugLog.Write("psm", $"Ouverture avec mstsc : {fallbackReason ?? "option « Bureau à distance dans l'onglet » désactivée ou fichier illisible."}");
-                _launcher.LaunchRdp(rdp, label);
-                SetStatus(fallbackReason ?? Text.Format(Strings.PsmStarted, label, request.Component));
-                AddRecent(account, label, request.Component, request.RemoteMachine);
-            }
+            // Session PSM dans Connexion Bureau à distance (mstsc), en fenêtre(s) à part : le fichier du PVWA tel quel.
+            _launcher.LaunchRdp(rdp, label);
+            SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
+            AddRecent(account, label, request.Component, request.RemoteMachine);
         }
         else if (_settings.SshInApp)
         {

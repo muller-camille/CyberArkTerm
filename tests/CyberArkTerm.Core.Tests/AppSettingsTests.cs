@@ -64,20 +64,4 @@ public sealed class AppSettingsTests : IDisposable
         Assert.Equal(components.Count, components.Distinct(StringComparer.OrdinalIgnoreCase).Count());
         Assert.Equal(AccountClassifier.CommonComponents, new AppSettings().KnownComponents("WinDomain"));
     }
-
-    /// <summary>
-    /// Applications distantes : dans l'onglet par défaut, et pas en bureau (un PSM l'a refusé) ; un choix enregistré
-    /// est gardé.
-    /// </summary>
-    [Fact]
-    public void PsmRemoteAppsOpenInSeparateWindowsByDefault()
-    {
-        Assert.True(new AppSettings().RemoteAppInTab);
-        Assert.False(new AppSettings().PsmRemoteAppAsDesktop);
-        Assert.False(AppSettings.Load(Path.Combine(_dir, "missing.json")).PsmRemoteAppAsDesktop);
-
-        var path = Path.Combine(_dir, "settings.json");
-        new AppSettings { PsmRemoteAppAsDesktop = true }.Save(path);
-        Assert.True(AppSettings.Load(path).PsmRemoteAppAsDesktop);
-    }
 }

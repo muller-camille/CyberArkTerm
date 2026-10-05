@@ -18,65 +18,6 @@ public partial class MainWindow
     private Grid RdpLayer => _rdpLayer ??= (Grid)MainTabs.Template.FindName("RdpLayer", MainTabs);
 
     /// <summary>
-    /// Réglages pour ouvrir ce fichier .rdp dans un onglet (bureau ou application distante), ou null s'il faut le confier
-    /// à mstsc : option désactivée ou contrôle Bureau à distance absent (<paramref name="reason"/> dit pourquoi).
-    /// </summary>
-    private RdpConnectionSettings? EmbeddableRdp(byte[] rdpFile, string label, out string? reason)
-    {
-        reason = null;
-        if (!_settings.RdpInApp)
-        {
-            return null;
-        }
-
-        RdpConnectionSettings settings;
-        try
-        {
-            settings = RdpConnectionSettings.FromRdpFile(rdpFile);
-        }
-        catch (FormatException)
-        {
-            DebugLog.Write("psm", "Fichier .rdp sans adresse de serveur : ouvert avec mstsc.");
-            return null;
-        }
-
-        if (!RdpClientHost.IsAvailable)
-        {
-            reason = Text.Format(Strings.RdpControlMissing, label);
-            return null;
-        }
-
-        return settings;
-    }
-
-    /// <summary>
-    /// Composant PSM en application distante : ouvert comme un bureau dans l'onglet si l'option le demande et si le
-    /// fichier le permet (programme de démarrage présent), sinon tel quel (fenêtres séparées).
-    /// </summary>
-    private RdpConnectionSettings ForPsmTab(RdpConnectionSettings settings)
-    {
-        if (!settings.IsRemoteApp)
-        {
-            return settings;
-        }
-
-        if (!_settings.PsmRemoteAppAsDesktop)
-        {
-            DebugLog.Write("psm", "Application distante en fenêtres séparées : option « applications distantes PSM dans l'onglet » désactivée.");
-            return settings;
-        }
-
-        if (settings.RemoteAppAsDesktop() is not { } desktop)
-        {
-            DebugLog.Write("psm", "Application distante en fenêtres séparées : pas de programme de démarrage ou d'application dans le fichier.");
-            return settings;
-        }
-
-        DebugLog.Write("psm", $"Application distante « {settings.RemoteApplicationTitle} » ouverte comme un bureau : programme de démarrage « {settings.RemoteApplicationProgram} », arguments « {DebugLog.Hidden(settings.RemoteApplicationArgs)} », au lieu de « {settings.StartProgram} ».");
-        return desktop;
-    }
-
-    /// <summary>
     /// Ouvre un onglet Bureau à distance. <paramref name="prepare"/> fournit les réglages de chaque connexion
     /// (y compris les reconnexions) ; <paramref name="first"/> sert pour la première si on l'a déjà.
     /// </summary>
@@ -90,22 +31,7 @@ public partial class MainWindow
             var request = pending;
             pending = null;
             return request is not null ? Task.FromResult(request) : prepare(ct);
-        })
-        {
-            RemoteAppInTab = _settings.RemoteAppInTab,
-        };
-        session.DesktopRefused += () =>
-        {
-            // Ce PSM n'accepte que l'application distante : les suivantes s'ouvrent directement en fenêtres séparées.
-            if (_settings.PsmRemoteAppAsDesktop)
-            {
-                _settings.PsmRemoteAppAsDesktop = false;
-                SaveSettings();
-                DebugLog.Write("psm", "Option « applications distantes PSM dans l'onglet » décochée : bureau refusé par le PSM.");
-            }
-
-            SetStatus(Text.Format(Strings.PsmDesktopRefused, label));
-        };
+        });
         var view = new RdpSessionView(session) { Visibility = Visibility.Hidden };
         var tab = new TabItem { Tag = session };
         tab.Header = TabHeader(tab, label, "IconWindows", duplicate);

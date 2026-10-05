@@ -22,12 +22,8 @@
                     <Image Source="{StaticResource IconWindows}" Width="44" Height="44" Margin="0,0,0,12" />
                     <TextBlock x:Name="OverlayText" Foreground="White" FontSize="15" TextAlignment="Center" TextWrapping="Wrap" />
                     <TextBlock x:Name="OverlayDetail" Foreground="#9AA5B1" TextAlignment="Center" TextWrapping="Wrap" Margin="0,6,0,0" />
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-                        <Button x:Name="ReconnectButton" Content="{x:Static loc:Strings.Reconnect}"
-                                Padding="12,2" Click="OnReconnect" Visibility="Collapsed" />
-                        <Button x:Name="RemoteAppWindowsButton" Content="{x:Static loc:Strings.RdpOpenRemoteAppWindows}" Margin="8,0,0,0"
-                                Padding="12,2" Click="OnOpenRemoteAppWindows" Visibility="Collapsed" />
-                    </StackPanel>
+                    <Button x:Name="ReconnectButton" Content="{x:Static loc:Strings.Reconnect}" HorizontalAlignment="Center"
+                            Padding="12,2" Margin="0,16,0,0" Click="OnReconnect" Visibility="Collapsed" />
                 </StackPanel>
             </Border>
         </Grid>

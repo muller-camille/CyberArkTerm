@@ -4,8 +4,9 @@ using System.Text;
 namespace CyberArkTerm.Core.Rdp;
 
 /// <summary>
-/// Réglages d'une session Bureau à distance ouverte dans un onglet de l'application : lus dans le fichier .rdp
-/// renvoyé par le PVWA (PSM), ou construits pour une connexion directe. Le mot de passe n'en fait pas partie.
+/// Réglages d'une session Bureau à distance ouverte dans un onglet de l'application : construits pour une connexion
+/// directe, ou lus dans un fichier .rdp (bureau). Le mot de passe n'en fait pas partie. Les sessions PSM, elles,
+/// s'ouvrent avec le fichier du PVWA dans Connexion Bureau à distance (mstsc).
 /// </summary>
 public sealed record RdpConnectionSettings
 {
@@ -23,7 +24,7 @@ public sealed record RdpConnectionSettings
         ("allow desktop composition", 0x100),
     ];
 
-    /// <summary>Nom ou adresse du serveur (ou du PSM).</summary>
+    /// <summary>Nom ou adresse du serveur.</summary>
     public required string Server { get; init; }
 
     public int Port { get; init; } = DefaultPort;
@@ -33,7 +34,7 @@ public sealed record RdpConnectionSettings
 
     public string Domain { get; init; } = "";
 
-    /// <summary>Programme lancé à l'ouverture de session (« alternate shell » : lancement de la session PSM).</summary>
+    /// <summary>Programme lancé à l'ouverture de session (« alternate shell »).</summary>
     public string StartProgram { get; init; } = "";
 
     public string WorkDir { get; init; } = "";
@@ -92,66 +93,6 @@ public sealed record RdpConnectionSettings
 
     /// <summary>Mise à l'échelle de l'image au lieu d'adapter la résolution du bureau distant.</summary>
     public bool SmartSizing { get; init; }
-
-    /// <summary>
-    /// Vrai si le fichier demande une application distante (RemoteApp) : pas de bureau, les fenêtres de l'application
-    /// s'ouvrent directement sur le bureau de ce poste. « alternate shell » ne sert pas dans ce mode.
-    /// </summary>
-    public bool IsRemoteApp { get; init; }
-
-    /// <summary>Application distante : alias publié (« ||PSMInitSession ») ou chemin du programme sur le serveur.</summary>
-    public string RemoteApplicationProgram { get; init; } = "";
-
-    /// <summary>Nom affiché de l'application distante.</summary>
-    public string RemoteApplicationName { get; init; } = "";
-
-    /// <summary>Arguments de l'application distante (pour le PSM : la demande de session).</summary>
-    public string RemoteApplicationArgs { get; init; } = "";
-
-    /// <summary>Variables d'environnement des arguments développées sur le serveur (« remoteapplicationexpandcmdline »).</summary>
-    public bool RemoteApplicationExpandArgs { get; init; } = true;
-
-    /// <summary>Fichier à ouvrir avec l'application distante (« remoteapplicationfile »), le plus souvent vide.</summary>
-    public string RemoteApplicationFile { get; init; } = "";
-
-    /// <summary>Connexion en application distante même si le serveur ne l'annonce pas (« disableremoteappcapscheck »).</summary>
-    public bool DisableRemoteAppCapsCheck { get; init; }
-
-    /// <summary>Vrai pour une application distante ouverte comme un bureau (voir <see cref="RemoteAppAsDesktop"/>).</summary>
-    public bool DesktopFromRemoteApp => RemoteAppSettings is not null;
-
-    /// <summary>Réglages d'origine d'une application distante ouverte comme un bureau, pour l'ouvrir telle quelle.</summary>
-    public RdpConnectionSettings? RemoteAppSettings { get; init; }
-
-    /// <summary>
-    /// La même connexion ouverte comme un bureau au lieu d'une application distante, pour l'afficher dans l'onglet.
-    /// La session démarre le programme publié de l'application (« ||PSMInitSession ») : un serveur en mode RemoteApp
-    /// n'accepte en général au démarrage d'une session que ses programmes publiés, et un PSM a fermé la session qui
-    /// démarrait directement le programme du fichier (« alternate shell », « PSM@… »). L'utilisateur (« PSM@… »
-    /// pour le PSM) ne change pas. Null si ce n'est pas une application distante PSM : sans programme de démarrage
-    /// ou sans programme d'application distante.
-    /// </summary>
-    public RdpConnectionSettings? RemoteAppAsDesktop()
-    {
-        var program = RemoteApplicationProgram.Trim();
-        if (!IsRemoteApp || StartProgram.Trim().Length == 0 || program.Length == 0)
-        {
-            return null;
-        }
-
-        var args = RemoteApplicationArgs.Trim();
-        return this with
-        {
-            IsRemoteApp = false,
-            StartProgram = args.Length > 0 ? $"{program} {args}" : program,
-            RemoteAppSettings = this,
-        };
-    }
-
-    /// <summary>Nom à afficher pour l'application distante : son nom, sinon son programme sans « || » ni chemin.</summary>
-    public string RemoteApplicationTitle =>
-        RemoteApplicationName.Trim() is { Length: > 0 } name ? name
-        : RemoteApplicationProgram.Trim().TrimStart('|').Split('\\', '/')[^1];
 
     /// <summary>Réglages d'une connexion directe : authentification réseau, alerte si le serveur n'est pas reconnu.</summary>
     public static RdpConnectionSettings Direct(string server, int port, string userName) => new()
@@ -213,13 +154,6 @@ public sealed record RdpConnectionSettings
             PerformanceFlags = performance,
             ConnectToAdministerServer = Bool("administrative session", false) || Bool("connect to console", false),
             SmartSizing = Bool("smart sizing", false),
-            IsRemoteApp = Bool("remoteapplicationmode", false),
-            RemoteApplicationProgram = Text("remoteapplicationprogram"),
-            RemoteApplicationName = Text("remoteapplicationname"),
-            RemoteApplicationArgs = Text("remoteapplicationcmdline"),
-            RemoteApplicationExpandArgs = Bool("remoteapplicationexpandcmdline", true),
-            RemoteApplicationFile = Text("remoteapplicationfile"),
-            DisableRemoteAppCapsCheck = Bool("disableremoteappcapscheck", false),
         };
     }
 
