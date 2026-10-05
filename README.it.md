@@ -180,6 +180,9 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
 - **Aggiungere** un account: clic destro in «Disponibili» → «Aggiungi ai miei server» e poi la cartella
   desiderata, oppure trascina l'account sulla scheda «I miei server», oppure il pulsante «Aggiungi» della
   barra degli strumenti.
+- **Aggiungere una connessione recente**: clic destro nelle sessioni recenti della home → «Aggiungi ai miei
+  server» e poi la cartella desiderata. Il server mantiene il tipo di connessione (PSM o SSH), il componente PSM
+  e la macchina di destinazione usati.
 - **Cartelle**: clic destro → nuova cartella o sottocartella, rinomina, elimina; trascina server e cartelle per
   spostarli.
 - **Configurazione propria di ogni server** (clic destro → «Proprietà…»):

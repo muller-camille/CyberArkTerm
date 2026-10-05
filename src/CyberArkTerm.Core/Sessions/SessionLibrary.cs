@@ -119,6 +119,26 @@ public static class SessionLibrary
         return session;
     }
 
+    /// <summary>
+    /// Ajoute une connexion récente avec sa configuration : SSH, ou PSM avec le composant utilisé, et la machine cible
+    /// choisie (compte de domaine). Elle garde le nom affiché dans les connexions récentes (« utilisateur@machine »).
+    /// </summary>
+    public static SavedSession AddFromRecent(AppSettings settings, PvwaAccount account, RecentSession recent, string pvwaHost, string folder)
+    {
+        var session = AddSession(settings, account, pvwaHost, folder);
+        var mode = recent.Mode.Trim();
+        bool ssh = string.Equals(mode, RecentSession.SshMode, StringComparison.OrdinalIgnoreCase);
+        session.Mode = ssh ? ConnectMode.Ssh : ConnectMode.Psm;
+        session.Component = ssh || mode.Length == 0 ? null : mode;
+        session.RemoteMachine = string.IsNullOrWhiteSpace(recent.RemoteMachine) ? null : recent.RemoteMachine.Trim();
+        if (!string.IsNullOrWhiteSpace(recent.Label))
+        {
+            session.Name = recent.Label.Trim();
+        }
+
+        return session;
+    }
+
     public static void MoveSession(AppSettings settings, SavedSession session, string folder)
     {
         session.Folder = SessionFolders.Normalize(folder);

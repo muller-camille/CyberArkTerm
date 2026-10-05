@@ -104,6 +104,31 @@ public class SessionLibraryTests
         Assert.NotEqual(unix.Id, win.Id);
     }
 
+    /// <summary>
+    /// Connexion récente ajoutée aux « Courants » : même mode, même composant PSM, même machine cible, même nom que dans
+    /// la liste des connexions récentes.
+    /// </summary>
+    [Fact]
+    public void RecentConnectionKeepsItsConfiguration()
+    {
+        var settings = new AppSettings();
+        var domain = Account("2", "adm-t0", "corp.local", "WinDomain");
+
+        var psm = SessionLibrary.AddFromRecent(settings, domain,
+            new RecentSession { AccountId = "2", Label = "adm-t0@srv01", Mode = " WIN-PSM ", RemoteMachine = " srv01 " }, "pvwa", "Prod");
+        var ssh = SessionLibrary.AddFromRecent(settings, Account("1", platform: "WinServerLocal"),
+            new RecentSession { AccountId = "1", Label = "root@srv", Mode = "ssh" }, "pvwa", "");
+        var unnamed = SessionLibrary.AddFromRecent(settings, Account("3", address: "db01"),
+            new RecentSession { AccountId = "3", Mode = "PSM-RDP" }, "pvwa", "");
+
+        Assert.Equal((ConnectMode.Psm, "WIN-PSM", "srv01", "adm-t0@srv01", "Prod"), (psm.Mode, psm.Component, psm.RemoteMachine, psm.Name, psm.Folder));
+        Assert.Equal(("2", "pvwa", "WinDomain"), (psm.AccountId, psm.PvwaHost, psm.PlatformId));
+        Assert.Equal((ConnectMode.Ssh, (string?)null, (string?)null), (ssh.Mode, ssh.Component, ssh.RemoteMachine));
+        Assert.Equal("root@db01", unnamed.Name);
+        Assert.Contains("Prod", settings.SessionFolderList);
+        Assert.Equal(3, settings.Sessions.Count);
+    }
+
     [Fact]
     public void FavoritesAreMigratedOnce()
     {

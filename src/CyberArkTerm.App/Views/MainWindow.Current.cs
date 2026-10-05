@@ -199,9 +199,15 @@ public partial class MainWindow
         _ => null,
     };
 
-    private void AddToCurrent(PvwaAccount account, string folder)
+    private void AddToCurrent(PvwaAccount account, string folder) =>
+        ShowAddedToCurrent(SessionLibrary.AddSession(_settings, account, PvwaHost, folder));
+
+    /// <summary>Connexion récente ajoutée aux « Courants » avec son mode, son composant et sa machine cible.</summary>
+    private void AddToCurrent(PvwaAccount account, RecentSession recent, string folder) =>
+        ShowAddedToCurrent(SessionLibrary.AddFromRecent(_settings, account, recent, PvwaHost, folder));
+
+    private void ShowAddedToCurrent(SavedSession session)
     {
-        var session = SessionLibrary.AddSession(_settings, account, PvwaHost, folder);
         Expand(session.Folder);
         SaveAndRefreshSaved();
         SetStatus(session.Folder.Length > 0
@@ -209,19 +215,22 @@ public partial class MainWindow
             : Text.Format(Strings.AddedToMyServers, session.Name));
     }
 
-    /// <summary>Sous-menu « Ajouter aux serveurs courants » : racine, dossiers existants, nouveau dossier.</summary>
-    private void BuildAddToCurrentMenu(MenuItem parent, PvwaAccount? account)
+    /// <summary>
+    /// Sous-menu « Ajouter aux serveurs courants » : racine, dossiers existants, nouveau dossier. <paramref name="add"/>
+    /// reçoit le dossier choisi ; null = rien à ajouter.
+    /// </summary>
+    private void BuildAddToCurrentMenu(MenuItem parent, Action<string>? add)
     {
         parent.Items.Clear();
-        if (account is null)
+        if (add is null)
         {
             return;
         }
 
-        parent.Items.Add(MenuEntry(Strings.RootFolder, () => AddToCurrent(account, "")));
+        parent.Items.Add(MenuEntry(Strings.RootFolder, () => add("")));
         foreach (var folder in _settings.SessionFolderList.OrderBy(f => f, StringComparer.OrdinalIgnoreCase))
         {
-            parent.Items.Add(MenuEntry(folder.Replace("/", " › "), () => AddToCurrent(account, folder)));
+            parent.Items.Add(MenuEntry(folder.Replace("/", " › "), () => add(folder)));
         }
 
         parent.Items.Add(new Separator());
@@ -229,7 +238,7 @@ public partial class MainWindow
         {
             if (AskFolderName(Strings.NewFolder, "", "") is { } path)
             {
-                AddToCurrent(account, path);
+                add(path);
             }
         }));
     }
@@ -368,7 +377,7 @@ public partial class MainWindow
     private void OnDragSourceMouseDown(object sender, MouseButtonEventArgs e)
     {
         _dragStart = e.GetPosition(null);
-        _dragCandidate = ItemUnder(e.OriginalSource)?.DataContext;
+        _dragCandidate = ItemUnder<TreeViewItem>(e.OriginalSource)?.DataContext;
     }
 
     private void OnAvailableDragMove(object sender, MouseEventArgs e)
@@ -421,7 +430,7 @@ public partial class MainWindow
 
     private void OnSavedDrop(object sender, DragEventArgs e)
     {
-        var target = ItemUnder(e.OriginalSource)?.DataContext switch
+        var target = ItemUnder<TreeViewItem>(e.OriginalSource)?.DataContext switch
         {
             SavedFolderNode folder => folder.Path,
             SavedSessionNode node => node.Session.Folder,
@@ -465,16 +474,17 @@ public partial class MainWindow
         SaveAndRefreshSaved();
     }
 
-    private static TreeViewItem? ItemUnder(object source)
+    /// <summary>Ligne (<typeparamref name="T"/>) qui contient l'élément cliqué, texte (Run) compris.</summary>
+    private static T? ItemUnder<T>(object source) where T : DependencyObject
     {
         var current = source as DependencyObject;
-        while (current is not null and not TreeViewItem)
+        while (current is not null and not T)
         {
             current = current is Visual or System.Windows.Media.Media3D.Visual3D
                 ? VisualTreeHelper.GetParent(current)
                 : LogicalTreeHelper.GetParent(current);
         }
 
-        return current as TreeViewItem;
+        return current as T;
     }
 }

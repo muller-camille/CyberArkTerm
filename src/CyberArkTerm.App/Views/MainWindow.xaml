@@ -49,6 +49,21 @@
             <MenuItem Header="{x:Static loc:Strings.MenuCopyDomainUser}" Click="OnCopyDomainUser" />
         </ContextMenu>
 
+        <!-- Menu des connexions récentes de l'accueil. -->
+        <ContextMenu x:Key="RecentMenu" Opened="OnRecentMenuOpened">
+            <MenuItem Header="{x:Static loc:Strings.Connect}" Click="OnConnectRecent" FontWeight="SemiBold">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconConnect}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator />
+            <MenuItem Tag="addcurrent" Header="{x:Static loc:Strings.MenuAddToMyServers}" ToolTipService.ShowOnDisabled="True">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconBookmark}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </ContextMenu>
+
         <!-- Menus de l'onglet « Courants ». -->
         <ContextMenu x:Key="SavedSessionMenu" x:Shared="False">
             <MenuItem Header="{x:Static loc:Strings.Connect}" Click="OnConnectSelectedSaved" FontWeight="SemiBold">
@@ -529,7 +544,8 @@
                                             <TextBlock x:Name="NoRecentText" Margin="12" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"
                                                        Text="{x:Static loc:Strings.NoRecent}" />
                                             <ListBox x:Name="RecentList" BorderThickness="0" Background="Transparent" MaxHeight="360"
-                                                     MouseDoubleClick="OnRecentDoubleClick" KeyDown="OnRecentKeyDown">
+                                                     MouseDoubleClick="OnRecentDoubleClick" KeyDown="OnRecentKeyDown"
+                                                     ContextMenu="{StaticResource RecentMenu}" ContextMenuOpening="OnRecentMenuOpening">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate DataType="{x:Type core:RecentSession}">
                                                         <DockPanel Margin="2,3">

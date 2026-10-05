@@ -142,7 +142,7 @@ public sealed class AppSettings
         }
 
         // Le mode d'une connexion récente est son composant PSM, ou « SSH » (PSMP).
-        foreach (var recent in Recent.Where(r => !string.Equals(r.Mode, "SSH", StringComparison.OrdinalIgnoreCase)))
+        foreach (var recent in Recent.Where(r => !string.Equals(r.Mode, RecentSession.SshMode, StringComparison.OrdinalIgnoreCase)))
         {
             Add(recent.Mode);
         }
@@ -213,6 +213,9 @@ public sealed class RecentSession
 
     /// <summary>Libellé affiché, par ex. « adm-t0@srv01.corp.local ».</summary>
     public string Label { get; set; } = "";
+
+    /// <summary>Valeur de <see cref="Mode"/> pour une connexion SSH via PSMP.</summary>
+    public const string SshMode = "SSH";
 
     /// <summary>Composant PSM utilisé, ou « SSH » pour une connexion via PSMP.</summary>
     public string Mode { get; set; } = "";

@@ -172,6 +172,9 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
 
 - **Add** an account: right-click in "Available" → "Add to my servers" then the folder you want, or drag the
   account onto the "My servers" tab, or the "Add" toolbar button.
+- **Add a recent connection**: right-click in the recent sessions of the home page → "Add to my servers" then
+  the folder you want. The server keeps the connection type (PSM or SSH), the PSM component and the target
+  machine used.
 - **Folders**: right-click → new folder or subfolder, rename, delete; drag servers and folders to move them.
 - **Settings of each server** (right-click → "Properties…"):
 

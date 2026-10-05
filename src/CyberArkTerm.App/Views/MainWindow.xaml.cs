@@ -506,6 +506,35 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OnConnectRecent(object sender, RoutedEventArgs e) => ConnectRecent();
+
+    private void OnRecentMenuOpening(object sender, ContextMenuEventArgs e)
+    {
+        // Clic droit dans la zone vide de la liste : pas de menu (le clic droit sur une ligne la sélectionne).
+        if (ItemUnder<ListBoxItem>(e.OriginalSource) is not { DataContext: RecentSession recent } || RecentList.SelectedItem != recent)
+        {
+            e.Handled = true;
+        }
+    }
+
+    private void OnRecentMenuOpened(object sender, RoutedEventArgs e)
+    {
+        if (RecentList.SelectedItem is not RecentSession recent)
+        {
+            ((ContextMenu)sender).IsOpen = false;
+            return;
+        }
+
+        // Compte d'un autre PVWA, supprimé, ou accès d'urgence sans CyberArk : rien à ajouter.
+        var account = _byId.GetValueOrDefault(recent.AccountId);
+        foreach (var item in ((ContextMenu)sender).Items.OfType<MenuItem>().Where(i => i.Tag as string == "addcurrent"))
+        {
+            BuildAddToCurrentMenu(item, account is null ? null : folder => AddToCurrent(account, recent, folder));
+            item.IsEnabled = account is not null;
+            item.ToolTip = account is null ? Text.Format(Strings.AccountGone, recent.Label) : null;
+        }
+    }
+
     private void ConnectRecent()
     {
         if (RecentList.SelectedItem is not RecentSession recent)
@@ -746,7 +775,7 @@ public partial class MainWindow : Window
     private void OnAccountMenuOpened(object sender, RoutedEventArgs e)
     {
         var menu = (ContextMenu)sender;
-        if (_current is null)
+        if (_current is not { } account)
         {
             // Clic droit sur un dossier : rien à proposer.
             menu.IsOpen = false;
@@ -758,7 +787,7 @@ public partial class MainWindow : Window
             switch (item.Tag as string)
             {
                 case "addcurrent":
-                    BuildAddToCurrentMenu(item, _current);
+                    BuildAddToCurrentMenu(item, folder => AddToCurrent(account, folder));
                     break;
                 case "ssh":
                     item.IsEnabled = HasPsmp;
