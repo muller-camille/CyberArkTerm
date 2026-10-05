@@ -92,8 +92,9 @@ public static class AccountCsv
         + string.Join(separator, "Prod-Windows", "WinDomain", "srv-app01.corp.example", "svc_app01", "", "CORP", "", "", "yes", "") + "\r\n";
 
     /// <summary>
-    /// Texte d'un fichier : UTF-8 (avec ou sans BOM), UTF-16 avec BOM, sinon Latin-1 (CSV « ANSI » d'Excel). Le
-    /// résultat est un tableau que l'appelant efface après lecture.
+    /// Texte d'un fichier : UTF-8 (avec ou sans BOM), UTF-16 avec BOM, sinon la page de code ANSI de la région Windows
+    /// (CSV « ANSI » d'Excel : Windows-1252 en français, anglais et italien, où « € » ou « ’ » ne sont pas du Latin-1).
+    /// Le résultat est un tableau que l'appelant efface après lecture.
     /// </summary>
     public static char[] Decode(ReadOnlySpan<byte> bytes)
     {
@@ -117,13 +118,20 @@ public static class AccountCsv
             }
             catch (DecoderFallbackException)
             {
-                encoding = Encoding.Latin1;
+                encoding = AnsiEncoding();
             }
         }
 
         var chars = new char[encoding.GetCharCount(bytes)];
         encoding.GetChars(bytes, chars);
         return chars;
+    }
+
+    private static Encoding AnsiEncoding()
+    {
+        int codePage = CultureInfo.CurrentCulture.TextInfo.ANSICodePage;
+        return CodePagesEncodingProvider.Instance.GetEncoding(codePage is 0 or 65001 ? 1252 : codePage)
+            ?? CodePagesEncodingProvider.Instance.GetEncoding(1252)!;
     }
 
     /// <summary>
@@ -193,7 +201,7 @@ public static class AccountCsv
     private static ImportRow ReadRow(Record record, Dictionary<Column, int> columns, char[] scratch, string? defaultSafe, string? defaultPlatform)
     {
         string Text(Column column) =>
-            columns.TryGetValue(column, out var i) && i < record.Fields.Count ? Field(scratch, record.Fields[i]).Trim().ToString() : "";
+            columns.TryGetValue(column, out var i) && i < record.Fields.Count ? Unescape(Field(scratch, record.Fields[i]).Trim()).ToString() : "";
 
         var safe = Text(Column.Safe) is { Length: > 0 } s ? s : defaultSafe?.Trim() ?? "";
         var platform = Text(Column.Platform) is { Length: > 0 } p ? p : defaultPlatform?.Trim() ?? "";
@@ -274,6 +282,10 @@ public static class AccountCsv
     private sealed record Record(int Line, List<FieldRange> Fields);
 
     private static ReadOnlySpan<char> Field(char[] scratch, FieldRange field) => scratch.AsSpan(field.Start, field.Length);
+
+    /// <summary>Retire l'apostrophe ajoutée par l'export devant =, +, -, @ (protection contre les formules Excel).</summary>
+    private static ReadOnlySpan<char> Unescape(ReadOnlySpan<char> value) =>
+        value.Length > 1 && value[0] == '\'' && value[1] is '=' or '+' or '-' or '@' ? value[1..] : value;
 
     /// <summary>
     /// Découpe le texte en enregistrements et en champs ; le contenu des champs (guillemets retirés, « "" » → « " »)

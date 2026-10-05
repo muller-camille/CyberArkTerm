@@ -33,7 +33,10 @@ public sealed class AccountCsvTests
         Assert.All(first.Account.Secret!, c => Assert.Equal('\0', c));
     }
 
-    /// <summary>Un fichier produit par « Exporter » (en-têtes de l'interface, « , » ici) se réimporte ; safe et plateforme par défaut.</summary>
+    /// <summary>
+    /// Un fichier produit par « Exporter » (en-têtes de l'interface, « , » ici) se réimporte ; safe et plateforme par défaut ;
+    /// l'apostrophe ajoutée par l'export devant « - » (protection contre les formules) est retirée.
+    /// </summary>
     [Fact]
     public void ReimportsAnExportedFileAndUsesDefaults()
     {
@@ -42,12 +45,13 @@ public sealed class AccountCsvTests
         {
             CultureInfo.CurrentUICulture = new CultureInfo("en");
             var writer = new StringWriter();
-            CsvExporter.Write(writer, [new PvwaAccount { Id = "1_2", Address = "srv01", UserName = "admin", SafeName = "", PlatformId = "" }], ',');
+            CsvExporter.Write(writer, [new PvwaAccount { Id = "1_2", Address = "srv01", UserName = "-svc", SafeName = "", PlatformId = "" }], ',');
 
             var import = AccountCsv.Parse(writer.ToString(), "Default safe", "WinServerLocal");
 
             var row = Assert.Single(import.Rows);
-            Assert.Equal(("Default safe", "WinServerLocal", "srv01", "admin"), (row.Safe, row.Platform, row.Address, row.UserName));
+            Assert.Contains("'-svc", writer.ToString());
+            Assert.Equal(("Default safe", "WinServerLocal", "srv01", "-svc"), (row.Safe, row.Platform, row.Address, row.UserName));
             Assert.NotNull(row.Account);
         }
         finally
@@ -97,6 +101,17 @@ public sealed class AccountCsvTests
         Assert.Equal("é;x", new string(AccountCsv.Decode([0xEF, 0xBB, 0xBF, .. Encoding.UTF8.GetBytes("é;x")])));
         Assert.Equal("é;x", new string(AccountCsv.Decode([0xFF, 0xFE, .. Encoding.Unicode.GetBytes("é;x")])));
         Assert.Equal("é;x", new string(AccountCsv.Decode(Encoding.UTF8.GetBytes("é;x"))));
-        Assert.Equal("é;x", new string(AccountCsv.Decode(Encoding.Latin1.GetBytes("é;x"))));
+
+        // CSV « ANSI » d'Excel en français : Windows-1252, où « € » (0x80) et « ’ » (0x92) ne sont pas du Latin-1.
+        var previous = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("fr-FR");
+            Assert.Equal("é;€’x", new string(AccountCsv.Decode([0xE9, (byte)';', 0x80, 0x92, (byte)'x'])));
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previous;
+        }
     }
 }
