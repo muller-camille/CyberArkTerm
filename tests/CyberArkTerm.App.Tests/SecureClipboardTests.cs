@@ -5,6 +5,7 @@ using CyberArkTerm.App.Services;
 
 namespace CyberArkTerm.App.Tests;
 
+[Collection(WpfCollection.Name)]
 public sealed class SecureClipboardTests
 {
     /// <summary>

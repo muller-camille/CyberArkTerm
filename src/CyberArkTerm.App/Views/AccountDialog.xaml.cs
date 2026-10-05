@@ -64,6 +64,9 @@ public partial class AccountDialog : Window
     private AccountDialog(IEnumerable<string> platforms)
     {
         InitializeComponent();
+        // Branché ici et non dans le XAML : au chargement, WPF coche la case avant que le champ du motif existe.
+        CpmBox.Checked += OnCpmChanged;
+        CpmBox.Unchecked += OnCpmChanged;
         PlatformBox.ItemsSource = platforms.ToList();
         Closed += (_, _) =>
         {
@@ -86,13 +89,7 @@ public partial class AccountDialog : Window
         base.OnClosing(e);
     }
 
-    private void OnCpmChanged(object sender, RoutedEventArgs e)
-    {
-        if (ReasonBox is not null)
-        {
-            ReasonBox.IsEnabled = CpmBox.IsChecked != true;
-        }
-    }
+    private void OnCpmChanged(object sender, RoutedEventArgs e) => ReasonBox.IsEnabled = CpmBox.IsChecked != true;
 
     private async void OnCreate(object sender, RoutedEventArgs e)
     {
