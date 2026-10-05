@@ -184,7 +184,7 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
 
 - **Ajouter** un compte : clic droit dans « Disponibles » → « Ajouter aux serveurs courants » puis le
   dossier voulu, ou glissez le compte sur l'onglet « Courants », ou bouton « Courant » de la barre d'outils.
-- **Ajouter une connexion récente** : clic droit dans les connexions récentes de l'accueil → « Ajouter aux
+- **Ajouter une session récente** : clic droit dans « Sessions récentes » sur l'accueil → « Ajouter aux
   serveurs courants » puis le dossier voulu. Le serveur garde le type de connexion (PSM ou SSH), le composant
   PSM et la machine cible utilisés.
 - **Dossiers** : clic droit → nouveau dossier ou sous-dossier, renommer, supprimer ; glissez serveurs et
