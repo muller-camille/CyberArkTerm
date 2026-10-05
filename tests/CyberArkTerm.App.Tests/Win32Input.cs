@@ -77,6 +77,8 @@ internal static class Win32Input
         return GetGUIThreadInfo(GetWindowThreadProcessId(window, out _), ref info) ? info.Focus : IntPtr.Zero;
     }
 
+    public static void MoveCursor((int X, int Y) point) => SetCursorPos(point.X, point.Y);
+
     public static void Click((int X, int Y) point, bool right = false)
     {
         SetCursorPos(point.X, point.Y);

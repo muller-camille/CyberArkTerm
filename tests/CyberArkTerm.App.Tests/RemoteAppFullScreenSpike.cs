@@ -36,7 +36,10 @@ public class RemoteAppFullScreenSpike(ITestOutputHelper output)
             $full.Text = 'CAT full'; $full.FormBorderStyle = 'None'; $full.ShowInTaskbar = $false; $full.KeyPreview = $true
             $full.StartPosition = 'Manual'; $full.Bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
             $full.Add_MouseDown({ Show-Click $script:full })
-            $full.Add_KeyDown({ param($s, $e) if ($e.KeyCode -eq 'Return') { $script:enter++ } })
+            $full.Add_KeyDown({ param($s, $e)
+              if ($e.KeyCode -eq 'Return') { $script:enter++ }
+              if ($e.KeyCode -eq 'Escape') { $script:full.Close() }
+            })
             [void]$full.ShowDialog($script:main)
           }
         })
@@ -132,23 +135,41 @@ public class RemoteAppFullScreenSpike(ITestOutputHelper output)
         var main = await Docked(slot, IntPtr.Zero);
         Win32Input.BringToFront(host);
         await Task.Delay(3000);
-        await Click(host, main, slot, "principale");
-        Win32Input.Keys((0x7A, 0x57));
-        var full = await Docked(slot, main);
-        await Task.Delay(3000);
-        output.WriteLine($"Plein écran après envoi de sa place (Entrée, pointeur garé) : « {Win32Input.Title(full)} »");
-        await Click(host, full, slot, "plein écran");
+        await Click(host, main, slot, "principale", 60, 60);
 
-        foreach (var (mode, park, name) in new[] { (1, true, "Échap"), (2, true, "WM_CANCELMODE"), (0, false, "Entrée sans garer"), (0, true, "Entrée") })
+        // Chaque mode : nouvelle fenêtre plein écran (en 0,0 sur le serveur, sous le pointeur), puis onglet agrandi ;
+        // pointeur laissé au centre de l'onglet (sur l'application) pendant l'envoi de la place.
+        foreach (var (mode, name) in new[] { (1, "Échap"), (2, "WM_CANCELMODE"), (0, "Entrée") })
         {
             RemoteAppDock.EndMode = mode;
-            RemoteAppDock.Park = park;
-            var before = Win32Input.Title(full);
-            window.Width -= 30;
+            RemoteAppDock.Park = false;
+            await Click(host, main, slot, $"{name} principale (clavier)", 60, 60);
+            var tab = Win32Input.ScreenBounds(slot);
+            Win32Input.MoveCursor(tab.Center);
+            Win32Input.BringToFront(host);
+            await Task.Delay(300);
+            Win32Input.Keys((0x7A, 0x57));
+            var full = await Docked(slot, main);
+            await Task.Delay(3500);
+            output.WriteLine($"{name} : plein écran placé, titre « {Win32Input.Title(full)} »");
+            await Click(host, full, slot, $"{name} placé", 60, 60);
+            tab = Win32Input.ScreenBounds(slot);
+            await Click(host, full, slot, $"{name} placé", tab.Width - 15, tab.Height - 15);
+            window.Width += 40;
+            window.Height += 30;
+            Win32Input.MoveCursor(Win32Input.ScreenBounds(slot).Center);
             Win32Input.BringToFront(host);
             await Task.Delay(3500);
-            output.WriteLine($"{name} : onglet {Win32Input.ScreenBounds(slot)}, titre « {before} » -> « {Win32Input.Title(full)} »");
-            await Click(host, full, slot, name);
+            output.WriteLine($"{name} : onglet agrandi {Win32Input.ScreenBounds(slot)}, titre « {Win32Input.Title(full)} »");
+            tab = Win32Input.ScreenBounds(slot);
+            await Click(host, full, slot, $"{name} agrandi", tab.Width - 15, tab.Height - 15);
+            Win32Input.Keys((0x1B, 0x01));
+            for (int i = 0; i < 20 && Win32Input.IsWindowVisible(full); i++)
+            {
+                await Task.Delay(250);
+            }
+
+            await Task.Delay(2000);
         }
 
         session.Disconnect();
@@ -173,10 +194,10 @@ public class RemoteAppFullScreenSpike(ITestOutputHelper output)
     }
 
     /// <summary>Clic à (60,60) dans l'onglet : reçu où (fenêtre du serveur à la place de l'onglet) et avec quel numéro ?</summary>
-    private async Task Click(IntPtr host, IntPtr window, IntPtr slot, string step)
+    private async Task Click(IntPtr host, IntPtr window, IntPtr slot, string step, int x, int y)
     {
         var tab = Win32Input.ScreenBounds(slot);
-        (int X, int Y) point = (tab.Left + 60, tab.Top + 60);
+        (int X, int Y) point = (tab.Left + x, tab.Top + y);
         var before = Win32Input.Title(window);
         Win32Input.BringToFront(host);
         await Task.Delay(200);
