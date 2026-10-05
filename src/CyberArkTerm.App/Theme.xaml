@@ -378,24 +378,6 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- Historique : cadran parcouru à rebours. -->
-    <DrawingImage x:Key="IconHistory">
-        <DrawingImage.Drawing>
-            <DrawingGroup>
-                <GeometryDrawing Geometry="M4,12 A8,8 0 1 0 6.34,6.34 M2.6,8.8 L4,12 L7.3,10.8">
-                    <GeometryDrawing.Pen>
-                        <Pen Brush="#5A6573" Thickness="1.8" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
-                    </GeometryDrawing.Pen>
-                </GeometryDrawing>
-                <GeometryDrawing Geometry="M12,7.5 V12 L15,14">
-                    <GeometryDrawing.Pen>
-                        <Pen Brush="#1565C0" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
-                    </GeometryDrawing.Pen>
-                </GeometryDrawing>
-            </DrawingGroup>
-        </DrawingImage.Drawing>
-    </DrawingImage>
-
     <DrawingImage x:Key="IconDelete">
         <DrawingImage.Drawing>
             <DrawingGroup>
