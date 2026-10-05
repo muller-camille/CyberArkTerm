@@ -371,6 +371,8 @@ public class RdpSessionTests(ITestOutputHelper output)
             return;
         }
 
+        // Session neuve : sans les fenêtres d'une application laissée par un autre test.
+        LogoffActiveSessions(account.User.Split('\\')[^1], all: true);
         var request = new RdpConnectionRequest(PsmRemoteAppFile(account.User), account.Password);
         await RunOnStaAsync(request, async session =>
         {
@@ -536,6 +538,8 @@ public class RdpSessionTests(ITestOutputHelper output)
             await WaitForAsync(session, s => s is RdpSessionState.Ended or RdpSessionState.Failed, TimeSpan.FromSeconds(30));
         }, remoteAppInTab: true).ContinueWith(t =>
         {
+            // Session fermée : l'application ne doit pas réapparaître dans les tests suivants.
+            LogoffActiveSessions(account.User.Split('\\')[^1], all: true);
             // Journal de débogage : fenêtres de l'application et ce que l'onglet en a fait.
             CyberArkTerm.Core.Diagnostics.DebugLog.Stop();
             foreach (var line in File.ReadAllLines(log).Where(l => l.Contains(" rdp ", StringComparison.Ordinal)))
