@@ -472,6 +472,9 @@ public class RdpSessionTests(ITestOutputHelper output)
 
         var script = Path.Combine(@"C:\Users\Public", "cyberarkterm-remoteapp-test.ps1");
         File.WriteAllText(script, ClickRecorderScript);
+        var log = Path.Combine(Path.GetTempPath(), "cyberarkterm-remoteapp-test.log");
+        File.Delete(log);
+        CyberArkTerm.Core.Diagnostics.DebugLog.Start(log, "test");
         var request = new RdpConnectionRequest(RdpConnectionSettings.FromRdpFile(Encoding.Unicode.GetBytes(
             $"full address:s:127.0.0.2:3389\r\nusername:s:{account.User}\r\nauthentication level:i:0\r\nenablecredsspsupport:i:1\r\n" +
             "remoteapplicationmode:i:1\r\ndisableremoteappcapscheck:i:1\r\n" +
@@ -525,7 +528,17 @@ public class RdpSessionTests(ITestOutputHelper output)
 
             session.Disconnect();
             await WaitForAsync(session, s => s is RdpSessionState.Ended or RdpSessionState.Failed, TimeSpan.FromSeconds(30));
-        }, remoteAppInTab: true);
+        }, remoteAppInTab: true).ContinueWith(t =>
+        {
+            // Journal de débogage : fenêtres de l'application et ce que l'onglet en a fait.
+            CyberArkTerm.Core.Diagnostics.DebugLog.Stop();
+            foreach (var line in File.ReadAllLines(log).Where(l => l.Contains(" rdp ", StringComparison.Ordinal)))
+            {
+                output.WriteLine(line);
+            }
+
+            t.GetAwaiter().GetResult();
+        }, TaskScheduler.Default);
     }
 
     /// <summary>Fenêtre PowerShell qui écrit chaque clic reçu dans son titre ; F11 ouvre une fenêtre plein écran (Échap la ferme).</summary>
@@ -580,7 +593,9 @@ public class RdpSessionTests(ITestOutputHelper output)
             await Task.Delay(250);
         }
 
-        Assert.Fail($"« {title} » absente de l'onglet");
+        var windows = Win32Input.ProcessWindows().Concat(Win32Input.Descendants(slot)).Where(h => Win32Input.ClassName(h) == "RAIL_WINDOW")
+            .Select(h => $"« {Win32Input.Title(h)} » {Win32Input.ScreenBounds(h)} visible {Win32Input.IsWindowVisible(h)} dans l'onglet {Win32Input.IsChild(slot, h)}");
+        Assert.Fail($"« {title} » absente de l'onglet ; fenêtres : {string.Join(" ; ", windows)}");
         return IntPtr.Zero;
     }
 
