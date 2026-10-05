@@ -392,8 +392,11 @@ server: CyberArkTerm therefore asks the server for a keyboard move (system comma
 performs locally, and ends it at once (Enter); the control then sends the tab's place, and the server puts its
 window there (position and size). This is done after attaching, when the tab has been moved or resized (once it is
 still) and when the server has moved its window; only while CyberArkTerm is in the foreground, with no mouse button
-down (the control ends the move with a click where the pointer is: the pointer is briefly put in the corner of the
-CyberArkTerm window, outside the tab, then comes back), at most three times in a row for the same place; a window
+down (the control ends the move with a click where the pointer is, applied to the server's windows as they were before:
+the pointer is briefly put where the server has no window of the application, corner of the CyberArkTerm window or
+of the screen, then comes back; a window covering the whole server screen leaves no such place: this click,
+unavoidable, then lands in the middle of its top edge, never in a corner, once only since it then has the size of the
+tab), at most three times in a row for the same place; a window
 maximized on the server is restored first.
 
 A mouse button pressed in the application gives it the keyboard (`WM_PARENTNOTIFY`), as selecting the tab does.
@@ -402,7 +405,8 @@ The debug log describes the application's windows (styles, place, visibility) an
 Checked by the integration tests: rendering, keyboard (text typed then copied, read from the redirected clipboard),
 size, context menu opened under the pointer, window taken out of the tab on disconnection; and, with an application
 that writes the position of each click it receives in its title: clicks received where they are made (corners of
-the tab), image at scale 1, full-screen window opened then closed, no Enter key nor extra click received.
+the tab), image at scale 1, full-screen window opened then closed, no Enter key received, no extra click apart from the
+placement click of the full-screen window (middle of its top edge).
 
 **One thread per remote desktop connection.** The control, its window and its events live on a separate thread
 (STA, with its own message loop); the interface never waits for it. The tab holds a window of the interface thread,

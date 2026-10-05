@@ -418,8 +418,11 @@ d'un déplacement commencé par le serveur : CyberArkTerm demande donc au serveu
 (commande système « Déplacer »), que le contrôle fait localement, et le termine aussitôt (Entrée) ; le contrôle envoie
 alors la place de l'onglet, et le serveur y met sa fenêtre (position et taille). C'est fait après le rattachement,
 quand l'onglet a été déplacé ou redimensionné (une fois immobile) et quand le serveur a déplacé sa fenêtre ; seulement
-quand CyberArkTerm est au premier plan, sans bouton de souris enfoncé (le contrôle termine le déplacement par un clic là où est le pointeur : celui-ci est
-mis un instant dans le coin de la fenêtre de CyberArkTerm, hors de l'onglet, puis revient),
+quand CyberArkTerm est au premier plan, sans bouton de souris enfoncé (le contrôle termine le déplacement par un clic là où est le pointeur, appliqué aux
+fenêtres du serveur telles qu'avant : le pointeur est mis un instant là où le serveur n'a aucune fenêtre de
+l'application, coin de la fenêtre de CyberArkTerm ou de l'écran, puis revient ; une fenêtre qui couvre tout l'écran
+du serveur ne laisse aucun tel endroit : ce clic, inévitable, tombe alors au milieu de son bord haut, jamais dans un
+coin, une seule fois puisqu'elle est ensuite à la taille de l'onglet),
 au plus trois fois de suite pour une même place ; une fenêtre agrandie sur le serveur est d'abord restaurée.
 
 Un bouton de la souris enfoncé dans l'application lui donne le clavier (`WM_PARENTNOTIFY`), comme la sélection de
@@ -428,7 +431,8 @@ lui-même. Le journal de débogage décrit les fenêtres de l'application (style
 en fait. Vérifié par les tests d'intégration : rendu, clavier (texte tapé puis copié, lu dans le presse-papiers
 redirigé), taille, menu contextuel ouvert sous le pointeur, fenêtre retirée à la déconnexion ; et, avec une
 application qui écrit dans son titre la position de chaque clic reçu : clics reçus là où ils sont faits (coins de
-l'onglet), image à l'échelle 1, fenêtre plein écran ouverte puis fermée, aucune touche Entrée ni aucun clic en trop reçus.
+l'onglet), image à l'échelle 1, fenêtre plein écran ouverte puis fermée, aucune touche Entrée reçue, aucun clic en trop hors du clic de
+placement de la fenêtre plein écran (au milieu de son bord haut).
 
 **Un thread par connexion Bureau à distance.** Le contrôle, sa fenêtre et ses événements vivent sur un thread à
 part (STA, avec sa boucle de messages) ; l'interface ne l'attend jamais. L'onglet contient une fenêtre du thread de

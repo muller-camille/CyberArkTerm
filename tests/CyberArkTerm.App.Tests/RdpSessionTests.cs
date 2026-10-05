@@ -520,6 +520,22 @@ public class RdpSessionTests(ITestOutputHelper output)
             // Fenêtre plein écran ouverte par-dessus (F11) : dans l'onglet, à sa place.
             Win32Input.Keys((0x7A, 0x57));
             var full = await DockedAsync(slot, "CAT full", except: main);
+            // Fenêtre sur tout l'écran du serveur : le clic qui termine l'envoi de sa place ne peut tomber hors d'elle ;
+            // il est mis au milieu de son bord haut (et nulle part ailleurs).
+            var screen = System.Windows.Forms.SystemInformation.VirtualScreen;
+            for (int i = 0; i < 20 && !Win32Input.Title(full).StartsWith("clic", StringComparison.Ordinal); i++)
+            {
+                await Task.Delay(250);
+            }
+
+            if (Regex.Match(Win32Input.Title(full), @"clic (\d+) (-?\d+),(-?\d+)") is { Success: true } placement)
+            {
+                output.WriteLine($"Clic de placement de la fenêtre plein écran : « {Win32Input.Title(full)} »");
+                Assert.Equal(_clicks + 1, int.Parse(placement.Groups[1].Value));
+                Assert.Equal((screen.Width / 2, 0), (int.Parse(placement.Groups[2].Value), int.Parse(placement.Groups[3].Value)));
+                _clicks++;
+            }
+
             var fullClick = await ClickWhenPlacedAsync(host, full, (tab.Left + 60, tab.Top + 60), c => c.X == 60 && c.Y == 60);
             Assert.Equal(0, fullClick.Enter);
 

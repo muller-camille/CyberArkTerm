@@ -81,6 +81,9 @@ internal sealed class RemoteAppDock : IDisposable
     private readonly List<IntPtr> _attached = [];
     private readonly List<IntPtr> _hooks = [];
     private readonly Dictionary<IntPtr, string> _logged = [];
+
+    /// <summary>Place (écran) de chaque fenêtre rattachée sur le serveur, autant qu'on la connaisse.</summary>
+    private readonly Dictionary<IntPtr, Rect> _places = [];
     private readonly System.Windows.Forms.Timer _timer;
     private readonly WinEventProc _onEvent;
     private readonly System.Windows.Forms.Timer _cursorTimer;
@@ -175,6 +178,7 @@ internal sealed class RemoteAppDock : IDisposable
 
         _docked = IntPtr.Zero;
         _attached.Clear();
+        _places.Clear();
         _windows.Clear();
     }
 
@@ -209,6 +213,7 @@ internal sealed class RemoteAppDock : IDisposable
         if (fromServer && !syncing)
         {
             _sent = default;
+            _places[_docked] = rect;
             if (DebugLog.Enabled && _loggedFits < MaxLoggedFits)
             {
                 _loggedFits++;
@@ -225,6 +230,11 @@ internal sealed class RemoteAppDock : IDisposable
     {
         _windows.RemoveAll(w => !IsWindow(w));
         _attached.RemoveAll(w => !IsWindow(w));
+        foreach (var gone in _places.Keys.Where(w => !IsWindow(w)).ToList())
+        {
+            _places.Remove(gone);
+        }
+
         if (_docked != IntPtr.Zero && !IsWindow(_docked))
         {
             DebugLog.Write("rdp", $"{_label} : fenêtre de l'application dans l'onglet fermée");
@@ -265,6 +275,9 @@ internal sealed class RemoteAppDock : IDisposable
     private void Dock(IntPtr window)
     {
         DebugLog.Write("rdp", $"{_label} : fenêtre de l'application 0x{window.ToInt64():X} « {Title(window)} » affichée dans l'onglet ({Describe(window, rect: true)})");
+        // Fenêtre de premier niveau : le contrôle la met où le serveur a la sienne.
+        GetWindowRect(window, out var place);
+        _places[window] = place;
         long style = Style(window);
         SetParent(window, _container.Handle);
         SetWindowLongPtr(window, GwlStyle, new IntPtr((style & ~WsPopup) | WsChild));
@@ -364,10 +377,14 @@ internal sealed class RemoteAppDock : IDisposable
     }
 
     /// <summary>
-    /// À la fin du déplacement, le contrôle envoie au serveur un clic de souris là où est le pointeur (constaté : reçu
-    /// par l'application quand le pointeur était sur sa fenêtre). Le pointeur est donc mis, le temps du déplacement,
-    /// sur la fenêtre de CyberArkTerm hors de l'onglet (coin haut gauche, barre de titre), où aucune fenêtre de
-    /// l'application ne se trouve en général ; il revient ensuite, si l'utilisateur ne l'a pas bougé.
+    /// À la fin du déplacement, le contrôle envoie au serveur un clic de souris là où est le pointeur, que le serveur
+    /// applique à ses fenêtres telles qu'avant le déplacement (constaté : reçu par l'application quand le pointeur était
+    /// sur sa fenêtre, quelle que soit la façon de terminer le déplacement). Le pointeur est donc mis, le temps du
+    /// déplacement, là où le serveur n'a aucune fenêtre de l'application : coin de la fenêtre de CyberArkTerm, sinon
+    /// un coin de l'écran. Une fenêtre qui couvre tout l'écran du serveur (client plein écran) ne laisse aucun tel
+    /// endroit : le clic, inévitable, est alors mis au milieu de son bord haut (barre de connexion d'un client Bureau
+    /// à distance, haut de l'écran), jamais dans un coin (bouton Fermer, menu système, « Afficher le bureau »).
+    /// Le pointeur revient ensuite, si l'utilisateur ne l'a pas bougé.
     /// </summary>
     private void ParkCursor()
     {
@@ -377,19 +394,44 @@ internal sealed class RemoteAppDock : IDisposable
         }
 
         var screen = SystemInformation.VirtualScreen;
-        _parked = new Point
+        Point At(int x, int y) => new()
         {
-            X = Math.Clamp(root.Left + 16, screen.Left, screen.Right - 1),
-            Y = Math.Clamp(root.Top + 16, screen.Top, screen.Bottom - 1),
+            X = Math.Clamp(x, screen.Left, screen.Right - 1),
+            Y = Math.Clamp(y, screen.Top, screen.Bottom - 1),
         };
-        GetWindowRect(_docked, out var docked);
-        if (_parked.X >= docked.Left && _parked.X < docked.Right && _parked.Y >= docked.Top && _parked.Y < docked.Bottom)
+
+        GetWindowRect(_docked, out var tab);
+        _places.TryGetValue(_docked, out var place);
+        // Autres fenêtres de l'application : à part (menus, boîtes de dialogue) et rattachées (leur place sur le serveur).
+        var others = _windows.Where(w => w != _docked && IsWindowVisible(w) && !_attached.Contains(w))
+            .Select(w => GetWindowRect(w, out var r) ? r : default)
+            .Concat(_places.Where(p => p.Key != _docked).Select(p => p.Value)).ToList();
+        bool Free(Point p) => !Contains(tab, p) && !Contains(place, p) && !others.Any(r => Contains(r, p));
+
+        var candidates = new[]
+        {
+            At(root.Left + 16, root.Top + 16), At(screen.Left, screen.Top), At(screen.Right - 1, screen.Top),
+            At(screen.Left, screen.Bottom - 1), At(screen.Right - 1, screen.Bottom - 1),
+        };
+        if (candidates.Where(Free).Take(1).ToList() is [var free])
+        {
+            _parked = free;
+        }
+        else if (place.Width > 0)
+        {
+            _parked = At(place.Left + (place.Width / 2), place.Top);
+            DebugLog.Write("rdp", $"{_label} : fenêtre 0x{_docked.ToInt64():X} sur tout l'écran du serveur : clic du déplacement " +
+                                  $"au milieu de son bord haut ({_parked.X},{_parked.Y})");
+        }
+        else
         {
             return;
         }
 
         _cursorParked = SetCursorPos(_parked.X, _parked.Y);
     }
+
+    private static bool Contains(Rect r, Point p) => p.X >= r.Left && p.X < r.Right && p.Y >= r.Top && p.Y < r.Bottom;
 
     private void RestoreCursor()
     {
@@ -442,6 +484,7 @@ internal sealed class RemoteAppDock : IDisposable
         else if (eventType == EventSystemMoveSizeEnd)
         {
             _sent = _loop;
+            _places[window] = _loop;
             _requested = DateTime.MinValue;
             _settled = DateTime.UtcNow;
             DebugLog.Write("rdp", $"{_label} : fenêtre 0x{window.ToInt64():X} placée sur le serveur en {_loop.Left},{_loop.Top} {_loop.Width}x{_loop.Height}");
