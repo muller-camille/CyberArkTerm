@@ -287,8 +287,11 @@ public class RdpSessionTests(ITestOutputHelper output)
         });
     }
 
-    /// <summary>Ferme (côté serveur) les sessions actives de <paramref name="user"/> sur ce poste ; renvoie leurs numéros.</summary>
-    private static List<int> LogoffActiveSessions(string user)
+    /// <summary>
+    /// Ferme (côté serveur) les sessions actives de <paramref name="user"/> sur ce poste, ou toutes (aussi celles
+    /// déconnectées, en attendant leur fermeture) ; renvoie leurs numéros.
+    /// </summary>
+    private static List<int> LogoffActiveSessions(string user, bool all = false)
     {
         const int WtsActive = 0;
         const int WtsUserName = 5;
@@ -304,7 +307,7 @@ public class RdpSessionTests(ITestOutputHelper output)
             for (int i = 0; i < count; i++)
             {
                 var info = Marshal.PtrToStructure<WtsSessionInfo>(sessions + (i * size));
-                if (info.State != WtsActive || !WTSQuerySessionInformation(IntPtr.Zero, info.SessionId, WtsUserName, out var name, out _))
+                if ((!all && info.State != WtsActive) || !WTSQuerySessionInformation(IntPtr.Zero, info.SessionId, WtsUserName, out var name, out _))
                 {
                     continue;
                 }
@@ -312,7 +315,7 @@ public class RdpSessionTests(ITestOutputHelper output)
                 try
                 {
                     if (string.Equals(Marshal.PtrToStringUni(name), user, StringComparison.OrdinalIgnoreCase)
-                        && WTSLogoffSession(IntPtr.Zero, info.SessionId, false))
+                        && WTSLogoffSession(IntPtr.Zero, info.SessionId, all))
                     {
                         closed.Add(info.SessionId);
                     }
@@ -472,6 +475,9 @@ public class RdpSessionTests(ITestOutputHelper output)
 
         var script = Path.Combine(@"C:\Users\Public", "cyberarkterm-remoteapp-test.ps1");
         File.WriteAllText(script, ClickRecorderScript);
+        // Session neuve : une session laissée par un test précédent peut être verrouillée (lancement refusé, code 7)
+        // et contenir d'autres fenêtres.
+        output.WriteLine($"Sessions fermées avant le test : {string.Join(", ", LogoffActiveSessions(account.User.Split('\\')[^1], all: true))}");
         var log = Path.Combine(Path.GetTempPath(), "cyberarkterm-remoteapp-test.log");
         File.Delete(log);
         CyberArkTerm.Core.Diagnostics.DebugLog.Start(log, "test");
