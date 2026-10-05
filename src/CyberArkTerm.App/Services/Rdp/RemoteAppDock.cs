@@ -47,6 +47,9 @@ internal sealed class RemoteAppDock : IDisposable
     /// <summary>Expérience : comportement d'avant (pas de plein écran ni de changement de fenêtre).</summary>
     internal static bool Legacy;
 
+    /// <summary>Expérience : rattachement suspendu (fenêtre manipulée par le test).</summary>
+    internal static bool Paused;
+
     private readonly Control _container;
     private readonly Action<bool> _changed;
     private readonly string _label;
@@ -173,6 +176,11 @@ internal sealed class RemoteAppDock : IDisposable
 
     private void Update()
     {
+        if (Paused)
+        {
+            return;
+        }
+
         _windows.RemoveAll(w => !IsWindow(w));
         _attached.RemoveAll(w => !IsWindow(w));
         if (_docked != IntPtr.Zero && !IsWindow(_docked))
@@ -245,7 +253,7 @@ internal sealed class RemoteAppDock : IDisposable
     /// <summary>Fenêtre déplacée ou redimensionnée (notification de Windows, sur le thread de la connexion).</summary>
     private void OnLocationChange(IntPtr hook, uint eventType, IntPtr window, int objectId, int childId, int thread, uint time)
     {
-        if (window == _docked && objectId == 0)
+        if (window == _docked && objectId == 0 && !Paused)
         {
             Fit(log: true);
         }
