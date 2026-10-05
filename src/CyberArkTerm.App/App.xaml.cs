@@ -46,7 +46,6 @@ public partial class App : Application
         FileBrowserPanel.CleanupDragFolders();
         _keePass = new KeePassManager();
         UiLanguage.Apply(UiLanguage.Resolve(_settings.Language, _systemCulture));
-        UnlockLocalStore();
         StartSession();
     }
 
@@ -55,19 +54,6 @@ public partial class App : Application
         DebugLog.Write("app", "Fermeture de l'application.");
         _keePass?.Dispose();
         base.OnExit(e);
-    }
-
-    /// <summary>
-    /// Coffre local des mots de passe maîtres KeePass : son mot de passe est demandé à l'ouverture de l'application
-    /// (« Plus tard » pour s'en passer ; il sera redemandé au besoin).
-    /// </summary>
-    private void UnlockLocalStore()
-    {
-        if (_keePass is { Store.Exists: true } && _settings.KeePassFolders.Any(f => f.RememberPassword))
-        {
-            new LocalStoreDialog(_keePass.Store, LocalStoreDialog.Mode.Unlock) { WindowStartupLocation = WindowStartupLocation.CenterScreen }
-                .ShowDialog();
-        }
     }
 
     /// <summary>Affiche l'écran de connexion puis, en cas de succès, la liste des comptes.</summary>

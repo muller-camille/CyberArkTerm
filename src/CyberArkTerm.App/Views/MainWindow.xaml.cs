@@ -765,7 +765,9 @@ public partial class MainWindow : Window
 
         foreach (var element in menu.Items.OfType<FrameworkElement>())
         {
-            element.Visibility = account is null && element.Tag as string != "safemembers" ? Visibility.Collapsed : Visibility.Visible;
+            element.Visibility = account is null && element.Tag as string is not ("safemembers" or "addaccount")
+                ? Visibility.Collapsed
+                : Visibility.Visible;
         }
 
         foreach (var item in menu.Items.OfType<MenuItem>())
@@ -780,14 +782,23 @@ public partial class MainWindow : Window
                     item.ToolTip = HasPsmp ? null : Strings.SetPsmpAddress;
                     break;
                 case "safemembers":
-                    bool available = _client is not null && !string.IsNullOrWhiteSpace(safe);
-                    // TextBlock : un « _ » dans le nom du safe n'est pas un raccourci clavier.
-                    item.Header = new TextBlock { Text = available ? Text.Format(Strings.MenuSafeMembersOf, safe) : Strings.MenuSafeMembers };
-                    item.CommandParameter = safe;
-                    item.IsEnabled = available;
+                    SetSafeMenuItem(item, safe, Strings.MenuSafeMembersOf, Strings.MenuSafeMembers);
+                    break;
+                case "addaccount":
+                    SetSafeMenuItem(item, safe, Strings.MenuAddAccountTo, Strings.MenuAddAccount);
                     break;
             }
         }
+    }
+
+    /// <summary>Entrée de menu qui porte sur un safe : son nom dans le libellé, désactivée sans safe ou sans CyberArk.</summary>
+    private void SetSafeMenuItem(MenuItem item, string? safe, string format, string fallback)
+    {
+        bool available = _client is not null && !string.IsNullOrWhiteSpace(safe);
+        // TextBlock : un « _ » dans le nom du safe n'est pas un raccourci clavier.
+        item.Header = new TextBlock { Text = available ? Text.Format(format, safe) : fallback };
+        item.CommandParameter = safe;
+        item.IsEnabled = available;
     }
 
     /// <summary>Safe d'un dossier de l'arbre « Disponibles » quand les comptes sont groupés par safe, sinon null.</summary>
@@ -798,6 +809,56 @@ public partial class MainWindow : Window
             : null;
 
     private void OnShowSafeMembers(object sender, RoutedEventArgs e) => ShowSafeMembers((sender as MenuItem)?.CommandParameter as string);
+
+    private async void OnAddAccount(object sender, RoutedEventArgs e)
+    {
+        if ((sender as MenuItem)?.CommandParameter is string safe)
+        {
+            await AddAccountAsync(safe, _current);
+        }
+    }
+
+    /// <summary>
+    /// Crée un compte dans le safe (droit « Add accounts » nécessaire), puis recharge la liste des comptes. Le compte
+    /// cliqué sert de modèle : sa plateforme et son domaine de connexion sont proposés.
+    /// </summary>
+    private async Task AddAccountAsync(string safe, PvwaAccount? template)
+    {
+        if (_client is not { } client)
+        {
+            return;
+        }
+
+        static List<string> Distinct(IEnumerable<string?> values) =>
+            values.Where(v => !string.IsNullOrWhiteSpace(v)).Select(v => v!).Distinct(StringComparer.OrdinalIgnoreCase)
+                .Order(StringComparer.OrdinalIgnoreCase).ToList();
+
+        // Sans modèle (clic sur le safe) : la plateforme la plus courante du safe.
+        var platform = template?.PlatformId ?? _accounts
+            .Where(a => string.Equals(a.SafeName, safe, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(a.PlatformId))
+            .GroupBy(a => a.PlatformId!, StringComparer.OrdinalIgnoreCase)
+            .MaxBy(g => g.Count())?.Key;
+        var dialog = new AddAccountDialog(Distinct(_accounts.Select(a => a.SafeName)), Distinct(_accounts.Select(a => a.PlatformId)),
+            safe, platform, template?.LogonDomain, client.AddAccountAsync) { Owner = this };
+        if (dialog.ShowDialog() != true || dialog.Created is not { } created)
+        {
+            if (dialog.SessionExpired)
+            {
+                OnSessionExpired();
+            }
+
+            return;
+        }
+
+        var label = string.IsNullOrWhiteSpace(created.Name) ? $"{created.UserName}@{created.Address}" : created.Name;
+        await LoadAccountsAsync();
+        if (_byId.TryGetValue(created.Id, out var account))
+        {
+            SetCurrent(account);
+        }
+
+        SetStatus(Text.Format(Strings.AccountCreated, label, created.SafeName));
+    }
 
     /// <summary>Membres du safe et leurs droits, lus sur le PVWA (droit « View Safe Members » nécessaire).</summary>
     private void ShowSafeMembers(string? safeName)

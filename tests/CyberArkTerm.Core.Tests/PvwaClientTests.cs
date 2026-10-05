@@ -244,6 +244,80 @@ public class PvwaClientTests
         }
     }
 
+    /// <summary>Création d'un compte (valeurs fictives) : champs envoyés, mot de passe en dernier, compte créé relu.</summary>
+    [Fact]
+    public async Task AddAccount_PostsTheAccountAndReadsTheCreatedOne()
+    {
+        var pvwa = new FakePvwa(req => FakePvwa.IsLogon(req)
+            ? FakePvwa.Json("\"tok\"")
+            : FakePvwa.Json("""{"id":"12_34","name":"Op-srv01","address":"srv01.corp.local","userName":"svc_app","platformId":"WinDomain","safeName":"Prod Windows"}""",
+                HttpStatusCode.Created));
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+        char[] secret = "p\"a\\ss<é>".ToCharArray();
+
+        var created = await client.AddAccountAsync(new NewAccount
+        {
+            SafeName = " Prod Windows ", PlatformId = "WinDomain", Address = "srv01.corp.local", UserName = "svc_app",
+            Name = "Op-srv01", LogonDomain = "CORP", Secret = secret, RemoteMachines = "srv01, srv02 ;srv03",
+        });
+
+        var (method, path, auth, body) = pvwa.Requests[1];
+        Assert.Equal((HttpMethod.Post, "/PasswordVault/API/Accounts", "tok"), (method, path, auth));
+        Assert.Equal(System.Text.Encoding.UTF8.GetByteCount(body), pvwa.ContentLengths[1]);
+        using var json = JsonDocument.Parse(body);
+        var root = json.RootElement;
+        Assert.Equal("Prod Windows", root.GetProperty("safeName").GetString());
+        Assert.Equal("Op-srv01", root.GetProperty("name").GetString());
+        Assert.Equal("password", root.GetProperty("secretType").GetString());
+        Assert.Equal("CORP", root.GetProperty("platformAccountProperties").GetProperty("LogonDomain").GetString());
+        Assert.True(root.GetProperty("secretManagement").GetProperty("automaticManagementEnabled").GetBoolean());
+        Assert.Equal("srv01;srv02;srv03", root.GetProperty("remoteMachinesAccess").GetProperty("remoteMachines").GetString());
+        Assert.True(root.GetProperty("remoteMachinesAccess").GetProperty("accessRestrictedToRemoteMachines").GetBoolean());
+        Assert.Equal("p\"a\\ss<é>", root.GetProperty("secret").GetString());
+        Assert.Equal("secret", root.EnumerateObject().Last().Name);
+        Assert.Equal(("12_34", "Prod Windows"), (created.Id, created.SafeName));
+    }
+
+    /// <summary>Champs facultatifs absents : ni nom, ni mot de passe, ni domaine, ni machines ; gestion manuelle motivée.</summary>
+    [Fact]
+    public async Task AddAccount_LeavesOutEmptyOptionalFields()
+    {
+        var pvwa = new FakePvwa(req => FakePvwa.IsLogon(req)
+            ? FakePvwa.Json("\"tok\"")
+            : FakePvwa.Json("""{"id":"1_1","address":"lnx01","userName":"root","safeName":"Linux"}""", HttpStatusCode.Created));
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+
+        await client.AddAccountAsync(new NewAccount
+        {
+            SafeName = "Linux", PlatformId = "UnixSSH", Address = "lnx01", UserName = "root", Name = " ", Secret = [],
+            AutomaticManagement = false, ManualManagementReason = "Compte de secours",
+        });
+
+        using var json = JsonDocument.Parse(pvwa.Requests[1].Body);
+        var names = json.RootElement.EnumerateObject().Select(p => p.Name).ToList();
+        Assert.Equal(["address", "userName", "platformId", "safeName", "secretType", "secretManagement"], names);
+        var management = json.RootElement.GetProperty("secretManagement");
+        Assert.False(management.GetProperty("automaticManagementEnabled").GetBoolean());
+        Assert.Equal("Compte de secours", management.GetProperty("manualManagementReason").GetString());
+    }
+
+    [Fact]
+    public async Task AddAccount_Refused_SurfacesThePvwaError()
+    {
+        var pvwa = new FakePvwa(req => FakePvwa.IsLogon(req)
+            ? FakePvwa.Json("\"tok\"")
+            : FakePvwa.Json("{\"ErrorCode\":\"PASWS041E\",\"ErrorMessage\":\"Not authorized.\"}", HttpStatusCode.Forbidden));
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+
+        var ex = await Assert.ThrowsAsync<PvwaException>(() => client.AddAccountAsync(new NewAccount
+        {
+            SafeName = "S", PlatformId = "P", Address = "a", UserName = "u",
+        }));
+
+        Assert.Equal(HttpStatusCode.Forbidden, ex.StatusCode);
+        Assert.Equal("Not authorized. (PASWS041E)", ex.Message);
+    }
+
     [Fact]
     public async Task GetAccounts_StopsOnEmptyPage()
     {

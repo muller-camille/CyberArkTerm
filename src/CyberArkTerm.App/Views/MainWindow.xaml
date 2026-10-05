@@ -48,6 +48,7 @@
                     <Image Source="{StaticResource IconPermissions}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <MenuItem Tag="addaccount" Click="OnAddAccount" />
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuCopyServer}" Click="OnCopyAddress" />
             <MenuItem Header="{x:Static loc:Strings.MenuCopyUser}" Click="OnCopyUser" />
