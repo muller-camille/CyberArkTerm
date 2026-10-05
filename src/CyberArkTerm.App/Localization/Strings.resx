@@ -1292,7 +1292,7 @@ This may mean the connection is being intercepted. Only accept if the server's a
     <value>Local vault</value>
   </data>
   <data name="LocalStoreCreateIntro" xml:space="preserve">
-    <value>The local vault keeps the KeePass master passwords you choose to remember. It is encrypted with the password below (Argon2id, AES-256) and your Windows account (DPAPI). This password is asked when CyberArkTerm starts; it can't be recovered.</value>
+    <value>The local vault keeps the KeePass master passwords you choose to remember. It is encrypted with the password below (Argon2id, AES-256) and your Windows account (DPAPI). This password is asked when you unlock a KeePass vault whose password is remembered; it can't be recovered.</value>
   </data>
   <data name="LocalStoreUnlockIntro" xml:space="preserve">
     <value>Unlock the local vault to use the remembered KeePass master passwords.</value>

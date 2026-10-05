@@ -224,8 +224,8 @@ servers, over SSH or remote desktop, with the accounts they hold.
 - **Lock**: right-click → "Lock". Vaults also lock on sign-out, on exit and when **Windows is locked**.
 
 **Local vault**: the master passwords you choose to remember are kept in
-`%APPDATA%\CyberArkTerm\coffre-local.dat`, encrypted with a password of your own (asked when CyberArkTerm starts,
-"Later" to skip it) and tied to your Windows account. Manage it in the **Settings**: create, unlock, change the
+`%APPDATA%\CyberArkTerm\coffre-local.dat`, encrypted with a password of your own (asked when you unlock a KeePass
+vault whose password is remembered, "Later" to type the vault password instead) and tied to your Windows account. Manage it in the **Settings**: create, unlock, change the
 password, delete.
 
 ## Shortcuts
@@ -391,7 +391,7 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 | The browser does not follow `cd` | The remote shell is not bash or zsh, the option is off in Settings, or the prompt was not recognized: tick "Follow the terminal folder" again at the shell prompt. |
 | "The key of the PSMP has changed" warning | Only continue if your CyberArk team confirms a server change. |
 | "Wrong master password or key file." | Check the password and the key file; a vault protected by a YubiKey is not supported. |
-| The KeePass vault asks for the password despite "Remember" | Local vault locked ("Later" at start-up) or master password changed elsewhere: type it, it is remembered again. |
+| The KeePass vault asks for the password despite "Remember" | Local vault locked ("Later" when unlocking) or master password changed elsewhere: type it, it is remembered again. |
 | "The local vault file is damaged or was created by another Windows account." | The local vault does not follow a change of computer or account: delete it in the Settings and create it again. |
 | "The entry … was changed or deleted in the vault in the meantime" | Someone changed the same entry elsewhere: the vault is reloaded, make the change again. |
 | A Unix account opens with PSM, not SSH | PSMP address not set in the Settings, or account not recognized as Unix: right-click → "Connect over SSH". |

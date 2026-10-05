@@ -237,8 +237,9 @@ Quando CyberArk non è disponibile, CyberArkTerm apre i tuoi archivi KeePass (`.
   **blocco di Windows**.
 
 **Vault locale**: le password principali che scegli di memorizzare sono conservate in
-`%APPDATA%\CyberArkTerm\coffre-local.dat`, cifrato con una tua password (chiesta all'avvio di CyberArkTerm, «Più
-tardi» per farne a meno) e legato al tuo account Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia
+`%APPDATA%\CyberArkTerm\coffre-local.dat`, cifrato con una tua password (chiesta quando sblocchi un archivio KeePass la
+cui password è memorizzata, «Più tardi» per digitare invece la password dell'archivio) e legato al tuo account
+Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia
 password, elimina.
 
 ## Scorciatoie
@@ -410,7 +411,7 @@ Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posizion
 | Il browser non segue i `cd` | La shell remota non è bash o zsh, l'opzione è disattivata nelle Impostazioni, oppure il prompt non è stato riconosciuto: riseleziona «Segui la cartella del terminale» al prompt della shell. |
 | Avviso «la chiave del PSMP è cambiata» | Prosegui solo se il team CyberArk conferma una modifica del server. |
 | «Password principale o file chiave errati.» | Controlla la password e il file chiave; un archivio protetto da YubiKey non è supportato. |
-| L'archivio KeePass chiede la password nonostante «Memorizza» | Vault locale bloccato («Più tardi» all'avvio) o password principale cambiata altrove: digitala, viene memorizzata di nuovo. |
+| L'archivio KeePass chiede la password nonostante «Memorizza» | Vault locale bloccato («Più tardi» allo sblocco) o password principale cambiata altrove: digitala, viene memorizzata di nuovo. |
 | «Il file del vault locale è danneggiato o è stato creato da un altro account Windows.» | Il vault locale non segue un cambio di computer o di account: eliminalo nelle Impostazioni e ricrealo. |
 | «La voce … è stata modificata o eliminata nell'archivio nel frattempo» | Qualcuno ha cambiato la stessa voce altrove: l'archivio viene ricaricato, rifai la modifica. |
 | Un account Unix si apre con il PSM e non in SSH | Indirizzo del PSMP non impostato nelle Impostazioni, oppure account non riconosciuto come Unix: clic destro → «Connetti in SSH». |

@@ -1292,7 +1292,7 @@ Potrebbe indicare un'intercettazione della connessione. Accetta solo se l'ammini
     <value>Vault locale</value>
   </data>
   <data name="LocalStoreCreateIntro" xml:space="preserve">
-    <value>Il vault locale conserva le password principali KeePass che scegli di memorizzare. È cifrato con la password qui sotto (Argon2id, AES-256) e il tuo account Windows (DPAPI). Questa password viene chiesta all'avvio di CyberArkTerm; non può essere recuperata.</value>
+    <value>Il vault locale conserva le password principali KeePass che scegli di memorizzare. È cifrato con la password qui sotto (Argon2id, AES-256) e il tuo account Windows (DPAPI). Questa password viene chiesta quando sblocchi un archivio KeePass la cui password è memorizzata; non può essere recuperata.</value>
   </data>
   <data name="LocalStoreUnlockIntro" xml:space="preserve">
     <value>Sblocca il vault locale per usare le password principali KeePass memorizzate.</value>

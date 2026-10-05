@@ -243,8 +243,9 @@ aux serveurs, en SSH ou en bureau à distance, avec les comptes qu'ils contienne
   fermeture et au **verrouillage de Windows**.
 
 **Coffre local** : les mots de passe maîtres que vous choisissez de mémoriser sont gardés dans
-`%APPDATA%\CyberArkTerm\coffre-local.dat`, chiffré avec un mot de passe à vous (demandé à l'ouverture de
-CyberArkTerm, « Plus tard » pour s'en passer) et lié à votre compte Windows. Gestion dans les **Paramètres** :
+`%APPDATA%\CyberArkTerm\coffre-local.dat`, chiffré avec un mot de passe à vous (demandé au déverrouillage
+d'un coffre KeePass dont le mot de passe est mémorisé, « Plus tard » pour saisir plutôt le mot de passe du coffre)
+et lié à votre compte Windows. Gestion dans les **Paramètres** :
 créer, déverrouiller, changer le mot de passe, supprimer.
 
 ## Raccourcis
@@ -415,7 +416,7 @@ Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place d
 | Le navigateur ne suit pas les `cd` | Le shell distant n'est pas bash ou zsh, l'option est désactivée dans les Paramètres, ou l'invite n'a pas été reconnue : recochez « Suivre le dossier du terminal » à l'invite du shell. |
 | Alerte « la clé du PSMP a changé » | Ne continuez que si l'équipe CyberArk confirme un changement du serveur. |
 | « Mot de passe maître ou fichier clé incorrect » | Vérifiez le mot de passe et le fichier clé ; un coffre protégé par YubiKey n'est pas pris en charge. |
-| Le coffre KeePass demande le mot de passe malgré « Mémoriser » | Coffre local verrouillé (« Plus tard » au démarrage) ou mot de passe maître changé ailleurs : saisissez-le, il est remémorisé. |
+| Le coffre KeePass demande le mot de passe malgré « Mémoriser » | Coffre local verrouillé (« Plus tard » au déverrouillage) ou mot de passe maître changé ailleurs : saisissez-le, il est remémorisé. |
 | « Le fichier du coffre local est endommagé ou a été créé par un autre compte Windows » | Le coffre local ne suit pas un changement de poste ou de compte : supprimez-le dans les Paramètres et recréez-le. |
 | « L'entrée … a été modifiée ou supprimée dans le coffre entre-temps » | Quelqu'un a changé la même entrée ailleurs : le coffre est rechargé, refaites la modification. |
 | Un compte Unix s'ouvre en PSM et pas en SSH | Adresse du PSMP non renseignée dans les Paramètres, ou compte non reconnu comme Unix : clic droit → « Se connecter en SSH ». |

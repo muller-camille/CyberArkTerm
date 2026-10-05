@@ -1292,7 +1292,7 @@ Cela peut indiquer une interception de la connexion. N'acceptez que si l'adminis
     <value>Coffre local</value>
   </data>
   <data name="LocalStoreCreateIntro" xml:space="preserve">
-    <value>Le coffre local garde les mots de passe maîtres KeePass que vous choisissez de mémoriser. Il est chiffré avec le mot de passe ci-dessous (Argon2id, AES-256) et votre compte Windows (DPAPI). Ce mot de passe est demandé au démarrage de CyberArkTerm ; il ne peut pas être récupéré.</value>
+    <value>Le coffre local garde les mots de passe maîtres KeePass que vous choisissez de mémoriser. Il est chiffré avec le mot de passe ci-dessous (Argon2id, AES-256) et votre compte Windows (DPAPI). Ce mot de passe est demandé quand vous déverrouillez un coffre KeePass dont le mot de passe est mémorisé ; il ne peut pas être récupéré.</value>
   </data>
   <data name="LocalStoreUnlockIntro" xml:space="preserve">
     <value>Déverrouillez le coffre local pour utiliser les mots de passe maîtres KeePass mémorisés.</value>
