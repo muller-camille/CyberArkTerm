@@ -31,12 +31,8 @@ public partial class SettingsDialog : Window
         LanguageBox.SelectedValue = UiLanguage.Normalize(settings.Language);
         PsmpBox.Text = settings.PsmpAddress;
         PortBox.Text = settings.PsmpPort.ToString(CultureInfo.InvariantCulture);
-        PreferSshBox.IsChecked = settings.PreferSshForUnix;
         SshInAppBox.IsChecked = settings.SshInApp;
         FollowBox.IsChecked = settings.FollowTerminalFolder;
-        RdpInAppBox.IsChecked = settings.RdpInApp;
-        RemoteAppInTabBox.IsChecked = settings.RemoteAppInTab;
-        PsmRemoteAppAsDesktopBox.IsChecked = settings.PsmRemoteAppAsDesktop;
         EditorBox.Text = settings.TextEditor;
         (settings.UploadProtocol == TransferProtocol.Sftp ? SftpRadio : ScpRadio).IsChecked = true;
         HostKeysText.Text = settings.KnownHosts.Count == 0
@@ -78,12 +74,8 @@ public partial class SettingsDialog : Window
         _settings.Language = LanguageBox.SelectedValue as string ?? "";
         _settings.PsmpAddress = host;
         _settings.PsmpPort = port;
-        _settings.PreferSshForUnix = PreferSshBox.IsChecked == true;
         _settings.SshInApp = SshInAppBox.IsChecked == true;
         _settings.FollowTerminalFolder = FollowBox.IsChecked == true;
-        _settings.RdpInApp = RdpInAppBox.IsChecked == true;
-        _settings.RemoteAppInTab = RemoteAppInTabBox.IsChecked == true;
-        _settings.PsmRemoteAppAsDesktop = PsmRemoteAppAsDesktopBox.IsChecked == true;
         _settings.KeepPvwaSessionAlive = KeepAliveBox.IsChecked == true;
         _settings.UploadProtocol = SftpRadio.IsChecked == true ? TransferProtocol.Sftp : TransferProtocol.Scp;
         _settings.TextEditor = EditorBox.Text.Trim().Trim('"');

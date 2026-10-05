@@ -2738,15 +2738,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Double-click on a Unix account: connect over SSH through the PSMP.
-        /// </summary>
-        public static string PreferSsh {
-            get {
-                return ResourceManager.GetString("PreferSsh", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Preferences not saved: {0}.
         /// </summary>
         public static string PreferencesNotSaved {
@@ -2810,16 +2801,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0}: the PSM refuses remote applications as a desktop; they now open as remote applications (opti[rest of string was truncated].
-        /// </summary>
-        public static string PsmDesktopRefused {
-            get {
-                return ResourceManager.GetString("PsmDesktopRefused", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to The PVWA generates an RDP connection, opened in a CyberArkTerm tab or in Remote Desktop Connectio[rest of string was truncated].
+        ///   Looks up a localized string similar to The PVWA generates an RDP connection, opened in Remote Desktop Connection (mstsc)..
         /// </summary>
         public static string PsmHint {
             get {
@@ -2833,15 +2815,6 @@ namespace CyberArkTerm.App.Localization {
         public static string PsmOpening {
             get {
                 return ResourceManager.GetString("PsmOpening", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Open PSM remote applications as a desktop instead, if the PSM accepts it (unticked automatically [rest of string was truncated].
-        /// </summary>
-        public static string PsmRemoteAppAsDesktop {
-            get {
-                return ResourceManager.GetString("PsmRemoteAppAsDesktop", resourceCulture);
             }
         }
 
@@ -2936,33 +2909,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0}: the Remote Desktop control failed ({1}), session opened in Remote Desktop Connection (mstsc)..
-        /// </summary>
-        public static string RdpControlFallback {
-            get {
-                return ResourceManager.GetString("RdpControlFallback", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to {0}: the Remote Desktop control isn't available on this computer, session opened in Remote Deskto[rest of string was truncated].
-        /// </summary>
-        public static string RdpControlMissing {
-            get {
-                return ResourceManager.GetString("RdpControlMissing", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to This PSM component is a remote application, opened here as a desktop. If the PSM does not accept [rest of string was truncated].
-        /// </summary>
-        public static string RdpDesktopFromRemoteAppHint {
-            get {
-                return ResourceManager.GetString("RdpDesktopFromRemoteAppHint", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to _Disconnect.
         /// </summary>
         public static string RdpDisconnect {
@@ -3017,15 +2963,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Open remote desktop sessions in a CyberArkTerm tab, otherwise in Remote Desktop Connection (mstsc).
-        /// </summary>
-        public static string RdpInApp {
-            get {
-                return ResourceManager.GetString("RdpInApp", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to {0}: Remote Desktop is not responding. The rest of CyberArkTerm stays usable; you can close this [rest of string was truncated].
         /// </summary>
         public static string RdpNotResponding {
@@ -3035,101 +2972,11 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Open as a remote _application.
-        /// </summary>
-        public static string RdpOpenRemoteAppWindows {
-            get {
-                return ResourceManager.GetString("RdpOpenRemoteAppWindows", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Remote desktop session opened: {0}.
         /// </summary>
         public static string RdpOpened {
             get {
                 return ResourceManager.GetString("RdpOpened", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to error {0}..
-        /// </summary>
-        public static string RdpRemoteAppErrorCode {
-            get {
-                return ResourceManager.GetString("RdpRemoteAppErrorCode", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to The remote application “{0}” could not be started: {1}.
-        /// </summary>
-        public static string RdpRemoteAppFailed {
-            get {
-                return ResourceManager.GetString("RdpRemoteAppFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to The PSM closed the session opened as a desktop: new request to the PVWA to open it as a remote ap[rest of string was truncated].
-        /// </summary>
-        public static string RdpRemoteAppFallback {
-            get {
-                return ResourceManager.GetString("RdpRemoteAppFallback", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Its windows open on their own, like the windows of this computer. Closing the application ends th[rest of string was truncated].
-        /// </summary>
-        public static string RdpRemoteAppHint {
-            get {
-                return ResourceManager.GetString("RdpRemoteAppHint", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Its window shows here as soon as it opens; its menus and dialog boxes open above. Closing the app[rest of string was truncated].
-        /// </summary>
-        public static string RdpRemoteAppInTabHint {
-            get {
-                return ResourceManager.GetString("RdpRemoteAppInTabHint", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to it is not allowed on the server..
-        /// </summary>
-        public static string RdpRemoteAppNotAllowed {
-            get {
-                return ResourceManager.GetString("RdpRemoteAppNotAllowed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to it was not found on the server..
-        /// </summary>
-        public static string RdpRemoteAppNotFound {
-            get {
-                return ResourceManager.GetString("RdpRemoteAppNotFound", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Remote application “{0}” is open.
-        /// </summary>
-        public static string RdpRemoteAppOpened {
-            get {
-                return ResourceManager.GetString("RdpRemoteAppOpened", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Remote desktop (RDP).
-        /// </summary>
-        public static string RdpSection {
-            get {
-                return ResourceManager.GetString("RdpSection", resourceCulture);
             }
         }
 
@@ -3211,15 +3058,6 @@ namespace CyberArkTerm.App.Localization {
         public static string RememberComponent {
             get {
                 return ResourceManager.GetString("RememberComponent", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Show the window of remote applications (RemoteApp) in the tab; otherwise they open on their own, [rest of string was truncated].
-        /// </summary>
-        public static string RemoteAppInTab {
-            get {
-                return ResourceManager.GetString("RemoteAppInTab", resourceCulture);
             }
         }
 
@@ -3413,7 +3251,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Lets you open Unix accounts directly over SSH. Leave empty to disable..
+        ///   Looks up a localized string similar to Unix accounts then open over SSH by default (PSM stays available in “Advanced connection”). Leave[rest of string was truncated].
         /// </summary>
         public static string SettingsSshHelp {
             get {

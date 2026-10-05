@@ -31,13 +31,10 @@ internal sealed class RdpConnection
     private const int DispIdRemoteDesktopSizeChange = 12;
     private const int DispIdAuthenticationWarningDisplayed = 18;
     private const int DispIdAuthenticationWarningDismissed = 19;
-    private const int DispIdRemoteProgramResult = 20;
-    private const int DispIdRemoteProgramDisplayed = 21;
     private const int DispIdLogonError = 22;
     private const int DispIdServiceMessageReceived = 28;
     private const int DispIdAutoReconnected = 33;
     private const int DispIdAutoReconnecting2 = 34;
-    private const int DispIdRemoteWindowDisplayed = 29;
 
     private static readonly IntPtr MessageOnlyParent = new(-3);
 
@@ -45,7 +42,6 @@ internal sealed class RdpConnection
     private readonly Dispatcher _ui;
     private readonly RdpThread _thread;
     private readonly string _label;
-    private readonly bool _remoteAppInTab;
     private readonly TaskCompletionSource _detachedTask = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private RdpConnectionRequest _request;
     private readonly List<(int DispId, Delegate Handler)> _handlers = [];
@@ -53,25 +49,21 @@ internal sealed class RdpConnection
     // Thread de la connexion uniquement.
     private Container? _container;
     private RdpClientHost? _client;
-    private RemoteAppDock? _dock;
     private object? _ocx;
     private System.Windows.Forms.Timer? _resizeTimer;
     private (int Width, int Height) _pixels;
     private (int Width, int Height) _sessionSize;
     private bool _loggedIn;
     private bool _dynamicResize = true;
-    private bool _programStarted;
     private bool _released;
 
     /// <summary>Démarre le thread de la connexion (thread de l'interface).</summary>
-    /// <param name="remoteAppInTab">Application distante : sa fenêtre principale s'affiche dans l'onglet.</param>
-    public RdpConnection(RdpSession session, RdpConnectionRequest request, string label, bool remoteAppInTab = false)
+    public RdpConnection(RdpSession session, RdpConnectionRequest request, string label)
     {
         _session = session;
         _ui = Dispatcher.CurrentDispatcher;
         _request = request;
         _label = label;
-        _remoteAppInTab = remoteAppInTab && request.Settings.IsRemoteApp;
         _thread = RdpThread.Start($"Bureau à distance {label}");
         DebugLog.Write("rdp", $"{label} : thread de la connexion {_thread.ManagedThreadId}");
     }
@@ -97,7 +89,6 @@ internal sealed class RdpConnection
 
         _pixels = pixels;
         container.Size = new Size(Math.Max(pixels.Width, 1), Math.Max(pixels.Height, 1));
-        _dock?.Fit();
         _resizeTimer?.Stop();
         _resizeTimer?.Start();
     });
@@ -112,7 +103,7 @@ internal sealed class RdpConnection
 
     public void EnterFullScreen() => _thread.Post(() =>
     {
-        if (!_released && _loggedIn && _ocx is { } ocx && !Settings.IsRemoteApp)
+        if (!_released && _loggedIn && _ocx is { } ocx)
         {
             TryCall(() => Dispatch.Set(ocx, "FullScreen", true));
         }
@@ -179,22 +170,9 @@ internal sealed class RdpConnection
         client.CreateControl();
         var ocx = client.Ocx ?? throw new COMException("MsRdpClient", unchecked((int)0x80004005));
         _ocx = ocx;
-        if (_remoteAppInTab)
-        {
-            _dock = new RemoteAppDock(container, shown => ToSession(s => s.OnRemoteAppShown(this, shown)), _label);
-            // Clic dans la fenêtre de l'application : elle prend le clavier (elle est d'un autre thread que l'onglet).
-            container.ChildPressed += () => container.BeginInvoke(() => _dock?.Focus());
-        }
-
         Subscribe(ocx, DispIdLoginComplete, new Action(OnLoginComplete));
         Subscribe(ocx, DispIdDisconnected, new Action<int>(OnDisconnected));
         Subscribe(ocx, DispIdFatalError, new Action<int>(OnFatalError));
-        Subscribe(ocx, DispIdRemoteProgramResult, new Action<string, int, bool>(OnRemoteProgramResult));
-        Subscribe(ocx, DispIdRemoteProgramDisplayed, new Action<bool, uint>(OnRemoteProgramDisplayed));
-        if (Settings.IsRemoteApp)
-        {
-            Subscribe(ocx, DispIdRemoteWindowDisplayed, new Action<object?, object?, object?>(OnRemoteWindowDisplayed));
-        }
 
         Subscribe(ocx, DispIdEnterFullScreen, new Action(() => ToSession(s => s.OnFullScreenChanged(this, true))));
         Subscribe(ocx, DispIdLeaveFullScreen, new Action(() =>
@@ -222,9 +200,8 @@ internal sealed class RdpConnection
     private void Configure(object ocx)
     {
         var s = Settings;
-        // Application distante : bureau de la taille de tous les écrans, pour que ses fenêtres puissent aller partout.
-        _sessionSize = DesktopSize(s.IsRemoteApp ? VirtualScreenSize() : _pixels);
-        _dynamicResize = !s.SmartSizing && !s.IsRemoteApp;
+        _sessionSize = DesktopSize(_pixels);
+        _dynamicResize = !s.SmartSizing;
         if (DebugLog.Enabled)
         {
             DebugLog.Write("rdp", Describe());
@@ -282,20 +259,8 @@ internal sealed class RdpConnection
             Dispatch.Set(advanced, "ClearTextPassword", password);
         }
 
-        if (s.IsRemoteApp)
-        {
-            // Mode application distante ; l'application elle-même est lancée une fois la session ouverte
-            // (StartRemoteProgram). « alternate shell » ne sert pas dans ce mode.
-            var program = Dispatch.First(ocx, "RemoteProgram") ?? throw new COMException("RemoteProgram", unchecked((int)0x80004002));
-            Dispatch.Set(program, "RemoteProgramMode", true);
-            if (s.DisableRemoteAppCapsCheck && ocx is IMsRdpClientNonScriptable5 nonScriptable)
-            {
-                Optional(() => nonScriptable.SetDisableRemoteAppCapsCheck(true));
-            }
-        }
-
-        var startProgram = s.IsRemoteApp ? "" : s.StartProgram;
-        var workDir = s.IsRemoteApp ? "" : s.WorkDir;
+        var startProgram = s.StartProgram;
+        var workDir = s.WorkDir;
         if (startProgram.Length > 0 || workDir.Length > 0 || s.KeyboardHookMode != 2)
         {
             var secured = Dispatch.First(ocx, "SecuredSettings3", "SecuredSettings2")
@@ -340,12 +305,6 @@ internal sealed class RdpConnection
     {
         DebugLog.Write("rdp", $"{_label} : ouverture de session Windows terminée (OnLoginComplete)");
         _loggedIn = true;
-        if (Settings.IsRemoteApp)
-        {
-            // Hors de l'événement du contrôle.
-            _thread.Post(StartRemoteProgram);
-        }
-
         ToSession(s => s.OnLoggedIn(this));
         // La taille de l'onglet a pu changer pendant l'ouverture de session.
         _resizeTimer?.Start();
@@ -373,101 +332,6 @@ internal sealed class RdpConnection
         _thread.Post(() => ReleaseCore(disconnect: false));
     }
 
-    /// <summary>
-    /// Lance l'application distante dans la session ouverte, une seule fois par connexion (pas de second lancement
-    /// après une reconnexion automatique : pour le PSM, la demande de session ne sert qu'une fois). Le programme
-    /// indiqué au contrôle avant la connexion n'est pas lancé par lui (vérifié sur un vrai serveur) : il faut le
-    /// demander, comme ici.
-    /// </summary>
-    private void StartRemoteProgram()
-    {
-        if (_programStarted || _released || _ocx is not { } ocx)
-        {
-            return;
-        }
-
-        _programStarted = true;
-        var s = Settings;
-        DebugLog.Write("rdp", $"{_label} : lancement de l'application distante (ServerStartProgram) « {s.RemoteApplicationProgram} », fichier « {s.RemoteApplicationFile} », arguments « {DebugLog.Hidden(s.RemoteApplicationArgs)} »");
-        try
-        {
-            var program = Dispatch.Get(ocx, "RemoteProgram") ?? throw new COMException("RemoteProgram", unchecked((int)0x80004002));
-            Dispatch.Call(program, "ServerStartProgram", s.RemoteApplicationProgram, s.RemoteApplicationFile, "", true,
-                s.RemoteApplicationArgs, s.RemoteApplicationExpandArgs);
-        }
-        catch (Exception e) when (Dispatch.IsDispatchError(e))
-        {
-            DebugLog.Write("rdp", $"{_label} : ServerStartProgram refusé", e);
-            var why = ErrorText.Describe(e);
-            ToSession(session => session.OnRemoteProgramFailed(this, s.RemoteApplicationTitle, why));
-            TryCall(() => Dispatch.Call(ocx, "Disconnect"));
-        }
-    }
-
-    /// <summary>Résultat du lancement de l'application distante ; en cas d'échec, la session est fermée avec l'explication.</summary>
-    private void OnRemoteProgramResult(string program, int result, bool isExecutable)
-    {
-        DebugLog.Write("rdp", $"{_label} : résultat de l'application distante « {program} » : {result} (exécutable {isExecutable})");
-        ToSession(s => s.AddRemoteAppEvent($"result {program} {result} {isExecutable}"));
-        if (result == 0 || _released)
-        {
-            return;
-        }
-
-        var why = result switch
-        {
-            3 => Strings.RdpRemoteAppNotAllowed,
-            4 or 5 => Strings.RdpRemoteAppNotFound,
-            _ => Text.Format(Strings.RdpRemoteAppErrorCode, result.ToString(CultureInfo.InvariantCulture)),
-        };
-        var name = Settings.RemoteApplicationTitle is { Length: > 0 } title ? title : program;
-        ToSession(s => s.OnRemoteProgramFailed(this, name, why));
-        // Sans application, la session n'afficherait rien : on la ferme (hors de l'événement du contrôle).
-        _thread.Post(() =>
-        {
-            if (!_released && _ocx is { } ocx)
-            {
-                TryCall(() => Dispatch.Call(ocx, "Disconnect"));
-            }
-        });
-    }
-
-    private void OnRemoteProgramDisplayed(bool displayed, uint information)
-    {
-        DebugLog.Write("rdp", $"{_label} : application distante affichée {displayed} ({information})");
-        ToSession(s => s.AddRemoteAppEvent($"displayed {displayed} {information}"));
-        // Normalement signalé par l'ouverture de session ; certains serveurs n'envoient que l'affichage de l'application.
-        if (displayed && !_released)
-        {
-            _loggedIn = true;
-            ToSession(s => s.OnRemoteAppDisplayed(this));
-        }
-    }
-
-    /// <summary>
-    /// Fenêtre d'application distante affichée ou masquée (OnRemoteWindowDisplayed) : le deuxième argument est son
-    /// handle (constaté : entier 32 bits non signé ; nul quand une fenêtre est masquée).
-    /// </summary>
-    private void OnRemoteWindowDisplayed(object? displayed, object? window, object? attribute)
-    {
-        var handle = window switch
-        {
-            uint u => new IntPtr(unchecked((int)u)),
-            int i => new IntPtr(i),
-            long l => new IntPtr(l),
-            ulong ul => new IntPtr(unchecked((long)ul)),
-            IntPtr p => p,
-            _ => IntPtr.Zero,
-        };
-        if (handle == IntPtr.Zero || _released)
-        {
-            return;
-        }
-
-        DebugLog.Write("rdp", $"{_label} : fenêtre d'application distante 0x{handle.ToInt64():X} ({displayed}, {attribute})");
-        _dock?.Add(handle);
-    }
-
     private void OnFatalError(int code)
     {
         DebugLog.Write("rdp", $"{_label} : erreur fatale du contrôle (OnFatalError) {code}");
@@ -477,12 +341,7 @@ internal sealed class RdpConnection
 
     private void FocusControl()
     {
-        if (_released || !_loggedIn || _dock?.Focus() == true)
-        {
-            return;
-        }
-
-        if (!Settings.IsRemoteApp && _client is { IsHandleCreated: true } client)
+        if (!_released && _loggedIn && _client is { IsHandleCreated: true } client)
         {
             client.Focus();
         }
@@ -507,9 +366,6 @@ internal sealed class RdpConnection
         }
 
         _detachedTask.TrySetResult();
-        // Fenêtre de l'application (d'un autre thread) retirée du conteneur avant sa destruction.
-        _dock?.Dispose();
-        _dock = null;
         DebugLog.Write("rdp", $"{_label} : libération du contrôle{(disconnect ? " (avec déconnexion)" : "")}");
         if (_ocx is { } ocx)
         {
@@ -567,13 +423,6 @@ internal sealed class RdpConnection
         }
     }
 
-    /// <summary>Taille de l'ensemble des écrans de ce poste, en pixels.</summary>
-    private static (int Width, int Height) VirtualScreenSize()
-    {
-        var screen = SystemInformation.VirtualScreen;
-        return (screen.Width, screen.Height);
-    }
-
     /// <summary>DPI de l'écran où se trouve la fenêtre du contrôle (96 par défaut).</summary>
     private int Dpi()
     {
@@ -617,26 +466,17 @@ internal sealed class RdpConnection
     private string Describe()
     {
         var s = Settings;
-        var mode = s.IsRemoteApp ? "application distante" : s.DesktopFromRemoteApp ? "bureau (application distante PSM ouverte comme un bureau)" : "bureau";
         return string.Create(CultureInfo.InvariantCulture, $"""
             {_label} : réglages de la connexion
-            serveur {s.Server}:{s.Port}, mode {mode}
+            serveur {s.Server}:{s.Port}
             utilisateur « {s.UserName} », domaine « {s.Domain} », mot de passe fourni {!string.IsNullOrEmpty(_request.Password)}
-            programme de démarrage « {StartProgramForLog(s)} », dossier « {(s.IsRemoteApp ? "" : s.WorkDir)} »
-            application distante « {s.RemoteApplicationProgram} », nom « {s.RemoteApplicationName} », arguments « {DebugLog.Hidden(s.RemoteApplicationArgs)} », vérification des capacités désactivée {s.DisableRemoteAppCapsCheck}
+            programme de démarrage « {s.StartProgram} », dossier « {s.WorkDir} »
             NLA (CredSSP) {s.EnableCredSsp}, niveau d'authentification {s.AuthenticationLevel}, couche de sécurité négociée {s.NegotiateSecurityLayer}, session d'administration {s.ConnectToAdministerServer}
             passerelle « {s.GatewayHostname} » (usage {s.GatewayUsageMethod}, identifiants {s.GatewayCredsSource}), répartition de charge fournie {s.LoadBalanceInfo.Length > 0}
             taille {_sessionSize.Width}x{_sessionSize.Height} (emplacement {_pixels.Width}x{_pixels.Height}, {Dpi()} DPI), couleurs {s.ColorDepth} bits, redimensionnement dynamique {_dynamicResize}, mise à l'échelle {s.SmartSizing}
             redirections : presse-papiers {s.RedirectClipboard}, disques {s.RedirectDrives}, imprimantes {s.RedirectPrinters}, ports {s.RedirectPorts}, cartes à puce {s.RedirectSmartCards}, son {s.AudioMode}
             """);
     }
-
-    /// <summary>Programme de démarrage pour le journal : sans les arguments d'une application distante ouverte en bureau.</summary>
-    private static string StartProgramForLog(RdpConnectionSettings s) =>
-        s.IsRemoteApp ? ""
-        : s.RemoteAppSettings is { RemoteApplicationArgs.Length: > 0 } remoteApp
-            ? $"{remoteApp.RemoteApplicationProgram.Trim()} {DebugLog.Hidden(remoteApp.RemoteApplicationArgs.Trim())}"
-            : s.StartProgram;
 
     private static void Optional(Action set, [CallerArgumentExpression(nameof(set))] string what = "") => TryCall(set, what);
 
@@ -671,21 +511,6 @@ internal sealed class RdpConnection
         private const int WsChild = 0x40000000;
         private const int WsClipChildren = 0x02000000;
         private const int WsExNoParentNotify = 0x00000004;
-        private const int WmParentNotify = 0x0210;
-
-        /// <summary>Bouton de la souris enfoncé dans une fenêtre contenue (WM_PARENTNOTIFY).</summary>
-        public event Action? ChildPressed;
-
-        protected override void WndProc(ref Message m)
-        {
-            // WM_LBUTTONDOWN, WM_RBUTTONDOWN, WM_MBUTTONDOWN, WM_XBUTTONDOWN, WM_POINTERDOWN.
-            if (m.Msg == WmParentNotify && (m.WParam.ToInt64() & 0xFFFF) is 0x0201 or 0x0204 or 0x0207 or 0x020B or 0x0246)
-            {
-                ChildPressed?.Invoke();
-            }
-
-            base.WndProc(ref m);
-        }
 
         protected override CreateParams CreateParams
         {

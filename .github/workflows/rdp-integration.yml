@@ -1,8 +1,8 @@
 name: rdp-integration
 
-# Sessions Bureau à distance réelles sur le poste de CI (connexion à 127.0.0.2) : bureau dans un onglet et
-# application distante (RemoteApp). Le poste est éphémère : on y active le Bureau à distance, les applications
-# distantes non publiées, et un compte local de test au mot de passe aléatoire, masqué dans les journaux.
+# Sessions Bureau à distance réelles sur le poste de CI (connexion à 127.0.0.2) : bureau dans un onglet. Le poste
+# est éphémère : on y active le Bureau à distance et un compte local de test au mot de passe aléatoire, masqué dans
+# les journaux.
 on:
   workflow_dispatch:
   pull_request:
@@ -38,13 +38,6 @@ jobs:
 
           $ts = 'HKLM:\System\CurrentControlSet\Control\Terminal Server'
           Set-ItemProperty $ts -Name fDenyTSConnections -Value 0 -Type DWord
-          # Applications distantes sans publication (liste d'autorisation désactivée), comme sur un hôte RemoteApp.
-          $allow = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Terminal Server\TSAppAllowList'
-          New-Item $allow -Force | Out-Null
-          Set-ItemProperty $allow -Name fDisabledAllowList -Value 1 -Type DWord
-          $policy = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
-          New-Item $policy -Force | Out-Null
-          Set-ItemProperty $policy -Name fAllowUnlistedRemotePrograms -Value 1 -Type DWord
           # Délégation des identifiants (CredSSP) vers ce poste, authentifié par NTLM seulement.
           $deleg = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation'
           New-Item "$deleg\AllowFreshCredentialsWhenNTLMOnly" -Force | Out-Null

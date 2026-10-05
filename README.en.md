@@ -36,7 +36,7 @@ through **PSM for SSH (PSMP)** with a built-in **file browser** to upload files 
 | **CyberArk sign-in** | CyberArk, LDAP, RADIUS (challenge / OTP included) or Windows (current session) authentication. |
 | **Available** | Every account visible in the vault, grouped by safe, platform or target type, with instant search. |
 | **My servers** | Your working servers, organized in folders and subfolders, each with its own settings. |
-| **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in an application tab: component, target machine, reason, ticket. |
+| **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in Windows Remote Desktop Connection: component, target machine, reason, ticket. |
 | **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colors, vim, less, top…), MFA authentication. |
 | **Files tab** | SFTP browser of the server: `ls`, navigation, `rm`, drag-and-drop upload over SCP, editing in your text editor, permissions (`chmod`), follows the terminal folder. |
 | **Emergency access (KeePass)** | Without CyberArk: KeePass vaults (.kdbx) in "My servers", direct SSH and remote desktop connections, creating and editing entries, local log. |
@@ -66,8 +66,8 @@ The executable is not signed: on first launch, Windows SmartScreen may show a wa
 **Workstation**
 
 - Windows 10 or 11 (x64).
-- The Windows Remote Desktop client (installed by default) for PSM sessions: its built-in control for tabs,
-  or `mstsc`.
+- The Windows Remote Desktop client (installed by default): Remote Desktop Connection (`mstsc`) for PSM sessions,
+  its built-in control for direct remote desktop from KeePass vaults.
 - Optional: Windows Terminal and the Windows "OpenSSH Client", only if you choose to open SSH outside
   CyberArkTerm.
 
@@ -105,34 +105,11 @@ right away in the chosen language, keeping the address and user name you typed.
 
 ### 3. Open a PSM session (remote desktop)
 
-Double-click the account (or press Enter, or the "Connect" button). CyberArkTerm requests the connection from
-the PVWA and opens Remote Desktop on the PSM, exactly like the PVWA "Connect" button.
-
-The session opens **in a CyberArkTerm tab**, with the Windows Remote Desktop control (the same engine as
-`mstsc`):
-
-- the remote desktop resolution follows the tab size;
-- "Full screen" shows the session on the whole screen (use the connection bar at the top to come back, or
-  `Ctrl+Alt+Break`);
-- "Disconnect" ends the session and keeps the tab; "Reconnect" asks the PVWA for a new connection (the token
-  of a PSM session works only once);
-- closing the tab (cross or middle click) disconnects the session, after confirmation.
-
-A PSM component that opens a **remote application** (RemoteApp, for example PSM-SSH) also shows **in the tab**: its
-main window takes the whole tab and follows its size; its menus and dialog boxes open above, where the server puts
-them. Clicking in the application gives it the keyboard. Closing the application ends the session; "Disconnect"
-closes it from here, "Reconnect" starts it again. If "Show the window of remote applications in the tab" is
-unticked in the Settings, its windows open on their own, on this computer's desktop as with `mstsc`, and the tab
-shows its state.
-
-With "Open PSM remote applications as a desktop instead" (unticked by default), CyberArkTerm first tries to open it
-as a desktop that starts the program published by the PSM (`||PSMInitSession`): the PSM server must accept this
-mode. If it closes the session as soon as it opens, the tab opens the application again as a remote application
-(new request to the PVWA) and the option is unticked; if the session ends a little later, the tab offers "Open as a
-remote application".
-
-The session opens in **Remote Desktop Connection** (`mstsc`) if the option is unticked in the Settings or if the
-Remote Desktop control can't be used on this computer; the status bar then says why.
+Double-click the account (or press Enter, or the "Connect" button); a Unix account opens over SSH through the PSMP
+when its address is set (see 4.), and "Advanced connection…" then lets you choose the PSM. CyberArkTerm requests the
+connection from the PVWA and opens the session in Windows **Remote Desktop Connection** (`mstsc`), exactly like the
+PVWA "Connect" button: the PVWA's RDP file is handed over as is. A component that opens a remote application
+(RemoteApp) opens its windows on this computer's desktop.
 
 - **PSM component**: deduced from the platform (`PSM-RDP` for Windows, `PSM-SSH` for Unix and network,
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Tick "Remember this component" to keep it for the whole
@@ -145,8 +122,8 @@ Remote Desktop control can't be used on this computer; the status bar then says 
 
 ### 4. Open an SSH session through the PSMP
 
-Set the PSMP address once in **Settings**. Then right-click → "Connect over SSH" (or the "SSH" button). With
-the option "Double-click on a Unix account: connect over SSH through the PSMP", a double-click is enough.
+Set the PSMP address once in **Settings**: Unix accounts then open over SSH by default (double-click or Enter).
+For another account, right-click → "Connect over SSH" (or the "SSH" button).
 
 The session opens **in a CyberArkTerm tab**, with the standard PSMP login
 `<you>@<target account>[#domain]@<target server>`. User names containing spaces (`John Smith`,
@@ -228,7 +205,8 @@ servers, over SSH or remote desktop, with the accounts they hold.
 - **Connect**: double-click an entry. The protocol comes from its address (`ssh://server:22`, `rdp://server`,
   `server:3389`), a "Protocol" / "Port" field or an `ssh` / `rdp` tag; otherwise CyberArkTerm asks SSH or
   remote desktop. The entry's password is used directly (terminal + Files tabs over SSH, remote desktop tab over
-  RDP); it is never shown or written to disk.
+  RDP); it is never shown or written to disk. The remote desktop tab follows its size (remote desktop
+  resolution) and offers "Full screen" (`Ctrl+Alt+Break` to come back), "Disconnect" and "Reconnect".
 - **Edit the vault**: right-click → "New entry…", "Edit…" (`F2`), "Delete" (`Del`, into the vault's recycle
   bin). The rest of the vault (attachments, fields, settings) is kept; the previous version of an entry goes to
   its history, like in KeePass.
@@ -264,13 +242,9 @@ password, delete.
 | Setting | Purpose | Default |
 | --- | --- | --- |
 | Interface language | Français, English, Italiano or system language; applied after signing out or at the next start | Windows language (English if it is not translated) |
-| PSMP address and port | PSM for SSH server; empty = SSH disabled | empty, 22 |
-| Double-click on Unix = SSH | Opens Unix accounts over SSH rather than PSM | no |
+| PSMP address and port | PSM for SSH server; when set, Unix accounts open over SSH by default; empty = SSH disabled | empty, 22 |
 | Keep the PVWA session open | Light request every 4 minutes; paused while Windows is locked | yes |
 | Local vault | Remembered KeePass master passwords: create, unlock, change password, delete | — |
-| Remote desktop in CyberArkTerm | PSM sessions in a tab; otherwise Remote Desktop Connection (`mstsc`) | yes |
-| Remote applications in the tab | Main window of remote applications (RemoteApp) in the tab, menus and dialog boxes above; otherwise windows on their own, on the desktop | yes |
-| PSM remote applications as a desktop | PSM RemoteApp components opened as a desktop instead (the PSM must accept it; unticked automatically if it refuses) | no |
 | Debug log | Settings button menu: how connections unfold, in a file, without secrets (see [Security](#security)); "Show the debug log file" opens it in Explorer | no |
 | SSH in CyberArkTerm | Built-in terminal and Files tab; otherwise Windows Terminal | yes |
 | Follow the terminal folder | Allows setting up folder tracking in the shell | yes |
@@ -289,11 +263,8 @@ vaults and of their key files. This file contains **no password, token or privat
 - **No secret on disk**: CyberArk password, session token, MFA key and PSMP password stay in memory for the
   session. The PVWA session is closed (`Logoff`) on exit.
 - PVWA session opened with `concurrentSession`: your PVWA web session, if any, is not closed.
-- **Remote desktop sessions in a tab**: the PVWA response (one-time PSM token) stays in memory, nothing is
-  written to disk. Redirections (drives, printers, ports, smart cards) are only turned on if the PVWA asks for
-  them; the clipboard follows its request (on if it says nothing).
-- **RDP files for `mstsc`** (one-time PSM token) written to `%TEMP%\CyberArkTerm` and deleted after 60 s or on
-  exit.
+- **PSM sessions**: the PVWA's RDP file (one-time PSM token) is written to `%TEMP%\CyberArkTerm` for `mstsc`,
+  which checks its signature, then deleted after 60 s or on exit.
 - **PSMP host keys pinned** on first use, with a warning if they change (the same for servers reached in
   emergency access).
 - **PVWA session keep-alive**: it avoids the idle timeout; nothing is sent while Windows is locked, and the option
@@ -348,46 +319,18 @@ come from KeePassXC and pykeepass, and files written by CyberArkTerm were checke
 
 ### Remote desktop sessions
 
-Remote desktop tabs host the Windows ActiveX control (`mstscax.dll`, the most recent `MsRdpClient` class
-available). CyberArkTerm reads the RDP file returned by `PSMConnect` and applies its settings: `full address`,
-`username`, `alternate shell` (start of the PSM session), server authentication level, NLA (CredSSP), gateway,
-redirections, sound, visual effects. Session ends and connection errors are explained in the tab with the
-Windows message.
+PSM sessions open with the RDP file returned by `PSMConnect`, handed as is to Remote Desktop Connection (`mstsc`):
+it checks its signature and handles a desktop as well as a remote application (RemoteApp). The debug log records
+its structure (token, signature and arguments masked). Versions 0.4 to 0.6 opened these sessions in a tab: a PSM
+that only accepts remote applications did not work well there (place and size of the windows on the server,
+mouse), hence the return to `mstsc`.
 
-With "Open PSM remote applications as a desktop instead" (unticked by default), a PSM component that opens a
-remote application is opened as a desktop: RemoteApp mode off, and the session starts `remoteapplicationprogram` (for PSM,
-`||PSMInitSession`, followed by `remoteapplicationcmdline` if any), with the same user (`PSM@…`). A server in
-RemoteApp mode usually only accepts its published programs when a session starts: a PSM closed the session that
-started `alternate shell` (`PSM@…`) directly (version 0.4.1), then the one that started `||PSMInitSession`, 3.4 s
-after logon (version 0.4.2, reason 2, extended reason 12). The file's signature (`signature`) is checked only by
-`mstsc`, not by the control nor by the server. If the server (not this computer) closes the session less than 15 s
-after logon, the tab requests the PVWA again, opens the file as it is and unticks the option. If the session ends
-later within its first minute, the tab offers "Open as a remote application", which does the same.
-
-Otherwise (option unticked, file without `alternate shell`, or remote application requested), for a remote application
-(`remoteapplicationmode:i:1`), the control switches to RemoteApp mode
-(`disableremoteappcapscheck` applied), then starts the application once the session is open, once per
-connection: `remoteapplicationprogram` (for PSM, `||PSMInitSession`) with the `remoteapplicationcmdline`
-arguments; `remoteapplicationname` is used for display and `alternate shell` is not used. If the server refuses
-the application, the session ends with the reason. The remote desktop takes the size of all screens so the
-windows can go anywhere. An integration test (`rdp-integration` workflow) opens real sessions on the CI machine:
-a desktop in a tab, Notepad as a remote application, a remote application file opened as a desktop (the CI
-machine, without the Session Host role, does not run the start program: only its transfer is checked) then as a
-remote application, a refused desktop (session closed on the server side as soon as it opens: reopened as a remote
-application), Notepad shown in the tab, and an unknown application (error message). Session end messages give the
-Windows codes (reason, extended reason).
-
-**Remote application in the tab.** The control creates the application's windows in this process, on a thread of
-its own, as top-level windows (class `RAIL_WINDOW`) that it places where the server puts them, and reports each one
-(`OnRemoteWindowDisplayed` event): each tab thus knows which windows are its own. The main window (the first that is
-neither a tool window, like menus and dialog boxes, nor a pop-up window without a Minimize or Maximize button) is
-attached to the control's container (connection thread), takes the whole tab and follows its size; if the server
-moves or minimizes it, it is put back. The control keeps sending positions to the server: clicks land in the right
-place and menus open under the pointer. A mouse button pressed in the application gives it the keyboard
-(`WM_PARENTNOTIFY`), as selecting the tab does. When the connection ends, the window leaves the container before it
-is destroyed; the control destroys it itself. Checked by the integration test: rendering, keyboard (text typed then
-copied, read from the redirected clipboard), size, context menu opened under the pointer, window taken out of the
-tab on disconnection.
+Remote desktop tabs (direct remote desktop from KeePass vaults) host the Windows ActiveX control (`mstscax.dll`,
+the most recent `MsRdpClient` class available), set up as a direct connection: network level authentication
+(NLA), warning if the server is not recognized, redirections off except the clipboard. The remote desktop
+resolution follows the tab size. Session ends and connection errors are explained in the tab with the Windows
+message and codes (reason, extended reason). An integration test (`rdp-integration` workflow) opens a real
+session on the CI machine.
 
 **One thread per remote desktop connection.** The control, its window and its events live on a separate thread
 (STA, with its own message loop); the interface never waits for it. The tab holds a window of the interface thread,
@@ -438,11 +381,9 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 | The KeePass vault asks for the password despite "Remember" | Local vault locked ("Later" at start-up) or master password changed elsewhere: type it, it is remembered again. |
 | "The local vault file is damaged or was created by another Windows account." | The local vault does not follow a change of computer or account: delete it in the Settings and create it again. |
 | "The entry … was changed or deleted in the vault in the meantime" | Someone changed the same entry elsewhere: the vault is reloaded, make the change again. |
-| The PSM session opens in `mstsc`, not in a tab | Remote Desktop control unavailable or failing, or option unticked: the status bar gives the reason. |
-| PSM session of a remote application ends at once ("An internal error has occurred"…) | The PSM refuses the remote application opened as a desktop: CyberArkTerm opens it again as a remote application and unticks "Open PSM remote applications as a desktop instead". If the session ended later, "Open as a remote application" in the tab. |
+| A Unix account opens with PSM, not SSH | PSMP address not set in the Settings, or account not recognized as Unix: right-click → "Connect over SSH". |
 | Understanding a connection failure | Settings → Debug log, reproduce the problem, then Settings → "Show the debug log file". |
-| Remote application (RemoteApp): "not allowed on the server" | The requested application is not published on the PSM server: check with the CyberArk administrator. |
-| The tab shows "Remote Desktop control error" | Untick "Open remote desktop sessions in a CyberArkTerm tab" in the Settings to use `mstsc`, and report the code shown. |
+| A direct remote desktop tab (KeePass) shows "Remote Desktop control error" | Report the code shown (if the Remote Desktop control is missing from the computer, the connection goes through `mstsc`). |
 
 ## Development
 

@@ -477,7 +477,7 @@ Gli account restano disponibili nella scheda «Disponibili».</value>
     <value>Memorizza questo componente per la piattaforma {0}</value>
   </data>
   <data name="PsmHint" xml:space="preserve">
-    <value>Il PVWA genera una connessione RDP, aperta in una scheda di CyberArkTerm o in Connessione Desktop remoto (mstsc) secondo le impostazioni.</value>
+    <value>Il PVWA genera una connessione RDP, aperta in Connessione Desktop remoto (mstsc).</value>
   </data>
   <data name="SshCommandHint" xml:space="preserve">
     <value>Comando: ssh {0}</value>
@@ -498,16 +498,13 @@ Gli account restano disponibili nella scheda «Disponibili».</value>
     <value>SSH tramite PSM for SSH (PSMP)</value>
   </data>
   <data name="SettingsSshHelp" xml:space="preserve">
-    <value>Consente di aprire gli account Unix direttamente in SSH. Lasciare vuoto per disattivare.</value>
+    <value>Gli account Unix si aprono allora in SSH per impostazione predefinita (il PSM resta disponibile in «Connessione avanzata»). Lasciare vuoto per disattivare l'SSH.</value>
   </data>
   <data name="PsmpAddressLabel" xml:space="preserve">
     <value>_Indirizzo PSMP:</value>
   </data>
   <data name="PortLabel" xml:space="preserve">
     <value>_Porta:</value>
-  </data>
-  <data name="PreferSsh" xml:space="preserve">
-    <value>Doppio clic su un account Unix: connetti in SSH tramite PSMP</value>
   </data>
   <data name="SshInApp" xml:space="preserve">
     <value>Apri le sessioni SSH in CyberArkTerm (terminale in una scheda + scheda «File»), altrimenti in Windows Terminal</value>
@@ -1003,62 +1000,11 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
   <data name="RdpDisconnectCode" xml:space="preserve">
     <value>Disconnesso ({0}).</value>
   </data>
-  <data name="RdpRemoteAppOpened" xml:space="preserve">
-    <value>Applicazione remota «{0}» aperta</value>
-  </data>
-  <data name="RdpRemoteAppHint" xml:space="preserve">
-    <value>Le sue finestre si aprono a parte, come quelle di questo computer. Chiudere l'applicazione termina la sessione; Disconnetti la chiude da qui.</value>
-  </data>
-  <data name="RdpRemoteAppFailed" xml:space="preserve">
-    <value>Impossibile avviare l'applicazione remota «{0}»: {1}</value>
-  </data>
-  <data name="RdpRemoteAppNotAllowed" xml:space="preserve">
-    <value>non è consentita sul server.</value>
-  </data>
-  <data name="RdpRemoteAppNotFound" xml:space="preserve">
-    <value>non è stata trovata sul server.</value>
-  </data>
-  <data name="RdpRemoteAppErrorCode" xml:space="preserve">
-    <value>errore {0}.</value>
-  </data>
-  <data name="RdpControlMissing" xml:space="preserve">
-    <value>{0}: il controllo Desktop remoto non è disponibile su questo computer, sessione aperta in Connessione Desktop remoto (mstsc).</value>
-  </data>
-  <data name="RdpControlFallback" xml:space="preserve">
-    <value>{0}: il controllo Desktop remoto non ha funzionato ({1}), sessione aperta in Connessione Desktop remoto (mstsc).</value>
-  </data>
   <data name="RdpCloseTabConfirm" xml:space="preserve">
     <value>Disconnettere la sessione Desktop remoto {0}?</value>
   </data>
   <data name="RdpCloseAllConfirm" xml:space="preserve">
     <value>Ci sono sessioni Desktop remoto aperte ({0}). Disconnetterle e chiudere?</value>
-  </data>
-  <data name="RdpSection" xml:space="preserve">
-    <value>Desktop remoto (RDP)</value>
-  </data>
-  <data name="RdpInApp" xml:space="preserve">
-    <value>Apri le sessioni Desktop remoto in una scheda di CyberArkTerm, altrimenti in Connessione Desktop remoto (mstsc)</value>
-  </data>
-  <data name="PsmRemoteAppAsDesktop" xml:space="preserve">
-    <value>Aprire invece le applicazioni remote PSM come desktop, se il PSM lo accetta (disattivata automaticamente se lo rifiuta)</value>
-  </data>
-  <data name="RdpDesktopFromRemoteAppHint" xml:space="preserve">
-    <value>Questo componente PSM è un'applicazione remota, aperta qui come desktop. Se il PSM non lo accetta, «Apri come applicazione remota» la riavvia come applicazione remota (nuova richiesta al PVWA). Per farlo ogni volta, disattiva «Aprire invece le applicazioni remote PSM come desktop» nelle Impostazioni.</value>
-  </data>
-  <data name="RdpOpenRemoteAppWindows" xml:space="preserve">
-    <value>Apri come _applicazione remota</value>
-  </data>
-  <data name="RemoteAppInTab" xml:space="preserve">
-    <value>Mostra nella scheda la finestra delle applicazioni remote (RemoteApp); altrimenti si aprono a parte, sul desktop</value>
-  </data>
-  <data name="RdpRemoteAppInTabHint" xml:space="preserve">
-    <value>La sua finestra si mostra qui appena si apre; i suoi menu e finestre di dialogo si aprono sopra. Chiudere l'applicazione termina la sessione; Disconnetti la chiude da qui.</value>
-  </data>
-  <data name="RdpRemoteAppFallback" xml:space="preserve">
-    <value>Il PSM ha chiuso la sessione aperta come desktop: nuova richiesta al PVWA per aprirla come applicazione remota.</value>
-  </data>
-  <data name="PsmDesktopRefused" xml:space="preserve">
-    <value>{0}: il PSM rifiuta le applicazioni remote come desktop; ora si aprono come applicazioni remote (opzione disattivata nelle Impostazioni).</value>
   </data>
   <data name="RdpNotResponding" xml:space="preserve">
     <value>{0}: Desktop remoto non risponde. Il resto di CyberArkTerm resta utilizzabile; puoi chiudere questa scheda.</value>

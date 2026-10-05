@@ -20,13 +20,13 @@ public sealed class AppSettings
 
     public AuthMethod AuthMethod { get; set; } = AuthMethod.CyberArk;
 
-    /// <summary>Adresse du PSM for SSH (PSMP) ; vide = connexions SSH directes désactivées.</summary>
+    /// <summary>
+    /// Adresse du PSM for SSH (PSMP) ; vide = connexions SSH désactivées. Renseignée, les comptes Unix s'ouvrent par
+    /// défaut en SSH via le PSMP.
+    /// </summary>
     public string PsmpAddress { get; set; } = "";
 
     public int PsmpPort { get; set; } = 22;
-
-    /// <summary>Double-clic sur un compte Unix : SSH via PSMP plutôt que PSM (RDP).</summary>
-    public bool PreferSshForUnix { get; set; }
 
     public GroupBy GroupBy { get; set; } = GroupBy.Safe;
 
@@ -47,22 +47,6 @@ public sealed class AppSettings
 
     /// <summary>Sessions SSH dans un onglet CyberArkTerm (terminal + navigateur de fichiers) plutôt que Windows Terminal.</summary>
     public bool SshInApp { get; set; } = true;
-
-    /// <summary>Sessions Bureau à distance (PSM) dans un onglet CyberArkTerm plutôt que dans mstsc.</summary>
-    public bool RdpInApp { get; set; } = true;
-
-    /// <summary>
-    /// Applications distantes (RemoteApp) : leur fenêtre principale s'affiche dans l'onglet, leurs menus et boîtes de
-    /// dialogue au-dessus ; sinon toutes leurs fenêtres s'ouvrent à part, sur le bureau.
-    /// </summary>
-    public bool RemoteAppInTab { get; set; } = true;
-
-    /// <summary>
-    /// Composants PSM en application distante (RemoteApp) ouverts comme un bureau, dans l'onglet, plutôt qu'en
-    /// fenêtres séparées ; le serveur PSM doit accepter les sessions en bureau. Désactivé par défaut (un PSM les a
-    /// refusées), et désactivé de lui-même quand un PSM ferme une telle session aussitôt ouverte.
-    /// </summary>
-    public bool PsmRemoteAppAsDesktop { get; set; }
 
     /// <summary>Journal de débogage (déroulement des connexions, sans secret), désactivé par défaut.</summary>
     public bool DebugLogEnabled { get; set; }
