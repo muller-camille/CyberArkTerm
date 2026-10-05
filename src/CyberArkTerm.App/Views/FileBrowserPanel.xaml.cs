@@ -38,6 +38,7 @@ public partial class FileBrowserPanel : UserControl
     {
         _settings = settings;
         _saveSettings = saveSettings;
+        _history = TransferHistory.Load(TransferHistory.DefaultPath);
         HiddenBox.IsChecked = settings.ShowHiddenFiles;
     }
 

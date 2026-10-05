@@ -1757,6 +1757,168 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _Checksums….
+        /// </summary>
+        public static string HistoryChecks {
+            get {
+                return ResourceManager.GetString("HistoryChecks", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to C_lear the history.
+        /// </summary>
+        public static string HistoryClear {
+            get {
+                return ResourceManager.GetString("HistoryClear", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Clear the transfer history ({0} transfer(s))? The files themselves are not touched..
+        /// </summary>
+        public static string HistoryClearConfirm {
+            get {
+                return ResourceManager.GetString("HistoryClearConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Destination.
+        /// </summary>
+        public static string HistoryColDestination {
+            get {
+                return ResourceManager.GetString("HistoryColDestination", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Files.
+        /// </summary>
+        public static string HistoryColFiles {
+            get {
+                return ResourceManager.GetString("HistoryColFiles", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Item.
+        /// </summary>
+        public static string HistoryColItem {
+            get {
+                return ResourceManager.GetString("HistoryColItem", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Server.
+        /// </summary>
+        public static string HistoryColServer {
+            get {
+                return ResourceManager.GetString("HistoryColServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Date.
+        /// </summary>
+        public static string HistoryColTime {
+            get {
+                return ResourceManager.GetString("HistoryColTime", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✓ done · {0} identical.
+        /// </summary>
+        public static string HistoryDone {
+            get {
+                return ResourceManager.GetString("HistoryDone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No transfer yet..
+        /// </summary>
+        public static string HistoryEmpty {
+            get {
+                return ResourceManager.GetString("HistoryEmpty", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Explorer (drag and drop).
+        /// </summary>
+        public static string HistoryExplorer {
+            get {
+                return ResourceManager.GetString("HistoryExplorer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to All transfers.
+        /// </summary>
+        public static string HistoryFilterAll {
+            get {
+                return ResourceManager.GetString("HistoryFilterAll", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Downloads.
+        /// </summary>
+        public static string HistoryFilterDownloads {
+            get {
+                return ResourceManager.GetString("HistoryFilterDownloads", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Uploads.
+        /// </summary>
+        public static string HistoryFilterUploads {
+            get {
+                return ResourceManager.GetString("HistoryFilterUploads", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Kept on this computer (last 200 transfers), without the content of the files; the SHA-256 checksu[rest of string was truncated].
+        /// </summary>
+        public static string HistoryNote {
+            get {
+                return ResourceManager.GetString("HistoryNote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Open the folder.
+        /// </summary>
+        public static string HistoryOpenFolder {
+            get {
+                return ResourceManager.GetString("HistoryOpenFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Transfer history (uploads and downloads).
+        /// </summary>
+        public static string HistoryTip {
+            get {
+                return ResourceManager.GetString("HistoryTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Transfer history.
+        /// </summary>
+        public static string HistoryTitle {
+            get {
+                return ResourceManager.GetString("HistoryTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Home folder.
         /// </summary>
         public static string HomeTip {

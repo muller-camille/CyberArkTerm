@@ -913,6 +913,60 @@ Continuare?</value>
   <data name="ChecksSomeInterrupted" xml:space="preserve">
     <value>⏹ {0} file su {1} interrotto/i da un annullamento: copia incompleta eliminata.</value>
   </data>
+  <data name="HistoryTip" xml:space="preserve">
+    <value>Cronologia dei trasferimenti (invii e download)</value>
+  </data>
+  <data name="HistoryTitle" xml:space="preserve">
+    <value>Cronologia dei trasferimenti</value>
+  </data>
+  <data name="HistoryNote" xml:space="preserve">
+    <value>Conservata su questo computer (ultimi 200 trasferimenti), senza il contenuto dei file; i checksum SHA-256 permettono di riverificare un file in seguito.</value>
+  </data>
+  <data name="HistoryFilterAll" xml:space="preserve">
+    <value>Tutti i trasferimenti</value>
+  </data>
+  <data name="HistoryFilterUploads" xml:space="preserve">
+    <value>Invii</value>
+  </data>
+  <data name="HistoryFilterDownloads" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="HistoryColTime" xml:space="preserve">
+    <value>Data</value>
+  </data>
+  <data name="HistoryColServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="HistoryColItem" xml:space="preserve">
+    <value>Elemento</value>
+  </data>
+  <data name="HistoryColDestination" xml:space="preserve">
+    <value>Destinazione</value>
+  </data>
+  <data name="HistoryColFiles" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="HistoryDone" xml:space="preserve">
+    <value>✓ riuscito · {0} identico/i</value>
+  </data>
+  <data name="HistoryChecks" xml:space="preserve">
+    <value>_Checksum…</value>
+  </data>
+  <data name="HistoryOpenFolder" xml:space="preserve">
+    <value>_Apri la cartella</value>
+  </data>
+  <data name="HistoryClear" xml:space="preserve">
+    <value>Ca_ncella la cronologia</value>
+  </data>
+  <data name="HistoryClearConfirm" xml:space="preserve">
+    <value>Cancellare la cronologia dei trasferimenti ({0} trasferimento/i)? I file stessi non vengono toccati.</value>
+  </data>
+  <data name="HistoryEmpty" xml:space="preserve">
+    <value>Nessun trasferimento per ora.</value>
+  </data>
+  <data name="HistoryExplorer" xml:space="preserve">
+    <value>Esplora file (trascinamento)</value>
+  </data>
   <data name="QueueTitle" xml:space="preserve">
     <value>Trasferimenti</value>
   </data>

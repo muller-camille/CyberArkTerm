@@ -193,6 +193,10 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   the next SCP upload opens a new one (new PSMP session). An error is shown in the queue and the queue goes on;
   at the end, a single summary. Browsing, deleting, permissions, the editor and dragging to Explorer get in
   between two files. Closing the tab or the application with transfers running asks for confirmation.
+- **Transfer history**: clock button in the Files tab header, available even without a session. It lists the
+  last 200 uploads and downloads (drag and drop included): date, direction, server, item, destination, number of
+  files, result. "Uploads" / "Downloads" filter; "Checksums…" (or double-click) shows each file's SHA-256
+  checksums, to copy and check again later; "Open the folder" for a download; "Clear the history".
 - **Transfer check (SHA-256)**: every uploaded or downloaded file is checked. On upload (SCP or SFTP), the local
   file is hashed, then the file on the server is read again over SFTP and hashed. On download, the data received
   from the server is hashed, then the file written on this computer is read again. The status bar confirms
@@ -312,6 +316,8 @@ password, delete.
 All preferences are saved in `%APPDATA%\CyberArkTerm\settings.json`: language, PVWA address, sign-in method
 and user name, the settings above, "My servers" and their folders, recent sessions, location of the KeePass
 vaults and of their key files. This file contains **no password, token or private key**. To start from scratch, close the application and delete it.
+The transfer history of the Files tab is next to it, in `transfers.json` (file names and paths, SHA-256
+checksums, never their content).
 
 ## Security
 

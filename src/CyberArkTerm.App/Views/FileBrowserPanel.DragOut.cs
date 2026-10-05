@@ -252,7 +252,24 @@ public partial class FileBrowserPanel
             Owner = Window.GetWindow(this),
         };
 
-        if (dialog.ShowDialog() == true)
+        bool ok = dialog.ShowDialog() == true;
+        if (ok || checks.Count > 0)
+        {
+            var roots = items.Where(i => i.Path.Count == 1).Select(i => i.Entry).ToList();
+            Record(new TransferRecord
+            {
+                Time = DateTime.UtcNow,
+                Server = _session?.Label ?? "",
+                Label = roots.Count == 1 ? roots[0].Name + (roots[0].IsDirectory ? "/" : "") : Text.Format(Strings.QueueItems, roots.Count),
+                Destination = Strings.HistoryExplorer,
+                State = ok ? TransferState.Done : dialog.Error is null ? TransferState.Cancelled : TransferState.Failed,
+                Error = dialog.Error is { } dragError ? Describe(dragError) : null,
+                FileCount = fileCount,
+                Files = [.. checks],
+            });
+        }
+
+        if (ok)
         {
             _dragChecks = checks;
             return local;

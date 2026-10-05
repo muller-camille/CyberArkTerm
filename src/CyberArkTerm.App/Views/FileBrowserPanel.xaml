@@ -106,6 +106,9 @@
     <DockPanel Background="{StaticResource SidePanelBrush}">
         <StackPanel DockPanel.Dock="Top" Margin="8,8,8,4">
             <DockPanel>
+                <Button DockPanel.Dock="Right" Style="{StaticResource SmallToolButton}" Click="OnHistory" ToolTip="{x:Static loc:Strings.HistoryTip}">
+                    <Image Source="{StaticResource IconHistory}" Style="{StaticResource SmallIcon}" />
+                </Button>
                 <Image Source="{StaticResource IconFiles}" Width="18" Height="18" Margin="0,0,6,0" />
                 <TextBlock x:Name="HeaderText" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
             </DockPanel>

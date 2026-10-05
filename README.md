@@ -209,6 +209,11 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   session PSMP). Une erreur est affichée dans la file et la file continue ; à la fin, un seul bilan. La navigation,
   la suppression, les droits, l'éditeur et le glisser vers l'Explorateur passent entre deux fichiers. Fermer
   l'onglet ou l'application avec des transferts en cours demande confirmation.
+- **Historique des transferts** : bouton horloge dans l'en-tête de l'onglet Fichiers, disponible même sans
+  session. Il liste les 200 derniers envois et téléchargements (y compris par glisser-déposer) : date, sens,
+  serveur, élément, destination, nombre de fichiers, résultat. Filtre « Envois » / « Téléchargements » ;
+  « Sommes de contrôle… » (ou double-clic) montre les sommes SHA-256 de chaque fichier, à recopier pour revérifier
+  plus tard ; « Ouvrir le dossier » pour un téléchargement ; « Effacer l'historique ».
 - **Vérification des transferts (SHA-256)** : chaque fichier envoyé ou téléchargé est vérifié. À l'envoi (SCP ou
   SFTP), le fichier local est haché, puis le fichier arrivé sur le serveur est relu par SFTP et haché. Au
   téléchargement, les données reçues du serveur sont hachées, puis le fichier écrit sur le poste est relu. La barre
@@ -337,7 +342,8 @@ Toutes les préférences sont enregistrées dans `%APPDATA%\CyberArkTerm\setting
 méthode et identifiant de connexion, paramètres ci-dessus, serveurs « Courants » et leurs dossiers, sessions
 récentes, emplacement des coffres KeePass et de leurs fichiers clés. Ce fichier ne contient **aucun mot de passe,
 jeton ni clé privée**. Pour repartir de zéro, fermez
-l'application et supprimez-le.
+l'application et supprimez-le. L'historique des transferts de l'onglet Fichiers est à côté, dans
+`transfers.json` (noms et chemins des fichiers, sommes SHA-256, jamais leur contenu).
 
 ## Sécurité
 

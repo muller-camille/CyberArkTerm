@@ -913,6 +913,60 @@ Continue?</value>
   <data name="ChecksSomeInterrupted" xml:space="preserve">
     <value>⏹ {0} file(s) out of {1} interrupted by a cancellation: incomplete copy deleted.</value>
   </data>
+  <data name="HistoryTip" xml:space="preserve">
+    <value>Transfer history (uploads and downloads)</value>
+  </data>
+  <data name="HistoryTitle" xml:space="preserve">
+    <value>Transfer history</value>
+  </data>
+  <data name="HistoryNote" xml:space="preserve">
+    <value>Kept on this computer (last 200 transfers), without the content of the files; the SHA-256 checksums let you check a file again later.</value>
+  </data>
+  <data name="HistoryFilterAll" xml:space="preserve">
+    <value>All transfers</value>
+  </data>
+  <data name="HistoryFilterUploads" xml:space="preserve">
+    <value>Uploads</value>
+  </data>
+  <data name="HistoryFilterDownloads" xml:space="preserve">
+    <value>Downloads</value>
+  </data>
+  <data name="HistoryColTime" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="HistoryColServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="HistoryColItem" xml:space="preserve">
+    <value>Item</value>
+  </data>
+  <data name="HistoryColDestination" xml:space="preserve">
+    <value>Destination</value>
+  </data>
+  <data name="HistoryColFiles" xml:space="preserve">
+    <value>Files</value>
+  </data>
+  <data name="HistoryDone" xml:space="preserve">
+    <value>✓ done · {0} identical</value>
+  </data>
+  <data name="HistoryChecks" xml:space="preserve">
+    <value>_Checksums…</value>
+  </data>
+  <data name="HistoryOpenFolder" xml:space="preserve">
+    <value>_Open the folder</value>
+  </data>
+  <data name="HistoryClear" xml:space="preserve">
+    <value>C_lear the history</value>
+  </data>
+  <data name="HistoryClearConfirm" xml:space="preserve">
+    <value>Clear the transfer history ({0} transfer(s))? The files themselves are not touched.</value>
+  </data>
+  <data name="HistoryEmpty" xml:space="preserve">
+    <value>No transfer yet.</value>
+  </data>
+  <data name="HistoryExplorer" xml:space="preserve">
+    <value>Explorer (drag and drop)</value>
+  </data>
   <data name="QueueTitle" xml:space="preserve">
     <value>Transfers</value>
   </data>

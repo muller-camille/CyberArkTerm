@@ -203,6 +203,11 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   (nuova sessione PSMP). Un errore viene mostrato nella coda e la coda prosegue; alla fine, un unico riepilogo.
   Navigazione, eliminazione, permessi, editor e trascinamento verso Esplora file passano tra due file. Chiudere la
   scheda o l'applicazione con trasferimenti in corso chiede conferma.
+- **Cronologia dei trasferimenti**: pulsante orologio nell'intestazione della scheda File, disponibile anche senza
+  sessione. Elenca gli ultimi 200 invii e download (trascinamento compreso): data, direzione, server, elemento,
+  destinazione, numero di file, risultato. Filtro «Invii» / «Download»; «Checksum…» (o doppio clic) mostra i
+  checksum SHA-256 di ogni file, da copiare per riverificare in seguito; «Apri la cartella» per un download;
+  «Cancella la cronologia».
 - **Verifica dei trasferimenti (SHA-256)**: ogni file inviato o scaricato viene verificato. All'invio (SCP o
   SFTP), il file locale viene sottoposto a hash, poi il file arrivato sul server viene riletto via SFTP e
   sottoposto a hash. Al download, i dati ricevuti dal server vengono sottoposti a hash, poi il file scritto sul
@@ -330,7 +335,8 @@ Tutte le preferenze sono salvate in `%APPDATA%\CyberArkTerm\settings.json`: ling
 metodo e nome utente di accesso, impostazioni qui sopra, «I miei server» e le loro cartelle, sessioni
 recenti, posizione degli archivi KeePass e dei loro file chiave. Questo file **non contiene password, token né
 chiavi private**. Per ripartire da zero, chiudi
-l'applicazione ed eliminalo.
+l'applicazione ed eliminalo. La cronologia dei trasferimenti della scheda File è accanto, in `transfers.json`
+(nomi e percorsi dei file, checksum SHA-256, mai il loro contenuto).
 
 ## Sicurezza
 

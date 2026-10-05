@@ -913,6 +913,60 @@ Continuer ?</value>
   <data name="ChecksSomeInterrupted" xml:space="preserve">
     <value>⏹ {0} fichier(s) sur {1} interrompu(s) par une annulation : copie incomplète supprimée.</value>
   </data>
+  <data name="HistoryTip" xml:space="preserve">
+    <value>Historique des transferts (envois et téléchargements)</value>
+  </data>
+  <data name="HistoryTitle" xml:space="preserve">
+    <value>Historique des transferts</value>
+  </data>
+  <data name="HistoryNote" xml:space="preserve">
+    <value>Conservé sur ce poste (200 derniers transferts), sans le contenu des fichiers ; les sommes SHA-256 permettent de revérifier un fichier plus tard.</value>
+  </data>
+  <data name="HistoryFilterAll" xml:space="preserve">
+    <value>Tous les transferts</value>
+  </data>
+  <data name="HistoryFilterUploads" xml:space="preserve">
+    <value>Envois</value>
+  </data>
+  <data name="HistoryFilterDownloads" xml:space="preserve">
+    <value>Téléchargements</value>
+  </data>
+  <data name="HistoryColTime" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="HistoryColServer" xml:space="preserve">
+    <value>Serveur</value>
+  </data>
+  <data name="HistoryColItem" xml:space="preserve">
+    <value>Élément</value>
+  </data>
+  <data name="HistoryColDestination" xml:space="preserve">
+    <value>Destination</value>
+  </data>
+  <data name="HistoryColFiles" xml:space="preserve">
+    <value>Fichiers</value>
+  </data>
+  <data name="HistoryDone" xml:space="preserve">
+    <value>✓ réussi · {0} identique(s)</value>
+  </data>
+  <data name="HistoryChecks" xml:space="preserve">
+    <value>_Sommes de contrôle…</value>
+  </data>
+  <data name="HistoryOpenFolder" xml:space="preserve">
+    <value>_Ouvrir le dossier</value>
+  </data>
+  <data name="HistoryClear" xml:space="preserve">
+    <value>_Effacer l'historique</value>
+  </data>
+  <data name="HistoryClearConfirm" xml:space="preserve">
+    <value>Effacer l'historique des transferts ({0} transfert(s)) ? Les fichiers eux-mêmes ne sont pas touchés.</value>
+  </data>
+  <data name="HistoryEmpty" xml:space="preserve">
+    <value>Aucun transfert pour l'instant.</value>
+  </data>
+  <data name="HistoryExplorer" xml:space="preserve">
+    <value>Explorateur (glisser-déposer)</value>
+  </data>
   <data name="QueueTitle" xml:space="preserve">
     <value>Transferts</value>
   </data>

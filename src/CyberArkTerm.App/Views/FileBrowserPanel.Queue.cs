@@ -21,6 +21,9 @@ public partial class FileBrowserPanel
     private readonly TransferQueue _queue = new(ex => Describe(ex));
     private TransferItem? _watched;
 
+    // Historique des transferts ; sans chemin (tests, avant l'initialisation), rien n'est écrit sur le disque.
+    private TransferHistory _history = new();
+
     /// <summary>File des transferts (tests).</summary>
     internal TransferQueue Queue => _queue;
 
@@ -213,6 +216,24 @@ public partial class FileBrowserPanel
 
     private void OnTransferFinished(TransferItem item)
     {
+        // Élément retiré avant d'avoir commencé : rien n'a été transféré, rien à garder.
+        if (item.State != TransferState.Cancelled || item.Checks.Count > 0)
+        {
+            Record(new TransferRecord
+            {
+                Time = DateTime.UtcNow,
+                Upload = item.Upload,
+                Server = (item.Owner as SshSession)?.Label ?? "",
+                Label = item.Label,
+                Destination = item.Destination,
+                Protocol = item.Protocol,
+                State = item.State,
+                Error = item.Error,
+                FileCount = item.FileCount,
+                Files = [.. item.Checks],
+            });
+        }
+
         // Envoi terminé (ou arrêté) vers le dossier affiché : la liste est relue.
         if (item.Upload && ReferenceEquals(item.Owner, _session) && _browser is { } browser && browser.CurrentDirectory == item.Destination)
         {
@@ -268,6 +289,38 @@ public partial class FileBrowserPanel
 
         static string Failure(TransferItem item) =>
             Text.Format(item.Upload ? Strings.UploadFailed : Strings.QueueDownloadFailed, item.Label, item.Error);
+    }
+}
+
+public partial class FileBrowserPanel
+{
+    /// <summary>Historique (tests).</summary>
+    internal TransferHistory History => _history;
+
+    private void OnHistory(object sender, RoutedEventArgs e) =>
+        new TransferHistoryDialog(_history, SaveHistory) { Owner = Window.GetWindow(this) }.ShowDialog();
+
+    private void Record(TransferRecord record)
+    {
+        _history.Add(record);
+        SaveHistory();
+    }
+
+    /// <summary>Enregistre l'historique sans bloquer l'interface ; un échec d'écriture est seulement journalisé.</summary>
+    private void SaveHistory()
+    {
+        var history = _history;
+        _ = Task.Run(() =>
+        {
+            try
+            {
+                history.Save();
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                Core.Diagnostics.DebugLog.Write("files", $"Historique des transferts non enregistré : {ex.Message}");
+            }
+        });
     }
 }
 

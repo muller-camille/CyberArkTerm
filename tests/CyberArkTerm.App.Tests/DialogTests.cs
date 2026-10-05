@@ -260,6 +260,47 @@ public sealed class DialogTests
             Assert.Equal(Visibility.Collapsed, panel.QueuePanel.Visibility);
             Assert.Equal(0, panel.ActiveTransfers(null));
             Assert.Contains(Text.Format(Strings.QueueSummaryCancelled, 1), panel.StatusText.Text);
+
+            // Historique : l'envoi terminé y figure ; l'élément retiré avant d'avoir commencé, non.
+            var record = Assert.Single(panel.History.Records);
+            Assert.Equal(("deploy/", true, TransferState.Done, "SCP"), (record.Label, record.Upload, record.State, record.Protocol));
+        });
+    }
+
+    /// <summary>Historique : filtre par sens, résultat lisible, sommes et dossier disponibles pour un téléchargement.</summary>
+    [Fact]
+    public void TransferHistoryWindowOpens()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            byte[] hash = [1, 2, 3];
+            var history = new TransferHistory();
+            history.Add(new TransferRecord
+            {
+                Upload = false, Label = "app.log", Destination = Path.GetTempPath(), State = TransferState.Done, FileCount = 1,
+                Files = [new TransferCheck("app.log", @"C:\Temp\app.log", "/var/log/app.log", 3, hash, 3, [.. hash])],
+            });
+            history.Add(new TransferRecord { Upload = true, Label = "deploy/", Destination = "/opt/app", State = TransferState.Failed, Error = "permission refusée" });
+            int saved = 0;
+
+            var dialog = new TransferHistoryDialog(history, () => saved++);
+
+            Assert.Equal(7, dialog.RecordsGrid.Columns.Count);
+            Assert.Equal(2, ((IEnumerable<TransferRecord>)dialog.RecordsGrid.ItemsSource).Count());
+            dialog.FilterBox.SelectedIndex = 2;
+            var download = Assert.Single((IEnumerable<TransferRecord>)dialog.RecordsGrid.ItemsSource);
+            dialog.RecordsGrid.SelectedItem = download;
+            Assert.True(dialog.ChecksButton.IsEnabled);
+            Assert.True(dialog.OpenFolderButton.IsEnabled);
+            Assert.Equal(Text.Format(Strings.HistoryDone, 1), TransferHistoryDialog.Result(download));
+            Assert.Equal("✗ permission refusée", TransferHistoryDialog.Result(history.Records[0]));
+            Assert.Equal(0, saved);
+            dialog.Close();
         });
     }
 
