@@ -9,7 +9,8 @@ namespace CyberArkTerm.App.Views;
 
 /// <summary>
 /// Membres d'un safe et leurs droits, lus sur le PVWA (droit « View Safe Members » nécessaire) : qui peut ajouter des
-/// comptes, et le détail des droits du membre sélectionné. Lecture seule.
+/// comptes, et le détail des droits du membre sélectionné. Ajout, modification des droits et retrait de membres quand
+/// <see cref="SafeMemberActions"/> est fourni (droit « Gérer les membres du safe » nécessaire côté PVWA).
 /// </summary>
 public partial class SafeMembersDialog : Window
 {

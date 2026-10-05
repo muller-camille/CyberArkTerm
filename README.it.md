@@ -374,7 +374,7 @@ pubblica).
 | `POST /PasswordVault/API/Accounts/{id}/Verify`, `/Change`, `/Reconcile` | Operazioni richieste al CPM |
 | `POST /PasswordVault/API/Accounts/{id}/Password/Retrieve` | Copia della password (motivo, ticket; uso «copy» nell'audit) |
 | `POST` / `PUT` / `DELETE /PasswordVault/API/Safes/{safe}/Members[/{membro}]` | Aggiunta, diritti e rimozione di un membro del safe |
-| `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Membri di un safe e i loro diritti («Membri del safe», sola lettura) |
+| `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Membri di un safe e i loro diritti (finestra «Membri del safe») |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Chiave SSH temporanea «MFA caching» (se attivata) |
 | `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Mantenimento della sessione (ogni 4 minuti) |
 | `POST /PasswordVault/API/Auth/Logoff` | Chiusura della sessione |
