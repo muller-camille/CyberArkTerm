@@ -1598,4 +1598,124 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
   <data name="AccountCreated" xml:space="preserve">
     <value>Account {0} creato nel safe {1}</value>
   </data>
+  <data name="MenuPassword" xml:space="preserve">
+    <value>_Password</value>
+  </data>
+  <data name="MenuCopyPassword" xml:space="preserve">
+    <value>_Copia la password…</value>
+  </data>
+  <data name="MenuCpmVerify" xml:space="preserve">
+    <value>_Verifica (CPM)</value>
+  </data>
+  <data name="MenuCpmChange" xml:space="preserve">
+    <value>Ca_mbia (CPM)…</value>
+  </data>
+  <data name="MenuCpmReconcile" xml:space="preserve">
+    <value>_Riconcilia (CPM)…</value>
+  </data>
+  <data name="MenuEditAccount" xml:space="preserve">
+    <value>_Modifica l'account…</value>
+  </data>
+  <data name="MenuDeleteAccount" xml:space="preserve">
+    <value>_Elimina l'account…</value>
+  </data>
+  <data name="CpmManagedAuto" xml:space="preserve">
+    <value>CPM: gestito automaticamente</value>
+  </data>
+  <data name="CpmManagedManual" xml:space="preserve">
+    <value>CPM: gestito manualmente</value>
+  </data>
+  <data name="CpmManagedManualReason" xml:space="preserve">
+    <value>CPM: gestito manualmente ({0})</value>
+  </data>
+  <data name="CpmLastFailed" xml:space="preserve">
+    <value>⚠ Ultima operazione del CPM non riuscita</value>
+  </data>
+  <data name="CpmLastChanged" xml:space="preserve">
+    <value>Password cambiata il {0}</value>
+  </data>
+  <data name="CpmLastVerified" xml:space="preserve">
+    <value>Verificata il {0}</value>
+  </data>
+  <data name="CpmLastReconciled" xml:space="preserve">
+    <value>Riconciliata il {0}</value>
+  </data>
+  <data name="CpmChangeConfirm" xml:space="preserve">
+    <value>Chiedere al CPM di cambiare ora la password di {0}? La nuova password viene applicata sul server e conservata nel vault.</value>
+  </data>
+  <data name="CpmReconcileConfirm" xml:space="preserve">
+    <value>Chiedere al CPM di riconciliare la password di {0}? L'account di riconciliazione della piattaforma riallinea la password del server al vault.</value>
+  </data>
+  <data name="CpmRequested" xml:space="preserve">
+    <value>{1} richiesta per {0}: il CPM la esegue a breve (F5 per aggiornare lo stato)</value>
+  </data>
+  <data name="CpmActionVerify" xml:space="preserve">
+    <value>Verifica</value>
+  </data>
+  <data name="CpmActionChange" xml:space="preserve">
+    <value>Modifica della password</value>
+  </data>
+  <data name="CpmActionReconcile" xml:space="preserve">
+    <value>Riconciliazione</value>
+  </data>
+  <data name="CpmForbidden" xml:space="preserve">
+    <value>Il PVWA rifiuta: il tuo account deve avere il diritto «Avviare le operazioni CPM sugli account» sul safe. Messaggio del PVWA: {0}</value>
+  </data>
+  <data name="CpmFailed" xml:space="preserve">
+    <value>Il PVWA ha rifiutato l'operazione CPM: {0}</value>
+  </data>
+  <data name="EditAccountTitle" xml:space="preserve">
+    <value>Modifica l'account</value>
+  </data>
+  <data name="EditAccountIntro" xml:space="preserve">
+    <value>Le modifiche vengono salvate in CyberArk con i diritti della tua sessione: serve il diritto «Aggiornare le proprietà degli account» sul safe. La password non viene modificata qui.</value>
+  </data>
+  <data name="EditAccountForbidden" xml:space="preserve">
+    <value>Il PVWA rifiuta: il tuo account deve avere il diritto «Aggiornare le proprietà degli account» su questo safe. Messaggio del PVWA: {0}</value>
+  </data>
+  <data name="EditAccountFailed" xml:space="preserve">
+    <value>Il PVWA non ha salvato le modifiche: {0}</value>
+  </data>
+  <data name="AccountUpdated" xml:space="preserve">
+    <value>Account {0} modificato</value>
+  </data>
+  <data name="DeleteAccountConfirm" xml:space="preserve">
+    <value>Eliminare l'account {0} dal safe {1}? Viene eliminato in CyberArk, per tutti gli utenti.</value>
+  </data>
+  <data name="DeleteAccountForbidden" xml:space="preserve">
+    <value>Il PVWA rifiuta: il tuo account deve avere il diritto «Eliminare account» su questo safe. Messaggio del PVWA: {0}</value>
+  </data>
+  <data name="DeleteAccountFailed" xml:space="preserve">
+    <value>Il PVWA non ha eliminato l'account: {0}</value>
+  </data>
+  <data name="AccountDeleted" xml:space="preserve">
+    <value>Account {0} eliminato dal safe {1}</value>
+  </data>
+  <data name="RetrieveTitle" xml:space="preserve">
+    <value>Copia la password</value>
+  </data>
+  <data name="RetrieveIntro" xml:space="preserve">
+    <value>La password di {0} viene recuperata da CyberArk (il recupero viene registrato nell'audit) e copiata negli appunti per {1} secondi, senza essere mostrata. È esclusa dalla cronologia e dalla sincronizzazione degli appunti.</value>
+  </data>
+  <data name="RetrieveButton" xml:space="preserve">
+    <value>_Copia</value>
+  </data>
+  <data name="RetrieveWorking" xml:space="preserve">
+    <value>Recupero della password…</value>
+  </data>
+  <data name="RetrieveForbidden" xml:space="preserve">
+    <value>Il PVWA rifiuta: il tuo account deve avere il diritto «Recuperare gli account» sul safe e fornire il motivo o il ticket richiesti dalla piattaforma, se previsti. Messaggio del PVWA: {0}</value>
+  </data>
+  <data name="RetrieveFailed" xml:space="preserve">
+    <value>Il PVWA non ha fornito la password: {0}</value>
+  </data>
+  <data name="ClipboardBusy" xml:space="preserve">
+    <value>Gli appunti sono usati da un'altra applicazione: riprova.</value>
+  </data>
+  <data name="PasswordCopied" xml:space="preserve">
+    <value>Password di {0} copiata: cancellata dagli appunti tra {1} s</value>
+  </data>
+  <data name="PasswordClipboardCleared" xml:space="preserve">
+    <value>Password cancellata dagli appunti</value>
+  </data>
 </root>

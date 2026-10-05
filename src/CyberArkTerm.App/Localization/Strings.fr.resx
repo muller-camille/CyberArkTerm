@@ -1598,4 +1598,124 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour renvoyer
   <data name="AccountCreated" xml:space="preserve">
     <value>Compte {0} créé dans le safe {1}</value>
   </data>
+  <data name="MenuPassword" xml:space="preserve">
+    <value>Mot de _passe</value>
+  </data>
+  <data name="MenuCopyPassword" xml:space="preserve">
+    <value>_Copier le mot de passe…</value>
+  </data>
+  <data name="MenuCpmVerify" xml:space="preserve">
+    <value>_Vérifier (CPM)</value>
+  </data>
+  <data name="MenuCpmChange" xml:space="preserve">
+    <value>C_hanger (CPM)…</value>
+  </data>
+  <data name="MenuCpmReconcile" xml:space="preserve">
+    <value>_Réconcilier (CPM)…</value>
+  </data>
+  <data name="MenuEditAccount" xml:space="preserve">
+    <value>_Modifier le compte…</value>
+  </data>
+  <data name="MenuDeleteAccount" xml:space="preserve">
+    <value>Supprimer le _compte…</value>
+  </data>
+  <data name="CpmManagedAuto" xml:space="preserve">
+    <value>CPM : géré automatiquement</value>
+  </data>
+  <data name="CpmManagedManual" xml:space="preserve">
+    <value>CPM : géré manuellement</value>
+  </data>
+  <data name="CpmManagedManualReason" xml:space="preserve">
+    <value>CPM : géré manuellement ({0})</value>
+  </data>
+  <data name="CpmLastFailed" xml:space="preserve">
+    <value>⚠ Échec de la dernière opération du CPM</value>
+  </data>
+  <data name="CpmLastChanged" xml:space="preserve">
+    <value>Mot de passe changé le {0}</value>
+  </data>
+  <data name="CpmLastVerified" xml:space="preserve">
+    <value>Vérifié le {0}</value>
+  </data>
+  <data name="CpmLastReconciled" xml:space="preserve">
+    <value>Réconcilié le {0}</value>
+  </data>
+  <data name="CpmChangeConfirm" xml:space="preserve">
+    <value>Demander au CPM de changer maintenant le mot de passe de {0} ? Le nouveau mot de passe est appliqué sur le serveur et gardé dans le coffre.</value>
+  </data>
+  <data name="CpmReconcileConfirm" xml:space="preserve">
+    <value>Demander au CPM de réconcilier le mot de passe de {0} ? Le compte de réconciliation de la plateforme remet le mot de passe du serveur en accord avec le coffre.</value>
+  </data>
+  <data name="CpmRequested" xml:space="preserve">
+    <value>{1} demandée pour {0} : le CPM la traite sous peu (F5 pour actualiser l'état)</value>
+  </data>
+  <data name="CpmActionVerify" xml:space="preserve">
+    <value>Vérification</value>
+  </data>
+  <data name="CpmActionChange" xml:space="preserve">
+    <value>Changement de mot de passe</value>
+  </data>
+  <data name="CpmActionReconcile" xml:space="preserve">
+    <value>Réconciliation</value>
+  </data>
+  <data name="CpmForbidden" xml:space="preserve">
+    <value>Le PVWA refuse : votre compte doit avoir le droit « Lancer les opérations CPM sur les comptes » sur le safe. Message du PVWA : {0}</value>
+  </data>
+  <data name="CpmFailed" xml:space="preserve">
+    <value>Le PVWA a refusé l'opération CPM : {0}</value>
+  </data>
+  <data name="EditAccountTitle" xml:space="preserve">
+    <value>Modifier le compte</value>
+  </data>
+  <data name="EditAccountIntro" xml:space="preserve">
+    <value>Les modifications sont enregistrées dans CyberArk avec les droits de votre session : il faut le droit « Modifier les propriétés des comptes » sur le safe. Le mot de passe n'est pas modifié ici.</value>
+  </data>
+  <data name="EditAccountForbidden" xml:space="preserve">
+    <value>Le PVWA refuse : votre compte doit avoir le droit « Modifier les propriétés des comptes » sur ce safe. Message du PVWA : {0}</value>
+  </data>
+  <data name="EditAccountFailed" xml:space="preserve">
+    <value>Le PVWA n'a pas enregistré les modifications : {0}</value>
+  </data>
+  <data name="AccountUpdated" xml:space="preserve">
+    <value>Compte {0} modifié</value>
+  </data>
+  <data name="DeleteAccountConfirm" xml:space="preserve">
+    <value>Supprimer le compte {0} du safe {1} ? Il est supprimé dans CyberArk, pour tous les utilisateurs.</value>
+  </data>
+  <data name="DeleteAccountForbidden" xml:space="preserve">
+    <value>Le PVWA refuse : votre compte doit avoir le droit « Supprimer des comptes » sur ce safe. Message du PVWA : {0}</value>
+  </data>
+  <data name="DeleteAccountFailed" xml:space="preserve">
+    <value>Le PVWA n'a pas supprimé le compte : {0}</value>
+  </data>
+  <data name="AccountDeleted" xml:space="preserve">
+    <value>Compte {0} supprimé du safe {1}</value>
+  </data>
+  <data name="RetrieveTitle" xml:space="preserve">
+    <value>Copier le mot de passe</value>
+  </data>
+  <data name="RetrieveIntro" xml:space="preserve">
+    <value>Le mot de passe de {0} est récupéré dans CyberArk (la récupération est inscrite dans l'audit) et copié dans le presse-papiers pendant {1} secondes, sans être affiché. Il est exclu de l'historique et de la synchronisation du presse-papiers.</value>
+  </data>
+  <data name="RetrieveButton" xml:space="preserve">
+    <value>_Copier</value>
+  </data>
+  <data name="RetrieveWorking" xml:space="preserve">
+    <value>Récupération du mot de passe…</value>
+  </data>
+  <data name="RetrieveForbidden" xml:space="preserve">
+    <value>Le PVWA refuse : votre compte doit avoir le droit « Récupérer les comptes » sur le safe, et donner le motif ou le ticket que la plateforme exige, le cas échéant. Message du PVWA : {0}</value>
+  </data>
+  <data name="RetrieveFailed" xml:space="preserve">
+    <value>Le PVWA n'a pas donné le mot de passe : {0}</value>
+  </data>
+  <data name="ClipboardBusy" xml:space="preserve">
+    <value>Le presse-papiers est occupé par une autre application : réessayez.</value>
+  </data>
+  <data name="PasswordCopied" xml:space="preserve">
+    <value>Mot de passe de {0} copié : effacé du presse-papiers dans {1} s</value>
+  </data>
+  <data name="PasswordClipboardCleared" xml:space="preserve">
+    <value>Mot de passe effacé du presse-papiers</value>
+  </data>
 </root>

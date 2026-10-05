@@ -572,6 +572,7 @@ public partial class MainWindow
         if (e.Reason is SessionSwitchReason.SessionLock or SessionSwitchReason.ConsoleDisconnect or SessionSwitchReason.RemoteDisconnect)
         {
             Dispatcher.BeginInvoke(() => _windowsLocked = true);
+            Dispatcher.BeginInvoke(ClearPasswordClipboard);
             Dispatcher.BeginInvoke(() =>
             {
                 if (_settings.KeePassFolders.Any(f => _keePass.IsOpen(f.Id)) || _keePass.Store.IsUnlocked)

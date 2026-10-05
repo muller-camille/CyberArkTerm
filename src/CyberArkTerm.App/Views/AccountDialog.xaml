@@ -1,4 +1,4 @@
-<Window x:Class="CyberArkTerm.App.Views.AddAccountDialog"
+<Window x:Class="CyberArkTerm.App.Views.AccountDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:loc="clr-namespace:CyberArkTerm.App.Localization"
@@ -10,8 +10,8 @@
             <DockPanel>
                 <Image Source="{StaticResource IconPermissions}" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center" />
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{x:Static loc:Strings.AddAccountTitle}" FontSize="16" FontWeight="SemiBold" />
-                    <TextBlock Text="{x:Static loc:Strings.AddAccountIntro}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                    <TextBlock x:Name="HeadingText" Text="{x:Static loc:Strings.AddAccountTitle}" FontSize="16" FontWeight="SemiBold" />
+                    <TextBlock x:Name="IntroText" Text="{x:Static loc:Strings.AddAccountIntro}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,2,0,0" />
                 </StackPanel>
             </DockPanel>
         </Border>
@@ -59,10 +59,10 @@
             <Label Grid.Row="5" Content="{x:Static loc:Strings.AddAccountName}" Target="{Binding ElementName=NameBox}" />
             <TextBox Grid.Row="5" Grid.Column="1" x:Name="NameBox" Margin="0,0,0,8" VerticalContentAlignment="Center"
                      ToolTip="{x:Static loc:Strings.AddAccountNameTip}" />
-            <Label Grid.Row="6" Content="{x:Static loc:Strings.AddAccountPassword}" Target="{Binding ElementName=PasswordBox}" />
+            <Label Grid.Row="6" x:Name="PasswordLabel" Content="{x:Static loc:Strings.AddAccountPassword}" Target="{Binding ElementName=PasswordBox}" />
             <PasswordBox Grid.Row="6" Grid.Column="1" x:Name="PasswordBox" Margin="0,0,0,8" VerticalContentAlignment="Center"
                          ToolTip="{x:Static loc:Strings.AddAccountPasswordTip}" />
-            <Label Grid.Row="7" Content="{x:Static loc:Strings.AddAccountConfirm}" Target="{Binding ElementName=ConfirmBox}" />
+            <Label Grid.Row="7" x:Name="ConfirmLabel" Content="{x:Static loc:Strings.AddAccountConfirm}" Target="{Binding ElementName=ConfirmBox}" />
             <PasswordBox Grid.Row="7" Grid.Column="1" x:Name="ConfirmBox" Margin="0,0,0,8" VerticalContentAlignment="Center" />
             <Label Grid.Row="8" Content="{x:Static loc:Strings.AddAccountMachines}" Target="{Binding ElementName=MachinesBox}" />
             <TextBox Grid.Row="8" Grid.Column="1" x:Name="MachinesBox" Margin="0,0,0,8" VerticalContentAlignment="Center"

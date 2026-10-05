@@ -319,6 +319,94 @@ public class PvwaClientTests
     }
 
     [Fact]
+    public async Task UpdateAccount_SendsTheJsonPatchOperations()
+    {
+        var pvwa = new FakePvwa(req => FakePvwa.IsLogon(req)
+            ? FakePvwa.Json("\"tok\"")
+            : FakePvwa.Json("""{"id":"12_34","address":"srv02","userName":"svc"}"""));
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+
+        var updated = await client.UpdateAccountAsync("12_34",
+            [new PatchOperation("replace", "/address", "srv02"), new PatchOperation("remove", "/platformAccountProperties/LogonDomain"),
+             new PatchOperation("replace", "/remoteMachinesAccess/accessRestrictedToRemoteMachines", false)]);
+
+        var (method, path, _, body) = pvwa.Requests[1];
+        Assert.Equal((HttpMethod.Patch, "/PasswordVault/API/Accounts/12_34"), (method, path));
+        Assert.Equal(
+            """[{"op":"replace","path":"/address","value":"srv02"},{"op":"remove","path":"/platformAccountProperties/LogonDomain"},{"op":"replace","path":"/remoteMachinesAccess/accessRestrictedToRemoteMachines","value":false}]""",
+            body);
+        Assert.Equal("srv02", updated.Address);
+    }
+
+    [Fact]
+    public async Task DeleteAccount_SendsDelete()
+    {
+        var pvwa = new FakePvwa(req => FakePvwa.IsLogon(req) ? FakePvwa.Json("\"tok\"") : new HttpResponseMessage(HttpStatusCode.NoContent));
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+
+        await client.DeleteAccountAsync("12_34");
+
+        Assert.Equal((HttpMethod.Delete, "/PasswordVault/API/Accounts/12_34", "tok"), (pvwa.Requests[1].Method, pvwa.Requests[1].PathAndQuery, pvwa.Requests[1].Authorization));
+    }
+
+    [Theory]
+    [InlineData(CpmAction.Verify, "Verify", "")]
+    [InlineData(CpmAction.Change, "Change", "{\"ChangeEntireGroup\":true}")]
+    [InlineData(CpmAction.Reconcile, "Reconcile", "")]
+    public async Task CpmActions_PostToTheirEndpoint(CpmAction action, string endpoint, string body)
+    {
+        var pvwa = new FakePvwa(req => FakePvwa.IsLogon(req) ? FakePvwa.Json("\"tok\"") : new HttpResponseMessage(HttpStatusCode.OK));
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+
+        await client.RunCpmActionAsync("12_34", action);
+
+        Assert.Equal((HttpMethod.Post, $"/PasswordVault/API/Accounts/12_34/{endpoint}", body),
+            (pvwa.Requests[1].Method, pvwa.Requests[1].PathAndQuery, pvwa.Requests[1].Body));
+    }
+
+    /// <summary>Mot de passe fictif renvoyé comme chaîne JSON (caractères échappés) : décodé tel quel, motif et usage envoyés.</summary>
+    [Fact]
+    public async Task RetrievePassword_DecodesTheJsonString()
+    {
+        var pvwa = new FakePvwa(req => FakePvwa.IsLogon(req)
+            ? FakePvwa.Json("\"tok\"")
+            : FakePvwa.Json("\"p\\\"a\\\\ss\\u00e9<>\"\r\n"));
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+
+        var secret = await client.RetrievePasswordAsync("12_34", new RetrieveOptions { Reason = " Incident 42 ", TicketId = "INC42", TicketingSystemName = "SNOW" });
+
+        Assert.Equal("p\"a\\ssé<>", new string(secret));
+        var (method, path, _, body) = pvwa.Requests[1];
+        Assert.Equal((HttpMethod.Post, "/PasswordVault/API/Accounts/12_34/Password/Retrieve"), (method, path));
+        using var json = JsonDocument.Parse(body);
+        Assert.Equal("copy", json.RootElement.GetProperty("ActionType").GetString());
+        Assert.False(json.RootElement.GetProperty("isUse").GetBoolean());
+        Assert.Equal("Incident 42", json.RootElement.GetProperty("reason").GetString());
+        Assert.Equal("INC42", json.RootElement.GetProperty("TicketId").GetString());
+    }
+
+    [Theory]
+    [InlineData("plain-text", "plain-text")]
+    [InlineData("\"\"", "")]
+    public void DecodeSecret_AcceptsPlainTextAndEmptyStrings(string body, string expected)
+    {
+        Assert.Equal(expected, new string(PvwaClient.DecodeSecret(System.Text.Encoding.UTF8.GetBytes(body))));
+    }
+
+    [Fact]
+    public async Task RetrievePassword_Refused_SurfacesThePvwaError()
+    {
+        var pvwa = new FakePvwa(req => FakePvwa.IsLogon(req)
+            ? FakePvwa.Json("\"tok\"")
+            : FakePvwa.Json("{\"ErrorCode\":\"ITATS542I\",\"ErrorMessage\":\"Reason required.\"}", HttpStatusCode.Forbidden));
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+
+        var ex = await Assert.ThrowsAsync<PvwaException>(() => client.RetrievePasswordAsync("1", new RetrieveOptions()));
+
+        Assert.Equal(HttpStatusCode.Forbidden, ex.StatusCode);
+    }
+
+    [Fact]
     public async Task GetAccounts_StopsOnEmptyPage()
     {
         var pvwa = new FakePvwa(req => req.RequestUri!.AbsolutePath.EndsWith("/Logon", StringComparison.Ordinal)

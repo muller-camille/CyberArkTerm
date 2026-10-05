@@ -810,56 +810,6 @@ public partial class MainWindow : Window
 
     private void OnShowSafeMembers(object sender, RoutedEventArgs e) => ShowSafeMembers((sender as MenuItem)?.CommandParameter as string);
 
-    private async void OnAddAccount(object sender, RoutedEventArgs e)
-    {
-        if ((sender as MenuItem)?.CommandParameter is string safe)
-        {
-            await AddAccountAsync(safe, _current);
-        }
-    }
-
-    /// <summary>
-    /// Crée un compte dans le safe (droit « Add accounts » nécessaire), puis recharge la liste des comptes. Le compte
-    /// cliqué sert de modèle : sa plateforme et son domaine de connexion sont proposés.
-    /// </summary>
-    private async Task AddAccountAsync(string safe, PvwaAccount? template)
-    {
-        if (_client is not { } client)
-        {
-            return;
-        }
-
-        static List<string> Distinct(IEnumerable<string?> values) =>
-            values.Where(v => !string.IsNullOrWhiteSpace(v)).Select(v => v!).Distinct(StringComparer.OrdinalIgnoreCase)
-                .Order(StringComparer.OrdinalIgnoreCase).ToList();
-
-        // Sans modèle (clic sur le safe) : la plateforme la plus courante du safe.
-        var platform = template?.PlatformId ?? _accounts
-            .Where(a => string.Equals(a.SafeName, safe, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(a.PlatformId))
-            .GroupBy(a => a.PlatformId!, StringComparer.OrdinalIgnoreCase)
-            .MaxBy(g => g.Count())?.Key;
-        var dialog = new AddAccountDialog(Distinct(_accounts.Select(a => a.SafeName)), Distinct(_accounts.Select(a => a.PlatformId)),
-            safe, platform, template?.LogonDomain, client.AddAccountAsync) { Owner = this };
-        if (dialog.ShowDialog() != true || dialog.Created is not { } created)
-        {
-            if (dialog.SessionExpired)
-            {
-                OnSessionExpired();
-            }
-
-            return;
-        }
-
-        var label = string.IsNullOrWhiteSpace(created.Name) ? $"{created.UserName}@{created.Address}" : created.Name;
-        await LoadAccountsAsync();
-        if (_byId.TryGetValue(created.Id, out var account))
-        {
-            SetCurrent(account);
-        }
-
-        SetStatus(Text.Format(Strings.AccountCreated, label, created.SafeName));
-    }
-
     /// <summary>Membres du safe et leurs droits, lus sur le PVWA (droit « View Safe Members » nécessaire).</summary>
     private void ShowSafeMembers(string? safeName)
     {
@@ -1041,6 +991,7 @@ public partial class MainWindow : Window
         // Fermeture de la session PVWA avant de quitter (au plus 5 s d'attente).
         e.Cancel = true;
         _loggedOff = true;
+        ClearPasswordClipboard();
         IsEnabled = false;
         _lifetime.Cancel();
         _searchDebounce.Stop();

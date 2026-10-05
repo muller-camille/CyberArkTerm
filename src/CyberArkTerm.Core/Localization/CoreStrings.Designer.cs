@@ -479,6 +479,15 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to The PVWA response is too long to be a password..
+        /// </summary>
+        public static string PvwaSecretTooLong {
+            get {
+                return ResourceManager.GetString("PvwaSecretTooLong", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to The PVWA returned an HTML5 connection (PSM Gateway) instead of an RDP file..
         /// </summary>
         public static string RdpGatewayInstead {

@@ -19,6 +19,7 @@
 
     <Window.Resources>
         <app:KindIconConverter x:Key="KindIcon" />
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
 
         <!-- Menu contextuel des comptes : arbre « Disponibles » et résultats de la connexion rapide de l'accueil. -->
         <ContextMenu x:Key="AccountMenu" x:Shared="False" Opened="OnAccountMenuOpened">
@@ -38,6 +39,14 @@
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
+            <MenuItem Header="{x:Static loc:Strings.MenuPassword}">
+                <MenuItem Header="{x:Static loc:Strings.MenuCopyPassword}" Click="OnCopyPassword" />
+                <Separator />
+                <MenuItem Header="{x:Static loc:Strings.MenuCpmVerify}" Click="OnCpmVerify" />
+                <MenuItem Header="{x:Static loc:Strings.MenuCpmChange}" Click="OnCpmChange" />
+                <MenuItem Header="{x:Static loc:Strings.MenuCpmReconcile}" Click="OnCpmReconcile" />
+            </MenuItem>
+            <Separator />
             <MenuItem Tag="addcurrent" Header="{x:Static loc:Strings.MenuAddToMyServers}">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconBookmark}" Width="16" Height="16" />
@@ -49,6 +58,16 @@
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="addaccount" Click="OnAddAccount" />
+            <MenuItem Header="{x:Static loc:Strings.MenuEditAccount}" Click="OnEditAccount">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="{x:Static loc:Strings.MenuDeleteAccount}" Click="OnDeleteAccount">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuCopyServer}" Click="OnCopyAddress" />
             <MenuItem Header="{x:Static loc:Strings.MenuCopyUser}" Click="OnCopyUser" />
@@ -81,6 +100,14 @@
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconConnectAdvanced}" Width="16" Height="16" />
                 </MenuItem.Icon>
+            </MenuItem>
+            <Separator />
+            <MenuItem Header="{x:Static loc:Strings.MenuPassword}">
+                <MenuItem Header="{x:Static loc:Strings.MenuCopyPassword}" Click="OnCopyPassword" />
+                <Separator />
+                <MenuItem Header="{x:Static loc:Strings.MenuCpmVerify}" Click="OnCpmVerify" />
+                <MenuItem Header="{x:Static loc:Strings.MenuCpmChange}" Click="OnCpmChange" />
+                <MenuItem Header="{x:Static loc:Strings.MenuCpmReconcile}" Click="OnCpmReconcile" />
             </MenuItem>
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuProperties}" Click="OnEditSelectedSaved">
@@ -366,6 +393,9 @@
                                     <StackPanel Orientation="Horizontal" Margin="0,1" ToolTip="{Binding Details}">
                                         <Image Source="{Binding Converter={StaticResource KindIcon}}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Title}" />
+                                        <!-- Dernière opération du CPM en échec (détail dans l'info-bulle). -->
+                                        <TextBlock Text="⚠" Foreground="#E0A100" FontWeight="Bold" Margin="6,0,0,0"
+                                                   Visibility="{Binding CpmFailed, Converter={StaticResource BoolToVisibility}}" />
                                     </StackPanel>
                                 </DataTemplate>
                             </TreeView.Resources>
