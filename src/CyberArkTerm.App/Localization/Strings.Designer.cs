@@ -83,6 +83,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Account {0} deleted from the safe {1}.
+        /// </summary>
+        public static string AccountDeleted {
+            get {
+                return ResourceManager.GetString("AccountDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to The account {0} is no longer available (deleted or access removed)..
         /// </summary>
         public static string AccountGone {
@@ -106,6 +115,15 @@ namespace CyberArkTerm.App.Localization {
         public static string AccountNotInList {
             get {
                 return ResourceManager.GetString("AccountNotInList", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account {0} updated.
+        /// </summary>
+        public static string AccountUpdated {
+            get {
+                return ResourceManager.GetString("AccountUpdated", resourceCulture);
             }
         }
 
@@ -389,6 +407,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to The clipboard is used by another application: try again..
+        /// </summary>
+        public static string ClipboardBusy {
+            get {
+                return ResourceManager.GetString("ClipboardBusy", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Close.
         /// </summary>
         public static string CloseButton {
@@ -560,6 +587,141 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Password change.
+        /// </summary>
+        public static string CpmActionChange {
+            get {
+                return ResourceManager.GetString("CpmActionChange", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reconciliation.
+        /// </summary>
+        public static string CpmActionReconcile {
+            get {
+                return ResourceManager.GetString("CpmActionReconcile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Verification.
+        /// </summary>
+        public static string CpmActionVerify {
+            get {
+                return ResourceManager.GetString("CpmActionVerify", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ask the CPM to change the password of {0} now? The new password is set on the server and stored i[rest of string was truncated].
+        /// </summary>
+        public static string CpmChangeConfirm {
+            get {
+                return ResourceManager.GetString("CpmChangeConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA refused the CPM operation: {0}.
+        /// </summary>
+        public static string CpmFailed {
+            get {
+                return ResourceManager.GetString("CpmFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA refused: your account needs the “Initiate CPM account management operations” right on th[rest of string was truncated].
+        /// </summary>
+        public static string CpmForbidden {
+            get {
+                return ResourceManager.GetString("CpmForbidden", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password changed on {0}.
+        /// </summary>
+        public static string CpmLastChanged {
+            get {
+                return ResourceManager.GetString("CpmLastChanged", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠ Last CPM operation failed.
+        /// </summary>
+        public static string CpmLastFailed {
+            get {
+                return ResourceManager.GetString("CpmLastFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reconciled on {0}.
+        /// </summary>
+        public static string CpmLastReconciled {
+            get {
+                return ResourceManager.GetString("CpmLastReconciled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Verified on {0}.
+        /// </summary>
+        public static string CpmLastVerified {
+            get {
+                return ResourceManager.GetString("CpmLastVerified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CPM: managed automatically.
+        /// </summary>
+        public static string CpmManagedAuto {
+            get {
+                return ResourceManager.GetString("CpmManagedAuto", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CPM: managed manually.
+        /// </summary>
+        public static string CpmManagedManual {
+            get {
+                return ResourceManager.GetString("CpmManagedManual", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CPM: managed manually ({0}).
+        /// </summary>
+        public static string CpmManagedManualReason {
+            get {
+                return ResourceManager.GetString("CpmManagedManualReason", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ask the CPM to reconcile the password of {0}? The platform's reconcile account sets the server pa[rest of string was truncated].
+        /// </summary>
+        public static string CpmReconcileConfirm {
+            get {
+                return ResourceManager.GetString("CpmReconcileConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {1} requested for {0}: the CPM handles it shortly (F5 to refresh the status).
+        /// </summary>
+        public static string CpmRequested {
+            get {
+                return ResourceManager.GetString("CpmRequested", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Cannot create: {0}.
         /// </summary>
         public static string CreateFailed {
@@ -610,6 +772,33 @@ namespace CyberArkTerm.App.Localization {
         public static string DefaultReasonLabel {
             get {
                 return ResourceManager.GetString("DefaultReasonLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete the account {0} from the safe {1}? It is deleted in CyberArk, for every user..
+        /// </summary>
+        public static string DeleteAccountConfirm {
+            get {
+                return ResourceManager.GetString("DeleteAccountConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA did not delete the account: {0}.
+        /// </summary>
+        public static string DeleteAccountFailed {
+            get {
+                return ResourceManager.GetString("DeleteAccountFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA refused: your account needs the “Delete accounts” right on this safe. PVWA message: {0}.
+        /// </summary>
+        public static string DeleteAccountForbidden {
+            get {
+                return ResourceManager.GetString("DeleteAccountForbidden", resourceCulture);
             }
         }
 
@@ -817,6 +1006,42 @@ namespace CyberArkTerm.App.Localization {
         public static string DropHint {
             get {
                 return ResourceManager.GetString("DropHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA did not save the changes: {0}.
+        /// </summary>
+        public static string EditAccountFailed {
+            get {
+                return ResourceManager.GetString("EditAccountFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA refused: your account needs the “Update account properties” right on this safe. PVWA mes[rest of string was truncated].
+        /// </summary>
+        public static string EditAccountForbidden {
+            get {
+                return ResourceManager.GetString("EditAccountForbidden", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The changes are saved in CyberArk with the rights of your session: the “Update account properties[rest of string was truncated].
+        /// </summary>
+        public static string EditAccountIntro {
+            get {
+                return ResourceManager.GetString("EditAccountIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Edit the account.
+        /// </summary>
+        public static string EditAccountTitle {
+            get {
+                return ResourceManager.GetString("EditAccountTitle", resourceCulture);
             }
         }
 
@@ -2324,6 +2549,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _Copy the password….
+        /// </summary>
+        public static string MenuCopyPassword {
+            get {
+                return ResourceManager.GetString("MenuCopyPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Copy server.
         /// </summary>
         public static string MenuCopyServer {
@@ -2338,6 +2572,33 @@ namespace CyberArkTerm.App.Localization {
         public static string MenuCopyUser {
             get {
                 return ResourceManager.GetString("MenuCopyUser", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to C_hange (CPM)….
+        /// </summary>
+        public static string MenuCpmChange {
+            get {
+                return ResourceManager.GetString("MenuCpmChange", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Reconcile (CPM)….
+        /// </summary>
+        public static string MenuCpmReconcile {
+            get {
+                return ResourceManager.GetString("MenuCpmReconcile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Verify (CPM).
+        /// </summary>
+        public static string MenuCpmVerify {
+            get {
+                return ResourceManager.GetString("MenuCpmVerify", resourceCulture);
             }
         }
 
@@ -2369,11 +2630,29 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to De_lete the account….
+        /// </summary>
+        public static string MenuDeleteAccount {
+            get {
+                return ResourceManager.GetString("MenuDeleteAccount", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Delete folder….
         /// </summary>
         public static string MenuDeleteFolder {
             get {
                 return ResourceManager.GetString("MenuDeleteFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Edit the account….
+        /// </summary>
+        public static string MenuEditAccount {
+            get {
+                return ResourceManager.GetString("MenuEditAccount", resourceCulture);
             }
         }
 
@@ -2491,6 +2770,15 @@ namespace CyberArkTerm.App.Localization {
         public static string MenuNewSubfolder {
             get {
                 return ResourceManager.GetString("MenuNewSubfolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Password.
+        /// </summary>
+        public static string MenuPassword {
+            get {
+                return ResourceManager.GetString("MenuPassword", resourceCulture);
             }
         }
 
@@ -2779,6 +3067,24 @@ namespace CyberArkTerm.App.Localization {
         public static string ParentTip {
             get {
                 return ResourceManager.GetString("ParentTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password cleared from the clipboard.
+        /// </summary>
+        public static string PasswordClipboardCleared {
+            get {
+                return ResourceManager.GetString("PasswordClipboardCleared", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password of {0} copied: cleared from the clipboard in {1} s.
+        /// </summary>
+        public static string PasswordCopied {
+            get {
+                return ResourceManager.GetString("PasswordCopied", resourceCulture);
             }
         }
 
@@ -3355,6 +3661,60 @@ namespace CyberArkTerm.App.Localization {
         public static string RenameTitle {
             get {
                 return ResourceManager.GetString("RenameTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Copy.
+        /// </summary>
+        public static string RetrieveButton {
+            get {
+                return ResourceManager.GetString("RetrieveButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA did not give the password: {0}.
+        /// </summary>
+        public static string RetrieveFailed {
+            get {
+                return ResourceManager.GetString("RetrieveFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA refused: your account needs the “Retrieve accounts” right on the safe, and the reason or[rest of string was truncated].
+        /// </summary>
+        public static string RetrieveForbidden {
+            get {
+                return ResourceManager.GetString("RetrieveForbidden", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The password of {0} is retrieved from CyberArk (the retrieval is recorded in the audit) and copie[rest of string was truncated].
+        /// </summary>
+        public static string RetrieveIntro {
+            get {
+                return ResourceManager.GetString("RetrieveIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copy the password.
+        /// </summary>
+        public static string RetrieveTitle {
+            get {
+                return ResourceManager.GetString("RetrieveTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Retrieving the password….
+        /// </summary>
+        public static string RetrieveWorking {
+            get {
+                return ResourceManager.GetString("RetrieveWorking", resourceCulture);
             }
         }
 

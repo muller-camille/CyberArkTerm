@@ -27,9 +27,58 @@ public sealed class AccountNode(PvwaAccount account)
 
     public string Title => $"{Account.UserName}@{Account.Address}";
 
-    public string Details => string.IsNullOrWhiteSpace(Account.RemoteMachines)
-        ? $"{Account.PlatformId} · {Account.SafeName}"
-        : $"{Account.PlatformId} · {Account.SafeName}\n" + Text.Format(Strings.AccountMachines, Account.RemoteMachines);
+    /// <summary>La dernière opération du CPM (changement, vérification, réconciliation) a échoué.</summary>
+    public bool CpmFailed => Account.SecretManagement?.Failed == true;
+
+    public string Details
+    {
+        get
+        {
+            var lines = new List<string> { $"{Account.PlatformId} · {Account.SafeName}" };
+            if (!string.IsNullOrWhiteSpace(Account.RemoteMachines))
+            {
+                lines.Add(Text.Format(Strings.AccountMachines, Account.RemoteMachines));
+            }
+
+            lines.AddRange(CpmText.Describe(Account.SecretManagement));
+            return string.Join("\n", lines);
+        }
+    }
+}
+
+/// <summary>État du mot de passe vu par le CPM, pour les info-bulles.</summary>
+internal static class CpmText
+{
+    public static IEnumerable<string> Describe(SecretManagement? management)
+    {
+        if (management is null)
+        {
+            yield break;
+        }
+
+        yield return management.AutomaticManagementEnabled ? Strings.CpmManagedAuto
+            : string.IsNullOrWhiteSpace(management.ManualManagementReason) ? Strings.CpmManagedManual
+            : Text.Format(Strings.CpmManagedManualReason, management.ManualManagementReason);
+        if (management.Failed)
+        {
+            yield return Strings.CpmLastFailed;
+        }
+
+        if (management.LastModified is { } changed)
+        {
+            yield return Text.Format(Strings.CpmLastChanged, changed.ToString("g", CultureInfo.CurrentCulture));
+        }
+
+        if (management.LastVerified is { } verified)
+        {
+            yield return Text.Format(Strings.CpmLastVerified, verified.ToString("g", CultureInfo.CurrentCulture));
+        }
+
+        if (management.LastReconciled is { } reconciled)
+        {
+            yield return Text.Format(Strings.CpmLastReconciled, reconciled.ToString("g", CultureInfo.CurrentCulture));
+        }
+    }
 }
 
 /// <summary>Icône selon le type de cible (compte, nœud de l'arbre, type ou session récente).</summary>
@@ -125,6 +174,10 @@ public sealed class SavedSessionNode(SavedSession session, PvwaAccount? account)
             if (Account is null)
             {
                 lines.Add(Strings.SavedAccountMissing);
+            }
+            else
+            {
+                lines.AddRange(CpmText.Describe(Account.SecretManagement));
             }
 
             return string.Join("\n", lines);

@@ -1598,4 +1598,124 @@ Your changes stay in the editor: save again to send the whole file once the conn
   <data name="AccountCreated" xml:space="preserve">
     <value>Account {0} created in the safe {1}</value>
   </data>
+  <data name="MenuPassword" xml:space="preserve">
+    <value>_Password</value>
+  </data>
+  <data name="MenuCopyPassword" xml:space="preserve">
+    <value>_Copy the password…</value>
+  </data>
+  <data name="MenuCpmVerify" xml:space="preserve">
+    <value>_Verify (CPM)</value>
+  </data>
+  <data name="MenuCpmChange" xml:space="preserve">
+    <value>C_hange (CPM)…</value>
+  </data>
+  <data name="MenuCpmReconcile" xml:space="preserve">
+    <value>_Reconcile (CPM)…</value>
+  </data>
+  <data name="MenuEditAccount" xml:space="preserve">
+    <value>_Edit the account…</value>
+  </data>
+  <data name="MenuDeleteAccount" xml:space="preserve">
+    <value>De_lete the account…</value>
+  </data>
+  <data name="CpmManagedAuto" xml:space="preserve">
+    <value>CPM: managed automatically</value>
+  </data>
+  <data name="CpmManagedManual" xml:space="preserve">
+    <value>CPM: managed manually</value>
+  </data>
+  <data name="CpmManagedManualReason" xml:space="preserve">
+    <value>CPM: managed manually ({0})</value>
+  </data>
+  <data name="CpmLastFailed" xml:space="preserve">
+    <value>⚠ Last CPM operation failed</value>
+  </data>
+  <data name="CpmLastChanged" xml:space="preserve">
+    <value>Password changed on {0}</value>
+  </data>
+  <data name="CpmLastVerified" xml:space="preserve">
+    <value>Verified on {0}</value>
+  </data>
+  <data name="CpmLastReconciled" xml:space="preserve">
+    <value>Reconciled on {0}</value>
+  </data>
+  <data name="CpmChangeConfirm" xml:space="preserve">
+    <value>Ask the CPM to change the password of {0} now? The new password is set on the server and stored in the vault.</value>
+  </data>
+  <data name="CpmReconcileConfirm" xml:space="preserve">
+    <value>Ask the CPM to reconcile the password of {0}? The platform's reconcile account sets the server password back in line with the vault.</value>
+  </data>
+  <data name="CpmRequested" xml:space="preserve">
+    <value>{1} requested for {0}: the CPM handles it shortly (F5 to refresh the status)</value>
+  </data>
+  <data name="CpmActionVerify" xml:space="preserve">
+    <value>Verification</value>
+  </data>
+  <data name="CpmActionChange" xml:space="preserve">
+    <value>Password change</value>
+  </data>
+  <data name="CpmActionReconcile" xml:space="preserve">
+    <value>Reconciliation</value>
+  </data>
+  <data name="CpmForbidden" xml:space="preserve">
+    <value>The PVWA refused: your account needs the “Initiate CPM account management operations” right on the safe. PVWA message: {0}</value>
+  </data>
+  <data name="CpmFailed" xml:space="preserve">
+    <value>The PVWA refused the CPM operation: {0}</value>
+  </data>
+  <data name="EditAccountTitle" xml:space="preserve">
+    <value>Edit the account</value>
+  </data>
+  <data name="EditAccountIntro" xml:space="preserve">
+    <value>The changes are saved in CyberArk with the rights of your session: the “Update account properties” right on the safe is required. The password is not changed here.</value>
+  </data>
+  <data name="EditAccountForbidden" xml:space="preserve">
+    <value>The PVWA refused: your account needs the “Update account properties” right on this safe. PVWA message: {0}</value>
+  </data>
+  <data name="EditAccountFailed" xml:space="preserve">
+    <value>The PVWA did not save the changes: {0}</value>
+  </data>
+  <data name="AccountUpdated" xml:space="preserve">
+    <value>Account {0} updated</value>
+  </data>
+  <data name="DeleteAccountConfirm" xml:space="preserve">
+    <value>Delete the account {0} from the safe {1}? It is deleted in CyberArk, for every user.</value>
+  </data>
+  <data name="DeleteAccountForbidden" xml:space="preserve">
+    <value>The PVWA refused: your account needs the “Delete accounts” right on this safe. PVWA message: {0}</value>
+  </data>
+  <data name="DeleteAccountFailed" xml:space="preserve">
+    <value>The PVWA did not delete the account: {0}</value>
+  </data>
+  <data name="AccountDeleted" xml:space="preserve">
+    <value>Account {0} deleted from the safe {1}</value>
+  </data>
+  <data name="RetrieveTitle" xml:space="preserve">
+    <value>Copy the password</value>
+  </data>
+  <data name="RetrieveIntro" xml:space="preserve">
+    <value>The password of {0} is retrieved from CyberArk (the retrieval is recorded in the audit) and copied to the clipboard for {1} seconds, without being shown. It is excluded from the clipboard history and synchronization.</value>
+  </data>
+  <data name="RetrieveButton" xml:space="preserve">
+    <value>_Copy</value>
+  </data>
+  <data name="RetrieveWorking" xml:space="preserve">
+    <value>Retrieving the password…</value>
+  </data>
+  <data name="RetrieveForbidden" xml:space="preserve">
+    <value>The PVWA refused: your account needs the “Retrieve accounts” right on the safe, and the reason or ticket the platform asks for, if any. PVWA message: {0}</value>
+  </data>
+  <data name="RetrieveFailed" xml:space="preserve">
+    <value>The PVWA did not give the password: {0}</value>
+  </data>
+  <data name="ClipboardBusy" xml:space="preserve">
+    <value>The clipboard is used by another application: try again.</value>
+  </data>
+  <data name="PasswordCopied" xml:space="preserve">
+    <value>Password of {0} copied: cleared from the clipboard in {1} s</value>
+  </data>
+  <data name="PasswordClipboardCleared" xml:space="preserve">
+    <value>Password cleared from the clipboard</value>
+  </data>
 </root>

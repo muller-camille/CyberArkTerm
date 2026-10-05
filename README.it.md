@@ -114,6 +114,18 @@ riapre subito nella lingua scelta, conservando l'indirizzo e il nome utente inse
   fa da modello (safe, piattaforma, dominio). L'account viene creato con i diritti della tua sessione: serve il
   diritto «Aggiungere account» sul safe e, in genere, «Aggiornare il contenuto degli account» per fornire la
   password. L'elenco viene poi ricaricato e il nuovo account selezionato.
+- **Modificare / eliminare un account**: clic destro → «Modifica l'account…» (piattaforma, indirizzo, utente,
+  dominio, nome, macchine consentite, gestione da parte del CPM; vengono inviati solo i campi modificati) oppure
+  «Elimina l'account…» (dopo conferma). Diritti «Aggiornare le proprietà degli account» ed «Eliminare account».
+- **Stato della password (CPM)**: il tooltip di un account indica se è gestito dal CPM e la data dell'ultimo
+  cambio, dell'ultima verifica e dell'ultima riconciliazione; un **⚠** segnala un account la cui ultima operazione
+  del CPM non è riuscita.
+- **Clic destro → «Password»** (account di «Disponibili» e server di «I miei server»):
+  - «Verifica», «Cambia…», «Riconcilia…» chiedono l'operazione al CPM (conferma per cambiare e riconciliare;
+    diritto «Avviare le operazioni CPM»). Il CPM la esegue poi: `F5` per vedere il nuovo stato.
+  - «Copia la password…»: motivo e ticket se la piattaforma li richiede, poi la password viene copiata negli
+    appunti per 20 secondi, **senza essere mostrata** (diritto «Recuperare gli account»; il recupero viene
+    registrato nell'audit del vault).
 - Nella scheda Home, la **connessione rapida** trova un server mentre digiti: Invio per connetterti.
 
 ### 3. Aprire una sessione PSM (desktop remoto)
@@ -296,6 +308,11 @@ l'applicazione ed eliminalo.
 - **Nessun segreto su disco**: password CyberArk, token di sessione, chiave MFA e password PSMP restano in
   memoria per la durata della sessione. Disconnessione dal PVWA (`Logoff`) alla chiusura.
 - Sessione PVWA aperta con `concurrentSession`: l'eventuale sessione web del PVWA non viene chiusa.
+- **Copia di una password**: la risposta del PVWA viene letta in un buffer cancellato subito dopo e decodificata
+  senza passare da una stringa; la password va direttamente negli appunti di Windows, contrassegnata per essere
+  esclusa dalla cronologia (`Win+V`), dalla sincronizzazione tra dispositivi e dagli strumenti di monitoraggio degli
+  appunti, poi cancellata dopo 20 s se è ancora presente, oltre che alla disconnessione, alla chiusura e al blocco
+  di Windows. Non viene mai mostrata né scritta nel registro di debug.
 - **Aggiunta di un account**: la password viene letta dal campo mascherato senza passare da una stringa, inviata una
   sola volta al PVWA in HTTPS, poi cancellata dalla memoria; non viene né salvata né scritta nel registro di debug.
 - **Sessioni PSM**: il file RDP del PVWA (token PSM monouso) viene scritto in `%TEMP%\CyberArkTerm` per
@@ -343,6 +360,9 @@ pubblica).
 | `GET /PasswordVault/API/Accounts?offset=…&limit=1000` | Elenco paginato degli account |
 | `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | File RDP della sessione PSM |
 | `POST /PasswordVault/API/Accounts` | Creazione di un account in un safe («Aggiungi un account») |
+| `PATCH` / `DELETE /PasswordVault/API/Accounts/{id}` | Modifica (solo i campi cambiati) ed eliminazione di un account |
+| `POST /PasswordVault/API/Accounts/{id}/Verify`, `/Change`, `/Reconcile` | Operazioni richieste al CPM |
+| `POST /PasswordVault/API/Accounts/{id}/Password/Retrieve` | Copia della password (motivo, ticket; uso «copy» nell'audit) |
 | `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Membri di un safe e i loro diritti («Membri del safe», sola lettura) |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Chiave SSH temporanea «MFA caching» (se attivata) |
 | `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Mantenimento della sessione (ogni 4 minuti) |
@@ -411,6 +431,8 @@ Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posizion
 | «Connessione TLS rifiutata: il certificato del PVWA non è considerato attendibile» | Il certificato (o l'autorità che lo ha emesso) non è nell'archivio Windows della postazione. |
 | «Il PVWA deve essere raggiunto in HTTPS» | Inserisci l'indirizzo senza `http://` (o con `https://`). |
 | «La sessione CyberArk è scaduta» | Timeout di inattività del PVWA superato: accedi di nuovo. |
+| «Password» → «Copia»: «Il PVWA rifiuta: … «Recuperare gli account» …» | Diritto mancante sul safe, o motivo / ticket richiesto dalla piattaforma: inseriscilo. Con la doppia convalida, fai la richiesta nel PVWA. |
+| «Verifica / Cambia / Riconcilia»: «Il PVWA rifiuta: … «Avviare le operazioni CPM» …» | Chiedi questo diritto sul safe; «Membri del safe» mostra i tuoi diritti. |
 | «Aggiungi un account»: «Il PVWA rifiuta: il tuo account deve avere il diritto «Aggiungere account»…» | Chiedi questo diritto sul safe (e «Aggiornare il contenuto degli account» per fornire la password), oppure crea l'account senza password. «Membri del safe» mostra i tuoi diritti. |
 | «Membri del safe»: «Il tuo account non può vedere i membri di questo safe» | Il PVWA richiede il diritto «View Safe Members» sul safe: chiedilo a un gestore del safe. |
 | «Connection component … is not configured for platform …» | Scegli il componente corretto in «Connessione avanzata», seleziona «Memorizza» per la piattaforma. |

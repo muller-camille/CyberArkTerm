@@ -67,13 +67,34 @@ public sealed class RemoteMachinesAccess
     public bool AccessRestrictedToRemoteMachines { get; set; }
 }
 
+/// <summary>Gestion du mot de passe par le CPM (dates en secondes Unix).</summary>
 public sealed class SecretManagement
 {
     public bool AutomaticManagementEnabled { get; set; }
 
+    /// <summary>Résultat de la dernière opération du CPM (« success », « failure »...).</summary>
     public string? Status { get; set; }
 
     public string? ManualManagementReason { get; set; }
 
     public long? LastModifiedTime { get; set; }
+
+    public long? LastVerifiedTime { get; set; }
+
+    public long? LastReconciledTime { get; set; }
+
+    /// <summary>La dernière opération du CPM (changement, vérification, réconciliation) a échoué.</summary>
+    [JsonIgnore]
+    public bool Failed => Status?.Contains("fail", StringComparison.OrdinalIgnoreCase) == true;
+
+    [JsonIgnore]
+    public DateTime? LastModified => Local(LastModifiedTime);
+
+    [JsonIgnore]
+    public DateTime? LastVerified => Local(LastVerifiedTime);
+
+    [JsonIgnore]
+    public DateTime? LastReconciled => Local(LastReconciledTime);
+
+    private static DateTime? Local(long? seconds) => seconds is > 0 ? DateTimeOffset.FromUnixTimeSeconds(seconds.Value).LocalDateTime : null;
 }

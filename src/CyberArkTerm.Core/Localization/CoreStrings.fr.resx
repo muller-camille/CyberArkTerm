@@ -84,6 +84,9 @@
   <data name="PvwaEmptyResponse" xml:space="preserve">
     <value>Réponse vide du PVWA.</value>
   </data>
+  <data name="PvwaSecretTooLong" xml:space="preserve">
+    <value>La réponse du PVWA est trop longue pour être un mot de passe.</value>
+  </data>
   <data name="PvwaNoSession" xml:space="preserve">
     <value>Aucune session ouverte sur le PVWA.</value>
   </data>
