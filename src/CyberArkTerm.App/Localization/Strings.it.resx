@@ -1802,4 +1802,82 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
   <data name="AccountsImported" xml:space="preserve">
     <value>{0} account importato/i</value>
   </data>
+  <data name="SafeMembersAdd" xml:space="preserve">
+    <value>_Aggiungi un membro…</value>
+  </data>
+  <data name="SafeMembersEdit" xml:space="preserve">
+    <value>_Modifica i diritti…</value>
+  </data>
+  <data name="SafeMembersRemove" xml:space="preserve">
+    <value>_Rimuovi…</value>
+  </data>
+  <data name="SafeMemberAddTitle" xml:space="preserve">
+    <value>Aggiungi un membro al safe «{0}»</value>
+  </data>
+  <data name="SafeMemberEditTitle" xml:space="preserve">
+    <value>Diritti di {0} sul safe «{1}»</value>
+  </data>
+  <data name="SafeMemberIntro" xml:space="preserve">
+    <value>Le modifiche vengono salvate in CyberArk con i diritti della tua sessione: serve il diritto «Gestire i membri del safe» sul safe.</value>
+  </data>
+  <data name="SafeMemberName" xml:space="preserve">
+    <value>_Membro:</value>
+  </data>
+  <data name="SafeMemberNameTip" xml:space="preserve">
+    <value>Nome dell'utente o del gruppo, come nel vault o nella directory LDAP.</value>
+  </data>
+  <data name="SafeMemberTypeLabel" xml:space="preserve">
+    <value>_Tipo:</value>
+  </data>
+  <data name="SafeMemberSearchIn" xml:space="preserve">
+    <value>_Cerca in:</value>
+  </data>
+  <data name="SafeMemberSearchInTip" xml:space="preserve">
+    <value>«Vault» per un utente o un gruppo del vault, altrimenti il nome della directory LDAP (ad esempio corp.example).</value>
+  </data>
+  <data name="SafeMemberUntil" xml:space="preserve">
+    <value>Membro _fino al:</value>
+  </data>
+  <data name="SafeMemberUntilTip" xml:space="preserve">
+    <value>Vuoto: senza data di fine.</value>
+  </data>
+  <data name="SafeMemberGroupAccess" xml:space="preserve">
+    <value>Accesso</value>
+  </data>
+  <data name="SafeMemberGroupAccounts" xml:space="preserve">
+    <value>Gestione degli account</value>
+  </data>
+  <data name="SafeMemberGroupSafe" xml:space="preserve">
+    <value>Gestione del safe</value>
+  </data>
+  <data name="SafeMemberGroupWorkflow" xml:space="preserve">
+    <value>Workflow</value>
+  </data>
+  <data name="SafeMemberGroupFolders" xml:space="preserve">
+    <value>Cartelle</value>
+  </data>
+  <data name="SafeMemberAll" xml:space="preserve">
+    <value>Seleziona _tutto</value>
+  </data>
+  <data name="SafeMemberNone" xml:space="preserve">
+    <value>_Deseleziona tutto</value>
+  </data>
+  <data name="SafeMemberNameRequired" xml:space="preserve">
+    <value>Inserisci il nome del membro.</value>
+  </data>
+  <data name="SafeMemberSaving" xml:space="preserve">
+    <value>Salvataggio…</value>
+  </data>
+  <data name="SafeMemberForbidden" xml:space="preserve">
+    <value>Il PVWA rifiuta: il tuo account deve avere il diritto «Gestire i membri del safe» su questo safe. Messaggio del PVWA: {0}</value>
+  </data>
+  <data name="SafeMemberFailed" xml:space="preserve">
+    <value>Il PVWA non ha salvato il membro: {0}</value>
+  </data>
+  <data name="SafeMemberRemoveConfirm" xml:space="preserve">
+    <value>Rimuovere {0} dal safe «{1}»? Questo membro perde tutti i suoi diritti sul safe.</value>
+  </data>
+  <data name="SafeMemberRemoveFailed" xml:space="preserve">
+    <value>Il PVWA non ha rimosso il membro: {0}</value>
+  </data>
 </root>

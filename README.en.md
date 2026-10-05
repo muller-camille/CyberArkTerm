@@ -105,7 +105,9 @@ right away in the chosen language, keeping the address and user name you typed.
   servers") → "Safe members". The window lists the users and groups of the safe with their rights (list, use,
   retrieve, add accounts, update, delete, manage members…), shows who can **add accounts**, and details every
   right of the selected member. The PVWA only gives this list to an account with the "View Safe Members" right on
-  the safe. Read only; `Ctrl+A` then `Ctrl+C` copies the table.
+  the safe. `Ctrl+A` then `Ctrl+C` copies the table. With the "Manage safe members" right, the "Add a member…",
+  "Edit the rights…" (or double-click) and "Remove…" buttons manage the members: name, type (user or group),
+  directory ("Vault" or the LDAP domain), optional end date and the 22 rights, grouped as in the PVWA.
 - **Add an account**: right-click an account (or a safe when accounts are grouped by safe) → "Add an account to
   the safe…". Safe, platform, address and user name are required; logon domain, account name, password, allowed
   machines and CPM management are optional. The account you clicked is used as a template (safe, platform,
@@ -350,6 +352,7 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md) (private reporting, no
 | `PATCH` / `DELETE /PasswordVault/API/Accounts/{id}` | Edits (changed fields only) and deletes an account |
 | `POST /PasswordVault/API/Accounts/{id}/Verify`, `/Change`, `/Reconcile` | Operations requested from the CPM |
 | `POST /PasswordVault/API/Accounts/{id}/Password/Retrieve` | Copies the password (reason, ticket; "copy" usage in the audit) |
+| `POST` / `PUT` / `DELETE /PasswordVault/API/Safes/{safe}/Members[/{member}]` | Adds a safe member, sets its rights, removes it |
 | `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Members of a safe and their rights ("Safe members", read only) |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Temporary "MFA caching" SSH key (if enabled) |
 | `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Session keep-alive (every 4 minutes) |

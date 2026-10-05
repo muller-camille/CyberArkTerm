@@ -1802,4 +1802,82 @@ Your changes stay in the editor: save again to send the whole file once the conn
   <data name="AccountsImported" xml:space="preserve">
     <value>{0} account(s) imported</value>
   </data>
+  <data name="SafeMembersAdd" xml:space="preserve">
+    <value>_Add a member…</value>
+  </data>
+  <data name="SafeMembersEdit" xml:space="preserve">
+    <value>_Edit the rights…</value>
+  </data>
+  <data name="SafeMembersRemove" xml:space="preserve">
+    <value>_Remove…</value>
+  </data>
+  <data name="SafeMemberAddTitle" xml:space="preserve">
+    <value>Add a member to the safe {0}</value>
+  </data>
+  <data name="SafeMemberEditTitle" xml:space="preserve">
+    <value>Rights of {0} on the safe {1}</value>
+  </data>
+  <data name="SafeMemberIntro" xml:space="preserve">
+    <value>The changes are saved in CyberArk with the rights of your session: the “Manage safe members” right on the safe is required.</value>
+  </data>
+  <data name="SafeMemberName" xml:space="preserve">
+    <value>_Member:</value>
+  </data>
+  <data name="SafeMemberNameTip" xml:space="preserve">
+    <value>User or group name, as in the vault or the LDAP directory.</value>
+  </data>
+  <data name="SafeMemberTypeLabel" xml:space="preserve">
+    <value>_Type:</value>
+  </data>
+  <data name="SafeMemberSearchIn" xml:space="preserve">
+    <value>_Search in:</value>
+  </data>
+  <data name="SafeMemberSearchInTip" xml:space="preserve">
+    <value>“Vault” for a vault user or group, otherwise the name of the LDAP directory (for example corp.example).</value>
+  </data>
+  <data name="SafeMemberUntil" xml:space="preserve">
+    <value>Member _until:</value>
+  </data>
+  <data name="SafeMemberUntilTip" xml:space="preserve">
+    <value>Empty: no end date.</value>
+  </data>
+  <data name="SafeMemberGroupAccess" xml:space="preserve">
+    <value>Access</value>
+  </data>
+  <data name="SafeMemberGroupAccounts" xml:space="preserve">
+    <value>Account management</value>
+  </data>
+  <data name="SafeMemberGroupSafe" xml:space="preserve">
+    <value>Safe management</value>
+  </data>
+  <data name="SafeMemberGroupWorkflow" xml:space="preserve">
+    <value>Workflow</value>
+  </data>
+  <data name="SafeMemberGroupFolders" xml:space="preserve">
+    <value>Folders</value>
+  </data>
+  <data name="SafeMemberAll" xml:space="preserve">
+    <value>Tick _all</value>
+  </data>
+  <data name="SafeMemberNone" xml:space="preserve">
+    <value>_Untick all</value>
+  </data>
+  <data name="SafeMemberNameRequired" xml:space="preserve">
+    <value>Enter the name of the member.</value>
+  </data>
+  <data name="SafeMemberSaving" xml:space="preserve">
+    <value>Saving…</value>
+  </data>
+  <data name="SafeMemberForbidden" xml:space="preserve">
+    <value>The PVWA refused: your account needs the “Manage safe members” right on this safe. PVWA message: {0}</value>
+  </data>
+  <data name="SafeMemberFailed" xml:space="preserve">
+    <value>The PVWA did not save the member: {0}</value>
+  </data>
+  <data name="SafeMemberRemoveConfirm" xml:space="preserve">
+    <value>Remove {0} from the safe {1}? This member loses all its rights on the safe.</value>
+  </data>
+  <data name="SafeMemberRemoveFailed" xml:space="preserve">
+    <value>The PVWA did not remove the member: {0}</value>
+  </data>
 </root>

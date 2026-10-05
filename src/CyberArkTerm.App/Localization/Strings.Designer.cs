@@ -3989,11 +3989,56 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Add a member to the safe {0}.
+        /// </summary>
+        public static string SafeMemberAddTitle {
+            get {
+                return ResourceManager.GetString("SafeMemberAddTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tick _all.
+        /// </summary>
+        public static string SafeMemberAll {
+            get {
+                return ResourceManager.GetString("SafeMemberAll", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Member.
         /// </summary>
         public static string SafeMemberColumn {
             get {
                 return ResourceManager.GetString("SafeMemberColumn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Rights of {0} on the safe {1}.
+        /// </summary>
+        public static string SafeMemberEditTitle {
+            get {
+                return ResourceManager.GetString("SafeMemberEditTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA did not save the member: {0}.
+        /// </summary>
+        public static string SafeMemberFailed {
+            get {
+                return ResourceManager.GetString("SafeMemberFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA refused: your account needs the “Manage safe members” right on this safe. PVWA message: {0}.
+        /// </summary>
+        public static string SafeMemberForbidden {
+            get {
+                return ResourceManager.GetString("SafeMemberForbidden", resourceCulture);
             }
         }
 
@@ -4007,11 +4052,164 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Access.
+        /// </summary>
+        public static string SafeMemberGroupAccess {
+            get {
+                return ResourceManager.GetString("SafeMemberGroupAccess", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account management.
+        /// </summary>
+        public static string SafeMemberGroupAccounts {
+            get {
+                return ResourceManager.GetString("SafeMemberGroupAccounts", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Folders.
+        /// </summary>
+        public static string SafeMemberGroupFolders {
+            get {
+                return ResourceManager.GetString("SafeMemberGroupFolders", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Safe management.
+        /// </summary>
+        public static string SafeMemberGroupSafe {
+            get {
+                return ResourceManager.GetString("SafeMemberGroupSafe", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Workflow.
+        /// </summary>
+        public static string SafeMemberGroupWorkflow {
+            get {
+                return ResourceManager.GetString("SafeMemberGroupWorkflow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The changes are saved in CyberArk with the rights of your session: the “Manage safe members” righ[rest of string was truncated].
+        /// </summary>
+        public static string SafeMemberIntro {
+            get {
+                return ResourceManager.GetString("SafeMemberIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Member:.
+        /// </summary>
+        public static string SafeMemberName {
+            get {
+                return ResourceManager.GetString("SafeMemberName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the name of the member..
+        /// </summary>
+        public static string SafeMemberNameRequired {
+            get {
+                return ResourceManager.GetString("SafeMemberNameRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to User or group name, as in the vault or the LDAP directory..
+        /// </summary>
+        public static string SafeMemberNameTip {
+            get {
+                return ResourceManager.GetString("SafeMemberNameTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Untick all.
+        /// </summary>
+        public static string SafeMemberNone {
+            get {
+                return ResourceManager.GetString("SafeMemberNone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove {0} from the safe {1}? This member loses all its rights on the safe..
+        /// </summary>
+        public static string SafeMemberRemoveConfirm {
+            get {
+                return ResourceManager.GetString("SafeMemberRemoveConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA did not remove the member: {0}.
+        /// </summary>
+        public static string SafeMemberRemoveFailed {
+            get {
+                return ResourceManager.GetString("SafeMemberRemoveFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Saving….
+        /// </summary>
+        public static string SafeMemberSaving {
+            get {
+                return ResourceManager.GetString("SafeMemberSaving", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Search in:.
+        /// </summary>
+        public static string SafeMemberSearchIn {
+            get {
+                return ResourceManager.GetString("SafeMemberSearchIn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to “Vault” for a vault user or group, otherwise the name of the LDAP directory (for example corp.exa[rest of string was truncated].
+        /// </summary>
+        public static string SafeMemberSearchInTip {
+            get {
+                return ResourceManager.GetString("SafeMemberSearchInTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Type.
         /// </summary>
         public static string SafeMemberTypeColumn {
             get {
                 return ResourceManager.GetString("SafeMemberTypeColumn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Type:.
+        /// </summary>
+        public static string SafeMemberTypeLabel {
+            get {
+                return ResourceManager.GetString("SafeMemberTypeLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Member _until:.
+        /// </summary>
+        public static string SafeMemberUntil {
+            get {
+                return ResourceManager.GetString("SafeMemberUntil", resourceCulture);
             }
         }
 
@@ -4025,11 +4223,29 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Empty: no end date..
+        /// </summary>
+        public static string SafeMemberUntilTip {
+            get {
+                return ResourceManager.GetString("SafeMemberUntilTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to User.
         /// </summary>
         public static string SafeMemberUser {
             get {
                 return ResourceManager.GetString("SafeMemberUser", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Add a member….
+        /// </summary>
+        public static string SafeMembersAdd {
+            get {
+                return ResourceManager.GetString("SafeMembersAdd", resourceCulture);
             }
         }
 
@@ -4048,6 +4264,15 @@ namespace CyberArkTerm.App.Localization {
         public static string SafeMembersCount {
             get {
                 return ResourceManager.GetString("SafeMembersCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Edit the rights….
+        /// </summary>
+        public static string SafeMembersEdit {
+            get {
+                return ResourceManager.GetString("SafeMembersEdit", resourceCulture);
             }
         }
 
@@ -4138,6 +4363,15 @@ namespace CyberArkTerm.App.Localization {
         public static string SafeMembersOnlyAdd {
             get {
                 return ResourceManager.GetString("SafeMembersOnlyAdd", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Remove….
+        /// </summary>
+        public static string SafeMembersRemove {
+            get {
+                return ResourceManager.GetString("SafeMembersRemove", resourceCulture);
             }
         }
 

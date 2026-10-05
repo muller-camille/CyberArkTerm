@@ -106,8 +106,10 @@ riapre subito nella lingua scelta, conservando l'indirizzo e il nome utente inse
   su un server di «I miei server») → «Membri del safe». La finestra elenca gli utenti e i gruppi del safe con i
   loro diritti (elencare, usare, recuperare, aggiungere account, aggiornare, eliminare, gestire i membri…), indica
   chi può **aggiungere account** e mostra tutti i diritti del membro selezionato. Il PVWA fornisce questo elenco
-  solo a un account con il diritto «View Safe Members» sul safe. Sola lettura; `Ctrl+A` e poi `Ctrl+C` copia la
-  tabella.
+  solo a un account con il diritto «View Safe Members» sul safe. `Ctrl+A` e poi `Ctrl+C` copia la tabella. Con il
+  diritto «Gestire i membri del safe», i pulsanti «Aggiungi un membro…», «Modifica i diritti…» (o doppio clic) e
+  «Rimuovi…» gestiscono i membri: nome, tipo (utente o gruppo), directory («Vault» o il dominio LDAP), eventuale data
+  di fine e i 22 diritti, raggruppati come nel PVWA.
 - **Aggiungere un account**: clic destro su un account (o su un safe quando gli account sono raggruppati per safe)
   → «Aggiungi un account al safe…». Safe, piattaforma, indirizzo e utente sono obbligatori; dominio di accesso,
   nome dell'account, password, macchine consentite e gestione da parte del CPM sono facoltativi. L'account cliccato
@@ -371,6 +373,7 @@ pubblica).
 | `PATCH` / `DELETE /PasswordVault/API/Accounts/{id}` | Modifica (solo i campi cambiati) ed eliminazione di un account |
 | `POST /PasswordVault/API/Accounts/{id}/Verify`, `/Change`, `/Reconcile` | Operazioni richieste al CPM |
 | `POST /PasswordVault/API/Accounts/{id}/Password/Retrieve` | Copia della password (motivo, ticket; uso «copy» nell'audit) |
+| `POST` / `PUT` / `DELETE /PasswordVault/API/Safes/{safe}/Members[/{membro}]` | Aggiunta, diritti e rimozione di un membro del safe |
 | `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Membri di un safe e i loro diritti («Membri del safe», sola lettura) |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Chiave SSH temporanea «MFA caching» (se attivata) |
 | `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Mantenimento della sessione (ogni 4 minuti) |

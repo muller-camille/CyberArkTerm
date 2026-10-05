@@ -109,8 +109,10 @@ rouvre aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant 
   un serveur de « Courants ») → « Membres du safe ». La fenêtre liste les utilisateurs et groupes du safe avec
   leurs droits (lister, utiliser, récupérer, ajouter des comptes, modifier, supprimer, gérer les membres…), indique
   qui peut **ajouter des comptes**, et détaille tous les droits du membre sélectionné. Le PVWA ne donne cette
-  liste qu'à un compte qui a le droit « View Safe Members » sur le safe. Lecture seule ; `Ctrl+A` puis `Ctrl+C`
-  copie le tableau.
+  liste qu'à un compte qui a le droit « View Safe Members » sur le safe. `Ctrl+A` puis `Ctrl+C` copie le tableau.
+  Avec le droit « Gérer les membres du safe », les boutons « Ajouter un membre… », « Modifier les droits… » (ou
+  double-clic) et « Retirer… » gèrent les membres : nom, type (utilisateur ou groupe), annuaire (« Vault » ou le
+  domaine LDAP), date de fin éventuelle et les 22 droits, regroupés comme dans le PVWA.
 - **Ajouter un compte** : clic droit sur un compte (ou sur un safe quand les comptes sont groupés par safe) →
   « Ajouter un compte dans le safe… ». Safe, plateforme, adresse et utilisateur sont obligatoires ; domaine de
   connexion, nom du compte, mot de passe, machines autorisées et gestion par le CPM sont facultatifs. Le compte
@@ -378,6 +380,7 @@ Pour signaler une vulnérabilité, voir [SECURITY.md](SECURITY.md) (signalement 
 | `PATCH` / `DELETE /PasswordVault/API/Accounts/{id}` | Modification (seuls les champs changés) et suppression d'un compte |
 | `POST /PasswordVault/API/Accounts/{id}/Verify`, `/Change`, `/Reconcile` | Opérations demandées au CPM |
 | `POST /PasswordVault/API/Accounts/{id}/Password/Retrieve` | Copie du mot de passe (motif, ticket ; usage « copy » dans l'audit) |
+| `POST` / `PUT` / `DELETE /PasswordVault/API/Safes/{safe}/Members[/{membre}]` | Ajout, droits et retrait d'un membre du safe |
 | `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Membres d'un safe et leurs droits (« Membres du safe », lecture seule) |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Clé SSH temporaire « MFA caching » (si activée) |
 | `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Maintien de la session (toutes les 4 minutes) |

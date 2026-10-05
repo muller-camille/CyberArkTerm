@@ -822,7 +822,11 @@ public partial class MainWindow : Window
             return;
         }
 
-        var dialog = new SafeMembersDialog(safeName, ct => client.GetSafeMembersAsync(safeName, ct)) { Owner = this };
+        var actions = new SafeMemberActions(
+            (member, ct) => client.AddSafeMemberAsync(safeName, member, ct),
+            (member, ct) => client.UpdateSafeMemberAsync(safeName, member, ct),
+            (name, ct) => client.RemoveSafeMemberAsync(safeName, name, ct));
+        var dialog = new SafeMembersDialog(safeName, ct => client.GetSafeMembersAsync(safeName, ct), actions) { Owner = this };
         dialog.ShowDialog();
         if (dialog.SessionExpired)
         {

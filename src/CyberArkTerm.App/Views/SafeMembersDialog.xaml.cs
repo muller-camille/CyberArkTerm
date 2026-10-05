@@ -27,14 +27,19 @@ public partial class SafeMembersDialog : Window
         nameof(SafePermissions.AccessWithoutConfirmation),
     ];
 
+    private readonly string _safe;
     private readonly Func<CancellationToken, Task<List<SafeMember>>> _load;
+    private readonly SafeMemberActions? _actions;
     private readonly CancellationTokenSource _closing = new();
     private List<SafeMemberRow> _rows = [];
 
-    public SafeMembersDialog(string safeName, Func<CancellationToken, Task<List<SafeMember>>> load)
+    /// <param name="actions">Ajout, modification et retrait de membres ; null = consultation seule.</param>
+    public SafeMembersDialog(string safeName, Func<CancellationToken, Task<List<SafeMember>>> load, SafeMemberActions? actions = null)
     {
         InitializeComponent();
+        _safe = safeName;
         _load = load;
+        _actions = actions;
         HeadingText.Text = Text.Format(Strings.SafeMembersHeading, safeName);
         BuildColumns();
         Loaded += async (_, _) => await LoadAsync();
@@ -76,6 +81,8 @@ public partial class SafeMembersDialog : Window
 
     private async Task LoadAsync()
     {
+        ErrorMessage.Visibility = Visibility.Collapsed;
+        StatusText.Visibility = Visibility.Visible;
         try
         {
             var members = await _load(_closing.Token);
@@ -118,6 +125,7 @@ public partial class SafeMembersDialog : Window
             : Text.Format(Strings.SafeMembersCanAdd, string.Join(", ", canAdd.Select(r => r.Member.IsGroup ? r.Name + Strings.SafeMembersGroupSuffix : r.Name)));
         SummaryPanel.Visibility = Visibility.Visible;
         MembersGrid.Visibility = Visibility.Visible;
+        ManagePanel.Visibility = _actions is null ? Visibility.Collapsed : Visibility.Visible;
         ApplyFilter();
     }
 
@@ -135,6 +143,9 @@ public partial class SafeMembersDialog : Window
 
     private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        // Utilisateurs prédéfinis du coffre (Administrator, Auditors...) : gérés par le coffre lui-même.
+        bool editable = MembersGrid.SelectedItems.Count == 1 && MembersGrid.SelectedItem is SafeMemberRow { Member.IsPredefinedUser: false };
+        EditButton.IsEnabled = RemoveButton.IsEnabled = editable;
         if (MembersGrid.SelectedItem is not SafeMemberRow row)
         {
             RightsText.Text = "";
@@ -143,6 +154,77 @@ public partial class SafeMembersDialog : Window
 
         var granted = row.Permissions.Granted().Select(SafePermissionText.Label).ToList();
         RightsText.Text = Text.Format(Strings.SafeMembersRights, row.Name, granted.Count == 0 ? Strings.SafeMembersNoRight : string.Join(", ", granted));
+    }
+
+    private void OnGridDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (EditButton.IsEnabled && ItemsControl.ContainerFromElement(MembersGrid, (DependencyObject)e.OriginalSource) is DataGridRow)
+        {
+            OnEditMember(sender, e);
+        }
+    }
+
+    private void OnAddMember(object sender, RoutedEventArgs e)
+    {
+        if (_actions is not null)
+        {
+            ShowMemberDialog(new SafeMemberDialog(_safe, _actions.Add) { Owner = this });
+        }
+    }
+
+    private void OnEditMember(object sender, RoutedEventArgs e)
+    {
+        if (_actions is not null && MembersGrid.SelectedItem is SafeMemberRow row)
+        {
+            ShowMemberDialog(new SafeMemberDialog(_safe, row.Member, _actions.Update) { Owner = this });
+        }
+    }
+
+    private void ShowMemberDialog(SafeMemberDialog dialog)
+    {
+        if (dialog.ShowDialog() == true)
+        {
+            _ = LoadAsync();
+        }
+        else if (dialog.SessionExpired)
+        {
+            SessionExpired = true;
+            Close();
+        }
+    }
+
+    private async void OnRemoveMember(object sender, RoutedEventArgs e)
+    {
+        if (_actions is null || MembersGrid.SelectedItem is not SafeMemberRow row
+            || MessageBox.Show(this, Text.Format(Strings.SafeMemberRemoveConfirm, row.Name, _safe), Strings.SafeMembersTitle,
+                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        try
+        {
+            await _actions.Remove(row.Name, _closing.Token);
+            await LoadAsync();
+        }
+        catch (OperationCanceledException) when (_closing.IsCancellationRequested)
+        {
+            // Fenêtre fermée.
+        }
+        catch (PvwaException ex) when (ex.IsUnauthorized)
+        {
+            SessionExpired = true;
+            Close();
+        }
+        catch (PvwaException ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+        {
+            MessageBox.Show(this, Text.Format(Strings.SafeMemberForbidden, ex.Message), Strings.SafeMembersTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            MessageBox.Show(this, Text.Format(Strings.SafeMemberRemoveFailed, ErrorText.Describe(ex)), Strings.SafeMembersTitle,
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     /// <summary>Ligne du tableau : membre, type et fin d'appartenance lisibles.</summary>
@@ -168,3 +250,9 @@ public partial class SafeMembersDialog : Window
             throw new NotSupportedException();
     }
 }
+
+/// <summary>Opérations de gestion des membres d'un safe (droit « Gérer les membres du safe »).</summary>
+public sealed record SafeMemberActions(
+    Func<SafeMemberChange, CancellationToken, Task> Add,
+    Func<SafeMemberChange, CancellationToken, Task> Update,
+    Func<string, CancellationToken, Task> Remove);

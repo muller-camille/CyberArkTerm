@@ -66,6 +66,39 @@ public sealed class DialogTests
     }
 
     [Fact]
+    public void SafeMemberWindowsOpen()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var add = new SafeMemberDialog("Prod", (_, _) => Task.CompletedTask);
+            Assert.Equal(Visibility.Visible, add.SearchInBox.Visibility);
+            Assert.Equal("Vault", add.SearchInBox.Text);
+            Assert.Equal((2, 3), (add.LeftGroups.Children.Count, add.RightGroups.Children.Count));
+            add.Close();
+
+            var member = JsonSerializer.Deserialize<SafeMember>("""
+                {"memberName":"Unix Admins","memberType":"Group","membershipExpirationDate":1767225600,
+                 "permissions":{"listAccounts":true,"addAccounts":true}}
+                """, Web)!;
+            var edit = new SafeMemberDialog("Prod", member, (_, _) => Task.CompletedTask);
+            Assert.True(edit.NameBox.IsReadOnly);
+            Assert.False(edit.TypeBox.IsEnabled);
+            Assert.Equal(1, edit.TypeBox.SelectedIndex);
+            Assert.Equal(Visibility.Collapsed, edit.SearchInBox.Visibility);
+            Assert.NotNull(edit.UntilBox.SelectedDate);
+            edit.Close();
+
+            var actions = new SafeMemberActions((_, _) => Task.CompletedTask, (_, _) => Task.CompletedTask, (_, _) => Task.CompletedTask);
+            new SafeMembersDialog("Prod", _ => Task.FromResult(new List<SafeMember>()), actions).Close();
+        });
+    }
+
+    [Fact]
     public void ImportWindowOpens()
     {
         if (!OperatingSystem.IsWindows())
