@@ -121,7 +121,9 @@ motore di `mstsc`):
 
 Anche un componente PSM che apre un'**applicazione remota** (RemoteApp, ad esempio PSM-SSH) si mostra **nella
 scheda**: la sua finestra principale occupa tutta la scheda e ne segue la dimensione; i suoi menu e finestre di
-dialogo si aprono sopra, dove li mette il server. Un clic nell'applicazione le dà la tastiera. Chiudere
+dialogo si aprono sopra, dove li mette il server. Anche una finestra a schermo intero (il client desktop remoto del
+componente PSM-RDP, ad esempio) vi si mostra, alla dimensione della scheda, e la finestra principale torna quando si
+chiude. Un clic nell'applicazione le dà la tastiera. Chiudere
 l'applicazione termina la sessione; «Disconnetti» la chiude da qui, «Riconnetti» la riavvia. Se «Mostra nella
 scheda la finestra delle applicazioni remote» è disattivata nelle Impostazioni, le sue finestre si aprono a parte,
 sul desktop del computer come con `mstsc`, e la scheda ne mostra lo stato.
@@ -395,16 +397,32 @@ riportano i codici di Windows (motivo, motivo esteso).
 
 **Applicazione remota nella scheda.** Il controllo crea le finestre dell'applicazione in questo processo, su un
 proprio thread, come finestre di primo livello (classe `RAIL_WINDOW`) che posiziona dove le mette il server, e le
-segnala una per una (evento `OnRemoteWindowDisplayed`): ogni scheda sa così quali sono le sue. La finestra
-principale (la prima che non è né una finestra degli strumenti, come menu e finestre di dialogo, né una finestra
-pop-up senza pulsante Riduci o Ingrandisci) viene collegata al contenitore del controllo (thread della connessione),
-occupa tutta la scheda e ne segue la dimensione; se il server la sposta o la riduce, viene rimessa a posto. Il
-controllo continua a trasmettere le posizioni al server: i clic arrivano nel punto giusto e i menu si aprono sotto il
-puntatore. Un pulsante del mouse premuto nell'applicazione le dà la tastiera (`WM_PARENTNOTIFY`), come la selezione
-della scheda. Alla fine della connessione, la finestra lascia il contenitore prima di essere distrutta; il
-controllo la distrugge da sé. Verificato dal test di integrazione: rendering, tastiera (testo digitato poi copiato,
-letto negli appunti reindirizzati), dimensione, menu contestuale aperto sotto il puntatore, finestra tolta dalla
-scheda alla disconnessione.
+segnala una per una (evento `OnRemoteWindowDisplayed`): ogni scheda sa così quali sono le sue. Ogni finestra
+principale (né finestra degli strumenti, come menu e finestre di dialogo, né finestra pop-up, salvo se ha un
+pulsante Riduci o Ingrandisci o copre tutto lo schermo) viene collegata al contenitore del controllo (thread della
+connessione), occupa tutta la scheda e ne segue la dimensione; la scheda mostra l'ultima visibile (una finestra a
+schermo intero aperta sopra, poi la principale quando si chiude); se il server la sposta o la riduce, viene rimessa
+a posto.
+
+Il controllo non comunica al server gli spostamenti fatti dal programma: sul server, la finestra resterebbe al suo
+posto e alla sua dimensione d'origine, mentre il mouse è trasmesso in coordinate dello schermo (i clic finirebbero
+altrove) e l'immagine è stirata alla dimensione della finestra locale. Invia la posizione di una finestra solo alla
+fine di uno spostamento iniziato dal server: CyberArkTerm chiede quindi al server uno spostamento da tastiera
+(comando di sistema «Sposta»), che il controllo esegue localmente, e lo termina subito (Invio); il controllo invia
+allora il posto della scheda, e il server vi mette la sua finestra (posizione e dimensione). Avviene dopo il
+collegamento, quando la scheda è stata spostata o ridimensionata (una volta ferma) e quando il server ha spostato la
+sua finestra; solo quando CyberArkTerm è in primo piano, senza pulsanti del mouse premuti (il puntatore passa un
+istante sulla finestra), al massimo tre volte di seguito per lo stesso posto; una finestra ingrandita sul server
+viene prima ripristinata.
+
+Un pulsante del mouse premuto nell'applicazione le dà la tastiera (`WM_PARENTNOTIFY`), come la selezione della
+scheda. Alla fine della connessione, le finestre lasciano il contenitore prima che sia distrutto; il controllo le
+distrugge da sé. Il registro di debug descrive le finestre dell'applicazione (stili, posto, visibilità) e cosa ne fa
+la scheda. Verificato dai test di integrazione: rendering, tastiera (testo digitato poi copiato, letto negli appunti
+reindirizzati), dimensione, menu contestuale aperto sotto il puntatore, finestra tolta dalla scheda alla
+disconnessione; e, con un'applicazione che scrive nel titolo la posizione di ogni clic ricevuto: clic ricevuti dove
+vengono fatti (angoli della scheda), immagine in scala 1, finestra a schermo intero aperta poi chiusa, nessun tasto
+Invio ricevuto.
 
 **Un thread per connessione desktop remoto.** Il controllo, la sua finestra e i suoi eventi vivono su un thread a
 parte (STA, con il proprio ciclo di messaggi); l'interfaccia non lo attende mai. La scheda contiene una finestra del

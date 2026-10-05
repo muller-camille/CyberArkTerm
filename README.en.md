@@ -120,7 +120,8 @@ The session opens **in a CyberArkTerm tab**, with the Windows Remote Desktop con
 
 A PSM component that opens a **remote application** (RemoteApp, for example PSM-SSH) also shows **in the tab**: its
 main window takes the whole tab and follows its size; its menus and dialog boxes open above, where the server puts
-them. Clicking in the application gives it the keyboard. Closing the application ends the session; "Disconnect"
+them. A full-screen window (the remote desktop client of the PSM-RDP component, for example) also shows there, at
+the size of the tab, and the main window comes back when it closes. Clicking in the application gives it the keyboard. Closing the application ends the session; "Disconnect"
 closes it from here, "Reconnect" starts it again. If "Show the window of remote applications in the tab" is
 unticked in the Settings, its windows open on their own, on this computer's desktop as with `mstsc`, and the tab
 shows its state.
@@ -378,15 +379,29 @@ Windows codes (reason, extended reason).
 
 **Remote application in the tab.** The control creates the application's windows in this process, on a thread of
 its own, as top-level windows (class `RAIL_WINDOW`) that it places where the server puts them, and reports each one
-(`OnRemoteWindowDisplayed` event): each tab thus knows which windows are its own. The main window (the first that is
-neither a tool window, like menus and dialog boxes, nor a pop-up window without a Minimize or Maximize button) is
-attached to the control's container (connection thread), takes the whole tab and follows its size; if the server
-moves or minimizes it, it is put back. The control keeps sending positions to the server: clicks land in the right
-place and menus open under the pointer. A mouse button pressed in the application gives it the keyboard
-(`WM_PARENTNOTIFY`), as selecting the tab does. When the connection ends, the window leaves the container before it
-is destroyed; the control destroys it itself. Checked by the integration test: rendering, keyboard (text typed then
-copied, read from the redirected clipboard), size, context menu opened under the pointer, window taken out of the
-tab on disconnection.
+(`OnRemoteWindowDisplayed` event): each tab thus knows which windows are its own. Each main window (neither a tool
+window, like menus and dialog boxes, nor a pop-up window, unless it has a Minimize or Maximize button or covers the
+whole screen) is attached to the control's container (connection thread), takes the whole tab and follows its size;
+the tab shows the last visible one (a full-screen window opened on top, then the main one when it closes); if the
+server moves or minimizes it, it is put back.
+
+The control does not tell the server about moves made by program: on the server, the window would stay at its
+original place and size, while the mouse is sent in screen coordinates (clicks would miss) and the image is
+stretched to the size of the local window. It sends a window's position only at the end of a move started by the
+server: CyberArkTerm therefore asks the server for a keyboard move (system command "Move"), which the control
+performs locally, and ends it at once (Enter); the control then sends the tab's place, and the server puts its
+window there (position and size). This is done after attaching, when the tab has been moved or resized (once it is
+still) and when the server has moved its window; only while CyberArkTerm is in the foreground, with no mouse button
+down (the pointer briefly goes over the window), at most three times in a row for the same place; a window
+maximized on the server is restored first.
+
+A mouse button pressed in the application gives it the keyboard (`WM_PARENTNOTIFY`), as selecting the tab does.
+When the connection ends, the windows leave the container before it is destroyed; the control destroys them itself.
+The debug log describes the application's windows (styles, place, visibility) and what the tab does with them.
+Checked by the integration tests: rendering, keyboard (text typed then copied, read from the redirected clipboard),
+size, context menu opened under the pointer, window taken out of the tab on disconnection; and, with an application
+that writes the position of each click it receives in its title: clicks received where they are made (corners of
+the tab), image at scale 1, full-screen window opened then closed, no Enter key received.
 
 **One thread per remote desktop connection.** The control, its window and its events live on a separate thread
 (STA, with its own message loop); the interface never waits for it. The tab holds a window of the interface thread,

@@ -124,10 +124,12 @@ moteur que `mstsc`) :
 
 Un composant PSM en **application distante** (RemoteApp, par exemple PSM-SSH) s'affiche lui aussi **dans
 l'onglet** : sa fenêtre principale y prend toute la place et suit sa taille ; ses menus et boîtes de dialogue
-s'ouvrent au-dessus, là où le serveur les place. Un clic dans l'application lui donne le clavier. Fermer
-l'application termine la session ; « Déconnecter » la ferme d'ici, « Reconnecter » la relance. Si « Afficher dans
-l'onglet la fenêtre des applications distantes » est décochée dans les Paramètres, ses fenêtres s'ouvrent à part, sur
-le bureau du poste comme avec `mstsc`, et l'onglet affiche son état.
+s'ouvrent au-dessus, là où le serveur les place. Une fenêtre plein écran (le client Bureau à distance du composant
+PSM-RDP, par exemple) s'y affiche aussi, à la taille de l'onglet, et la fenêtre principale revient à sa fermeture.
+Un clic dans l'application lui donne le clavier. Fermer l'application termine la session ; « Déconnecter » la ferme
+d'ici, « Reconnecter » la relance. Si « Afficher dans l'onglet la fenêtre des applications distantes » est décochée
+dans les Paramètres, ses fenêtres s'ouvrent à part, sur le bureau du poste comme avec `mstsc`, et l'onglet affiche son
+état.
 
 Avec « Ouvrir plutôt les applications distantes PSM comme un bureau » (décochée par défaut), CyberArkTerm essaie
 d'abord de l'ouvrir comme un bureau qui démarre le programme publié par le PSM (`||PSMInitSession`) : le serveur
@@ -402,16 +404,30 @@ l'onglet, et application inconnue (message d'erreur). Les messages de fin de ses
 
 **Application distante dans l'onglet.** Le contrôle crée les fenêtres de l'application dans ce processus, sur un
 thread à lui, comme des fenêtres de premier niveau (classe `RAIL_WINDOW`) qu'il place où le serveur les met, et
-signale chacune (événement `OnRemoteWindowDisplayed`) : chaque onglet sait ainsi lesquelles sont les siennes. La
-fenêtre principale (la première qui n'est ni une fenêtre d'outil, comme les menus et boîtes de dialogue, ni une
-fenêtre surgissante sans bouton Réduire ou Agrandir) est rattachée au conteneur du contrôle (thread de la
-connexion), prend toute la place de l'onglet et suit sa taille ; si le serveur la déplace ou la réduit, elle est
-remise en place. Le contrôle continue de transmettre les positions au serveur : les clics arrivent au bon endroit
-et les menus s'ouvrent sous le pointeur. Un bouton de la souris enfoncé dans l'application lui donne le clavier
-(`WM_PARENTNOTIFY`), comme la sélection de l'onglet. À la fin de la connexion, la fenêtre quitte le conteneur avant
-sa destruction ; le contrôle la détruit lui-même. Vérifié par le test d'intégration : rendu, clavier (texte tapé
-puis copié, lu dans le presse-papiers redirigé), taille, menu contextuel ouvert sous le pointeur, fenêtre retirée
-à la déconnexion.
+signale chacune (événement `OnRemoteWindowDisplayed`) : chaque onglet sait ainsi lesquelles sont les siennes. Chaque
+fenêtre principale (ni fenêtre d'outil, comme les menus et boîtes de dialogue, ni fenêtre surgissante, sauf avec un
+bouton Réduire ou Agrandir ou si elle couvre tout l'écran) est rattachée au conteneur du contrôle (thread de la
+connexion), prend toute la place de l'onglet et suit sa taille ; l'onglet montre la dernière visible (une fenêtre
+plein écran ouverte par-dessus, puis la principale à sa fermeture) ; si le serveur la déplace ou la réduit, elle est
+remise en place.
+
+Le contrôle ne transmet pas au serveur les déplacements faits par programme : sur le serveur, la fenêtre resterait
+à sa place et à sa taille d'origine, alors que la souris est transmise en coordonnées d'écran (les clics tomberaient
+à côté) et que l'image est étirée à la taille de la fenêtre locale. Il n'envoie la position d'une fenêtre qu'à la fin
+d'un déplacement commencé par le serveur : CyberArkTerm demande donc au serveur un déplacement au clavier
+(commande système « Déplacer »), que le contrôle fait localement, et le termine aussitôt (Entrée) ; le contrôle envoie
+alors la place de l'onglet, et le serveur y met sa fenêtre (position et taille). C'est fait après le rattachement,
+quand l'onglet a été déplacé ou redimensionné (une fois immobile) et quand le serveur a déplacé sa fenêtre ; seulement
+quand CyberArkTerm est au premier plan, sans bouton de souris enfoncé (le pointeur passe un instant sur la fenêtre),
+au plus trois fois de suite pour une même place ; une fenêtre agrandie sur le serveur est d'abord restaurée.
+
+Un bouton de la souris enfoncé dans l'application lui donne le clavier (`WM_PARENTNOTIFY`), comme la sélection de
+l'onglet. À la fin de la connexion, les fenêtres quittent le conteneur avant sa destruction ; le contrôle les détruit
+lui-même. Le journal de débogage décrit les fenêtres de l'application (styles, place, visibilité) et ce que l'onglet
+en fait. Vérifié par les tests d'intégration : rendu, clavier (texte tapé puis copié, lu dans le presse-papiers
+redirigé), taille, menu contextuel ouvert sous le pointeur, fenêtre retirée à la déconnexion ; et, avec une
+application qui écrit dans son titre la position de chaque clic reçu : clics reçus là où ils sont faits (coins de
+l'onglet), image à l'échelle 1, fenêtre plein écran ouverte puis fermée, aucune touche Entrée reçue.
 
 **Un thread par connexion Bureau à distance.** Le contrôle, sa fenêtre et ses événements vivent sur un thread à
 part (STA, avec sa boucle de messages) ; l'interface ne l'attend jamais. L'onglet contient une fenêtre du thread de
