@@ -136,56 +136,56 @@ public class RemoteAppFullScreenSpike(ITestOutputHelper output)
         output.WriteLine($"Onglet {Win32Input.ScreenBounds(slot)}, conteneur {Win32Input.ScreenBounds(container)}, fenêtre {Win32Input.ScreenBounds(main)}");
         await Probe(host, main, "V0 rattachée (version actuelle)");
 
-        // V1 : déplacement encadré de WM_ENTERSIZEMOVE / WM_EXITSIZEMOVE (comme un déplacement à la souris).
+        // V4 : déplacement au clavier demandé au serveur (SC_MOVE) : le contrôle fait le déplacement localement,
+        // puis envoie la position finale au serveur ; Entrée termine aussitôt (position finale : l'onglet).
         RemoteAppDock.Paused = true;
-        await session.InvokeOnControlAsync(_ =>
-        {
-            GetClientRect(container, out var r);
-            SendMessage(main, 0x0231, IntPtr.Zero, IntPtr.Zero);
-            SetWindowPos(main, IntPtr.Zero, 0, 0, r.Right - 1, r.Bottom - 1, 0x0004 | 0x0010);
-            SetWindowPos(main, IntPtr.Zero, 0, 0, r.Right, r.Bottom, 0x0004 | 0x0010);
-            SendMessage(main, 0x0232, IntPtr.Zero, IntPtr.Zero);
-            return 0;
-        });
-        await Task.Delay(2000);
-        await Probe(host, main, "V1 ENTERSIZEMOVE/EXITSIZEMOVE");
-
-        // V2 : de nouveau fenêtre de premier niveau, placée sur l'onglet, puis rattachée.
-        var tab = Win32Input.ScreenBounds(container);
-        await session.InvokeOnControlAsync(_ =>
-        {
-            long style = GetWindowLongPtr(main, -16).ToInt64();
-            SetParent(main, IntPtr.Zero);
-            SetWindowLongPtr(main, -16, new IntPtr((style & ~0x40000000L) | 0x80000000L));
-            SendMessage(main, 0x0231, IntPtr.Zero, IntPtr.Zero);
-            SetWindowPos(main, new IntPtr(-1), tab.Left, tab.Top, tab.Width, tab.Height, 0x0010 | 0x0020);
-            SendMessage(main, 0x0232, IntPtr.Zero, IntPtr.Zero);
-            return 0;
-        });
-        await Task.Delay(2000);
-        output.WriteLine($"V2 premier niveau : fenêtre {Win32Input.ScreenBounds(main)} parent 0x{GetParent(main).ToInt64():X}");
-        await Probe(host, main, "V2 premier niveau sur l'onglet");
-        await session.InvokeOnControlAsync(_ =>
-        {
-            long style = GetWindowLongPtr(main, -16).ToInt64();
-            SetWindowPos(main, new IntPtr(-2), 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0010);
-            SetParent(main, container);
-            SetWindowLongPtr(main, -16, new IntPtr((style & ~0x80000000L) | 0x40000000L));
-            GetClientRect(container, out var r);
-            SetWindowPos(main, IntPtr.Zero, 0, 0, r.Right, r.Bottom, 0x0010 | 0x0020);
-            return 0;
-        });
-        await Task.Delay(2000);
-        await Probe(host, main, "V2 rattachée ensuite");
-
-        // V3 : agrandie sur le serveur (commande système).
-        PostMessage(main, 0x0112, new IntPtr(0xF030), IntPtr.Zero);
-        await Task.Delay(2500);
-        await Probe(host, main, "V3 SC_MAXIMIZE");
+        await MoveSize(session, main, 0xF010, "V4 SC_MOVE");
+        await Probe(host, main, "V4 SC_MOVE");
+        await MoveSize(session, main, 0xF000, "V5 SC_SIZE");
+        await Probe(host, main, "V5 SC_SIZE");
         RemoteAppDock.Paused = false;
+        await Task.Delay(1500);
+        await Probe(host, main, "V6 rattachement repris");
 
         session.Disconnect();
         await Task.Delay(3000);
+    }
+
+    /// <summary>Commande système envoyée à la fenêtre, puis Entrée si une boucle de déplacement locale a démarré.</summary>
+    private async Task MoveSize(RdpSession session, IntPtr main, int command, string step)
+    {
+        GetCursorPos(out var cursor);
+        output.WriteLine($"{step} : curseur avant {cursor.X},{cursor.Y}");
+        PostMessage(main, 0x0112, new IntPtr(command), IntPtr.Zero);
+        int thread = GetWindowThreadProcessId(main, out _);
+        bool inLoop = false;
+        for (int i = 0; i < 30 && !inLoop; i++)
+        {
+            await Task.Delay(100);
+            var info = new GuiThreadInfo { Size = Marshal.SizeOf<GuiThreadInfo>() };
+            if (GetGUIThreadInfo(thread, ref info) && (info.Flags & 0x2) != 0)
+            {
+                inLoop = true;
+                GetCursorPos(out cursor);
+                output.WriteLine($"{step} : boucle locale après {(i + 1) * 100} ms, fenêtre 0x{info.MoveSize.ToInt64():X}, curseur {cursor.X},{cursor.Y}, fenêtre {Win32Input.ScreenBounds(main)}");
+            }
+        }
+
+        if (!inLoop)
+        {
+            output.WriteLine($"{step} : pas de boucle locale ; fenêtre {Win32Input.ScreenBounds(main)}");
+        }
+        else
+        {
+            PostMessage(main, 0x0100, new IntPtr(0x0D), new IntPtr(0x001C0001));
+            PostMessage(main, 0x0101, new IntPtr(0x0D), new IntPtr(unchecked((int)0xC01C0001)));
+        }
+
+        await Task.Delay(2500);
+        var info2 = new GuiThreadInfo { Size = Marshal.SizeOf<GuiThreadInfo>() };
+        GetGUIThreadInfo(thread, ref info2);
+        GetCursorPos(out cursor);
+        output.WriteLine($"{step} : après, boucle {(info2.Flags & 0x2) != 0}, curseur {cursor.X},{cursor.Y}, fenêtre {Win32Input.ScreenBounds(main)}");
     }
 
     /// <summary>Où est dessiné le carré rouge, et où arrivent deux clics (près du coin haut gauche et au centre) ?</summary>
@@ -251,6 +251,38 @@ public class RemoteAppFullScreenSpike(ITestOutputHelper output)
         public int Right;
         public int Bottom;
     }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct GuiThreadInfo
+    {
+        public int Size;
+        public int Flags;
+        public IntPtr Active;
+        public IntPtr Focus;
+        public IntPtr Capture;
+        public IntPtr MenuOwner;
+        public IntPtr MoveSize;
+        public IntPtr Caret;
+        public Rect CaretRect;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct Point
+    {
+        public int X;
+        public int Y;
+    }
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetGUIThreadInfo(int thread, ref GuiThreadInfo info);
+
+    [DllImport("user32.dll")]
+    private static extern int GetWindowThreadProcessId(IntPtr window, out int process);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetCursorPos(out Point point);
 
     [DllImport("user32.dll")]
     private static extern IntPtr GetWindowLongPtr(IntPtr h, int index);
