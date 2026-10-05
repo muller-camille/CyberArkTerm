@@ -892,6 +892,102 @@ Continuare?</value>
   <data name="ChecksCopied" xml:space="preserve">
     <value>Copiato: {0} riga/righe</value>
   </data>
+  <data name="ChecksColDirection" xml:space="preserve">
+    <value>Direzione</value>
+  </data>
+  <data name="ChecksUploaded" xml:space="preserve">
+    <value>⬆ inviato</value>
+  </data>
+  <data name="ChecksDownloaded" xml:space="preserve">
+    <value>⬇ scaricato</value>
+  </data>
+  <data name="ChecksInterrupted" xml:space="preserve">
+    <value>⏹ Annullato: {0}</value>
+  </data>
+  <data name="ChecksFailed" xml:space="preserve">
+    <value>✗ Non riuscito: {0}</value>
+  </data>
+  <data name="ChecksSomeFailed" xml:space="preserve">
+    <value>✗ {0} file su {1} non riuscito/i.</value>
+  </data>
+  <data name="ChecksSomeInterrupted" xml:space="preserve">
+    <value>⏹ {0} file su {1} interrotto/i da un annullamento: copia incompleta eliminata.</value>
+  </data>
+  <data name="QueueTitle" xml:space="preserve">
+    <value>Trasferimenti</value>
+  </data>
+  <data name="QueueCancelAll" xml:space="preserve">
+    <value>Annulla _tutto</value>
+  </data>
+  <data name="QueueRemoveTip" xml:space="preserve">
+    <value>Rimuovi dalla coda</value>
+  </data>
+  <data name="QueueCancel" xml:space="preserve">
+    <value>Annulla</value>
+  </data>
+  <data name="QueueCancelTip" xml:space="preserve">
+    <value>Interrompi questo trasferimento: il file in corso, incompleto, viene eliminato; i file già trasferiti restano.</value>
+  </data>
+  <data name="QueueItems" xml:space="preserve">
+    <value>{0} elementi</value>
+  </data>
+  <data name="QueueFiles" xml:space="preserve">
+    <value>{0} file</value>
+  </data>
+  <data name="QueuePending" xml:space="preserve">
+    <value>{0} in attesa</value>
+  </data>
+  <data name="QueueStateWaiting" xml:space="preserve">
+    <value>in attesa</value>
+  </data>
+  <data name="QueueStateRunning" xml:space="preserve">
+    <value>{0} % · file {1}/{2}</value>
+  </data>
+  <data name="QueueStateVerifying" xml:space="preserve">
+    <value>verifica (SHA-256) · file {0}/{1}</value>
+  </data>
+  <data name="QueueStateCancelling" xml:space="preserve">
+    <value>annullamento…</value>
+  </data>
+  <data name="QueueStateDone" xml:space="preserve">
+    <value>✓ completato</value>
+  </data>
+  <data name="QueueStateDifferent" xml:space="preserve">
+    <value>✗ {0} file diverso/i</value>
+  </data>
+  <data name="QueueStateCancelled" xml:space="preserve">
+    <value>annullato</value>
+  </data>
+  <data name="QueueAdded" xml:space="preserve">
+    <value>Aggiunto alla coda dei trasferimenti: {0} ({1} in attesa)</value>
+  </data>
+  <data name="QueueSummary" xml:space="preserve">
+    <value>Trasferimenti terminati: {0}</value>
+  </data>
+  <data name="QueueSummaryDone" xml:space="preserve">
+    <value>{0} riuscito/i</value>
+  </data>
+  <data name="QueueSummaryFailed" xml:space="preserve">
+    <value>{0} non riuscito/i</value>
+  </data>
+  <data name="QueueSummaryCancelled" xml:space="preserve">
+    <value>{0} annullato/i</value>
+  </data>
+  <data name="QueueCancelledOne" xml:space="preserve">
+    <value>Trasferimento annullato: {0}</value>
+  </data>
+  <data name="QueueDownloadFailed" xml:space="preserve">
+    <value>Download di {0} non riuscito: {1}</value>
+  </data>
+  <data name="QueueCloseConfirm" xml:space="preserve">
+    <value>{0} trasferimento/i in corso o in attesa verranno annullati (il file in corso, incompleto, viene eliminato).
+
+Chiudere comunque?</value>
+  </data>
+  <data name="DropHintQueued" xml:space="preserve">
+    <value>Rilascia per aggiungere alla coda dei trasferimenti: {0} a
+{1}</value>
+  </data>
   <data name="PermissionDenied" xml:space="preserve">
     <value>permesso negato</value>
   </data>

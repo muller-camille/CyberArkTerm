@@ -183,6 +183,16 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   downloaded while dragging: on drop, a window shows the progress (Cancel stops it), then Explorer copies the
   files where you dropped them. Unix names are made valid for Windows (`\`, `:`, `..`, `CON`… replaced), never
   writing outside the drop folder; the temporary download folder is deleted afterwards.
+- **Transfer queue**: uploads and downloads run one at a time, in the order requested; what you ask for during a
+  transfer is added to the queue instead of being ignored. An upload goes to the folder shown when you dropped the
+  files, and the overwrite confirmation also counts uploads still waiting. A panel above the status bar shows each
+  item (waiting, progress and file n/N, check, result): ✕ removes a waiting item, "Cancel" stops the running one,
+  "Cancel all" empties the queue. A stopped transfer deletes the file being transferred, which is incomplete (on
+  the server for an upload, on this computer for a download); files already transferred stay. Beware: if the
+  upload was replacing an existing file, its old content is lost. Over SCP, stopping closes the SCP connection;
+  the next SCP upload opens a new one (new PSMP session). An error is shown in the queue and the queue goes on;
+  at the end, a single summary. Browsing, deleting, permissions, the editor and dragging to Explorer get in
+  between two files. Closing the tab or the application with transfers running asks for confirmation.
 - **Transfer check (SHA-256)**: every uploaded or downloaded file is checked. On upload (SCP or SFTP), the local
   file is hashed, then the file on the server is read again over SFTP and hashed. On download, the data received
   from the server is hashed, then the file written on this computer is read again. The status bar confirms

@@ -273,7 +273,7 @@ public partial class FileBrowserPanel
         }
         else if (data.Fetched && result >= 0)
         {
-            ReportChecks(Text.Format(Strings.DragDownloaded, count), _dragChecks, upload: false);
+            ReportChecks(Text.Format(Strings.DragDownloaded, count), _dragChecks);
         }
         else if (data.Fetched || (!data.FetchAttempted && result < 0 && result != unchecked((int)0x80004004)))
         {

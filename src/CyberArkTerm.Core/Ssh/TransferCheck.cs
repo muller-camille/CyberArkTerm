@@ -13,6 +13,15 @@ public sealed record TransferCheck(
     string Name, string LocalPath, string RemotePath, long LocalLength, byte[] LocalSha256, long RemoteLength, byte[] RemoteSha256,
     string? Error = null)
 {
+    /// <summary>Envoi vers le serveur (sinon téléchargement).</summary>
+    public bool Upload { get; init; }
+
+    /// <summary>Transfert annulé pendant ce fichier : la copie incomplète a été supprimée (voir <see cref="Error"/>).</summary>
+    public bool Interrupted { get; init; }
+
+    /// <summary>Transfert en échec pendant ce fichier (message dans <see cref="Error"/>).</summary>
+    public bool Failed { get; init; }
+
     public bool Verified => Error is null;
 
     public bool Matches => Verified && LocalLength == RemoteLength && LocalSha256.AsSpan().SequenceEqual(RemoteSha256);
@@ -26,9 +35,9 @@ public sealed record TransferCheck(
     /// l'original (le fichier local pour un envoi, celui du serveur pour un téléchargement), deux espaces, chemin. Un
     /// chemin contenant « \ » ou un saut de ligne est échappé comme le fait sha256sum (ligne commençant par « \ »).
     /// </summary>
-    public string ToSha256SumLine(bool upload)
+    public string ToSha256SumLine()
     {
-        var hash = upload ? LocalHash : RemoteHash;
+        var hash = Upload ? LocalHash : RemoteHash;
         if (RemotePath.IndexOfAny(['\\', '\n', '\r']) < 0)
         {
             return $"{hash}  {RemotePath}";

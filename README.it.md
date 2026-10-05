@@ -192,6 +192,17 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   Esplora file copia i file dove li hai rilasciati. I nomi Unix vengono resi validi per Windows (`\`, `:`, `..`,
   `CON`… sostituiti), senza mai scrivere fuori dalla cartella di rilascio; la cartella temporanea del download
   viene poi eliminata.
+- **Coda dei trasferimenti**: invii e download vengono eseguiti uno alla volta, nell'ordine delle richieste; ciò
+  che chiedi durante un trasferimento si aggiunge alla coda invece di essere ignorato. Un invio va nella cartella
+  mostrata al momento del rilascio, e la conferma di sovrascrittura tiene conto anche degli invii ancora in attesa.
+  Un pannello sopra la barra di stato mostra ogni elemento (in attesa, avanzamento e file n/N, verifica, risultato):
+  ✕ rimuove un elemento in attesa, «Annulla» interrompe quello in corso, «Annulla tutto» svuota la coda. Un
+  trasferimento interrotto elimina il file in corso, incompleto (sul server per un invio, sul computer per un
+  download); i file già trasferiti restano. Attenzione: se l'invio sostituiva un file esistente, il vecchio
+  contenuto è perso. In SCP, l'interruzione chiude la connessione SCP; l'invio SCP successivo ne apre una nuova
+  (nuova sessione PSMP). Un errore viene mostrato nella coda e la coda prosegue; alla fine, un unico riepilogo.
+  Navigazione, eliminazione, permessi, editor e trascinamento verso Esplora file passano tra due file. Chiudere la
+  scheda o l'applicazione con trasferimenti in corso chiede conferma.
 - **Verifica dei trasferimenti (SHA-256)**: ogni file inviato o scaricato viene verificato. All'invio (SCP o
   SFTP), il file locale viene sottoposto a hash, poi il file arrivato sul server viene riletto via SFTP e
   sottoposto a hash. Al download, i dati ricevuti dal server vengono sottoposti a hash, poi il file scritto sul

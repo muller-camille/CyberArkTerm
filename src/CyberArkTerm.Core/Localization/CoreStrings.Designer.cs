@@ -758,6 +758,33 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to check cancelled, file transferred.
+        /// </summary>
+        public static string TransferCheckCancelled {
+            get {
+                return ResourceManager.GetString("TransferCheckCancelled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to incomplete file deleted.
+        /// </summary>
+        public static string TransferIncompleteDeleted {
+            get {
+                return ResourceManager.GetString("TransferIncompleteDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to incomplete file not deleted: {0}.
+        /// </summary>
+        public static string TransferIncompleteNotDeleted {
+            get {
+                return ResourceManager.GetString("TransferIncompleteNotDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to the user name.
         /// </summary>
         public static string UserNameWhat {

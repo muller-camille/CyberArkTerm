@@ -24,11 +24,11 @@ public partial class FileBrowserPanel : UserControl
     private int _generation;
     private int _busy;
     private IReadOnlyList<TransferCheck> _lastChecks = [];
-    private bool _lastChecksUpload;
 
     public FileBrowserPanel()
     {
         InitializeComponent();
+        InitializeQueue();
         ShowMessage(Strings.NoSshSessionHelp, retry: false);
         HeaderText.Text = Strings.NoSshSession;
         UpdateToolbar();
@@ -298,7 +298,7 @@ public partial class FileBrowserPanel : UserControl
         }
         else
         {
-            _ = DownloadAsync([entry]);
+            RequestDownload([entry]);
         }
     }
 
@@ -559,7 +559,7 @@ public partial class FileBrowserPanel : UserControl
         e.Effects = ok ? DragDropEffects.Copy : DragDropEffects.None;
         if (ok)
         {
-            DropHintText.Text = Text.Format(Strings.DropHint, Protocol, _browser!.CurrentDirectory);
+            DropHintText.Text = Text.Format(_queue.ActiveCount > 0 ? Strings.DropHintQueued : Strings.DropHint, Protocol, _browser!.CurrentDirectory);
             DropHint.Visibility = Visibility.Visible;
         }
 
@@ -573,7 +573,7 @@ public partial class FileBrowserPanel : UserControl
         DropHint.Visibility = Visibility.Collapsed;
         if (e.Data.GetData(DataFormats.FileDrop) is string[] paths && paths.Length > 0)
         {
-            _ = UploadAsync(paths);
+            EnqueueUpload(paths);
         }
     }
 
@@ -587,98 +587,19 @@ public partial class FileBrowserPanel : UserControl
         var dialog = new OpenFileDialog { Title = Text.Format(Strings.UploadTo, _browser.CurrentDirectory), Multiselect = true };
         if (dialog.ShowDialog(Window.GetWindow(this)) == true)
         {
-            _ = UploadAsync(dialog.FileNames);
+            EnqueueUpload(dialog.FileNames);
         }
     }
 
     private string Protocol => _settings.UploadProtocol == TransferProtocol.Scp ? "SCP" : "SFTP";
 
-    private async Task UploadAsync(IReadOnlyList<string> paths)
-    {
-        var browser = _browser;
-        if (browser is null || _busy > 0)
-        {
-            return;
-        }
-
-        var directory = browser.CurrentDirectory;
-        var existing = (FileList.ItemsSource as IEnumerable<RemoteEntry> ?? [])
-            .Select(e => e.Name).ToHashSet(StringComparer.Ordinal);
-        var conflicts = paths.Select(p => Path.GetFileName(p.TrimEnd('\\', '/'))).Where(existing.Contains).ToList();
-        if (conflicts.Count > 0 && MessageBox.Show(Window.GetWindow(this),
-                Text.Format(Strings.UploadConflicts, directory, string.Join("\n", conflicts.Take(10).Select(c => "  • " + c))),
-                Strings.UploadTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
-        {
-            return;
-        }
-
-        int done = 0;
-        var checks = new List<TransferCheck>();
-        HideChecks();
-        Interlocked.Increment(ref _busy);
-        TransferBar.Visibility = Visibility.Visible;
-        try
-        {
-            for (int i = 0; i < paths.Count; i++)
-            {
-                var name = Path.GetFileName(paths[i].TrimEnd('\\', '/'));
-                var sending = Text.Format(Strings.Uploading, Protocol, name, i + 1, paths.Count);
-                SetStatus(sending);
-                TransferBar.Value = 0;
-                var progress = new Progress<TransferProgress>(p =>
-                {
-                    // Relecture sur le serveur pour la vérification SHA-256, puis envoi du fichier suivant d'un dossier.
-                    var status = p.Verifying ? Text.Format(Strings.VerifyingFile, p.FileName) : sending;
-                    if (StatusText.Text != status)
-                    {
-                        SetStatus(status);
-                    }
-
-                    TransferBar.Value = p.Total > 0 ? 100.0 * p.Transferred / p.Total : 0;
-                });
-                try
-                {
-                    checks.AddRange(await browser.UploadAsync(paths[i], directory, _settings.UploadProtocol, progress, CancellationToken.None));
-                    done++;
-                }
-                catch (Exception ex) when (ex is not OutOfMemoryException)
-                {
-                    SetStatus(Text.Format(Strings.UploadFailed, name, Describe(ex)), error: true);
-                    MessageBox.Show(Window.GetWindow(this), Text.Format(Strings.UploadFailedDetails, name, Describe(ex)), Strings.UploadTitle,
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    break;
-                }
-            }
-        }
-        finally
-        {
-            Interlocked.Decrement(ref _busy);
-            TransferBar.Visibility = Visibility.Collapsed;
-        }
-
-        if (browser == _browser)
-        {
-            await NavigateAsync(directory);
-        }
-
-        if (done == paths.Count)
-        {
-            ReportChecks(Text.Format(Strings.Uploaded, done, Protocol, directory), checks, upload: true);
-        }
-        else
-        {
-            // Échec en cours de route (déjà signalé) : la vérification des fichiers déjà envoyés reste consultable.
-            KeepChecks(checks, upload: true);
-        }
-    }
-
     private void OnDownload(object sender, RoutedEventArgs e) =>
-        _ = DownloadAsync(SelectedEntries().Where(s => !s.IsDirectory).ToList());
+        RequestDownload(SelectedEntries().Where(s => !s.IsDirectory).ToList());
 
-    private async Task DownloadAsync(IReadOnlyList<RemoteEntry> files)
+    /// <summary>Demande où enregistrer, puis met le téléchargement en file.</summary>
+    private void RequestDownload(IReadOnlyList<RemoteEntry> files)
     {
-        var browser = _browser;
-        if (browser is null || files.Count == 0 || _busy > 0)
+        if (_browser is null || files.Count == 0)
         {
             return;
         }
@@ -707,53 +628,18 @@ public partial class FileBrowserPanel : UserControl
             folder = pick.FolderName;
         }
 
-        var checks = new List<TransferCheck>();
-        HideChecks();
-        Interlocked.Increment(ref _busy);
-        TransferBar.Visibility = Visibility.Visible;
-        try
-        {
-            foreach (var file in files)
-            {
-                SetStatus(Text.Format(Strings.Downloading, file.Name));
-                TransferBar.Value = 0;
-                var progress = new Progress<TransferProgress>(p =>
-                {
-                    if (p.Verifying)
-                    {
-                        SetStatus(Text.Format(Strings.VerifyingFile, p.FileName));
-                    }
-
-                    TransferBar.Value = p.Total > 0 ? 100.0 * p.Transferred / p.Total : 0;
-                });
-                // Nom Unix nettoyé (« ..\ », « : », « CON »...) : rien ne s'écrit hors du dossier choisi.
-                checks.Add(await browser.DownloadAsync(file, singleTarget ?? Path.Combine(folder, WindowsFileName.Sanitize(file.Name)), progress,
-                    CancellationToken.None));
-            }
-
-            ReportChecks(Text.Format(Strings.Downloaded, files.Count, folder), checks, upload: false);
-        }
-        catch (Exception ex) when (ex is not OutOfMemoryException)
-        {
-            SetStatus(Text.Format(Strings.DownloadFailed, Describe(ex)), error: true);
-            KeepChecks(checks, upload: false);
-        }
-        finally
-        {
-            Interlocked.Decrement(ref _busy);
-            TransferBar.Visibility = Visibility.Collapsed;
-        }
+        EnqueueDownload(files, folder, singleTarget);
     }
 
     // ===================== Vérification des transferts =====================
 
     /// <summary>
-    /// Bilan de la vérification SHA-256 après un transfert : confirmation dans la barre d'état et lien « Sommes de
+    /// Bilan de la vérification SHA-256 après des transferts : confirmation dans la barre d'état et lien « Sommes de
     /// contrôle… ». Si un fichier diffère de l'original, l'erreur est affichée et le détail s'ouvre de lui-même.
     /// </summary>
-    private void ReportChecks(string done, IReadOnlyList<TransferCheck> checks, bool upload)
+    private void ReportChecks(string done, IReadOnlyList<TransferCheck> checks, bool error = false)
     {
-        KeepChecks(checks, upload);
+        KeepChecks(checks);
         int different = checks.Count(c => c.Verified && !c.Matches);
         if (different > 0)
         {
@@ -763,7 +649,8 @@ public partial class FileBrowserPanel : UserControl
         }
 
         int verified = checks.Count(c => c.Matches);
-        int unverified = checks.Count - verified;
+        // Fichiers transférés mais non relus (droits, vérification annulée) ; pas ceux en échec ou interrompus.
+        int unverified = checks.Count(c => !c.Verified && !c.Failed && !c.Interrupted);
         var parts = new List<string> { done };
         if (verified > 0)
         {
@@ -775,17 +662,14 @@ public partial class FileBrowserPanel : UserControl
             parts.Add(Text.Format(Strings.TransferNotVerified, unverified));
         }
 
-        SetStatus(string.Join(" · ", parts));
+        SetStatus(string.Join(" · ", parts), error);
     }
 
-    private void KeepChecks(IReadOnlyList<TransferCheck> checks, bool upload)
+    private void KeepChecks(IReadOnlyList<TransferCheck> checks)
     {
         _lastChecks = checks;
-        _lastChecksUpload = upload;
         ChecksLink.Visibility = checks.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
-
-    private void HideChecks() => KeepChecks([], false);
 
     private void OnShowChecks(object sender, RoutedEventArgs e) => ShowChecks();
 
@@ -793,7 +677,7 @@ public partial class FileBrowserPanel : UserControl
     {
         if (_lastChecks.Count > 0)
         {
-            new TransferChecksDialog(_lastChecks, _lastChecksUpload) { Owner = Window.GetWindow(this) }.ShowDialog();
+            new TransferChecksDialog(_lastChecks) { Owner = Window.GetWindow(this) }.ShowDialog();
         }
     }
 

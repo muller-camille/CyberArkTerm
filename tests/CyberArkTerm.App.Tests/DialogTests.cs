@@ -3,6 +3,7 @@ using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Text.Json;
 using System.Windows;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Views;
 using CyberArkTerm.Core;
 using CyberArkTerm.Core.Ssh;
@@ -204,19 +205,61 @@ public sealed class DialogTests
         RunWithTheme(() =>
         {
             byte[] hash = [.. Enumerable.Range(0, 32).Select(i => (byte)i)];
-            var ok = new TransferCheck("a", @"C:\a", "/srv/a", 10, hash, 10, [.. hash]);
+            var ok = new TransferCheck("a", @"C:\a", "/srv/a", 10, hash, 10, [.. hash]) { Upload = true };
             var different = ok with { Name = "b", RemotePath = "/srv/b", RemoteSha256 = new byte[32] };
             var unverified = ok with { Name = "c", RemotePath = "/srv/c", RemoteLength = -1, RemoteSha256 = [], Error = "Permission denied" };
 
-            var dialog = new TransferChecksDialog([ok, different, unverified], upload: true);
+            var dialog = new TransferChecksDialog([ok, different, unverified]);
 
-            Assert.Equal(5, dialog.ChecksGrid.Columns.Count);
+            Assert.Equal(6, dialog.ChecksGrid.Columns.Count);
             Assert.Equal(["/srv/b", "/srv/c", "/srv/a"], ((IEnumerable<TransferCheck>)dialog.ChecksGrid.ItemsSource).Select(c => c.RemotePath));
             Assert.Equal(2, dialog.HeadingText.Text.Split(Environment.NewLine).Length);
             Assert.Contains("Permission denied", TransferChecksDialog.Result(unverified));
             Assert.NotEqual(TransferChecksDialog.Result(ok), TransferChecksDialog.Result(different));
             Assert.Single(TransferChecksDialog.Heading([ok]).Split(Environment.NewLine));
             dialog.Close();
+        });
+    }
+
+    /// <summary>
+    /// Panneau de la file des transferts : visible pendant la série, élément en cours dans la barre d'état, élément en
+    /// attente retiré, puis bilan unique à la fin.
+    /// </summary>
+    [Fact]
+    public void TransferQueuePanelFollowsTheQueue()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            // Sans contexte de synchronisation, la fin d'un transfert se poursuit sur ce fil (pas de boucle de messages ici).
+            SynchronizationContext.SetSynchronizationContext(null);
+            var panel = new FileBrowserPanel();
+            Assert.Equal(Visibility.Collapsed, panel.QueuePanel.Visibility);
+            var release = new TaskCompletionSource();
+            var running = new TransferItem(true, "deploy/", "/opt/app", async (_, _) => await release.Task) { Protocol = "SCP", FileCount = 12 };
+            var waiting = new TransferItem(false, "app.log", @"C:\Temp", (_, _) => Task.CompletedTask);
+
+            panel.Queue.Enqueue(running);
+            panel.Queue.Enqueue(waiting);
+
+            Assert.Equal(Visibility.Visible, panel.QueuePanel.Visibility);
+            Assert.Equal(2, panel.ActiveTransfers(null));
+            Assert.Contains("deploy/", panel.StatusText.Text);
+            Assert.Contains("(1/12)", panel.StatusText.Text);
+            Assert.Contains(Text.Format(Strings.QueuePending, 1), panel.StatusText.Text);
+            Assert.Equal(Strings.QueueStateWaiting, TransferStatusConverter.StateText(waiting));
+
+            panel.Queue.Cancel(waiting);
+            release.SetResult();
+
+            Assert.Equal((TransferState.Done, TransferState.Cancelled), (running.State, waiting.State));
+            Assert.Equal(Visibility.Collapsed, panel.QueuePanel.Visibility);
+            Assert.Equal(0, panel.ActiveTransfers(null));
+            Assert.Contains(Text.Format(Strings.QueueSummaryCancelled, 1), panel.StatusText.Text);
         });
     }
 

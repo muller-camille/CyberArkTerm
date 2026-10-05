@@ -988,9 +988,10 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!ConfirmCloseEditedFiles() || !ConfirmCloseRdpSessions())
+        if (!ConfirmCloseEditedFiles() || !ConfirmCloseRdpSessions() || !FilesPanel.ConfirmCancelTransfers(this, null))
         {
-            // Fichiers modifiés non renvoyés, ou sessions Bureau à distance ouvertes : l'utilisateur garde la fenêtre.
+            // Fichiers modifiés non renvoyés, sessions Bureau à distance ouvertes ou transferts en cours : l'utilisateur
+            // garde la fenêtre.
             e.Cancel = true;
             LogoutRequested = false;
             return;
@@ -1001,6 +1002,8 @@ public partial class MainWindow : Window
         _loggedOff = true;
         ClearPasswordClipboard();
         IsEnabled = false;
+        // Transferts annulés d'abord : le fichier interrompu est supprimé tant que la connexion est ouverte.
+        await FilesPanel.CancelTransfersAsync(null);
         _lifetime.Cancel();
         _searchDebounce.Stop();
         try

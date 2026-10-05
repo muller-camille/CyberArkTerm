@@ -425,6 +425,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Direction.
+        /// </summary>
+        public static string ChecksColDirection {
+            get {
+                return ResourceManager.GetString("ChecksColDirection", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to File on the server.
         /// </summary>
         public static string ChecksColFile {
@@ -506,11 +515,38 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to ⬇ downloaded.
+        /// </summary>
+        public static string ChecksDownloaded {
+            get {
+                return ResourceManager.GetString("ChecksDownloaded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✗ Failed: {0}.
+        /// </summary>
+        public static string ChecksFailed {
+            get {
+                return ResourceManager.GetString("ChecksFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to ✓ Identical.
         /// </summary>
         public static string ChecksIdentical {
             get {
                 return ResourceManager.GetString("ChecksIdentical", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⏹ Cancelled: {0}.
+        /// </summary>
+        public static string ChecksInterrupted {
+            get {
+                return ResourceManager.GetString("ChecksInterrupted", resourceCulture);
             }
         }
 
@@ -551,6 +587,24 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to ✗ {0} file(s) out of {1} failed..
+        /// </summary>
+        public static string ChecksSomeFailed {
+            get {
+                return ResourceManager.GetString("ChecksSomeFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⏹ {0} file(s) out of {1} interrupted by a cancellation: incomplete copy deleted..
+        /// </summary>
+        public static string ChecksSomeInterrupted {
+            get {
+                return ResourceManager.GetString("ChecksSomeInterrupted", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to ⚠ {0} file(s) out of {1} could not be read again: transferred but not checked..
         /// </summary>
         public static string ChecksSomeUnverified {
@@ -574,6 +628,15 @@ namespace CyberArkTerm.App.Localization {
         public static string ChecksUnverified {
             get {
                 return ResourceManager.GetString("ChecksUnverified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⬆ sent.
+        /// </summary>
+        public static string ChecksUploaded {
+            get {
+                return ResourceManager.GetString("ChecksUploaded", resourceCulture);
             }
         }
 
@@ -1177,6 +1240,15 @@ namespace CyberArkTerm.App.Localization {
         public static string DropHint {
             get {
                 return ResourceManager.GetString("DropHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Drop to add to the transfer queue: {0} to {1}.
+        /// </summary>
+        public static string DropHintQueued {
+            get {
+                return ResourceManager.GetString("DropHintQueued", resourceCulture);
             }
         }
 
@@ -3895,6 +3967,213 @@ namespace CyberArkTerm.App.Localization {
         public static string PvwaSessionSection {
             get {
                 return ResourceManager.GetString("PvwaSessionSection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Added to the transfer queue: {0} ({1} waiting).
+        /// </summary>
+        public static string QueueAdded {
+            get {
+                return ResourceManager.GetString("QueueAdded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string QueueCancel {
+            get {
+                return ResourceManager.GetString("QueueCancel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel _all.
+        /// </summary>
+        public static string QueueCancelAll {
+            get {
+                return ResourceManager.GetString("QueueCancelAll", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Stop this transfer: the file being transferred, incomplete, is deleted; files already transferred[rest of string was truncated].
+        /// </summary>
+        public static string QueueCancelTip {
+            get {
+                return ResourceManager.GetString("QueueCancelTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Transfer cancelled: {0}.
+        /// </summary>
+        public static string QueueCancelledOne {
+            get {
+                return ResourceManager.GetString("QueueCancelledOne", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} transfer(s) running or waiting will be cancelled (the file being transferred, incomplete, is [rest of string was truncated].
+        /// </summary>
+        public static string QueueCloseConfirm {
+            get {
+                return ResourceManager.GetString("QueueCloseConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Download of {0} failed: {1}.
+        /// </summary>
+        public static string QueueDownloadFailed {
+            get {
+                return ResourceManager.GetString("QueueDownloadFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} files.
+        /// </summary>
+        public static string QueueFiles {
+            get {
+                return ResourceManager.GetString("QueueFiles", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} items.
+        /// </summary>
+        public static string QueueItems {
+            get {
+                return ResourceManager.GetString("QueueItems", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} waiting.
+        /// </summary>
+        public static string QueuePending {
+            get {
+                return ResourceManager.GetString("QueuePending", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove from the queue.
+        /// </summary>
+        public static string QueueRemoveTip {
+            get {
+                return ResourceManager.GetString("QueueRemoveTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to cancelled.
+        /// </summary>
+        public static string QueueStateCancelled {
+            get {
+                return ResourceManager.GetString("QueueStateCancelled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to cancelling….
+        /// </summary>
+        public static string QueueStateCancelling {
+            get {
+                return ResourceManager.GetString("QueueStateCancelling", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✗ {0} file(s) differ.
+        /// </summary>
+        public static string QueueStateDifferent {
+            get {
+                return ResourceManager.GetString("QueueStateDifferent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✓ done.
+        /// </summary>
+        public static string QueueStateDone {
+            get {
+                return ResourceManager.GetString("QueueStateDone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} % · file {1}/{2}.
+        /// </summary>
+        public static string QueueStateRunning {
+            get {
+                return ResourceManager.GetString("QueueStateRunning", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to checking (SHA-256) · file {0}/{1}.
+        /// </summary>
+        public static string QueueStateVerifying {
+            get {
+                return ResourceManager.GetString("QueueStateVerifying", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to waiting.
+        /// </summary>
+        public static string QueueStateWaiting {
+            get {
+                return ResourceManager.GetString("QueueStateWaiting", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Transfers finished: {0}.
+        /// </summary>
+        public static string QueueSummary {
+            get {
+                return ResourceManager.GetString("QueueSummary", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} cancelled.
+        /// </summary>
+        public static string QueueSummaryCancelled {
+            get {
+                return ResourceManager.GetString("QueueSummaryCancelled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} done.
+        /// </summary>
+        public static string QueueSummaryDone {
+            get {
+                return ResourceManager.GetString("QueueSummaryDone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} failed.
+        /// </summary>
+        public static string QueueSummaryFailed {
+            get {
+                return ResourceManager.GetString("QueueSummaryFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Transfers.
+        /// </summary>
+        public static string QueueTitle {
+            get {
+                return ResourceManager.GetString("QueueTitle", resourceCulture);
             }
         }
 

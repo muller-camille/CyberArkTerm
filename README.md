@@ -198,6 +198,17 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   l'interrompt), puis l'Explorateur copie les fichiers là où vous les avez déposés. Les noms Unix sont rendus
   valides pour Windows (`\`, `:`, `..`, `CON`… remplacés), sans jamais écrire hors du dossier de dépôt ; le
   dossier temporaire du téléchargement est effacé ensuite.
+- **File d'attente des transferts** : envois et téléchargements s'exécutent un par un, dans l'ordre des demandes ;
+  ce qui est demandé pendant un transfert s'ajoute à la file au lieu d'être ignoré. La destination d'un envoi est le
+  dossier affiché au moment du dépôt, et la confirmation d'écrasement tient compte des envois encore en attente. Un
+  panneau au-dessus de la barre d'état montre chaque élément (en attente, avancement et fichier n/N, vérification,
+  résultat) : ✕ retire un élément en attente, « Annuler » arrête celui en cours, « Tout annuler » vide la file.
+  Un transfert arrêté supprime le fichier en cours, incomplet (sur le serveur pour un envoi, sur le poste pour un
+  téléchargement) ; les fichiers déjà transférés restent. Attention : si l'envoi remplaçait un fichier existant,
+  son ancien contenu est perdu. En SCP, l'arrêt ferme la connexion SCP ; l'envoi SCP suivant en rouvre une (nouvelle
+  session PSMP). Une erreur est affichée dans la file et la file continue ; à la fin, un seul bilan. La navigation,
+  la suppression, les droits, l'éditeur et le glisser vers l'Explorateur passent entre deux fichiers. Fermer
+  l'onglet ou l'application avec des transferts en cours demande confirmation.
 - **Vérification des transferts (SHA-256)** : chaque fichier envoyé ou téléchargé est vérifié. À l'envoi (SCP ou
   SFTP), le fichier local est haché, puis le fichier arrivé sur le serveur est relu par SFTP et haché. Au
   téléchargement, les données reçues du serveur sont hachées, puis le fichier écrit sur le poste est relu. La barre

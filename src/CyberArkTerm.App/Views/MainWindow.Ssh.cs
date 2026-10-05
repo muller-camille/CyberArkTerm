@@ -206,11 +206,29 @@ public partial class MainWindow
             return;
         }
 
+        if (!FilesPanel.ConfirmCancelTransfers(this, session))
+        {
+            return;
+        }
+
         MainTabs.Items.Remove(tab);
         _sshSessions.Remove(session);
-        session.Dispose();
+        _ = DisposeAfterTransfersAsync(session);
         MainTabs.SelectedItem ??= HomeTab;
         SetStatus(Text.Format(Strings.SshClosed, session.Label));
+    }
+
+    /// <summary>Annule les transferts de la session, laisse le fichier interrompu être supprimé, puis ferme ses connexions.</summary>
+    private async Task DisposeAfterTransfersAsync(SshSession session)
+    {
+        try
+        {
+            await FilesPanel.CancelTransfersAsync(session);
+        }
+        finally
+        {
+            session.Dispose();
+        }
     }
 
     /// <summary>Vrai si l'on peut fermer : aucun fichier modifié non renvoyé, ou l'utilisateur accepte de les perdre.</summary>
