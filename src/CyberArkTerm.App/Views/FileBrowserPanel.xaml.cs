@@ -338,7 +338,7 @@ public partial class FileBrowserPanel : UserControl
             item.IsEnabled = item.Tag switch
             {
                 "open" => selected.Count == 1,
-                "edit" => selected is [{ IsDirectory: false }],
+                "edit" or "tail" => selected is [{ IsDirectory: false }],
                 "download" => selected.Count > 0 && selected.All(s => !s.IsDirectory),
                 "delete" or "copy" or "chmod" => selected.Count > 0,
                 _ => _browser is not null,

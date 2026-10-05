@@ -1,0 +1,26 @@
+<Window x:Class="CyberArkTerm.App.Views.TailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:CyberArkTerm.App.Localization"
+        Width="960" Height="580" MinWidth="480" MinHeight="260" ShowInTaskbar="True" Background="White">
+    <DockPanel Margin="10">
+        <TextBlock DockPanel.Dock="Top" Text="{x:Static loc:Strings.TailIntro}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" />
+        <DockPanel DockPanel.Dock="Top" Margin="0,6,0,6">
+            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                <Button x:Name="PauseButton" Content="{x:Static loc:Strings.TailPause}" MinWidth="90" Click="OnPause" />
+                <CheckBox x:Name="FollowBox" IsChecked="True" Margin="12,0,0,0" VerticalAlignment="Center">
+                    <AccessText Text="{x:Static loc:Strings.TailFollowEnd}" />
+                </CheckBox>
+                <CheckBox x:Name="WrapBox" Margin="12,0,0,0" VerticalAlignment="Center" Click="OnWrap">
+                    <AccessText Text="{x:Static loc:Strings.TailWrap}" />
+                </CheckBox>
+                <Button Content="{x:Static loc:Strings.TailClear}" Margin="12,0,0,0" Click="OnClear" />
+            </StackPanel>
+            <TextBox x:Name="FilterBox" DockPanel.Dock="Right" Width="220" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailFilterTip}" />
+            <Label DockPanel.Dock="Right" Content="{x:Static loc:Strings.TailFilter}" Target="{Binding ElementName=FilterBox}" HorizontalAlignment="Right" />
+        </DockPanel>
+        <TextBlock x:Name="StatusText" DockPanel.Dock="Bottom" Foreground="{StaticResource MutedBrush}" Margin="0,6,0,0" TextTrimming="CharacterEllipsis" />
+        <TextBox x:Name="LogBox" IsReadOnly="True" IsUndoEnabled="False" FontFamily="Consolas" FontSize="12" TextWrapping="NoWrap"
+                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
+    </DockPanel>
+</Window>

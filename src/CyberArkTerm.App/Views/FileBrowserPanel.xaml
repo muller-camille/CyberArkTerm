@@ -77,6 +77,7 @@
                     <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <MenuItem Tag="tail" Header="{x:Static loc:Strings.FileTail}" Click="OnTail" />
             <MenuItem Header="{x:Static loc:Strings.FileUploadHere}" Click="OnUploadDialog">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconUpload}" Width="16" Height="16" />

@@ -336,6 +336,87 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>Suivi d'un fichier : nouvelles lignes, filtre sans tenir compte de la casse, connexion fermée.</summary>
+    [Fact]
+    public void TailWindowFollowsAndFilters()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            SynchronizationContext.SetSynchronizationContext(null);
+            var file = new MemoryFile();
+            file.Append("info démarrage\nerreur disque\n");
+            bool connected = true;
+            var window = new TailWindow(file, "/var/log/app.log", "root@srv01", () => connected);
+            Assert.Contains("/var/log/app.log", window.Title);
+
+            window.PollAsync().GetAwaiter().GetResult();
+            Assert.Equal("info démarrage\nerreur disque\n", window.Shown);
+
+            window.FilterBox.Text = "ERREUR";
+            Assert.Equal("erreur disque\n", window.Shown);
+            file.Append("info suite\nerreur réseau\n");
+            window.PollAsync().GetAwaiter().GetResult();
+            Assert.Equal("erreur disque\nerreur réseau\n", window.Shown);
+
+            connected = false;
+            window.PollAsync().GetAwaiter().GetResult();
+            Assert.Equal(Strings.TailClosed, window.StatusText.Text);
+            window.Close();
+        });
+    }
+
+    /// <summary>Onglet détaché : le terminal passe dans la fenêtre séparée, puis en ressort pour revenir dans l'onglet.</summary>
+    [Fact]
+    public void DetachedWindowHoldsTheTerminal()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var connector = new CyberArkTerm.Core.Ssh.SshConnector("127.0.0.1", 22, "root", new NoInteraction());
+            var session = new CyberArkTerm.App.Services.SshSession(null, "root@srv01", connector,
+                System.Windows.Threading.Dispatcher.CurrentDispatcher, followTerminal: false, saved: null);
+            var view = new SshSessionView(session, "root@srv01", "…");
+
+            var window = new DetachedSessionWindow(view, session.Label);
+            Assert.Same(view, window.Content);
+            Assert.Contains("root@srv01", window.Title);
+
+            Assert.Same(view, window.TakeView());
+            Assert.Null(window.Content);
+            window.SessionClosed = true;
+            window.Close();
+            session.Dispose();
+        });
+    }
+
+    private sealed class NoInteraction : CyberArkTerm.Core.Ssh.ISshInteraction
+    {
+        public bool CheckHostKey(string host, int port, string algorithm, string sha256Fingerprint) => false;
+
+        public string? Prompt(string instruction, string prompt, bool echo) => null;
+    }
+
+    private sealed class MemoryFile : ITailSource
+    {
+        private readonly List<byte> _content = [];
+
+        public void Append(string text) => _content.AddRange(System.Text.Encoding.UTF8.GetBytes(text));
+
+        public Task<long> GetSizeAsync(CancellationToken ct) => Task.FromResult((long)_content.Count);
+
+        public Task<byte[]> ReadAsync(long offset, int count, CancellationToken ct) =>
+            Task.FromResult(_content.Skip((int)offset).Take(count).ToArray());
+    }
+
     /// <summary>
     /// Thread STA avec l'objet <c>Application</c> et le thème (comme dans CyberArkTerm), retiré ensuite pour que les
     /// autres tests ne trouvent pas de ressources liées à ce thread.

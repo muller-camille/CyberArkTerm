@@ -182,6 +182,12 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   change ensuite, une alerte s'affiche.
 - **Terminal** : la sélection copie, le clic droit colle, la molette remonte l'historique,
   AltGr fonctionne sur clavier français. Fermez l'onglet avec la croix ou un clic molette.
+- **Détacher un onglet** (autre écran) : glissez l'onglet SSH hors de la fenêtre, ou clic droit → « Détacher dans
+  une nouvelle fenêtre ». Le terminal passe dans une fenêtre séparée, la session continue. L'onglet garde sa place
+  (« Afficher la fenêtre », « Ramener dans l'onglet ») et l'onglet Fichiers travaille sur cette session quand il
+  est sélectionné. Fermer la fenêtre séparée ramène le terminal dans son onglet, sans fermer la session. Les
+  onglets Bureau à distance ne se détachent pas (utilisez « Plein écran ») ; les sessions PSM s'ouvrent déjà dans
+  la Connexion Bureau à distance de Windows, une fenêtre à part.
 
 ### 5. Parcourir et déposer des fichiers : onglet « Fichiers »
 
@@ -237,6 +243,12 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   s'ouvre dans l'éditeur de texte choisi dans les Paramètres (Bloc-notes par défaut). À chaque enregistrement,
   CyberArkTerm propose de le renvoyer sur le serveur : envoi en SFTP, droits du fichier conservés. Si le
   fichier a changé sur le serveur depuis son ouverture, une alerte demande confirmation avant de l'écraser.
+- **Suivre un fichier (tail -f)** : clic droit sur un fichier → « Suivre (tail -f) ». Une fenêtre montre la fin
+  du fichier puis chaque nouvelle ligne dès qu'elle est écrite, comme `tail -f`, en lisant le fichier par SFTP
+  chaque seconde : aucune commande n'est lancée sur le serveur. « Pause » / « Reprendre », « Suivre la fin »,
+  « Retour à la ligne », « Effacer », et un filtre (lignes contenant un texte, sans tenir compte de la casse). Un
+  fichier tronqué ou remplacé par une rotation est relu depuis le début ; les 10 000 dernières lignes sont gardées.
+  Plusieurs fichiers peuvent être suivis à la fois, chacun dans sa fenêtre (sur un autre écran si besoin).
 - **Droits** : clic droit → « Droits… » (ou bouton cadenas). Cases lecture / écriture / exécution pour le
   propriétaire, le groupe et les autres, bits spéciaux (setuid, setgid, sticky) et valeur octale (`644`,
   `1777`…), pour un ou plusieurs éléments. Pour un dossier, l'option « Appliquer aussi au contenu » propage
@@ -324,7 +336,8 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Terminal | Coller | Clic droit, `Maj+Inser` ou `Ctrl+Maj+V` |
 | Terminal | Historique | Molette, `Maj+Page préc.` / `Maj+Page suiv.` |
 | Onglet SSH ou Bureau à distance | Fermer | Croix de l'onglet ou clic molette |
-| Onglet SSH ou Bureau à distance | Reconnecter, dupliquer (autre session sur le même compte ou la même entrée), fermer, fermer les autres onglets | Clic droit sur l'onglet |
+| Onglet SSH ou Bureau à distance | Reconnecter, dupliquer (autre session sur le même compte ou la même entrée), détacher (SSH), fermer, fermer les autres onglets | Clic droit sur l'onglet |
+| Onglet SSH | Détacher dans une fenêtre séparée (autre écran) | Glisser l'onglet hors de la fenêtre |
 | Bureau à distance | Plein écran / retour | `Ctrl+Alt+Pause` |
 | Fichiers | Ouvrir / modifier / dossier parent / supprimer / actualiser | `Entrée` / `F4` / `Retour arrière` / `Suppr` / `F5` |
 | Coffre KeePass | Se connecter / modifier / supprimer une entrée | Double-clic ou `Entrée` / `F2` / `Suppr` |

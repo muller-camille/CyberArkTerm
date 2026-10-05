@@ -960,6 +960,54 @@ Les envoyer dans une seule archive .tar.gz ? Un seul fichier à transférer et �
   <data name="ArchiveCommandCopied" xml:space="preserve">
     <value>Commande d'extraction copiée : collez-la dans le terminal de la session (elle supprime l'archive une fois extraite).</value>
   </data>
+  <data name="FileTail" xml:space="preserve">
+    <value>_Suivre (tail -f)</value>
+  </data>
+  <data name="TailTitle" xml:space="preserve">
+    <value>tail -f {0} — {1}</value>
+  </data>
+  <data name="TailIntro" xml:space="preserve">
+    <value>Fin du fichier, puis chaque nouvelle ligne dès qu'elle est écrite. Lu par SFTP chaque seconde : aucune commande n'est lancée sur le serveur.</value>
+  </data>
+  <data name="TailPause" xml:space="preserve">
+    <value>_Pause</value>
+  </data>
+  <data name="TailResume" xml:space="preserve">
+    <value>_Reprendre</value>
+  </data>
+  <data name="TailFollowEnd" xml:space="preserve">
+    <value>Suivre la _fin</value>
+  </data>
+  <data name="TailWrap" xml:space="preserve">
+    <value>_Retour à la ligne</value>
+  </data>
+  <data name="TailFilter" xml:space="preserve">
+    <value>_Filtre :</value>
+  </data>
+  <data name="TailFilterTip" xml:space="preserve">
+    <value>N'afficher que les lignes contenant ce texte (sans tenir compte de la casse)</value>
+  </data>
+  <data name="TailClear" xml:space="preserve">
+    <value>_Effacer</value>
+  </data>
+  <data name="TailStatus" xml:space="preserve">
+    <value>{0} · mis à jour à {1}</value>
+  </data>
+  <data name="TailPaused" xml:space="preserve">
+    <value>En pause · {0}</value>
+  </data>
+  <data name="TailRestarted" xml:space="preserve">
+    <value>— fichier tronqué ou remplacé : relu depuis le début —</value>
+  </data>
+  <data name="TailSkipped" xml:space="preserve">
+    <value>— {0} sautés —</value>
+  </data>
+  <data name="TailError" xml:space="preserve">
+    <value>Lecture impossible : {0} (nouvel essai dans quelques secondes)</value>
+  </data>
+  <data name="TailClosed" xml:space="preserve">
+    <value>Connexion fermée : le fichier n'est plus suivi.</value>
+  </data>
   <data name="HistoryTip" xml:space="preserve">
     <value>Historique des transferts (envois et téléchargements)</value>
   </data>
@@ -1307,6 +1355,27 @@ Fermer quand même ? Les copies locales seront supprimées.</value>
   </data>
   <data name="MenuTabCloseOthers" xml:space="preserve">
     <value>Fermer les _autres onglets</value>
+  </data>
+  <data name="MenuTabDetach" xml:space="preserve">
+    <value>_Détacher dans une nouvelle fenêtre</value>
+  </data>
+  <data name="TabDetachTip" xml:space="preserve">
+    <value>Glissez l'onglet hors de la fenêtre, ou clic droit, pour afficher la session dans une fenêtre séparée (autre écran…)</value>
+  </data>
+  <data name="DetachedTitle" xml:space="preserve">
+    <value>{0} — CyberArkTerm</value>
+  </data>
+  <data name="DetachedPlaceholder" xml:space="preserve">
+    <value>Cette session est affichée dans une fenêtre séparée.</value>
+  </data>
+  <data name="DetachedHint" xml:space="preserve">
+    <value>Fermer cette fenêtre ramène la session ici ; elle reste ouverte. L'onglet Fichiers travaille sur cette session quand cet onglet est sélectionné.</value>
+  </data>
+  <data name="DetachedShow" xml:space="preserve">
+    <value>_Afficher la fenêtre</value>
+  </data>
+  <data name="DetachedReattach" xml:space="preserve">
+    <value>_Ramener dans l'onglet</value>
   </data>
   <data name="TabReconnectConfirm" xml:space="preserve">
     <value>Reconnecter {0} ? La session ouverte sera fermée.</value>

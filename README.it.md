@@ -177,6 +177,12 @@ La sessione si apre **in una scheda di CyberArkTerm**, con l'identificativo PSMP
   cambia, viene mostrato un avviso.
 - **Terminale**: la selezione copia, il clic destro incolla, la rotellina scorre la cronologia, AltGr funziona
   sulle tastiere internazionali. Chiudi la scheda con la croce o con un clic centrale.
+- **Staccare una scheda** (altro schermo): trascina la scheda SSH fuori dalla finestra, o clic destro → «Stacca in
+  una nuova finestra». Il terminale passa in una finestra separata e la sessione continua. La scheda mantiene il
+  suo posto («Mostra la finestra», «Riporta nella scheda») e la scheda File lavora su questa sessione quando è
+  selezionata. Chiudere la finestra separata riporta il terminale nella sua scheda senza chiudere la sessione. Le
+  schede Desktop remoto non si staccano (usa «Schermo intero»); le sessioni PSM si aprono già in Connessione
+  Desktop remoto di Windows, una finestra a parte.
 
 ### 5. Sfogliare e inviare file: scheda «File»
 
@@ -231,6 +237,12 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   apre nell'editor di testo scelto nelle Impostazioni (Blocco note per impostazione predefinita). A ogni
   salvataggio, CyberArkTerm propone di rinviarlo al server: invio in SFTP, permessi del file conservati. Se il
   file è cambiato sul server dopo l'apertura, un avviso chiede conferma prima di sovrascriverlo.
+- **Seguire un file (tail -f)**: clic destro su un file → «Segui (tail -f)». Una finestra mostra la fine del file,
+  poi ogni nuova riga appena viene scritta, come `tail -f`, leggendo il file via SFTP ogni secondo: nessun comando
+  viene eseguito sul server. «Pausa» / «Riprendi», «Segui la fine», «A capo», «Cancella» e un filtro (righe che
+  contengono un testo, senza distinzione tra maiuscole e minuscole). Un file troncato o sostituito da una rotazione
+  viene riletto dall'inizio; vengono conservate le ultime 10.000 righe. Si possono seguire più file insieme,
+  ognuno nella sua finestra (su un altro schermo se serve).
 - **Permessi**: clic destro → «Permessi…» (o il pulsante lucchetto). Caselle lettura / scrittura / esecuzione
   per proprietario, gruppo e altri, bit speciali (setuid, setgid, sticky) e valore ottale (`644`, `1777`…), per
   uno o più elementi. Per una cartella, «Applica anche al contenuto» propaga i permessi a sottocartelle e file;
@@ -317,7 +329,8 @@ password, elimina.
 | Terminale | Incollare | Clic destro, `Maiusc+Ins` o `Ctrl+Maiusc+V` |
 | Terminale | Cronologia | Rotellina, `Maiusc+Pag su` / `Maiusc+Pag giù` |
 | Scheda SSH o Desktop remoto | Chiudere | Croce della scheda o clic centrale |
-| Scheda SSH o Desktop remoto | Riconnettere, duplicare (altra sessione sullo stesso account o sulla stessa voce), chiudere, chiudere le altre schede | Clic destro sulla scheda |
+| Scheda SSH o Desktop remoto | Riconnettere, duplicare (altra sessione sullo stesso account o sulla stessa voce), staccare (SSH), chiudere, chiudere le altre schede | Clic destro sulla scheda |
+| Scheda SSH | Staccare in una finestra separata (altro schermo) | Trascinare la scheda fuori dalla finestra |
 | Desktop remoto | Schermo intero / ritorno | `Ctrl+Alt+Pausa` |
 | File | Aprire / modificare / cartella superiore / eliminare / aggiornare | `Invio` / `F4` / `Backspace` / `Canc` / `F5` |
 | Archivio KeePass | Connettere / modificare / eliminare una voce | Doppio clic o `Invio` / `F2` / `Canc` |

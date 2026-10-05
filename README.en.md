@@ -170,6 +170,11 @@ The session opens **in a CyberArkTerm tab**, with the standard PSMP login
   later, a warning is shown.
 - **Terminal**: selecting copies, right-click pastes, the mouse wheel scrolls back, AltGr works on
   international keyboards. Close the tab with its cross or a middle click.
+- **Detach a tab** (another screen): drag the SSH tab out of the window, or right-click → "Detach to a new
+  window". The terminal moves to a separate window and the session goes on. The tab keeps its place ("Show the
+  window", "Bring it back here") and the Files tab works on this session when it is selected. Closing the
+  separate window brings the terminal back to its tab without closing the session. Remote desktop tabs do not
+  detach (use "Full screen"); PSM sessions already open in Windows Remote Desktop Connection, a window of its own.
 
 ### 5. Browse and upload files: "Files" tab
 
@@ -219,6 +224,12 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   text editor chosen in Settings (Notepad by default). Every time you save, CyberArkTerm offers to send it back
   to the server: sent over SFTP, the file's permissions are kept. If the file changed on the server since you
   opened it, a warning asks before overwriting it.
+- **Follow a file (tail -f)**: right-click a file → "Follow (tail -f)". A window shows the end of the file, then
+  each new line as soon as it is written, like `tail -f`, reading the file over SFTP every second: no command runs
+  on the server. "Pause" / "Resume", "Scroll to the end", "Wrap lines", "Clear", and a filter (lines containing a
+  text, case-insensitive). A file truncated or replaced by a rotation is read again from the start; the last
+  10,000 lines are kept. Several files can be followed at once, each in its own window (on another screen if
+  needed).
 - **Permissions**: right-click → "Permissions…" (or the padlock button). Read / write / execute boxes for owner,
   group and others, special bits (setuid, setgid, sticky) and the octal value (`644`, `1777`…), for one or
   several items. For a folder, "Apply to the folder contents too" propagates the permissions to subfolders and
@@ -299,7 +310,8 @@ password, delete.
 | Terminal | Paste | Right-click, `Shift+Insert` or `Ctrl+Shift+V` |
 | Terminal | Scrollback | Mouse wheel, `Shift+Page Up` / `Shift+Page Down` |
 | SSH or remote desktop tab | Close | Tab cross or middle click |
-| SSH or remote desktop tab | Reconnect, duplicate (another session on the same account or entry), close, close the other tabs | Right-click on the tab |
+| SSH or remote desktop tab | Reconnect, duplicate (another session on the same account or entry), detach (SSH), close, close the other tabs | Right-click on the tab |
+| SSH tab | Detach to a separate window (another screen) | Drag the tab out of the window |
 | Remote desktop | Full screen / back | `Ctrl+Alt+Break` |
 | Files | Open / edit / parent folder / delete / refresh | `Enter` / `F4` / `Backspace` / `Del` / `F5` |
 | KeePass vault | Connect / edit / delete an entry | Double-click or `Enter` / `F2` / `Del` |

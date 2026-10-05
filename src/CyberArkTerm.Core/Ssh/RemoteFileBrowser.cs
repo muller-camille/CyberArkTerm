@@ -128,7 +128,46 @@ public sealed class RemoteFileBrowser : IDisposable
     public static int CountFiles(string localPath) =>
         Directory.Exists(localPath) ? Directory.EnumerateFiles(localPath, "*", SearchOption.AllDirectories).Count() : 1;
 
-        /// <summary>Date de modification et taille actuelles d'un fichier.</summary>
+        /// <summary>Suivi d'un fichier du serveur (tail -f) par SFTP : taille, puis lecture de ce qui a été ajouté.</summary>
+    public ITailSource TailSource(string path) => new SftpTailSource(this, path);
+
+    /// <summary>Taille actuelle d'un fichier (lien symbolique suivi).</summary>
+    public async Task<long> GetSizeAsync(string path, CancellationToken ct)
+    {
+        using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
+        return (await _sftp.GetAttributesAsync(path, ct).ConfigureAwait(false)).Size;
+    }
+
+    /// <summary>Lit au plus <paramref name="count"/> octets d'un fichier à partir de <paramref name="offset"/>.</summary>
+    public async Task<byte[]> ReadAsync(string path, long offset, int count, CancellationToken ct)
+    {
+        using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
+        await using var stream = await _sftp.OpenAsync(path, FileMode.Open, FileAccess.Read, ct).ConfigureAwait(false);
+        stream.Seek(offset, SeekOrigin.Begin);
+        var buffer = new byte[count];
+        int read = 0;
+        while (read < count)
+        {
+            int n = await stream.ReadAsync(buffer.AsMemory(read, count - read), ct).ConfigureAwait(false);
+            if (n == 0)
+            {
+                break;
+            }
+
+            read += n;
+        }
+
+        return read == count ? buffer : buffer[..read];
+    }
+
+    private sealed class SftpTailSource(RemoteFileBrowser browser, string path) : ITailSource
+    {
+        public Task<long> GetSizeAsync(CancellationToken ct) => browser.GetSizeAsync(path, ct);
+
+        public Task<byte[]> ReadAsync(long offset, int count, CancellationToken ct) => browser.ReadAsync(path, offset, count, ct);
+    }
+
+    /// <summary>Date de modification et taille actuelles d'un fichier.</summary>
     public async Task<(DateTime LastWriteTime, long Length)> GetStatAsync(string path, CancellationToken ct)
     {
         using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);

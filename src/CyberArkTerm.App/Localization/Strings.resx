@@ -960,6 +960,54 @@ Send them in a single .tar.gz archive? One file to transfer and check instead of
   <data name="ArchiveCommandCopied" xml:space="preserve">
     <value>Extraction command copied: paste it in the terminal of the session (it deletes the archive once extracted).</value>
   </data>
+  <data name="FileTail" xml:space="preserve">
+    <value>_Follow (tail -f)</value>
+  </data>
+  <data name="TailTitle" xml:space="preserve">
+    <value>tail -f {0} — {1}</value>
+  </data>
+  <data name="TailIntro" xml:space="preserve">
+    <value>End of the file, then each new line as it is written. Read over SFTP every second: no command runs on the server.</value>
+  </data>
+  <data name="TailPause" xml:space="preserve">
+    <value>_Pause</value>
+  </data>
+  <data name="TailResume" xml:space="preserve">
+    <value>_Resume</value>
+  </data>
+  <data name="TailFollowEnd" xml:space="preserve">
+    <value>Scroll to the _end</value>
+  </data>
+  <data name="TailWrap" xml:space="preserve">
+    <value>_Wrap lines</value>
+  </data>
+  <data name="TailFilter" xml:space="preserve">
+    <value>_Filter:</value>
+  </data>
+  <data name="TailFilterTip" xml:space="preserve">
+    <value>Show only the lines containing this text (case-insensitive)</value>
+  </data>
+  <data name="TailClear" xml:space="preserve">
+    <value>_Clear</value>
+  </data>
+  <data name="TailStatus" xml:space="preserve">
+    <value>{0} · updated at {1}</value>
+  </data>
+  <data name="TailPaused" xml:space="preserve">
+    <value>Paused · {0}</value>
+  </data>
+  <data name="TailRestarted" xml:space="preserve">
+    <value>— file truncated or replaced: read again from the start —</value>
+  </data>
+  <data name="TailSkipped" xml:space="preserve">
+    <value>— {0} skipped —</value>
+  </data>
+  <data name="TailError" xml:space="preserve">
+    <value>Cannot read the file: {0} (new attempt in a few seconds)</value>
+  </data>
+  <data name="TailClosed" xml:space="preserve">
+    <value>Connection closed: the file is no longer followed.</value>
+  </data>
   <data name="HistoryTip" xml:space="preserve">
     <value>Transfer history (uploads and downloads)</value>
   </data>
@@ -1307,6 +1355,27 @@ Close anyway? The local copies will be deleted.</value>
   </data>
   <data name="MenuTabCloseOthers" xml:space="preserve">
     <value>Close _other tabs</value>
+  </data>
+  <data name="MenuTabDetach" xml:space="preserve">
+    <value>_Detach to a new window</value>
+  </data>
+  <data name="TabDetachTip" xml:space="preserve">
+    <value>Drag the tab out of the window, or right-click, to show the session in a separate window (another screen…)</value>
+  </data>
+  <data name="DetachedTitle" xml:space="preserve">
+    <value>{0} — CyberArkTerm</value>
+  </data>
+  <data name="DetachedPlaceholder" xml:space="preserve">
+    <value>This session is shown in a separate window.</value>
+  </data>
+  <data name="DetachedHint" xml:space="preserve">
+    <value>Closing that window brings the session back here; it stays open. The Files tab works on this session while this tab is selected.</value>
+  </data>
+  <data name="DetachedShow" xml:space="preserve">
+    <value>_Show the window</value>
+  </data>
+  <data name="DetachedReattach" xml:space="preserve">
+    <value>_Bring it back here</value>
   </data>
   <data name="TabReconnectConfirm" xml:space="preserve">
     <value>Reconnect {0}? The open session will be closed.</value>

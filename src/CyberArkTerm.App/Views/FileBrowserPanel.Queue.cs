@@ -381,6 +381,30 @@ public partial class FileBrowserPanel
     internal TransferHistory History => _history;
 
     private string _extractCommands = "";
+    private readonly List<TailWindow> _tails = [];
+
+    /// <summary>Suit le fichier sélectionné dans une fenêtre séparée (tail -f), par SFTP.</summary>
+    private void OnTail(object sender, RoutedEventArgs e)
+    {
+        if (_browser is not { } browser || SelectedEntries() is not [{ IsDirectory: false } entry])
+        {
+            return;
+        }
+
+        var window = new TailWindow(browser.TailSource(entry.FullPath), entry.FullPath, _session?.Label ?? "", () => browser.IsConnected);
+        window.Closed += (_, _) => _tails.Remove(window);
+        _tails.Add(window);
+        window.Show();
+    }
+
+    /// <summary>Ferme les fenêtres de suivi (fermeture de l'application).</summary>
+    public void CloseTailWindows()
+    {
+        foreach (var window in _tails.ToList())
+        {
+            window.Close();
+        }
+    }
 
     private void OnCopyExtractCommand(object sender, RoutedEventArgs e)
     {
