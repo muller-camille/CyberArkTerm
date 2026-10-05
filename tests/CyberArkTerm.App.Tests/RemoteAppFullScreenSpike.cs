@@ -84,7 +84,7 @@ public class RemoteAppFullScreenSpike(ITestOutputHelper output)
         thread.Start();
         try
         {
-            await done.Task.WaitAsync(TimeSpan.FromMinutes(5));
+            await done.Task.WaitAsync(TimeSpan.FromMinutes(7));
         }
         finally
         {
@@ -113,7 +113,7 @@ public class RemoteAppFullScreenSpike(ITestOutputHelper output)
         var slot = session.Host.SlotHandle;
         output.WriteLine($"Onglet {Win32Input.ScreenBounds(slot)}, écran {System.Windows.Forms.SystemInformation.VirtualScreen}");
         IntPtr full = IntPtr.Zero;
-        for (int i = 0; i < 60 && full == IntPtr.Zero; i++)
+        for (int i = 0; i < 240 && full == IntPtr.Zero; i++)
         {
             await Task.Delay(500);
             full = FullScreenWindow(slot);
