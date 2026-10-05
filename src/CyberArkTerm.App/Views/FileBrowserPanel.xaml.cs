@@ -23,6 +23,8 @@ public partial class FileBrowserPanel : UserControl
     private RemoteFileBrowser? _browser;
     private int _generation;
     private int _busy;
+    private IReadOnlyList<TransferCheck> _lastChecks = [];
+    private bool _lastChecksUpload;
 
     public FileBrowserPanel()
     {
@@ -611,6 +613,8 @@ public partial class FileBrowserPanel : UserControl
         }
 
         int done = 0;
+        var checks = new List<TransferCheck>();
+        HideChecks();
         Interlocked.Increment(ref _busy);
         TransferBar.Visibility = Visibility.Visible;
         try
@@ -618,15 +622,23 @@ public partial class FileBrowserPanel : UserControl
             for (int i = 0; i < paths.Count; i++)
             {
                 var name = Path.GetFileName(paths[i].TrimEnd('\\', '/'));
-                SetStatus(Text.Format(Strings.Uploading, Protocol, name, i + 1, paths.Count));
+                var sending = Text.Format(Strings.Uploading, Protocol, name, i + 1, paths.Count);
+                SetStatus(sending);
                 TransferBar.Value = 0;
                 var progress = new Progress<TransferProgress>(p =>
                 {
+                    // Relecture sur le serveur pour la vérification SHA-256, puis envoi du fichier suivant d'un dossier.
+                    var status = p.Verifying ? Text.Format(Strings.VerifyingFile, p.FileName) : sending;
+                    if (StatusText.Text != status)
+                    {
+                        SetStatus(status);
+                    }
+
                     TransferBar.Value = p.Total > 0 ? 100.0 * p.Transferred / p.Total : 0;
                 });
                 try
                 {
-                    await browser.UploadAsync(paths[i], directory, _settings.UploadProtocol, progress, CancellationToken.None);
+                    checks.AddRange(await browser.UploadAsync(paths[i], directory, _settings.UploadProtocol, progress, CancellationToken.None));
                     done++;
                 }
                 catch (Exception ex) when (ex is not OutOfMemoryException)
@@ -651,7 +663,12 @@ public partial class FileBrowserPanel : UserControl
 
         if (done == paths.Count)
         {
-            SetStatus(Text.Format(Strings.Uploaded, done, Protocol, directory));
+            ReportChecks(Text.Format(Strings.Uploaded, done, Protocol, directory), checks, upload: true);
+        }
+        else
+        {
+            // Échec en cours de route (déjà signalé) : la vérification des fichiers déjà envoyés reste consultable.
+            KeepChecks(checks, upload: true);
         }
     }
 
@@ -690,6 +707,8 @@ public partial class FileBrowserPanel : UserControl
             folder = pick.FolderName;
         }
 
+        var checks = new List<TransferCheck>();
+        HideChecks();
         Interlocked.Increment(ref _busy);
         TransferBar.Visibility = Visibility.Visible;
         try
@@ -698,22 +717,83 @@ public partial class FileBrowserPanel : UserControl
             {
                 SetStatus(Text.Format(Strings.Downloading, file.Name));
                 TransferBar.Value = 0;
-                var progress = new Progress<TransferProgress>(p => TransferBar.Value = p.Total > 0 ? 100.0 * p.Transferred / p.Total : 0);
+                var progress = new Progress<TransferProgress>(p =>
+                {
+                    if (p.Verifying)
+                    {
+                        SetStatus(Text.Format(Strings.VerifyingFile, p.FileName));
+                    }
+
+                    TransferBar.Value = p.Total > 0 ? 100.0 * p.Transferred / p.Total : 0;
+                });
                 // Nom Unix nettoyé (« ..\ », « : », « CON »...) : rien ne s'écrit hors du dossier choisi.
-                await browser.DownloadAsync(file, singleTarget ?? Path.Combine(folder, WindowsFileName.Sanitize(file.Name)), progress,
-                    CancellationToken.None);
+                checks.Add(await browser.DownloadAsync(file, singleTarget ?? Path.Combine(folder, WindowsFileName.Sanitize(file.Name)), progress,
+                    CancellationToken.None));
             }
 
-            SetStatus(Text.Format(Strings.Downloaded, files.Count, folder));
+            ReportChecks(Text.Format(Strings.Downloaded, files.Count, folder), checks, upload: false);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             SetStatus(Text.Format(Strings.DownloadFailed, Describe(ex)), error: true);
+            KeepChecks(checks, upload: false);
         }
         finally
         {
             Interlocked.Decrement(ref _busy);
             TransferBar.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    // ===================== Vérification des transferts =====================
+
+    /// <summary>
+    /// Bilan de la vérification SHA-256 après un transfert : confirmation dans la barre d'état et lien « Sommes de
+    /// contrôle… ». Si un fichier diffère de l'original, l'erreur est affichée et le détail s'ouvre de lui-même.
+    /// </summary>
+    private void ReportChecks(string done, IReadOnlyList<TransferCheck> checks, bool upload)
+    {
+        KeepChecks(checks, upload);
+        int different = checks.Count(c => c.Verified && !c.Matches);
+        if (different > 0)
+        {
+            SetStatus(Text.Format(Strings.TransferMismatch, different), error: true);
+            ShowChecks();
+            return;
+        }
+
+        int verified = checks.Count(c => c.Matches);
+        int unverified = checks.Count - verified;
+        var parts = new List<string> { done };
+        if (verified > 0)
+        {
+            parts.Add(checks.Count == 1 ? Text.Format(Strings.TransferVerifiedOne, checks[0].RemoteHash[..12]) : Text.Format(Strings.TransferVerified, verified));
+        }
+
+        if (unverified > 0)
+        {
+            parts.Add(Text.Format(Strings.TransferNotVerified, unverified));
+        }
+
+        SetStatus(string.Join(" · ", parts));
+    }
+
+    private void KeepChecks(IReadOnlyList<TransferCheck> checks, bool upload)
+    {
+        _lastChecks = checks;
+        _lastChecksUpload = upload;
+        ChecksLink.Visibility = checks.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void HideChecks() => KeepChecks([], false);
+
+    private void OnShowChecks(object sender, RoutedEventArgs e) => ShowChecks();
+
+    private void ShowChecks()
+    {
+        if (_lastChecks.Count > 0)
+        {
+            new TransferChecksDialog(_lastChecks, _lastChecksUpload) { Owner = Window.GetWindow(this) }.ShowDialog();
         }
     }
 

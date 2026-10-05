@@ -195,4 +195,64 @@
   <data name="TooManyFiles" xml:space="preserve">
     <value>Più di {0} file o cartelle: trascinane meno alla volta.</value>
   </data>
+  <data name="ImportMissingColumn" xml:space="preserve">
+    <value>L'intestazione non ha la colonna «{0}» (nomi accettati: {1}).</value>
+  </data>
+  <data name="ImportMissingValue" xml:space="preserve">
+    <value>{0} mancante</value>
+  </data>
+  <data name="ImportBadBoolean" xml:space="preserve">
+    <value>«{0}» non compreso per {1} (sì o no previsto)</value>
+  </data>
+  <data name="ImportNoRow" xml:space="preserve">
+    <value>Il file non contiene alcun account.</value>
+  </data>
+  <data name="ImportTooManyRows" xml:space="preserve">
+    <value>Il file supera le {0} righe: dividilo.</value>
+  </data>
+  <data name="ImportUnclosedQuote" xml:space="preserve">
+    <value>Un valore tra virgolette non è chiuso.</value>
+  </data>
+  <data name="ImportColumnSafe" xml:space="preserve">
+    <value>safe</value>
+  </data>
+  <data name="ImportColumnPlatform" xml:space="preserve">
+    <value>piattaforma</value>
+  </data>
+  <data name="ImportColumnAddress" xml:space="preserve">
+    <value>indirizzo</value>
+  </data>
+  <data name="ImportColumnUser" xml:space="preserve">
+    <value>utente</value>
+  </data>
+  <data name="ImportColumnCpm" xml:space="preserve">
+    <value>gestione CPM</value>
+  </data>
+  <data name="ImportResultLine" xml:space="preserve">
+    <value>Riga</value>
+  </data>
+  <data name="ImportResultStatus" xml:space="preserve">
+    <value>Risultato</value>
+  </data>
+  <data name="ImportResultDetail" xml:space="preserve">
+    <value>Dettaglio</value>
+  </data>
+  <data name="ImportOutcomePending" xml:space="preserve">
+    <value>Da creare</value>
+  </data>
+  <data name="ImportOutcomeSending" xml:space="preserve">
+    <value>Invio…</value>
+  </data>
+  <data name="ImportOutcomeCreated" xml:space="preserve">
+    <value>Creato</value>
+  </data>
+  <data name="ImportOutcomeRefused" xml:space="preserve">
+    <value>Rifiutato</value>
+  </data>
+  <data name="ImportOutcomeNotImported" xml:space="preserve">
+    <value>Non importato</value>
+  </data>
+  <data name="ImportOutcomeNotSent" xml:space="preserve">
+    <value>Non inviato</value>
+  </data>
 </root>

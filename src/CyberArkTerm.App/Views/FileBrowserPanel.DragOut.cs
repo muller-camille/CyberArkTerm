@@ -24,6 +24,9 @@ public partial class FileBrowserPanel
     private bool _keepSelection;
     private bool _dragging;
 
+    /// <summary>Vérification des fichiers du dernier glisser-déposer, affichée quand l'Explorateur a copié.</summary>
+    private List<TransferCheck> _dragChecks = [];
+
     /// <summary>Dossier des téléchargements par glisser-déposer (un sous-dossier par glissement).</summary>
     private static string DragRoot => Path.Combine(Path.GetTempPath(), "CyberArkTerm", "drag");
 
@@ -191,6 +194,8 @@ public partial class FileBrowserPanel
         var local = new string?[items.Count];
         int fileCount = items.Count(i => !i.Entry.IsDirectory);
         long totalBytes = items.Where(i => !i.Entry.IsDirectory).Sum(i => Math.Max(i.Entry.Length, 0));
+        var checks = new List<TransferCheck>();
+        _dragChecks = [];
         var dialog = new TransferDialog(Strings.DragDownloadTitle, fileCount, totalBytes, async (progress, ct) =>
         {
             Interlocked.Increment(ref _busy);
@@ -219,8 +224,20 @@ public partial class FileBrowserPanel
                     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                     long start = done;
                     int n = index;
-                    await browser.DownloadAsync(entry, path,
-                        new Progress<TransferProgress>(p => progress.Report(new TransferStep(entry.Name, n, start + p.Transferred))), ct);
+                    var check = await browser.DownloadAsync(entry, path, new Progress<TransferProgress>(p =>
+                    {
+                        if (!p.Verifying)
+                        {
+                            progress.Report(new TransferStep(entry.Name, n, start + p.Transferred));
+                        }
+                    }), ct);
+                    // Fichier écrit différent de celui du serveur : le dépôt échoue plutôt que de livrer une copie fausse.
+                    if (check.Verified && !check.Matches)
+                    {
+                        throw new IOException(Text.Format(Strings.TransferMismatchFile, entry.Name));
+                    }
+
+                    checks.Add(check);
                     done += Math.Max(entry.Length, 0);
                     local[i] = path;
                     index++;
@@ -237,6 +254,7 @@ public partial class FileBrowserPanel
 
         if (dialog.ShowDialog() == true)
         {
+            _dragChecks = checks;
             return local;
         }
 
@@ -255,7 +273,7 @@ public partial class FileBrowserPanel
         }
         else if (data.Fetched && result >= 0)
         {
-            SetStatus(Text.Format(Strings.DragDownloaded, count));
+            ReportChecks(Text.Format(Strings.DragDownloaded, count), _dragChecks, upload: false);
         }
         else if (data.Fetched || (!data.FetchAttempted && result < 0 && result != unchecked((int)0x80004004)))
         {

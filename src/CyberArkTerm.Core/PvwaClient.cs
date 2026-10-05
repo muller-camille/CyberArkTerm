@@ -162,6 +162,50 @@ public sealed class PvwaClient : IDisposable
         }
     }
 
+    /// <summary>Ajoute un membre au safe (droit « Manage Safe Members » sur le safe).</summary>
+    /// <exception cref="PvwaException">Refus du PVWA (droit manquant, membre introuvable ou déjà présent...).</exception>
+    public Task AddSafeMemberAsync(string safeName, SafeMemberChange member, CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(safeName);
+        return SendJsonAsync(HttpMethod.Post, $"API/Safes/{Uri.EscapeDataString(safeName)}/Members", member.ToAddBody(), ct);
+    }
+
+    /// <summary>Remplace les droits (et la fin d'appartenance) d'un membre du safe (droit « Manage Safe Members »).</summary>
+    /// <exception cref="PvwaException">Refus du PVWA.</exception>
+    public Task UpdateSafeMemberAsync(string safeName, SafeMemberChange member, CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(safeName);
+        return SendJsonAsync(HttpMethod.Put,
+            $"API/Safes/{Uri.EscapeDataString(safeName)}/Members/{Uri.EscapeDataString(member.MemberName.Trim())}", member.ToUpdateBody(), ct);
+    }
+
+    /// <summary>Retire un membre du safe (droit « Manage Safe Members »).</summary>
+    /// <exception cref="PvwaException">Refus du PVWA.</exception>
+    public async Task RemoveSafeMemberAsync(string safeName, string memberName, CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(safeName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(memberName);
+
+        using var request = CreateAuthenticatedRequest(HttpMethod.Delete,
+            $"API/Safes/{Uri.EscapeDataString(safeName)}/Members/{Uri.EscapeDataString(memberName.Trim())}");
+        using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw await CreateErrorAsync(response, ct).ConfigureAwait(false);
+        }
+    }
+
+    private async Task SendJsonAsync(HttpMethod method, string relativeUri, object body, CancellationToken ct)
+    {
+        using var request = CreateAuthenticatedRequest(method, relativeUri);
+        request.Content = new StringContent(JsonSerializer.Serialize(body, JsonOptions), Encoding.UTF8, "application/json");
+        using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw await CreateErrorAsync(response, ct).ConfigureAwait(false);
+        }
+    }
+
     /// <summary>
     /// Crée un compte dans un safe (droit « Add accounts » sur le safe, et en général « Update account content » pour
     /// fournir le mot de passe) et renvoie le compte créé. Le corps de la requête, qui contient le mot de passe, est

@@ -38,7 +38,7 @@ through **PSM for SSH (PSMP)** with a built-in **file browser** to upload files 
 | **My servers** | Your working servers, organized in folders and subfolders, each with its own settings. |
 | **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in Windows Remote Desktop Connection: component, target machine, reason, ticket. |
 | **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colors, vim, less, top…), MFA authentication. |
-| **Files tab** | SFTP browser of the server: `ls`, navigation, `rm`, drag-and-drop upload over SCP, editing in your text editor, permissions (`chmod`), follows the terminal folder. |
+| **Files tab** | SFTP browser of the server: `ls`, navigation, `rm`, drag-and-drop upload over SCP, SHA-256 check of every transferred file, editing in your text editor, permissions (`chmod`), follows the terminal folder. |
 | **Emergency access (KeePass)** | Without CyberArk: KeePass vaults (.kdbx) in "My servers", direct SSH and remote desktop connections, creating and editing entries, local log. |
 | **PVWA session kept open** | A light request every 4 minutes avoids the timeout while you work (paused while Windows is locked). |
 | **Home** | Quick connect (type a server, press Enter), recent sessions. |
@@ -105,13 +105,23 @@ right away in the chosen language, keeping the address and user name you typed.
   servers") → "Safe members". The window lists the users and groups of the safe with their rights (list, use,
   retrieve, add accounts, update, delete, manage members…), shows who can **add accounts**, and details every
   right of the selected member. The PVWA only gives this list to an account with the "View Safe Members" right on
-  the safe. Read only; `Ctrl+A` then `Ctrl+C` copies the table.
+  the safe. `Ctrl+A` then `Ctrl+C` copies the table. With the "Manage safe members" right, the "Add a member…",
+  "Edit the rights…" (or double-click) and "Remove…" buttons manage the members: name, type (user or group),
+  directory ("Vault" or the LDAP domain), optional end date and the 22 rights, grouped as in the PVWA.
 - **Add an account**: right-click an account (or a safe when accounts are grouped by safe) → "Add an account to
   the safe…". Safe, platform, address and user name are required; logon domain, account name, password, allowed
   machines and CPM management are optional. The account you clicked is used as a template (safe, platform,
   domain). The account is created with the rights of your session: the "Add accounts" right on the safe is
   required, and usually "Update account content" to give the password. The list is then reloaded and the new
   account selected.
+- **Import accounts (CSV)**: "Import" toolbar button, or right-click an account or a safe → "Import accounts
+  (CSV)…". A small window asks for the file ("Save a template…" gives an example), the default safe and platform,
+  and sums up what will be created; nothing is sent before "Import". Required columns: address and user name (plus
+  safe and platform, otherwise the defaults); optional: name, domain, password, allowed machines, CPM management
+  (yes/no), reason. Separator `;`, `,` or tab, column names in English, French or Italian; a file made with "Export"
+  can be imported again. A second window then creates the accounts line by line and shows each line's status
+  (created, refused with the PVWA message, not imported, not sent; "Stop" available). At the end it offers to save
+  the result as CSV (without the passwords). The file's passwords are never shown; delete the file after the import.
 - **Edit / delete an account**: right-click → "Edit the account…" (platform, address, user name, domain, name,
   allowed machines, CPM management; only the changed fields are sent) or "Delete the account…" (after
   confirmation). Rights "Update account properties" and "Delete accounts".
@@ -173,6 +183,14 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   downloaded while dragging: on drop, a window shows the progress (Cancel stops it), then Explorer copies the
   files where you dropped them. Unix names are made valid for Windows (`\`, `:`, `..`, `CON`… replaced), never
   writing outside the drop folder; the temporary download folder is deleted afterwards.
+- **Transfer check (SHA-256)**: every uploaded or downloaded file is checked. On upload (SCP or SFTP), the local
+  file is hashed, then the file on the server is read again over SFTP and hashed. On download, the data received
+  from the server is hashed, then the file written on this computer is read again. The status bar confirms
+  "✓ identical on both sides"; "Checksums…" shows each file's size, both checksums and the result, and copies the
+  checksums in the `sha256sum -c` format to check again on the server. If a file differs, the error is shown and
+  the details open; a drag-and-drop download fails rather than deliver a wrong copy. A file that cannot be read
+  again (permissions) is reported as "not checked". Reading an upload again doubles the data exchanged with the
+  server.
 - **Delete**: select, then Del (or right-click → "Delete (rm)"), with confirmation. Folders must be empty.
 - **Edit a file**: select it, then `F4` (or right-click → "Edit", or the pencil button). The file opens in the
   text editor chosen in Settings (Notepad by default). Every time you save, CyberArkTerm offers to send it back
@@ -340,10 +358,12 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md) (private reporting, no
 | `GET /PasswordVault/API/Accounts?offset=…&limit=1000` | Paged account list |
 | `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | RDP file of the PSM session |
 | `POST /PasswordVault/API/Accounts` | Creates an account in a safe ("Add an account") |
+| `POST /PasswordVault/API/Accounts` (once per line) | Imports accounts from a CSV |
 | `PATCH` / `DELETE /PasswordVault/API/Accounts/{id}` | Edits (changed fields only) and deletes an account |
 | `POST /PasswordVault/API/Accounts/{id}/Verify`, `/Change`, `/Reconcile` | Operations requested from the CPM |
 | `POST /PasswordVault/API/Accounts/{id}/Password/Retrieve` | Copies the password (reason, ticket; "copy" usage in the audit) |
-| `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Members of a safe and their rights ("Safe members", read only) |
+| `POST` / `PUT` / `DELETE /PasswordVault/API/Safes/{safe}/Members[/{member}]` | Adds a safe member, sets its rights, removes it |
+| `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Members of a safe and their rights ("Safe members" window) |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Temporary "MFA caching" SSH key (if enabled) |
 | `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Session keep-alive (every 4 minutes) |
 | `POST /PasswordVault/API/Auth/Logoff` | Sign out |

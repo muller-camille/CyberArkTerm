@@ -7,7 +7,8 @@ namespace CyberArkTerm.Core.Ssh;
 
 /// <summary>
 /// Navigation dans les fichiers du serveur via SFTP (ls, cd, rm, chmod, téléchargement, modification) et dépôt
-/// de fichiers par SCP ou SFTP. Les opérations sont sérialisées : une seule à la fois sur la connexion.
+/// de fichiers par SCP ou SFTP. Les opérations sont sérialisées : une seule à la fois sur la connexion. Chaque fichier
+/// envoyé ou téléchargé est vérifié par sa somme SHA-256 des deux côtés (<see cref="TransferCheck"/>).
 /// </summary>
 public sealed class RemoteFileBrowser : IDisposable
 {
@@ -122,8 +123,12 @@ public sealed class RemoteFileBrowser : IDisposable
         }
     }
 
-    /// <summary>Envoie un fichier ou un dossier local (récursivement) dans <paramref name="remoteDirectory"/>.</summary>
-    public async Task UploadAsync(string localPath, string remoteDirectory, TransferProtocol protocol,
+    /// <summary>
+    /// Envoie un fichier ou un dossier local (récursivement) dans <paramref name="remoteDirectory"/>, puis relit par
+    /// SFTP chaque fichier arrivé sur le serveur pour comparer sa somme SHA-256 à celle du fichier local.
+    /// </summary>
+    /// <returns>La vérification de chaque fichier envoyé.</returns>
+    public async Task<List<TransferCheck>> UploadAsync(string localPath, string remoteDirectory, TransferProtocol protocol,
         IProgress<TransferProgress>? progress, CancellationToken ct)
     {
         await _gate.WaitAsync(ct).ConfigureAwait(false);
@@ -131,6 +136,7 @@ public sealed class RemoteFileBrowser : IDisposable
         {
             var name = Path.GetFileName(localPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
             var remote = RemotePath.Combine(remoteDirectory, name);
+            var checks = new List<TransferCheck>();
             if (Directory.Exists(localPath))
             {
                 await EnsureDirectoryAsync(remote, ct).ConfigureAwait(false);
@@ -138,21 +144,30 @@ public sealed class RemoteFileBrowser : IDisposable
                 {
                     var scp = await GetScpAsync(ct).ConfigureAwait(false);
                     await RunScpAsync(scp, s => s.Upload(new DirectoryInfo(localPath), remote), name, progress, ct).ConfigureAwait(false);
+                    // SCP lit les fichiers lui-même : ils sont hachés ensuite, puis relus sur le serveur.
+                    foreach (var file in Directory.EnumerateFiles(localPath, "*", SearchOption.AllDirectories))
+                    {
+                        var relative = Path.GetRelativePath(localPath, file).Replace(Path.DirectorySeparatorChar, '/');
+                        checks.Add(await CheckScpUploadAsync(file, RemotePath.Combine(remote, relative), progress, ct).ConfigureAwait(false));
+                    }
                 }
                 else
                 {
-                    await UploadDirectorySftpAsync(localPath, remote, progress, ct).ConfigureAwait(false);
+                    await UploadDirectorySftpAsync(localPath, remote, checks, progress, ct).ConfigureAwait(false);
                 }
             }
             else if (protocol == TransferProtocol.Scp)
             {
                 var scp = await GetScpAsync(ct).ConfigureAwait(false);
                 await RunScpAsync(scp, s => s.Upload(new FileInfo(localPath), remote), name, progress, ct).ConfigureAwait(false);
+                checks.Add(await CheckScpUploadAsync(localPath, remote, progress, ct).ConfigureAwait(false));
             }
             else
             {
-                await UploadFileSftpAsync(localPath, remote, progress, ct).ConfigureAwait(false);
+                checks.Add(await UploadFileSftpAsync(localPath, remote, progress, ct).ConfigureAwait(false));
             }
+
+            return checks;
         }
         finally
         {
@@ -407,15 +422,38 @@ public sealed class RemoteFileBrowser : IDisposable
         }
     }
 
-    public async Task DownloadAsync(RemoteEntry entry, string localPath, IProgress<TransferProgress>? progress, CancellationToken ct)
+    /// <summary>
+    /// Télécharge un fichier en hachant (SHA-256) les données reçues du serveur, puis relit le fichier écrit sur le
+    /// disque pour comparer les deux sommes.
+    /// </summary>
+    public async Task<TransferCheck> DownloadAsync(RemoteEntry entry, string localPath, IProgress<TransferProgress>? progress, CancellationToken ct)
     {
         await _gate.WaitAsync(ct).ConfigureAwait(false);
         try
         {
-            await using var file = File.Create(localPath);
-            var report = progress is null ? null : new Progress<Renci.SshNet.DownloadFileProgressReport>(
-                p => progress.Report(new TransferProgress(entry.Name, (long)p.TotalBytesDownloaded, entry.Length)));
-            await _sftp.DownloadFileAsync(entry.FullPath, file, report, ct).ConfigureAwait(false);
+            byte[] remoteHash;
+            long received;
+            await using (var file = File.Create(localPath))
+            {
+                using var hashing = new HashingStream(file);
+                var report = progress is null ? null : new Progress<Renci.SshNet.DownloadFileProgressReport>(
+                    p => progress.Report(new TransferProgress(entry.Name, (long)p.TotalBytesDownloaded, entry.Length)));
+                await _sftp.DownloadFileAsync(entry.FullPath, hashing, report, ct).ConfigureAwait(false);
+                remoteHash = hashing.GetHash();
+                received = hashing.Count;
+            }
+
+            progress?.Report(new TransferProgress(entry.Name, 0, received, Verifying: true));
+            try
+            {
+                var (localHash, localLength) = await TransferCheck.HashFileAsync(localPath, ct).ConfigureAwait(false);
+                return new TransferCheck(entry.Name, localPath, entry.FullPath, localLength, localHash, received, remoteHash);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                // Fichier écrit mais illisible ensuite (antivirus, droits) : téléchargé, non vérifié.
+                return new TransferCheck(entry.Name, localPath, entry.FullPath, -1, [], received, remoteHash, e.Message);
+            }
         }
         finally
         {
@@ -459,28 +497,67 @@ public sealed class RemoteFileBrowser : IDisposable
         }
     }
 
-    private async Task UploadFileSftpAsync(string localPath, string remotePath, IProgress<TransferProgress>? progress, CancellationToken ct)
+    /// <summary>Envoi SFTP : le fichier local est haché au fil de l'envoi, puis le fichier du serveur est relu.</summary>
+    private async Task<TransferCheck> UploadFileSftpAsync(string localPath, string remotePath, IProgress<TransferProgress>? progress, CancellationToken ct)
     {
         var name = Path.GetFileName(localPath);
-        await using var file = File.OpenRead(localPath);
-        long total = file.Length;
-        var report = progress is null ? null : new Progress<Renci.SshNet.UploadFileProgressReport>(
-            p => progress.Report(new TransferProgress(name, (long)p.TotalBytesUploaded, total)));
-        await _sftp.UploadFileAsync(file, remotePath, report, ct).ConfigureAwait(false);
+        byte[] localHash;
+        long sent;
+        await using (var file = File.OpenRead(localPath))
+        {
+            using var hashing = new HashingStream(file);
+            long total = file.Length;
+            var report = progress is null ? null : new Progress<Renci.SshNet.UploadFileProgressReport>(
+                p => progress.Report(new TransferProgress(name, (long)p.TotalBytesUploaded, total)));
+            await _sftp.UploadFileAsync(hashing, remotePath, report, ct).ConfigureAwait(false);
+            localHash = hashing.GetHash();
+            sent = hashing.Count;
+        }
+
+        return await CheckRemoteAsync(name, localPath, remotePath, sent, localHash, progress, ct).ConfigureAwait(false);
     }
 
-    private async Task UploadDirectorySftpAsync(string localDirectory, string remoteDirectory, IProgress<TransferProgress>? progress, CancellationToken ct)
+    /// <summary>Envoi SCP : SCP lit le fichier lui-même ; il est haché après coup, puis le fichier du serveur est relu.</summary>
+    private async Task<TransferCheck> CheckScpUploadAsync(string localPath, string remotePath, IProgress<TransferProgress>? progress, CancellationToken ct)
+    {
+        var (localHash, localLength) = await TransferCheck.HashFileAsync(localPath, ct).ConfigureAwait(false);
+        return await CheckRemoteAsync(Path.GetFileName(localPath), localPath, remotePath, localLength, localHash, progress, ct).ConfigureAwait(false);
+    }
+
+    /// <summary>Relit par SFTP le fichier arrivé sur le serveur et le compare au fichier local.</summary>
+    private async Task<TransferCheck> CheckRemoteAsync(string name, string localPath, string remotePath, long localLength, byte[] localHash,
+        IProgress<TransferProgress>? progress, CancellationToken ct)
+    {
+        progress?.Report(new TransferProgress(name, 0, localLength, Verifying: true));
+        using var sink = new HashingStream(null);
+        var report = progress is null ? null : new Progress<Renci.SshNet.DownloadFileProgressReport>(
+            p => progress.Report(new TransferProgress(name, (long)p.TotalBytesDownloaded, localLength, Verifying: true)));
+        try
+        {
+            await _sftp.DownloadFileAsync(remotePath, sink, report, ct).ConfigureAwait(false);
+        }
+        catch (Renci.SshNet.Common.SshException e) when (_sftp.IsConnected)
+        {
+            // Fichier envoyé mais illisible par le compte (droits, ACL) : envoyé, non vérifié.
+            return new TransferCheck(name, localPath, remotePath, localLength, localHash, -1, [], e.Message);
+        }
+
+        return new TransferCheck(name, localPath, remotePath, localLength, localHash, sink.Count, sink.GetHash());
+    }
+
+    private async Task UploadDirectorySftpAsync(string localDirectory, string remoteDirectory, List<TransferCheck> checks,
+        IProgress<TransferProgress>? progress, CancellationToken ct)
     {
         foreach (var file in Directory.EnumerateFiles(localDirectory))
         {
-            await UploadFileSftpAsync(file, RemotePath.Combine(remoteDirectory, Path.GetFileName(file)), progress, ct).ConfigureAwait(false);
+            checks.Add(await UploadFileSftpAsync(file, RemotePath.Combine(remoteDirectory, Path.GetFileName(file)), progress, ct).ConfigureAwait(false));
         }
 
         foreach (var sub in Directory.EnumerateDirectories(localDirectory))
         {
             var remoteSub = RemotePath.Combine(remoteDirectory, Path.GetFileName(sub));
             await EnsureDirectoryAsync(remoteSub, ct).ConfigureAwait(false);
-            await UploadDirectorySftpAsync(sub, remoteSub, progress, ct).ConfigureAwait(false);
+            await UploadDirectorySftpAsync(sub, remoteSub, checks, progress, ct).ConfigureAwait(false);
         }
     }
 

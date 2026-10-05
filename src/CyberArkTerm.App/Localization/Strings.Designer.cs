@@ -128,6 +128,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to {0} account(s) imported.
+        /// </summary>
+        public static string AccountsImported {
+            get {
+                return ResourceManager.GetString("AccountsImported", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Address:.
         /// </summary>
         public static string AddAccountAddress {
@@ -403,6 +412,168 @@ namespace CyberArkTerm.App.Localization {
         public static string CannotOpen {
             get {
                 return ResourceManager.GetString("CannotOpen", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✓ The {0} file(s) are identical on both sides..
+        /// </summary>
+        public static string ChecksAllOk {
+            get {
+                return ResourceManager.GetString("ChecksAllOk", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to File on the server.
+        /// </summary>
+        public static string ChecksColFile {
+            get {
+                return ResourceManager.GetString("ChecksColFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SHA-256 on this computer.
+        /// </summary>
+        public static string ChecksColLocal {
+            get {
+                return ResourceManager.GetString("ChecksColLocal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SHA-256 on the server.
+        /// </summary>
+        public static string ChecksColRemote {
+            get {
+                return ResourceManager.GetString("ChecksColRemote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Result.
+        /// </summary>
+        public static string ChecksColResult {
+            get {
+                return ResourceManager.GetString("ChecksColResult", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Size.
+        /// </summary>
+        public static string ChecksColSize {
+            get {
+                return ResourceManager.GetString("ChecksColSize", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copied: {0} line(s).
+        /// </summary>
+        public static string ChecksCopied {
+            get {
+                return ResourceManager.GetString("ChecksCopied", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Copy for sha256sum -c.
+        /// </summary>
+        public static string ChecksCopy {
+            get {
+                return ResourceManager.GetString("ChecksCopy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copies one line per file (checksum of the original and path on the server), to check again on the[rest of string was truncated].
+        /// </summary>
+        public static string ChecksCopyTip {
+            get {
+                return ResourceManager.GetString("ChecksCopyTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✗ Different.
+        /// </summary>
+        public static string ChecksDifferent {
+            get {
+                return ResourceManager.GetString("ChecksDifferent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✓ Identical.
+        /// </summary>
+        public static string ChecksIdentical {
+            get {
+                return ResourceManager.GetString("ChecksIdentical", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The data received from the server was hashed (SHA-256), then the file written on this computer wa[rest of string was truncated].
+        /// </summary>
+        public static string ChecksIntroDownload {
+            get {
+                return ResourceManager.GetString("ChecksIntroDownload", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Each file was hashed (SHA-256) while it was sent, then read again on the server over SFTP and has[rest of string was truncated].
+        /// </summary>
+        public static string ChecksIntroUpload {
+            get {
+                return ResourceManager.GetString("ChecksIntroUpload", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Checksums….
+        /// </summary>
+        public static string ChecksLink {
+            get {
+                return ResourceManager.GetString("ChecksLink", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✗ {0} file(s) out of {1} differ: transfer them again..
+        /// </summary>
+        public static string ChecksSomeDiffer {
+            get {
+                return ResourceManager.GetString("ChecksSomeDiffer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠ {0} file(s) out of {1} could not be read again: transferred but not checked..
+        /// </summary>
+        public static string ChecksSomeUnverified {
+            get {
+                return ResourceManager.GetString("ChecksSomeUnverified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Check of the transferred files.
+        /// </summary>
+        public static string ChecksTitle {
+            get {
+                return ResourceManager.GetString("ChecksTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠ Not checked: {0}.
+        /// </summary>
+        public static string ChecksUnverified {
+            get {
+                return ResourceManager.GetString("ChecksUnverified", resourceCulture);
             }
         }
 
@@ -1595,6 +1766,303 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _Import.
+        /// </summary>
+        public static string ImportButton {
+            get {
+                return ResourceManager.GetString("ImportButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Choose a file….
+        /// </summary>
+        public static string ImportChooseFile {
+            get {
+                return ResourceManager.GetString("ImportChooseFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Line.
+        /// </summary>
+        public static string ImportColLine {
+            get {
+                return ResourceManager.GetString("ImportColLine", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password.
+        /// </summary>
+        public static string ImportColPassword {
+            get {
+                return ResourceManager.GetString("ImportColPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Result.
+        /// </summary>
+        public static string ImportColResult {
+            get {
+                return ResourceManager.GetString("ImportColResult", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing is sent before you click Import; the next window then shows the result of each line..
+        /// </summary>
+        public static string ImportConfirmHint {
+            get {
+                return ResourceManager.GetString("ImportConfirmHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Default _platform:.
+        /// </summary>
+        public static string ImportDefaultPlatform {
+            get {
+                return ResourceManager.GetString("ImportDefaultPlatform", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Default _safe:.
+        /// </summary>
+        public static string ImportDefaultSafe {
+            get {
+                return ResourceManager.GetString("ImportDefaultSafe", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Used for the lines whose safe or platform column is missing or empty..
+        /// </summary>
+        public static string ImportDefaultsTip {
+            get {
+                return ResourceManager.GetString("ImportDefaultsTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import finished: {0} created, {1} refused..
+        /// </summary>
+        public static string ImportDone {
+            get {
+                return ResourceManager.GetString("ImportDone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file cannot be read: {0}.
+        /// </summary>
+        public static string ImportFileError {
+            get {
+                return ResourceManager.GetString("ImportFileError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file is larger than 10 MB..
+        /// </summary>
+        public static string ImportFileTooLarge {
+            get {
+                return ResourceManager.GetString("ImportFileTooLarge", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Each line of the CSV file creates an account in CyberArk with the rights of your session (“Add ac[rest of string was truncated].
+        /// </summary>
+        public static string ImportIntro {
+            get {
+                return ResourceManager.GetString("ImportIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Line {0}: {1}.
+        /// </summary>
+        public static string ImportLineError {
+            get {
+                return ResourceManager.GetString("ImportLineError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to … and {0} more line(s) with an error..
+        /// </summary>
+        public static string ImportMoreErrors {
+            get {
+                return ResourceManager.GetString("ImportMoreErrors", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No file chosen.
+        /// </summary>
+        public static string ImportNoFile {
+            get {
+                return ResourceManager.GetString("ImportNoFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CSV files (*.csv;*.txt)|*.csv;*.txt|All files (*.*)|*.*.
+        /// </summary>
+        public static string ImportOpenFilter {
+            get {
+                return ResourceManager.GetString("ImportOpenFilter", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file contains passwords: they are never shown. Delete the file once the import is done..
+        /// </summary>
+        public static string ImportPasswordsWarning {
+            get {
+                return ResourceManager.GetString("ImportPasswordsWarning", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import: {0} / {1} — {2} created, {3} refused.
+        /// </summary>
+        public static string ImportProgress {
+            get {
+                return ResourceManager.GetString("ImportProgress", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to import-result.
+        /// </summary>
+        public static string ImportResultFileName {
+            get {
+                return ResourceManager.GetString("ImportResultFileName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Result saved: {0}.
+        /// </summary>
+        public static string ImportResultSaved {
+            get {
+                return ResourceManager.GetString("ImportResultSaved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Creating {0} account(s) in CyberArk, one line at a time..
+        /// </summary>
+        public static string ImportRunning {
+            get {
+                return ResourceManager.GetString("ImportRunning", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Save the result….
+        /// </summary>
+        public static string ImportSaveResult {
+            get {
+                return ResourceManager.GetString("ImportSaveResult", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}  Save the result to a CSV file (one line per line of the file, without the passwords)?.
+        /// </summary>
+        public static string ImportSaveResultAsk {
+            get {
+                return ResourceManager.GetString("ImportSaveResultAsk", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA session has expired: import stopped, {0} created, {1} refused; the other lines were not [rest of string was truncated].
+        /// </summary>
+        public static string ImportSessionExpired {
+            get {
+                return ResourceManager.GetString("ImportSessionExpired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Not imported: {0}.
+        /// </summary>
+        public static string ImportStatusError {
+            get {
+                return ResourceManager.GetString("ImportStatusError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Refused: {0}.
+        /// </summary>
+        public static string ImportStatusRefused {
+            get {
+                return ResourceManager.GetString("ImportStatusRefused", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Stop.
+        /// </summary>
+        public static string ImportStop {
+            get {
+                return ResourceManager.GetString("ImportStop", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import stopped: {0} created, {1} refused; the other lines were not sent..
+        /// </summary>
+        public static string ImportStopped {
+            get {
+                return ResourceManager.GetString("ImportStopped", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} account(s) to create, {1} line(s) with an error (not imported)..
+        /// </summary>
+        public static string ImportSummary {
+            get {
+                return ResourceManager.GetString("ImportSummary", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Save a _template….
+        /// </summary>
+        public static string ImportTemplate {
+            get {
+                return ResourceManager.GetString("ImportTemplate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to accounts-template.
+        /// </summary>
+        public static string ImportTemplateFileName {
+            get {
+                return ResourceManager.GetString("ImportTemplateFileName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import accounts.
+        /// </summary>
+        public static string ImportTitle {
+            get {
+                return ResourceManager.GetString("ImportTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Invalid port (1 to 65535)..
         /// </summary>
         public static string InvalidPort {
@@ -2653,6 +3121,15 @@ namespace CyberArkTerm.App.Localization {
         public static string MenuEditAccount {
             get {
                 return ResourceManager.GetString("MenuEditAccount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Import accounts (CSV)….
+        /// </summary>
+        public static string MenuImportAccounts {
+            get {
+                return ResourceManager.GetString("MenuImportAccounts", resourceCulture);
             }
         }
 
@@ -3737,11 +4214,56 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Add a member to the safe {0}.
+        /// </summary>
+        public static string SafeMemberAddTitle {
+            get {
+                return ResourceManager.GetString("SafeMemberAddTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tick _all.
+        /// </summary>
+        public static string SafeMemberAll {
+            get {
+                return ResourceManager.GetString("SafeMemberAll", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Member.
         /// </summary>
         public static string SafeMemberColumn {
             get {
                 return ResourceManager.GetString("SafeMemberColumn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Rights of {0} on the safe {1}.
+        /// </summary>
+        public static string SafeMemberEditTitle {
+            get {
+                return ResourceManager.GetString("SafeMemberEditTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA did not save the member: {0}.
+        /// </summary>
+        public static string SafeMemberFailed {
+            get {
+                return ResourceManager.GetString("SafeMemberFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA refused: your account needs the “Manage safe members” right on this safe. PVWA message: {0}.
+        /// </summary>
+        public static string SafeMemberForbidden {
+            get {
+                return ResourceManager.GetString("SafeMemberForbidden", resourceCulture);
             }
         }
 
@@ -3755,11 +4277,164 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Access.
+        /// </summary>
+        public static string SafeMemberGroupAccess {
+            get {
+                return ResourceManager.GetString("SafeMemberGroupAccess", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account management.
+        /// </summary>
+        public static string SafeMemberGroupAccounts {
+            get {
+                return ResourceManager.GetString("SafeMemberGroupAccounts", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Folders.
+        /// </summary>
+        public static string SafeMemberGroupFolders {
+            get {
+                return ResourceManager.GetString("SafeMemberGroupFolders", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Safe management.
+        /// </summary>
+        public static string SafeMemberGroupSafe {
+            get {
+                return ResourceManager.GetString("SafeMemberGroupSafe", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Workflow.
+        /// </summary>
+        public static string SafeMemberGroupWorkflow {
+            get {
+                return ResourceManager.GetString("SafeMemberGroupWorkflow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The changes are saved in CyberArk with the rights of your session: the “Manage safe members” righ[rest of string was truncated].
+        /// </summary>
+        public static string SafeMemberIntro {
+            get {
+                return ResourceManager.GetString("SafeMemberIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Member:.
+        /// </summary>
+        public static string SafeMemberName {
+            get {
+                return ResourceManager.GetString("SafeMemberName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the name of the member..
+        /// </summary>
+        public static string SafeMemberNameRequired {
+            get {
+                return ResourceManager.GetString("SafeMemberNameRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to User or group name, as in the vault or the LDAP directory..
+        /// </summary>
+        public static string SafeMemberNameTip {
+            get {
+                return ResourceManager.GetString("SafeMemberNameTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Untick all.
+        /// </summary>
+        public static string SafeMemberNone {
+            get {
+                return ResourceManager.GetString("SafeMemberNone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove {0} from the safe {1}? This member loses all its rights on the safe..
+        /// </summary>
+        public static string SafeMemberRemoveConfirm {
+            get {
+                return ResourceManager.GetString("SafeMemberRemoveConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA did not remove the member: {0}.
+        /// </summary>
+        public static string SafeMemberRemoveFailed {
+            get {
+                return ResourceManager.GetString("SafeMemberRemoveFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Saving….
+        /// </summary>
+        public static string SafeMemberSaving {
+            get {
+                return ResourceManager.GetString("SafeMemberSaving", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Search in:.
+        /// </summary>
+        public static string SafeMemberSearchIn {
+            get {
+                return ResourceManager.GetString("SafeMemberSearchIn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to “Vault” for a vault user or group, otherwise the name of the LDAP directory (for example corp.exa[rest of string was truncated].
+        /// </summary>
+        public static string SafeMemberSearchInTip {
+            get {
+                return ResourceManager.GetString("SafeMemberSearchInTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Type.
         /// </summary>
         public static string SafeMemberTypeColumn {
             get {
                 return ResourceManager.GetString("SafeMemberTypeColumn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Type:.
+        /// </summary>
+        public static string SafeMemberTypeLabel {
+            get {
+                return ResourceManager.GetString("SafeMemberTypeLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Member _until:.
+        /// </summary>
+        public static string SafeMemberUntil {
+            get {
+                return ResourceManager.GetString("SafeMemberUntil", resourceCulture);
             }
         }
 
@@ -3773,11 +4448,29 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Empty: no end date..
+        /// </summary>
+        public static string SafeMemberUntilTip {
+            get {
+                return ResourceManager.GetString("SafeMemberUntilTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to User.
         /// </summary>
         public static string SafeMemberUser {
             get {
                 return ResourceManager.GetString("SafeMemberUser", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Add a member….
+        /// </summary>
+        public static string SafeMembersAdd {
+            get {
+                return ResourceManager.GetString("SafeMembersAdd", resourceCulture);
             }
         }
 
@@ -3796,6 +4489,15 @@ namespace CyberArkTerm.App.Localization {
         public static string SafeMembersCount {
             get {
                 return ResourceManager.GetString("SafeMembersCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Edit the rights….
+        /// </summary>
+        public static string SafeMembersEdit {
+            get {
+                return ResourceManager.GetString("SafeMembersEdit", resourceCulture);
             }
         }
 
@@ -3886,6 +4588,15 @@ namespace CyberArkTerm.App.Localization {
         public static string SafeMembersOnlyAdd {
             get {
                 return ResourceManager.GetString("SafeMembersOnlyAdd", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Remove….
+        /// </summary>
+        public static string SafeMembersRemove {
+            get {
+                return ResourceManager.GetString("SafeMembersRemove", resourceCulture);
             }
         }
 
@@ -4826,6 +5537,24 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Import.
+        /// </summary>
+        public static string ToolImport {
+            get {
+                return ResourceManager.GetString("ToolImport", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Create accounts from a CSV file.
+        /// </summary>
+        public static string ToolImportTip {
+            get {
+                return ResourceManager.GetString("ToolImportTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Add a KeePass vault (emergency access outside CyberArk).
         /// </summary>
         public static string ToolKeePassTip {
@@ -4894,6 +5623,51 @@ namespace CyberArkTerm.App.Localization {
         public static string ToolSshTip {
             get {
                 return ResourceManager.GetString("ToolSshTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✗ {0} file(s) differ from the original: transfer them again.
+        /// </summary>
+        public static string TransferMismatch {
+            get {
+                return ResourceManager.GetString("TransferMismatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the downloaded file differs from the server's (SHA-256)..
+        /// </summary>
+        public static string TransferMismatchFile {
+            get {
+                return ResourceManager.GetString("TransferMismatchFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠ {0} file(s) could not be checked.
+        /// </summary>
+        public static string TransferNotVerified {
+            get {
+                return ResourceManager.GetString("TransferNotVerified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✓ {0} file(s) identical on both sides (SHA-256).
+        /// </summary>
+        public static string TransferVerified {
+            get {
+                return ResourceManager.GetString("TransferVerified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✓ identical on both sides, SHA-256 {0}….
+        /// </summary>
+        public static string TransferVerifiedOne {
+            get {
+                return ResourceManager.GetString("TransferVerifiedOne", resourceCulture);
             }
         }
 
@@ -4975,6 +5749,15 @@ namespace CyberArkTerm.App.Localization {
         public static string Uploading {
             get {
                 return ResourceManager.GetString("Uploading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Checking {0} (SHA-256)….
+        /// </summary>
+        public static string VerifyingFile {
+            get {
+                return ResourceManager.GetString("VerifyingFile", resourceCulture);
             }
         }
 

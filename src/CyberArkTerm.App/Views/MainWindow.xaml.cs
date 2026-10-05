@@ -91,7 +91,7 @@ public partial class MainWindow : Window
             // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de l'onglet « Courants ».
             AvailableTab.Visibility = Visibility.Collapsed;
             QuickPanel.Visibility = HomeLists.Visibility = NewFolderButton.Visibility = Visibility.Collapsed;
-            ExportButton.IsEnabled = false;
+            ExportButton.IsEnabled = ImportToolButton.IsEnabled = false;
             NoSavedText.Text = Strings.NoKeePassHelp;
             SideTabs.SelectedItem = CurrentTab;
             CountText.Text = "";
@@ -765,7 +765,7 @@ public partial class MainWindow : Window
 
         foreach (var element in menu.Items.OfType<FrameworkElement>())
         {
-            element.Visibility = account is null && element.Tag as string is not ("safemembers" or "addaccount")
+            element.Visibility = account is null && element.Tag as string is not ("safemembers" or "addaccount" or "importaccounts")
                 ? Visibility.Collapsed
                 : Visibility.Visible;
         }
@@ -786,6 +786,10 @@ public partial class MainWindow : Window
                     break;
                 case "addaccount":
                     SetSafeMenuItem(item, safe, Strings.MenuAddAccountTo, Strings.MenuAddAccount);
+                    break;
+                case "importaccounts":
+                    item.CommandParameter = safe;
+                    item.IsEnabled = _client is not null;
                     break;
             }
         }
@@ -818,7 +822,11 @@ public partial class MainWindow : Window
             return;
         }
 
-        var dialog = new SafeMembersDialog(safeName, ct => client.GetSafeMembersAsync(safeName, ct)) { Owner = this };
+        var actions = new SafeMemberActions(
+            (member, ct) => client.AddSafeMemberAsync(safeName, member, ct),
+            (member, ct) => client.UpdateSafeMemberAsync(safeName, member, ct),
+            (name, ct) => client.RemoveSafeMemberAsync(safeName, name, ct));
+        var dialog = new SafeMembersDialog(safeName, ct => client.GetSafeMembersAsync(safeName, ct), actions) { Owner = this };
         dialog.ShowDialog();
         if (dialog.SessionExpired)
         {

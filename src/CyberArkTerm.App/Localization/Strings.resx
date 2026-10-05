@@ -180,6 +180,12 @@
   <data name="ToolExportTip" xml:space="preserve">
     <value>Export the filtered list to CSV</value>
   </data>
+  <data name="ToolImport" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="ToolImportTip" xml:space="preserve">
+    <value>Create accounts from a CSV file</value>
+  </data>
   <data name="ToolSettings" xml:space="preserve">
     <value>Settings</value>
   </data>
@@ -813,6 +819,78 @@ Continue?</value>
   </data>
   <data name="DownloadFailed" xml:space="preserve">
     <value>Download failed: {0}</value>
+  </data>
+  <data name="VerifyingFile" xml:space="preserve">
+    <value>Checking {0} (SHA-256)…</value>
+  </data>
+  <data name="TransferVerified" xml:space="preserve">
+    <value>✓ {0} file(s) identical on both sides (SHA-256)</value>
+  </data>
+  <data name="TransferVerifiedOne" xml:space="preserve">
+    <value>✓ identical on both sides, SHA-256 {0}…</value>
+  </data>
+  <data name="TransferNotVerified" xml:space="preserve">
+    <value>⚠ {0} file(s) could not be checked</value>
+  </data>
+  <data name="TransferMismatch" xml:space="preserve">
+    <value>✗ {0} file(s) differ from the original: transfer them again</value>
+  </data>
+  <data name="TransferMismatchFile" xml:space="preserve">
+    <value>{0}: the downloaded file differs from the server's (SHA-256).</value>
+  </data>
+  <data name="ChecksLink" xml:space="preserve">
+    <value>Checksums…</value>
+  </data>
+  <data name="ChecksTitle" xml:space="preserve">
+    <value>Check of the transferred files</value>
+  </data>
+  <data name="ChecksIntroUpload" xml:space="preserve">
+    <value>Each file was hashed (SHA-256) while it was sent, then read again on the server over SFTP and hashed again: both checksums must be identical.</value>
+  </data>
+  <data name="ChecksIntroDownload" xml:space="preserve">
+    <value>The data received from the server was hashed (SHA-256), then the file written on this computer was read again and hashed: both checksums must be identical.</value>
+  </data>
+  <data name="ChecksAllOk" xml:space="preserve">
+    <value>✓ The {0} file(s) are identical on both sides.</value>
+  </data>
+  <data name="ChecksSomeDiffer" xml:space="preserve">
+    <value>✗ {0} file(s) out of {1} differ: transfer them again.</value>
+  </data>
+  <data name="ChecksSomeUnverified" xml:space="preserve">
+    <value>⚠ {0} file(s) out of {1} could not be read again: transferred but not checked.</value>
+  </data>
+  <data name="ChecksColFile" xml:space="preserve">
+    <value>File on the server</value>
+  </data>
+  <data name="ChecksColSize" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="ChecksColLocal" xml:space="preserve">
+    <value>SHA-256 on this computer</value>
+  </data>
+  <data name="ChecksColRemote" xml:space="preserve">
+    <value>SHA-256 on the server</value>
+  </data>
+  <data name="ChecksColResult" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="ChecksIdentical" xml:space="preserve">
+    <value>✓ Identical</value>
+  </data>
+  <data name="ChecksDifferent" xml:space="preserve">
+    <value>✗ Different</value>
+  </data>
+  <data name="ChecksUnverified" xml:space="preserve">
+    <value>⚠ Not checked: {0}</value>
+  </data>
+  <data name="ChecksCopy" xml:space="preserve">
+    <value>_Copy for sha256sum -c</value>
+  </data>
+  <data name="ChecksCopyTip" xml:space="preserve">
+    <value>Copies one line per file (checksum of the original and path on the server), to check again on the server with sha256sum -c.</value>
+  </data>
+  <data name="ChecksCopied" xml:space="preserve">
+    <value>Copied: {0} line(s)</value>
   </data>
   <data name="PermissionDenied" xml:space="preserve">
     <value>permission denied</value>
@@ -1717,5 +1795,190 @@ Your changes stay in the editor: save again to send the whole file once the conn
   </data>
   <data name="PasswordClipboardCleared" xml:space="preserve">
     <value>Password cleared from the clipboard</value>
+  </data>
+  <data name="MenuImportAccounts" xml:space="preserve">
+    <value>_Import accounts (CSV)…</value>
+  </data>
+  <data name="ImportTitle" xml:space="preserve">
+    <value>Import accounts</value>
+  </data>
+  <data name="ImportIntro" xml:space="preserve">
+    <value>Each line of the CSV file creates an account in CyberArk with the rights of your session (“Add accounts” on the safe, and “Update account content” for the passwords). Required columns: address and user name, plus safe and platform unless the defaults below are filled in. Optional: name, logon domain, password, allowed machines, CPM management (yes/no), reason for manual management. Column names in English, French or Italian; a file made with Export can be imported.</value>
+  </data>
+  <data name="ImportChooseFile" xml:space="preserve">
+    <value>_Choose a file…</value>
+  </data>
+  <data name="ImportNoFile" xml:space="preserve">
+    <value>No file chosen</value>
+  </data>
+  <data name="ImportTemplate" xml:space="preserve">
+    <value>Save a _template…</value>
+  </data>
+  <data name="ImportTemplateFileName" xml:space="preserve">
+    <value>accounts-template</value>
+  </data>
+  <data name="ImportOpenFilter" xml:space="preserve">
+    <value>CSV files (*.csv;*.txt)|*.csv;*.txt|All files (*.*)|*.*</value>
+  </data>
+  <data name="ImportDefaultSafe" xml:space="preserve">
+    <value>Default _safe:</value>
+  </data>
+  <data name="ImportDefaultPlatform" xml:space="preserve">
+    <value>Default _platform:</value>
+  </data>
+  <data name="ImportDefaultsTip" xml:space="preserve">
+    <value>Used for the lines whose safe or platform column is missing or empty.</value>
+  </data>
+  <data name="ImportSummary" xml:space="preserve">
+    <value>{0} account(s) to create, {1} line(s) with an error (not imported).</value>
+  </data>
+  <data name="ImportPasswordsWarning" xml:space="preserve">
+    <value>The file contains passwords: they are never shown. Delete the file once the import is done.</value>
+  </data>
+  <data name="ImportButton" xml:space="preserve">
+    <value>_Import</value>
+  </data>
+  <data name="ImportStop" xml:space="preserve">
+    <value>_Stop</value>
+  </data>
+  <data name="ImportProgress" xml:space="preserve">
+    <value>Import: {0} / {1} — {2} created, {3} refused</value>
+  </data>
+  <data name="ImportDone" xml:space="preserve">
+    <value>Import finished: {0} created, {1} refused.</value>
+  </data>
+  <data name="ImportStopped" xml:space="preserve">
+    <value>Import stopped: {0} created, {1} refused; the other lines were not sent.</value>
+  </data>
+  <data name="ImportFileError" xml:space="preserve">
+    <value>The file cannot be read: {0}</value>
+  </data>
+  <data name="ImportFileTooLarge" xml:space="preserve">
+    <value>The file is larger than 10 MB.</value>
+  </data>
+  <data name="ImportColLine" xml:space="preserve">
+    <value>Line</value>
+  </data>
+  <data name="ImportColPassword" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="ImportColResult" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="ImportStatusRefused" xml:space="preserve">
+    <value>Refused: {0}</value>
+  </data>
+  <data name="ImportStatusError" xml:space="preserve">
+    <value>Not imported: {0}</value>
+  </data>
+  <data name="AccountsImported" xml:space="preserve">
+    <value>{0} account(s) imported</value>
+  </data>
+  <data name="ImportLineError" xml:space="preserve">
+    <value>Line {0}: {1}</value>
+  </data>
+  <data name="ImportMoreErrors" xml:space="preserve">
+    <value>… and {0} more line(s) with an error.</value>
+  </data>
+  <data name="ImportConfirmHint" xml:space="preserve">
+    <value>Nothing is sent before you click Import; the next window then shows the result of each line.</value>
+  </data>
+  <data name="ImportRunning" xml:space="preserve">
+    <value>Creating {0} account(s) in CyberArk, one line at a time.</value>
+  </data>
+  <data name="ImportSessionExpired" xml:space="preserve">
+    <value>The PVWA session has expired: import stopped, {0} created, {1} refused; the other lines were not sent.</value>
+  </data>
+  <data name="ImportSaveResult" xml:space="preserve">
+    <value>_Save the result…</value>
+  </data>
+  <data name="ImportSaveResultAsk" xml:space="preserve">
+    <value>{0}
+
+Save the result to a CSV file (one line per line of the file, without the passwords)?</value>
+  </data>
+  <data name="ImportResultFileName" xml:space="preserve">
+    <value>import-result</value>
+  </data>
+  <data name="ImportResultSaved" xml:space="preserve">
+    <value>Result saved: {0}</value>
+  </data>
+  <data name="SafeMembersAdd" xml:space="preserve">
+    <value>_Add a member…</value>
+  </data>
+  <data name="SafeMembersEdit" xml:space="preserve">
+    <value>_Edit the rights…</value>
+  </data>
+  <data name="SafeMembersRemove" xml:space="preserve">
+    <value>_Remove…</value>
+  </data>
+  <data name="SafeMemberAddTitle" xml:space="preserve">
+    <value>Add a member to the safe {0}</value>
+  </data>
+  <data name="SafeMemberEditTitle" xml:space="preserve">
+    <value>Rights of {0} on the safe {1}</value>
+  </data>
+  <data name="SafeMemberIntro" xml:space="preserve">
+    <value>The changes are saved in CyberArk with the rights of your session: the “Manage safe members” right on the safe is required.</value>
+  </data>
+  <data name="SafeMemberName" xml:space="preserve">
+    <value>_Member:</value>
+  </data>
+  <data name="SafeMemberNameTip" xml:space="preserve">
+    <value>User or group name, as in the vault or the LDAP directory.</value>
+  </data>
+  <data name="SafeMemberTypeLabel" xml:space="preserve">
+    <value>_Type:</value>
+  </data>
+  <data name="SafeMemberSearchIn" xml:space="preserve">
+    <value>_Search in:</value>
+  </data>
+  <data name="SafeMemberSearchInTip" xml:space="preserve">
+    <value>“Vault” for a vault user or group, otherwise the name of the LDAP directory (for example corp.example).</value>
+  </data>
+  <data name="SafeMemberUntil" xml:space="preserve">
+    <value>Member _until:</value>
+  </data>
+  <data name="SafeMemberUntilTip" xml:space="preserve">
+    <value>Empty: no end date.</value>
+  </data>
+  <data name="SafeMemberGroupAccess" xml:space="preserve">
+    <value>Access</value>
+  </data>
+  <data name="SafeMemberGroupAccounts" xml:space="preserve">
+    <value>Account management</value>
+  </data>
+  <data name="SafeMemberGroupSafe" xml:space="preserve">
+    <value>Safe management</value>
+  </data>
+  <data name="SafeMemberGroupWorkflow" xml:space="preserve">
+    <value>Workflow</value>
+  </data>
+  <data name="SafeMemberGroupFolders" xml:space="preserve">
+    <value>Folders</value>
+  </data>
+  <data name="SafeMemberAll" xml:space="preserve">
+    <value>Tick _all</value>
+  </data>
+  <data name="SafeMemberNone" xml:space="preserve">
+    <value>_Untick all</value>
+  </data>
+  <data name="SafeMemberNameRequired" xml:space="preserve">
+    <value>Enter the name of the member.</value>
+  </data>
+  <data name="SafeMemberSaving" xml:space="preserve">
+    <value>Saving…</value>
+  </data>
+  <data name="SafeMemberForbidden" xml:space="preserve">
+    <value>The PVWA refused: your account needs the “Manage safe members” right on this safe. PVWA message: {0}</value>
+  </data>
+  <data name="SafeMemberFailed" xml:space="preserve">
+    <value>The PVWA did not save the member: {0}</value>
+  </data>
+  <data name="SafeMemberRemoveConfirm" xml:space="preserve">
+    <value>Remove {0} from the safe {1}? This member loses all its rights on the safe.</value>
+  </data>
+  <data name="SafeMemberRemoveFailed" xml:space="preserve">
+    <value>The PVWA did not remove the member: {0}</value>
   </data>
 </root>

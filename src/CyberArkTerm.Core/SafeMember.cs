@@ -85,6 +85,11 @@ public sealed class SafePermissions
 
     public bool RequestsAuthorizationLevel2 { get; set; }
 
+    /// <summary>Accorde ou retire un droit désigné par son nom dans l'API (« AddAccounts »...).</summary>
+    public void Set(string permission, bool granted) =>
+        (typeof(SafePermissions).GetProperty(permission) ?? throw new ArgumentException(permission, nameof(permission)))
+            .SetValue(this, granted);
+
     /// <summary>Droits accordés, dans l'ordre de l'écran « Membres » du PVWA, par leur nom dans l'API.</summary>
     public IEnumerable<string> Granted()
     {
@@ -123,4 +128,44 @@ public sealed class SafePermissions
         (nameof(RequestsAuthorizationLevel1), RequestsAuthorizationLevel1),
         (nameof(RequestsAuthorizationLevel2), RequestsAuthorizationLevel2),
     ];
+}
+
+/// <summary>
+/// Membre à ajouter à un safe (<c>POST /API/Safes/{safe}/Members</c>) ou dont les droits changent
+/// (<c>PUT /API/Safes/{safe}/Members/{membre}</c>).
+/// </summary>
+public sealed class SafeMemberChange
+{
+    public required string MemberName { get; init; }
+
+    /// <summary>« User » ou « Group ».</summary>
+    public string MemberType { get; init; } = "User";
+
+    /// <summary>Où chercher le membre : « Vault » (utilisateurs du coffre) ou le nom de l'annuaire LDAP.</summary>
+    public string SearchIn { get; init; } = "Vault";
+
+    /// <summary>Fin d'appartenance au safe ; null = sans fin.</summary>
+    public DateTime? Expires { get; init; }
+
+    public required SafePermissions Permissions { get; init; }
+
+    internal Dictionary<string, object?> ToAddBody() => new()
+    {
+        ["memberName"] = MemberName.Trim(),
+        ["searchIn"] = string.IsNullOrWhiteSpace(SearchIn) ? "Vault" : SearchIn.Trim(),
+        ["memberType"] = MemberType,
+        ["membershipExpirationDate"] = ExpirationSeconds,
+        ["permissions"] = Permissions,
+    };
+
+    internal Dictionary<string, object?> ToUpdateBody() => new()
+    {
+        ["membershipExpirationDate"] = ExpirationSeconds,
+        ["permissions"] = Permissions,
+    };
+
+    /// <summary>Fin de la journée choisie (heure locale), en secondes Unix.</summary>
+    private long? ExpirationSeconds => Expires is { } date
+        ? new DateTimeOffset(date.Date.AddDays(1).AddSeconds(-1), TimeZoneInfo.Local.GetUtcOffset(date)).ToUnixTimeSeconds()
+        : null;
 }

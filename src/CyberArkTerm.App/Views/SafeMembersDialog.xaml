@@ -17,6 +17,11 @@
 
         <DockPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
             <Button DockPanel.Dock="Right" Content="{x:Static loc:Strings.CloseButton}" IsCancel="True" MinWidth="80" />
+            <StackPanel x:Name="ManagePanel" DockPanel.Dock="Left" Orientation="Horizontal" Margin="0,0,12,0" Visibility="Collapsed">
+                <Button x:Name="AddButton" Content="{x:Static loc:Strings.SafeMembersAdd}" Click="OnAddMember" />
+                <Button x:Name="EditButton" Content="{x:Static loc:Strings.SafeMembersEdit}" Click="OnEditMember" Margin="8,0,0,0" IsEnabled="False" />
+                <Button x:Name="RemoveButton" Content="{x:Static loc:Strings.SafeMembersRemove}" Click="OnRemoveMember" Margin="8,0,0,0" IsEnabled="False" />
+            </StackPanel>
             <TextBlock Text="{x:Static loc:Strings.SafeMembersHint}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"
                        VerticalAlignment="Center" Margin="0,0,12,0" />
         </DockPanel>
@@ -34,6 +39,6 @@
         <DataGrid x:Name="MembersGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False"
                   SelectionMode="Extended" SelectionUnit="FullRow" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                   HorizontalGridLinesBrush="#E5E9EE" AlternatingRowBackground="#F7F9FC" ClipboardCopyMode="IncludeHeader"
-                  SelectionChanged="OnSelectionChanged" Visibility="Collapsed" />
+                  SelectionChanged="OnSelectionChanged" MouseDoubleClick="OnGridDoubleClick" Visibility="Collapsed" />
     </DockPanel>
 </Window>

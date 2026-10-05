@@ -406,6 +406,53 @@ public class PvwaClientTests
         Assert.Equal(HttpStatusCode.Forbidden, ex.StatusCode);
     }
 
+    /// <summary>Ajout d'un membre fictif : nom, annuaire, type, fin d'appartenance (fin de journée) et les 22 droits.</summary>
+    [Fact]
+    public async Task SafeMembers_AddUpdateAndRemove()
+    {
+        var pvwa = new FakePvwa(req => FakePvwa.IsLogon(req) ? FakePvwa.Json("\"tok\"") : FakePvwa.Json("{}", HttpStatusCode.Created));
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+        var expires = new DateTime(2026, 12, 31);
+
+        await client.AddSafeMemberAsync("Prod Linux", new SafeMemberChange
+        {
+            MemberName = " Unix Admins ", MemberType = "Group", SearchIn = "corp.example", Expires = expires,
+            Permissions = new SafePermissions { ListAccounts = true, UseAccounts = true, InitiateCPMAccountManagementOperations = true },
+        });
+        await client.UpdateSafeMemberAsync("Prod Linux", new SafeMemberChange
+        {
+            MemberName = "corp\\jdoe", Permissions = new SafePermissions { ListAccounts = true },
+        });
+        await client.RemoveSafeMemberAsync("Prod Linux", "corp\\jdoe");
+
+        var (addMethod, addPath, _, addBody) = pvwa.Requests[1];
+        Assert.Equal((HttpMethod.Post, "/PasswordVault/API/Safes/Prod%20Linux/Members"), (addMethod, addPath));
+        using (var json = JsonDocument.Parse(addBody))
+        {
+            var root = json.RootElement;
+            Assert.Equal(("Unix Admins", "corp.example", "Group"),
+                (root.GetProperty("memberName").GetString(), root.GetProperty("searchIn").GetString(), root.GetProperty("memberType").GetString()));
+            var end = new DateTimeOffset(expires.AddDays(1).AddSeconds(-1), TimeZoneInfo.Local.GetUtcOffset(expires)).ToUnixTimeSeconds();
+            Assert.Equal(end, root.GetProperty("membershipExpirationDate").GetInt64());
+            var permissions = root.GetProperty("permissions");
+            Assert.Equal(22, permissions.EnumerateObject().Count());
+            Assert.True(permissions.GetProperty("initiateCPMAccountManagementOperations").GetBoolean());
+            Assert.True(permissions.GetProperty("useAccounts").GetBoolean());
+            Assert.False(permissions.GetProperty("addAccounts").GetBoolean());
+        }
+
+        var (updateMethod, updatePath, _, updateBody) = pvwa.Requests[2];
+        Assert.Equal((HttpMethod.Put, "/PasswordVault/API/Safes/Prod%20Linux/Members/corp%5Cjdoe"), (updateMethod, updatePath));
+        using (var json = JsonDocument.Parse(updateBody))
+        {
+            Assert.Equal(JsonValueKind.Null, json.RootElement.GetProperty("membershipExpirationDate").ValueKind);
+            Assert.False(json.RootElement.TryGetProperty("memberName", out _));
+        }
+
+        Assert.Equal((HttpMethod.Delete, "/PasswordVault/API/Safes/Prod%20Linux/Members/corp%5Cjdoe"),
+            (pvwa.Requests[3].Method, pvwa.Requests[3].PathAndQuery));
+    }
+
     [Fact]
     public async Task GetAccounts_StopsOnEmptyPage()
     {

@@ -38,7 +38,7 @@ tramite **PSM for SSH (PSMP)** con un **browser dei file** integrato per inviare
 | **I miei server** | I tuoi server di lavoro, organizzati in cartelle e sottocartelle, ognuno con la propria configurazione. |
 | **Sessioni PSM** | Desktop remoto tramite il PSM (come il pulsante «Connect» del PVWA), in Connessione Desktop remoto di Windows: componente, macchina di destinazione, motivo, ticket. |
 | **Sessioni SSH (PSMP)** | Terminale integrato in una scheda (compatibile xterm: colori, vim, less, top…), autenticazione MFA. |
-| **Scheda File** | Browser SFTP del server: `ls`, navigazione, `rm`, invio di file per trascinamento in SCP, modifica nel tuo editor di testo, permessi (`chmod`), segue la cartella del terminale. |
+| **Scheda File** | Browser SFTP del server: `ls`, navigazione, `rm`, invio di file per trascinamento in SCP, verifica SHA-256 di ogni file trasferito, modifica nel tuo editor di testo, permessi (`chmod`), segue la cartella del terminale. |
 | **Accesso di emergenza (KeePass)** | Senza CyberArk: archivi KeePass (.kdbx) in «I miei server», connessioni SSH e desktop remoto dirette, creazione e modifica delle voci, registro locale. |
 | **Sessione PVWA mantenuta** | Una richiesta leggera ogni 4 minuti evita la scadenza mentre lavori (sospesa quando Windows è bloccato). |
 | **Home** | Connessione rapida (digita un server, Invio), sessioni recenti. |
@@ -106,14 +106,25 @@ riapre subito nella lingua scelta, conservando l'indirizzo e il nome utente inse
   su un server di «I miei server») → «Membri del safe». La finestra elenca gli utenti e i gruppi del safe con i
   loro diritti (elencare, usare, recuperare, aggiungere account, aggiornare, eliminare, gestire i membri…), indica
   chi può **aggiungere account** e mostra tutti i diritti del membro selezionato. Il PVWA fornisce questo elenco
-  solo a un account con il diritto «View Safe Members» sul safe. Sola lettura; `Ctrl+A` e poi `Ctrl+C` copia la
-  tabella.
+  solo a un account con il diritto «View Safe Members» sul safe. `Ctrl+A` e poi `Ctrl+C` copia la tabella. Con il
+  diritto «Gestire i membri del safe», i pulsanti «Aggiungi un membro…», «Modifica i diritti…» (o doppio clic) e
+  «Rimuovi…» gestiscono i membri: nome, tipo (utente o gruppo), directory («Vault» o il dominio LDAP), eventuale data
+  di fine e i 22 diritti, raggruppati come nel PVWA.
 - **Aggiungere un account**: clic destro su un account (o su un safe quando gli account sono raggruppati per safe)
   → «Aggiungi un account al safe…». Safe, piattaforma, indirizzo e utente sono obbligatori; dominio di accesso,
   nome dell'account, password, macchine consentite e gestione da parte del CPM sono facoltativi. L'account cliccato
   fa da modello (safe, piattaforma, dominio). L'account viene creato con i diritti della tua sessione: serve il
   diritto «Aggiungere account» sul safe e, in genere, «Aggiornare il contenuto degli account» per fornire la
   password. L'elenco viene poi ricaricato e il nuovo account selezionato.
+- **Importare account (CSV)**: pulsante «Importa» della barra degli strumenti, o clic destro su un account o un
+  safe → «Importa account (CSV)…». Una piccola finestra chiede il file («Salva un modello…» fornisce un esempio), il
+  safe e la piattaforma predefiniti e riassume cosa verrà creato; nulla viene inviato prima di «Importa». Colonne
+  obbligatorie: indirizzo e utente (più safe e piattaforma, altrimenti i valori predefiniti); facoltative: nome,
+  dominio, password, macchine consentite, gestione CPM (sì/no), motivo. Separatore `;`, `,` o tabulazione, nomi delle
+  colonne in italiano, francese o inglese; un file prodotto da «Esporta» si può reimportare. Una seconda finestra crea
+  poi gli account riga per riga e mostra lo stato di ciascuna (creato, rifiutato con il messaggio del PVWA, non
+  importato, non inviato; «Interrompi» disponibile). Alla fine propone di salvare il risultato in CSV (senza le
+  password). Le password del file non vengono mai mostrate; elimina il file dopo l'importazione.
 - **Modificare / eliminare un account**: clic destro → «Modifica l'account…» (piattaforma, indirizzo, utente,
   dominio, nome, macchine consentite, gestione da parte del CPM; vengono inviati solo i campi modificati) oppure
   «Elimina l'account…» (dopo conferma). Diritti «Aggiornare le proprietà degli account» ed «Eliminare account».
@@ -181,6 +192,14 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   Esplora file copia i file dove li hai rilasciati. I nomi Unix vengono resi validi per Windows (`\`, `:`, `..`,
   `CON`… sostituiti), senza mai scrivere fuori dalla cartella di rilascio; la cartella temporanea del download
   viene poi eliminata.
+- **Verifica dei trasferimenti (SHA-256)**: ogni file inviato o scaricato viene verificato. All'invio (SCP o
+  SFTP), il file locale viene sottoposto a hash, poi il file arrivato sul server viene riletto via SFTP e
+  sottoposto a hash. Al download, i dati ricevuti dal server vengono sottoposti a hash, poi il file scritto sul
+  computer viene riletto. La barra di stato conferma «✓ identico su entrambi i lati»; «Checksum…» mostra per
+  ogni file la dimensione, le due somme e il risultato, e copia le somme nel formato di `sha256sum -c` per
+  riverificare sul server. Se un file è diverso, l'errore viene mostrato e il dettaglio si apre; un download per
+  trascinamento fallisce invece di consegnare una copia errata. Un file che non può essere riletto (permessi) è
+  segnalato «non verificato». La rilettura di un invio raddoppia il volume scambiato con il server.
 - **Eliminare**: selezione poi Canc (o clic destro → «Elimina (rm)»), con conferma. Le cartelle devono essere
   vuote.
 - **Modificare un file**: selezionalo, poi `F4` (o clic destro → «Modifica», o il pulsante matita). Il file si
@@ -360,10 +379,12 @@ pubblica).
 | `GET /PasswordVault/API/Accounts?offset=…&limit=1000` | Elenco paginato degli account |
 | `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | File RDP della sessione PSM |
 | `POST /PasswordVault/API/Accounts` | Creazione di un account in un safe («Aggiungi un account») |
+| `POST /PasswordVault/API/Accounts` (una volta per riga) | Importazione di account da un CSV |
 | `PATCH` / `DELETE /PasswordVault/API/Accounts/{id}` | Modifica (solo i campi cambiati) ed eliminazione di un account |
 | `POST /PasswordVault/API/Accounts/{id}/Verify`, `/Change`, `/Reconcile` | Operazioni richieste al CPM |
 | `POST /PasswordVault/API/Accounts/{id}/Password/Retrieve` | Copia della password (motivo, ticket; uso «copy» nell'audit) |
-| `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Membri di un safe e i loro diritti («Membri del safe», sola lettura) |
+| `POST` / `PUT` / `DELETE /PasswordVault/API/Safes/{safe}/Members[/{membro}]` | Aggiunta, diritti e rimozione di un membro del safe |
+| `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Membri di un safe e i loro diritti (finestra «Membri del safe») |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Chiave SSH temporanea «MFA caching» (se attivata) |
 | `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Mantenimento della sessione (ogni 4 minuti) |
 | `POST /PasswordVault/API/Auth/Logoff` | Chiusura della sessione |

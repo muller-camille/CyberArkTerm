@@ -92,6 +92,26 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <!-- Import : même document, flèche entrante. -->
+    <DrawingImage x:Key="IconImport">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="White" Geometry="M4,2 H14 L19,7 V22 H4 Z">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#5A6573" Thickness="1.2" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#C9D1DA" Geometry="M14,2 V7 H19 Z" />
+                <GeometryDrawing Brush="#1E7B45" Geometry="M6.5,10 H12 V12 H6.5 Z M6.5,13.5 H12 V15.5 H6.5 Z M6.5,17 H12 V19 H6.5 Z" />
+                <GeometryDrawing Geometry="M22,15 H13 M16,12 L13,15 L16,18">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#1565C0" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
     <DrawingImage x:Key="IconStar">
         <DrawingImage.Drawing>
             <GeometryDrawing Brush="#F2B01E" Geometry="M12,2.6 L14.47,9.2 L21.51,9.51 L15.99,13.9 L17.88,20.69 L12,16.8 L6.12,20.69 L8.01,13.9 L2.49,9.51 L9.53,9.2 Z">
