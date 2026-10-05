@@ -137,7 +137,9 @@ se il controllo Desktop remoto non è utilizzabile sul computer; la barra di sta
 
 - **Componente PSM**: dedotto dalla piattaforma (`PSM-RDP` per Windows, `PSM-SSH` per Unix e rete,
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Seleziona «Memorizza questo componente» per conservarlo per
-  tutta la piattaforma.
+  tutta la piattaforma. Il tuo PVWA può chiamare i suoi componenti in un altro modo (ad esempio `WIN-PSM`):
+  inserisci il nome proposto dal suo pulsante «Connect»; l'elenco propone poi i componenti già usati, quello
+  della piattaforma per primo.
 - **Account di dominio**: la finestra chiede la macchina di destinazione, precompilata con le macchine
   autorizzate dell'account.
 - **Motivo e ticket**: se il PVWA rifiuta la richiesta (motivo obbligatorio, componente non configurato…), il

@@ -143,7 +143,9 @@ pourquoi.
 
 - **Composant PSM** : déduit de la plateforme (`PSM-RDP` pour Windows, `PSM-SSH` pour Unix et réseau,
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Cochez « Mémoriser ce composant » pour le conserver pour
-  toute la plateforme.
+  toute la plateforme. Votre PVWA peut nommer ses composants autrement (par exemple `WIN-PSM`) : saisissez le nom
+  que propose son bouton « Connect » ; la liste propose ensuite les composants déjà utilisés, celui de la
+  plateforme en premier.
 - **Comptes de domaine** : la fenêtre demande la machine cible, pré-remplie avec les machines autorisées du
   compte.
 - **Motif et ticket** : si le PVWA refuse la demande (motif obligatoire, composant non configuré…), son

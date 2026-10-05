@@ -24,7 +24,7 @@ public partial class ConnectDialog : Window
         TitleText.Text = $"{account.UserName}@{account.Address}";
         DetailsText.Text = Text.Format(Strings.PlatformAndSafe, account.PlatformId, account.SafeName);
 
-        ComponentBox.ItemsSource = AccountClassifier.CommonComponents;
+        ComponentBox.ItemsSource = settings.KnownComponents(account.PlatformId);
         ComponentBox.Text = initial.Component;
         MachineBox.ItemsSource = AccountClassifier.RemoteMachineList(account);
         // Compte de domaine : on propose la première machine autorisée, modifiable.

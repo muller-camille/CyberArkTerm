@@ -285,7 +285,8 @@ public partial class MainWindow
         switch (SavedTree.SelectedItem)
         {
             case SavedSessionNode node:
-                var dialog = new SessionPropertiesDialog(node.Session, node.Account, _settings.SessionFolderList, HasPsmp) { Owner = this };
+                var dialog = new SessionPropertiesDialog(node.Session, node.Account, _settings.SessionFolderList, HasPsmp,
+                    _settings.KnownComponents(node.Account?.PlatformId ?? node.Session.PlatformId)) { Owner = this };
                 if (dialog.ShowDialog() == true)
                 {
                     SessionLibrary.AddFolder(_settings, node.Session.Folder);

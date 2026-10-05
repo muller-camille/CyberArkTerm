@@ -136,7 +136,8 @@ Remote Desktop control can't be used on this computer; the status bar then says 
 
 - **PSM component**: deduced from the platform (`PSM-RDP` for Windows, `PSM-SSH` for Unix and network,
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Tick "Remember this component" to keep it for the whole
-  platform.
+  platform. Your PVWA may name its components differently (for example `WIN-PSM`): enter the name its "Connect"
+  button offers; the list then offers the components already used, the platform's first.
 - **Domain accounts**: the window asks for the target machine, prefilled with the account's allowed machines.
 - **Reason and ticket**: if the PVWA refuses the request (reason required, component not configured…), its
   message is shown and you can fix it and try again.
