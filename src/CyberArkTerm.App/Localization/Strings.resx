@@ -1517,4 +1517,85 @@ Your changes stay in the editor: save again to send the whole file once the conn
   <data name="SafePermRequestsAuthorizationLevel2" xml:space="preserve">
     <value>Authorize requests (level 2)</value>
   </data>
+  <data name="MenuAddAccountTo" xml:space="preserve">
+    <value>Add an account to the safe {0}…</value>
+  </data>
+  <data name="MenuAddAccount" xml:space="preserve">
+    <value>Add an account…</value>
+  </data>
+  <data name="AddAccountTitle" xml:space="preserve">
+    <value>Add an account</value>
+  </data>
+  <data name="AddAccountIntro" xml:space="preserve">
+    <value>The account is created in CyberArk with the rights of your session: the “Add accounts” right on the safe is required, and usually “Update account content” to give the password.</value>
+  </data>
+  <data name="AddAccountSafe" xml:space="preserve">
+    <value>_Safe:</value>
+  </data>
+  <data name="AddAccountPlatform" xml:space="preserve">
+    <value>_Platform:</value>
+  </data>
+  <data name="AddAccountPlatformTip" xml:space="preserve">
+    <value>Platform ID, as in the PVWA (for example WinDomain, UnixSSH). The list shows the platforms of the accounts you can see.</value>
+  </data>
+  <data name="AddAccountAddress" xml:space="preserve">
+    <value>_Address:</value>
+  </data>
+  <data name="AddAccountUser" xml:space="preserve">
+    <value>_User name:</value>
+  </data>
+  <data name="AddAccountDomain" xml:space="preserve">
+    <value>Logon _domain:</value>
+  </data>
+  <data name="AddAccountDomainTip" xml:space="preserve">
+    <value>Domain accounts only (for example CORP). Empty: none.</value>
+  </data>
+  <data name="AddAccountName" xml:space="preserve">
+    <value>Account _name:</value>
+  </data>
+  <data name="AddAccountNameTip" xml:space="preserve">
+    <value>Name of the account in the vault. Empty: chosen by the PVWA.</value>
+  </data>
+  <data name="AddAccountPassword" xml:space="preserve">
+    <value>Pass_word:</value>
+  </data>
+  <data name="AddAccountConfirm" xml:space="preserve">
+    <value>C_onfirm:</value>
+  </data>
+  <data name="AddAccountPasswordTip" xml:space="preserve">
+    <value>Empty: the account is created without a password (the CPM can set one). Sent once over HTTPS, never saved.</value>
+  </data>
+  <data name="AddAccountMachines" xml:space="preserve">
+    <value>Allowed _machines:</value>
+  </data>
+  <data name="AddAccountMachinesTip" xml:space="preserve">
+    <value>Servers this account can open PSM sessions on, separated by “;”. Empty: no restriction.</value>
+  </data>
+  <data name="AddAccountCpm" xml:space="preserve">
+    <value>Password managed _automatically by the CPM</value>
+  </data>
+  <data name="AddAccountReason" xml:space="preserve">
+    <value>_Reason for manual management:</value>
+  </data>
+  <data name="AddAccountCreate" xml:space="preserve">
+    <value>_Create</value>
+  </data>
+  <data name="AddAccountCreating" xml:space="preserve">
+    <value>Creating the account…</value>
+  </data>
+  <data name="AddAccountRequired" xml:space="preserve">
+    <value>The safe, the platform, the address and the user name are required.</value>
+  </data>
+  <data name="AddAccountMismatch" xml:space="preserve">
+    <value>The two passwords differ.</value>
+  </data>
+  <data name="AddAccountForbidden" xml:space="preserve">
+    <value>The PVWA refused: your account needs the “Add accounts” right on this safe (and “Update account content” to give the password). PVWA message: {0}</value>
+  </data>
+  <data name="AddAccountFailed" xml:space="preserve">
+    <value>The PVWA did not create the account: {0}</value>
+  </data>
+  <data name="AccountCreated" xml:space="preserve">
+    <value>Account {0} created in the safe {1}</value>
+  </data>
 </root>

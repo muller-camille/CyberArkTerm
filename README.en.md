@@ -106,6 +106,12 @@ right away in the chosen language, keeping the address and user name you typed.
   retrieve, add accounts, update, delete, manage members…), shows who can **add accounts**, and details every
   right of the selected member. The PVWA only gives this list to an account with the "View Safe Members" right on
   the safe. Read only; `Ctrl+A` then `Ctrl+C` copies the table.
+- **Add an account**: right-click an account (or a safe when accounts are grouped by safe) → "Add an account to
+  the safe…". Safe, platform, address and user name are required; logon domain, account name, password, allowed
+  machines and CPM management are optional. The account you clicked is used as a template (safe, platform,
+  domain). The account is created with the rights of your session: the "Add accounts" right on the safe is
+  required, and usually "Update account content" to give the password. The list is then reloaded and the new
+  account selected.
 - On the Home tab, **quick connect** finds a server as you type: press Enter to connect.
 
 ### 3. Open a PSM session (remote desktop)
@@ -274,6 +280,8 @@ vaults and of their key files. This file contains **no password, token or privat
 - **No secret on disk**: CyberArk password, session token, MFA key and PSMP password stay in memory for the
   session. The PVWA session is closed (`Logoff`) on exit.
 - PVWA session opened with `concurrentSession`: your PVWA web session, if any, is not closed.
+- **Adding an account**: the password is read from the masked box without going through a string, sent once to
+  the PVWA over HTTPS, then wiped from memory; it is neither saved nor written to the debug log.
 - **PSM sessions**: the PVWA's RDP file (one-time PSM token) is written to `%TEMP%\CyberArkTerm` for `mstsc`,
   which checks its signature, then deleted after 60 s or on exit.
 - **PSMP host keys pinned** on first use, with a warning if they change (the same for servers reached in
@@ -316,6 +324,7 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md) (private reporting, no
 | `POST /PasswordVault/API/auth/{CyberArk\|LDAP\|RADIUS\|Windows}/Logon` | Sign in |
 | `GET /PasswordVault/API/Accounts?offset=…&limit=1000` | Paged account list |
 | `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | RDP file of the PSM session |
+| `POST /PasswordVault/API/Accounts` | Creates an account in a safe ("Add an account") |
 | `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Members of a safe and their rights ("Safe members", read only) |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Temporary "MFA caching" SSH key (if enabled) |
 | `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Session keep-alive (every 4 minutes) |
@@ -382,6 +391,7 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 | "TLS connection refused: this computer does not trust the PVWA certificate" | The certificate (or its issuing authority) is not in the workstation's Windows store. |
 | "The PVWA must be reached over HTTPS" | Type the address without `http://` (or with `https://`). |
 | "Your CyberArk session has expired" | PVWA inactivity timeout reached: sign in again. |
+| "Add an account": "The PVWA refused: your account needs the “Add accounts” right…" | Ask for this right on the safe (and "Update account content" to give the password), or create the account without a password. "Safe members" shows your rights. |
 | "Safe members": "Your account cannot see the members of this safe" | The PVWA requires the "View Safe Members" right on the safe: ask a manager of the safe. |
 | "Connection component … is not configured for platform …" | Choose the right component in "Advanced connection", tick "Remember" for the platform. |
 | "You must specify a reason…" | Enter a reason in the window that opens (or a default reason in the server's properties). |

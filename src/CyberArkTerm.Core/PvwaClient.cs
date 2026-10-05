@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -156,6 +157,38 @@ public sealed class PvwaClient : IDisposable
             {
                 return members;
             }
+        }
+    }
+
+    /// <summary>
+    /// Crée un compte dans un safe (droit « Add accounts » sur le safe, et en général « Update account content » pour
+    /// fournir le mot de passe) et renvoie le compte créé. Le corps de la requête, qui contient le mot de passe, est
+    /// effacé de la mémoire après l'envoi ; il n'est jamais écrit dans le journal de débogage.
+    /// </summary>
+    /// <exception cref="PvwaException">Refus du PVWA (droit manquant, plateforme inconnue, compte existant...).</exception>
+    public async Task<PvwaAccount> AddAccountAsync(NewAccount account, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(account);
+
+        var body = account.ToJson();
+        try
+        {
+            using var request = CreateAuthenticatedRequest(HttpMethod.Post, "API/Accounts");
+            // Longueur connue : envoyé avec Content-Length (pas en « chunked », rejeté par certains load balancers).
+            request.Content = new ReadOnlyMemoryContent(body.WrittenMemory);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
+            using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw await CreateErrorAsync(response, ct).ConfigureAwait(false);
+            }
+
+            return await response.Content.ReadFromJsonAsync<PvwaAccount>(JsonOptions, ct).ConfigureAwait(false)
+                ?? throw new PvwaException(response.StatusCode, null, CoreStrings.PvwaEmptyResponse);
+        }
+        finally
+        {
+            body.Clear();
         }
     }
 

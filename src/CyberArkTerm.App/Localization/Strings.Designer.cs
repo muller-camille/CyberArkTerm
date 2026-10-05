@@ -74,6 +74,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Account {0} created in the safe {1}.
+        /// </summary>
+        public static string AccountCreated {
+            get {
+                return ResourceManager.GetString("AccountCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to The account {0} is no longer available (deleted or access removed)..
         /// </summary>
         public static string AccountGone {
@@ -97,6 +106,222 @@ namespace CyberArkTerm.App.Localization {
         public static string AccountNotInList {
             get {
                 return ResourceManager.GetString("AccountNotInList", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Address:.
+        /// </summary>
+        public static string AddAccountAddress {
+            get {
+                return ResourceManager.GetString("AddAccountAddress", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to C_onfirm:.
+        /// </summary>
+        public static string AddAccountConfirm {
+            get {
+                return ResourceManager.GetString("AddAccountConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password managed _automatically by the CPM.
+        /// </summary>
+        public static string AddAccountCpm {
+            get {
+                return ResourceManager.GetString("AddAccountCpm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Create.
+        /// </summary>
+        public static string AddAccountCreate {
+            get {
+                return ResourceManager.GetString("AddAccountCreate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Creating the account….
+        /// </summary>
+        public static string AddAccountCreating {
+            get {
+                return ResourceManager.GetString("AddAccountCreating", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Logon _domain:.
+        /// </summary>
+        public static string AddAccountDomain {
+            get {
+                return ResourceManager.GetString("AddAccountDomain", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Domain accounts only (for example CORP). Empty: none..
+        /// </summary>
+        public static string AddAccountDomainTip {
+            get {
+                return ResourceManager.GetString("AddAccountDomainTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA did not create the account: {0}.
+        /// </summary>
+        public static string AddAccountFailed {
+            get {
+                return ResourceManager.GetString("AddAccountFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA refused: your account needs the “Add accounts” right on this safe (and “Update account c[rest of string was truncated].
+        /// </summary>
+        public static string AddAccountForbidden {
+            get {
+                return ResourceManager.GetString("AddAccountForbidden", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The account is created in CyberArk with the rights of your session: the “Add accounts” right on t[rest of string was truncated].
+        /// </summary>
+        public static string AddAccountIntro {
+            get {
+                return ResourceManager.GetString("AddAccountIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Allowed _machines:.
+        /// </summary>
+        public static string AddAccountMachines {
+            get {
+                return ResourceManager.GetString("AddAccountMachines", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Servers this account can open PSM sessions on, separated by “;”. Empty: no restriction..
+        /// </summary>
+        public static string AddAccountMachinesTip {
+            get {
+                return ResourceManager.GetString("AddAccountMachinesTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The two passwords differ..
+        /// </summary>
+        public static string AddAccountMismatch {
+            get {
+                return ResourceManager.GetString("AddAccountMismatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account _name:.
+        /// </summary>
+        public static string AddAccountName {
+            get {
+                return ResourceManager.GetString("AddAccountName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Name of the account in the vault. Empty: chosen by the PVWA..
+        /// </summary>
+        public static string AddAccountNameTip {
+            get {
+                return ResourceManager.GetString("AddAccountNameTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pass_word:.
+        /// </summary>
+        public static string AddAccountPassword {
+            get {
+                return ResourceManager.GetString("AddAccountPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Empty: the account is created without a password (the CPM can set one). Sent once over HTTPS, nev[rest of string was truncated].
+        /// </summary>
+        public static string AddAccountPasswordTip {
+            get {
+                return ResourceManager.GetString("AddAccountPasswordTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Platform:.
+        /// </summary>
+        public static string AddAccountPlatform {
+            get {
+                return ResourceManager.GetString("AddAccountPlatform", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Platform ID, as in the PVWA (for example WinDomain, UnixSSH). The list shows the platforms of the[rest of string was truncated].
+        /// </summary>
+        public static string AddAccountPlatformTip {
+            get {
+                return ResourceManager.GetString("AddAccountPlatformTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Reason for manual management:.
+        /// </summary>
+        public static string AddAccountReason {
+            get {
+                return ResourceManager.GetString("AddAccountReason", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The safe, the platform, the address and the user name are required..
+        /// </summary>
+        public static string AddAccountRequired {
+            get {
+                return ResourceManager.GetString("AddAccountRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Safe:.
+        /// </summary>
+        public static string AddAccountSafe {
+            get {
+                return ResourceManager.GetString("AddAccountSafe", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add an account.
+        /// </summary>
+        public static string AddAccountTitle {
+            get {
+                return ResourceManager.GetString("AddAccountTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _User name:.
+        /// </summary>
+        public static string AddAccountUser {
+            get {
+                return ResourceManager.GetString("AddAccountUser", resourceCulture);
             }
         }
 
@@ -2032,6 +2257,24 @@ namespace CyberArkTerm.App.Localization {
         public static string LoginUser {
             get {
                 return ResourceManager.GetString("LoginUser", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add an account….
+        /// </summary>
+        public static string MenuAddAccount {
+            get {
+                return ResourceManager.GetString("MenuAddAccount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add an account to the safe {0}….
+        /// </summary>
+        public static string MenuAddAccountTo {
+            get {
+                return ResourceManager.GetString("MenuAddAccountTo", resourceCulture);
             }
         }
 
