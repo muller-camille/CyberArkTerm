@@ -10,6 +10,12 @@ public sealed class PvwaException : Exception
     /// <summary>Code renvoyé par le PVWA quand un serveur RADIUS demande une réponse à un challenge (OTP).</summary>
     public const string RadiusChallengeCode = "ITATS542I";
 
+    /// <summary>
+    /// Code renvoyé par le PVWA quand le composant de connexion PSM demandé n'existe pas pour la plateforme du compte
+    /// (« Failed to get the relevant connection component »).
+    /// </summary>
+    public const string UnknownComponentCode = "EPVWA093E";
+
     public PvwaException(HttpStatusCode statusCode, string? errorCode, string message, string? serverMessage = null)
         : base(message)
     {
@@ -26,6 +32,9 @@ public sealed class PvwaException : Exception
     public string? ServerMessage { get; }
 
     public bool IsRadiusChallenge => string.Equals(ErrorCode, RadiusChallengeCode, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>Composant de connexion PSM inconnu pour la plateforme du compte.</summary>
+    public bool IsUnknownComponent => string.Equals(ErrorCode, UnknownComponentCode, StringComparison.OrdinalIgnoreCase);
 
     public bool IsUnauthorized => StatusCode == HttpStatusCode.Unauthorized;
 }

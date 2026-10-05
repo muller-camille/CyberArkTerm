@@ -10,7 +10,9 @@ public partial class SessionPropertiesDialog : Window
 {
     private readonly SavedSession _session;
 
-    public SessionPropertiesDialog(SavedSession session, PvwaAccount? account, IEnumerable<string> folders, bool sshAvailable)
+    /// <param name="components">Composants proposés (voir <see cref="AppSettings.KnownComponents"/>).</param>
+    public SessionPropertiesDialog(SavedSession session, PvwaAccount? account, IEnumerable<string> folders, bool sshAvailable,
+        IReadOnlyList<string> components)
     {
         InitializeComponent();
         _session = session;
@@ -25,7 +27,7 @@ public partial class SessionPropertiesDialog : Window
         NameBox.Text = session.Name;
         FolderBox.ItemsSource = folders.OrderBy(f => f, StringComparer.OrdinalIgnoreCase).ToList();
         FolderBox.Text = session.Folder;
-        ComponentBox.ItemsSource = AccountClassifier.CommonComponents;
+        ComponentBox.ItemsSource = components;
         ComponentBox.Text = session.Component ?? "";
         MachineBox.ItemsSource = account is null ? [] : AccountClassifier.RemoteMachineList(account);
         MachineBox.Text = session.RemoteMachine ?? "";

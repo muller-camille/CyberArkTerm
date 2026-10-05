@@ -81,6 +81,28 @@ public class PsmConnectTests
             () => client.PsmConnectAsync("1_1", new PsmConnectOptions { ConnectionComponent = "PSM-RDP" }));
 
         Assert.Equal("You must specify a reason for this operation. (PASWS204E)", ex.Message);
+        Assert.False(ex.IsUnknownComponent);
+    }
+
+    /// <summary>
+    /// Composant absent de la plateforme du compte (réponse constatée : 500 et EPVWA093E) : reconnu, pour inviter à
+    /// saisir celui de la plateforme (par ex. WIN-PSM au lieu de PSM-RDP).
+    /// </summary>
+    [Fact]
+    public async Task PsmConnect_RecognizesAnUnknownComponent()
+    {
+        var pvwa = Pvwa(_ => FakePvwa.Json(
+            """{"ErrorCode":"EPVWA093E","ErrorMessage":"Failed to get the relevant connection component (CAWS00001E)"}""",
+            HttpStatusCode.InternalServerError));
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+
+        var ex = await Assert.ThrowsAsync<PvwaException>(() => client.PsmConnectAsync("2302_3", new PsmConnectOptions
+        {
+            ConnectionComponent = "PSM-RDP",
+            RemoteMachine = "srv01.corp.local",
+        }));
+
+        Assert.True(ex.IsUnknownComponent);
     }
 
     [Fact]

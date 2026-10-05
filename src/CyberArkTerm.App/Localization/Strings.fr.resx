@@ -470,6 +470,9 @@ Les comptes restent disponibles dans l'onglet « Disponibles ».</value>
   <data name="TicketIdPlaceholder" xml:space="preserve">
     <value>N° de ticket (optionnel)</value>
   </data>
+  <data name="PsmComponentUnknown" xml:space="preserve">
+    <value>Le PVWA n'a pas de composant de connexion « {0} » pour ce compte (plateforme {1}). Saisissez celui de cette plateforme : le composant que propose le bouton « Connect » du PVWA, ou le nom après /c dans une commande PSM (par exemple WIN-PSM). « Mémoriser » est coché pour que les prochaines connexions de cette plateforme l'utilisent.</value>
+  </data>
   <data name="RememberComponent" xml:space="preserve">
     <value>Mémoriser ce composant pour la plateforme {0}</value>
   </data>

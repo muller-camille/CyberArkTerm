@@ -40,6 +40,32 @@ public sealed class AppSettingsTests : IDisposable
     }
 
     /// <summary>
+    /// Composants proposés : celui mémorisé pour la plateforme d'abord, puis ceux déjà utilisés (même absents de la liste
+    /// usuelle, comme WIN-PSM), puis les usuels, sans doublon ni connexion SSH.
+    /// </summary>
+    [Fact]
+    public void KnownComponentsPutThePlatformAndUsedOnesFirst()
+    {
+        var settings = new AppSettings();
+        settings.RememberComponent("WinDomain", "WIN-PSM");
+        settings.RememberComponent("UnixSSH", "PSM-SSH");
+        settings.Sessions.Add(new SavedSession { Mode = ConnectMode.Psm, Component = " PSM-RDP-Custom " });
+        settings.Sessions.Add(new SavedSession { Mode = ConnectMode.Ssh, Component = "Ignored" });
+        settings.AddRecent(new RecentSession { AccountId = "1", Mode = "SSH" });
+        settings.AddRecent(new RecentSession { AccountId = "2", Mode = "win-psm" });
+        settings.AddRecent(new RecentSession { AccountId = "3", Mode = "PSM-WebApp" });
+
+        var components = settings.KnownComponents("windomain");
+
+        Assert.Equal(["WIN-PSM", "PSM-SSH", "PSM-RDP-Custom", "PSM-WebApp"], components.Take(4));
+        Assert.Contains("PSM-RDP", components);
+        Assert.DoesNotContain("SSH", components);
+        Assert.DoesNotContain("Ignored", components);
+        Assert.Equal(components.Count, components.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+        Assert.Equal(AccountClassifier.CommonComponents, new AppSettings().KnownComponents("WinDomain"));
+    }
+
+    /// <summary>
     /// Applications distantes : dans l'onglet par défaut, et pas en bureau (un PSM l'a refusé) ; un choix enregistré
     /// est gardé.
     /// </summary>

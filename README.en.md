@@ -136,7 +136,8 @@ Remote Desktop control can't be used on this computer; the status bar then says 
 
 - **PSM component**: deduced from the platform (`PSM-RDP` for Windows, `PSM-SSH` for Unix and network,
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Tick "Remember this component" to keep it for the whole
-  platform.
+  platform. Your PVWA may name its components differently (for example `WIN-PSM`): enter the name its "Connect"
+  button offers; the list then offers the components already used, the platform's first.
 - **Domain accounts**: the window asks for the target machine, prefilled with the account's allowed machines.
 - **Reason and ticket**: if the PVWA refuses the request (reason required, component not configured…), its
   message is shown and you can fix it and try again.
@@ -422,6 +423,7 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 
 | Symptom | Likely cause and fix |
 | --- | --- |
+| "The PVWA has no connection component “PSM-RDP” for this account" (`EPVWA093E Failed to get the relevant connection component`) | The account's platform uses a component with another name (for example `WIN-PSM`): the one offered by the PVWA "Connect" button, or the name after `/c` in a `psm /u … /a … /c …` command. Enter it in "Component"; "Remember this component for platform" is ticked for the next connections. |
 | "TLS connection refused: this computer does not trust the PVWA certificate" | The certificate (or its issuing authority) is not in the workstation's Windows store. |
 | "The PVWA must be reached over HTTPS" | Type the address without `http://` (or with `https://`). |
 | "Your CyberArk session has expired" | PVWA inactivity timeout reached: sign in again. |

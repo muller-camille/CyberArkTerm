@@ -122,6 +122,55 @@ public sealed class AppSettings
         return AccountClassifier.DefaultComponent(account);
     }
 
+    /// <summary>
+    /// Composants proposés dans les listes : celui mémorisé pour la plateforme <paramref name="platformId"/>, puis ceux
+    /// déjà utilisés (mémorisés, serveurs de « Courants », connexions récentes), puis les composants usuels de CyberArk.
+    /// Un PVWA peut nommer les siens autrement (par ex. WIN-PSM) : saisi une fois, un composant est ensuite proposé.
+    /// </summary>
+    public IReadOnlyList<string> KnownComponents(string? platformId)
+    {
+        var list = new List<string>();
+        void Add(string? component)
+        {
+            var name = component?.Trim();
+            if (!string.IsNullOrEmpty(name) && !list.Contains(name, StringComparer.OrdinalIgnoreCase))
+            {
+                list.Add(name);
+            }
+        }
+
+        foreach (var (platform, component) in ComponentByPlatform)
+        {
+            if (string.Equals(platform, platformId, StringComparison.OrdinalIgnoreCase))
+            {
+                Add(component);
+            }
+        }
+
+        foreach (var component in ComponentByPlatform.Values)
+        {
+            Add(component);
+        }
+
+        foreach (var session in Sessions.Where(s => s.Mode == ConnectMode.Psm))
+        {
+            Add(session.Component);
+        }
+
+        // Le mode d'une connexion récente est son composant PSM, ou « SSH » (PSMP).
+        foreach (var recent in Recent.Where(r => !string.Equals(r.Mode, "SSH", StringComparison.OrdinalIgnoreCase)))
+        {
+            Add(recent.Mode);
+        }
+
+        foreach (var component in AccountClassifier.CommonComponents)
+        {
+            Add(component);
+        }
+
+        return list;
+    }
+
     public void RememberComponent(string? platformId, string component)
     {
         if (string.IsNullOrWhiteSpace(platformId))
