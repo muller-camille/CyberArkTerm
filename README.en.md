@@ -101,6 +101,11 @@ right away in the chosen language, keeping the address and user name you typed.
   (`prd sql`).
 - "Group by" sorts accounts by safe, platform or target type.
 - The "Export" toolbar button saves the accounts shown (filtered by the search) to CSV.
+- **Safe members**: right-click an account (or a safe when accounts are grouped by safe, or a server in "My
+  servers") → "Safe members". The window lists the users and groups of the safe with their rights (list, use,
+  retrieve, add accounts, update, delete, manage members…), shows who can **add accounts**, and details every
+  right of the selected member. The PVWA only gives this list to an account with the "View Safe Members" right on
+  the safe. Read only; `Ctrl+A` then `Ctrl+C` copies the table.
 - On the Home tab, **quick connect** finds a server as you type: press Enter to connect.
 
 ### 3. Open a PSM session (remote desktop)
@@ -311,6 +316,7 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md) (private reporting, no
 | `POST /PasswordVault/API/auth/{CyberArk\|LDAP\|RADIUS\|Windows}/Logon` | Sign in |
 | `GET /PasswordVault/API/Accounts?offset=…&limit=1000` | Paged account list |
 | `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | RDP file of the PSM session |
+| `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Members of a safe and their rights ("Safe members", read only) |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Temporary "MFA caching" SSH key (if enabled) |
 | `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Session keep-alive (every 4 minutes) |
 | `POST /PasswordVault/API/Auth/Logoff` | Sign out |
@@ -376,6 +382,7 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 | "TLS connection refused: this computer does not trust the PVWA certificate" | The certificate (or its issuing authority) is not in the workstation's Windows store. |
 | "The PVWA must be reached over HTTPS" | Type the address without `http://` (or with `https://`). |
 | "Your CyberArk session has expired" | PVWA inactivity timeout reached: sign in again. |
+| "Safe members": "Your account cannot see the members of this safe" | The PVWA requires the "View Safe Members" right on the safe: ask a manager of the safe. |
 | "Connection component … is not configured for platform …" | Choose the right component in "Advanced connection", tick "Remember" for the platform. |
 | "You must specify a reason…" | Enter a reason in the window that opens (or a default reason in the server's properties). |
 | The account does not show up | You lack the "List accounts" permission on its safe, or the list needs reloading (`F5`). |

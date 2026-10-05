@@ -231,6 +231,14 @@ public partial class MainWindow
         _ = ConnectAsync(account, request, showDialog: advanced, saved: saved);
     }
 
+    private void OnSafeMembersOfSelectedSaved(object sender, RoutedEventArgs e)
+    {
+        if (SavedTree.SelectedItem is SavedSessionNode node)
+        {
+            ShowSafeMembers(node.Account?.SafeName ?? node.Session.SafeName);
+        }
+    }
+
     private void OnConnectSelectedSaved(object sender, RoutedEventArgs e)
     {
         if (SavedTree.SelectedItem is SavedSessionNode node)

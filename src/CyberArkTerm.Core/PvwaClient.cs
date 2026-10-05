@@ -120,7 +120,7 @@ public sealed class PvwaClient : IDisposable
         var accounts = new List<PvwaAccount>();
         while (true)
         {
-            var page = await GetAsync<AccountsPage>($"API/Accounts?offset={accounts.Count}&limit={PageSize}", ct).ConfigureAwait(false);
+            var page = await GetAsync<Page<PvwaAccount>>($"API/Accounts?offset={accounts.Count}&limit={PageSize}", ct).ConfigureAwait(false);
             var items = page.Value ?? [];
             accounts.AddRange(items);
             progress?.Report((accounts.Count, Math.Max(page.Count, accounts.Count)));
@@ -129,6 +129,32 @@ public sealed class PvwaClient : IDisposable
             if (items.Count == 0 || !more)
             {
                 return accounts;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Membres d'un safe (utilisateurs et groupes) avec leurs droits, page par page. Le PVWA ne les donne qu'à un
+    /// utilisateur qui a le droit « View Safe Members » sur ce safe : sinon <see cref="PvwaException"/> (403 en général).
+    /// </summary>
+    /// <exception cref="PvwaException">Refus du PVWA (droit manquant, safe introuvable, API absente de cette version...).</exception>
+    public async Task<List<SafeMember>> GetSafeMembersAsync(string safeName, CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(safeName);
+
+        var members = new List<SafeMember>();
+        var safe = Uri.EscapeDataString(safeName);
+        while (true)
+        {
+            var page = await GetAsync<Page<SafeMember>>($"API/Safes/{safe}/Members?offset={members.Count}&limit={PageSize}", ct)
+                .ConfigureAwait(false);
+            var items = page.Value ?? [];
+            members.AddRange(items);
+
+            bool more = page.Count > 0 ? members.Count < page.Count : page.NextLink is not null;
+            if (items.Count == 0 || !more)
+            {
+                return members;
             }
         }
     }
@@ -296,9 +322,10 @@ public sealed class PvwaClient : IDisposable
         return new PvwaException(response.StatusCode, code, text, message);
     }
 
-    private sealed class AccountsPage
+    /// <summary>Page d'une liste du PVWA (<c>value</c>, <c>count</c> = total, <c>nextLink</c>).</summary>
+    private sealed class Page<T>
     {
-        public List<PvwaAccount>? Value { get; set; }
+        public List<T>? Value { get; set; }
 
         public int Count { get; set; }
 

@@ -1385,4 +1385,136 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour renvoyer
   <data name="KeePassTargetInvalid" xml:space="preserve">
     <value>L'hôte ou le nom d'utilisateur de cette entrée contient un retour à la ligne ou un caractère de contrôle.</value>
   </data>
+  <data name="MenuSafeMembersOf" xml:space="preserve">
+    <value>Membres du safe « {0} »…</value>
+  </data>
+  <data name="MenuSafeMembers" xml:space="preserve">
+    <value>Membres du safe…</value>
+  </data>
+  <data name="SafeMembersTitle" xml:space="preserve">
+    <value>Membres du safe</value>
+  </data>
+  <data name="SafeMembersHeading" xml:space="preserve">
+    <value>Membres du safe « {0} »</value>
+  </data>
+  <data name="SafeMembersLoading" xml:space="preserve">
+    <value>Chargement des membres…</value>
+  </data>
+  <data name="SafeMembersCount" xml:space="preserve">
+    <value>{0} membre(s)</value>
+  </data>
+  <data name="SafeMembersCanAdd" xml:space="preserve">
+    <value>Peuvent ajouter des comptes : {0}</value>
+  </data>
+  <data name="SafeMembersNobodyCanAdd" xml:space="preserve">
+    <value>Aucun membre listé ne peut ajouter de comptes.</value>
+  </data>
+  <data name="SafeMembersGroupSuffix" xml:space="preserve">
+    <value> (groupe)</value>
+  </data>
+  <data name="SafeMembersOnlyAdd" xml:space="preserve">
+    <value>Seulement ceux qui peuvent _ajouter des comptes</value>
+  </data>
+  <data name="SafeMembersHint" xml:space="preserve">
+    <value>Les membres d'un groupe ont les droits du groupe. Ctrl+A puis Ctrl+C copie le tableau.</value>
+  </data>
+  <data name="SafeMembersForbidden" xml:space="preserve">
+    <value>Votre compte ne peut pas voir les membres de ce safe : il faut le droit « View Safe Members » (voir les membres) sur le safe. Demandez-le à un gestionnaire du safe.</value>
+  </data>
+  <data name="SafeMembersNotFound" xml:space="preserve">
+    <value>Le PVWA n'a pas trouvé ce safe, ou cette version du PVWA ne fournit pas l'API des membres de safe.</value>
+  </data>
+  <data name="SafeMembersFailed" xml:space="preserve">
+    <value>Impossible de charger les membres : {0}</value>
+  </data>
+  <data name="SafeMembersRights" xml:space="preserve">
+    <value>Droits de {0} : {1}</value>
+  </data>
+  <data name="SafeMembersNoRight" xml:space="preserve">
+    <value>aucun</value>
+  </data>
+  <data name="SafeMemberColumn" xml:space="preserve">
+    <value>Membre</value>
+  </data>
+  <data name="SafeMemberTypeColumn" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="SafeMemberUntilColumn" xml:space="preserve">
+    <value>Jusqu'au</value>
+  </data>
+  <data name="SafeMemberUser" xml:space="preserve">
+    <value>Utilisateur</value>
+  </data>
+  <data name="SafeMemberGroup" xml:space="preserve">
+    <value>Groupe</value>
+  </data>
+  <data name="CloseButton" xml:space="preserve">
+    <value>_Fermer</value>
+  </data>
+  <data name="SafePermUseAccounts" xml:space="preserve">
+    <value>Utiliser les comptes</value>
+  </data>
+  <data name="SafePermRetrieveAccounts" xml:space="preserve">
+    <value>Récupérer les comptes</value>
+  </data>
+  <data name="SafePermListAccounts" xml:space="preserve">
+    <value>Lister les comptes</value>
+  </data>
+  <data name="SafePermAddAccounts" xml:space="preserve">
+    <value>Ajouter des comptes</value>
+  </data>
+  <data name="SafePermUpdateAccountContent" xml:space="preserve">
+    <value>Modifier le contenu des comptes</value>
+  </data>
+  <data name="SafePermUpdateAccountProperties" xml:space="preserve">
+    <value>Modifier les propriétés des comptes</value>
+  </data>
+  <data name="SafePermInitiateCPMAccountManagementOperations" xml:space="preserve">
+    <value>Lancer les opérations CPM sur les comptes</value>
+  </data>
+  <data name="SafePermSpecifyNextAccountContent" xml:space="preserve">
+    <value>Choisir le prochain contenu des comptes</value>
+  </data>
+  <data name="SafePermRenameAccounts" xml:space="preserve">
+    <value>Renommer les comptes</value>
+  </data>
+  <data name="SafePermDeleteAccounts" xml:space="preserve">
+    <value>Supprimer des comptes</value>
+  </data>
+  <data name="SafePermUnlockAccounts" xml:space="preserve">
+    <value>Déverrouiller les comptes</value>
+  </data>
+  <data name="SafePermManageSafe" xml:space="preserve">
+    <value>Gérer le safe</value>
+  </data>
+  <data name="SafePermManageSafeMembers" xml:space="preserve">
+    <value>Gérer les membres du safe</value>
+  </data>
+  <data name="SafePermBackupSafe" xml:space="preserve">
+    <value>Sauvegarder le safe</value>
+  </data>
+  <data name="SafePermViewAuditLog" xml:space="preserve">
+    <value>Voir le journal d'audit</value>
+  </data>
+  <data name="SafePermViewSafeMembers" xml:space="preserve">
+    <value>Voir les membres du safe</value>
+  </data>
+  <data name="SafePermAccessWithoutConfirmation" xml:space="preserve">
+    <value>Accès sans confirmation</value>
+  </data>
+  <data name="SafePermCreateFolders" xml:space="preserve">
+    <value>Créer des dossiers</value>
+  </data>
+  <data name="SafePermDeleteFolders" xml:space="preserve">
+    <value>Supprimer des dossiers</value>
+  </data>
+  <data name="SafePermMoveAccountsAndFolders" xml:space="preserve">
+    <value>Déplacer comptes et dossiers</value>
+  </data>
+  <data name="SafePermRequestsAuthorizationLevel1" xml:space="preserve">
+    <value>Valider les demandes (niveau 1)</value>
+  </data>
+  <data name="SafePermRequestsAuthorizationLevel2" xml:space="preserve">
+    <value>Valider les demandes (niveau 2)</value>
+  </data>
 </root>
