@@ -65,5 +65,5 @@ jobs:
       - name: Tests de sessions réelles
         run: >
           dotnet test tests/CyberArkTerm.App.Tests -c Release
-          --filter Category=RdpIntegration
+          --filter Category=RdpSpike
           --logger "console;verbosity=detailed"
