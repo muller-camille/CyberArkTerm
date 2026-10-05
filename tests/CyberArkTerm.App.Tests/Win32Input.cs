@@ -106,6 +106,23 @@ internal static class Win32Input
         Send([.. inputs]);
     }
 
+    /// <summary>Touches enfoncées dans l'ordre puis relâchées dans l'ordre inverse (combinaison).</summary>
+    public static void Keys(params (ushort Vk, ushort Scan, bool Extended)[] keys)
+    {
+        var inputs = new List<Input>();
+        foreach (var k in keys)
+        {
+            inputs.Add(new Input { Type = 1, Keyboard = new KeyboardInput { Vk = k.Vk, Scan = k.Scan, Flags = k.Extended ? 1u : 0u } });
+        }
+
+        foreach (var k in keys.Reverse())
+        {
+            inputs.Add(new Input { Type = 1, Keyboard = new KeyboardInput { Vk = k.Vk, Scan = k.Scan, Flags = (k.Extended ? 1u : 0u) | 2u } });
+        }
+
+        Send([.. inputs]);
+    }
+
     private static void Send(params Input[] inputs) => SendInput((uint)inputs.Length, inputs, Marshal.SizeOf<Input>());
 
     [StructLayout(LayoutKind.Sequential)]
