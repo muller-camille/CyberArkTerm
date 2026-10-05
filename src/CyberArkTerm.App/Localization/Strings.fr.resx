@@ -219,6 +219,15 @@
   <data name="MyServersHeading" xml:space="preserve">
     <value>Mes serveurs</value>
   </data>
+  <data name="SavedSearchPlaceholder" xml:space="preserve">
+    <value>Rechercher un serveur…</value>
+  </data>
+  <data name="SavedSearchTip" xml:space="preserve">
+    <value>Filtrer les serveurs courants par nom, serveur, utilisateur, dossier, composant… et les entrées des coffres KeePass déverrouillés (Ctrl+F)</value>
+  </data>
+  <data name="SavedSearchNoMatch" xml:space="preserve">
+    <value>Aucun serveur ne correspond à « {0} ».</value>
+  </data>
   <data name="NoSavedHelp" xml:space="preserve">
     <value>Ajoutez ici les serveurs que vous utilisez : clic droit sur un compte de l'onglet « Disponibles » puis « Ajouter aux serveurs courants », ou glissez-le sur l'onglet « Courants ». Clic droit ici pour créer des dossiers.</value>
   </data>

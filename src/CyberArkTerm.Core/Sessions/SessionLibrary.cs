@@ -6,8 +6,13 @@ namespace CyberArkTerm.Core;
 public static class SessionLibrary
 {
     /// <summary>Arbre des dossiers et sessions du PVWA <paramref name="pvwaHost"/>, triés par nom.</summary>
-    public static SessionFolderNode BuildTree(AppSettings settings, string pvwaHost)
+    /// <summary>
+    /// Arbre de l'onglet « Courants » pour le PVWA <paramref name="pvwaHost"/>. Avec une recherche
+    /// (<paramref name="filter"/>), seuls les serveurs qui y répondent et leurs dossiers sont gardés.
+    /// </summary>
+    public static SessionFolderNode BuildTree(AppSettings settings, string pvwaHost, string? filter = null)
     {
+        bool filtered = !string.IsNullOrWhiteSpace(filter);
         var root = new SessionFolderNode("");
         var nodes = new Dictionary<string, SessionFolderNode>(StringComparer.OrdinalIgnoreCase) { [""] = root };
 
@@ -25,12 +30,12 @@ public static class SessionLibrary
             return node;
         }
 
-        foreach (var folder in settings.SessionFolderList)
+        foreach (var folder in filtered ? [] : settings.SessionFolderList)
         {
             Ensure(folder);
         }
 
-        foreach (var session in settings.Sessions.Where(s => IsForHost(s, pvwaHost)))
+        foreach (var session in settings.Sessions.Where(s => IsForHost(s, pvwaHost) && (!filtered || Matches(s, filter))))
         {
             Ensure(session.Folder).Sessions.Add(session);
         }
@@ -38,6 +43,19 @@ public static class SessionLibrary
         Sort(root);
         return root;
     }
+
+    /// <summary>Recherche dans « Courants » : nom, serveur, utilisateur, dossier, mode, composant, machine cible, plateforme, safe.</summary>
+    public static bool Matches(SavedSession session, string? query) => SearchQuery.Matches(
+        query,
+        session.Name,
+        session.Address,
+        session.UserName,
+        session.Folder,
+        session.Mode == ConnectMode.Ssh ? "SSH" : "PSM",
+        session.Component,
+        session.RemoteMachine,
+        session.PlatformId,
+        session.SafeName);
 
     public static bool IsForHost(SavedSession session, string pvwaHost) =>
         session.PvwaHost.Length == 0 || string.Equals(session.PvwaHost, pvwaHost, StringComparison.OrdinalIgnoreCase);

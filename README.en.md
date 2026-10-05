@@ -176,6 +176,9 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   the folder you want. The server keeps the connection type (PSM or SSH), the PSM component and the target
   machine used.
 - **Folders**: right-click → new folder or subfolder, rename, delete; drag servers and folders to move them.
+- **Search**: box at the top of the tab (or `Ctrl+F` in the tab). It filters servers by name, server, user, folder,
+  component, target machine, and the entries of unlocked KeePass vaults; the folders of the results are expanded.
+  `Enter` or `↓` selects the first result, `Esc` clears.
 - **Settings of each server** (right-click → "Properties…"):
 
 | Setting | Effect |
@@ -225,7 +228,7 @@ password, delete.
 | Where | Action | Shortcut |
 | --- | --- | --- |
 | Everywhere | Reload the accounts from the PVWA | `F5` |
-| Everywhere | Filter the accounts | `Ctrl+F` |
+| Everywhere | Filter the accounts (in "My servers": search a server) | `Ctrl+F` |
 | Lists and trees | Open the session | Double-click or `Enter` |
 | Search | Clear the filter | `Esc` |
 | My servers | Rename / remove or delete | `F2` / `Del` |

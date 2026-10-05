@@ -14,6 +14,7 @@ public partial class MainWindow
     private const string AccountDragFormat = "CyberArkTerm.Account";
 
     private readonly HashSet<string> _collapsedFolders = new(StringComparer.OrdinalIgnoreCase);
+    private bool _savedTreeFiltered;
     private Point _dragStart;
     private object? _dragCandidate;
 
@@ -21,28 +22,42 @@ public partial class MainWindow
 
     private void RefreshSaved()
     {
-        if (SavedTree.ItemsSource is IEnumerable<object> previous)
-        {
-            RememberExpansion(previous);
-        }
+        RememberSavedExpansion();
 
         // Coffres KeePass en tête ; serveurs CyberArk ensuite (pas en accès d'urgence).
-        var items = KeePassNodes();
+        var filter = SavedSearchBox.Text.Trim();
+        bool filtered = filter.Length > 0;
+        var items = KeePassNodes(filtered ? filter : null);
         if (!IsOffline)
         {
-            items.AddRange(Children(SessionLibrary.BuildTree(_settings, PvwaHost)));
+            items.AddRange(Children(SessionLibrary.BuildTree(_settings, PvwaHost, filter), expandAll: filtered));
         }
 
         SavedTree.ItemsSource = items;
+        _savedTreeFiltered = filtered;
+        NoSavedText.Text = filtered ? Text.Format(Strings.SavedSearchNoMatch, filter) : Strings.NoSavedHelp;
         NoSavedText.Visibility = items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private List<object> Children(SessionFolderNode node)
+    /// <summary>
+    /// Mémorise les dossiers repliés par l'utilisateur, sauf pendant une recherche : les dossiers des résultats sont
+    /// alors tous dépliés, ce qui n'est pas un choix de l'utilisateur.
+    /// </summary>
+    private void RememberSavedExpansion()
+    {
+        if (!_savedTreeFiltered && SavedTree.ItemsSource is IEnumerable<object> previous)
+        {
+            RememberExpansion(previous);
+        }
+    }
+
+    private List<object> Children(SessionFolderNode node, bool expandAll)
     {
         var items = new List<object>();
         foreach (var folder in node.Folders)
         {
-            items.Add(new SavedFolderNode(folder.Path, Children(folder), !_collapsedFolders.Contains(folder.Path)) { Count = folder.TotalSessions });
+            bool expanded = expandAll || !_collapsedFolders.Contains(folder.Path);
+            items.Add(new SavedFolderNode(folder.Path, Children(folder, expandAll), expanded) { Count = folder.TotalSessions });
         }
 
         foreach (var session in node.Sessions)
@@ -85,13 +100,63 @@ public partial class MainWindow
 
     private void SaveAndRefreshSaved()
     {
-        if (SavedTree.ItemsSource is IEnumerable<object> previous)
-        {
-            RememberExpansion(previous);
-        }
-
+        RememberSavedExpansion();
         SaveSettings();
         RefreshSaved();
+    }
+
+    // ===================== Recherche =====================
+
+    private void OnSavedSearchChanged(object sender, TextChangedEventArgs e) => RefreshSaved();
+
+    private void OnSavedSearchKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key is Key.Down or Key.Enter)
+        {
+            // Comme dans « Disponibles » : premier résultat sélectionné, Entrée une seconde fois pour se connecter.
+            SavedTree.UpdateLayout();
+            if (FirstSavedLeaf(SavedTree) is { } item)
+            {
+                item.IsSelected = true;
+                item.Focus();
+                item.BringIntoView();
+            }
+
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Escape && SavedSearchBox.Text.Length > 0)
+        {
+            SavedSearchBox.Clear();
+            e.Handled = true;
+        }
+    }
+
+    /// <summary>Premier serveur ou entrée KeePass visible, dans les dossiers dépliés seulement.</summary>
+    private static TreeViewItem? FirstSavedLeaf(ItemsControl parent)
+    {
+        foreach (var data in parent.Items)
+        {
+            if (parent.ItemContainerGenerator.ContainerFromItem(data) is not TreeViewItem item)
+            {
+                continue;
+            }
+
+            if (data is SavedSessionNode or KeePassEntryNode)
+            {
+                return item;
+            }
+
+            if (item.IsExpanded && item.HasItems)
+            {
+                item.UpdateLayout();
+                if (FirstSavedLeaf(item) is { } found)
+                {
+                    return found;
+                }
+            }
+        }
+
+        return null;
     }
 
     // ===================== Sélection et connexion =====================

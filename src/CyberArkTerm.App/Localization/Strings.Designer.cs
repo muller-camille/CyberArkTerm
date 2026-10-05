@@ -3134,6 +3134,33 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to No server matches “{0}”..
+        /// </summary>
+        public static string SavedSearchNoMatch {
+            get {
+                return ResourceManager.GetString("SavedSearchNoMatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Search servers….
+        /// </summary>
+        public static string SavedSearchPlaceholder {
+            get {
+                return ResourceManager.GetString("SavedSearchPlaceholder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Filter my servers by name, server, user, folder, component… and the entries of unlocked KeePass v[rest of string was truncated].
+        /// </summary>
+        public static string SavedSearchTip {
+            get {
+                return ResourceManager.GetString("SavedSearchTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Settings for {0} saved.
         /// </summary>
         public static string SavedSettingsSaved {

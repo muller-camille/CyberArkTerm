@@ -88,6 +88,27 @@ public sealed record KeePassTarget(RemoteProtocol Protocol, string Host, int Por
 
     public static int DefaultPort(RemoteProtocol protocol) => protocol == RemoteProtocol.Rdp ? RdpConnectionSettings.DefaultPort : SshPort;
 
+    /// <summary>
+    /// Recherche dans l'onglet « Courants » : titre, utilisateur, URL, dossier, étiquettes, serveur et protocole de
+    /// l'entrée (pas les notes ni les champs personnalisés).
+    /// </summary>
+    public static bool Matches(KeePassEntry entry, string? query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return true;
+        }
+
+        var target = From(entry);
+        var protocol = target.Protocol switch
+        {
+            RemoteProtocol.Ssh => "SSH",
+            RemoteProtocol.Rdp => "RDP",
+            _ => null,
+        };
+        return SearchQuery.Matches(query, entry.Title, entry.UserName, entry.Url, entry.Group, entry.Tags, target.Host, target.UserName, protocol);
+    }
+
     /// <summary>« hôte » ou « hôte:port » pour l'affichage.</summary>
     public string Address => Port == DefaultPort(Protocol) ? Host : Host.Contains(':') ? $"[{Host}]:{Port}" : $"{Host}:{Port}";
 

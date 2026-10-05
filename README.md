@@ -189,6 +189,9 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   PSM et la machine cible utilisés.
 - **Dossiers** : clic droit → nouveau dossier ou sous-dossier, renommer, supprimer ; glissez serveurs et
   dossiers pour les déplacer.
+- **Rechercher** : champ en haut de l'onglet (ou `Ctrl+F` dans l'onglet). Il filtre les serveurs par nom, serveur,
+  utilisateur, dossier, composant, machine cible, ainsi que les entrées des coffres KeePass déverrouillés ; les
+  dossiers des résultats sont dépliés. `Entrée` ou `↓` sélectionne le premier résultat, `Échap` efface.
 - **Configuration propre à chaque serveur** (clic droit → « Propriétés… ») :
 
 <img src="docs/captures/proprietes-serveur.png" alt="Propriétés d'un serveur courant" width="800">
@@ -243,7 +246,7 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Où | Action | Raccourci |
 | --- | --- | --- |
 | Partout | Recharger les comptes depuis le PVWA | `F5` |
-| Partout | Filtrer les comptes | `Ctrl+F` |
+| Partout | Filtrer les comptes (dans « Courants » : rechercher un serveur) | `Ctrl+F` |
 | Listes et arbres | Ouvrir la session | Double-clic ou `Entrée` |
 | Recherche | Effacer le filtre | `Échap` |
 | Courants | Renommer / retirer ou supprimer | `F2` / `Suppr` |

@@ -185,6 +185,9 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   e la macchina di destinazione usati.
 - **Cartelle**: clic destro → nuova cartella o sottocartella, rinomina, elimina; trascina server e cartelle per
   spostarli.
+- **Cercare**: campo in cima alla scheda (o `Ctrl+F` nella scheda). Filtra i server per nome, server, utente,
+  cartella, componente, macchina di destinazione, e le voci degli archivi KeePass sbloccati; le cartelle dei
+  risultati vengono espanse. `Invio` o `↓` seleziona il primo risultato, `Esc` cancella.
 - **Configurazione propria di ogni server** (clic destro → «Proprietà…»):
 
 | Impostazione | Effetto |
@@ -237,7 +240,7 @@ password, elimina.
 | Dove | Azione | Scorciatoia |
 | --- | --- | --- |
 | Ovunque | Ricaricare gli account dal PVWA | `F5` |
-| Ovunque | Filtrare gli account | `Ctrl+F` |
+| Ovunque | Filtrare gli account (in «I miei server»: cercare un server) | `Ctrl+F` |
 | Elenchi e alberi | Aprire la sessione | Doppio clic o `Invio` |
 | Ricerca | Cancellare il filtro | `Esc` |
 | I miei server | Rinominare / rimuovere o eliminare | `F2` / `Canc` |

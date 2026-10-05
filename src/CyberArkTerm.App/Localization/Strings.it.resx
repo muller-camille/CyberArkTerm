@@ -219,6 +219,15 @@
   <data name="MyServersHeading" xml:space="preserve">
     <value>I miei server</value>
   </data>
+  <data name="SavedSearchPlaceholder" xml:space="preserve">
+    <value>Cerca un server…</value>
+  </data>
+  <data name="SavedSearchTip" xml:space="preserve">
+    <value>Filtra i miei server per nome, server, utente, cartella, componente… e le voci degli archivi KeePass sbloccati (Ctrl+F)</value>
+  </data>
+  <data name="SavedSearchNoMatch" xml:space="preserve">
+    <value>Nessun server corrisponde a «{0}».</value>
+  </data>
   <data name="NoSavedHelp" xml:space="preserve">
     <value>Aggiungi qui i server che usi: clic destro su un account della scheda «Disponibili» e poi «Aggiungi ai miei server», oppure trascinalo sulla scheda «I miei server». Clic destro qui per creare cartelle.</value>
   </data>

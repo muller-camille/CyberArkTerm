@@ -27,12 +27,27 @@ public partial class MainWindow
 
     // ===================== Arbre =====================
 
-    private List<object> KeePassNodes()
+    /// <summary>
+    /// Coffres de l'onglet « Courants ». Avec une recherche (<paramref name="filter"/>), seuls les coffres déverrouillés
+    /// qui ont des entrées correspondantes restent, dépliés sur ces entrées.
+    /// </summary>
+    private List<object> KeePassNodes(string? filter = null)
     {
         var nodes = new List<object>();
         foreach (var folder in _settings.KeePassFolders)
         {
             var database = _keePass.Get(folder.Id)?.Database;
+            if (filter is not null)
+            {
+                var matches = database?.Entries.Where(e => KeePassTarget.Matches(e, filter)).ToList() ?? [];
+                if (matches.Count > 0)
+                {
+                    nodes.Add(new KeePassFolderNode(folder, database, KeePassChildren(folder, database!.Groups, matches, "", expandAll: true), true));
+                }
+
+                continue;
+            }
+
             var children = database is null
                 ? [new KeePassHintNode(folder, Strings.KeePassUnlockHint)]
                 : KeePassChildren(folder, database.Groups, database.Entries, "");
@@ -43,7 +58,8 @@ public partial class MainWindow
     }
 
     /// <summary>Sous-dossiers non vides puis entrées du dossier <paramref name="path"/> du coffre.</summary>
-    private List<object> KeePassChildren(KeePassFolder folder, IReadOnlyList<string> groups, IReadOnlyList<KeePassEntry> entries, string path)
+    private List<object> KeePassChildren(KeePassFolder folder, IReadOnlyList<string> groups, IReadOnlyList<KeePassEntry> entries, string path,
+        bool expandAll = false)
     {
         var items = new List<object>();
         foreach (var group in groups.Where(g => g.Length > 0 && KeePassGroupPath.Parent(g) == path).Order(StringComparer.OrdinalIgnoreCase))
@@ -51,8 +67,8 @@ public partial class MainWindow
             int count = entries.Count(e => KeePassGroupPath.IsWithin(e.Group, group));
             if (count > 0)
             {
-                items.Add(new KeePassGroupNode(folder, group, KeePassChildren(folder, groups, entries, group),
-                    !_collapsedKeePass.Contains($"{folder.Id}/{group}")) { Count = count });
+                items.Add(new KeePassGroupNode(folder, group, KeePassChildren(folder, groups, entries, group, expandAll),
+                    expandAll || !_collapsedKeePass.Contains($"{folder.Id}/{group}")) { Count = count });
             }
         }
 

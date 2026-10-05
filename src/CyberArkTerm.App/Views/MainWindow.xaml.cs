@@ -303,9 +303,15 @@ public partial class MainWindow : Window
 
     private void OnFind(object sender, ExecutedRoutedEventArgs e)
     {
-        SideTabs.SelectedIndex = 0;
-        SearchBox.Focus();
-        SearchBox.SelectAll();
+        // Dans « Courants », Ctrl+F cherche parmi les serveurs courants ; ailleurs, parmi tous les comptes.
+        var box = SideTabs.SelectedItem == CurrentTab ? SavedSearchBox : SearchBox;
+        if (box == SearchBox)
+        {
+            SideTabs.SelectedIndex = 0;
+        }
+
+        box.Focus();
+        box.SelectAll();
     }
 
     private void CanRefresh(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = !_loading && !IsOffline;

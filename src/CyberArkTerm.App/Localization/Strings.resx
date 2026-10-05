@@ -219,6 +219,15 @@
   <data name="MyServersHeading" xml:space="preserve">
     <value>My servers</value>
   </data>
+  <data name="SavedSearchPlaceholder" xml:space="preserve">
+    <value>Search servers…</value>
+  </data>
+  <data name="SavedSearchTip" xml:space="preserve">
+    <value>Filter my servers by name, server, user, folder, component… and the entries of unlocked KeePass vaults (Ctrl+F)</value>
+  </data>
+  <data name="SavedSearchNoMatch" xml:space="preserve">
+    <value>No server matches “{0}”.</value>
+  </data>
   <data name="NoSavedHelp" xml:space="preserve">
     <value>Add the servers you use here: right-click an account in the “Available” tab and choose “Add to my servers”, or drag it onto the “My servers” tab. Right-click here to create folders.</value>
   </data>

@@ -399,6 +399,15 @@
                             </StackPanel>
                             <TextBlock Text="{x:Static loc:Strings.MyServersHeading}" Style="{StaticResource SectionTitle}" Margin="0" VerticalAlignment="Center" />
                         </DockPanel>
+                        <Grid DockPanel.Dock="Top" Margin="8,2,8,6">
+                            <TextBox x:Name="SavedSearchBox" TextChanged="OnSavedSearchChanged" Padding="24,4,4,4"
+                                     PreviewKeyDown="OnSavedSearchKeyDown"
+                                     ToolTip="{x:Static loc:Strings.SavedSearchTip}" />
+                            <Image Source="{StaticResource IconSearch}" Width="14" Height="14" HorizontalAlignment="Left"
+                                   Margin="6,0,0,0" IsHitTestVisible="False" />
+                            <TextBlock Style="{StaticResource Placeholder}" Tag="{Binding ElementName=SavedSearchBox}"
+                                       Text="{x:Static loc:Strings.SavedSearchPlaceholder}" Margin="26,0,0,0" />
+                        </Grid>
                         <TextBlock DockPanel.Dock="Top" x:Name="NoSavedText" Margin="10,4,10,0" TextWrapping="Wrap"
                                    Foreground="{StaticResource MutedBrush}"
                                    Text="{x:Static loc:Strings.NoSavedHelp}" />

@@ -129,6 +129,41 @@ public class SessionLibraryTests
         Assert.Equal(3, settings.Sessions.Count);
     }
 
+    /// <summary>
+    /// Recherche dans « Courants » : seuls les serveurs qui répondent à tous les mots et leurs dossiers restent (pas les
+    /// dossiers vides) ; le nom du dossier, le composant et la machine cible comptent.
+    /// </summary>
+    [Fact]
+    public void SearchKeepsMatchingServersAndTheirFolders()
+    {
+        var settings = new AppSettings();
+        SessionLibrary.AddFolder(settings, "Vide");
+        SessionLibrary.AddSession(settings, Account("1", address: "web01"), "pvwa", "Prod/Web");
+        SessionLibrary.AddSession(settings, Account("2", address: "db01"), "pvwa", "Prod/Db");
+        SessionLibrary.AddSession(settings, Account("3", address: "web02"), "pvwa", "Recette");
+        SessionLibrary.AddSession(settings, Account("4", address: "web03"), "autre-pvwa", "Prod");
+        var domain = SessionLibrary.AddSession(settings, Account("5", "adm", "corp.local", "WinDomain"), "pvwa", "");
+        domain.Component = "WIN-PSM";
+        domain.RemoteMachine = "srv-app01";
+
+        var web = SessionLibrary.BuildTree(settings, "pvwa", "WEB");
+        var prodWeb = SessionLibrary.BuildTree(settings, "pvwa", "prod web");
+        var byMachine = SessionLibrary.BuildTree(settings, "pvwa", "app01 win-psm");
+        var none = SessionLibrary.BuildTree(settings, "pvwa", "inconnu");
+        var all = SessionLibrary.BuildTree(settings, "pvwa", "  ");
+
+        Assert.Equal(["Prod", "Recette"], web.Folders.Select(f => f.Name));
+        Assert.Equal(["root@web01"], web.Folders[0].Folders.Single().Sessions.Select(s => s.Name));
+        Assert.Equal(2, web.TotalSessions);
+        Assert.Equal("Prod/Web", prodWeb.Folders.Single().Folders.Single().Path);
+        Assert.Equal(["adm@corp.local"], byMachine.Sessions.Select(s => s.Name));
+        Assert.Empty(byMachine.Folders);
+        Assert.Equal(0, none.TotalSessions);
+        Assert.Empty(none.Folders);
+        Assert.Contains(all.Folders, f => f.Name == "Vide");
+        Assert.Equal(4, all.TotalSessions);
+    }
+
     [Fact]
     public void FavoritesAreMigratedOnce()
     {
