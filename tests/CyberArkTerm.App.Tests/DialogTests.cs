@@ -65,6 +65,24 @@ public sealed class DialogTests
         });
     }
 
+    [Fact]
+    public void ImportWindowOpens()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var import = new ImportAccountsDialog(["Prod"], ["WinDomain"], "Prod", "WinDomain", (_, _) => Task.FromResult(new PvwaAccount()));
+            Assert.Equal(("Prod", "WinDomain"), (import.SafeBox.Text, import.PlatformBox.Text));
+            Assert.False(import.ImportButton.IsEnabled);
+            Assert.Equal(8, import.RowsGrid.Columns.Count);
+            import.Close();
+        });
+    }
+
     /// <summary>
     /// Thread STA avec l'objet <c>Application</c> et le thème (comme dans CyberArkTerm), retiré ensuite pour que les
     /// autres tests ne trouvent pas de ressources liées à ce thread.

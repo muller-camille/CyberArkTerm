@@ -114,6 +114,13 @@ riapre subito nella lingua scelta, conservando l'indirizzo e il nome utente inse
   fa da modello (safe, piattaforma, dominio). L'account viene creato con i diritti della tua sessione: serve il
   diritto «Aggiungere account» sul safe e, in genere, «Aggiornare il contenuto degli account» per fornire la
   password. L'elenco viene poi ricaricato e il nuovo account selezionato.
+- **Importare account (CSV)**: clic destro su un account o un safe → «Importa account (CSV)…». Colonne
+  obbligatorie: indirizzo e utente (più safe e piattaforma, altrimenti i valori predefiniti della finestra);
+  facoltative: nome, dominio, password, macchine consentite, gestione CPM (sì/no), motivo. Separatore `;`, `,` o
+  tabulazione, nomi delle colonne in italiano, francese o inglese; un file prodotto da «Esporta» si può reimportare
+  e «Salva un modello…» fornisce un esempio. Anteprima prima dell'invio, poi creazione riga per riga con il risultato
+  di ciascuna («Interrompi» disponibile). Le password del file non vengono mai mostrate; elimina il file dopo
+  l'importazione.
 - **Modificare / eliminare un account**: clic destro → «Modifica l'account…» (piattaforma, indirizzo, utente,
   dominio, nome, macchine consentite, gestione da parte del CPM; vengono inviati solo i campi modificati) oppure
   «Elimina l'account…» (dopo conferma). Diritti «Aggiornare le proprietà degli account» ed «Eliminare account».
@@ -360,6 +367,7 @@ pubblica).
 | `GET /PasswordVault/API/Accounts?offset=…&limit=1000` | Elenco paginato degli account |
 | `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | File RDP della sessione PSM |
 | `POST /PasswordVault/API/Accounts` | Creazione di un account in un safe («Aggiungi un account») |
+| `POST /PasswordVault/API/Accounts` (una volta per riga) | Importazione di account da un CSV |
 | `PATCH` / `DELETE /PasswordVault/API/Accounts/{id}` | Modifica (solo i campi cambiati) ed eliminazione di un account |
 | `POST /PasswordVault/API/Accounts/{id}/Verify`, `/Change`, `/Reconcile` | Operazioni richieste al CPM |
 | `POST /PasswordVault/API/Accounts/{id}/Password/Retrieve` | Copia della password (motivo, ticket; uso «copy» nell'audit) |

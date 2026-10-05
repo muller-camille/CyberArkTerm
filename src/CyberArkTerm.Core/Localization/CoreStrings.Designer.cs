@@ -191,6 +191,105 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to “{0}” not understood for {1} (yes or no expected).
+        /// </summary>
+        public static string ImportBadBoolean {
+            get {
+                return ResourceManager.GetString("ImportBadBoolean", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to address.
+        /// </summary>
+        public static string ImportColumnAddress {
+            get {
+                return ResourceManager.GetString("ImportColumnAddress", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CPM management.
+        /// </summary>
+        public static string ImportColumnCpm {
+            get {
+                return ResourceManager.GetString("ImportColumnCpm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to platform.
+        /// </summary>
+        public static string ImportColumnPlatform {
+            get {
+                return ResourceManager.GetString("ImportColumnPlatform", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to safe.
+        /// </summary>
+        public static string ImportColumnSafe {
+            get {
+                return ResourceManager.GetString("ImportColumnSafe", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to user name.
+        /// </summary>
+        public static string ImportColumnUser {
+            get {
+                return ResourceManager.GetString("ImportColumnUser", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The header has no “{0}” column (accepted names: {1})..
+        /// </summary>
+        public static string ImportMissingColumn {
+            get {
+                return ResourceManager.GetString("ImportMissingColumn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} missing.
+        /// </summary>
+        public static string ImportMissingValue {
+            get {
+                return ResourceManager.GetString("ImportMissingValue", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file contains no account..
+        /// </summary>
+        public static string ImportNoRow {
+            get {
+                return ResourceManager.GetString("ImportNoRow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file has more than {0} lines: split it..
+        /// </summary>
+        public static string ImportTooManyRows {
+            get {
+                return ResourceManager.GetString("ImportTooManyRows", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A quoted value is not closed..
+        /// </summary>
+        public static string ImportUnclosedQuote {
+            get {
+                return ResourceManager.GetString("ImportUnclosedQuote", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Invalid folder name..
         /// </summary>
         public static string InvalidFolderName {

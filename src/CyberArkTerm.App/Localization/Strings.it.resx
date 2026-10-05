@@ -1718,4 +1718,88 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
   <data name="PasswordClipboardCleared" xml:space="preserve">
     <value>Password cancellata dagli appunti</value>
   </data>
+  <data name="MenuImportAccounts" xml:space="preserve">
+    <value>_Importa account (CSV)…</value>
+  </data>
+  <data name="ImportTitle" xml:space="preserve">
+    <value>Importa account</value>
+  </data>
+  <data name="ImportIntro" xml:space="preserve">
+    <value>Ogni riga del file CSV crea un account in CyberArk con i diritti della tua sessione («Aggiungere account» sul safe e «Aggiornare il contenuto degli account» per le password). Colonne obbligatorie: indirizzo e utente, più safe e piattaforma se i valori predefiniti qui sotto non sono compilati. Facoltative: nome, dominio di accesso, password, macchine consentite, gestione CPM (sì/no), motivo della gestione manuale. Nomi delle colonne in italiano, francese o inglese; un file prodotto da «Esporta» può essere importato.</value>
+  </data>
+  <data name="ImportChooseFile" xml:space="preserve">
+    <value>_Scegli un file…</value>
+  </data>
+  <data name="ImportNoFile" xml:space="preserve">
+    <value>Nessun file scelto</value>
+  </data>
+  <data name="ImportTemplate" xml:space="preserve">
+    <value>Salva un _modello…</value>
+  </data>
+  <data name="ImportTemplateFileName" xml:space="preserve">
+    <value>modello-account</value>
+  </data>
+  <data name="ImportOpenFilter" xml:space="preserve">
+    <value>File CSV (*.csv;*.txt)|*.csv;*.txt|Tutti i file (*.*)|*.*</value>
+  </data>
+  <data name="ImportDefaultSafe" xml:space="preserve">
+    <value>_Safe predefinito:</value>
+  </data>
+  <data name="ImportDefaultPlatform" xml:space="preserve">
+    <value>_Piattaforma predefinita:</value>
+  </data>
+  <data name="ImportDefaultsTip" xml:space="preserve">
+    <value>Usato per le righe la cui colonna safe o piattaforma è assente o vuota.</value>
+  </data>
+  <data name="ImportSummary" xml:space="preserve">
+    <value>{0} account da creare, {1} riga/righe con errore (non importata/e).</value>
+  </data>
+  <data name="ImportPasswordsWarning" xml:space="preserve">
+    <value>Il file contiene password: non vengono mai mostrate. Elimina il file al termine dell'importazione.</value>
+  </data>
+  <data name="ImportButton" xml:space="preserve">
+    <value>_Importa</value>
+  </data>
+  <data name="ImportStop" xml:space="preserve">
+    <value>_Interrompi</value>
+  </data>
+  <data name="ImportProgress" xml:space="preserve">
+    <value>Importazione: {0} / {1} — {2} creato/i, {3} rifiutato/i</value>
+  </data>
+  <data name="ImportDone" xml:space="preserve">
+    <value>Importazione terminata: {0} creato/i, {1} rifiutato/i.</value>
+  </data>
+  <data name="ImportStopped" xml:space="preserve">
+    <value>Importazione interrotta: {0} creato/i, {1} rifiutato/i; le altre righe non sono state inviate.</value>
+  </data>
+  <data name="ImportFileError" xml:space="preserve">
+    <value>Impossibile leggere il file: {0}</value>
+  </data>
+  <data name="ImportFileTooLarge" xml:space="preserve">
+    <value>Il file supera i 10 MB.</value>
+  </data>
+  <data name="ImportColLine" xml:space="preserve">
+    <value>Riga</value>
+  </data>
+  <data name="ImportColPassword" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="ImportColResult" xml:space="preserve">
+    <value>Risultato</value>
+  </data>
+  <data name="ImportStatusReady" xml:space="preserve">
+    <value>Da creare</value>
+  </data>
+  <data name="ImportStatusCreated" xml:space="preserve">
+    <value>Creato</value>
+  </data>
+  <data name="ImportStatusRefused" xml:space="preserve">
+    <value>Rifiutato: {0}</value>
+  </data>
+  <data name="ImportStatusError" xml:space="preserve">
+    <value>Non importato: {0}</value>
+  </data>
+  <data name="AccountsImported" xml:space="preserve">
+    <value>{0} account importato/i</value>
+  </data>
 </root>

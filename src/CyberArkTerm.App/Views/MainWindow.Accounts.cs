@@ -49,11 +49,7 @@ public partial class MainWindow
             return;
         }
 
-        // Sans modèle (clic sur le safe) : la plateforme la plus courante du safe.
-        var platform = template?.PlatformId ?? _accounts
-            .Where(a => string.Equals(a.SafeName, safe, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(a.PlatformId))
-            .GroupBy(a => a.PlatformId!, StringComparer.OrdinalIgnoreCase)
-            .MaxBy(g => g.Count())?.Key;
+        var platform = template?.PlatformId ?? MostCommonPlatform(safe);
         var dialog = new AccountDialog(KnownValues(a => a.SafeName), KnownValues(a => a.PlatformId), safe, platform, template?.LogonDomain,
             client.AddAccountAsync) { Owner = this };
         if (dialog.ShowDialog() != true || dialog.Saved is not { } created)
@@ -68,6 +64,43 @@ public partial class MainWindow
 
         await ReloadAndSelectAsync(created.Id);
         SetStatus(Text.Format(Strings.AccountCreated, AccountLabel(created), created.SafeName));
+    }
+
+    /// <summary>Plateforme la plus courante du safe (proposée quand on part du safe et non d'un compte).</summary>
+    private string? MostCommonPlatform(string? safe) => _accounts
+        .Where(a => string.Equals(a.SafeName, safe, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(a.PlatformId))
+        .GroupBy(a => a.PlatformId!, StringComparer.OrdinalIgnoreCase)
+        .MaxBy(g => g.Count())?.Key;
+
+    // ===================== Import CSV =====================
+
+    /// <summary>
+    /// Import de comptes depuis un fichier CSV ; le safe et la plateforme du compte (ou du safe) cliqué servent de
+    /// valeurs par défaut. La liste est rechargée si des comptes ont été créés.
+    /// </summary>
+    private async void OnImportAccounts(object sender, RoutedEventArgs e)
+    {
+        if (_client is not { } client)
+        {
+            return;
+        }
+
+        var safe = (sender as System.Windows.Controls.MenuItem)?.CommandParameter as string;
+        var platform = _current?.PlatformId ?? MostCommonPlatform(safe);
+        var dialog = new ImportAccountsDialog(KnownValues(a => a.SafeName), KnownValues(a => a.PlatformId), safe, platform,
+            client.AddAccountAsync) { Owner = this };
+        dialog.ShowDialog();
+        if (dialog.SessionExpired)
+        {
+            OnSessionExpired();
+            return;
+        }
+
+        if (dialog.Created > 0)
+        {
+            await LoadAccountsAsync();
+            SetStatus(Text.Format(Strings.AccountsImported, dialog.Created));
+        }
     }
 
     /// <summary>Recharge les comptes puis désigne <paramref name="accountId"/> comme cible des actions.</summary>

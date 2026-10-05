@@ -195,4 +195,37 @@
   <data name="TooManyFiles" xml:space="preserve">
     <value>Plus de {0} fichiers ou dossiers : glissez-en moins à la fois.</value>
   </data>
+  <data name="ImportMissingColumn" xml:space="preserve">
+    <value>L'en-tête n'a pas de colonne « {0} » (noms acceptés : {1}).</value>
+  </data>
+  <data name="ImportMissingValue" xml:space="preserve">
+    <value>{0} manquant(e)</value>
+  </data>
+  <data name="ImportBadBoolean" xml:space="preserve">
+    <value>« {0} » non compris pour {1} (oui ou non attendu)</value>
+  </data>
+  <data name="ImportNoRow" xml:space="preserve">
+    <value>Le fichier ne contient aucun compte.</value>
+  </data>
+  <data name="ImportTooManyRows" xml:space="preserve">
+    <value>Le fichier dépasse {0} lignes : découpez-le.</value>
+  </data>
+  <data name="ImportUnclosedQuote" xml:space="preserve">
+    <value>Une valeur entre guillemets n'est pas fermée.</value>
+  </data>
+  <data name="ImportColumnSafe" xml:space="preserve">
+    <value>safe</value>
+  </data>
+  <data name="ImportColumnPlatform" xml:space="preserve">
+    <value>plateforme</value>
+  </data>
+  <data name="ImportColumnAddress" xml:space="preserve">
+    <value>adresse</value>
+  </data>
+  <data name="ImportColumnUser" xml:space="preserve">
+    <value>utilisateur</value>
+  </data>
+  <data name="ImportColumnCpm" xml:space="preserve">
+    <value>gestion CPM</value>
+  </data>
 </root>

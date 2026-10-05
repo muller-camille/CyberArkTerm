@@ -128,6 +128,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to {0} account(s) imported.
+        /// </summary>
+        public static string AccountsImported {
+            get {
+                return ResourceManager.GetString("AccountsImported", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Address:.
         /// </summary>
         public static string AddAccountAddress {
@@ -1595,6 +1604,240 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _Import.
+        /// </summary>
+        public static string ImportButton {
+            get {
+                return ResourceManager.GetString("ImportButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Choose a file….
+        /// </summary>
+        public static string ImportChooseFile {
+            get {
+                return ResourceManager.GetString("ImportChooseFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Line.
+        /// </summary>
+        public static string ImportColLine {
+            get {
+                return ResourceManager.GetString("ImportColLine", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password.
+        /// </summary>
+        public static string ImportColPassword {
+            get {
+                return ResourceManager.GetString("ImportColPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Result.
+        /// </summary>
+        public static string ImportColResult {
+            get {
+                return ResourceManager.GetString("ImportColResult", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Default _platform:.
+        /// </summary>
+        public static string ImportDefaultPlatform {
+            get {
+                return ResourceManager.GetString("ImportDefaultPlatform", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Default _safe:.
+        /// </summary>
+        public static string ImportDefaultSafe {
+            get {
+                return ResourceManager.GetString("ImportDefaultSafe", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Used for the lines whose safe or platform column is missing or empty..
+        /// </summary>
+        public static string ImportDefaultsTip {
+            get {
+                return ResourceManager.GetString("ImportDefaultsTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import finished: {0} created, {1} refused..
+        /// </summary>
+        public static string ImportDone {
+            get {
+                return ResourceManager.GetString("ImportDone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file cannot be read: {0}.
+        /// </summary>
+        public static string ImportFileError {
+            get {
+                return ResourceManager.GetString("ImportFileError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file is larger than 10 MB..
+        /// </summary>
+        public static string ImportFileTooLarge {
+            get {
+                return ResourceManager.GetString("ImportFileTooLarge", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Each line of the CSV file creates an account in CyberArk with the rights of your session (“Add ac[rest of string was truncated].
+        /// </summary>
+        public static string ImportIntro {
+            get {
+                return ResourceManager.GetString("ImportIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No file chosen.
+        /// </summary>
+        public static string ImportNoFile {
+            get {
+                return ResourceManager.GetString("ImportNoFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CSV files (*.csv;*.txt)|*.csv;*.txt|All files (*.*)|*.*.
+        /// </summary>
+        public static string ImportOpenFilter {
+            get {
+                return ResourceManager.GetString("ImportOpenFilter", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file contains passwords: they are never shown. Delete the file once the import is done..
+        /// </summary>
+        public static string ImportPasswordsWarning {
+            get {
+                return ResourceManager.GetString("ImportPasswordsWarning", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import: {0} / {1} — {2} created, {3} refused.
+        /// </summary>
+        public static string ImportProgress {
+            get {
+                return ResourceManager.GetString("ImportProgress", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Created.
+        /// </summary>
+        public static string ImportStatusCreated {
+            get {
+                return ResourceManager.GetString("ImportStatusCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Not imported: {0}.
+        /// </summary>
+        public static string ImportStatusError {
+            get {
+                return ResourceManager.GetString("ImportStatusError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to To create.
+        /// </summary>
+        public static string ImportStatusReady {
+            get {
+                return ResourceManager.GetString("ImportStatusReady", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Refused: {0}.
+        /// </summary>
+        public static string ImportStatusRefused {
+            get {
+                return ResourceManager.GetString("ImportStatusRefused", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Stop.
+        /// </summary>
+        public static string ImportStop {
+            get {
+                return ResourceManager.GetString("ImportStop", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import stopped: {0} created, {1} refused; the other lines were not sent..
+        /// </summary>
+        public static string ImportStopped {
+            get {
+                return ResourceManager.GetString("ImportStopped", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} account(s) to create, {1} line(s) with an error (not imported)..
+        /// </summary>
+        public static string ImportSummary {
+            get {
+                return ResourceManager.GetString("ImportSummary", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Save a _template….
+        /// </summary>
+        public static string ImportTemplate {
+            get {
+                return ResourceManager.GetString("ImportTemplate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to accounts-template.
+        /// </summary>
+        public static string ImportTemplateFileName {
+            get {
+                return ResourceManager.GetString("ImportTemplateFileName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import accounts.
+        /// </summary>
+        public static string ImportTitle {
+            get {
+                return ResourceManager.GetString("ImportTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Invalid port (1 to 65535)..
         /// </summary>
         public static string InvalidPort {
@@ -2653,6 +2896,15 @@ namespace CyberArkTerm.App.Localization {
         public static string MenuEditAccount {
             get {
                 return ResourceManager.GetString("MenuEditAccount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Import accounts (CSV)….
+        /// </summary>
+        public static string MenuImportAccounts {
+            get {
+                return ResourceManager.GetString("MenuImportAccounts", resourceCulture);
             }
         }
 

@@ -1718,4 +1718,88 @@ Your changes stay in the editor: save again to send the whole file once the conn
   <data name="PasswordClipboardCleared" xml:space="preserve">
     <value>Password cleared from the clipboard</value>
   </data>
+  <data name="MenuImportAccounts" xml:space="preserve">
+    <value>_Import accounts (CSV)…</value>
+  </data>
+  <data name="ImportTitle" xml:space="preserve">
+    <value>Import accounts</value>
+  </data>
+  <data name="ImportIntro" xml:space="preserve">
+    <value>Each line of the CSV file creates an account in CyberArk with the rights of your session (“Add accounts” on the safe, and “Update account content” for the passwords). Required columns: address and user name, plus safe and platform unless the defaults below are filled in. Optional: name, logon domain, password, allowed machines, CPM management (yes/no), reason for manual management. Column names in English, French or Italian; a file made with Export can be imported.</value>
+  </data>
+  <data name="ImportChooseFile" xml:space="preserve">
+    <value>_Choose a file…</value>
+  </data>
+  <data name="ImportNoFile" xml:space="preserve">
+    <value>No file chosen</value>
+  </data>
+  <data name="ImportTemplate" xml:space="preserve">
+    <value>Save a _template…</value>
+  </data>
+  <data name="ImportTemplateFileName" xml:space="preserve">
+    <value>accounts-template</value>
+  </data>
+  <data name="ImportOpenFilter" xml:space="preserve">
+    <value>CSV files (*.csv;*.txt)|*.csv;*.txt|All files (*.*)|*.*</value>
+  </data>
+  <data name="ImportDefaultSafe" xml:space="preserve">
+    <value>Default _safe:</value>
+  </data>
+  <data name="ImportDefaultPlatform" xml:space="preserve">
+    <value>Default _platform:</value>
+  </data>
+  <data name="ImportDefaultsTip" xml:space="preserve">
+    <value>Used for the lines whose safe or platform column is missing or empty.</value>
+  </data>
+  <data name="ImportSummary" xml:space="preserve">
+    <value>{0} account(s) to create, {1} line(s) with an error (not imported).</value>
+  </data>
+  <data name="ImportPasswordsWarning" xml:space="preserve">
+    <value>The file contains passwords: they are never shown. Delete the file once the import is done.</value>
+  </data>
+  <data name="ImportButton" xml:space="preserve">
+    <value>_Import</value>
+  </data>
+  <data name="ImportStop" xml:space="preserve">
+    <value>_Stop</value>
+  </data>
+  <data name="ImportProgress" xml:space="preserve">
+    <value>Import: {0} / {1} — {2} created, {3} refused</value>
+  </data>
+  <data name="ImportDone" xml:space="preserve">
+    <value>Import finished: {0} created, {1} refused.</value>
+  </data>
+  <data name="ImportStopped" xml:space="preserve">
+    <value>Import stopped: {0} created, {1} refused; the other lines were not sent.</value>
+  </data>
+  <data name="ImportFileError" xml:space="preserve">
+    <value>The file cannot be read: {0}</value>
+  </data>
+  <data name="ImportFileTooLarge" xml:space="preserve">
+    <value>The file is larger than 10 MB.</value>
+  </data>
+  <data name="ImportColLine" xml:space="preserve">
+    <value>Line</value>
+  </data>
+  <data name="ImportColPassword" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="ImportColResult" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="ImportStatusReady" xml:space="preserve">
+    <value>To create</value>
+  </data>
+  <data name="ImportStatusCreated" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="ImportStatusRefused" xml:space="preserve">
+    <value>Refused: {0}</value>
+  </data>
+  <data name="ImportStatusError" xml:space="preserve">
+    <value>Not imported: {0}</value>
+  </data>
+  <data name="AccountsImported" xml:space="preserve">
+    <value>{0} account(s) imported</value>
+  </data>
 </root>

@@ -58,6 +58,7 @@
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="addaccount" Click="OnAddAccount" />
+            <MenuItem Tag="importaccounts" Header="{x:Static loc:Strings.MenuImportAccounts}" Click="OnImportAccounts" />
             <MenuItem Header="{x:Static loc:Strings.MenuEditAccount}" Click="OnEditAccount">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />

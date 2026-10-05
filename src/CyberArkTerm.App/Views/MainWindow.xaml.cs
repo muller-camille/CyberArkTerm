@@ -765,7 +765,7 @@ public partial class MainWindow : Window
 
         foreach (var element in menu.Items.OfType<FrameworkElement>())
         {
-            element.Visibility = account is null && element.Tag as string is not ("safemembers" or "addaccount")
+            element.Visibility = account is null && element.Tag as string is not ("safemembers" or "addaccount" or "importaccounts")
                 ? Visibility.Collapsed
                 : Visibility.Visible;
         }
@@ -786,6 +786,10 @@ public partial class MainWindow : Window
                     break;
                 case "addaccount":
                     SetSafeMenuItem(item, safe, Strings.MenuAddAccountTo, Strings.MenuAddAccount);
+                    break;
+                case "importaccounts":
+                    item.CommandParameter = safe;
+                    item.IsEnabled = _client is not null;
                     break;
             }
         }

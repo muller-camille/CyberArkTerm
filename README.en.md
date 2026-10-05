@@ -112,6 +112,12 @@ right away in the chosen language, keeping the address and user name you typed.
   domain). The account is created with the rights of your session: the "Add accounts" right on the safe is
   required, and usually "Update account content" to give the password. The list is then reloaded and the new
   account selected.
+- **Import accounts (CSV)**: right-click an account or a safe → "Import accounts (CSV)…". Required columns: address
+  and user name (plus safe and platform, otherwise the window's defaults); optional: name, domain, password, allowed
+  machines, CPM management (yes/no), reason. Separator `;`, `,` or tab, column names in English, French or Italian; a
+  file made with "Export" can be imported again, and "Save a template…" gives an example. Preview before sending,
+  then line-by-line creation with each line's result ("Stop" available). The file's passwords are never shown;
+  delete the file after the import.
 - **Edit / delete an account**: right-click → "Edit the account…" (platform, address, user name, domain, name,
   allowed machines, CPM management; only the changed fields are sent) or "Delete the account…" (after
   confirmation). Rights "Update account properties" and "Delete accounts".
@@ -340,6 +346,7 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md) (private reporting, no
 | `GET /PasswordVault/API/Accounts?offset=…&limit=1000` | Paged account list |
 | `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | RDP file of the PSM session |
 | `POST /PasswordVault/API/Accounts` | Creates an account in a safe ("Add an account") |
+| `POST /PasswordVault/API/Accounts` (once per line) | Imports accounts from a CSV |
 | `PATCH` / `DELETE /PasswordVault/API/Accounts/{id}` | Edits (changed fields only) and deletes an account |
 | `POST /PasswordVault/API/Accounts/{id}/Verify`, `/Change`, `/Reconcile` | Operations requested from the CPM |
 | `POST /PasswordVault/API/Accounts/{id}/Password/Retrieve` | Copies the password (reason, ticket; "copy" usage in the audit) |
