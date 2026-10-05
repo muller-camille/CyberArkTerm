@@ -2801,6 +2801,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to The PVWA has no connection component “{0}” for this account (platform {1}). Enter the one this pl[rest of string was truncated].
+        /// </summary>
+        public static string PsmComponentUnknown {
+            get {
+                return ResourceManager.GetString("PsmComponentUnknown", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to {0}: the PSM refuses remote applications as a desktop; they now open as remote applications (opti[rest of string was truncated].
         /// </summary>
         public static string PsmDesktopRefused {

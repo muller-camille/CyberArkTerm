@@ -600,6 +600,7 @@ public partial class MainWindow : Window
 
         showDialog |= AccountClassifier.NeedsRemoteMachine(account) && string.IsNullOrWhiteSpace(request.RemoteMachine);
         string? error = null;
+        bool componentError = false;
         _connecting = true;
         UpdateActions();
         try
@@ -608,7 +609,7 @@ public partial class MainWindow : Window
             {
                 if (showDialog)
                 {
-                    var dialog = new ConnectDialog(account, request, _settings, _vaultUser, error) { Owner = this };
+                    var dialog = new ConnectDialog(account, request, _settings, _vaultUser, error, componentError) { Owner = this };
                     if (dialog.ShowDialog() != true || dialog.Result is null)
                     {
                         SetStatus("");
@@ -641,7 +642,12 @@ public partial class MainWindow : Window
                                                or TaskCanceledException or IOException or UnauthorizedAccessException
                                                or Win32Exception or InvalidOperationException)
                 {
-                    error = ErrorText.Describe(ex);
+                    // Composant absent de la plateforme du compte (il peut porter un autre nom, par ex. WIN-PSM) :
+                    // le dialogue le dit et invite à saisir le bon.
+                    componentError = ex is PvwaException { IsUnknownComponent: true };
+                    error = componentError
+                        ? Text.Format(Strings.PsmComponentUnknown, request.Component, account.PlatformId)
+                        : ErrorText.Describe(ex);
                     SetStatus(Text.Format(Strings.ConnectFailed, error), isError: true);
                     showDialog = true;
                 }
@@ -656,7 +662,7 @@ public partial class MainWindow : Window
 
     private async Task LaunchAsync(PvwaAccount account, ConnectRequest request, SavedSession? saved)
     {
-        var target = string.IsNullOrWhiteSpace(request.RemoteMachine) ? account.Address : request.RemoteMachine;
+        var target = string.IsNullOrWhiteSpace(request.RemoteMachine) ? account.Address : request.RemoteMachine.Trim();
         var label = $"{account.UserName}@{target}";
         if (request.Mode == ConnectMode.Psm)
         {

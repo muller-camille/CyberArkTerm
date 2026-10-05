@@ -422,6 +422,7 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 
 | Symptom | Likely cause and fix |
 | --- | --- |
+| "The PVWA has no connection component “PSM-RDP” for this account" (`EPVWA093E Failed to get the relevant connection component`) | The account's platform uses a component with another name (for example `WIN-PSM`): the one offered by the PVWA "Connect" button, or the name after `/c` in a `psm /u … /a … /c …` command. Enter it in "Component"; "Remember this component for platform" is ticked for the next connections. |
 | "TLS connection refused: this computer does not trust the PVWA certificate" | The certificate (or its issuing authority) is not in the workstation's Windows store. |
 | "The PVWA must be reached over HTTPS" | Type the address without `http://` (or with `https://`). |
 | "Your CyberArk session has expired" | PVWA inactivity timeout reached: sign in again. |

@@ -11,7 +11,9 @@ public partial class ConnectDialog : Window
     private readonly AppSettings _settings;
     private readonly string _vaultUser;
 
-    public ConnectDialog(PvwaAccount account, ConnectRequest initial, AppSettings settings, string vaultUser, string? error)
+    /// <param name="componentError">Le PVWA ne connaît pas le composant demandé pour ce compte (EPVWA093E).</param>
+    public ConnectDialog(PvwaAccount account, ConnectRequest initial, AppSettings settings, string vaultUser, string? error,
+        bool componentError = false)
     {
         InitializeComponent();
         _account = account;
@@ -31,7 +33,8 @@ public partial class ConnectDialog : Window
         TicketSystemBox.Text = initial.TicketingSystem ?? "";
         TicketIdBox.Text = initial.TicketId ?? "";
         RememberBox.Content = Text.Format(Strings.RememberComponent, account.PlatformId);
-        RememberBox.IsChecked = initial.RememberComponent;
+        // Composant refusé : celui saisi à la place sera retenu pour la plateforme (décochable).
+        RememberBox.IsChecked = initial.RememberComponent || componentError;
 
         bool sshAvailable = !string.IsNullOrWhiteSpace(settings.PsmpAddress);
         SshRadio.IsEnabled = sshAvailable;
@@ -49,9 +52,13 @@ public partial class ConnectDialog : Window
 
         Loaded += (_, _) =>
         {
-            if (error is not null && error.Contains("component", StringComparison.OrdinalIgnoreCase))
+            if (componentError || (error is not null && error.Contains("component", StringComparison.OrdinalIgnoreCase)))
             {
                 ComponentBox.Focus();
+                if (ComponentBox.Template.FindName("PART_EditableTextBox", ComponentBox) is System.Windows.Controls.TextBox text)
+                {
+                    text.SelectAll();
+                }
             }
             else if (error is not null)
             {

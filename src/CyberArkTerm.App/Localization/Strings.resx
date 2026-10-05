@@ -470,6 +470,9 @@ The accounts remain available in the “Available” tab.</value>
   <data name="TicketIdPlaceholder" xml:space="preserve">
     <value>Ticket no. (optional)</value>
   </data>
+  <data name="PsmComponentUnknown" xml:space="preserve">
+    <value>The PVWA has no connection component “{0}” for this account (platform {1}). Enter the one this platform uses: the component offered by the PVWA “Connect” button, or the name after /c in a PSM command (for example WIN-PSM). “Remember” is ticked so that the next connections of this platform use it.</value>
+  </data>
   <data name="RememberComponent" xml:space="preserve">
     <value>Remember this component for platform {0}</value>
   </data>
