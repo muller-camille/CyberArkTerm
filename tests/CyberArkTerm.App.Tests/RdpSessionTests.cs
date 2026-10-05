@@ -519,7 +519,7 @@ public class RdpSessionTests(ITestOutputHelper output)
 
             // Fenêtre plein écran ouverte par-dessus (F11) : dans l'onglet, à sa place.
             Win32Input.Keys((0x7A, 0x57));
-            var full = await DockedAsync(slot, "CAT full");
+            var full = await DockedAsync(slot, "CAT full", except: main);
             var fullClick = await ClickWhenPlacedAsync(host, full, (tab.Left + 60, tab.Top + 60), c => c.X == 60 && c.Y == 60);
             Assert.Equal(0, fullClick.Enter);
 
@@ -585,16 +585,22 @@ public class RdpSessionTests(ITestOutputHelper output)
         [System.Windows.Forms.Application]::Run($main)
         """;
 
-    private readonly record struct Click(int X, int Y, int Enter);
+    private readonly record struct Click(int N, int X, int Y, int Enter);
+
+    /// <summary>Numéro du dernier clic reçu par l'application : chaque clic reçu doit être le suivant (aucun clic ajouté).</summary>
+    private int _clicks;
 
     /// <summary>Fenêtre de l'application rattachée à l'onglet dont le titre commence par <paramref name="title"/>.</summary>
-    private static async Task<IntPtr> DockedAsync(IntPtr slot, string title)
+    /// <param name="except">Fenêtre déjà connue : toute autre fenêtre visible de l'onglet convient (titre déjà changé).</param>
+    private static async Task<IntPtr> DockedAsync(IntPtr slot, string title, IntPtr except = default)
     {
         for (int i = 0; i < 120; i++)
         {
             var window = Win32Input.Descendants(slot).FirstOrDefault(h => Win32Input.ClassName(h) == "RAIL_WINDOW"
                                                                           && Win32Input.IsWindowVisible(h)
-                                                                          && Win32Input.Title(h).StartsWith(title, StringComparison.Ordinal));
+                                                                          && (except != IntPtr.Zero
+                                                                              ? h != except
+                                                                              : Win32Input.Title(h).StartsWith(title, StringComparison.Ordinal)));
             if (window != IntPtr.Zero)
             {
                 return window;
@@ -640,10 +646,12 @@ public class RdpSessionTests(ITestOutputHelper output)
         {
             await Task.Delay(250);
             var title = Win32Input.Title(window);
-            if (title != before && Regex.Match(title, @"clic \d+ (-?\d+),(-?\d+) e(\d+)") is { Success: true } m)
+            if (title != before && Regex.Match(title, @"clic (\d+) (-?\d+),(-?\d+) e(\d+)") is { Success: true } m)
             {
-                var click = new Click(int.Parse(m.Groups[1].Value), int.Parse(m.Groups[2].Value), int.Parse(m.Groups[3].Value));
+                var click = new Click(int.Parse(m.Groups[1].Value), int.Parse(m.Groups[2].Value), int.Parse(m.Groups[3].Value), int.Parse(m.Groups[4].Value));
                 output.WriteLine($"Clic en {point} : reçu {click}");
+                Assert.True(click.N == _clicks + 1, $"Clic n° {click.N} reçu après le n° {_clicks} : un clic a été ajouté");
+                _clicks = click.N;
                 return click;
             }
         }

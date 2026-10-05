@@ -83,6 +83,7 @@ internal sealed class RemoteAppDock : IDisposable
     private readonly Dictionary<IntPtr, string> _logged = [];
     private readonly System.Windows.Forms.Timer _timer;
     private readonly WinEventProc _onEvent;
+    private readonly System.Windows.Forms.Timer _cursorTimer;
     private IntPtr _docked;
     private int _hookedThread;
     private int _loggedFits;
@@ -98,6 +99,9 @@ internal sealed class RemoteAppDock : IDisposable
     private DateTime _lastSync = DateTime.MinValue;
     private int _attempts;
     private IntPtr _focus;
+    private Point _cursor;
+    private Point _parked;
+    private bool _cursorParked;
 
     /// <param name="container">Conteneur du contrôle dans l'onglet (thread de la connexion).</param>
     /// <param name="changed">Fenêtre affichée dans l'onglet (vrai) ou plus (faux).</param>
@@ -111,6 +115,8 @@ internal sealed class RemoteAppDock : IDisposable
         _timer = new System.Windows.Forms.Timer { Interval = 500 };
         _timer.Tick += (_, _) => Update();
         _timer.Start();
+        _cursorTimer = new System.Windows.Forms.Timer { Interval = 300 };
+        _cursorTimer.Tick += (_, _) => RestoreCursor();
     }
 
     /// <summary>Fenêtre de l'application signalée par le contrôle (OnRemoteWindowDisplayed).</summary>
@@ -158,6 +164,8 @@ internal sealed class RemoteAppDock : IDisposable
     {
         _timer.Stop();
         _timer.Dispose();
+        RestoreCursor();
+        _cursorTimer.Dispose();
         Unhook();
         foreach (var window in _attached.Where(IsWindow))
         {
@@ -301,16 +309,12 @@ internal sealed class RemoteAppDock : IDisposable
                 return;
             }
 
-            // Pas de déplacement : fenêtre agrandie sur le serveur (une fenêtre agrandie ne se déplace pas) ? Elle est
-            // restaurée avant l'essai suivant.
+            // Pas de déplacement (serveur sans déplacement local, fenêtre qui le refuse) : nouvel essai plus tard.
             _requested = DateTime.MinValue;
+            RestoreCursor();
             DebugLog.Write("rdp", $"{_label} : le serveur n'a pas déplacé la fenêtre 0x{_docked.ToInt64():X}" +
-                                  (_attempts < MaxSyncAttempts ? ", restaurée avant un nouvel essai" : ", abandon pour cette place"));
-            if (_attempts < MaxSyncAttempts)
-            {
-                PostMessage(_docked, WmSysCommand, new IntPtr(ScRestore), IntPtr.Zero);
-            }
-            else
+                                  (_attempts < MaxSyncAttempts ? ", nouvel essai" : ", abandon pour cette place"));
+            if (_attempts >= MaxSyncAttempts)
             {
                 _sent = _target;
             }
@@ -353,7 +357,49 @@ internal sealed class RemoteAppDock : IDisposable
         _focus = GetFocus();
         DebugLog.Write("rdp", $"{_label} : place de l'onglet envoyée au serveur pour la fenêtre 0x{_docked.ToInt64():X} : " +
                               $"{rect.Left},{rect.Top} {rect.Width}x{rect.Height} (essai {_attempts})");
+        ParkCursor();
+        // Une fenêtre agrandie ne se déplace pas : restaurée d'abord (sans effet sur une fenêtre normale).
+        PostMessage(_docked, WmSysCommand, new IntPtr(ScRestore), IntPtr.Zero);
         PostMessage(_docked, WmSysCommand, new IntPtr(ScMove), IntPtr.Zero);
+    }
+
+    /// <summary>
+    /// À la fin du déplacement, le contrôle envoie au serveur un clic de souris là où est le pointeur (constaté : reçu
+    /// par l'application quand le pointeur était sur sa fenêtre). Le pointeur est donc mis, le temps du déplacement,
+    /// sur la fenêtre de CyberArkTerm hors de l'onglet (coin haut gauche, barre de titre), où aucune fenêtre de
+    /// l'application ne se trouve en général ; il revient ensuite, si l'utilisateur ne l'a pas bougé.
+    /// </summary>
+    private void ParkCursor()
+    {
+        if (_cursorParked || !GetCursorPos(out _cursor) || !GetWindowRect(GetAncestor(_container.Handle, GaRoot), out var root))
+        {
+            return;
+        }
+
+        var screen = SystemInformation.VirtualScreen;
+        _parked = new Point
+        {
+            X = Math.Clamp(root.Left + 16, screen.Left, screen.Right - 1),
+            Y = Math.Clamp(root.Top + 16, screen.Top, screen.Bottom - 1),
+        };
+        GetWindowRect(_docked, out var docked);
+        if (_parked.X >= docked.Left && _parked.X < docked.Right && _parked.Y >= docked.Top && _parked.Y < docked.Bottom)
+        {
+            return;
+        }
+
+        _cursorParked = SetCursorPos(_parked.X, _parked.Y);
+    }
+
+    private void RestoreCursor()
+    {
+        _cursorTimer.Stop();
+        if (_cursorParked && GetCursorPos(out var now) && now.X == _parked.X && now.Y == _parked.Y)
+        {
+            SetCursorPos(_cursor.X, _cursor.Y);
+        }
+
+        _cursorParked = false;
     }
 
     /// <summary>Notifications de Windows sur les fenêtres du thread de l'application (sur le thread de la connexion).</summary>
@@ -408,6 +454,7 @@ internal sealed class RemoteAppDock : IDisposable
             }
 
             _focus = IntPtr.Zero;
+            _cursorTimer.Start();
         }
     }
 
@@ -553,6 +600,13 @@ internal sealed class RemoteAppDock : IDisposable
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    private struct Point
+    {
+        public int X;
+        public int Y;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     private struct MonitorInfo
     {
         public int Size;
@@ -600,6 +654,14 @@ internal sealed class RemoteAppDock : IDisposable
 
     [DllImport("user32.dll")]
     private static extern short GetAsyncKeyState(int key);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetCursorPos(out Point point);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SetCursorPos(int x, int y);
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]

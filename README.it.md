@@ -411,8 +411,9 @@ fine di uno spostamento iniziato dal server: CyberArkTerm chiede quindi al serve
 (comando di sistema «Sposta»), che il controllo esegue localmente, e lo termina subito (Invio); il controllo invia
 allora il posto della scheda, e il server vi mette la sua finestra (posizione e dimensione). Avviene dopo il
 collegamento, quando la scheda è stata spostata o ridimensionata (una volta ferma) e quando il server ha spostato la
-sua finestra; solo quando CyberArkTerm è in primo piano, senza pulsanti del mouse premuti (il puntatore passa un
-istante sulla finestra), al massimo tre volte di seguito per lo stesso posto; una finestra ingrandita sul server
+sua finestra; solo quando CyberArkTerm è in primo piano, senza pulsanti del mouse premuti (il controllo termina lo
+spostamento con un clic dove si trova il puntatore: questo viene messo un istante nell'angolo della finestra di
+CyberArkTerm, fuori dalla scheda, poi torna), al massimo tre volte di seguito per lo stesso posto; una finestra ingrandita sul server
 viene prima ripristinata.
 
 Un pulsante del mouse premuto nell'applicazione le dà la tastiera (`WM_PARENTNOTIFY`), come la selezione della
@@ -422,7 +423,7 @@ la scheda. Verificato dai test di integrazione: rendering, tastiera (testo digit
 reindirizzati), dimensione, menu contestuale aperto sotto il puntatore, finestra tolta dalla scheda alla
 disconnessione; e, con un'applicazione che scrive nel titolo la posizione di ogni clic ricevuto: clic ricevuti dove
 vengono fatti (angoli della scheda), immagine in scala 1, finestra a schermo intero aperta poi chiusa, nessun tasto
-Invio ricevuto.
+Invio né clic in più ricevuti.
 
 **Un thread per connessione desktop remoto.** Il controllo, la sua finestra e i suoi eventi vivono su un thread a
 parte (STA, con il proprio ciclo di messaggi); l'interfaccia non lo attende mai. La scheda contiene una finestra del
