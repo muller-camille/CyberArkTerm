@@ -54,6 +54,12 @@ public sealed class AppSettings
     /// <summary>Protocole utilisé pour déposer des fichiers sur le serveur.</summary>
     public TransferProtocol UploadProtocol { get; set; } = TransferProtocol.Scp;
 
+    /// <summary>Proposer d'envoyer une seule archive .tar.gz quand on dépose au moins <see cref="ArchiveThreshold"/> fichiers.</summary>
+    public bool OfferArchive { get; set; } = true;
+
+    /// <summary>Nombre de fichiers à partir duquel l'archive .tar.gz est proposée.</summary>
+    public int ArchiveThreshold { get; set; } = 200;
+
     /// <summary>Installe PROMPT_COMMAND à l'ouverture d'une session SSH pour que le navigateur suive le dossier du terminal.</summary>
     public bool FollowTerminalFolder { get; set; } = true;
 

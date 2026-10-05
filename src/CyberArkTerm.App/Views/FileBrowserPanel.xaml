@@ -28,6 +28,7 @@
                                 <Binding Path="State" />
                                 <Binding Path="Percent" />
                                 <Binding Path="Verifying" />
+                                <Binding Path="Packing" />
                                 <Binding Path="CancelRequested" />
                                 <Binding Path="FileCount" />
                                 <Binding Path="CurrentFile" />
@@ -179,6 +180,10 @@
                     <!-- Détail de la vérification SHA-256 des derniers transferts. -->
                     <TextBlock x:Name="ChecksLink" DockPanel.Dock="Right" Margin="8,0,0,0" Visibility="Collapsed">
                         <Hyperlink Click="OnShowChecks"><Run Text="{x:Static loc:Strings.ChecksLink}" /></Hyperlink>
+                    </TextBlock>
+                    <!-- Archive .tar.gz envoyée : commande d'extraction à coller dans le terminal. -->
+                    <TextBlock x:Name="ExtractLink" DockPanel.Dock="Right" Margin="8,0,0,0" Visibility="Collapsed">
+                        <Hyperlink Click="OnCopyExtractCommand"><Run Text="{x:Static loc:Strings.ArchiveCopyCommand}" /></Hyperlink>
                     </TextBlock>
                     <TextBlock x:Name="StatusText" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
                 </DockPanel>

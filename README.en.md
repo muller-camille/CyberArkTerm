@@ -193,6 +193,15 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   the next SCP upload opens a new one (new PSMP session). An error is shown in the queue and the queue goes on;
   at the end, a single summary. Browsing, deleting, permissions, the editor and dragging to Explorer get in
   between two files. Closing the tab or the application with transfers running asks for confirmation.
+- **Many files at once: .tar.gz archive**: from 200 dropped files (threshold in Settings, option "Offer a single
+  .tar.gz archive"), CyberArkTerm offers to send them in a single archive: one file to transfer and check instead
+  of thousands, much faster through the PSMP. The archive is made on this computer (in the queue, can be
+  cancelled), sent and checked (SHA-256), then deleted from this computer; each dropped item is at the root of the
+  archive (permissions 0644 and 0755). Nothing is run on the server: "Copy the extraction command" (status bar)
+  gives the command to paste in the terminal, for example
+  `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (the archive is deleted
+  from the server once extracted). "Send the files one by one" keeps the usual upload; "Don't offer again" turns
+  the option off.
 - **Transfer history**: clock button in the Files tab header, available even without a session. It lists the
   last 200 uploads and downloads (drag and drop included): date, direction, server, item, destination, number of
   files, result. "Uploads" / "Downloads" filter; "Checksums…" (or double-click) shows each file's SHA-256

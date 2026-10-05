@@ -75,6 +75,37 @@ public partial class FileBrowserPanel
 
         var directory = browser.CurrentDirectory;
         var names = paths.Select(p => Path.GetFileName(p.TrimEnd('\\', '/'))).ToList();
+
+        // Beaucoup de fichiers d'un coup : proposer une seule archive .tar.gz (option des Paramètres).
+        string? archiveName = null;
+        int archiveFiles = 0;
+        if (_settings.OfferArchive)
+        {
+            var (files, bytes) = TarGzPacker.Measure(paths);
+            if (files >= _settings.ArchiveThreshold)
+            {
+                var offer = new ArchiveOfferDialog(files, bytes, directory) { Owner = Window.GetWindow(this) };
+                if (offer.ShowDialog() != true)
+                {
+                    return;
+                }
+
+                if (offer.DontOfferAgain)
+                {
+                    _settings.OfferArchive = false;
+                    _saveSettings();
+                }
+
+                if (offer.UseArchive)
+                {
+                    archiveName = TarGzPacker.ArchiveName(paths, DateTime.Now);
+                    archiveFiles = files;
+                    // L'archive arrive dans le dossier, puis son extraction y recrée les éléments déposés.
+                    names.Add(archiveName);
+                }
+            }
+        }
+
         // Écrasement : noms déjà dans le dossier, ou attendus d'un envoi en attente vers le même dossier.
         var existing = (FileList.ItemsSource as IEnumerable<RemoteEntry> ?? []).Select(e => e.Name)
             .Concat(_queue.Items
@@ -90,6 +121,12 @@ public partial class FileBrowserPanel
         }
 
         var protocol = _settings.UploadProtocol;
+        if (archiveName is not null)
+        {
+            EnqueueArchive(browser, session, paths, directory, archiveName, archiveFiles, names);
+            return;
+        }
+
         var label = paths.Count > 1 ? Text.Format(Strings.QueueItems, paths.Count) : names[0] + (Directory.Exists(paths[0]) ? "/" : "");
         Enqueue(new TransferItem(true, label, directory, async (item, ct) =>
         {
@@ -99,6 +136,46 @@ public partial class FileBrowserPanel
             foreach (var path in paths)
             {
                 await browser.UploadAsync(path, directory, protocol, item.Checks, progress, background: true, ct);
+            }
+        })
+        {
+            Owner = session,
+            Protocol = Protocol,
+            Names = names,
+        });
+    }
+
+    /// <summary>
+    /// Met en file l'envoi d'une archive .tar.gz des éléments déposés : créée dans un dossier temporaire de ce poste,
+    /// envoyée et vérifiée (SHA-256), puis supprimée du poste. La commande d'extraction est donnée à la fin.
+    /// </summary>
+    private void EnqueueArchive(RemoteFileBrowser browser, SshSession session, IReadOnlyList<string> paths, string directory,
+        string archiveName, int files, IReadOnlyList<string> names)
+    {
+        var protocol = _settings.UploadProtocol;
+        Enqueue(new TransferItem(true, Text.Format(Strings.ArchiveLabel, archiveName, files), directory, async (item, ct) =>
+        {
+            var progress = new Progress<TransferProgress>(item.Report);
+            item.FileCount = 1;
+            var folder = Path.Combine(Path.GetTempPath(), "CyberArkTerm", "archives", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(folder);
+            try
+            {
+                var archive = Path.Combine(folder, archiveName);
+                await TarGzPacker.CreateAsync(paths, archive, progress, ct);
+                await browser.UploadAsync(archive, directory, protocol, item.Checks, progress, background: true, ct);
+                item.ExtractCommand = TarGzPacker.ExtractCommand(directory, archiveName);
+            }
+            finally
+            {
+                try
+                {
+                    Directory.Delete(folder, recursive: true);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    Core.Diagnostics.DebugLog.Write("files", $"Archive temporaire non supprimée : {ex.Message}");
+                }
             }
         })
         {
@@ -189,7 +266,8 @@ public partial class FileBrowserPanel
 
     private void OnCurrentTransferChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(TransferItem.CurrentFile) or nameof(TransferItem.Verifying) or nameof(TransferItem.FileCount))
+        if (e.PropertyName is nameof(TransferItem.CurrentFile) or nameof(TransferItem.Verifying) or nameof(TransferItem.Packing)
+            or nameof(TransferItem.FileCount))
         {
             UpdateTransferStatus();
         }
@@ -203,7 +281,8 @@ public partial class FileBrowserPanel
             return;
         }
 
-        var text = item.Verifying ? Text.Format(Strings.VerifyingFile, item.CurrentFile)
+        var text = item.Packing ? Text.Format(Strings.ArchivePacking, item.Label)
+            : item.Verifying ? Text.Format(Strings.VerifyingFile, item.CurrentFile)
             : item.Upload ? Text.Format(Strings.Uploading, item.Protocol, item.Label, TransferStatusConverter.FileNumber(item), TransferStatusConverter.FileTotal(item))
             : Text.Format(Strings.Downloading, item.CurrentFile ?? item.Label);
         if (_queue.PendingCount is > 0 and var pending)
@@ -252,6 +331,7 @@ public partial class FileBrowserPanel
             var item = run[0];
             message = item.State switch
             {
+                TransferState.Done when item.ExtractCommand is not null => Text.Format(Strings.ArchiveSent, item.Label, item.Destination),
                 TransferState.Done when item.Upload => Text.Format(Strings.Uploaded, item.Names.Count, item.Protocol, item.Destination),
                 TransferState.Done => Text.Format(Strings.Downloaded, item.FileCount, item.Destination),
                 TransferState.Failed => Failure(item),
@@ -285,6 +365,9 @@ public partial class FileBrowserPanel
             }
         }
 
+        // Archives envoyées : la commande d'extraction se copie depuis la barre d'état.
+        _extractCommands = string.Join("\n", run.Where(i => i.State == TransferState.Done).Select(i => i.ExtractCommand).OfType<string>());
+        ExtractLink.Visibility = _extractCommands.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         ReportChecks(message, checks, error: failures.Count > 0);
 
         static string Failure(TransferItem item) =>
@@ -296,6 +379,22 @@ public partial class FileBrowserPanel
 {
     /// <summary>Historique (tests).</summary>
     internal TransferHistory History => _history;
+
+    private string _extractCommands = "";
+
+    private void OnCopyExtractCommand(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            // Pas un secret : presse-papiers ordinaire, à coller dans le terminal de la session.
+            Clipboard.SetText(_extractCommands + "\n");
+            SetStatus(Strings.ArchiveCommandCopied);
+        }
+        catch (System.Runtime.InteropServices.COMException)
+        {
+            SetStatus(Strings.ClipboardBusy, error: true);
+        }
+    }
 
     private void OnHistory(object sender, RoutedEventArgs e) =>
         new TransferHistoryDialog(_history, SaveHistory) { Owner = Window.GetWindow(this) }.ShowDialog();
@@ -343,6 +442,7 @@ public sealed class TransferStatusConverter : IMultiValueConverter
     {
         TransferState.Pending => Strings.QueueStateWaiting,
         TransferState.Running when item.CancelRequested => Strings.QueueStateCancelling,
+        TransferState.Running when item.Packing => Text.Format(Strings.QueueStatePacking, Math.Round(item.Percent)),
         TransferState.Running when item.Verifying => Text.Format(Strings.QueueStateVerifying, FileNumber(item), FileTotal(item)),
         TransferState.Running => Text.Format(Strings.QueueStateRunning, Math.Round(item.Percent), FileNumber(item), FileTotal(item)),
         TransferState.Done when item.Checks.Count(c => c.Verified && !c.Matches) is > 0 and var different =>

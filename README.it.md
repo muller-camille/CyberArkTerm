@@ -203,6 +203,15 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   (nuova sessione PSMP). Un errore viene mostrato nella coda e la coda prosegue; alla fine, un unico riepilogo.
   Navigazione, eliminazione, permessi, editor e trascinamento verso Esplora file passano tra due file. Chiudere la
   scheda o l'applicazione con trasferimenti in corso chiede conferma.
+- **Molti file insieme: archivio .tar.gz**: da 200 file rilasciati (soglia nelle Impostazioni, opzione «Proporre
+  un archivio .tar.gz»), CyberArkTerm propone di inviarli in un unico archivio: un solo file da trasferire e
+  verificare invece di migliaia, molto più veloce tramite il PSMP. L'archivio viene creato sul computer (nella coda,
+  annullabile), inviato e verificato (SHA-256), poi eliminato dal computer; ogni elemento rilasciato è alla radice
+  dell'archivio (permessi 0644 e 0755). Nulla viene eseguito sul server: «Copia il comando di estrazione» (barra di
+  stato) fornisce il comando da incollare nel terminale, per esempio
+  `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (l'archivio viene eliminato
+  dal server dopo l'estrazione). «Invia i file uno per uno» mantiene l'invio abituale; «Non proporre più» disattiva
+  l'opzione.
 - **Cronologia dei trasferimenti**: pulsante orologio nell'intestazione della scheda File, disponibile anche senza
   sessione. Elenca gli ultimi 200 invii e download (trascinamento compreso): data, direzione, server, elemento,
   destinazione, numero di file, risultato. Filtro «Invii» / «Download»; «Checksum…» (o doppio clic) mostra i

@@ -389,6 +389,96 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Extraction command copied: paste it in the terminal of the session (it deletes the archive once e[rest of string was truncated].
+        /// </summary>
+        public static string ArchiveCommandCopied {
+            get {
+                return ResourceManager.GetString("ArchiveCommandCopied", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copy the extraction command.
+        /// </summary>
+        public static string ArchiveCopyCommand {
+            get {
+                return ResourceManager.GetString("ArchiveCopyCommand", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ({1} files).
+        /// </summary>
+        public static string ArchiveLabel {
+            get {
+                return ResourceManager.GetString("ArchiveLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send a ._tar.gz archive.
+        /// </summary>
+        public static string ArchiveOfferArchive {
+            get {
+                return ResourceManager.GetString("ArchiveOfferArchive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send the _files one by one.
+        /// </summary>
+        public static string ArchiveOfferFiles {
+            get {
+                return ResourceManager.GetString("ArchiveOfferFiles", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Don't offer again (can be turned back on in Settings).
+        /// </summary>
+        public static string ArchiveOfferNever {
+            get {
+                return ResourceManager.GetString("ArchiveOfferNever", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You are sending {0} files ({1}) to {2}.  Send them in a single .tar.gz archive? One file to trans[rest of string was truncated].
+        /// </summary>
+        public static string ArchiveOfferText {
+            get {
+                return ResourceManager.GetString("ArchiveOfferText", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Many files.
+        /// </summary>
+        public static string ArchiveOfferTitle {
+            get {
+                return ResourceManager.GetString("ArchiveOfferTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Preparing the archive {0}….
+        /// </summary>
+        public static string ArchivePacking {
+            get {
+                return ResourceManager.GetString("ArchivePacking", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Archive {0} sent to {1}: copy the extraction command and paste it in the terminal of the session.
+        /// </summary>
+        public static string ArchiveSent {
+            get {
+                return ResourceManager.GetString("ArchiveSent", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Browse….
         /// </summary>
         public static string Browse {
@@ -2293,6 +2383,15 @@ namespace CyberArkTerm.App.Localization {
         public static string ImportTitle {
             get {
                 return ResourceManager.GetString("ImportTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The number of files for the archive must be 2 or more..
+        /// </summary>
+        public static string InvalidArchiveThreshold {
+            get {
+                return ResourceManager.GetString("InvalidArchiveThreshold", resourceCulture);
             }
         }
 
@@ -4268,6 +4367,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to packing .tar.gz · {0} %.
+        /// </summary>
+        public static string QueueStatePacking {
+            get {
+                return ResourceManager.GetString("QueueStatePacking", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to {0} % · file {1}/{2}.
         /// </summary>
         public static string QueueStateRunning {
@@ -5407,6 +5515,33 @@ namespace CyberArkTerm.App.Localization {
         public static string SetUidTip {
             get {
                 return ResourceManager.GetString("SetUidTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to files dropped at once.
+        /// </summary>
+        public static string SettingsArchiveFiles {
+            get {
+                return ResourceManager.GetString("SettingsArchiveFiles", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Offer a single ._tar.gz archive from.
+        /// </summary>
+        public static string SettingsArchiveOffer {
+            get {
+                return ResourceManager.GetString("SettingsArchiveOffer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to When you drop many files at once in the Files tab, CyberArkTerm offers to pack them into one .tar[rest of string was truncated].
+        /// </summary>
+        public static string SettingsArchiveTip {
+            get {
+                return ResourceManager.GetString("SettingsArchiveTip", resourceCulture);
             }
         }
 

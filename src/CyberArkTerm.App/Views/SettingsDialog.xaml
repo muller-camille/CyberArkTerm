@@ -53,6 +53,14 @@
             <RadioButton x:Name="ScpRadio" Content="SCP" GroupName="Upload" Margin="0,0,16,0" VerticalAlignment="Center" />
             <RadioButton x:Name="SftpRadio" Content="SFTP" GroupName="Upload" VerticalAlignment="Center" />
         </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8" ToolTip="{x:Static loc:Strings.SettingsArchiveTip}">
+            <CheckBox x:Name="ArchiveBox" VerticalAlignment="Center">
+                <AccessText Text="{x:Static loc:Strings.SettingsArchiveOffer}" />
+            </CheckBox>
+            <TextBox x:Name="ArchiveThresholdBox" Width="60" Margin="6,0,6,0" VerticalAlignment="Center"
+                     IsEnabled="{Binding IsChecked, ElementName=ArchiveBox}" />
+            <TextBlock Text="{x:Static loc:Strings.SettingsArchiveFiles}" VerticalAlignment="Center" />
+        </StackPanel>
         <Grid Margin="0,0,0,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="140" />

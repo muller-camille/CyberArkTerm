@@ -24,6 +24,7 @@ public sealed class TransferItem(bool upload, string label, string destination, 
     private double _percent;
     private string? _currentFile;
     private bool _verifying;
+    private bool _packing;
     private string? _error;
     private int _fileCount;
 
@@ -82,6 +83,16 @@ public sealed class TransferItem(bool upload, string label, string destination, 
         private set => Set(ref _verifying, value);
     }
 
+    /// <summary>Création de l'archive .tar.gz de l'envoi.</summary>
+    public bool Packing
+    {
+        get => _packing;
+        private set => Set(ref _packing, value);
+    }
+
+    /// <summary>Envoi en archive .tar.gz : commande à lancer sur le serveur pour l'extraire.</summary>
+    public string? ExtractCommand { get; set; }
+
     public string? Error
     {
         get => _error;
@@ -100,6 +111,7 @@ public sealed class TransferItem(bool upload, string label, string destination, 
     {
         CurrentFile = progress.FileName;
         Verifying = progress.Verifying;
+        Packing = progress.Packing;
         Percent = progress.Total > 0 ? Math.Min(100, 100.0 * progress.Transferred / progress.Total) : 0;
     }
 

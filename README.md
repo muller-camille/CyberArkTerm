@@ -209,6 +209,15 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   session PSMP). Une erreur est affichée dans la file et la file continue ; à la fin, un seul bilan. La navigation,
   la suppression, les droits, l'éditeur et le glisser vers l'Explorateur passent entre deux fichiers. Fermer
   l'onglet ou l'application avec des transferts en cours demande confirmation.
+- **Beaucoup de fichiers d'un coup : archive .tar.gz** : à partir de 200 fichiers déposés (seuil réglable, option
+  « Proposer une archive .tar.gz » des Paramètres), CyberArkTerm propose de les envoyer dans une seule archive :
+  un fichier à transférer et à vérifier au lieu de milliers, beaucoup plus rapide via le PSMP. L'archive est créée
+  sur le poste (dans la file, annulable), envoyée et vérifiée (SHA-256), puis supprimée du poste ; chaque élément
+  déposé est à la racine de l'archive (droits 0644 et 0755). Rien n'est exécuté sur le serveur : « Copier la
+  commande d'extraction » (barre d'état) donne la commande à coller dans le terminal, par exemple
+  `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (l'archive est supprimée
+  du serveur une fois extraite). « Envoyer les fichiers un par un » garde l'envoi habituel ; « Ne plus proposer »
+  décoche l'option.
 - **Historique des transferts** : bouton horloge dans l'en-tête de l'onglet Fichiers, disponible même sans
   session. Il liste les 200 derniers envois et téléchargements (y compris par glisser-déposer) : date, sens,
   serveur, élément, destination, nombre de fichiers, résultat. Filtre « Envois » / « Téléchargements » ;

@@ -913,6 +913,53 @@ Continuare?</value>
   <data name="ChecksSomeInterrupted" xml:space="preserve">
     <value>⏹ {0} file su {1} interrotto/i da un annullamento: copia incompleta eliminata.</value>
   </data>
+  <data name="SettingsArchiveOffer" xml:space="preserve">
+    <value>Proporre un archivio ._tar.gz a partire da</value>
+  </data>
+  <data name="SettingsArchiveFiles" xml:space="preserve">
+    <value>file rilasciati insieme</value>
+  </data>
+  <data name="SettingsArchiveTip" xml:space="preserve">
+    <value>Quando rilasci molti file insieme nella scheda File, CyberArkTerm propone di riunirli in un archivio .tar.gz: un solo file da trasferire e verificare invece di migliaia, molto più veloce tramite il PSMP. Lo estrai poi sul server con il comando indicato.</value>
+  </data>
+  <data name="InvalidArchiveThreshold" xml:space="preserve">
+    <value>Il numero di file per l'archivio deve essere almeno 2.</value>
+  </data>
+  <data name="ArchiveOfferTitle" xml:space="preserve">
+    <value>Molti file</value>
+  </data>
+  <data name="ArchiveOfferText" xml:space="preserve">
+    <value>Stai inviando {0} file ({1}) a {2}.
+
+Inviarli in un unico archivio .tar.gz? Un solo file da trasferire e verificare invece di {0}: molto più veloce tramite il PSMP. L'archivio viene creato su questo computer, inviato, verificato (SHA-256), poi eliminato da questo computer; lo estrai sul server con il comando fornito alla fine (da copiare nel terminale).</value>
+  </data>
+  <data name="ArchiveOfferArchive" xml:space="preserve">
+    <value>Invia un archivio ._tar.gz</value>
+  </data>
+  <data name="ArchiveOfferFiles" xml:space="preserve">
+    <value>Invia i _file uno per uno</value>
+  </data>
+  <data name="ArchiveOfferNever" xml:space="preserve">
+    <value>Non _proporre più (riattivabile nelle Impostazioni)</value>
+  </data>
+  <data name="ArchiveLabel" xml:space="preserve">
+    <value>{0} ({1} file)</value>
+  </data>
+  <data name="ArchivePacking" xml:space="preserve">
+    <value>Preparazione dell'archivio {0}…</value>
+  </data>
+  <data name="QueueStatePacking" xml:space="preserve">
+    <value>archivio .tar.gz · {0} %</value>
+  </data>
+  <data name="ArchiveSent" xml:space="preserve">
+    <value>Archivio {0} inviato a {1}: copia il comando di estrazione e incollalo nel terminale della sessione</value>
+  </data>
+  <data name="ArchiveCopyCommand" xml:space="preserve">
+    <value>Copia il comando di estrazione</value>
+  </data>
+  <data name="ArchiveCommandCopied" xml:space="preserve">
+    <value>Comando di estrazione copiato: incollalo nel terminale della sessione (elimina l'archivio dopo l'estrazione).</value>
+  </data>
   <data name="HistoryTip" xml:space="preserve">
     <value>Cronologia dei trasferimenti (invii e download)</value>
   </data>

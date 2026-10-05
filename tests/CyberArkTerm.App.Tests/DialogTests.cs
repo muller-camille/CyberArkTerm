@@ -305,6 +305,38 @@ public sealed class DialogTests
     }
 
     /// <summary>
+    /// Gros envoi : la proposition d'archive donne le nombre de fichiers, la taille et la destination ; l'option des
+    /// Paramètres (case et seuil) est lue et enregistrée ; l'état « archive » s'affiche dans la file.
+    /// </summary>
+    [Fact]
+    public void ArchiveOfferAndSettingOpen()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var offer = new ArchiveOfferDialog(2345, 5L * 1024 * 1024, "/opt/app");
+            Assert.Contains("/opt/app", offer.MessageText.Text);
+            Assert.Contains(RemotePath.FormatSize(5L * 1024 * 1024), offer.MessageText.Text);
+            Assert.False(offer.UseArchive);
+            Assert.False(offer.DontOfferAgain);
+            offer.Close();
+
+            var settings = new AppSettings { OfferArchive = true, ArchiveThreshold = 500 };
+            var dialog = new SettingsDialog(settings);
+            Assert.Equal((true, "500"), (dialog.ArchiveBox.IsChecked, dialog.ArchiveThresholdBox.Text));
+            dialog.Close();
+
+            var item = new TransferItem(true, "deploy.tar.gz (2345)", "/opt/app", (_, _) => Task.CompletedTask);
+            item.Report(new TransferProgress("deploy.tar.gz", 50, 200, Packing: true));
+            Assert.True(item.Packing);
+        });
+    }
+
+    /// <summary>
     /// Thread STA avec l'objet <c>Application</c> et le thème (comme dans CyberArkTerm), retiré ensuite pour que les
     /// autres tests ne trouvent pas de ressources liées à ce thread.
     /// </summary>
