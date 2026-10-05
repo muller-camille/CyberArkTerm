@@ -336,9 +336,9 @@ public sealed class DialogTests
         });
     }
 
-    /// <summary>Suivi d'un fichier : nouvelles lignes, filtre sans tenir compte de la casse, connexion fermée.</summary>
+    /// <summary>Suivi d'un fichier : nouvelles lignes, filtre, exclusion, contexte, recherche, repère.</summary>
     [Fact]
-    public void TailWindowFollowsAndFilters()
+    public void TailWindowFollowsFiltersAndSearches()
     {
         if (!OperatingSystem.IsWindows())
         {
@@ -348,25 +348,197 @@ public sealed class DialogTests
         RunWithTheme(() =>
         {
             SynchronizationContext.SetSynchronizationContext(null);
-            var file = new MemoryFile();
-            file.Append("info démarrage\nerreur disque\n");
-            bool connected = true;
-            var window = new TailWindow(file, "/var/log/app.log", "root@srv01", () => connected);
+            var link = new MemoryLink("root@srv01");
+            var file = link.Add("/var/log/app.log");
+            file.Append("a\nERROR disque\nb\nc\nd\nerror réseau\n");
+            var window = new TailWindow(new AppSettings(), () => { });
+            window.AddFeed(link, "/var/log/app.log");
             Assert.Contains("/var/log/app.log", window.Title);
 
             window.PollAsync().GetAwaiter().GetResult();
-            Assert.Equal("info démarrage\nerreur disque\n", window.Shown);
+            Assert.Equal("a\nERROR disque\nb\nc\nd\nerror réseau\n", window.Shown);
+            Assert.Equal(RemotePath.FormatSize(file.Length), window.Feeds[0].Status);
 
-            window.FilterBox.Text = "ERREUR";
-            Assert.Equal("erreur disque\n", window.Shown);
-            file.Append("info suite\nerreur réseau\n");
-            window.PollAsync().GetAwaiter().GetResult();
-            Assert.Equal("erreur disque\nerreur réseau\n", window.Shown);
+            window.FilterBox.Text = "error";
+            Assert.Equal("ERROR disque\nerror réseau\n", window.Shown);
+            window.ExcludeBox.Text = "DISQUE";
+            Assert.Equal("error réseau\n", window.Shown);
+            window.ExcludeBox.Text = "";
 
-            connected = false;
+            // Contexte d'une ligne, comme grep -C 1.
+            window.ContextBox.SelectedItem = 1;
+            Assert.Equal("a\nERROR disque\nb\n--\nd\nerror réseau\n", window.Shown);
+            window.ContextBox.SelectedItem = 0;
+
+            // Expression régulière ; une expression invalide n'est pas appliquée.
+            window.FilterBox.Text = "r(é|e)seau$";
+            window.RegexBox.IsChecked = true;
+            window.RegexBox.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+            Assert.Equal("error réseau\n", window.Shown);
+            window.FilterBox.Text = "(";
+            Assert.Equal(6, window.Shown.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length);
+            window.FilterBox.Text = "";
+
+            // Les lignes qui arrivent passent par le filtre.
+            window.FilterBox.Text = "error";
+            file.Append("info\nERROR base\n");
             window.PollAsync().GetAwaiter().GetResult();
-            Assert.Equal(Strings.TailClosed, window.StatusText.Text);
+            Assert.EndsWith("error réseau\nERROR base\n", window.Shown);
+            window.FilterBox.Text = "";
+
+            // Recherche sans filtrer : sélection de la ligne trouvée, la vue ne suit plus la fin.
+            window.SearchBox.Text = "réseau";
+            window.FindNext(1);
+            Assert.Equal(5, window.LogList.SelectedIndex);
+            Assert.False(window.FollowBox.IsChecked);
+            Assert.Equal(Text.Format(Strings.TailSearchCount, 1, 1), window.SearchCount.Text);
+            window.SearchBox.Text = "introuvable";
+            window.FindNext(1);
+            Assert.Equal(Strings.TailSearchNone, window.SearchCount.Text);
+
+            window.AddUserMarker();
+            Assert.Matches("—— \\d\\d:\\d\\d:\\d\\d ——\n$", window.Shown);
             window.Close();
+            Assert.True(link.Disposed);
+        });
+    }
+
+    /// <summary>Alertes : seulement sur les nouvelles lignes ; la notification ne contient pas la ligne.</summary>
+    [Fact]
+    public void TailWindowRaisesAlerts()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            SynchronizationContext.SetSynchronizationContext(null);
+            var link = new MemoryLink("root@srv01");
+            var file = link.Add("/var/log/app.log");
+            file.Append("java.lang.OutOfMemoryError: ancien\n");
+            var notes = new List<string>();
+            var window = new TailWindow(new AppSettings { TailAlerts = "OutOfMemory, refused" }, () => { }) { Notifier = (_, text) => notes.Add(text) };
+            window.AddFeed(link, "/var/log/app.log");
+            window.PollAsync().GetAwaiter().GetResult();
+            Assert.Equal(0, window.AlertCount);
+
+            file.Append("Connection REFUSED by db01\nok\njava.lang.OutOfMemoryError: Java heap space\n");
+            window.PollAsync().GetAwaiter().GetResult();
+            Assert.Equal(2, window.AlertCount);
+            Assert.Equal(Visibility.Visible, window.AlertButton.Visibility);
+            var note = Assert.Single(notes);
+            Assert.Contains("app.log", note);
+            Assert.DoesNotContain("heap", note);
+            Assert.DoesNotContain("db01", note);
+
+            // Une seule notification par période, même si d'autres alertes arrivent.
+            file.Append("refused again\n");
+            window.PollAsync().GetAwaiter().GetResult();
+            Assert.Equal(3, window.AlertCount);
+            Assert.Single(notes);
+            window.Close();
+        });
+    }
+
+    /// <summary>Vue combinée, connexion perdue puis reprise, fin de session, enregistrement.</summary>
+    [Fact]
+    public void TailWindowCombinesResumesAndRecords()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            SynchronizationContext.SetSynchronizationContext(null);
+            var connector = new CyberArkTerm.Core.Ssh.SshConnector("127.0.0.1", 22, "root", new NoInteraction());
+            var session = new CyberArkTerm.App.Services.SshSession(null, "root@srv02", connector,
+                System.Windows.Threading.Dispatcher.CurrentDispatcher, followTerminal: false, saved: null);
+            var first = new MemoryLink("root@srv01");
+            var second = new MemoryLink("root@srv02", session);
+            first.Add("/var/log/app.log").Append("un\n");
+            var other = second.Add("/var/log/other.log");
+            other.Append("deux\n");
+            var window = new TailWindow(new AppSettings(), () => { });
+            window.AddFeed(first, "/var/log/app.log");
+            window.AddFeed(second, "/var/log/other.log");
+            Assert.Equal(Text.Format(Strings.TailTitleMany, 2), window.Title);
+            window.PollAsync().GetAwaiter().GetResult();
+            Assert.Contains("[root@srv01 app.log] un\n", window.Shown);
+            Assert.Contains("[root@srv02 other.log] deux\n", window.Shown);
+
+            var directory = Path.Combine(Path.GetTempPath(), $"cat-tail-{Guid.NewGuid():N}");
+            Directory.CreateDirectory(directory);
+            try
+            {
+                var record = Path.Combine(directory, "record.log");
+                window.StartRecording(record);
+
+                // Connexion perdue : repère, attente ; reconnexion : les lignes écrites entre-temps arrivent.
+                second.Connected = false;
+                window.PollAsync().GetAwaiter().GetResult();
+                Assert.Contains("[root@srv02 other.log] " + Strings.TailLostMarker, window.Shown);
+                Assert.Equal(Strings.TailWaiting, window.Feeds[1].Status);
+                Assert.Equal(Visibility.Visible, window.ReconnectButton.Visibility);
+                other.Append("trois\n");
+                second.Connected = true;
+                second.Generation++;
+                window.PollAsync().GetAwaiter().GetResult();
+                Assert.EndsWith("[root@srv02 other.log] " + Strings.TailResumedMarker + "\n[root@srv02 other.log] trois\n", window.Shown);
+
+                // Session fermée : le fichier n'est plus suivi, les lignes restent.
+                window.EndSession(session);
+                Assert.True(second.Disposed);
+                Assert.Equal(Strings.TailSessionClosed, window.Feeds[1].Status);
+                Assert.Contains(Strings.TailSessionClosedMarker, window.Shown);
+
+                var save = Path.Combine(directory, "save.log");
+                window.SaveTo(save);
+                Assert.Equal(window.Shown.TrimEnd('\n').Split('\n'), File.ReadAllLines(save));
+
+                window.Close();
+                var recorded = File.ReadAllText(record);
+                Assert.StartsWith("[root@srv01 app.log] un\r\n[root@srv02 other.log] deux\r\n", recorded);
+                Assert.Contains("[root@srv02 other.log] trois\r\n", recorded);
+            }
+            finally
+            {
+                Directory.Delete(directory, recursive: true);
+                session.Dispose();
+            }
+        });
+    }
+
+    /// <summary>Couleur du niveau, mots surlignés et préfixe du fichier dans le texte affiché d'une ligne.</summary>
+    [Fact]
+    public void TailLinesAreColoured()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var feed = new TailFeed(new MemoryLink("root@srv01"), "/var/log/app.log", TailBrushes.Sources[0]);
+            var style = new TailStyle(["db01"], null, Colors: true, Prefixes: true, Wrap: false);
+            var block = new System.Windows.Controls.TextBlock();
+            TailRowText.SetRow(block, new TailRow(new TailLine("12:00 ERROR db01 down", feed, TailLevel.Error, false), TailShownKind.Line, style));
+            Assert.Same(TailBrushes.Error, block.Foreground);
+            var runs = block.Inlines.OfType<System.Windows.Documents.Run>().ToList();
+            Assert.Equal("[root@srv01 app.log] ", runs[0].Text);
+            Assert.Contains(runs, r => r.Text == "db01" && ReferenceEquals(r.Background, TailBrushes.Highlight));
+
+            TailRowText.SetRow(block, new TailRow(new TailLine("12:00 INFO ok", feed, TailLevel.None, false), TailShownKind.Line, style with { Colors = false }));
+            Assert.NotSame(TailBrushes.Error, block.Foreground);
+
+            var settings = new AppSettings { TailIndependentSession = true };
+            var dialog = new SettingsDialog(settings);
+            Assert.True(dialog.TailSessionBox.IsChecked);
+            dialog.Close();
         });
     }
 
@@ -409,12 +581,52 @@ public sealed class DialogTests
     {
         private readonly List<byte> _content = [];
 
+        public long Length => _content.Count;
+
         public void Append(string text) => _content.AddRange(System.Text.Encoding.UTF8.GetBytes(text));
 
         public Task<long> GetSizeAsync(CancellationToken ct) => Task.FromResult((long)_content.Count);
 
         public Task<byte[]> ReadAsync(long offset, int count, CancellationToken ct) =>
             Task.FromResult(_content.Skip((int)offset).Take(count).ToArray());
+    }
+
+    /// <summary>Connexion de suivi en mémoire : fichiers par chemin, coupure et reconnexion à la demande.</summary>
+    private sealed class MemoryLink(string server, CyberArkTerm.App.Services.SshSession? session = null) : ITailLink
+    {
+        private readonly Dictionary<string, MemoryFile> _files = [];
+
+        public bool Connected { get; set; } = true;
+
+        public bool Disposed { get; private set; }
+
+        public string Server => server;
+
+        public CyberArkTerm.App.Services.SshSession? Session => session;
+
+        public bool Dedicated => false;
+
+        public int Generation { get; set; } = 1;
+
+        public bool IsConnecting => false;
+
+        public string? Error => null;
+
+        public bool CanReconnect => false;
+
+        public MemoryFile Add(string path) => _files[path] = new MemoryFile();
+
+        public bool CheckConnected() => Connected && !Disposed;
+
+        public void RequestReconnect()
+        {
+        }
+
+        public Task ReconnectAsync() => Task.CompletedTask;
+
+        public ITailSource Source(string path) => _files[path];
+
+        public void Dispose() => Disposed = true;
     }
 
     /// <summary>

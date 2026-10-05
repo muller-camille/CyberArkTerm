@@ -1,0 +1,432 @@
+using System.ComponentModel;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
+using CyberArkTerm.App.Localization;
+using CyberArkTerm.App.Services;
+using CyberArkTerm.Core.Ssh;
+
+namespace CyberArkTerm.App.Views;
+
+/// <summary>Connexion d'une fenêtre de suivi à un serveur.</summary>
+internal interface ITailLink : IDisposable
+{
+    /// <summary>Serveur (libellé de la session).</summary>
+    string Server { get; }
+
+    /// <summary>Session d'origine : le suivi s'arrête quand elle se ferme.</summary>
+    SshSession? Session { get; }
+
+    /// <summary>Connexion SFTP propre au suivi (option « session indépendante »).</summary>
+    bool Dedicated { get; }
+
+    /// <summary>Numéro de la connexion en cours : il change quand une nouvelle connexion remplace la précédente.</summary>
+    int Generation { get; }
+
+    bool IsConnecting { get; }
+
+    /// <summary>Échec de la dernière tentative de connexion.</summary>
+    string? Error { get; }
+
+    /// <summary>Une connexion peut être ouverte maintenant, sans que l'utilisateur la demande.</summary>
+    bool CanReconnect { get; }
+
+    /// <summary>La connexion est ouverte.</summary>
+    bool CheckConnected();
+
+    /// <summary>Bouton « Reconnecter » : la prochaine relève rouvre la connexion.</summary>
+    void RequestReconnect();
+
+    Task ReconnectAsync();
+
+    ITailSource Source(string path);
+}
+
+/// <summary>
+/// Connexion d'une fenêtre de suivi à une session SSH : celle de l'onglet Fichiers (partagée), ou une connexion SFTP
+/// dédiée, fermée avec la fenêtre. Une connexion perdue n'est rouverte que quand l'onglet se reconnecte ou sur le
+/// bouton « Reconnecter » : jamais en boucle, chaque connexion étant une session PSMP (et peut-être une demande MFA).
+/// </summary>
+internal sealed class SessionTailLink : ITailLink
+{
+    private readonly SshSession _session;
+    private RemoteFileBrowser? _browser;
+    private Task? _connecting;
+    private bool _wanted;
+    private bool _disposed;
+    private SshSessionState _lastState;
+
+    /// <param name="shared">Connexion de l'onglet Fichiers, utilisée si le suivi n'est pas indépendant.</param>
+    public SessionTailLink(SshSession session, bool dedicated, RemoteFileBrowser? shared)
+    {
+        _session = session;
+        Dedicated = dedicated;
+        if (!dedicated && shared is not null)
+        {
+            _browser = shared;
+            Generation = 1;
+        }
+
+        // Connexion dédiée : ouverte dès la première relève.
+        _wanted = _browser is null;
+        _lastState = session.State;
+        session.StateChanged += OnStateChanged;
+    }
+
+    public string Server => _session.Label;
+
+    public SshSession? Session => _session;
+
+    public bool Dedicated { get; }
+
+    public int Generation { get; private set; }
+
+    public string? Error { get; private set; }
+
+    public bool IsConnecting => _connecting is { IsCompleted: false };
+
+    public bool CanReconnect =>
+        _wanted && !_disposed && !_session.IsDisposed && _session.State == SshSessionState.Connected && !IsConnecting;
+
+    public bool CheckConnected()
+    {
+        if (_disposed)
+        {
+            return false;
+        }
+
+        if (IsAlive(_browser))
+        {
+            _wanted = false;
+            return true;
+        }
+
+        if (!Dedicated && _session.OpenedBrowser is { } opened && !ReferenceEquals(opened, _browser))
+        {
+            // L'onglet Fichiers a rouvert la connexion de la session : le suivi la reprend.
+            _browser = opened;
+            Generation++;
+            Error = null;
+            _wanted = false;
+            return true;
+        }
+
+        return false;
+    }
+
+    public void RequestReconnect() => _wanted = true;
+
+    public Task ReconnectAsync()
+    {
+        if (_connecting is { IsCompleted: false } running)
+        {
+            return running;
+        }
+
+        _wanted = false;
+        return _connecting = ConnectAsync();
+    }
+
+    private async Task ConnectAsync()
+    {
+        try
+        {
+            var browser = Dedicated ? await _session.OpenDedicatedBrowserAsync() : await _session.GetBrowserAsync();
+            if (_disposed)
+            {
+                if (Dedicated)
+                {
+                    _session.CloseDedicatedBrowser(browser);
+                }
+
+                return;
+            }
+
+            if (Dedicated && _browser is { } previous)
+            {
+                _session.CloseDedicatedBrowser(previous);
+            }
+
+            _browser = browser;
+            Generation++;
+            Error = null;
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            Error = ErrorText.Describe(ex);
+        }
+    }
+
+    public ITailSource Source(string path) => (_browser ?? throw new InvalidOperationException("Not connected.")).TailSource(path);
+
+    private void OnStateChanged()
+    {
+        // L'onglet s'est reconnecté : les fichiers suivis reprennent, sur une nouvelle connexion si l'ancienne est perdue.
+        if (_session.State == SshSessionState.Connected && _lastState != SshSessionState.Connected)
+        {
+            _wanted = true;
+        }
+
+        _lastState = _session.State;
+    }
+
+    private static bool IsAlive(RemoteFileBrowser? browser)
+    {
+        try
+        {
+            return browser?.IsConnected == true;
+        }
+        catch (ObjectDisposedException)
+        {
+            return false;
+        }
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        _session.StateChanged -= OnStateChanged;
+        if (Dedicated && _browser is { } browser)
+        {
+            _session.CloseDedicatedBrowser(browser);
+        }
+
+        _browser = null;
+    }
+}
+
+/// <summary>Fichier suivi dans une fenêtre (une source de la vue combinée).</summary>
+internal sealed class TailFeed : INotifyPropertyChanged
+{
+    public TailFeed(ITailLink link, string path, Brush brush)
+    {
+        Link = link;
+        Path = path;
+        Brush = brush;
+        Tail = new FileTail(NoSource.Instance);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public ITailLink Link { get; }
+
+    public string Path { get; }
+
+    /// <summary>Préfixe des lignes dans la vue combinée, par ex. « root@srv01 app.log ».</summary>
+    public string Label => $"{Link.Server} {RemotePath.Name(Path)}";
+
+    public string Tip => $"{Link.Server} : {Path}";
+
+    public Brush Brush { get; }
+
+    public FileTail Tail { get; }
+
+    public TailLineSplitter Splitter { get; } = new();
+
+    /// <summary>Dernier changement de la ligne en cours d'écriture.</summary>
+    public DateTime PartialSince { get; set; }
+
+    /// <summary>Connexion dont l'accès au fichier est utilisé.</summary>
+    public int Generation { get; set; }
+
+    /// <summary>Premier relevé fait : les lignes suivantes, nouvelles, peuvent déclencher une alerte.</summary>
+    public bool Started { get; set; }
+
+    /// <summary>Repère « connexion perdue » affiché, en attente de reconnexion.</summary>
+    public bool Lost { get; set; }
+
+    public bool Busy { get; set; }
+
+    public bool Stopped { get; set; }
+
+    public DateTime NextAttempt { get; set; }
+
+    public string Status { get; private set; } = "";
+
+    public Brush StatusBrush { get; private set; } = TailBrushes.Muted;
+
+    public void SetStatus(string text, bool error)
+    {
+        Status = text;
+        StatusBrush = error ? TailBrushes.Error : TailBrushes.Muted;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Status)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatusBrush)));
+    }
+
+    /// <summary>Avant la première connexion.</summary>
+    private sealed class NoSource : ITailSource
+    {
+        public static readonly NoSource Instance = new();
+
+        public Task<long> GetSizeAsync(CancellationToken ct) => throw new InvalidOperationException("Not connected.");
+
+        public Task<byte[]> ReadAsync(long offset, int count, CancellationToken ct) => throw new InvalidOperationException("Not connected.");
+    }
+}
+
+/// <summary>Ligne reçue (ou repère).</summary>
+internal sealed class TailLine(string text, TailFeed? feed, TailLevel level, bool marker)
+{
+    public string Text { get; } = text;
+
+    /// <summary>Fichier d'origine ; null pour un repère ajouté par l'utilisateur.</summary>
+    public TailFeed? Feed { get; } = feed;
+
+    public TailLevel Level { get; } = level;
+
+    public bool IsMarker { get; } = marker;
+
+    public bool IsAlert { get; set; }
+
+    /// <summary>Texte copié ou enregistré : préfixé par le fichier d'origine dans la vue combinée.</summary>
+    public string Format(bool prefix) => prefix && Feed is not null ? $"[{Feed.Label}] {Text}" : Text;
+}
+
+/// <summary>Réglages d'affichage communs à toutes les lignes.</summary>
+internal sealed record TailStyle(IReadOnlyList<string> Highlights, TailPattern? Search, bool Colors, bool Prefixes, bool Wrap);
+
+/// <summary>Ligne affichée : ligne reçue (retenue par le filtre ou de contexte) ou séparateur « -- ».</summary>
+internal sealed class TailRow(TailLine? line, TailShownKind kind, TailStyle style)
+{
+    public TailLine? Line { get; } = line;
+
+    public TailShownKind Kind { get; } = kind;
+
+    public TailStyle Style { get; } = style;
+
+    /// <summary>Fond de la ligne : rose pâle pour une ligne d'alerte.</summary>
+    public Brush Background => Kind == TailShownKind.Line && Line?.IsAlert == true ? TailBrushes.Alert : Brushes.Transparent;
+
+    public bool IsText => Kind != TailShownKind.Separator && Line is { IsMarker: false };
+
+    public string Text => Kind == TailShownKind.Separator ? "--" : Line!.Format(Style.Prefixes);
+}
+
+internal static class TailBrushes
+{
+    public static readonly Brush Error = Frozen(0xC6, 0x28, 0x28);
+    public static readonly Brush Warning = Frozen(0xB2, 0x6A, 0x00);
+    public static readonly Brush Muted = Frozen(0x6B, 0x77, 0x85);
+    public static readonly Brush Context = Frozen(0x8A, 0x93, 0x9E);
+    public static readonly Brush Marker = Frozen(0x3F, 0x51, 0xB5);
+    public static readonly Brush Highlight = Frozen(0xFF, 0xF1, 0x76);
+    public static readonly Brush Match = Frozen(0xFF, 0xB7, 0x4D);
+    public static readonly Brush Alert = Frozen(0xFD, 0xEC, 0xEA);
+
+    /// <summary>Couleurs des fichiers de la vue combinée (ni rouge ni orange, réservés aux niveaux).</summary>
+    public static readonly Brush[] Sources =
+    [
+        Frozen(0x15, 0x65, 0xC0), Frozen(0x2E, 0x7D, 0x32), Frozen(0x6A, 0x1B, 0x9A), Frozen(0x00, 0x83, 0x8F),
+        Frozen(0xAD, 0x14, 0x57), Frozen(0x4E, 0x34, 0x2E), Frozen(0x28, 0x35, 0x93), Frozen(0x55, 0x8B, 0x2F),
+    ];
+
+    public static Brush? Level(TailLevel level) => level switch
+    {
+        TailLevel.Error => Error,
+        TailLevel.Warning => Warning,
+        _ => null,
+    };
+
+    private static Brush Frozen(byte r, byte g, byte b)
+    {
+        var brush = new SolidColorBrush(Color.FromRgb(r, g, b));
+        brush.Freeze();
+        return brush;
+    }
+}
+
+/// <summary>
+/// Contenu d'un <see cref="TextBlock"/> de la liste des lignes : préfixe coloré du fichier, couleur du niveau, mots
+/// surlignés et résultats de recherche. Construit à l'affichage seulement (liste virtualisée). Public pour le XAML ;
+/// la valeur est une ligne affichée (type interne).
+/// </summary>
+public static class TailRowText
+{
+    /// <summary>Au-delà, la ligne est coupée à l'affichage (elle reste entière pour la copie et l'enregistrement).</summary>
+    public const int MaxShown = 4_000;
+
+    public static readonly DependencyProperty RowProperty = DependencyProperty.RegisterAttached(
+        "Row", typeof(object), typeof(TailRowText), new PropertyMetadata(null, (d, e) => Build(d as TextBlock, e.NewValue as TailRow)));
+
+    public static object? GetRow(DependencyObject element) => element.GetValue(RowProperty);
+
+    public static void SetRow(DependencyObject element, object? value) => element.SetValue(RowProperty, value);
+
+    private static void Build(TextBlock? block, TailRow? row)
+    {
+        if (block is null)
+        {
+            return;
+        }
+
+        // Le bloc est réutilisé d'une ligne à l'autre (virtualisation) : tout est remis à zéro.
+        block.Inlines.Clear();
+        block.ClearValue(TextBlock.ForegroundProperty);
+        if (row is null)
+        {
+            return;
+        }
+
+        var style = row.Style;
+        block.TextWrapping = style.Wrap ? TextWrapping.Wrap : TextWrapping.NoWrap;
+        if (row.Kind == TailShownKind.Separator)
+        {
+            block.Foreground = TailBrushes.Context;
+            block.Inlines.Add(new Run("--"));
+            return;
+        }
+
+        var line = row.Line!;
+        if (style.Prefixes && line.Feed is { } feed)
+        {
+            block.Inlines.Add(new Run($"[{feed.Label}] ") { Foreground = feed.Brush, FontWeight = FontWeights.SemiBold });
+        }
+
+        if (line.IsMarker)
+        {
+            block.Inlines.Add(new Run(line.Text) { Foreground = TailBrushes.Marker, FontStyle = FontStyles.Italic });
+            return;
+        }
+
+        if ((row.Kind == TailShownKind.Context ? TailBrushes.Context : style.Colors ? TailBrushes.Level(line.Level) : null) is { } foreground)
+        {
+            block.Foreground = foreground;
+        }
+
+        var text = line.Text.Length > MaxShown ? line.Text[..MaxShown] : line.Text;
+        IReadOnlyList<(int Start, int Length)> highlights = style.Highlights.Count > 0 ? TailText.FindTerms(text, style.Highlights) : [];
+        IReadOnlyList<(int Start, int Length)> matches = style.Search?.Find(text) ?? [];
+        if (highlights.Count == 0 && matches.Count == 0)
+        {
+            block.Inlines.Add(new Run(text));
+        }
+        else
+        {
+            foreach (var segment in TailText.Segments(text.Length, highlights, matches))
+            {
+                var run = new Run(text.Substring(segment.Start, segment.Length));
+                if (segment.Match)
+                {
+                    run.Background = TailBrushes.Match;
+                }
+                else if (segment.Highlight)
+                {
+                    run.Background = TailBrushes.Highlight;
+                }
+
+                block.Inlines.Add(run);
+            }
+        }
+
+        if (text.Length < line.Text.Length)
+        {
+            block.Inlines.Add(new Run(" …") { Foreground = TailBrushes.Muted });
+        }
+    }
+}

@@ -77,7 +77,13 @@
                     <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Tag="tail" Header="{x:Static loc:Strings.FileTail}" Click="OnTail" />
+            <MenuItem Tag="tail" Header="{x:Static loc:Strings.FileTail}" Click="OnTail">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconTail}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <!-- Sous-menu rempli à l'ouverture : une entrée par fenêtre de suivi ouverte. -->
+            <MenuItem Tag="tailadd" Header="{x:Static loc:Strings.FileTailAdd}" />
             <MenuItem Header="{x:Static loc:Strings.FileUploadHere}" Click="OnUploadDialog">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconUpload}" Width="16" Height="16" />
@@ -110,6 +116,11 @@
             <DockPanel>
                 <Button DockPanel.Dock="Right" Style="{StaticResource SmallToolButton}" Click="OnHistory" ToolTip="{x:Static loc:Strings.HistoryTip}">
                     <Image Source="{StaticResource IconHistory}" Style="{StaticResource SmallIcon}" />
+                </Button>
+                <!-- Fichiers déjà suivis sur ce serveur « Courants » : les suivre à nouveau d'un clic. -->
+                <Button x:Name="TailFilesButton" DockPanel.Dock="Right" Style="{StaticResource SmallToolButton}" Click="OnTailFiles"
+                        ToolTip="{x:Static loc:Strings.TailFilesTip}" Visibility="Collapsed">
+                    <Image Source="{StaticResource IconTail}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Image Source="{StaticResource IconFiles}" Width="18" Height="18" Margin="0,0,6,0" />
                 <TextBlock x:Name="HeaderText" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />

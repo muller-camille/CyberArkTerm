@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services;
@@ -383,18 +384,137 @@ public partial class FileBrowserPanel
     private string _extractCommands = "";
     private readonly List<TailWindow> _tails = [];
 
-    /// <summary>Suit le fichier sélectionné dans une fenêtre séparée (tail -f), par SFTP.</summary>
-    private void OnTail(object sender, RoutedEventArgs e)
+    /// <summary>Fenêtres de suivi ouvertes (tests).</summary>
+    internal IReadOnlyList<TailWindow> TailWindows => _tails;
+
+    /// <summary>Suit les fichiers sélectionnés dans une nouvelle fenêtre (tail -f), par SFTP ; plusieurs : vue combinée.</summary>
+    private void OnTail(object sender, RoutedEventArgs e) => Follow(SelectedFilePaths(), into: null);
+
+    private List<string> SelectedFilePaths() => SelectedEntries().Where(s => !s.IsDirectory).Select(s => s.FullPath).ToList();
+
+    /// <summary>Sous-menu « Ajouter à une fenêtre de suivi » : une entrée par fenêtre ouverte.</summary>
+    private void FillTailAddMenu(MenuItem menu, bool files)
     {
-        if (_browser is not { } browser || SelectedEntries() is not [{ IsDirectory: false } entry])
+        menu.Items.Clear();
+        foreach (var window in _tails)
+        {
+            // Titre dans un TextBlock : un « _ » du chemin n'est pas une touche d'accès.
+            var item = new MenuItem { Header = new TextBlock { Text = window.Title } };
+            item.Click += (_, _) => Follow(SelectedFilePaths(), window);
+            menu.Items.Add(item);
+        }
+
+        menu.IsEnabled = files && _tails.Count > 0 && _session is not null;
+    }
+
+    /// <summary>
+    /// Suit des fichiers du serveur de la session active, dans une nouvelle fenêtre ou dans <paramref name="into"/>
+    /// (vue combinée, éventuellement avec d'autres serveurs). Sur un serveur « Courants », les fichiers sont mémorisés
+    /// pour être suivis à nouveau d'un clic.
+    /// </summary>
+    private void Follow(IReadOnlyList<string> paths, TailWindow? into)
+    {
+        var session = _session;
+        if (session is null || paths.Count == 0)
         {
             return;
         }
 
-        var window = new TailWindow(browser.TailSource(entry.FullPath), entry.FullPath, _session?.Label ?? "", () => browser.IsConnected);
-        window.Closed += (_, _) => _tails.Remove(window);
+        if (session.State != SshSessionState.Connected)
+        {
+            SetStatus(Strings.SshNotConnectedBrowse, error: true);
+            return;
+        }
+
+        var window = into is not null && _tails.Contains(into) ? into : NewTailWindow();
+        var link = window.LinkFor(session) ?? new SessionTailLink(session, _settings.TailIndependentSession, _browser);
+        foreach (var path in paths)
+        {
+            window.AddFeed(link, path);
+        }
+
+        if (session.Saved is { } saved)
+        {
+            foreach (var path in paths.Reverse())
+            {
+                saved.RememberTail(path);
+            }
+
+            _saveSettings();
+            UpdateTailFilesButton();
+        }
+
+        if (!window.IsVisible)
+        {
+            window.Show();
+        }
+
+        if (window.WindowState == WindowState.Minimized)
+        {
+            window.WindowState = WindowState.Normal;
+        }
+
+        window.Activate();
+    }
+
+    private TailWindow NewTailWindow()
+    {
+        var window = new TailWindow(_settings, _saveSettings);
+        window.Closed += (_, _) =>
+        {
+            _tails.Remove(window);
+            if (_tails.Count == 0)
+            {
+                TailAlerts.Hide();
+            }
+        };
         _tails.Add(window);
-        window.Show();
+        return window;
+    }
+
+    /// <summary>Bouton des fichiers déjà suivis sur ce serveur « Courants ».</summary>
+    private void UpdateTailFilesButton() =>
+        TailFilesButton.Visibility = _session?.Saved?.TailFiles is { Count: > 0 } ? Visibility.Visible : Visibility.Collapsed;
+
+    private void OnTailFiles(object sender, RoutedEventArgs e)
+    {
+        if (_session?.Saved is not { TailFiles.Count: > 0 } saved)
+        {
+            return;
+        }
+
+        var files = saved.TailFiles.ToList();
+        var menu = new ContextMenu { PlacementTarget = TailFilesButton, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
+        var all = new MenuItem { Header = Strings.TailFilesAll, FontWeight = FontWeights.SemiBold, Icon = new Image { Source = (System.Windows.Media.ImageSource)FindResource("IconTail"), Width = 16, Height = 16 } };
+        all.Click += (_, _) => Follow(files, into: null);
+        menu.Items.Add(all);
+        menu.Items.Add(new Separator());
+        foreach (var path in files)
+        {
+            var item = new MenuItem { Header = new TextBlock { Text = path } };
+            item.Click += (_, _) => Follow([path], into: null);
+            menu.Items.Add(item);
+        }
+
+        menu.Items.Add(new Separator());
+        var forget = new MenuItem { Header = Strings.TailFilesForget };
+        forget.Click += (_, _) =>
+        {
+            saved.TailFiles.Clear();
+            _saveSettings();
+            UpdateTailFilesButton();
+        };
+        menu.Items.Add(forget);
+        menu.IsOpen = true;
+    }
+
+    /// <summary>La session se ferme : ses fichiers ne sont plus suivis (les fenêtres restent ouvertes, avec leurs lignes).</summary>
+    public void ReleaseTails(SshSession session)
+    {
+        foreach (var window in _tails)
+        {
+            window.EndSession(session);
+        }
     }
 
     /// <summary>Ferme les fenêtres de suivi (fermeture de l'application).</summary>
@@ -404,6 +524,8 @@ public partial class FileBrowserPanel
         {
             window.Close();
         }
+
+        TailAlerts.Hide();
     }
 
     private void OnCopyExtractCommand(object sender, RoutedEventArgs e)

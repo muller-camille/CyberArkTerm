@@ -237,12 +237,38 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   apre nell'editor di testo scelto nelle Impostazioni (Blocco note per impostazione predefinita). A ogni
   salvataggio, CyberArkTerm propone di rinviarlo al server: invio in SFTP, permessi del file conservati. Se il
   file è cambiato sul server dopo l'apertura, un avviso chiede conferma prima di sovrascriverlo.
-- **Seguire un file (tail -f)**: clic destro su un file → «Segui (tail -f)». Una finestra mostra la fine del file,
-  poi ogni nuova riga appena viene scritta, come `tail -f`, leggendo il file via SFTP ogni secondo: nessun comando
-  viene eseguito sul server. «Pausa» / «Riprendi», «Segui la fine», «A capo», «Cancella» e un filtro (righe che
-  contengono un testo, senza distinzione tra maiuscole e minuscole). Un file troncato o sostituito da una rotazione
-  viene riletto dall'inizio; vengono conservate le ultime 10.000 righe. Si possono seguire più file insieme,
-  ognuno nella sua finestra (su un altro schermo se serve).
+- **Seguire un file (tail -f)**: clic destro su uno o più file → «Segui (tail -f)». Una finestra mostra la fine del
+  file, poi ogni nuova riga appena viene scritta, come `tail -f`, leggendo il file via SFTP ogni secondo: nessun
+  comando viene eseguito sul server. Un file troncato o sostituito da una rotazione viene riletto dall'inizio;
+  vengono conservate le ultime 10.000 righe.
+  - **Colori e avvisi**: errori (ERROR, FATAL, CRITICAL…) in rosso, avvisi (WARN) in arancione; parole a scelta
+    evidenziate in giallo («Evidenzia», separate da virgole). «Avviso se» (ad es. `ERROR, OutOfMemory, Connection
+    refused`): ogni nuova riga che contiene una di queste parole è segnata, il contatore «⚠ n avvisi» aumenta (un
+    clic va alla successiva) e il pulsante della finestra lampeggia nella barra delle applicazioni; può essere
+    mostrata una notifica di Windows, al massimo una ogni 30 s, con il numero di righe e il nome del file soltanto,
+    **mai il contenuto delle righe** (può apparire sulla schermata di blocco). Queste impostazioni sono conservate
+    per le finestre successive.
+  - **Vista combinata**: più file selezionati si aprono in un'unica finestra, e «Aggiungi a una finestra di
+    monitoraggio» vi aggiunge un file di un'altra scheda, quindi di un altro server. Le righe si alternano
+    nell'ordine di arrivo, con prefisso e colore del file (`[root@srv01 app.log]`); in basso, ogni file ha il suo
+    stato e un pulsante per smettere di seguirlo.
+  - **Filtro e ricerca**: filtro (come `grep`), esclusione (come `grep -v`), righe di contesto (come `grep -C 3`), in
+    testo semplice o con espressioni regolari. `Ctrl+F` cerca nelle righe senza filtrarle (Invio / `F3`: successivo,
+    `Maiusc+F3`: precedente). Scorrere verso l'alto smette di seguire la fine.
+  - **Interruzioni**: se la connessione si perde, un segno lo indica; quando la scheda SSH si riconnette (o con
+    «Riconnetti»), il monitoraggio riprende da dove si era fermato, con le righe scritte nel frattempo. Chiudere la
+    scheda smette di seguire i suoi file; la finestra conserva le righe ricevute.
+  - **File memorizzati**: su un server della scheda «I miei server», i file seguiti sono memorizzati (gli ultimi 12);
+    alla connessione successiva, il pulsante di monitoraggio della scheda File li propone: «Seguili tutti in una
+    finestra» con un clic, o uno solo.
+  - **Tenere traccia**: «Salva…» scrive le righe visualizzate in un file di questo computer; «Registra in
+    continuo…» scrive le righe già ricevute e poi ogni nuova riga appena arriva, finché la casella è selezionata;
+    «Segno» inserisce una riga `—— 14:32:05 ——` per ritrovare un momento (prima di un intervento, ad esempio).
+  - **Connessione**: per impostazione predefinita, il monitoraggio usa la connessione SFTP della scheda File e passa
+    tra due file di un trasferimento. L'opzione «Segui i file (tail -f) in una sessione indipendente» delle
+    Impostazioni gli dà una connessione propria, una per finestra e per server: non attende più i trasferimenti, ma è
+    una sessione PSMP in più (registrata separatamente, e può essere richiesta una convalida MFA). Viene chiusa con
+    la finestra. Una connessione persa non viene mai riaperta in ciclo.
 - **Permessi**: clic destro → «Permessi…» (o il pulsante lucchetto). Caselle lettura / scrittura / esecuzione
   per proprietario, gruppo e altri, bit speciali (setuid, setgid, sticky) e valore ottale (`644`, `1777`…), per
   uno o più elementi. Per una cartella, «Applica anche al contenuto» propaga i permessi a sottocartelle e file;
@@ -350,11 +376,12 @@ password, elimina.
 | Segui la cartella del terminale | Consente di attivare il monitoraggio della cartella nella shell | sì |
 | Invio dei file | SCP o SFTP | SCP |
 | Editor di testo | Programma aperto da «Modifica» nella scheda File | Blocco note |
+| Monitoraggio in una sessione indipendente | Seguire un file (tail -f) apre una propria connessione SFTP (una sessione PSMP in più) | No |
 | Chiavi PSMP accettate | Impronte memorizzate (pulsante «Dimentica le chiavi») | — |
 | Componenti memorizzati | Componente PSM scelto per piattaforma (pulsante «Dimentica») | — |
 
 Tutte le preferenze sono salvate in `%APPDATA%\CyberArkTerm\settings.json`: lingua, indirizzo del PVWA,
-metodo e nome utente di accesso, impostazioni qui sopra, «I miei server» e le loro cartelle, sessioni
+metodo e nome utente di accesso, impostazioni qui sopra, «I miei server», le loro cartelle e i file seguiti su di essi (percorsi), sessioni
 recenti, posizione degli archivi KeePass e dei loro file chiave. Questo file **non contiene password, token né
 chiavi private**. Per ripartire da zero, chiudi
 l'applicazione ed eliminalo. La cronologia dei trasferimenti della scheda File è accanto, in `transfers.json`

@@ -225,6 +225,7 @@ public partial class MainWindow
         }
 
         CloseDetachedWindow(session);
+        FilesPanel.ReleaseTails(session);
         MainTabs.Items.Remove(tab);
         _sshSessions.Remove(session);
         _ = DisposeAfterTransfersAsync(session);

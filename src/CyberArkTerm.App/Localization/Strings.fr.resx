@@ -913,6 +913,12 @@ Continuer ?</value>
   <data name="ChecksSomeInterrupted" xml:space="preserve">
     <value>⏹ {0} fichier(s) sur {1} interrompu(s) par une annulation : copie incomplète supprimée.</value>
   </data>
+  <data name="SettingsTailSession" xml:space="preserve">
+    <value>Suivre les fichiers (tail -f) dans une session indépendante</value>
+  </data>
+  <data name="SettingsTailSessionHelp" xml:space="preserve">
+    <value>Chaque fenêtre de suivi ouvre sa propre connexion SFTP au lieu de partager celle de l'onglet Fichiers : elle n'attend pas les transferts, mais c'est une session PSMP de plus (enregistrée séparément, et une validation MFA peut être demandée).</value>
+  </data>
   <data name="SettingsArchiveOffer" xml:space="preserve">
     <value>Proposer une archive ._tar.gz à partir de</value>
   </data>
@@ -963,11 +969,23 @@ Les envoyer dans une seule archive .tar.gz ? Un seul fichier à transférer et �
   <data name="FileTail" xml:space="preserve">
     <value>_Suivre (tail -f)</value>
   </data>
+  <data name="FileTailAdd" xml:space="preserve">
+    <value>Ajouter à une _fenêtre de suivi</value>
+  </data>
+  <data name="TailFilesTip" xml:space="preserve">
+    <value>Fichiers déjà suivis sur ce serveur : les suivre à nouveau</value>
+  </data>
+  <data name="TailFilesAll" xml:space="preserve">
+    <value>Tout _suivre dans une fenêtre</value>
+  </data>
+  <data name="TailFilesForget" xml:space="preserve">
+    <value>_Oublier ces fichiers</value>
+  </data>
   <data name="TailTitle" xml:space="preserve">
     <value>tail -f {0} — {1}</value>
   </data>
-  <data name="TailIntro" xml:space="preserve">
-    <value>Fin du fichier, puis chaque nouvelle ligne dès qu'elle est écrite. Lu par SFTP chaque seconde : aucune commande n'est lancée sur le serveur.</value>
+  <data name="TailTitleMany" xml:space="preserve">
+    <value>tail -f — {0} fichiers</value>
   </data>
   <data name="TailPause" xml:space="preserve">
     <value>_Pause</value>
@@ -981,20 +999,191 @@ Les envoyer dans une seule archive .tar.gz ? Un seul fichier à transférer et �
   <data name="TailWrap" xml:space="preserve">
     <value>_Retour à la ligne</value>
   </data>
+  <data name="TailClear" xml:space="preserve">
+    <value>_Effacer</value>
+  </data>
+  <data name="TailMarker" xml:space="preserve">
+    <value>Re_père</value>
+  </data>
+  <data name="TailMarkerTip" xml:space="preserve">
+    <value>Insérer une ligne avec l'heure (—— 14:32:05 ——) pour retrouver un moment</value>
+  </data>
+  <data name="TailMarkerText" xml:space="preserve">
+    <value>—— {0} ——</value>
+  </data>
+  <data name="TailSearchButton" xml:space="preserve">
+    <value>Rec_hercher…</value>
+  </data>
+  <data name="TailSearchTip" xml:space="preserve">
+    <value>Chercher dans les lignes sans les filtrer (Ctrl+F) ; F3 : suivant, Maj+F3 : précédent</value>
+  </data>
+  <data name="TailSave" xml:space="preserve">
+    <value>Enre_gistrer…</value>
+  </data>
+  <data name="TailSaveTip" xml:space="preserve">
+    <value>Enregistrer les lignes affichées (avec le filtre en cours) dans un fichier de ce poste</value>
+  </data>
+  <data name="TailSaveTitle" xml:space="preserve">
+    <value>Enregistrer les lignes</value>
+  </data>
+  <data name="TailSaveFilter" xml:space="preserve">
+    <value>Fichiers journaux (*.log)|*.log|Fichiers texte (*.txt)|*.txt|Tous les fichiers (*.*)|*.*</value>
+  </data>
+  <data name="TailSaved" xml:space="preserve">
+    <value>{0} lignes enregistrées dans {1}</value>
+  </data>
+  <data name="TailSaveFailed" xml:space="preserve">
+    <value>Enregistrement impossible : {0}</value>
+  </data>
+  <data name="TailRecord" xml:space="preserve">
+    <value>Enregistrer en c_ontinu…</value>
+  </data>
+  <data name="TailRecordTip" xml:space="preserve">
+    <value>Écrire les lignes déjà reçues, puis chaque nouvelle ligne dès son arrivée (sans le filtre), dans un fichier de ce poste, tant que la case est cochée</value>
+  </data>
+  <data name="TailRecordTitle" xml:space="preserve">
+    <value>Enregistrer en continu dans</value>
+  </data>
+  <data name="TailRecording" xml:space="preserve">
+    <value>● enregistrement en continu dans {0}</value>
+  </data>
+  <data name="TailRecordFailed" xml:space="preserve">
+    <value>Enregistrement arrêté : {0}</value>
+  </data>
+  <data name="TailReconnect" xml:space="preserve">
+    <value>Re_connecter</value>
+  </data>
+  <data name="TailReconnectTip" xml:space="preserve">
+    <value>Rouvrir la connexion du suivi (l'onglet SSH doit être connecté)</value>
+  </data>
   <data name="TailFilter" xml:space="preserve">
     <value>_Filtre :</value>
   </data>
   <data name="TailFilterTip" xml:space="preserve">
-    <value>N'afficher que les lignes contenant ce texte (sans tenir compte de la casse)</value>
+    <value>N'afficher que les lignes contenant ce texte (sans tenir compte de la casse), comme grep</value>
   </data>
-  <data name="TailClear" xml:space="preserve">
-    <value>_Effacer</value>
+  <data name="TailExclude" xml:space="preserve">
+    <value>E_xclure :</value>
   </data>
-  <data name="TailStatus" xml:space="preserve">
-    <value>{0} · mis à jour à {1}</value>
+  <data name="TailExcludeTip" xml:space="preserve">
+    <value>Masquer les lignes contenant ce texte, comme grep -v</value>
   </data>
-  <data name="TailPaused" xml:space="preserve">
-    <value>En pause · {0}</value>
+  <data name="TailRegex" xml:space="preserve">
+    <value>Expressions ré_gulières</value>
+  </data>
+  <data name="TailRegexTip" xml:space="preserve">
+    <value>Le filtre et l'exclusion sont des expressions régulières (syntaxe .NET, sans tenir compte de la casse), par ex. user=\w+ (denied|refused)</value>
+  </data>
+  <data name="TailRegexInvalid" xml:space="preserve">
+    <value>Expression régulière invalide : {0}</value>
+  </data>
+  <data name="TailRegexSlow" xml:space="preserve">
+    <value>Expression régulière trop lente sur une ligne : elle ne trouve plus rien</value>
+  </data>
+  <data name="TailContext" xml:space="preserve">
+    <value>Con_texte :</value>
+  </data>
+  <data name="TailContextTip" xml:space="preserve">
+    <value>Lignes affichées avant et après chaque ligne retenue par le filtre, comme grep -C</value>
+  </data>
+  <data name="TailColors" xml:space="preserve">
+    <value>Couleurs par _niveau</value>
+  </data>
+  <data name="TailColorsTip" xml:space="preserve">
+    <value>Erreurs (ERROR, FATAL, CRITICAL…) en rouge, avertissements (WARN, WARNING) en orange</value>
+  </data>
+  <data name="TailHighlight" xml:space="preserve">
+    <value>_Surligner :</value>
+  </data>
+  <data name="TailHighlightTip" xml:space="preserve">
+    <value>Mots surlignés en jaune, séparés par des virgules (gardés pour les prochaines fenêtres)</value>
+  </data>
+  <data name="TailAlert" xml:space="preserve">
+    <value>_Alerte si :</value>
+  </data>
+  <data name="TailAlertTip" xml:space="preserve">
+    <value>Mots qui déclenchent une alerte quand une nouvelle ligne les contient, séparés par des virgules (par ex. ERROR, OutOfMemory, Connection refused) : la ligne est marquée, le compteur augmente et le bouton de la barre des tâches clignote</value>
+  </data>
+  <data name="TailNotify" xml:space="preserve">
+    <value>_Notification Windows</value>
+  </data>
+  <data name="TailNotifyTip" xml:space="preserve">
+    <value>Afficher aussi une notification Windows quand la fenêtre n'est pas au premier plan (au plus une toutes les 30 secondes). Elle donne le nombre de lignes et le nom du fichier, jamais le contenu des lignes.</value>
+  </data>
+  <data name="TailAlertCount" xml:space="preserve">
+    <value>⚠ {0} alertes</value>
+  </data>
+  <data name="TailAlertCountTip" xml:space="preserve">
+    <value>Aller à la ligne d'alerte suivante ; clic droit : remettre le compteur à zéro</value>
+  </data>
+  <data name="TailAlertReset" xml:space="preserve">
+    <value>_Remettre le compteur à zéro</value>
+  </data>
+  <data name="TailAlertNone" xml:space="preserve">
+    <value>Aucune ligne d'alerte parmi les lignes affichées</value>
+  </data>
+  <data name="TailNotificationTitle" xml:space="preserve">
+    <value>tail -f : alerte</value>
+  </data>
+  <data name="TailNotificationText" xml:space="preserve">
+    <value>{0} nouvelle(s) ligne(s) d'alerte dans {1}</value>
+  </data>
+  <data name="TailSearch" xml:space="preserve">
+    <value>Rec_hercher :</value>
+  </data>
+  <data name="TailSearchRegex" xml:space="preserve">
+    <value>Expression ré_gulière</value>
+  </data>
+  <data name="TailSearchPreviousTip" xml:space="preserve">
+    <value>Précédent (Maj+Entrée, Maj+F3)</value>
+  </data>
+  <data name="TailSearchNextTip" xml:space="preserve">
+    <value>Suivant (Entrée, F3)</value>
+  </data>
+  <data name="TailSearchCloseTip" xml:space="preserve">
+    <value>Fermer la recherche (Échap)</value>
+  </data>
+  <data name="TailSearchCount" xml:space="preserve">
+    <value>{0} / {1}</value>
+  </data>
+  <data name="TailSearchTotal" xml:space="preserve">
+    <value>{0} lignes</value>
+  </data>
+  <data name="TailSearchNone" xml:space="preserve">
+    <value>Aucun résultat</value>
+  </data>
+  <data name="TailCopy" xml:space="preserve">
+    <value>_Copier</value>
+  </data>
+  <data name="TailSelectAll" xml:space="preserve">
+    <value>_Tout sélectionner</value>
+  </data>
+  <data name="TailSourceRemoveTip" xml:space="preserve">
+    <value>Ne plus suivre ce fichier</value>
+  </data>
+  <data name="TailUpdated" xml:space="preserve">
+    <value>Mis à jour à {0}</value>
+  </data>
+  <data name="TailPausedState" xml:space="preserve">
+    <value>En pause</value>
+  </data>
+  <data name="TailConnecting" xml:space="preserve">
+    <value>connexion…</value>
+  </data>
+  <data name="TailOpeningDedicated" xml:space="preserve">
+    <value>ouverture d'une session indépendante…</value>
+  </data>
+  <data name="TailWaiting" xml:space="preserve">
+    <value>connexion perdue : reprend à la reconnexion de l'onglet (ou Reconnecter)</value>
+  </data>
+  <data name="TailConnectFailed" xml:space="preserve">
+    <value>connexion impossible : {0}</value>
+  </data>
+  <data name="TailSessionClosed" xml:space="preserve">
+    <value>session fermée</value>
+  </data>
+  <data name="TailError" xml:space="preserve">
+    <value>lecture impossible : {0} (nouvel essai dans quelques secondes)</value>
   </data>
   <data name="TailRestarted" xml:space="preserve">
     <value>— fichier tronqué ou remplacé : relu depuis le début —</value>
@@ -1002,11 +1191,17 @@ Les envoyer dans une seule archive .tar.gz ? Un seul fichier à transférer et �
   <data name="TailSkipped" xml:space="preserve">
     <value>— {0} sautés —</value>
   </data>
-  <data name="TailError" xml:space="preserve">
-    <value>Lecture impossible : {0} (nouvel essai dans quelques secondes)</value>
+  <data name="TailLostMarker" xml:space="preserve">
+    <value>— connexion perdue —</value>
   </data>
-  <data name="TailClosed" xml:space="preserve">
-    <value>Connexion fermée : le fichier n'est plus suivi.</value>
+  <data name="TailResumedMarker" xml:space="preserve">
+    <value>— connexion rétablie : suivi repris —</value>
+  </data>
+  <data name="TailSessionClosedMarker" xml:space="preserve">
+    <value>— session fermée : le fichier n'est plus suivi —</value>
+  </data>
+  <data name="TailRemovedMarker" xml:space="preserve">
+    <value>— plus suivi —</value>
   </data>
   <data name="HistoryTip" xml:space="preserve">
     <value>Historique des transferts (envois et téléchargements)</value>

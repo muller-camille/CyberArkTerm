@@ -46,9 +46,15 @@ public sealed class FileTail(ITailSource source)
     /// <summary>Position lue dans le fichier ; -1 avant le premier relevé.</summary>
     public long Position { get; private set; } = -1;
 
+    /// <summary>
+    /// Accès au fichier ; remplacé après une reconnexion. Le suivi reprend là où il s'était arrêté (les lignes écrites
+    /// entre-temps sont lues), ou depuis le début si le fichier a été remplacé.
+    /// </summary>
+    public ITailSource Source { get; set; } = source;
+
     public async Task<TailUpdate> PollAsync(CancellationToken ct)
     {
-        long size = await source.GetSizeAsync(ct).ConfigureAwait(false);
+        long size = await Source.GetSizeAsync(ct).ConfigureAwait(false);
         bool restarted = false;
         bool skipPartialLine = false;
         long skipped = 0;
@@ -77,7 +83,7 @@ public sealed class FileTail(ITailSource source)
         var text = new StringBuilder();
         while (Position < size)
         {
-            var data = await source.ReadAsync(Position, (int)Math.Min(ChunkBytes, size - Position), ct).ConfigureAwait(false);
+            var data = await Source.ReadAsync(Position, (int)Math.Min(ChunkBytes, size - Position), ct).ConfigureAwait(false);
             if (data.Length == 0)
             {
                 break;
@@ -91,7 +97,7 @@ public sealed class FileTail(ITailSource source)
 
         if (_fingerprint.Length < FingerprintBytes && size > _fingerprint.Length)
         {
-            _fingerprint = await source.ReadAsync(0, (int)Math.Min(FingerprintBytes, size), ct).ConfigureAwait(false);
+            _fingerprint = await Source.ReadAsync(0, (int)Math.Min(FingerprintBytes, size), ct).ConfigureAwait(false);
         }
 
         var result = Normalize(text.ToString());
@@ -108,7 +114,7 @@ public sealed class FileTail(ITailSource source)
     /// <summary>Les premiers octets du fichier n'ont pas changé : c'est toujours le même fichier.</summary>
     private async Task<bool> SameFileAsync(CancellationToken ct) =>
         _fingerprint.Length == 0
-        || (await source.ReadAsync(0, _fingerprint.Length, ct).ConfigureAwait(false)).AsSpan().SequenceEqual(_fingerprint);
+        || (await Source.ReadAsync(0, _fingerprint.Length, ct).ConfigureAwait(false)).AsSpan().SequenceEqual(_fingerprint);
 
     /// <summary>Fins de ligne « \r\n » ramenées à « \n », y compris quand « \r » et « \n » arrivent dans deux relevés.</summary>
     private string Normalize(string text)

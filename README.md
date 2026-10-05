@@ -243,12 +243,38 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   s'ouvre dans l'éditeur de texte choisi dans les Paramètres (Bloc-notes par défaut). À chaque enregistrement,
   CyberArkTerm propose de le renvoyer sur le serveur : envoi en SFTP, droits du fichier conservés. Si le
   fichier a changé sur le serveur depuis son ouverture, une alerte demande confirmation avant de l'écraser.
-- **Suivre un fichier (tail -f)** : clic droit sur un fichier → « Suivre (tail -f) ». Une fenêtre montre la fin
-  du fichier puis chaque nouvelle ligne dès qu'elle est écrite, comme `tail -f`, en lisant le fichier par SFTP
-  chaque seconde : aucune commande n'est lancée sur le serveur. « Pause » / « Reprendre », « Suivre la fin »,
-  « Retour à la ligne », « Effacer », et un filtre (lignes contenant un texte, sans tenir compte de la casse). Un
-  fichier tronqué ou remplacé par une rotation est relu depuis le début ; les 10 000 dernières lignes sont gardées.
-  Plusieurs fichiers peuvent être suivis à la fois, chacun dans sa fenêtre (sur un autre écran si besoin).
+- **Suivre un fichier (tail -f)** : clic droit sur un ou plusieurs fichiers → « Suivre (tail -f) ». Une fenêtre
+  montre la fin du fichier puis chaque nouvelle ligne dès qu'elle est écrite, comme `tail -f`, en lisant le fichier
+  par SFTP chaque seconde : aucune commande n'est lancée sur le serveur. Un fichier tronqué ou remplacé par une
+  rotation est relu depuis le début ; les 10 000 dernières lignes sont gardées.
+  - **Couleurs et alertes** : erreurs (ERROR, FATAL, CRITICAL…) en rouge, avertissements (WARN) en orange ; mots
+    surlignés en jaune au choix (« Surligner », séparés par des virgules). « Alerte si » (par ex. `ERROR,
+    OutOfMemory, Connection refused`) : chaque nouvelle ligne qui contient l'un de ces mots est marquée, le compteur
+    « ⚠ n alertes » augmente (un clic va à la ligne suivante) et le bouton de la fenêtre clignote dans la barre des
+    tâches ; une notification Windows est possible, au plus une toutes les 30 s, avec le nombre de lignes et le nom
+    du fichier seulement, **jamais le contenu des lignes** (elle peut s'afficher sur l'écran verrouillé). Ces
+    réglages sont gardés pour les fenêtres suivantes.
+  - **Vue combinée** : plusieurs fichiers sélectionnés s'ouvrent dans une seule fenêtre, et « Ajouter à une fenêtre
+    de suivi » y ajoute un fichier d'un autre onglet, donc d'un autre serveur. Les lignes s'intercalent dans l'ordre
+    d'arrivée, préfixées et colorées par fichier (`[root@srv01 app.log]`) ; en bas, chaque fichier a son état et un
+    bouton pour arrêter de le suivre.
+  - **Filtre et recherche** : filtre (comme `grep`), exclusion (comme `grep -v`), lignes de contexte (comme
+    `grep -C 3`), en texte simple ou en expressions régulières. `Ctrl+F` cherche dans les lignes sans les filtrer
+    (Entrée / `F3` : suivant, `Maj+F3` : précédent). Remonter dans les lignes arrête de suivre la fin.
+  - **Coupures** : si la connexion est perdue, un repère l'indique ; quand l'onglet SSH se reconnecte (ou avec
+    « Reconnecter »), le suivi reprend là où il s'était arrêté, avec les lignes écrites entre-temps. Fermer l'onglet
+    arrête le suivi de ses fichiers ; la fenêtre garde les lignes reçues.
+  - **Fichiers mémorisés** : sur un serveur de l'onglet « Courants », les fichiers suivis sont mémorisés (les 12
+    derniers) ; à la connexion suivante, le bouton de suivi de l'onglet Fichiers les propose : « Tout suivre dans
+    une fenêtre » en un clic, ou un seul.
+  - **Garder une trace** : « Enregistrer… » écrit les lignes affichées dans un fichier de ce poste ; « Enregistrer en
+    continu… » écrit les lignes déjà reçues puis chaque nouvelle ligne dès son arrivée, tant que la case est cochée ;
+    « Repère » insère une ligne `—— 14:32:05 ——` pour retrouver un moment (avant une manipulation, par exemple).
+  - **Connexion** : par défaut, le suivi utilise la connexion SFTP de l'onglet Fichiers ; il passe alors entre deux
+    fichiers d'un transfert. L'option « Suivre les fichiers (tail -f) dans une session indépendante » des
+    Paramètres lui donne sa propre connexion, une par fenêtre et par serveur : il n'attend plus les transferts, mais
+    c'est une session PSMP de plus (enregistrée à part, et une validation MFA peut être demandée). Elle est fermée
+    avec la fenêtre. Une connexion perdue n'est jamais rouverte en boucle.
 - **Droits** : clic droit → « Droits… » (ou bouton cadenas). Cases lecture / écriture / exécution pour le
   propriétaire, le groupe et les autres, bits spéciaux (setuid, setgid, sticky) et valeur octale (`644`,
   `1777`…), pour un ou plusieurs éléments. Pour un dossier, l'option « Appliquer aussi au contenu » propage
@@ -357,11 +383,12 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Suivre le dossier du terminal | Autorise l'installation du suivi de dossier dans le shell | oui |
 | Dépôt de fichiers | SCP ou SFTP | SCP |
 | Éditeur de texte | Programme ouvert par « Modifier » dans l'onglet Fichiers | Bloc-notes |
+| Suivi dans une session indépendante | Le suivi d'un fichier (tail -f) ouvre sa propre connexion SFTP (une session PSMP de plus) | Non |
 | Clés de PSMP acceptées | Empreintes mémorisées (bouton « Oublier les clés ») | — |
 | Composants mémorisés | Composant PSM choisi par plateforme (bouton « Oublier ») | — |
 
 Toutes les préférences sont enregistrées dans `%APPDATA%\CyberArkTerm\settings.json` : langue, adresse du PVWA,
-méthode et identifiant de connexion, paramètres ci-dessus, serveurs « Courants » et leurs dossiers, sessions
+méthode et identifiant de connexion, paramètres ci-dessus, serveurs « Courants », leurs dossiers et les fichiers qui y ont été suivis (chemins), sessions
 récentes, emplacement des coffres KeePass et de leurs fichiers clés. Ce fichier ne contient **aucun mot de passe,
 jeton ni clé privée**. Pour repartir de zéro, fermez
 l'application et supprimez-le. L'historique des transferts de l'onglet Fichiers est à côté, dans

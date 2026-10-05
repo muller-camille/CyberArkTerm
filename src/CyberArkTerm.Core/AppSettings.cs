@@ -60,6 +60,24 @@ public sealed class AppSettings
     /// <summary>Nombre de fichiers à partir duquel l'archive .tar.gz est proposée.</summary>
     public int ArchiveThreshold { get; set; } = 200;
 
+    /// <summary>
+    /// Le suivi d'un fichier (tail -f) ouvre sa propre connexion SFTP (une session PSMP de plus) au lieu de partager
+    /// celle de l'onglet Fichiers.
+    /// </summary>
+    public bool TailIndependentSession { get; set; }
+
+    /// <summary>Suivi d'un fichier : couleur des lignes selon leur niveau (erreur, avertissement).</summary>
+    public bool TailLevelColors { get; set; } = true;
+
+    /// <summary>Suivi d'un fichier : mots surlignés, séparés par des virgules.</summary>
+    public string TailHighlights { get; set; } = "";
+
+    /// <summary>Suivi d'un fichier : mots qui déclenchent une alerte, séparés par des virgules.</summary>
+    public string TailAlerts { get; set; } = "";
+
+    /// <summary>Suivi d'un fichier : notification Windows (sans le contenu de la ligne) pour une alerte.</summary>
+    public bool TailAlertNotify { get; set; } = true;
+
     /// <summary>Installe PROMPT_COMMAND à l'ouverture d'une session SSH pour que le navigateur suive le dossier du terminal.</summary>
     public bool FollowTerminalFolder { get; set; } = true;
 
@@ -194,6 +212,13 @@ public sealed class AppSettings
                 settings.SessionFolderList ??= [];
                 settings.Sessions ??= [];
                 settings.KnownHosts ??= [];
+                settings.TailHighlights ??= "";
+                settings.TailAlerts ??= "";
+                foreach (var session in settings.Sessions.OfType<SavedSession>())
+                {
+                    session.TailFiles ??= [];
+                }
+
                 return settings;
             }
         }

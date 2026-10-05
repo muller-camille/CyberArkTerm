@@ -64,6 +64,7 @@ public partial class FileBrowserPanel : UserControl
         StatusText.Text = "";
         if (session is null)
         {
+            UpdateTailFilesButton();
             HeaderText.Text = Strings.NoSshSession;
             ShowMessage(Strings.NoSshSessionHelp, retry: false);
             UpdateToolbar();
@@ -71,6 +72,7 @@ public partial class FileBrowserPanel : UserControl
         }
 
         HeaderText.Text = session.Label;
+        UpdateTailFilesButton();
         FollowBox.IsEnabled = session.CanFollowTerminal;
         FollowBox.IsChecked = session.CanFollowTerminal && session.FollowTerminal;
         FollowBox.ToolTip = session.CanFollowTerminal
@@ -333,12 +335,20 @@ public partial class FileBrowserPanel : UserControl
     private void OnMenuOpened(object sender, RoutedEventArgs e)
     {
         var selected = SelectedEntries();
+        bool files = selected.Count > 0 && selected.All(s => !s.IsDirectory);
         foreach (var item in ((ContextMenu)sender).Items.OfType<MenuItem>())
         {
+            if (item.Tag is "tailadd")
+            {
+                FillTailAddMenu(item, files);
+                continue;
+            }
+
             item.IsEnabled = item.Tag switch
             {
                 "open" => selected.Count == 1,
-                "edit" or "tail" => selected is [{ IsDirectory: false }],
+                "edit" => selected is [{ IsDirectory: false }],
+                "tail" => files,
                 "download" => selected.Count > 0 && selected.All(s => !s.IsDirectory),
                 "delete" or "copy" or "chmod" => selected.Count > 0,
                 _ => _browser is not null,

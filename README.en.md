@@ -224,12 +224,36 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   text editor chosen in Settings (Notepad by default). Every time you save, CyberArkTerm offers to send it back
   to the server: sent over SFTP, the file's permissions are kept. If the file changed on the server since you
   opened it, a warning asks before overwriting it.
-- **Follow a file (tail -f)**: right-click a file → "Follow (tail -f)". A window shows the end of the file, then
-  each new line as soon as it is written, like `tail -f`, reading the file over SFTP every second: no command runs
-  on the server. "Pause" / "Resume", "Scroll to the end", "Wrap lines", "Clear", and a filter (lines containing a
-  text, case-insensitive). A file truncated or replaced by a rotation is read again from the start; the last
-  10,000 lines are kept. Several files can be followed at once, each in its own window (on another screen if
-  needed).
+- **Follow a file (tail -f)**: right-click one or several files → "Follow (tail -f)". A window shows the end of the
+  file, then each new line as soon as it is written, like `tail -f`, reading the file over SFTP every second: no
+  command runs on the server. A file truncated or replaced by a rotation is read again from the start; the last
+  10,000 lines are kept.
+  - **Colours and alerts**: errors (ERROR, FATAL, CRITICAL…) in red, warnings (WARN) in orange; words of your choice
+    highlighted in yellow ("Highlight", separated by commas). "Alert on" (e.g. `ERROR, OutOfMemory, Connection
+    refused`): every new line containing one of these words is marked, the "⚠ n alerts" counter goes up (a click
+    goes to the next one) and the window's taskbar button flashes; a Windows notification can be shown, at most one
+    every 30 s, with the number of lines and the file name only, **never the content of the lines** (it may show on
+    the lock screen). These settings are kept for the next windows.
+  - **Combined view**: several selected files open in a single window, and "Add to a follow window" adds a file from
+    another tab, so from another server. Lines are interleaved in the order they arrive, prefixed and coloured by
+    file (`[root@srv01 app.log]`); at the bottom, each file has its state and a button to stop following it.
+  - **Filter and search**: filter (like `grep`), exclusion (like `grep -v`), context lines (like `grep -C 3`), as
+    plain text or regular expressions. `Ctrl+F` searches the lines without filtering them (Enter / `F3`: next,
+    `Shift+F3`: previous). Scrolling up stops following the end.
+  - **Disconnections**: when the connection is lost, a marker says so; when the SSH tab reconnects (or with
+    "Reconnect"), following resumes where it stopped, with the lines written in the meantime. Closing the tab stops
+    following its files; the window keeps the lines received.
+  - **Remembered files**: on a server of the "My servers" tab, followed files are remembered (the last 12); at the
+    next connection, the follow button of the Files tab offers them: "Follow them all in one window" in one click,
+    or a single one.
+  - **Keep a trace**: "Save…" writes the displayed lines to a file on this computer; "Record continuously…" writes
+    the lines already received, then each new line as it arrives, as long as the box is ticked; "Marker" inserts a
+    `—— 14:32:05 ——` line to find a moment again (before a change, for example).
+  - **Connection**: by default, following uses the SFTP connection of the Files tab; it then runs between two files
+    of a transfer. The Settings option "Follow files (tail -f) in an independent session" gives it its own
+    connection, one per window and server: it no longer waits for transfers, but it is one more PSMP session
+    (recorded separately, and an MFA validation may be asked). It is closed with the window. A lost connection is
+    never reopened in a loop.
 - **Permissions**: right-click → "Permissions…" (or the padlock button). Read / write / execute boxes for owner,
   group and others, special bits (setuid, setgid, sticky) and the octal value (`644`, `1777`…), for one or
   several items. For a folder, "Apply to the folder contents too" propagates the permissions to subfolders and
@@ -331,11 +355,12 @@ password, delete.
 | Follow the terminal folder | Allows setting up folder tracking in the shell | yes |
 | File upload | SCP or SFTP | SCP |
 | Text editor | Program opened by "Edit" in the Files tab | Notepad |
+| Follow in an independent session | Following a file (tail -f) opens its own SFTP connection (one more PSMP session) | No |
 | Accepted PSMP keys | Remembered fingerprints ("Forget keys" button) | — |
 | Remembered components | PSM component chosen per platform ("Forget" button) | — |
 
 All preferences are saved in `%APPDATA%\CyberArkTerm\settings.json`: language, PVWA address, sign-in method
-and user name, the settings above, "My servers" and their folders, recent sessions, location of the KeePass
+and user name, the settings above, "My servers", their folders and the files followed on them (paths), recent sessions, location of the KeePass
 vaults and of their key files. This file contains **no password, token or private key**. To start from scratch, close the application and delete it.
 The transfer history of the Files tab is next to it, in `transfers.json` (file names and paths, SHA-256
 checksums, never their content).

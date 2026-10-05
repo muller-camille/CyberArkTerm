@@ -37,6 +37,7 @@ public partial class SettingsDialog : Window
         (settings.UploadProtocol == TransferProtocol.Sftp ? SftpRadio : ScpRadio).IsChecked = true;
         ArchiveBox.IsChecked = settings.OfferArchive;
         ArchiveThresholdBox.Text = settings.ArchiveThreshold.ToString(CultureInfo.InvariantCulture);
+        TailSessionBox.IsChecked = settings.TailIndependentSession;
         HostKeysText.Text = settings.KnownHosts.Count == 0
             ? Strings.NoHostKeys
             : Text.Format(Strings.HostKeys, string.Join(", ", settings.KnownHosts.Keys));
@@ -88,6 +89,7 @@ public partial class SettingsDialog : Window
         _settings.UploadProtocol = SftpRadio.IsChecked == true ? TransferProtocol.Sftp : TransferProtocol.Scp;
         _settings.OfferArchive = ArchiveBox.IsChecked == true;
         _settings.ArchiveThreshold = threshold;
+        _settings.TailIndependentSession = TailSessionBox.IsChecked == true;
         _settings.TextEditor = EditorBox.Text.Trim().Trim('"');
         if (_forgetHostKeys)
         {

@@ -1748,6 +1748,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Add to a follow _window.
+        /// </summary>
+        public static string FileTailAdd {
+            get {
+                return ResourceManager.GetString("FileTailAdd", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Upload files here….
         /// </summary>
         public static string FileUploadHere {
@@ -5645,6 +5654,24 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Follow files (tail -f) in an independent session.
+        /// </summary>
+        public static string SettingsTailSession {
+            get {
+                return ResourceManager.GetString("SettingsTailSession", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Each follow window opens its own SFTP connection instead of sharing the one of the Files tab: it [rest of string was truncated].
+        /// </summary>
+        public static string SettingsTailSessionHelp {
+            get {
+                return ResourceManager.GetString("SettingsTailSessionHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
         public static string SettingsTitle {
@@ -6005,6 +6032,60 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _Alert on:.
+        /// </summary>
+        public static string TailAlert {
+            get {
+                return ResourceManager.GetString("TailAlert", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠ {0} alerts.
+        /// </summary>
+        public static string TailAlertCount {
+            get {
+                return ResourceManager.GetString("TailAlertCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Go to the next alert line; right-click: reset the counter.
+        /// </summary>
+        public static string TailAlertCountTip {
+            get {
+                return ResourceManager.GetString("TailAlertCountTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No alert line among the displayed lines.
+        /// </summary>
+        public static string TailAlertNone {
+            get {
+                return ResourceManager.GetString("TailAlertNone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Reset the counter.
+        /// </summary>
+        public static string TailAlertReset {
+            get {
+                return ResourceManager.GetString("TailAlertReset", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Words that raise an alert when a new line contains them, separated by commas (e.g. ERROR, OutOfMe[rest of string was truncated].
+        /// </summary>
+        public static string TailAlertTip {
+            get {
+                return ResourceManager.GetString("TailAlertTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Clear.
         /// </summary>
         public static string TailClear {
@@ -6014,20 +6095,119 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Connection closed: the file is no longer followed..
+        ///   Looks up a localized string similar to Colours by _level.
         /// </summary>
-        public static string TailClosed {
+        public static string TailColors {
             get {
-                return ResourceManager.GetString("TailClosed", resourceCulture);
+                return ResourceManager.GetString("TailColors", resourceCulture);
             }
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Cannot read the file: {0} (new attempt in a few seconds).
+        ///   Looks up a localized string similar to Errors (ERROR, FATAL, CRITICAL…) in red, warnings (WARN, WARNING) in orange.
+        /// </summary>
+        public static string TailColorsTip {
+            get {
+                return ResourceManager.GetString("TailColorsTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to connection failed: {0}.
+        /// </summary>
+        public static string TailConnectFailed {
+            get {
+                return ResourceManager.GetString("TailConnectFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to connecting….
+        /// </summary>
+        public static string TailConnecting {
+            get {
+                return ResourceManager.GetString("TailConnecting", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Con_text:.
+        /// </summary>
+        public static string TailContext {
+            get {
+                return ResourceManager.GetString("TailContext", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Lines shown before and after each line kept by the filter, like grep -C.
+        /// </summary>
+        public static string TailContextTip {
+            get {
+                return ResourceManager.GetString("TailContextTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Copy.
+        /// </summary>
+        public static string TailCopy {
+            get {
+                return ResourceManager.GetString("TailCopy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to cannot read the file: {0} (new attempt in a few seconds).
         /// </summary>
         public static string TailError {
             get {
                 return ResourceManager.GetString("TailError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to E_xclude:.
+        /// </summary>
+        public static string TailExclude {
+            get {
+                return ResourceManager.GetString("TailExclude", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Hide the lines containing this text, like grep -v.
+        /// </summary>
+        public static string TailExcludeTip {
+            get {
+                return ResourceManager.GetString("TailExcludeTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Follow them _all in one window.
+        /// </summary>
+        public static string TailFilesAll {
+            get {
+                return ResourceManager.GetString("TailFilesAll", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Forget these files.
+        /// </summary>
+        public static string TailFilesForget {
+            get {
+                return ResourceManager.GetString("TailFilesForget", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Files already followed on this server: follow them again.
+        /// </summary>
+        public static string TailFilesTip {
+            get {
+                return ResourceManager.GetString("TailFilesTip", resourceCulture);
             }
         }
 
@@ -6041,7 +6221,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Show only the lines containing this text (case-insensitive).
+        ///   Looks up a localized string similar to Show only the lines containing this text (case-insensitive), like grep.
         /// </summary>
         public static string TailFilterTip {
             get {
@@ -6059,11 +6239,101 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to End of the file, then each new line as it is written. Read over SFTP every second: no command run[rest of string was truncated].
+        ///   Looks up a localized string similar to _Highlight:.
         /// </summary>
-        public static string TailIntro {
+        public static string TailHighlight {
             get {
-                return ResourceManager.GetString("TailIntro", resourceCulture);
+                return ResourceManager.GetString("TailHighlight", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Words highlighted in yellow, separated by commas (kept for the next windows).
+        /// </summary>
+        public static string TailHighlightTip {
+            get {
+                return ResourceManager.GetString("TailHighlightTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to — connection lost —.
+        /// </summary>
+        public static string TailLostMarker {
+            get {
+                return ResourceManager.GetString("TailLostMarker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Marker.
+        /// </summary>
+        public static string TailMarker {
+            get {
+                return ResourceManager.GetString("TailMarker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to —— {0} ——.
+        /// </summary>
+        public static string TailMarkerText {
+            get {
+                return ResourceManager.GetString("TailMarkerText", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Insert a line with the time (—— 14:32:05 ——) to find a moment again.
+        /// </summary>
+        public static string TailMarkerTip {
+            get {
+                return ResourceManager.GetString("TailMarkerTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} new alert line(s) in {1}.
+        /// </summary>
+        public static string TailNotificationText {
+            get {
+                return ResourceManager.GetString("TailNotificationText", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to tail -f: alert.
+        /// </summary>
+        public static string TailNotificationTitle {
+            get {
+                return ResourceManager.GetString("TailNotificationTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Windows _notification.
+        /// </summary>
+        public static string TailNotify {
+            get {
+                return ResourceManager.GetString("TailNotify", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Also show a Windows notification when the window is not in front (at most one every 30 seconds). [rest of string was truncated].
+        /// </summary>
+        public static string TailNotifyTip {
+            get {
+                return ResourceManager.GetString("TailNotifyTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to opening an independent session….
+        /// </summary>
+        public static string TailOpeningDedicated {
+            get {
+                return ResourceManager.GetString("TailOpeningDedicated", resourceCulture);
             }
         }
 
@@ -6077,11 +6347,119 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Paused · {0}.
+        ///   Looks up a localized string similar to Paused.
         /// </summary>
-        public static string TailPaused {
+        public static string TailPausedState {
             get {
-                return ResourceManager.GetString("TailPaused", resourceCulture);
+                return ResourceManager.GetString("TailPausedState", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Re_connect.
+        /// </summary>
+        public static string TailReconnect {
+            get {
+                return ResourceManager.GetString("TailReconnect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open the follow connection again (the SSH tab must be connected).
+        /// </summary>
+        public static string TailReconnectTip {
+            get {
+                return ResourceManager.GetString("TailReconnectTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Record c_ontinuously….
+        /// </summary>
+        public static string TailRecord {
+            get {
+                return ResourceManager.GetString("TailRecord", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Recording stopped: {0}.
+        /// </summary>
+        public static string TailRecordFailed {
+            get {
+                return ResourceManager.GetString("TailRecordFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Write the lines already received, then each new line as it arrives (without the filter), to a fil[rest of string was truncated].
+        /// </summary>
+        public static string TailRecordTip {
+            get {
+                return ResourceManager.GetString("TailRecordTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Record continuously to.
+        /// </summary>
+        public static string TailRecordTitle {
+            get {
+                return ResourceManager.GetString("TailRecordTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ● recording to {0}.
+        /// </summary>
+        public static string TailRecording {
+            get {
+                return ResourceManager.GetString("TailRecording", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Regular e_xpressions.
+        /// </summary>
+        public static string TailRegex {
+            get {
+                return ResourceManager.GetString("TailRegex", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid regular expression: {0}.
+        /// </summary>
+        public static string TailRegexInvalid {
+            get {
+                return ResourceManager.GetString("TailRegexInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Regular expression too slow on a line: it no longer finds anything.
+        /// </summary>
+        public static string TailRegexSlow {
+            get {
+                return ResourceManager.GetString("TailRegexSlow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Filter and exclusion are regular expressions (.NET syntax, case-insensitive), e.g. user=\w+ (deni[rest of string was truncated].
+        /// </summary>
+        public static string TailRegexTip {
+            get {
+                return ResourceManager.GetString("TailRegexTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to — no longer followed —.
+        /// </summary>
+        public static string TailRemovedMarker {
+            get {
+                return ResourceManager.GetString("TailRemovedMarker", resourceCulture);
             }
         }
 
@@ -6104,6 +6482,186 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to — connection back: following again —.
+        /// </summary>
+        public static string TailResumedMarker {
+            get {
+                return ResourceManager.GetString("TailResumedMarker", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Save….
+        /// </summary>
+        public static string TailSave {
+            get {
+                return ResourceManager.GetString("TailSave", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot save: {0}.
+        /// </summary>
+        public static string TailSaveFailed {
+            get {
+                return ResourceManager.GetString("TailSaveFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Log files (*.log)|*.log|Text files (*.txt)|*.txt|All files (*.*)|*.*.
+        /// </summary>
+        public static string TailSaveFilter {
+            get {
+                return ResourceManager.GetString("TailSaveFilter", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Save the displayed lines (with the current filter) to a file on this computer.
+        /// </summary>
+        public static string TailSaveTip {
+            get {
+                return ResourceManager.GetString("TailSaveTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Save the lines.
+        /// </summary>
+        public static string TailSaveTitle {
+            get {
+                return ResourceManager.GetString("TailSaveTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} lines saved to {1}.
+        /// </summary>
+        public static string TailSaved {
+            get {
+                return ResourceManager.GetString("TailSaved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Searc_h:.
+        /// </summary>
+        public static string TailSearch {
+            get {
+                return ResourceManager.GetString("TailSearch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Searc_h….
+        /// </summary>
+        public static string TailSearchButton {
+            get {
+                return ResourceManager.GetString("TailSearchButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close the search (Esc).
+        /// </summary>
+        public static string TailSearchCloseTip {
+            get {
+                return ResourceManager.GetString("TailSearchCloseTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} / {1}.
+        /// </summary>
+        public static string TailSearchCount {
+            get {
+                return ResourceManager.GetString("TailSearchCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Next (Enter, F3).
+        /// </summary>
+        public static string TailSearchNextTip {
+            get {
+                return ResourceManager.GetString("TailSearchNextTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No result.
+        /// </summary>
+        public static string TailSearchNone {
+            get {
+                return ResourceManager.GetString("TailSearchNone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Previous (Shift+Enter, Shift+F3).
+        /// </summary>
+        public static string TailSearchPreviousTip {
+            get {
+                return ResourceManager.GetString("TailSearchPreviousTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Regular e_xpression.
+        /// </summary>
+        public static string TailSearchRegex {
+            get {
+                return ResourceManager.GetString("TailSearchRegex", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Search in the lines without filtering them (Ctrl+F); F3: next, Shift+F3: previous.
+        /// </summary>
+        public static string TailSearchTip {
+            get {
+                return ResourceManager.GetString("TailSearchTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} lines.
+        /// </summary>
+        public static string TailSearchTotal {
+            get {
+                return ResourceManager.GetString("TailSearchTotal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Select _all.
+        /// </summary>
+        public static string TailSelectAll {
+            get {
+                return ResourceManager.GetString("TailSelectAll", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to session closed.
+        /// </summary>
+        public static string TailSessionClosed {
+            get {
+                return ResourceManager.GetString("TailSessionClosed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to — session closed: the file is no longer followed —.
+        /// </summary>
+        public static string TailSessionClosedMarker {
+            get {
+                return ResourceManager.GetString("TailSessionClosedMarker", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to — {0} skipped —.
         /// </summary>
         public static string TailSkipped {
@@ -6113,11 +6671,11 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} · updated at {1}.
+        ///   Looks up a localized string similar to Stop following this file.
         /// </summary>
-        public static string TailStatus {
+        public static string TailSourceRemoveTip {
             get {
-                return ResourceManager.GetString("TailStatus", resourceCulture);
+                return ResourceManager.GetString("TailSourceRemoveTip", resourceCulture);
             }
         }
 
@@ -6127,6 +6685,33 @@ namespace CyberArkTerm.App.Localization {
         public static string TailTitle {
             get {
                 return ResourceManager.GetString("TailTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to tail -f — {0} files.
+        /// </summary>
+        public static string TailTitleMany {
+            get {
+                return ResourceManager.GetString("TailTitleMany", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Updated at {0}.
+        /// </summary>
+        public static string TailUpdated {
+            get {
+                return ResourceManager.GetString("TailUpdated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to connection lost: resumes when the tab reconnects (or Reconnect).
+        /// </summary>
+        public static string TailWaiting {
+            get {
+                return ResourceManager.GetString("TailWaiting", resourceCulture);
             }
         }
 

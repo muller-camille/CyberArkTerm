@@ -2,25 +2,138 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:loc="clr-namespace:CyberArkTerm.App.Localization"
-        Width="960" Height="580" MinWidth="480" MinHeight="260" ShowInTaskbar="True" Background="White">
+        xmlns:views="clr-namespace:CyberArkTerm.App.Views"
+        Width="1060" Height="680" MinWidth="560" MinHeight="320" ShowInTaskbar="True" Background="White"
+        PreviewKeyDown="OnWindowKeyDown">
     <DockPanel Margin="10">
-        <TextBlock DockPanel.Dock="Top" Text="{x:Static loc:Strings.TailIntro}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" />
-        <DockPanel DockPanel.Dock="Top" Margin="0,6,0,6">
-            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                <Button x:Name="PauseButton" Content="{x:Static loc:Strings.TailPause}" MinWidth="90" Click="OnPause" />
-                <CheckBox x:Name="FollowBox" IsChecked="True" Margin="12,0,0,0" VerticalAlignment="Center">
+        <!-- Actions -->
+        <DockPanel DockPanel.Dock="Top">
+            <Button x:Name="AlertButton" DockPanel.Dock="Right" Visibility="Collapsed" Padding="8,1" Margin="8,0,0,4" VerticalAlignment="Top"
+                    Foreground="#C62828" FontWeight="SemiBold" Click="OnNextAlert" ToolTip="{x:Static loc:Strings.TailAlertCountTip}">
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="{x:Static loc:Strings.TailAlertReset}" Click="OnResetAlerts" />
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+            <WrapPanel>
+                <Button x:Name="PauseButton" Content="{x:Static loc:Strings.TailPause}" MinWidth="90" Margin="0,0,8,4" Click="OnPause" />
+                <CheckBox x:Name="FollowBox" IsChecked="True" VerticalAlignment="Center" Margin="0,0,12,4" Click="OnFollow">
                     <AccessText Text="{x:Static loc:Strings.TailFollowEnd}" />
                 </CheckBox>
-                <CheckBox x:Name="WrapBox" Margin="12,0,0,0" VerticalAlignment="Center" Click="OnWrap">
+                <CheckBox x:Name="WrapBox" VerticalAlignment="Center" Margin="0,0,12,4" Click="OnWrap">
                     <AccessText Text="{x:Static loc:Strings.TailWrap}" />
                 </CheckBox>
-                <Button Content="{x:Static loc:Strings.TailClear}" Margin="12,0,0,0" Click="OnClear" />
-            </StackPanel>
-            <TextBox x:Name="FilterBox" DockPanel.Dock="Right" Width="220" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailFilterTip}" />
-            <Label DockPanel.Dock="Right" Content="{x:Static loc:Strings.TailFilter}" Target="{Binding ElementName=FilterBox}" HorizontalAlignment="Right" />
+                <Button Content="{x:Static loc:Strings.TailClear}" Margin="0,0,8,4" Click="OnClear" />
+                <Button Content="{x:Static loc:Strings.TailMarker}" Margin="0,0,8,4" Click="OnMarker" ToolTip="{x:Static loc:Strings.TailMarkerTip}" />
+                <Button Content="{x:Static loc:Strings.TailSearchButton}" Margin="0,0,8,4" Click="OnFind" ToolTip="{x:Static loc:Strings.TailSearchTip}" />
+                <Button Content="{x:Static loc:Strings.TailSave}" Margin="0,0,8,4" Click="OnSave" ToolTip="{x:Static loc:Strings.TailSaveTip}" />
+                <CheckBox x:Name="RecordBox" VerticalAlignment="Center" Margin="0,0,12,4" Click="OnRecord" ToolTip="{x:Static loc:Strings.TailRecordTip}">
+                    <AccessText Text="{x:Static loc:Strings.TailRecord}" />
+                </CheckBox>
+                <Button x:Name="ReconnectButton" Content="{x:Static loc:Strings.TailReconnect}" Margin="0,0,8,4" Visibility="Collapsed"
+                        Click="OnReconnect" ToolTip="{x:Static loc:Strings.TailReconnectTip}" />
+            </WrapPanel>
         </DockPanel>
-        <TextBlock x:Name="StatusText" DockPanel.Dock="Bottom" Foreground="{StaticResource MutedBrush}" Margin="0,6,0,0" TextTrimming="CharacterEllipsis" />
-        <TextBox x:Name="LogBox" IsReadOnly="True" IsUndoEnabled="False" FontFamily="Consolas" FontSize="12" TextWrapping="NoWrap"
-                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
+
+        <!-- Filtre (grep, grep -v, grep -C) -->
+        <WrapPanel DockPanel.Dock="Top">
+            <Label Content="{x:Static loc:Strings.TailFilter}" Target="{Binding ElementName=FilterBox}" Padding="0,0,6,0" Margin="0,0,0,4" VerticalAlignment="Center" />
+            <TextBox x:Name="FilterBox" Width="200" Margin="0,0,14,4" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailFilterTip}" />
+            <Label Content="{x:Static loc:Strings.TailExclude}" Target="{Binding ElementName=ExcludeBox}" Padding="0,0,6,0" Margin="0,0,0,4" VerticalAlignment="Center" />
+            <TextBox x:Name="ExcludeBox" Width="160" Margin="0,0,14,4" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailExcludeTip}" />
+            <CheckBox x:Name="RegexBox" VerticalAlignment="Center" Margin="0,0,14,4" ToolTip="{x:Static loc:Strings.TailRegexTip}">
+                <AccessText Text="{x:Static loc:Strings.TailRegex}" />
+            </CheckBox>
+            <Label Content="{x:Static loc:Strings.TailContext}" Target="{Binding ElementName=ContextBox}" Padding="0,0,6,0" Margin="0,0,0,4" VerticalAlignment="Center" />
+            <ComboBox x:Name="ContextBox" Width="54" Margin="0,0,0,4" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailContextTip}" />
+        </WrapPanel>
+
+        <!-- Couleurs, mots surlignés, alertes -->
+        <WrapPanel DockPanel.Dock="Top">
+            <CheckBox x:Name="ColorsBox" VerticalAlignment="Center" Margin="0,0,14,4" Click="OnColors" ToolTip="{x:Static loc:Strings.TailColorsTip}">
+                <AccessText Text="{x:Static loc:Strings.TailColors}" />
+            </CheckBox>
+            <Label Content="{x:Static loc:Strings.TailHighlight}" Target="{Binding ElementName=HighlightBox}" Padding="0,0,6,0" Margin="0,0,0,4" VerticalAlignment="Center" />
+            <TextBox x:Name="HighlightBox" Width="180" Margin="0,0,14,4" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailHighlightTip}" />
+            <Label Content="{x:Static loc:Strings.TailAlert}" Target="{Binding ElementName=AlertBox}" Padding="0,0,6,0" Margin="0,0,0,4" VerticalAlignment="Center" />
+            <TextBox x:Name="AlertBox" Width="240" Margin="0,0,14,4" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailAlertTip}" />
+            <CheckBox x:Name="NotifyBox" VerticalAlignment="Center" Margin="0,0,0,4" Click="OnNotify" ToolTip="{x:Static loc:Strings.TailNotifyTip}">
+                <AccessText Text="{x:Static loc:Strings.TailNotify}" />
+            </CheckBox>
+        </WrapPanel>
+
+        <!-- Recherche (Ctrl+F) sans filtrer -->
+        <Border x:Name="SearchBar" DockPanel.Dock="Top" Visibility="Collapsed" Background="#F3F6FA" BorderBrush="{StaticResource ToolbarBorderBrush}"
+                BorderThickness="1" Padding="6,4" Margin="0,2,0,4">
+            <StackPanel Orientation="Horizontal">
+                <Label Content="{x:Static loc:Strings.TailSearch}" Target="{Binding ElementName=SearchBox}" Padding="0,0,6,0" VerticalAlignment="Center" />
+                <TextBox x:Name="SearchBox" Width="240" VerticalAlignment="Center" KeyDown="OnSearchKeyDown" />
+                <CheckBox x:Name="SearchRegexBox" VerticalAlignment="Center" Margin="10,0,0,0" Click="OnSearchOption">
+                    <AccessText Text="{x:Static loc:Strings.TailSearchRegex}" />
+                </CheckBox>
+                <Button Content="↑" Width="28" Margin="10,0,0,0" Click="OnSearchPrevious" ToolTip="{x:Static loc:Strings.TailSearchPreviousTip}" />
+                <Button Content="↓" Width="28" Margin="4,0,0,0" Click="OnSearchNext" ToolTip="{x:Static loc:Strings.TailSearchNextTip}" />
+                <TextBlock x:Name="SearchCount" Margin="10,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}" />
+                <Button Content="✕" Width="26" Margin="10,0,0,0" Click="OnCloseSearch" ToolTip="{x:Static loc:Strings.TailSearchCloseTip}" />
+            </StackPanel>
+        </Border>
+
+        <!-- État -->
+        <TextBlock x:Name="StatusText" DockPanel.Dock="Bottom" Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
+
+        <!-- Fichiers suivis : couleur, état, bouton pour arrêter -->
+        <ItemsControl x:Name="SourcesList" DockPanel.Dock="Bottom" Margin="0,2,0,0" Focusable="False">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="1" CornerRadius="3" Padding="6,1,2,1" Margin="0,2,6,0"
+                            ToolTip="{Binding Tip, Mode=OneWay}">
+                        <StackPanel Orientation="Horizontal">
+                            <Rectangle Width="10" Height="10" Fill="{Binding Brush, Mode=OneWay}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding Label, Mode=OneWay}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding Status, Mode=OneWay}" Foreground="{Binding StatusBrush, Mode=OneWay}" Margin="8,0,0,0" VerticalAlignment="Center" />
+                            <Button Content="✕" Tag="{Binding}" Click="OnRemoveFeed" Padding="4,0" Margin="6,0,0,0" Background="Transparent" BorderThickness="0"
+                                    ToolTip="{x:Static loc:Strings.TailSourceRemoveTip}" />
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Lignes : liste virtualisée, une ligne du fichier par élément -->
+        <ListBox x:Name="LogList" FontFamily="Consolas" FontSize="12" SelectionMode="Extended" BorderBrush="{StaticResource ToolbarBorderBrush}"
+                 VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                 ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 ScrollViewer.ScrollChanged="OnLogScrollChanged">
+            <ListBox.CommandBindings>
+                <CommandBinding Command="ApplicationCommands.Copy" Executed="OnCopy" CanExecute="OnCanCopy" />
+            </ListBox.CommandBindings>
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="{x:Static loc:Strings.TailCopy}" Command="ApplicationCommands.Copy" InputGestureText="Ctrl+C"
+                              CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                    <MenuItem Header="{x:Static loc:Strings.TailSelectAll}" Command="ApplicationCommands.SelectAll" InputGestureText="Ctrl+A"
+                              CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                    <Separator />
+                    <MenuItem Header="{x:Static loc:Strings.TailMarker}" Click="OnMarker" />
+                </ContextMenu>
+            </ListBox.ContextMenu>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Padding" Value="2,0" />
+                    <Setter Property="Background" Value="{Binding Background, Mode=OneWay}" />
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock views:TailRowText.Row="{Binding Mode=OneWay}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </DockPanel>
 </Window>
