@@ -67,8 +67,7 @@
             <Label Grid.Row="8" Content="{x:Static loc:Strings.AddAccountMachines}" Target="{Binding ElementName=MachinesBox}" />
             <TextBox Grid.Row="8" Grid.Column="1" x:Name="MachinesBox" Margin="0,0,0,8" VerticalContentAlignment="Center"
                      ToolTip="{x:Static loc:Strings.AddAccountMachinesTip}" />
-            <CheckBox Grid.Row="9" Grid.Column="1" x:Name="CpmBox" IsChecked="True" Margin="0,2,0,8"
-                      Checked="OnCpmChanged" Unchecked="OnCpmChanged">
+            <CheckBox Grid.Row="9" Grid.Column="1" x:Name="CpmBox" IsChecked="True" Margin="0,2,0,8">
                 <AccessText Text="{x:Static loc:Strings.AddAccountCpm}" />
             </CheckBox>
             <Label Grid.Row="10" Content="{x:Static loc:Strings.AddAccountReason}" Target="{Binding ElementName=ReasonBox}" />

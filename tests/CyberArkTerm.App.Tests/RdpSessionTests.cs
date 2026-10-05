@@ -7,6 +7,7 @@ using Xunit.Abstractions;
 
 namespace CyberArkTerm.App.Tests;
 
+[Collection(WpfCollection.Name)]
 public class RdpSessionTests(ITestOutputHelper output)
 {
     [Theory]
