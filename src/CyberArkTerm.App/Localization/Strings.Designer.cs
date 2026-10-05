@@ -164,6 +164,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _Close.
+        /// </summary>
+        public static string CloseButton {
+            get {
+                return ResourceManager.GetString("CloseButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Close the session.
         /// </summary>
         public static string CloseSessionTip {
@@ -2270,6 +2279,24 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Safe members….
+        /// </summary>
+        public static string MenuSafeMembers {
+            get {
+                return ResourceManager.GetString("MenuSafeMembers", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Members of the safe {0}….
+        /// </summary>
+        public static string MenuSafeMembersOf {
+            get {
+                return ResourceManager.GetString("MenuSafeMembersOf", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Settings….
         /// </summary>
         public static string MenuSettings {
@@ -3103,6 +3130,375 @@ namespace CyberArkTerm.App.Localization {
         public static string RootFolder {
             get {
                 return ResourceManager.GetString("RootFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Member.
+        /// </summary>
+        public static string SafeMemberColumn {
+            get {
+                return ResourceManager.GetString("SafeMemberColumn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Group.
+        /// </summary>
+        public static string SafeMemberGroup {
+            get {
+                return ResourceManager.GetString("SafeMemberGroup", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Type.
+        /// </summary>
+        public static string SafeMemberTypeColumn {
+            get {
+                return ResourceManager.GetString("SafeMemberTypeColumn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Until.
+        /// </summary>
+        public static string SafeMemberUntilColumn {
+            get {
+                return ResourceManager.GetString("SafeMemberUntilColumn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to User.
+        /// </summary>
+        public static string SafeMemberUser {
+            get {
+                return ResourceManager.GetString("SafeMemberUser", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Can add accounts: {0}.
+        /// </summary>
+        public static string SafeMembersCanAdd {
+            get {
+                return ResourceManager.GetString("SafeMembersCanAdd", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} member(s).
+        /// </summary>
+        public static string SafeMembersCount {
+            get {
+                return ResourceManager.GetString("SafeMembersCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Could not load the members: {0}.
+        /// </summary>
+        public static string SafeMembersFailed {
+            get {
+                return ResourceManager.GetString("SafeMembersFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your account cannot see the members of this safe: the “View Safe Members” right on the safe is re[rest of string was truncated].
+        /// </summary>
+        public static string SafeMembersForbidden {
+            get {
+                return ResourceManager.GetString("SafeMembersForbidden", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to (group).
+        /// </summary>
+        public static string SafeMembersGroupSuffix {
+            get {
+                return ResourceManager.GetString("SafeMembersGroupSuffix", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Members of the safe {0}.
+        /// </summary>
+        public static string SafeMembersHeading {
+            get {
+                return ResourceManager.GetString("SafeMembersHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The members of a group have the rights of the group. Ctrl+A then Ctrl+C copies the table..
+        /// </summary>
+        public static string SafeMembersHint {
+            get {
+                return ResourceManager.GetString("SafeMembersHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Loading the members….
+        /// </summary>
+        public static string SafeMembersLoading {
+            get {
+                return ResourceManager.GetString("SafeMembersLoading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to none.
+        /// </summary>
+        public static string SafeMembersNoRight {
+            get {
+                return ResourceManager.GetString("SafeMembersNoRight", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No member listed can add accounts..
+        /// </summary>
+        public static string SafeMembersNobodyCanAdd {
+            get {
+                return ResourceManager.GetString("SafeMembersNobodyCanAdd", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA did not find this safe, or this version of the PVWA does not provide the safe members API..
+        /// </summary>
+        public static string SafeMembersNotFound {
+            get {
+                return ResourceManager.GetString("SafeMembersNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Only members who can _add accounts.
+        /// </summary>
+        public static string SafeMembersOnlyAdd {
+            get {
+                return ResourceManager.GetString("SafeMembersOnlyAdd", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Rights of {0}: {1}.
+        /// </summary>
+        public static string SafeMembersRights {
+            get {
+                return ResourceManager.GetString("SafeMembersRights", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Safe members.
+        /// </summary>
+        public static string SafeMembersTitle {
+            get {
+                return ResourceManager.GetString("SafeMembersTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Access without confirmation.
+        /// </summary>
+        public static string SafePermAccessWithoutConfirmation {
+            get {
+                return ResourceManager.GetString("SafePermAccessWithoutConfirmation", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add accounts.
+        /// </summary>
+        public static string SafePermAddAccounts {
+            get {
+                return ResourceManager.GetString("SafePermAddAccounts", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Backup safe.
+        /// </summary>
+        public static string SafePermBackupSafe {
+            get {
+                return ResourceManager.GetString("SafePermBackupSafe", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Create folders.
+        /// </summary>
+        public static string SafePermCreateFolders {
+            get {
+                return ResourceManager.GetString("SafePermCreateFolders", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete accounts.
+        /// </summary>
+        public static string SafePermDeleteAccounts {
+            get {
+                return ResourceManager.GetString("SafePermDeleteAccounts", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete folders.
+        /// </summary>
+        public static string SafePermDeleteFolders {
+            get {
+                return ResourceManager.GetString("SafePermDeleteFolders", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Initiate CPM account management operations.
+        /// </summary>
+        public static string SafePermInitiateCPMAccountManagementOperations {
+            get {
+                return ResourceManager.GetString("SafePermInitiateCPMAccountManagementOperations", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to List accounts.
+        /// </summary>
+        public static string SafePermListAccounts {
+            get {
+                return ResourceManager.GetString("SafePermListAccounts", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Manage safe.
+        /// </summary>
+        public static string SafePermManageSafe {
+            get {
+                return ResourceManager.GetString("SafePermManageSafe", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Manage safe members.
+        /// </summary>
+        public static string SafePermManageSafeMembers {
+            get {
+                return ResourceManager.GetString("SafePermManageSafeMembers", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Move accounts and folders.
+        /// </summary>
+        public static string SafePermMoveAccountsAndFolders {
+            get {
+                return ResourceManager.GetString("SafePermMoveAccountsAndFolders", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Rename accounts.
+        /// </summary>
+        public static string SafePermRenameAccounts {
+            get {
+                return ResourceManager.GetString("SafePermRenameAccounts", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Authorize requests (level 1).
+        /// </summary>
+        public static string SafePermRequestsAuthorizationLevel1 {
+            get {
+                return ResourceManager.GetString("SafePermRequestsAuthorizationLevel1", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Authorize requests (level 2).
+        /// </summary>
+        public static string SafePermRequestsAuthorizationLevel2 {
+            get {
+                return ResourceManager.GetString("SafePermRequestsAuthorizationLevel2", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Retrieve accounts.
+        /// </summary>
+        public static string SafePermRetrieveAccounts {
+            get {
+                return ResourceManager.GetString("SafePermRetrieveAccounts", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Specify next account content.
+        /// </summary>
+        public static string SafePermSpecifyNextAccountContent {
+            get {
+                return ResourceManager.GetString("SafePermSpecifyNextAccountContent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unlock accounts.
+        /// </summary>
+        public static string SafePermUnlockAccounts {
+            get {
+                return ResourceManager.GetString("SafePermUnlockAccounts", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Update account content.
+        /// </summary>
+        public static string SafePermUpdateAccountContent {
+            get {
+                return ResourceManager.GetString("SafePermUpdateAccountContent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Update account properties.
+        /// </summary>
+        public static string SafePermUpdateAccountProperties {
+            get {
+                return ResourceManager.GetString("SafePermUpdateAccountProperties", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use accounts.
+        /// </summary>
+        public static string SafePermUseAccounts {
+            get {
+                return ResourceManager.GetString("SafePermUseAccounts", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to View audit log.
+        /// </summary>
+        public static string SafePermViewAuditLog {
+            get {
+                return ResourceManager.GetString("SafePermViewAuditLog", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to View safe members.
+        /// </summary>
+        public static string SafePermViewSafeMembers {
+            get {
+                return ResourceManager.GetString("SafePermViewSafeMembers", resourceCulture);
             }
         }
 

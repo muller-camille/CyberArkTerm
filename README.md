@@ -105,6 +105,12 @@ rouvre aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant 
   plusieurs mots possibles (`prd sql`).
 - « Grouper par » range les comptes par safe, plateforme ou type de cible.
 - Le bouton « Exporter » de la barre d'outils enregistre en CSV les comptes affichés (filtrés par la recherche).
+- **Membres d'un safe** : clic droit sur un compte (ou sur un safe quand les comptes sont groupés par safe, ou sur
+  un serveur de « Courants ») → « Membres du safe ». La fenêtre liste les utilisateurs et groupes du safe avec
+  leurs droits (lister, utiliser, récupérer, ajouter des comptes, modifier, supprimer, gérer les membres…), indique
+  qui peut **ajouter des comptes**, et détaille tous les droits du membre sélectionné. Le PVWA ne donne cette
+  liste qu'à un compte qui a le droit « View Safe Members » sur le safe. Lecture seule ; `Ctrl+A` puis `Ctrl+C`
+  copie le tableau.
 - Sur l'accueil, la **connexion rapide** trouve un serveur au fil de la frappe : Entrée pour s'y connecter.
 
 ### 3. Ouvrir une session PSM (bureau à distance)
@@ -333,6 +339,7 @@ Pour signaler une vulnérabilité, voir [SECURITY.md](SECURITY.md) (signalement 
 | `POST /PasswordVault/API/auth/{CyberArk\|LDAP\|RADIUS\|Windows}/Logon` | Ouverture de session |
 | `GET /PasswordVault/API/Accounts?offset=…&limit=1000` | Liste paginée des comptes |
 | `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | Fichier RDP de la session PSM |
+| `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Membres d'un safe et leurs droits (« Membres du safe », lecture seule) |
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Clé SSH temporaire « MFA caching » (si activée) |
 | `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Maintien de la session (toutes les 4 minutes) |
 | `POST /PasswordVault/API/Auth/Logoff` | Fermeture de session |
@@ -399,6 +406,7 @@ Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place d
 | « Le PVWA doit être joint en HTTPS » | Saisissez l'adresse sans `http://` (ou avec `https://`). |
 | « Le PVWA n'a pas de composant de connexion « PSM-RDP » pour ce compte » (`EPVWA093E Failed to get the relevant connection component`) | La plateforme du compte utilise un composant d'un autre nom (par exemple `WIN-PSM`) : celui que propose le bouton « Connect » du PVWA, ou le nom après `/c` dans une commande `psm /u … /a … /c …`. Saisissez-le dans « Composant » ; « Mémoriser ce composant pour la plateforme » est coché pour les connexions suivantes. |
 | « Votre session CyberArk a expiré » | Délai d'inactivité du PVWA dépassé : reconnectez-vous. |
+| « Membres du safe » : « Votre compte ne peut pas voir les membres de ce safe » | Le PVWA exige le droit « View Safe Members » sur le safe : demandez-le à un gestionnaire du safe. |
 | « Connection component … is not configured for platform … » | Choisissez le bon composant dans « Connexion avancée », cochez « Mémoriser » pour la plateforme. |
 | « You must specify a reason… » | Saisissez un motif dans la fenêtre qui s'ouvre (ou un motif par défaut dans les propriétés du serveur courant). |
 | Le compte n'apparaît pas | Vous n'avez pas le droit « List accounts » sur son safe, ou la liste doit être rechargée (`F5`). |

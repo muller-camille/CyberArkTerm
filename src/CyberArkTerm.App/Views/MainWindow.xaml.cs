@@ -754,25 +754,64 @@ public partial class MainWindow : Window
     private void OnAccountMenuOpened(object sender, RoutedEventArgs e)
     {
         var menu = (ContextMenu)sender;
-        if (_current is not { } account)
+        var account = _current;
+        // Clic droit sur un safe (« Disponibles » groupé par safe) : seulement ses membres ; sur un autre dossier : rien.
+        var safe = account is not null ? account.SafeName : SafeOfFolder(menu.PlacementTarget);
+        if (account is null && safe is null)
         {
-            // Clic droit sur un dossier : rien à proposer.
             menu.IsOpen = false;
             return;
+        }
+
+        foreach (var element in menu.Items.OfType<FrameworkElement>())
+        {
+            element.Visibility = account is null && element.Tag as string != "safemembers" ? Visibility.Collapsed : Visibility.Visible;
         }
 
         foreach (var item in menu.Items.OfType<MenuItem>())
         {
             switch (item.Tag as string)
             {
-                case "addcurrent":
+                case "addcurrent" when account is not null:
                     BuildAddToCurrentMenu(item, folder => AddToCurrent(account, folder));
                     break;
                 case "ssh":
                     item.IsEnabled = HasPsmp;
                     item.ToolTip = HasPsmp ? null : Strings.SetPsmpAddress;
                     break;
+                case "safemembers":
+                    bool available = _client is not null && !string.IsNullOrWhiteSpace(safe);
+                    // TextBlock : un « _ » dans le nom du safe n'est pas un raccourci clavier.
+                    item.Header = new TextBlock { Text = available ? Text.Format(Strings.MenuSafeMembersOf, safe) : Strings.MenuSafeMembers };
+                    item.CommandParameter = safe;
+                    item.IsEnabled = available;
+                    break;
             }
+        }
+    }
+
+    /// <summary>Safe d'un dossier de l'arbre « Disponibles » quand les comptes sont groupés par safe, sinon null.</summary>
+    private string? SafeOfFolder(UIElement? target) =>
+        _settings.GroupBy == GroupBy.Safe && target is TreeViewItem { DataContext: FolderNode folder }
+            && folder.Children.FirstOrDefault()?.Account.SafeName is { } safe && !string.IsNullOrWhiteSpace(safe)
+            ? safe
+            : null;
+
+    private void OnShowSafeMembers(object sender, RoutedEventArgs e) => ShowSafeMembers((sender as MenuItem)?.CommandParameter as string);
+
+    /// <summary>Membres du safe et leurs droits, lus sur le PVWA (droit « View Safe Members » nécessaire).</summary>
+    private void ShowSafeMembers(string? safeName)
+    {
+        if (_client is not { } client || string.IsNullOrWhiteSpace(safeName))
+        {
+            return;
+        }
+
+        var dialog = new SafeMembersDialog(safeName, ct => client.GetSafeMembersAsync(safeName, ct)) { Owner = this };
+        dialog.ShowDialog();
+        if (dialog.SessionExpired)
+        {
+            OnSessionExpired();
         }
     }
 

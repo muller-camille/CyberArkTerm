@@ -168,6 +168,82 @@ public class PvwaClientTests
         Assert.Equal([(1000, total), (2000, total), (total, total)], reports);
     }
 
+    /// <summary>Réponse du PVWA (valeurs fictives) : utilisateur, groupe avec date de fin, pagination sur le total.</summary>
+    [Fact]
+    public async Task GetSafeMembers_ReadsMembersAndPermissionsPageByPage()
+    {
+        var pvwa = new FakePvwa(req =>
+        {
+            if (FakePvwa.IsLogon(req))
+            {
+                return FakePvwa.Json("\"tok\"");
+            }
+
+            return req.RequestUri!.Query.Contains("offset=0", StringComparison.Ordinal)
+                ? FakePvwa.Json("""
+                    {"value":[{"safeUrlId":"Prod%20Linux","safeName":"Prod Linux","memberId":"12","memberName":"jdoe","memberType":"User",
+                       "isPredefinedUser":false,"membershipExpirationDate":null,
+                       "permissions":{"useAccounts":true,"retrieveAccounts":false,"listAccounts":true,"addAccounts":false,
+                         "viewSafeMembers":true,"requestsAuthorizationLevel1":false}}],
+                     "count":2,"nextLink":"api/Safes/Prod%20Linux/Members?offset=1&limit=1000"}
+                    """)
+                : FakePvwa.Json("""
+                    {"value":[{"memberName":"Unix Admins","memberType":"Group","membershipExpirationDate":1767225600,
+                       "permissions":{"listAccounts":true,"addAccounts":true,"updateAccountContent":true,
+                         "manageSafeMembers":true,"requestsAuthorizationLevel2":true}}],"count":2}
+                    """);
+        });
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+
+        var members = await client.GetSafeMembersAsync("Prod Linux");
+
+        Assert.Equal(
+            ["/PasswordVault/API/Safes/Prod%20Linux/Members?offset=0&limit=1000",
+             "/PasswordVault/API/Safes/Prod%20Linux/Members?offset=1&limit=1000"],
+            pvwa.Requests.Skip(1).Select(r => r.PathAndQuery));
+        Assert.All(pvwa.Requests.Skip(1), r => Assert.Equal("tok", r.Authorization));
+        Assert.Equal(["jdoe", "Unix Admins"], members.Select(m => m.MemberName));
+        Assert.Equal((false, null), (members[0].IsGroup, members[0].Expires));
+        Assert.Equal(["UseAccounts", "ListAccounts", "ViewSafeMembers"], members[0].Permissions.Granted());
+        Assert.True(members[1].IsGroup);
+        Assert.Equal(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime(), members[1].Expires);
+        Assert.Equal(["ListAccounts", "AddAccounts", "UpdateAccountContent", "ManageSafeMembers", "RequestsAuthorizationLevel2"],
+            members[1].Permissions.Granted());
+        Assert.Equal(22, members[1].Permissions.All().Count());
+    }
+
+    /// <summary>Sans le droit « View Safe Members », le PVWA répond 403 : l'erreur garde le statut pour l'expliquer.</summary>
+    [Fact]
+    public async Task GetSafeMembers_WithoutViewMembersRight_ThrowsForbidden()
+    {
+        var pvwa = new FakePvwa(req => FakePvwa.IsLogon(req)
+            ? FakePvwa.Json("\"tok\"")
+            : FakePvwa.Json("{\"ErrorCode\":\"SFWS0007E\",\"ErrorMessage\":\"Access denied.\"}", HttpStatusCode.Forbidden));
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+
+        var ex = await Assert.ThrowsAsync<PvwaException>(() => client.GetSafeMembersAsync("Prod"));
+
+        Assert.Equal(HttpStatusCode.Forbidden, ex.StatusCode);
+        Assert.False(ex.IsUnauthorized);
+    }
+
+    [Theory]
+    [InlineData("\"2026-01-01T00:00:00Z\"", true)]
+    [InlineData("0", false)]
+    [InlineData("null", false)]
+    [InlineData("\"pas une date\"", false)]
+    public void SafeMemberExpirationAcceptsSecondsOrText(string json, bool hasDate)
+    {
+        var member = JsonSerializer.Deserialize<SafeMember>($"{{\"memberName\":\"x\",\"membershipExpirationDate\":{json}}}",
+            new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+
+        Assert.Equal(hasDate, member.Expires is not null);
+        if (hasDate)
+        {
+            Assert.Equal(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime(), member.Expires);
+        }
+    }
+
     [Fact]
     public async Task GetAccounts_StopsOnEmptyPage()
     {

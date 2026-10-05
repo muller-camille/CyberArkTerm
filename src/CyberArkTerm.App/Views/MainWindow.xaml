@@ -43,6 +43,11 @@
                     <Image Source="{StaticResource IconBookmark}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <MenuItem Tag="safemembers" Click="OnShowSafeMembers">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconPermissions}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuCopyServer}" Click="OnCopyAddress" />
             <MenuItem Header="{x:Static loc:Strings.MenuCopyUser}" Click="OnCopyUser" />
@@ -86,6 +91,11 @@
             <MenuItem Header="{x:Static loc:Strings.MenuRemoveFromMyServers}" Click="OnDeleteSelectedSaved">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="{x:Static loc:Strings.MenuSafeMembers}" Click="OnSafeMembersOfSelectedSaved">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconPermissions}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
