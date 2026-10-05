@@ -1,5 +1,8 @@
+using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Threading;
 using CyberArkTerm.App.Services.Rdp;
@@ -386,6 +389,8 @@ public class RdpSessionTests(ITestOutputHelper output)
             await FitsAsync(slot, app);
             output.WriteLine($"Dans l'onglet : « {Win32Input.Title(app)} » {Win32Input.ScreenBounds(app)}, onglet {Win32Input.ScreenBounds(slot)}");
             Assert.Equal(Win32Input.ScreenBounds(slot), Win32Input.ScreenBounds(app));
+            // Place de l'onglet envoyée au serveur (application au premier plan) avant de taper.
+            await SettleAsync(host, slot, app);
 
             // Clavier donné par l'onglet (comme à sa sélection) : le texte arrive dans l'application.
             Assert.Contains("bonjour", await TypeAndCopyAsync(host, app, session.Focus, "bonjour"));
@@ -404,6 +409,7 @@ public class RdpSessionTests(ITestOutputHelper output)
             await FitsAsync(slot, app);
             output.WriteLine($"Après redimensionnement : {Win32Input.ScreenBounds(app)}, onglet {Win32Input.ScreenBounds(slot)}");
             Assert.Equal(Win32Input.ScreenBounds(slot), Win32Input.ScreenBounds(app));
+            await SettleAsync(host, slot, app);
 
             // Souris : le menu contextuel (fenêtre à part, au-dessus) s'ouvre au pointeur. Windows l'ouvre au-dessus
             // ou à gauche quand la place manque : l'un de ses coins est au point cliqué.
@@ -435,6 +441,216 @@ public class RdpSessionTests(ITestOutputHelper output)
             Assert.False(session.RemoteAppShown);
             Assert.False(Win32Input.IsChild(slot, app), "Fenêtre de l'application encore dans l'onglet");
         }, remoteAppInTab: true);
+    }
+
+    /// <summary>
+    /// Application au premier plan, puis laisse le temps d'envoyer au serveur la place de l'onglet (déplacement au
+    /// clavier, aussitôt terminé : la frappe ne doit pas tomber pendant) ; la fenêtre est alors de nouveau dans l'onglet.
+    /// </summary>
+    private static async Task SettleAsync(IntPtr host, IntPtr slot, IntPtr app)
+    {
+        Win32Input.BringToFront(host);
+        await Task.Delay(3000);
+        await FitsAsync(slot, app);
+    }
+
+    /// <summary>
+    /// Application distante dans l'onglet : le serveur met sa fenêtre à la place de l'onglet (position et taille), si
+    /// bien que les clics arrivent là où ils sont faits, et l'image n'est pas étirée. De même pour une fenêtre plein
+    /// écran ouverte par-dessus (comme le client Bureau à distance du PSM), puis à son retour. L'application (une
+    /// fenêtre PowerShell) écrit dans son titre chaque clic reçu (position dans la fenêtre) et compte les touches Entrée
+    /// reçues (l'envoi de la place n'en laisse passer aucune).
+    /// </summary>
+    [Fact]
+    [Trait("Category", "RdpIntegration")]
+    public async Task RemoteAppInTheTabGetsClicksWhereTheyAreMade()
+    {
+        if (IntegrationAccount() is not { } account)
+        {
+            return;
+        }
+
+        var script = Path.Combine(@"C:\Users\Public", "cyberarkterm-remoteapp-test.ps1");
+        File.WriteAllText(script, ClickRecorderScript);
+        var request = new RdpConnectionRequest(RdpConnectionSettings.FromRdpFile(Encoding.Unicode.GetBytes(
+            $"full address:s:127.0.0.2:3389\r\nusername:s:{account.User}\r\nauthentication level:i:0\r\nenablecredsspsupport:i:1\r\n" +
+            "remoteapplicationmode:i:1\r\ndisableremoteappcapscheck:i:1\r\n" +
+            "remoteapplicationprogram:s:C:\\Windows\\System32\\conhost.exe\r\nremoteapplicationname:s:PSM-RDP\r\n" +
+            $"remoteapplicationcmdline:s:--headless C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoProfile -ExecutionPolicy Bypass -File {script}\r\n")),
+            account.Password);
+        await RunOnStaAsync(request, async session =>
+        {
+            await session.ConnectAsync();
+            Assert.Equal(RdpSessionState.Connected, await WaitForAsync(session, s => s != RdpSessionState.Connecting, TimeSpan.FromSeconds(120)));
+            var host = new System.Windows.Interop.WindowInteropHelper(Window.GetWindow(session.Host)).Handle;
+            var slot = session.Host.SlotHandle;
+            var main = await DockedAsync(slot, "CAT main");
+            Win32Input.BringToFront(host);
+            var tab = Win32Input.ScreenBounds(slot);
+            output.WriteLine($"Onglet {tab}, fenêtre « {Win32Input.Title(main)} » {Win32Input.ScreenBounds(main)}");
+
+            // Coin haut gauche puis bas droite de l'onglet : reçus à la même distance l'un de l'autre (la fenêtre du
+            // serveur est à la place et à la taille de l'onglet).
+            var first = await ClickWhenPlacedAsync(host, main, (tab.Left + 60, tab.Top + 60), c => c.X is >= 44 and <= 60 && c.Y is >= 12 and <= 60);
+            Assert.Equal(0, first.Enter);
+            var frame = (X: 60 - first.X, Y: 60 - first.Y);
+            var last = await ClickAsync(host, main, (tab.Left + tab.Width - 60, tab.Top + tab.Height - 60));
+            Assert.NotNull(last);
+            Assert.Equal((tab.Width - 60 - frame.X, tab.Height - 60 - frame.Y), (last.Value.X, last.Value.Y));
+            // Image à l'échelle 1 : le carré rouge (120x80 en haut à gauche de la fenêtre) n'est pas étiré.
+            var red = RedArea(tab);
+            output.WriteLine($"Carré rouge {red}, bord de la fenêtre {frame}");
+            Assert.NotNull(red);
+            Assert.InRange(red.Value.Width, 116, 124);
+            Assert.InRange(red.Value.Height, 76, 84);
+            Assert.InRange(red.Value.Left - tab.Left, frame.X - 2, frame.X + 2);
+            Assert.InRange(red.Value.Top - tab.Top, frame.Y - 2, frame.Y + 2);
+
+            // Fenêtre plein écran ouverte par-dessus (F11) : dans l'onglet, à sa place.
+            Win32Input.Keys((0x7A, 0x57));
+            var full = await DockedAsync(slot, "CAT full");
+            var fullClick = await ClickWhenPlacedAsync(host, full, (tab.Left + 60, tab.Top + 60), c => c.X == 60 && c.Y == 60);
+            Assert.Equal(0, fullClick.Enter);
+
+            // Fermée (Échap) : la fenêtre principale revient, toujours à sa place.
+            Win32Input.Keys((0x1B, 0x01));
+            for (int i = 0; i < 40 && Win32Input.IsChild(slot, full) && Win32Input.IsWindowVisible(full); i++)
+            {
+                await Task.Delay(250);
+            }
+
+            Assert.False(Win32Input.IsWindowVisible(full), "Fenêtre plein écran toujours affichée");
+            var back = await ClickWhenPlacedAsync(host, main, (tab.Left + 60, tab.Top + 60), c => (c.X, c.Y) == (first.X, first.Y));
+            Assert.Equal(0, back.Enter);
+
+            session.Disconnect();
+            await WaitForAsync(session, s => s is RdpSessionState.Ended or RdpSessionState.Failed, TimeSpan.FromSeconds(30));
+        }, remoteAppInTab: true);
+    }
+
+    /// <summary>Fenêtre PowerShell qui écrit chaque clic reçu dans son titre ; F11 ouvre une fenêtre plein écran (Échap la ferme).</summary>
+    private const string ClickRecorderScript = """
+        Add-Type -AssemblyName System.Windows.Forms
+        $script:n = 0
+        $script:enter = 0
+        function Show-Click($form) {
+          $script:n++
+          $p = $form.PointToClient([System.Windows.Forms.Control]::MousePosition)
+          $form.Text = "clic $($script:n) $($p.X),$($p.Y) e$($script:enter)"
+        }
+        $script:main = New-Object System.Windows.Forms.Form
+        $main.Text = 'CAT main'; $main.Width = 640; $main.Height = 420; $main.StartPosition = 'CenterScreen'; $main.KeyPreview = $true
+        $panel = New-Object System.Windows.Forms.Panel
+        $panel.BackColor = [System.Drawing.Color]::Red; $panel.Left = 0; $panel.Top = 0; $panel.Width = 120; $panel.Height = 80
+        $main.Controls.Add($panel)
+        $main.Add_MouseDown({ Show-Click $script:main })
+        $panel.Add_MouseDown({ Show-Click $script:main })
+        $main.Add_KeyDown({ param($s, $e)
+          if ($e.KeyCode -eq 'Return') { $script:enter++ }
+          if ($e.KeyCode -eq 'F11') {
+            $script:full = New-Object System.Windows.Forms.Form
+            $full.Text = 'CAT full'; $full.FormBorderStyle = 'None'; $full.ShowInTaskbar = $false; $full.KeyPreview = $true
+            $full.StartPosition = 'Manual'; $full.Bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+            $full.Add_MouseDown({ Show-Click $script:full })
+            $full.Add_KeyDown({ param($s, $e)
+              if ($e.KeyCode -eq 'Return') { $script:enter++ }
+              if ($e.KeyCode -eq 'Escape') { $script:full.Close() }
+            })
+            [void]$full.ShowDialog($script:main)
+          }
+        })
+        [System.Windows.Forms.Application]::Run($main)
+        """;
+
+    private readonly record struct Click(int X, int Y, int Enter);
+
+    /// <summary>Fenêtre de l'application rattachée à l'onglet dont le titre commence par <paramref name="title"/>.</summary>
+    private static async Task<IntPtr> DockedAsync(IntPtr slot, string title)
+    {
+        for (int i = 0; i < 120; i++)
+        {
+            var window = Win32Input.Descendants(slot).FirstOrDefault(h => Win32Input.ClassName(h) == "RAIL_WINDOW"
+                                                                          && Win32Input.IsWindowVisible(h)
+                                                                          && Win32Input.Title(h).StartsWith(title, StringComparison.Ordinal));
+            if (window != IntPtr.Zero)
+            {
+                return window;
+            }
+
+            await Task.Delay(250);
+        }
+
+        Assert.Fail($"« {title} » absente de l'onglet");
+        return IntPtr.Zero;
+    }
+
+    /// <summary>
+    /// Clique en <paramref name="point"/> jusqu'à ce que l'application reçoive le clic à la position attendue
+    /// (la place de l'onglet est envoyée au serveur peu après l'affichage de la fenêtre).
+    /// </summary>
+    private async Task<Click> ClickWhenPlacedAsync(IntPtr host, IntPtr window, (int X, int Y) point, Func<Click, bool> placed)
+    {
+        Click? last = null;
+        for (int i = 0; i < 15; i++)
+        {
+            last = await ClickAsync(host, window, point);
+            if (last is { } click && placed(click))
+            {
+                return click;
+            }
+        }
+
+        Assert.Fail($"Clic en {point} jamais reçu à sa place (dernier : {last?.ToString() ?? "aucun"})");
+        return default;
+    }
+
+    /// <summary>Clic gauche ; la position reçue par l'application (lue dans son titre), ou null si rien n'est arrivé.</summary>
+    private async Task<Click?> ClickAsync(IntPtr host, IntPtr window, (int X, int Y) point)
+    {
+        var before = Win32Input.Title(window);
+        Win32Input.BringToFront(host);
+        await Task.Delay(200);
+        Win32Input.Click(point);
+        for (int i = 0; i < 8; i++)
+        {
+            await Task.Delay(250);
+            var title = Win32Input.Title(window);
+            if (title != before && Regex.Match(title, @"clic \d+ (-?\d+),(-?\d+) e(\d+)") is { Success: true } m)
+            {
+                var click = new Click(int.Parse(m.Groups[1].Value), int.Parse(m.Groups[2].Value), int.Parse(m.Groups[3].Value));
+                output.WriteLine($"Clic en {point} : reçu {click}");
+                return click;
+            }
+        }
+
+        output.WriteLine($"Clic en {point} : rien reçu");
+        return null;
+    }
+
+    /// <summary>Rectangle (écran) des pixels rouges dans <paramref name="area"/>, ou null.</summary>
+    private static Win32Input.Bounds? RedArea(Win32Input.Bounds area)
+    {
+        using var bitmap = new Bitmap(area.Width, area.Height);
+        using (var g = Graphics.FromImage(bitmap))
+        {
+            g.CopyFromScreen(area.Left, area.Top, 0, 0, new System.Drawing.Size(area.Width, area.Height));
+        }
+
+        int left = int.MaxValue, top = int.MaxValue, right = -1, bottom = -1;
+        for (int y = 0; y < area.Height; y++)
+        {
+            for (int x = 0; x < area.Width; x++)
+            {
+                var c = bitmap.GetPixel(x, y);
+                if (c.R > 200 && c.G < 60 && c.B < 60)
+                {
+                    (left, top) = (Math.Min(left, x), Math.Min(top, y));
+                    (right, bottom) = (Math.Max(right, x), Math.Max(bottom, y));
+                }
+            }
+        }
+
+        return right < 0 ? null : new Win32Input.Bounds(area.Left + left, area.Top + top, right - left + 1, bottom - top + 1);
     }
 
     /// <summary>Attend (5 s au plus) que <paramref name="app"/> occupe exactement <paramref name="slot"/>.</summary>
