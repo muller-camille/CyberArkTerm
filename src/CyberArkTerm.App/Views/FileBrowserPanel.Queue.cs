@@ -70,7 +70,7 @@ public partial class FileBrowserPanel
     }
 
     /// <summary>Emplacement de gzip sur le serveur de chaque connexion (null : absent), cherché une seule fois.</summary>
-    private readonly ConditionalWeakTable<RemoteFileBrowser, Task<string?>> _gzip = [];
+    private readonly ConditionalWeakTable<IRemoteFiles, Task<string?>> _gzip = [];
 
     /// <summary>Met en file l'envoi de fichiers ou de dossiers locaux vers le dossier affiché.</summary>
     private async Task EnqueueUploadAsync(IReadOnlyList<string> paths)
@@ -89,7 +89,8 @@ public partial class FileBrowserPanel
         string? archiveName = null;
         int archiveFiles = 0;
         string? gzip = null;
-        if (_settings.OfferArchive)
+        // L'archive se décompresse par une commande tapée dans le terminal : pas de proposition sans terminal.
+        if (_settings.OfferArchive && session.HasTerminal)
         {
             var (files, bytes) = TarGzPacker.Measure(paths);
             if (files >= _settings.ArchiveThreshold && TarGzPacker.UstarProblem(paths) is { } tooLong)
@@ -168,7 +169,7 @@ public partial class FileBrowserPanel
     /// dossier temporaire de ce poste, envoyée et vérifiée (SHA-256), puis supprimée du poste. La commande d'extraction
     /// est donnée à la fin.
     /// </summary>
-    private void EnqueueArchive(RemoteFileBrowser browser, SshSession session, IReadOnlyList<string> paths, string directory,
+    private void EnqueueArchive(IRemoteFiles browser, SshSession session, IReadOnlyList<string> paths, string directory,
         string archiveName, int files, IReadOnlyList<string> names, string? gzip)
     {
         var protocol = _settings.PreferredUploadProtocol;
@@ -470,7 +471,7 @@ public partial class FileBrowserPanel
 
         if (session.State != SshSessionState.Connected)
         {
-            SetStatus(Strings.SshNotConnectedBrowse, error: true);
+            SetStatus(NotConnectedText(session), error: true);
             return;
         }
 

@@ -145,7 +145,8 @@ server>`. User names containing spaces (`John Smith`, `Local Admin`) are accepte
 
 ## 5. Browse and upload files: "Files" tab
 
-When an SSH session opens, the **Files** tab appears on the side and follows the active SSH tab.
+When an SSH session opens, the **Files** tab appears on the side and follows the active SSH tab. It also serves the
+files sessions of KeePass entries (SFTP, FTP, FTPS: see [section 7](#7-emergency-access-outside-cyberark-keepass-vaults)).
 
 ![Files tab sorted by date, next to the terminal](captures/en/main-window.png)
 
@@ -339,7 +340,7 @@ Three buttons at the top of the tab, left of the KeePass vault button:
 ## 7. Emergency access outside CyberArk: KeePass vaults
 
 When CyberArk is unavailable, CyberArkTerm opens your KeePass vaults (`.kdbx`) and connects **directly** to the
-servers, over SSH or remote desktop, with the accounts they hold.
+servers, over SSH, remote desktop or VNC, or to their files only (SFTP, FTP, FTPS), with the accounts they hold.
 
 > These connections **do not go through the PSM**: no recording, no CyberArk rules. Every vault opening,
 > connection and change is written to the local log `%APPDATA%\CyberArkTerm\urgence.log`.
@@ -353,10 +354,25 @@ servers, over SSH or remote desktop, with the accounts they hold.
 - **Unlock**: double-click the vault. Master password and/or key file (every KeePass format). "Remember the master
   password in the local vault" saves typing it again (see below).
 - **Connect**: double-click an entry. The protocol comes from its address (`ssh://server:22`, `rdp://server`,
-  `server:3389`), a "Protocol" / "Port" field or an `ssh` / `rdp` tag; otherwise CyberArkTerm asks SSH or remote
-  desktop. The entry's password is used directly (terminal + Files tabs over SSH, remote desktop tab over RDP); it
-  is never shown or written to disk. The remote desktop tab follows its size (remote desktop resolution) and offers
-  "Full screen" (`Ctrl+Alt+Break` to come back), "Disconnect" and "Reconnect".
+  `vnc://server`, `sftp://`, `ftp://`, `ftpes://`, `ftps://`, or `server:3389`), a "Protocol" / "Port" field or a
+  tag (`ssh`, `rdp`, `vnc`, `sftp`, `ftp`, `ftpes`, `ftps`); otherwise CyberArkTerm asks for the protocol. The
+  entry's password is used directly; it is never shown or written to disk.
+  - **SSH**: terminal + Files tabs.
+  - **Remote desktop**: the tab follows its size (remote desktop resolution) and offers "Full screen"
+    (`Ctrl+Alt+Break` to come back), "Disconnect" and "Reconnect".
+  - **VNC** (`vnc://server`, port 5900; `vnc://server:1` means display 1, port 5901): desktop in a tab, fitted to
+    the window or at real size ("Fit"), "Ctrl+Alt+Del", "Send clipboard" and "Copy remote text" buttons: the
+    clipboard is only exchanged through these buttons. VNC password authentication (8 characters at most, a limit
+    of the protocol) or no authentication. **VNC encrypts nothing**: a banner says so; keep it for a trusted
+    network.
+  - **Files** (`sftp://`, `ftp://`, `ftpes://` for FTP with explicit TLS, `ftps://` for implicit TLS, port 990): a
+    status tab, without a terminal, and the files in the "Files" tab with the same functions (transfers checked by
+    SHA-256, queue, history, editor, compare, live follow, permissions if the server accepts `SITE CHMOD`).
+    Right-click → "Open the files (SFTP, FTP)" does the same for an SSH entry, over SFTP. With `ftp://`, TLS
+    encryption is tried first; if the server does not offer it, CyberArkTerm asks before connecting in clear text
+    (once per session) and a banner reminds you. `ftpes://` and `ftps://` never fall back to clear text. An FTPS
+    certificate that Windows does not trust (self-signed…) is shown with its SHA-256 fingerprint, then remembered
+    for that server if you accept it.
 - **Edit the vault**: right-click → "New entry…", "Edit…" (`F2`), "Delete" (`Del`, into the vault's recycle bin).
   The rest of the vault (attachments, fields, settings) is kept; the previous version of an entry goes to its
   history, like in KeePass.
@@ -413,7 +429,7 @@ change the password, delete.
 | Comparison tool | Program offered in the comparison window, with its arguments (`{0}` = left file, `{1}` = right file) | none |
 | Terminal colours, font | Palette (Campbell, One Half, Solarized…) and font size of the SSH terminals | Campbell, 14 |
 | Follow in an independent session | Following a file (tail -f) opens its own SFTP connection (one more PSMP session) | No |
-| Accepted PSMP keys | Remembered fingerprints ("Forget keys" button) | — |
+| Accepted server keys | Remembered fingerprints: PSMP, SSH servers and FTPS certificates of KeePass entries ("Forget keys" button) | — |
 | Remembered components | PSM component chosen per platform ("Forget" button) | — |
 
 All preferences are saved in `%APPDATA%\CyberArkTerm\settings.json`: language, PVWA address, sign-in method and user
@@ -459,6 +475,15 @@ start from scratch, close the application and delete it. The transfer history of
     changed elsewhere in the meantime is not overwritten;
   - direct remote desktop: the password is only passed to the Remote Desktop control (no file, no credential
     manager), with network level authentication (NLA) and a warning if the server is not recognized;
+  - VNC: the protocol encrypts neither the screen, nor the keystrokes, nor the clipboard (permanent banner); the
+    password is not sent as is (challenge-response of the protocol); the clipboard is only exchanged on a click;
+    the screen size announced by the server is bounded (8,192 pixels per side);
+  - FTP: TLS is tried first, clear text only after your agreement (permanent banner), never for `ftpes://` and
+    `ftps://`; under TLS, transfers are encrypted too (`PROT P`);
+  - FTPS certificate: one that Windows trusts is accepted; otherwise its SHA-256 fingerprint is shown and pinned on
+    the first agreement (like an SSH host key), a change is reported; refused, the connection stops before the
+    user name is sent;
+  - file names with control characters are refused (no FTP command injection);
   - `urgence.log`: date, Windows account, computer, action, vault, entry, target; never a password.
 - **Debug log**, off by default (Settings button menu): `%LOCALAPPDATA%\CyberArkTerm\debug.log`, 5 MB at most plus
   one `.1` generation. It records how PVWA, PSM, remote desktop and SSH connections unfold: request addresses and
@@ -520,6 +545,20 @@ encryption, AES-KDF (processor AES instructions) or Argon2d / Argon2id key deriv
 bytes, 64 hexadecimal characters or any file. The rewritten file keeps the original version, encryption and key
 derivation, with new seeds on every save. The test vaults (`tests/CyberArkTerm.Core.Tests/KeePass/Vaults`) come from
 KeePassXC and pykeepass, and files written by CyberArkTerm were checked in both tools.
+
+### VNC sessions
+
+Built-in client (RFB protocol 3.3, 3.7 and 3.8, RFC 6143), nothing to install: "none" or "VNC password"
+authentication (the protocol's DES, implemented in CyberArkTerm because the Windows FIPS mode can forbid DES), Raw,
+CopyRect and Hextile encodings, screen size changes, 32-bit pixels. The keyboard is sent as X11 "keysyms" (AltGr
+characters are sent as characters), the wheel as buttons 4 and 5.
+
+### FTP / FTPS files sessions
+
+FluentFTP library (MIT licence). Passive mode (`EPSV` / `PASV`), binary, `PBSZ 0` and `PROT P` under TLS; certificate
+checked by Windows, otherwise pinned (`ftps://server:port` among the accepted server keys, in the Settings). FTP has
+no standard checksum: each upload is read back from the server and compared by SHA-256. Partial reads (`REST`) for
+compare and live follow. After an interrupted transfer, the connection is reopened and the incomplete file deleted.
 
 ### Remote desktop sessions
 
@@ -600,3 +639,7 @@ ksh, sh or fish, following is not set up and nothing stays on screen.
 | A shared list shows "(unreadable)" | Share unreachable or damaged file: the tooltip gives the error. If the file is damaged, copy the most recent version of the `name.versions` folder in its place. |
 | Understanding a connection failure | Settings → Debug log, reproduce the problem, then Settings → "Show the debug log file". |
 | A direct remote desktop tab (KeePass) shows "Remote Desktop control error" | Report the code shown (if the Remote Desktop control is missing from the computer, the connection goes through `mstsc`). |
+| VNC: "The VNC server offers no authentication supported by CyberArkTerm…" | The server requires its vendor's own authentication (Windows account, VeNCrypt encryption…): enable "VNC password" authentication on the server. |
+| VNC: "No VNC answer from the server within 30 seconds" | Wrong port (5900 + display number) or a service other than VNC at this address. |
+| FTP: "The FTP server does not offer encryption (TLS), required by this entry" | The server does not accept TLS: use `ftp://` (clear-text connection after confirmation) or SFTP if available. |
+| FTPS: the file list does not show or a transfer times out | A firewall blocks the server's passive ports, or the server requires TLS session reuse on data connections (`522`, for example vsftpd's `require_ssl_reuse`): see the server's administrator. |

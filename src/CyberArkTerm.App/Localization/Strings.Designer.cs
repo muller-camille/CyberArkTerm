@@ -2567,6 +2567,96 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Files session {0} closed.
+        /// </summary>
+        public static string FilesClosed {
+            get {
+                return ResourceManager.GetString("FilesClosed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Files of {0} opened ({1}).
+        /// </summary>
+        public static string FilesOpened {
+            get {
+                return ResourceManager.GetString("FilesOpened", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connected (encrypted): the files are in the “Files” tab on the left..
+        /// </summary>
+        public static string FilesSessionConnected {
+            get {
+                return ResourceManager.GetString("FilesSessionConnected", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connected without encryption: the files are in the “Files” tab on the left..
+        /// </summary>
+        public static string FilesSessionConnectedClear {
+            get {
+                return ResourceManager.GetString("FilesSessionConnectedClear", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connecting….
+        /// </summary>
+        public static string FilesSessionConnecting {
+            get {
+                return ResourceManager.GetString("FilesSessionConnecting", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · {1}.
+        /// </summary>
+        public static string FilesSessionDetail {
+            get {
+                return ResourceManager.GetString("FilesSessionDetail", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: {1}.
+        /// </summary>
+        public static string FilesSessionError {
+            get {
+                return ResourceManager.GetString("FilesSessionError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connection impossible: {0}.
+        /// </summary>
+        public static string FilesSessionFailed {
+            get {
+                return ResourceManager.GetString("FilesSessionFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Files of {0}.
+        /// </summary>
+        public static string FilesSessionTitle {
+            get {
+                return ResourceManager.GetString("FilesSessionTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Show the files.
+        /// </summary>
+        public static string FilesShow {
+            get {
+                return ResourceManager.GetString("FilesShow", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to This folder already exists..
         /// </summary>
         public static string FolderExists {
@@ -2671,6 +2761,60 @@ namespace CyberArkTerm.App.Localization {
         public static string ForgetKeys {
             get {
                 return ResourceManager.GetString("ForgetKeys", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to WARNING: the certificate of the FTPS server {0} has CHANGED since the last connection ({1}).  Sub[rest of string was truncated].
+        /// </summary>
+        public static string FtpCertificateChanged {
+            get {
+                return ResourceManager.GetString("FtpCertificateChanged", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to FTPS server certificate.
+        /// </summary>
+        public static string FtpCertificateTitle {
+            get {
+                return ResourceManager.GetString("FtpCertificateTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The certificate of the FTPS server {0} is not trusted by Windows: {1}.  Subject: {2} Issuer: {3} [rest of string was truncated].
+        /// </summary>
+        public static string FtpCertificateUnknown {
+            get {
+                return ResourceManager.GetString("FtpCertificateUnknown", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The FTP server {0} does not offer encryption (TLS).  The password of the entry and the files woul[rest of string was truncated].
+        /// </summary>
+        public static string FtpCleartextConfirm {
+            get {
+                return ResourceManager.GetString("FtpCleartextConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to FTP without encryption.
+        /// </summary>
+        public static string FtpCleartextTitle {
+            get {
+                return ResourceManager.GetString("FtpCleartextTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unencrypted FTP connection: the password and the files travel in clear on the network..
+        /// </summary>
+        public static string FtpUnencrypted {
+            get {
+                return ResourceManager.GetString("FtpUnencrypted", resourceCulture);
             }
         }
 
@@ -2945,7 +3089,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Accepted PSMP keys: {0}.
+        ///   Looks up a localized string similar to Accepted server keys (SSH, FTPS certificates): {0}.
         /// </summary>
         public static string HostKeys {
             get {
@@ -4556,6 +4700,33 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Open the _files (SFTP, FTP).
+        /// </summary>
+        public static string MenuKeePassFiles {
+            get {
+                return ResourceManager.GetString("MenuKeePassFiles", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Files tab only, without terminal: the entry's file protocol (ftp://, ftps://…), otherwise SFTP.
+        /// </summary>
+        public static string MenuKeePassFilesTip {
+            get {
+                return ResourceManager.GetString("MenuKeePassFilesTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Files over FTP (TLS if offered).
+        /// </summary>
+        public static string MenuKeePassFtp {
+            get {
+                return ResourceManager.GetString("MenuKeePassFtp", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Lock.
         /// </summary>
         public static string MenuKeePassLock {
@@ -4606,6 +4777,15 @@ namespace CyberArkTerm.App.Localization {
         public static string MenuKeePassRemove {
             get {
                 return ResourceManager.GetString("MenuKeePassRemove", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Files over SFTP.
+        /// </summary>
+        public static string MenuKeePassSftp {
+            get {
+                return ResourceManager.GetString("MenuKeePassSftp", resourceCulture);
             }
         }
 
@@ -5384,7 +5564,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to No SSH session.
+        ///   Looks up a localized string similar to No session.
         /// </summary>
         public static string NoSshSession {
             get {
@@ -5393,7 +5573,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Open an SSH session (PSMP) to browse the server's files and upload files to it..
+        ///   Looks up a localized string similar to Open an SSH session (PSMP), or a KeePass SFTP / FTP entry, to browse the server's files and upload files to it..
         /// </summary>
         public static string NoSshSessionHelp {
             get {
@@ -8525,7 +8705,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Files on the server of the active SSH session (SFTP / SCP).
+        ///   Looks up a localized string similar to Files on the server of the active session (SFTP / SCP, FTP / FTPS).
         /// </summary>
         public static string TabFilesTip {
             get {
@@ -9952,6 +10132,24 @@ namespace CyberArkTerm.App.Localization {
         public static string Welcome {
             get {
                 return ResourceManager.GetString("Welcome", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connection to {0} in progress….
+        /// </summary>
+        public static string FilesConnectingBrowse {
+            get {
+                return ResourceManager.GetString("FilesConnectingBrowse", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The files session is closed. Reconnect it from its tab to browse its files..
+        /// </summary>
+        public static string FilesClosedBrowse {
+            get {
+                return ResourceManager.GetString("FilesClosedBrowse", resourceCulture);
             }
         }
     }

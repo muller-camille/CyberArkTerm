@@ -157,6 +157,9 @@ Piste : une sélection multiple dans « Disponibles » (Ctrl+clic, comme dans «
 - Clés YubiKey (challenge-response).
 - Création d'un coffre depuis CyberArkTerm (aujourd'hui : avec KeePass ou KeePassXC).
 - Affichage des pièces jointes (aujourd'hui gardées mais non affichées).
+- **VNC chiffré** : VeNCrypt (TLS) ou passage par un tunnel SSH vers le serveur, pour ne plus rien envoyer en clair.
+- **FTPS avec reprise de session TLS** : certains serveurs (vsftpd avec `require_ssl_reuse`) refusent une connexion
+  de données qui ne reprend pas la session TLS de la connexion de commande.
 
 ## Distribution et projet
 

@@ -1054,6 +1054,103 @@ public sealed class DialogTests
     private static ServerEntry Server(string account, string name, string folder = "") =>
         new() { AccountId = account, Name = name, Folder = folder, Address = name, UserName = "root", PlatformId = "UnixSSH" };
 
+    /// <summary>Session de fichiers seuls (entrée KeePass FTP) : état dans l'onglet, fichiers dans le panneau, pas de terminal.</summary>
+    [Fact]
+    public void FilesSessionShowsItsStateAndTheFilesPanelBrowsesIt()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            UseDispatcherContext();
+            var attempts = new Queue<TaskCompletionSource<IRemoteFiles>>([new(), new()]);
+            var pending = attempts.ToArray();
+            var session = CyberArkTerm.App.Services.SshSession.ForFiles("ftp-test · KeePass", "FTPES", _ => attempts.Dequeue().Task,
+                System.Windows.Threading.Dispatcher.CurrentDispatcher);
+            var view = new FilesSessionView(session, "alice@ftp.test:21");
+            var panel = new FileBrowserPanel();
+            panel.Attach(session);
+            Assert.False(session.HasTerminal);
+            Assert.Equal(Visibility.Collapsed, panel.FollowBox.Visibility);
+
+            var first = view.ConnectAsync();
+            Assert.Equal(Strings.FilesSessionConnecting, view.StateText.Text);
+            Assert.Equal(Text.Format(Strings.FilesConnectingBrowse, "FTPES"), panel.MessageText.Text);
+            Assert.False(view.ShowFilesButton.IsEnabled);
+
+            pending[0].SetException(new IOException("certificat refusé"));
+            Pump(first);
+            Assert.Equal(CyberArkTerm.App.Services.SshSessionState.Failed, session.State);
+            Assert.Contains("certificat refusé", view.StateText.Text);
+            Assert.Equal(Visibility.Visible, view.ReconnectButton.Visibility);
+            Assert.Equal(Strings.FilesClosedBrowse, panel.MessageText.Text);
+
+            var files = new FakeFiles("/srv/ftp", [
+                new RemoteEntry("logs", "/srv/ftp/logs", true, false, 0, new DateTime(2026, 10, 6, 9, 0, 0), ""),
+                new RemoteEntry("app.conf", "/srv/ftp/app.conf", false, false, 120, new DateTime(2026, 10, 6, 9, 0, 0), ""),
+            ]);
+            var second = view.ConnectAsync();
+            Assert.Equal(Text.Format(Strings.FilesConnectingBrowse, "FTPES"), panel.MessageText.Text);
+            pending[1].SetResult(files);
+            Pump(second);
+            Assert.Equal(CyberArkTerm.App.Services.SshSessionState.Connected, session.State);
+            Assert.Equal(Strings.FilesSessionConnected, view.StateText.Text);
+            Assert.True(view.ShowFilesButton.IsEnabled);
+            Assert.Equal(Visibility.Collapsed, view.ReconnectButton.Visibility);
+            Assert.Equal(Visibility.Collapsed, view.CleartextBanner.Visibility);
+            PumpUntil(() => panel.PathBox.Text == "/srv/ftp");
+            Assert.Contains(panel.FileList.Items.OfType<RemoteEntry>(), e => e.Name == "app.conf");
+
+            session.Dispose();
+            PumpUntil(() => files.Disposed);
+        });
+    }
+
+    /// <summary>Fichiers d'un serveur en mémoire : une liste fixe, le reste non utilisé.</summary>
+    private sealed class FakeFiles(string home, List<RemoteEntry> entries) : IRemoteFiles
+    {
+        public bool Disposed { get; private set; }
+        public string HomeDirectory { get; } = home;
+        public string CurrentDirectory { get; private set; } = home;
+        public bool IsConnected => !Disposed;
+        public bool ChoosesUploadProtocol => false;
+        public TransferProtocol UploadProtocol => TransferProtocol.Ftps;
+        public bool SupportsPermissions => false;
+
+        public Task<List<RemoteEntry>> ListAsync(string path, bool showHidden, CancellationToken ct)
+        {
+            CurrentDirectory = path;
+            return Task.FromResult(entries.ToList());
+        }
+
+        public Task<List<RemoteEntry>> BrowseAsync(string directory, bool showHidden, CancellationToken ct) => Task.FromResult(entries.ToList());
+        public Task DeleteAsync(RemoteEntry entry, CancellationToken ct) => throw new NotSupportedException();
+        public Task CreateDirectoryAsync(string path, CancellationToken ct) => throw new NotSupportedException();
+        public Task<bool> ExistsAsync(string path, CancellationToken ct) => Task.FromResult(true);
+        public Task UploadAsync(string localPath, string remoteDirectory, TransferProtocol protocol, ICollection<TransferCheck> checks,
+            IProgress<TransferProgress>? progress, bool background, CancellationToken ct) => throw new NotSupportedException();
+        public ITailSource TailSource(string path) => throw new NotSupportedException();
+        public Task<long> GetSizeAsync(string path, CancellationToken ct) => throw new NotSupportedException();
+        public Task<byte[]> ReadAsync(string path, long offset, int count, CancellationToken ct) => throw new NotSupportedException();
+        public Task<byte[]> ReadAllBytesAsync(string path, long maxBytes, CancellationToken ct) => throw new NotSupportedException();
+        public Task<(DateTime LastWriteTime, long Length)> GetStatAsync(string path, CancellationToken ct) => throw new NotSupportedException();
+        public Task<(DateTime LastWriteTime, long Length)> WriteFileAsync(string remotePath, byte[] content, CancellationToken ct) =>
+            throw new NotSupportedException();
+        public Task<int?> GetModeAsync(string path, CancellationToken ct) => Task.FromResult<int?>(null);
+        public Task<PermissionsResult> SetPermissionsAsync(string path, int mode, bool includeSpecial, bool recursive,
+            bool executeOnlyIfAlready, IProgress<int>? progress, CancellationToken ct) => throw new NotSupportedException();
+        public Task<List<RemoteTreeItem>> ListTreeAsync(IReadOnlyList<RemoteEntry> roots, int maxItems, CancellationToken ct) =>
+            throw new NotSupportedException();
+        public Task<TransferCheck> DownloadAsync(RemoteEntry entry, string localPath, IProgress<TransferProgress>? progress, CancellationToken ct) =>
+            throw new NotSupportedException();
+        public Task<TransferCheck> DownloadAsync(RemoteEntry entry, string localPath, ICollection<TransferCheck>? checks,
+            IProgress<TransferProgress>? progress, bool background, CancellationToken ct) => throw new NotSupportedException();
+        public void Dispose() => Disposed = true;
+    }
+
     /// <summary>Les suites des tâches attendues reviennent sur le fil de la fenêtre, comme dans l'application.</summary>
     private static void UseDispatcherContext() =>
         SynchronizationContext.SetSynchronizationContext(new System.Windows.Threading.DispatcherSynchronizationContext(

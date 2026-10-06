@@ -83,6 +83,33 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to the server sent no certificate.
+        /// </summary>
+        public static string CertificateMissing {
+            get {
+                return ResourceManager.GetString("CertificateMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to the certificate is not issued for this server name.
+        /// </summary>
+        public static string CertificateNameMismatch {
+            get {
+                return ResourceManager.GetString("CertificateNameMismatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to the certificate is not issued by an authority trusted by Windows (self-signed, expired or revoked).
+        /// </summary>
+        public static string CertificateUntrusted {
+            get {
+                return ResourceManager.GetString("CertificateUntrusted", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Character not allowed in {0}: “{1}”..
         /// </summary>
         public static string CharacterNotAllowed {
@@ -187,6 +214,51 @@ namespace CyberArkTerm.Core.Localization {
         public static string FolderIntoItself {
             get {
                 return ResourceManager.GetString("FolderIntoItself", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Certificate of the FTPS server refused: connection stopped..
+        /// </summary>
+        public static string FtpCertificateDeclined {
+            get {
+                return ResourceManager.GetString("FtpCertificateDeclined", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The FTP server does not offer encryption (TLS): connection in clear declined..
+        /// </summary>
+        public static string FtpCleartextDeclined {
+            get {
+                return ResourceManager.GetString("FtpCleartextDeclined", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: file not found on the FTP server..
+        /// </summary>
+        public static string FtpNoSuchFile {
+            get {
+                return ResourceManager.GetString("FtpNoSuchFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The FTP server does not offer encryption (TLS), required by this entry (ftpes:// or ftps://)..
+        /// </summary>
+        public static string FtpTlsRequired {
+            get {
+                return ResourceManager.GetString("FtpTlsRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Transfer of {0} not completed by the FTP server..
+        /// </summary>
+        public static string FtpTransferFailed {
+            get {
+                return ResourceManager.GetString("FtpTransferFailed", resourceCulture);
             }
         }
 

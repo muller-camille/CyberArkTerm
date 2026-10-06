@@ -232,7 +232,7 @@
     <value>File</value>
   </data>
   <data name="TabFilesTip" xml:space="preserve">
-    <value>File del server della sessione SSH attiva (SFTP / SCP)</value>
+    <value>File del server della sessione attiva (SFTP / SCP, FTP / FTPS)</value>
   </data>
   <data name="TabHome" xml:space="preserve">
     <value>Home</value>
@@ -534,7 +534,7 @@ Gli account restano disponibili nella scheda «Disponibili».</value>
     <value>Nessuna chiave PSMP memorizzata.</value>
   </data>
   <data name="HostKeys" xml:space="preserve">
-    <value>Chiavi PSMP accettate: {0}</value>
+    <value>Chiavi dei server accettate (SSH, certificati FTPS): {0}</value>
   </data>
   <data name="NoComponents" xml:space="preserve">
     <value>Nessuno: il componente è dedotto dalla piattaforma (PSM-RDP per Windows, PSM-SSH per Unix...).</value>
@@ -688,10 +688,10 @@ Potrebbe indicare un'intercettazione della connessione. Accetta solo se il team 
     <value>_Riprova</value>
   </data>
   <data name="NoSshSession" xml:space="preserve">
-    <value>Nessuna sessione SSH</value>
+    <value>Nessuna sessione</value>
   </data>
   <data name="NoSshSessionHelp" xml:space="preserve">
-    <value>Apri una sessione SSH (PSMP) per sfogliare i file del server e inviarvi file.</value>
+    <value>Apri una sessione SSH (PSMP), o una voce KeePass SFTP / FTP, per sfogliare i file del server e inviarvi file.</value>
   </data>
   <data name="SshConnecting" xml:space="preserve">
     <value>Connessione SSH in corso…</value>
@@ -3401,5 +3401,87 @@ I server aggiunti da allora saranno rimossi e quelli rimossi torneranno, per tut
   </data>
   <data name="VncCloseTabConfirm" xml:space="preserve">
     <value>Chiudere la sessione VNC {0}?</value>
+  </data>
+  <data name="MenuKeePassFiles" xml:space="preserve">
+    <value>Apri i _file (SFTP, FTP)</value>
+  </data>
+  <data name="MenuKeePassFilesTip" xml:space="preserve">
+    <value>Solo la scheda File, senza terminale: il protocollo di file della voce (ftp://, ftps://…), altrimenti SFTP</value>
+  </data>
+  <data name="MenuKeePassSftp" xml:space="preserve">
+    <value>File in SFTP</value>
+  </data>
+  <data name="MenuKeePassFtp" xml:space="preserve">
+    <value>File in FTP (TLS se proposto)</value>
+  </data>
+  <data name="FilesSessionTitle" xml:space="preserve">
+    <value>File di {0}</value>
+  </data>
+  <data name="FilesSessionDetail" xml:space="preserve">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="FilesSessionConnecting" xml:space="preserve">
+    <value>Connessione…</value>
+  </data>
+  <data name="FilesSessionConnected" xml:space="preserve">
+    <value>Connesso (cifrato): i file sono nella scheda «File» a sinistra.</value>
+  </data>
+  <data name="FilesSessionConnectedClear" xml:space="preserve">
+    <value>Connesso senza cifratura: i file sono nella scheda «File» a sinistra.</value>
+  </data>
+  <data name="FilesSessionFailed" xml:space="preserve">
+    <value>Connessione impossibile: {0}</value>
+  </data>
+  <data name="FilesShow" xml:space="preserve">
+    <value>Mostra i file</value>
+  </data>
+  <data name="FilesOpened" xml:space="preserve">
+    <value>File di {0} aperti ({1})</value>
+  </data>
+  <data name="FilesSessionError" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="FilesClosed" xml:space="preserve">
+    <value>Sessione di file {0} chiusa</value>
+  </data>
+  <data name="FtpUnencrypted" xml:space="preserve">
+    <value>Connessione FTP non cifrata: la password e i file viaggiano in chiaro sulla rete.</value>
+  </data>
+  <data name="FtpCleartextTitle" xml:space="preserve">
+    <value>FTP senza cifratura</value>
+  </data>
+  <data name="FtpCleartextConfirm" xml:space="preserve">
+    <value>Il server FTP {0} non propone la cifratura (TLS).
+
+La password della voce e i file viaggerebbero in chiaro sulla rete, leggibili da chiunque possa osservarla. Connettersi comunque?</value>
+  </data>
+  <data name="FtpCertificateTitle" xml:space="preserve">
+    <value>Certificato del server FTPS</value>
+  </data>
+  <data name="FtpCertificateUnknown" xml:space="preserve">
+    <value>Il certificato del server FTPS {0} non è considerato attendibile da Windows: {1}.
+
+Soggetto: {2}
+Emittente: {3}
+Valido dal {4} al {5}
+SHA-256: {6}
+
+Verifica questa impronta con l'amministratore del server. Considerare attendibile questo certificato per questo server (verrà memorizzato)?</value>
+  </data>
+  <data name="FtpCertificateChanged" xml:space="preserve">
+    <value>ATTENZIONE: il certificato del server FTPS {0} è CAMBIATO dall'ultima connessione ({1}).
+
+Soggetto: {2}
+Emittente: {3}
+Valido dal {4} al {5}
+Nuova SHA-256: {6}
+
+Può essere un rinnovo, o un'intercettazione della connessione. Continua solo se l'amministratore del server conferma il cambiamento. Considerare attendibile il nuovo certificato?</value>
+  </data>
+  <data name="FilesConnectingBrowse" xml:space="preserve">
+    <value>Connessione {0} in corso…</value>
+  </data>
+  <data name="FilesClosedBrowse" xml:space="preserve">
+    <value>La sessione di file è chiusa. Riconnettila dalla sua scheda per sfogliarne i file.</value>
   </data>
 </root>

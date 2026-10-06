@@ -10,7 +10,7 @@ namespace CyberArkTerm.Core.Ssh;
 /// de fichiers par SCP ou SFTP. Les opérations sont sérialisées : une seule à la fois sur la connexion. Chaque fichier
 /// envoyé ou téléchargé est vérifié par sa somme SHA-256 des deux côtés (<see cref="TransferCheck"/>).
 /// </summary>
-public sealed class RemoteFileBrowser : IDisposable
+public sealed class RemoteFileBrowser : IRemoteFiles
 {
     private readonly SftpClient _sftp;
     private readonly Func<CancellationToken, Task<ScpClient>> _scpFactory;
@@ -38,6 +38,12 @@ public sealed class RemoteFileBrowser : IDisposable
     public string CurrentDirectory { get; private set; }
 
     public bool IsConnected => _sftp.IsConnected;
+
+    public bool ChoosesUploadProtocol => true;
+
+    public TransferProtocol UploadProtocol => TransferProtocol.Sftp;
+
+    public bool SupportsPermissions => true;
 
     /// <summary>Liste un dossier (chemin absolu ou relatif au dossier courant) et en fait le dossier courant.</summary>
     public async Task<List<RemoteEntry>> ListAsync(string path, bool showHidden, CancellationToken ct)

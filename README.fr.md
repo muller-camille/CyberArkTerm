@@ -40,7 +40,7 @@ avez accès et ouvre vos sessions en un double-clic : bureau à distance via **P
 | **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), MFA, menu du clic droit, recherche, fenêtres séparées. |
 | **Onglet Fichiers** | Navigateur SFTP du serveur : dépôt (SFTP, ou SCP, l'autre prenant le relais si le serveur refuse) et téléchargement par glisser-déposer, vérification SHA-256 de chaque fichier, file d'attente et historique des transferts, tri par colonne, modification dans votre éditeur de texte, droits, suivi en direct (`tail -f`), comparaison, envoi vers plusieurs serveurs. |
 | **Vue parallèle** | Jusqu'à 8 sessions SSH côte à côte (un dossier « Courants » s'ouvre d'un clic), saisie simultanée en option. |
-| **Accès d'urgence (KeePass)** | Sans CyberArk : coffres KeePass (.kdbx) dans « Courants », connexions SSH et bureau à distance directes, journal local. |
+| **Accès d'urgence (KeePass)** | Sans CyberArk : coffres KeePass (.kdbx) dans « Courants », connexions SSH, bureau à distance et VNC directes, fichiers en SFTP, FTP ou FTPS dans l'onglet Fichiers, journal local. |
 | **Langues** | Français, anglais et italien : langue de Windows par défaut, modifiable à tout moment. |
 
 <table>
@@ -116,8 +116,8 @@ plus une fois par jour et affiche un lien dans la barre d'état.
 5. **Courants** : rangez vos serveurs de travail en dossiers, chacun avec sa configuration (PSM ou SSH, composant,
    machine cible, dossier de départ) ; ouvrez tout un dossier dans la **vue parallèle**.
 6. **Accès d'urgence** : quand CyberArk est indisponible, « Accès d'urgence (KeePass) » dans la fenêtre de connexion
-   ouvre vos coffres KeePass et se connecte directement en SSH ou en bureau à distance (sans enregistrement par le PSM,
-   noté dans un journal sur ce poste).
+   ouvre vos coffres KeePass et se connecte directement en SSH, en bureau à distance ou en VNC, ou aux fichiers en
+   SFTP, FTP ou FTPS (sans enregistrement par le PSM, noté dans un journal sur ce poste).
 
 Le **[guide d'utilisation](docs/guide.fr.md)** décrit chaque onglet en détail, les
 [raccourcis](docs/guide.fr.md#raccourcis), les
@@ -134,7 +134,10 @@ Le **[guide d'utilisation](docs/guide.fr.md)** décrit chaque onglet en détail,
   le PSM comme celles ouvertes depuis le PVWA.
 - **Mots de passe copiés** : directement dans le presse-papiers Windows, exclus de son historique et de sa
   synchronisation, effacés après 20 s ; jamais affichés ni journalisés.
-- **Clés d'hôte du PSMP** mémorisées à la première connexion, avec une alerte si elles changent.
+- **Clés d'hôte du PSMP** mémorisées à la première connexion, avec une alerte si elles changent (de même pour les
+  serveurs SSH et les certificats FTPS des entrées KeePass).
+- **Protocoles non chiffrés** (VNC, FTP sans TLS) signalés par un bandeau permanent ; FTP ne passe en clair qu'après
+  votre accord.
 - **Coffres KeePass** : le mot de passe maître n'est jamais enregistré, sauf dans le coffre local si vous le demandez
   (Argon2id, AES-256-GCM, protégé par votre compte Windows) ; chaque ouverture et connexion est notée dans un journal
   local.
@@ -153,12 +156,14 @@ Tous les détails : [guide d'utilisation → Sécurité](docs/guide.fr.md#sécur
 
 | Projet | Rôle |
 | --- | --- |
-| `src/CyberArkTerm.Core` | Logique sans interface, multiplateforme : client de l'API PVWA, classement des comptes, émulateur de terminal xterm, connexions PSMP et navigateur SFTP/SCP (SSH.NET), serveurs « Courants » en dossiers, coffres KeePass (KDBX), coffre local, préférences. |
+| `src/CyberArkTerm.Core` | Logique sans interface, multiplateforme : client de l'API PVWA, classement des comptes, émulateur de terminal xterm, connexions PSMP et navigateur SFTP/SCP (SSH.NET), navigateur FTP/FTPS (FluentFTP), client VNC, serveurs « Courants » en dossiers, coffres KeePass (KDBX), coffre local, préférences. |
 | `src/CyberArkTerm.App` | Application WPF : fenêtres, onglets, contrôle terminal, contrôle Bureau à distance (onglets RDP), lancement de `mstsc`, icône (`Assets`). |
 | `tests/CyberArkTerm.Core.Tests` | Tests xUnit de Core (faux PVWA HTTP, terminal, PSMP, dossiers…). |
 | `tests/CyberArkTerm.App.Tests` | Tests Windows de l'application (vrai contrôle Bureau à distance, DPAPI). |
 
-Dépendance externe : [SSH.NET](https://github.com/sshnet/SSH.NET) (licence MIT).
+Dépendances externes : [SSH.NET](https://github.com/sshnet/SSH.NET), [FluentFTP](https://github.com/robinrodricks/FluentFTP)
+et [Konscious.Security.Cryptography](https://github.com/kmaragon/Konscious.Security.Cryptography) (Argon2), toutes
+sous licence MIT.
 
 ### Traductions
 
@@ -214,6 +219,9 @@ fichier existe.
 - Coffres KeePass : chiffrement Twofish et clés YubiKey non pris en charge ; pas de création de coffre (créez-le
   avec KeePass ou KeePassXC) ; pièces jointes gardées mais non affichées.
 - Le suivi du dossier du terminal nécessite bash, zsh ou tcsh sur le serveur.
+- VNC : mot de passe VNC ou aucune authentification seulement (ni authentification propre à un éditeur, ni
+  chiffrement). FTPS : un serveur qui exige la reprise de session TLS sur les connexions de données peut refuser les
+  transferts.
 - PSM Gateway (HTML5), double validation (dual control) et accès exclusif ne sont pas gérés.
 
 **Pistes**

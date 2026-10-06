@@ -158,7 +158,8 @@ acceptés.
 
 ## 5. Parcourir et déposer des fichiers : onglet « Fichiers »
 
-À l'ouverture d'une session SSH, l'onglet **Fichiers** s'affiche sur le côté et suit l'onglet SSH actif.
+À l'ouverture d'une session SSH, l'onglet **Fichiers** s'affiche sur le côté et suit l'onglet SSH actif. Il sert
+aussi aux sessions de fichiers des entrées KeePass (SFTP, FTP, FTPS : voir la [section 7](#7-accès-durgence-hors-cyberark--coffres-keepass)).
 
 ![Onglet Fichiers trié par date, à côté du terminal](captures/fr/main-window.png)
 
@@ -361,7 +362,8 @@ Trois boutons en haut de l'onglet, à gauche du bouton coffre KeePass :
 ## 7. Accès d'urgence hors CyberArk : coffres KeePass
 
 Quand CyberArk est indisponible, CyberArkTerm ouvre vos coffres KeePass (`.kdbx`) et se connecte **directement** aux
-serveurs, en SSH ou en bureau à distance, avec les comptes qu'ils contiennent.
+serveurs, en SSH, en bureau à distance ou en VNC, ou à leurs seuls fichiers (SFTP, FTP, FTPS), avec les comptes
+qu'ils contiennent.
 
 > Ces connexions **ne passent pas par le PSM** : ni enregistrement, ni règles CyberArk. Chaque ouverture de
 > coffre, connexion et modification est notée dans le journal local `%APPDATA%\CyberArkTerm\urgence.log`.
@@ -376,11 +378,26 @@ serveurs, en SSH ou en bureau à distance, avec les comptes qu'ils contiennent.
 - **Déverrouiller** : double-clic sur le coffre. Mot de passe maître et/ou fichier clé (tous les formats de
   KeePass). « Mémoriser le mot de passe maître dans le coffre local » évite de le ressaisir (voir ci-dessous).
 - **Se connecter** : double-clic sur une entrée. Le protocole vient de son adresse (`ssh://serveur:22`,
-  `rdp://serveur`, `serveur:3389`), d'un champ « Protocol » / « Port » ou d'une étiquette `ssh` / `rdp` ; sinon
-  CyberArkTerm demande SSH ou bureau à distance. Le mot de passe de l'entrée est utilisé directement (onglet
-  terminal + Fichiers en SSH, onglet bureau à distance en RDP) ; il n'est jamais affiché ni écrit sur disque.
-  L'onglet bureau à distance suit sa taille (résolution du bureau distant), propose « Plein écran »
-  (`Ctrl+Alt+Pause` pour revenir), « Déconnecter » et « Reconnecter ».
+  `rdp://serveur`, `vnc://serveur`, `sftp://`, `ftp://`, `ftpes://`, `ftps://`, ou `serveur:3389`), d'un champ
+  « Protocol » / « Port » ou d'une étiquette (`ssh`, `rdp`, `vnc`, `sftp`, `ftp`, `ftpes`, `ftps`) ; sinon
+  CyberArkTerm demande le protocole. Le mot de passe de l'entrée est utilisé directement ; il n'est jamais affiché ni
+  écrit sur disque.
+  - **SSH** : onglet terminal + Fichiers.
+  - **Bureau à distance** : l'onglet suit sa taille (résolution du bureau distant), propose « Plein écran »
+    (`Ctrl+Alt+Pause` pour revenir), « Déconnecter » et « Reconnecter ».
+  - **VNC** (`vnc://serveur`, port 5900 ; `vnc://serveur:1` désigne l'écran 1, port 5901) : bureau dans un onglet,
+    ajusté à la fenêtre ou en taille réelle (« Ajuster »), boutons « Ctrl+Alt+Suppr », « Envoyer le presse-papiers »
+    et « Copier le texte distant » : le presse-papiers n'est échangé que par ces boutons. Authentification par mot de
+    passe VNC (8 caractères au plus, limite du protocole) ou sans authentification. **VNC ne chiffre rien** : un
+    bandeau le rappelle ; réservez-le à un réseau de confiance.
+  - **Fichiers** (`sftp://`, `ftp://`, `ftpes://` pour FTP avec TLS explicite, `ftps://` pour TLS implicite, port
+    990) : un onglet d'état, sans terminal, et les fichiers dans l'onglet « Fichiers » avec les mêmes fonctions
+    (transferts vérifiés par SHA-256, file d'attente, historique, éditeur, comparaison, suivi en direct, droits si
+    le serveur accepte `SITE CHMOD`). Clic droit → « Ouvrir les fichiers (SFTP, FTP) » fait de même pour une entrée
+    SSH, en SFTP. En `ftp://`, le chiffrement TLS est tenté d'abord ; si le serveur ne le propose pas, CyberArkTerm
+    demande avant de se connecter en clair (une fois par session) et un bandeau le rappelle. `ftpes://` et
+    `ftps://` ne passent jamais en clair. Un certificat FTPS que Windows n'approuve pas (auto-signé…) est montré avec
+    son empreinte SHA-256, puis mémorisé pour ce serveur si vous l'acceptez.
 - **Modifier le coffre** : clic droit → « Nouvelle entrée… », « Modifier… » (`F2`), « Supprimer » (`Suppr`, vers la
   corbeille du coffre). Les autres données du coffre (pièces jointes, champs, réglages) sont gardées ; l'ancienne
   version d'une entrée va dans son historique, comme dans KeePass.
@@ -438,7 +455,7 @@ coffre KeePass dont le mot de passe est mémorisé, « Plus tard » pour saisir 
 | Outil de comparaison | Programme proposé dans la fenêtre de comparaison, avec ses arguments (`{0}` = fichier de gauche, `{1}` = de droite) | aucun |
 | Couleurs du terminal, police | Palette (Campbell, One Half, Solarized…) et taille de police des terminaux SSH | Campbell, 14 |
 | Suivi dans une session indépendante | Le suivi d'un fichier (tail -f) ouvre sa propre connexion SFTP (une session PSMP de plus) | Non |
-| Clés de PSMP acceptées | Empreintes mémorisées (bouton « Oublier les clés ») | — |
+| Clés de serveurs acceptées | Empreintes mémorisées : PSMP, serveurs SSH et certificats FTPS des entrées KeePass (bouton « Oublier les clés ») | — |
 | Composants mémorisés | Composant PSM choisi par plateforme (bouton « Oublier ») | — |
 
 Toutes les préférences sont enregistrées dans `%APPDATA%\CyberArkTerm\settings.json` : langue, adresse du PVWA,
@@ -488,6 +505,15 @@ des fichiers, sommes SHA-256, jamais leur contenu).
     modifiée ailleurs entre-temps n'est pas écrasée ;
   - bureau à distance direct : le mot de passe est transmis au seul contrôle Bureau à distance (ni fichier, ni
     gestionnaire d'identification), authentification réseau (NLA) et alerte si le serveur n'est pas reconnu ;
+  - VNC : le protocole ne chiffre ni l'écran, ni les frappes, ni le presse-papiers (bandeau permanent) ; le mot de
+    passe n'est pas envoyé tel quel (défi-réponse du protocole) ; presse-papiers échangé seulement sur un clic ;
+    taille d'écran annoncée par le serveur bornée (8 192 pixels de côté) ;
+  - FTP : TLS tenté d'abord, connexion en clair seulement après votre accord (bandeau permanent), jamais pour
+    `ftpes://` et `ftps://` ; sous TLS, les transferts sont chiffrés aussi (`PROT P`) ;
+  - certificat FTPS : celui que Windows approuve est accepté ; sinon son empreinte SHA-256 est montrée et épinglée
+    au premier accord (comme une clé d'hôte SSH), un changement est signalé ; refusé, la connexion s'arrête avant
+    l'envoi de l'identifiant ;
+  - noms de fichiers avec des caractères de contrôle refusés (pas d'injection de commande FTP) ;
   - journal `urgence.log` : date, compte Windows, poste, action, coffre, entrée, cible ; jamais de mot de passe.
 - **Journal de débogage**, désactivé par défaut (menu du bouton Paramètres) :
   `%LOCALAPPDATA%\CyberArkTerm\debug.log`, 5 Mo au plus plus une génération `.1`. Il note le déroulement des
@@ -552,6 +578,22 @@ ChaCha20, dérivation de clé AES-KDF (instructions AES du processeur) ou Argon2
 chiffrement et la dérivation de clé d'origine, avec de nouvelles graines à chaque enregistrement. Les coffres de
 test (`tests/CyberArkTerm.Core.Tests/KeePass/Vaults`) viennent de KeePassXC et pykeepass, et les fichiers écrits par
 CyberArkTerm ont été vérifiés dans ces deux outils.
+
+### Sessions VNC
+
+Client intégré (protocole RFB 3.3, 3.7 et 3.8, RFC 6143), sans logiciel à installer : authentification « aucune »
+ou « mot de passe VNC » (DES du protocole, implémenté dans CyberArkTerm car le mode FIPS de Windows peut interdire
+DES), encodages Raw, CopyRect et Hextile, changement de taille d'écran, pixels 32 bits. Le clavier est transmis en
+« keysyms » X11 (les caractères AltGr sont envoyés comme caractères), la molette en boutons 4 et 5.
+
+### Sessions de fichiers FTP / FTPS
+
+Bibliothèque FluentFTP (licence MIT). Mode passif (`EPSV` / `PASV`), binaire, `PBSZ 0` et `PROT P` sous TLS ;
+certificat vérifié par Windows, sinon épinglé (`ftps://serveur:port` parmi les clés de serveurs acceptées, dans les
+Paramètres). FTP n'a
+pas de somme de contrôle standard : chaque envoi est relu depuis le serveur et comparé par SHA-256. Lecture partielle
+(`REST`) pour la comparaison et le suivi en direct. Après un transfert interrompu, la connexion est rouverte et le
+fichier incomplet supprimé.
 
 ### Sessions Bureau à distance
 
@@ -634,3 +676,7 @@ laquelle elle est destinée. Avec csh, ksh, sh ou fish, le suivi n'est pas insta
 | Une liste partagée affiche « (illisible) » | Partage injoignable ou fichier endommagé : l'info-bulle donne l'erreur. Si le fichier est endommagé, copiez la version la plus récente du dossier `nom.versions` à sa place. |
 | Comprendre un échec de connexion | Paramètres → Journal de débogage, reproduisez le problème, puis Paramètres → « Afficher le fichier du journal ». |
 | Un onglet de bureau à distance direct (KeePass) affiche « Erreur du contrôle Bureau à distance » | Signalez le code affiché (si le contrôle Bureau à distance est absent du poste, la connexion passe par `mstsc`). |
+| VNC : « Le serveur VNC ne propose aucune authentification prise en charge… » | Le serveur exige une authentification propre à son éditeur (compte Windows, chiffrement VeNCrypt…) : activez l'authentification « mot de passe VNC » sur le serveur. |
+| VNC : « Pas de réponse VNC du serveur en 30 secondes » | Mauvais port (5900 + numéro d'écran) ou service autre que VNC à cette adresse. |
+| FTP : « Le serveur FTP ne propose pas de chiffrement (TLS), exigé par cette entrée » | Le serveur n'accepte pas TLS : utilisez `ftp://` (connexion en clair après confirmation) ou SFTP s'il est disponible. |
+| FTPS : la liste des fichiers ne s'affiche pas ou un transfert expire | Un pare-feu bloque les ports passifs du serveur, ou le serveur exige la reprise de session TLS sur les connexions de données (`522`, par exemple `require_ssl_reuse` de vsftpd) : voir l'administrateur du serveur. |

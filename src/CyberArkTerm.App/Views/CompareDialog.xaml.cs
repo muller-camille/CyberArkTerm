@@ -45,7 +45,7 @@ public partial class CompareDialog : Window
             return;
         }
 
-        RemoteFileBrowser browser;
+        IRemoteFiles browser;
         BrowseServerButton.IsEnabled = false;
         try
         {

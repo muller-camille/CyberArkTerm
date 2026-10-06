@@ -342,4 +342,28 @@
   <data name="VncTimeout" xml:space="preserve">
     <value>Pas de réponse VNC du serveur en 30 secondes : vérifiez l'adresse et le port (5900 par défaut).</value>
   </data>
+  <data name="FtpCleartextDeclined" xml:space="preserve">
+    <value>Le serveur FTP ne propose pas de chiffrement (TLS) : connexion en clair refusée.</value>
+  </data>
+  <data name="FtpCertificateDeclined" xml:space="preserve">
+    <value>Certificat du serveur FTPS refusé : connexion arrêtée.</value>
+  </data>
+  <data name="CertificateNameMismatch" xml:space="preserve">
+    <value>le certificat n'est pas établi pour ce nom de serveur</value>
+  </data>
+  <data name="CertificateUntrusted" xml:space="preserve">
+    <value>le certificat n'est pas émis par une autorité approuvée par Windows (auto-signé, expiré ou révoqué)</value>
+  </data>
+  <data name="CertificateMissing" xml:space="preserve">
+    <value>le serveur n'a pas envoyé de certificat</value>
+  </data>
+  <data name="FtpTransferFailed" xml:space="preserve">
+    <value>Transfert de {0} non terminé par le serveur FTP.</value>
+  </data>
+  <data name="FtpNoSuchFile" xml:space="preserve">
+    <value>{0} : fichier introuvable sur le serveur FTP.</value>
+  </data>
+  <data name="FtpTlsRequired" xml:space="preserve">
+    <value>Le serveur FTP ne propose pas de chiffrement (TLS), exigé par cette entrée (ftpes:// ou ftps://).</value>
+  </data>
 </root>

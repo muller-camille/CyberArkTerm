@@ -40,7 +40,7 @@ e apre le sessioni con un doppio clic: desktop remoto tramite **PSM**, oppure un
 | **Sessioni SSH (PSMP)** | Terminale integrato in una scheda (compatibile xterm: colori, vim, less, top…), MFA, menu del clic destro, ricerca, finestre separate. |
 | **Scheda File** | Browser SFTP del server: invio (SFTP, o SCP, con l'altro che subentra se il server rifiuta) e download con il trascinamento, verifica SHA-256 di ogni file, coda e cronologia dei trasferimenti, ordinamento per colonna, modifica nel tuo editor di testo, permessi, monitoraggio in tempo reale (`tail -f`), confronto, invio a più server. |
 | **Vista parallela** | Fino a 8 sessioni SSH affiancate (una cartella di «I miei server» si apre con un clic), digitazione simultanea opzionale. |
-| **Accesso di emergenza (KeePass)** | Senza CyberArk: archivi KeePass (.kdbx) in «I miei server», connessioni SSH e desktop remoto dirette, registro locale. |
+| **Accesso di emergenza (KeePass)** | Senza CyberArk: archivi KeePass (.kdbx) in «I miei server», connessioni SSH, desktop remoto e VNC dirette, file in SFTP, FTP o FTPS nella scheda File, registro locale. |
 | **Lingue** | Italiano, francese e inglese: lingua di Windows per impostazione predefinita, modificabile in qualsiasi momento. |
 
 <table>
@@ -115,8 +115,8 @@ giorno e mostra un link nella barra di stato.
 5. **I miei server**: organizza i server di lavoro in cartelle, ognuno con le sue impostazioni di connessione (PSM o
    SSH, componente, macchina di destinazione, cartella iniziale); apri un'intera cartella nella **vista parallela**.
 6. **Accesso di emergenza**: quando CyberArk non è disponibile, «Accesso di emergenza (KeePass)» nella finestra di
-   accesso apre i tuoi archivi KeePass e si connette direttamente in SSH o desktop remoto (senza registrazione del
-   PSM, annotato in un registro su questo computer).
+   accesso apre i tuoi archivi KeePass e si connette direttamente in SSH, desktop remoto o VNC, o ai file in SFTP, FTP
+   o FTPS (senza registrazione del PSM, annotato in un registro su questo computer).
 
 La **[guida all'uso](docs/guide.it.md)** descrive ogni scheda in dettaglio, le
 [scorciatoie](docs/guide.it.md#scorciatoie), le
@@ -133,7 +133,10 @@ La **[guida all'uso](docs/guide.it.md)** descrive ogni scheda in dettaglio, le
   come quelle aperte dal PVWA.
 - **Password copiate**: direttamente negli appunti di Windows, escluse dalla loro cronologia e sincronizzazione,
   cancellate dopo 20 s; mai mostrate né registrate.
-- **Chiavi host del PSMP** memorizzate alla prima connessione, con un avviso se cambiano.
+- **Chiavi host del PSMP** memorizzate alla prima connessione, con un avviso se cambiano (lo stesso per i server SSH e
+  i certificati FTPS delle voci KeePass).
+- **Protocolli non cifrati** (VNC, FTP senza TLS) segnalati da un banner permanente; FTP passa in chiaro solo dopo il
+  tuo consenso.
 - **Archivi KeePass**: la password principale non viene mai salvata, tranne nel vault locale se lo chiedi (Argon2id,
   AES-256-GCM, protetto dal tuo account Windows); ogni apertura e connessione viene annotata in un registro locale.
 - **Nessuna richiesta verso Internet** senza una tua azione o l'opzione di aggiornamento (disattivata per
@@ -151,12 +154,14 @@ Tutti i dettagli: [guida all'uso → Sicurezza](docs/guide.it.md#sicurezza). Per
 
 | Progetto | Ruolo |
 | --- | --- |
-| `src/CyberArkTerm.Core` | Logica senza interfaccia, multipiattaforma: client dell'API PVWA, classificazione degli account, emulatore di terminale xterm, connessioni PSMP e browser SFTP/SCP (SSH.NET), cartelle di «I miei server», archivi KeePass (KDBX), vault locale, preferenze. |
+| `src/CyberArkTerm.Core` | Logica senza interfaccia, multipiattaforma: client dell'API PVWA, classificazione degli account, emulatore di terminale xterm, connessioni PSMP e browser SFTP/SCP (SSH.NET), browser FTP/FTPS (FluentFTP), client VNC, cartelle di «I miei server», archivi KeePass (KDBX), vault locale, preferenze. |
 | `src/CyberArkTerm.App` | Applicazione WPF: finestre, schede, controllo terminale, controllo Desktop remoto (schede RDP), avvio di `mstsc`, icona (`Assets`). |
 | `tests/CyberArkTerm.Core.Tests` | Test xUnit di Core (falso PVWA HTTP, terminale, PSMP, cartelle, traduzioni…). |
 | `tests/CyberArkTerm.App.Tests` | Test Windows dell'applicazione (vero controllo Desktop remoto, DPAPI). |
 
-Dipendenza esterna: [SSH.NET](https://github.com/sshnet/SSH.NET) (licenza MIT).
+Dipendenze esterne: [SSH.NET](https://github.com/sshnet/SSH.NET), [FluentFTP](https://github.com/robinrodricks/FluentFTP)
+e [Konscious.Security.Cryptography](https://github.com/kmaragon/Konscious.Security.Cryptography) (Argon2), tutte
+con licenza MIT.
 
 ### Traduzioni
 
@@ -211,6 +216,8 @@ e `SHA256SUMS.txt`. Le note di versione vengono lette da `docs/releases/vX.Y.Z.m
 - Archivi KeePass: cifratura Twofish e chiavi YubiKey non supportate; nessuna creazione di archivio (crealo con
   KeePass o KeePassXC); allegati conservati ma non mostrati.
 - Il monitoraggio della cartella del terminale richiede bash, zsh o tcsh sul server.
+- VNC: solo password VNC o nessuna autenticazione (né autenticazione propria di un produttore, né cifratura). FTPS:
+  un server che esige la ripresa della sessione TLS sulle connessioni dati può rifiutare i trasferimenti.
 - PSM Gateway (HTML5), doppio controllo (dual control) e accesso esclusivo non sono supportati.
 
 **Sviluppi futuri**

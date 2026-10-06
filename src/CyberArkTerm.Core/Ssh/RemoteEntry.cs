@@ -111,16 +111,32 @@ public enum TransferProtocol
 
     /// <summary>Envoi par la connexion SFTP du navigateur.</summary>
     Sftp,
+
+    /// <summary>FTP sans chiffrement (accès d'urgence, après confirmation).</summary>
+    Ftp,
+
+    /// <summary>FTP chiffré par TLS (explicite ou implicite).</summary>
+    Ftps,
 }
 
 public static class TransferProtocols
 {
-    /// <summary>« SCP » ou « SFTP ».</summary>
-    public static string Label(this TransferProtocol protocol) => protocol == TransferProtocol.Scp ? "SCP" : "SFTP";
+    /// <summary>« SCP », « SFTP », « FTP » ou « FTPS ».</summary>
+    public static string Label(this TransferProtocol protocol) => protocol switch
+    {
+        TransferProtocol.Scp => "SCP",
+        TransferProtocol.Ftp => "FTP",
+        TransferProtocol.Ftps => "FTPS",
+        _ => "SFTP",
+    };
 
-    /// <summary>L'autre protocole, qui prend le relais quand le serveur refuse le premier.</summary>
-    public static TransferProtocol Other(this TransferProtocol protocol) =>
-        protocol == TransferProtocol.Scp ? TransferProtocol.Sftp : TransferProtocol.Scp;
+    /// <summary>L'autre protocole, qui prend le relais quand le serveur refuse le premier (SCP et SFTP seulement).</summary>
+    public static TransferProtocol Other(this TransferProtocol protocol) => protocol switch
+    {
+        TransferProtocol.Scp => TransferProtocol.Sftp,
+        TransferProtocol.Sftp => TransferProtocol.Scp,
+        _ => protocol,
+    };
 
     /// <summary>
     /// Protocole d'un envoi pour le bilan et l'historique : <paramref name="preferred"/>, ou ceux réellement utilisés

@@ -51,14 +51,14 @@ internal interface ITailLink : IDisposable
 internal sealed class SessionTailLink : ITailLink
 {
     private readonly SshSession _session;
-    private RemoteFileBrowser? _browser;
+    private IRemoteFiles? _browser;
     private Task? _connecting;
     private bool _wanted;
     private bool _disposed;
     private SshSessionState _lastState;
 
     /// <param name="shared">Connexion de l'onglet Fichiers, utilisée si le suivi n'est pas indépendant.</param>
-    public SessionTailLink(SshSession session, bool dedicated, RemoteFileBrowser? shared)
+    public SessionTailLink(SshSession session, bool dedicated, IRemoteFiles? shared)
     {
         _session = session;
         Dedicated = dedicated;
@@ -171,7 +171,7 @@ internal sealed class SessionTailLink : ITailLink
         _lastState = _session.State;
     }
 
-    private static bool IsAlive(RemoteFileBrowser? browser)
+    private static bool IsAlive(IRemoteFiles? browser)
     {
         try
         {

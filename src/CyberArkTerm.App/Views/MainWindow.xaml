@@ -249,6 +249,11 @@
                     <Image Source="{StaticResource IconConnect}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <MenuItem Header="{x:Static loc:Strings.MenuKeePassFiles}" Click="OnKeePassOpenFiles" ToolTip="{x:Static loc:Strings.MenuKeePassFilesTip}">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconFiles}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuKeePassEditEntry}" Click="OnKeePassEditEntry">
                 <MenuItem.Icon>

@@ -20,7 +20,7 @@ public partial class FileBrowserPanel : UserControl
     private AppSettings _settings = new();
     private Action _saveSettings = () => { };
     private SshSession? _session;
-    private RemoteFileBrowser? _browser;
+    private IRemoteFiles? _browser;
     private int _generation;
     private int _busy;
 
@@ -75,6 +75,8 @@ public partial class FileBrowserPanel : UserControl
 
         HeaderText.Text = session.Label;
         UpdateTailFilesButton();
+        // Session de fichiers seuls (SFTP, FTP) : pas de terminal à suivre.
+        FollowBox.Visibility = session.HasTerminal ? Visibility.Visible : Visibility.Collapsed;
         FollowBox.IsEnabled = session.CanFollowTerminal;
         FollowBox.IsChecked = session.CanFollowTerminal && session.FollowTerminal;
         FollowBox.ToolTip = session.CanFollowTerminal
@@ -98,9 +100,9 @@ public partial class FileBrowserPanel : UserControl
         int generation = _generation;
         if (session.State != SshSessionState.Connected)
         {
-            ShowMessage(session.State == SshSessionState.Connecting
-                ? Strings.SshConnecting
-                : Strings.SshClosedBrowse, retry: false);
+            ShowMessage(session.State == SshSessionState.Connecting ? ConnectingText(session)
+                : session.HasTerminal ? Strings.SshClosedBrowse
+                : Strings.FilesClosedBrowse, retry: false);
             UpdateToolbar();
             return;
         }
@@ -226,11 +228,21 @@ public partial class FileBrowserPanel : UserControl
         }
         else if (_session.State is SshSessionState.Failed or SshSessionState.Closed && _browser is null)
         {
-            ShowMessage(Strings.SshNotConnectedBrowse, retry: false);
+            ShowMessage(NotConnectedText(_session), retry: false);
+        }
+        else if (_session.State == SshSessionState.Connecting && _browser is null)
+        {
+            ShowMessage(ConnectingText(_session), retry: false);
         }
 
         UpdateToolbar();
     }
+
+    private static string NotConnectedText(SshSession session) =>
+        session.HasTerminal ? Strings.SshNotConnectedBrowse : Strings.FilesClosedBrowse;
+
+    private static string ConnectingText(SshSession session) =>
+        session.HasTerminal ? Strings.SshConnecting : Text.Format(Strings.FilesConnectingBrowse, session.FilesProtocol);
 
     // ===================== Actions =====================
 
@@ -713,7 +725,11 @@ public partial class FileBrowserPanel : UserControl
         }
     }
 
-    private string Protocol => _settings.PreferredUploadProtocol.Label();
+    private string Protocol => ProtocolOf(_browser);
+
+    /// <summary>Protocole des envois vers ce serveur : celui des Paramètres (SCP ou SFTP), sinon le seul possible (FTP, FTPS).</summary>
+    private string ProtocolOf(IRemoteFiles? browser) =>
+        browser is { ChoosesUploadProtocol: false } ? browser.UploadProtocol.Label() : _settings.PreferredUploadProtocol.Label();
 
     private void OnDownload(object sender, RoutedEventArgs e) =>
         RequestDownload(SelectedEntries().Where(s => !s.IsDirectory).ToList());

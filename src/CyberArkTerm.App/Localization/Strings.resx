@@ -232,7 +232,7 @@
     <value>Files</value>
   </data>
   <data name="TabFilesTip" xml:space="preserve">
-    <value>Files on the server of the active SSH session (SFTP / SCP)</value>
+    <value>Files on the server of the active session (SFTP / SCP, FTP / FTPS)</value>
   </data>
   <data name="TabHome" xml:space="preserve">
     <value>Home</value>
@@ -534,7 +534,7 @@ The accounts remain available in the “Available” tab.</value>
     <value>No PSMP key remembered.</value>
   </data>
   <data name="HostKeys" xml:space="preserve">
-    <value>Accepted PSMP keys: {0}</value>
+    <value>Accepted server keys (SSH, FTPS certificates): {0}</value>
   </data>
   <data name="NoComponents" xml:space="preserve">
     <value>None: the component is deduced from the platform (PSM-RDP for Windows, PSM-SSH for Unix...).</value>
@@ -688,10 +688,10 @@ This may mean the connection is being intercepted. Only accept if your CyberArk 
     <value>_Retry</value>
   </data>
   <data name="NoSshSession" xml:space="preserve">
-    <value>No SSH session</value>
+    <value>No session</value>
   </data>
   <data name="NoSshSessionHelp" xml:space="preserve">
-    <value>Open an SSH session (PSMP) to browse the server's files and upload files to it.</value>
+    <value>Open an SSH session (PSMP), or a KeePass SFTP / FTP entry, to browse the server's files and upload files to it.</value>
   </data>
   <data name="SshConnecting" xml:space="preserve">
     <value>SSH connection in progress…</value>
@@ -3401,5 +3401,87 @@ Servers added since will be removed and servers removed since will come back, fo
   </data>
   <data name="VncCloseTabConfirm" xml:space="preserve">
     <value>Close the VNC session {0}?</value>
+  </data>
+  <data name="MenuKeePassFiles" xml:space="preserve">
+    <value>Open the _files (SFTP, FTP)</value>
+  </data>
+  <data name="MenuKeePassFilesTip" xml:space="preserve">
+    <value>Files tab only, without terminal: the entry's file protocol (ftp://, ftps://…), otherwise SFTP</value>
+  </data>
+  <data name="MenuKeePassSftp" xml:space="preserve">
+    <value>Files over SFTP</value>
+  </data>
+  <data name="MenuKeePassFtp" xml:space="preserve">
+    <value>Files over FTP (TLS if offered)</value>
+  </data>
+  <data name="FilesSessionTitle" xml:space="preserve">
+    <value>Files of {0}</value>
+  </data>
+  <data name="FilesSessionDetail" xml:space="preserve">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="FilesSessionConnecting" xml:space="preserve">
+    <value>Connecting…</value>
+  </data>
+  <data name="FilesSessionConnected" xml:space="preserve">
+    <value>Connected (encrypted): the files are in the “Files” tab on the left.</value>
+  </data>
+  <data name="FilesSessionConnectedClear" xml:space="preserve">
+    <value>Connected without encryption: the files are in the “Files” tab on the left.</value>
+  </data>
+  <data name="FilesSessionFailed" xml:space="preserve">
+    <value>Connection impossible: {0}</value>
+  </data>
+  <data name="FilesShow" xml:space="preserve">
+    <value>Show the files</value>
+  </data>
+  <data name="FilesOpened" xml:space="preserve">
+    <value>Files of {0} opened ({1})</value>
+  </data>
+  <data name="FilesSessionError" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="FilesClosed" xml:space="preserve">
+    <value>Files session {0} closed</value>
+  </data>
+  <data name="FtpUnencrypted" xml:space="preserve">
+    <value>Unencrypted FTP connection: the password and the files travel in clear on the network.</value>
+  </data>
+  <data name="FtpCleartextTitle" xml:space="preserve">
+    <value>FTP without encryption</value>
+  </data>
+  <data name="FtpCleartextConfirm" xml:space="preserve">
+    <value>The FTP server {0} does not offer encryption (TLS).
+
+The password of the entry and the files would travel in clear on the network, readable by anyone who can observe it. Connect anyway?</value>
+  </data>
+  <data name="FtpCertificateTitle" xml:space="preserve">
+    <value>FTPS server certificate</value>
+  </data>
+  <data name="FtpCertificateUnknown" xml:space="preserve">
+    <value>The certificate of the FTPS server {0} is not trusted by Windows: {1}.
+
+Subject: {2}
+Issuer: {3}
+Valid from {4} to {5}
+SHA-256: {6}
+
+Check this fingerprint with the server's administrator. Trust this certificate for this server (it will be remembered)?</value>
+  </data>
+  <data name="FtpCertificateChanged" xml:space="preserve">
+    <value>WARNING: the certificate of the FTPS server {0} has CHANGED since the last connection ({1}).
+
+Subject: {2}
+Issuer: {3}
+Valid from {4} to {5}
+New SHA-256: {6}
+
+This may be a renewal, or an interception of the connection. Continue only if the server's administrator confirms the change. Trust the new certificate?</value>
+  </data>
+  <data name="FilesConnectingBrowse" xml:space="preserve">
+    <value>Connection to {0} in progress…</value>
+  </data>
+  <data name="FilesClosedBrowse" xml:space="preserve">
+    <value>The files session is closed. Reconnect it from its tab to browse its files.</value>
   </data>
 </root>
