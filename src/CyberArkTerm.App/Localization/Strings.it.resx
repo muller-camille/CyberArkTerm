@@ -186,6 +186,9 @@
   <data name="ToolImportTip" xml:space="preserve">
     <value>Crea account da un file CSV</value>
   </data>
+  <data name="ToolHistory" xml:space="preserve">
+    <value>Cronologia</value>
+  </data>
   <data name="ToolSettings" xml:space="preserve">
     <value>Impostazioni</value>
   </data>
@@ -937,10 +940,19 @@ Continuare?</value>
   <data name="ArchiveOfferText" xml:space="preserve">
     <value>Stai inviando {0} file ({1}) a {2}.
 
-Inviarli in un unico archivio .tar.gz? Un solo file da trasferire e verificare invece di {0}: molto più veloce tramite il PSMP. L'archivio viene creato su questo computer, inviato, verificato (SHA-256), poi eliminato da questo computer; lo estrai sul server con il comando fornito alla fine (da copiare nel terminale).</value>
+Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invece di {0}: molto più veloce tramite il PSMP. L'archivio viene creato su questo computer, inviato, verificato (SHA-256), poi eliminato da questo computer; lo estrai sul server con il comando fornito alla fine (da copiare nel terminale).</value>
   </data>
   <data name="ArchiveOfferArchive" xml:space="preserve">
-    <value>Invia un archivio ._tar.gz</value>
+    <value>Invia un archivio {0}</value>
+  </data>
+  <data name="ArchiveOfferNoGzip" xml:space="preserve">
+    <value>gzip non è stato trovato su questo server: l'archivio non sarà compresso (.tar), si estrae con il solo tar.</value>
+  </data>
+  <data name="ArchiveLookingForGzip" xml:space="preserve">
+    <value>Ricerca di gzip sul server…</value>
+  </data>
+  <data name="ArchiveNotPossible" xml:space="preserve">
+    <value>Nessun archivio: «{0}» non rientra nel formato tar standard (nome oltre 100 caratteri o file oltre 8 GB); invio file per file.</value>
   </data>
   <data name="ArchiveOfferFiles" xml:space="preserve">
     <value>Invia i _file uno per uno</value>
@@ -958,13 +970,37 @@ Inviarli in un unico archivio .tar.gz? Un solo file da trasferire e verificare i
     <value>archivio .tar.gz · {0} %</value>
   </data>
   <data name="ArchiveSent" xml:space="preserve">
-    <value>Archivio {0} inviato a {1}: copia il comando di estrazione e incollalo nel terminale della sessione</value>
+    <value>Archivio {0} inviato a {1}: resta da estrarlo (vedi il riquadro sopra)</value>
+  </data>
+  <data name="ArchiveToExtractOne" xml:space="preserve">
+    <value>Archivio inviato in {0} su {1}: resta da estrarlo</value>
+  </data>
+  <data name="ArchiveToExtractMany" xml:space="preserve">
+    <value>{0} archivi inviati su {1}: resta da estrarli</value>
+  </data>
+  <data name="ArchiveExtractHelp" xml:space="preserve">
+    <value>Esegui questo comando nel terminale della sessione: estrae l'archivio nella sua cartella, poi lo elimina.</value>
   </data>
   <data name="ArchiveCopyCommand" xml:space="preserve">
-    <value>Copia il comando di estrazione</value>
+    <value>Copia il comando</value>
+  </data>
+  <data name="ArchiveInsertCommand" xml:space="preserve">
+    <value>Scrivi nel terminale</value>
+  </data>
+  <data name="ArchiveInsertTip" xml:space="preserve">
+    <value>Scrive il comando al prompt del terminale senza eseguirlo: controllalo, poi premi Invio.</value>
+  </data>
+  <data name="ArchiveInserted" xml:space="preserve">
+    <value>Comando scritto nel terminale: controllalo, poi premi Invio.</value>
+  </data>
+  <data name="ArchiveNotAtPrompt" xml:space="preserve">
+    <value>Il terminale non è in attesa di un comando (programma in corso o digitazione iniziata): copia invece il comando.</value>
+  </data>
+  <data name="ArchiveDismissTip" xml:space="preserve">
+    <value>Chiudi questo riquadro (l'archivio resta sul server, non estratto)</value>
   </data>
   <data name="ArchiveCommandCopied" xml:space="preserve">
-    <value>Comando di estrazione copiato: incollalo nel terminale della sessione (elimina l'archivio dopo l'estrazione).</value>
+    <value>Comando di estrazione copiato: incollalo nel terminale della sessione, poi premi Invio (elimina l'archivio dopo l'estrazione).</value>
   </data>
   <data name="FileTail" xml:space="preserve">
     <value>_Segui (tail -f)</value>

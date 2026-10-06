@@ -2,696 +2,674 @@
 
 # CyberArkTerm
 
-**Français** · [English](README.en.md) · [Italiano](README.it.md)
+[Français](README.fr.md) · **English** · [Italiano](README.it.md)
 
 [![build](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml/badge.svg)](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml)
-[![release](https://img.shields.io/github/v/release/muller-camille/CyberArkTerm)](https://github.com/muller-camille/CyberArkTerm/releases/latest)
+[![release](https://github.com/muller-camille/CyberArkTerm/actions/workflows/release.yml/badge.svg)](https://github.com/muller-camille/CyberArkTerm/releases/latest)
 
-**Client Windows multi-sessions pour CyberArk.** CyberArkTerm se connecte à votre PVWA, liste les comptes
-auxquels vous avez accès et ouvre vos sessions en un double-clic : bureau à distance via **PSM**, ou terminal
-SSH via **PSM for SSH (PSMP)** avec un **navigateur de fichiers** intégré pour déposer des fichiers sur le
-serveur.
+**Multi-session Windows client for CyberArk.** CyberArkTerm signs in to your PVWA, lists the accounts you
+can access and opens your sessions with a double-click: remote desktop through **PSM**, or an SSH terminal
+through **PSM for SSH (PSMP)** with a built-in **file browser** to upload files to the server.
 
-![Session SSH via le PSMP, avec l'onglet Fichiers qui suit le dossier du terminal](docs/captures/ecran-principal.png)
+![SSH session through the PSMP, with the Files tab following the terminal folder](docs/captures/en/main-window.png)
 
-> Les captures proviennent d'un environnement de démonstration (données fictives).
+> Screenshots come from a demo environment (fictitious data).
 
-## Sommaire
+## Contents
 
-- [Fonctionnalités](#fonctionnalités)
+- [Features](#features)
 - [Installation](#installation)
-- [Prise en main](#prise-en-main)
-- [Raccourcis](#raccourcis)
-- [Paramètres et fichier de configuration](#paramètres-et-fichier-de-configuration)
-- [Sécurité](#sécurité)
-- [Fonctionnement technique](#fonctionnement-technique)
-- [Dépannage](#dépannage)
-- [Développement](#développement)
-- [Limites et pistes](#limites-et-pistes)
-- [Licence](#licence)
+- [Getting started](#getting-started)
+- [Shortcuts](#shortcuts)
+- [Settings and configuration file](#settings-and-configuration-file)
+- [Security](#security)
+- [How it works](#how-it-works)
+- [Troubleshooting](#troubleshooting)
+- [Development](#development)
+- [Limitations and ideas](#limitations-and-ideas)
+- [License](#license)
 
-## Fonctionnalités
+## Features
 
 | | |
 | --- | --- |
-| **Connexion CyberArk** | Authentification CyberArk, LDAP, RADIUS (challenge / OTP compris) ou Windows (session courante). |
-| **Disponibles** | Tous les comptes visibles dans le coffre, groupés par safe, plateforme ou type de cible, avec recherche instantanée. |
-| **Courants** | Vos serveurs de travail, rangés en dossiers et sous-dossiers, chacun avec sa propre configuration. |
-| **Sessions PSM** | Bureau à distance via le PSM (comme le bouton « Connect » du PVWA), dans la Connexion Bureau à distance de Windows : composant, machine cible, motif, ticket. |
-| **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), authentification MFA. |
-| **Onglet Fichiers** | Navigateur SFTP du serveur : `ls`, navigation, `rm`, dépôt de fichiers par glisser-déposer en SCP, vérification SHA-256 de chaque fichier transféré, modification dans votre éditeur de texte, droits (`chmod`), suivi du dossier du terminal, envoi vers plusieurs serveurs, comparaison de fichiers, suivi en direct (`tail -f`). |
-| **Vue parallèle** | Jusqu'à 8 sessions SSH côte à côte (un dossier « Courants » s'ouvre d'un clic), saisie simultanée en option, fenêtre séparée possible. |
-| **Accès d'urgence (KeePass)** | Sans CyberArk : coffres KeePass (.kdbx) dans « Courants », connexions SSH et bureau à distance directes, création et modification des entrées, journal local. |
-| **Session PVWA maintenue** | Une requête légère toutes les 4 minutes évite l'expiration pendant le travail (suspendue quand Windows est verrouillé). |
-| **Accueil** | Connexion rapide (tapez un serveur, Entrée), sessions récentes. |
-| **Export** | Liste des comptes en CSV, ouvrable directement dans Excel (séparateur selon la région Windows). |
-| **Langues** | Interface en français, anglais et italien : langue de Windows par défaut, modifiable à tout moment. |
+| **CyberArk sign-in** | CyberArk, LDAP, RADIUS (challenge / OTP included) or Windows (current session) authentication. |
+| **Available** | Every account visible in the vault, grouped by safe, platform or target type, with instant search. |
+| **My servers** | Your working servers, organized in folders and subfolders, each with its own settings. |
+| **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in Windows Remote Desktop Connection: component, target machine, reason, ticket. |
+| **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colors, vim, less, top…), MFA authentication. |
+| **Files tab** | SFTP browser of the server: `ls`, navigation, `rm`, drag-and-drop upload over SCP, SHA-256 check of every transferred file, editing in your text editor, permissions (`chmod`), follows the terminal folder, sending to several servers, file comparison, live following (`tail -f`). |
+| **Parallel view** | Up to 8 SSH sessions side by side (a "My servers" folder opens in one click), optional simultaneous typing, can go to a separate window. |
+| **Emergency access (KeePass)** | Without CyberArk: KeePass vaults (.kdbx) in "My servers", direct SSH and remote desktop connections, creating and editing entries, local log. |
+| **PVWA session kept open** | A light request every 4 minutes avoids the timeout while you work (paused while Windows is locked). |
+| **Home** | Quick connect (type a server, press Enter), recent sessions. |
+| **Export** | Account list as CSV, opens directly in Excel (separator follows the Windows region). |
+| **Languages** | Interface in English, French and Italian: Windows language by default, can be changed at any time. |
 
 ## Installation
 
-### Télécharger l'exécutable
+### Download the executable
 
-1. Ouvrez la [dernière version](https://github.com/muller-camille/CyberArkTerm/releases/latest) dans les
-   *Releases* du dépôt.
-2. Téléchargez **`CyberArkTerm-<version>-win-x64.zip`** et décompressez-le (l'empreinte SHA256 est dans
+1. Open the [latest release](https://github.com/muller-camille/CyberArkTerm/releases/latest) in the
+   repository's *Releases*.
+2. Download **`CyberArkTerm-<version>-win-x64.zip`** and unzip it (the SHA256 hash is in
    `SHA256SUMS.txt`).
-3. Lancez `CyberArkTerm.exe` : un seul fichier, aucun runtime à installer, aucun droit administrateur requis.
+3. Run `CyberArkTerm.exe`: a single file, no runtime to install, no administrator rights needed.
 
-Version de développement : l'exécutable de chaque compilation est aussi disponible en artefact
-`CyberArkTerm-win-x64` dans l'onglet [Actions](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml).
+Development builds: the executable of every build is also available as the `CyberArkTerm-win-x64`
+artifact in the [Actions](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml) tab.
 
-L'exécutable n'est pas signé : au premier lancement, Windows SmartScreen peut afficher un avertissement
-(« Informations complémentaires » → « Exécuter quand même »).
+The executable is not signed: on first launch, Windows SmartScreen may show a warning
+("More info" → "Run anyway").
 
-### Mettre à jour
+### Update
 
-Bouton Paramètres → **« À propos de CyberArkTerm… »** : version, liens du projet, dossier des paramètres, et
-« Rechercher maintenant ». Si une version plus récente existe, « Télécharger et vérifier » enregistre l'archive dans
-le dossier Téléchargements puis la compare à `SHA256SUMS.txt` de la même version (gardée seulement si elle est
-identique). Rien n'est installé automatiquement : fermez CyberArkTerm et remplacez l'exécutable ; vos paramètres sont
-conservés. L'option « Rechercher une nouvelle version au démarrage » (désactivée par défaut) fait cette recherche au
-plus une fois par jour et affiche un lien dans la barre d'état.
+Settings button → **"About CyberArkTerm…"**: version, project links, settings folder, and "Check now". When a newer
+version exists, "Download and check" saves the archive to the Downloads folder, then compares it with `SHA256SUMS.txt`
+of the same version (kept only when identical). Nothing is installed automatically: close CyberArkTerm and replace
+the executable; your settings are kept. The option "Look for a new version at startup" (off by default) does this
+check at most once a day and shows a link in the status bar.
 
-### Prérequis
+### Requirements
 
-**Poste de travail**
+**Workstation**
 
-- Windows 10 ou 11 (x64).
-- Le client Bureau à distance de Windows (présent par défaut) : la Connexion Bureau à distance (`mstsc`) pour les
-  sessions PSM, son contrôle intégré pour le bureau à distance direct des coffres KeePass.
-- Facultatif : Windows Terminal et le « Client OpenSSH » de Windows, uniquement si vous choisissez d'ouvrir
-  le SSH hors de CyberArkTerm.
+- Windows 10 or 11 (x64).
+- The Windows Remote Desktop client (installed by default): Remote Desktop Connection (`mstsc`) for PSM sessions,
+  its built-in control for direct remote desktop from KeePass vaults.
+- Optional: Windows Terminal and the Windows "OpenSSH Client", only if you choose to open SSH outside
+  CyberArkTerm.
 
-**Côté CyberArk**
+**CyberArk side**
 
-- PVWA **v10 ou supérieur** (API REST `/PasswordVault/API/...`), joignable en **HTTPS** avec un certificat
-  approuvé par le poste.
-- Droit **List accounts** sur les safes concernés : l'application n'affiche que ce que l'API vous laisse voir.
-- PSM configuré sur les plateformes à utiliser (composants `PSM-RDP`, `PSM-SSH`…).
-- Pour le SSH : un **PSM for SSH (PSMP)**, avec SFTP autorisé pour l'onglet Fichiers (et SCP pour le dépôt
-  en SCP).
-- Facultatif : **MFA caching** activé sur le PVWA, pour éviter de ressaisir mot de passe et MFA au PSMP.
+- PVWA **v10 or later** (REST API `/PasswordVault/API/...`), reachable over **HTTPS** with a certificate
+  trusted by the workstation.
+- **List accounts** permission on the relevant safes: the application only shows what the API lets you see.
+- PSM configured on the platforms you use (`PSM-RDP`, `PSM-SSH`… components).
+- For SSH: a **PSM for SSH (PSMP)**, with SFTP allowed for the Files tab (and SCP for SCP uploads).
+- Optional: **MFA caching** enabled on the PVWA, so you do not type your password and MFA again at the PSMP.
 
-## Prise en main
+## Getting started
 
-### 1. Se connecter au coffre
+### 1. Sign in to the vault
 
-<img src="docs/captures/connexion.png" alt="Fenêtre de connexion" width="440">
+<img src="docs/captures/en/sign-in.png" alt="Sign-in window" width="440">
 
-Saisissez l'adresse du PVWA (`pvwa.mondomaine.local` suffit : `https://` et `/PasswordVault` sont ajoutés),
-choisissez la méthode d'authentification, puis votre identifiant et votre mot de passe. Si le serveur RADIUS
-pose une question (code OTP), la fenêtre l'affiche et attend votre réponse.
+Enter the PVWA address (`pvwa.mydomain.local` is enough: `https://` and `/PasswordVault` are added), choose
+the authentication method, then your user name and password. If the RADIUS server asks a question (OTP
+code), the window shows it and waits for your answer.
 
-L'adresse, la méthode et l'identifiant sont mémorisés ; **le mot de passe ne l'est jamais**.
+The address, method and user name are remembered; **the password never is**.
 
-La liste en bas à gauche change la langue de l'interface (Français, English, Italiano) ; la fenêtre se
-rouvre aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant saisis.
+The list at the bottom left changes the interface language (Français, English, Italiano); the window reopens
+right away in the chosen language, keeping the address and user name you typed.
 
-### 2. Trouver un compte : onglet « Disponibles »
+### 2. Find an account: "Available" tab
 
-![Onglet Disponibles filtré sur un compte de domaine](docs/captures/disponibles.png)
+- The search box filters on every field (server, user, safe, platform, domain…), several words allowed
+  (`prd sql`).
+- "Group by" sorts accounts by safe, platform or target type.
+- The "Export" toolbar button saves the accounts shown (filtered by the search) to CSV.
+- **Safe members**: right-click an account (or a safe when accounts are grouped by safe, or a server in "My
+  servers") → "Safe members". The window lists the users and groups of the safe with their rights (list, use,
+  retrieve, add accounts, update, delete, manage members…), shows who can **add accounts**, and details every
+  right of the selected member. The PVWA only gives this list to an account with the "View Safe Members" right on
+  the safe. `Ctrl+A` then `Ctrl+C` copies the table. With the "Manage safe members" right, the "Add a member…",
+  "Edit the rights…" (or double-click) and "Remove…" buttons manage the members: name, type (user or group),
+  directory ("Vault" or the LDAP domain), optional end date and the 22 rights, grouped as in the PVWA.
+- **Add an account**: right-click an account (or a safe when accounts are grouped by safe) → "Add an account to
+  the safe…". Safe, platform, address and user name are required; logon domain, account name, password, allowed
+  machines and CPM management are optional. The account you clicked is used as a template (safe, platform,
+  domain). The account is created with the rights of your session: the "Add accounts" right on the safe is
+  required, and usually "Update account content" to give the password. The list is then reloaded and the new
+  account selected.
+- **Import accounts (CSV)**: "Import" toolbar button, or right-click an account or a safe → "Import accounts
+  (CSV)…". A small window asks for the file ("Save a template…" gives an example), the default safe and platform,
+  and sums up what will be created; nothing is sent before "Import". Required columns: address and user name (plus
+  safe and platform, otherwise the defaults); optional: name, domain, password, allowed machines, CPM management
+  (yes/no), reason. Separator `;`, `,` or tab, column names in English, French or Italian; a file made with "Export"
+  can be imported again. A second window then creates the accounts line by line and shows each line's status
+  (created, refused with the PVWA message, not imported, not sent; "Stop" available). At the end it offers to save
+  the result as CSV (without the passwords). The file's passwords are never shown; delete the file after the import.
+- **Edit / delete an account**: right-click → "Edit the account…" (platform, address, user name, domain, name,
+  allowed machines, CPM management; only the changed fields are sent) or "Delete the account…" (after
+  confirmation). Rights "Update account properties" and "Delete accounts".
+- **Password status (CPM)**: an account's tooltip tells whether the CPM manages it, and the date of the last change,
+  verification and reconciliation; a **⚠** marks an account whose last CPM operation failed.
+- **Right-click → "Password"** ("Available" accounts and "My servers" servers):
+  - "Verify", "Change…", "Reconcile…" ask the CPM for the operation (confirmation to change and reconcile; right
+    "Initiate CPM account management operations"). The CPM then handles it: `F5` shows the new status.
+  - "Copy the password…": reason and ticket if the platform asks for them, then the password is copied to the
+    clipboard for 20 seconds, **without being shown** ("Retrieve accounts" right; the retrieval is recorded in the
+    vault audit).
+- On the Home tab, **quick connect** finds a server as you type: press Enter to connect.
 
-- La zone de recherche filtre sur tous les champs (serveur, utilisateur, safe, plateforme, domaine…),
-  plusieurs mots possibles (`prd sql`).
-- « Grouper par » range les comptes par safe, plateforme ou type de cible.
-- Le bouton « Exporter » de la barre d'outils enregistre en CSV les comptes affichés (filtrés par la recherche).
-- **Membres d'un safe** : clic droit sur un compte (ou sur un safe quand les comptes sont groupés par safe, ou sur
-  un serveur de « Courants ») → « Membres du safe ». La fenêtre liste les utilisateurs et groupes du safe avec
-  leurs droits (lister, utiliser, récupérer, ajouter des comptes, modifier, supprimer, gérer les membres…), indique
-  qui peut **ajouter des comptes**, et détaille tous les droits du membre sélectionné. Le PVWA ne donne cette
-  liste qu'à un compte qui a le droit « View Safe Members » sur le safe. `Ctrl+A` puis `Ctrl+C` copie le tableau.
-  Avec le droit « Gérer les membres du safe », les boutons « Ajouter un membre… », « Modifier les droits… » (ou
-  double-clic) et « Retirer… » gèrent les membres : nom, type (utilisateur ou groupe), annuaire (« Vault » ou le
-  domaine LDAP), date de fin éventuelle et les 22 droits, regroupés comme dans le PVWA.
-- **Ajouter un compte** : clic droit sur un compte (ou sur un safe quand les comptes sont groupés par safe) →
-  « Ajouter un compte dans le safe… ». Safe, plateforme, adresse et utilisateur sont obligatoires ; domaine de
-  connexion, nom du compte, mot de passe, machines autorisées et gestion par le CPM sont facultatifs. Le compte
-  cliqué sert de modèle (safe, plateforme, domaine). Le compte est créé avec les droits de votre session : il faut
-  le droit « Ajouter des comptes » sur le safe, et en général « Modifier le contenu des comptes » pour fournir le
-  mot de passe. La liste est rechargée ensuite et le nouveau compte sélectionné.
-- **Importer des comptes (CSV)** : bouton « Importer » de la barre d'outils, ou clic droit sur un compte ou un safe →
-  « Importer des comptes (CSV)… ». Une petite fenêtre demande le fichier (« Enregistrer un modèle… » donne un
-  exemple), le safe et la plateforme par défaut, et résume ce qui sera créé ; rien n'est envoyé avant « Importer ».
-  Colonnes obligatoires : adresse et utilisateur (plus safe et plateforme, sinon les valeurs par défaut) ;
-  facultatives : nom, domaine, mot de passe, machines autorisées, gestion CPM (oui/non), motif. Séparateur `;`, `,` ou
-  tabulation, noms de colonnes en français, anglais ou italien ; un fichier produit par « Exporter » se réimporte.
-  Une seconde fenêtre crée ensuite les comptes ligne par ligne et affiche l'état de chacune (créé, refusé avec le
-  message du PVWA, non importé, non envoyé ; « Arrêter » possible). À la fin, elle propose d'enregistrer le résultat
-  en CSV (sans les mots de passe). Les mots de passe du fichier ne sont jamais affichés ; supprimez le fichier après
-  l'import.
-- **Modifier / supprimer un compte** : clic droit → « Modifier le compte… » (plateforme, adresse, utilisateur,
-  domaine, nom, machines autorisées, gestion par le CPM ; seuls les champs changés sont envoyés) ou « Supprimer le
-  compte… » (après confirmation). Droits « Modifier les propriétés des comptes » et « Supprimer des comptes ».
-- **État du mot de passe (CPM)** : l'info-bulle d'un compte indique s'il est géré par le CPM, la date du dernier
-  changement, de la dernière vérification et de la dernière réconciliation ; un **⚠** signale un compte dont la
-  dernière opération du CPM a échoué.
-- **Clic droit → « Mot de passe »** (comptes de « Disponibles » et serveurs de « Courants ») :
-  - « Vérifier », « Changer… », « Réconcilier… » demandent l'opération au CPM (confirmation pour changer et
-    réconcilier ; droit « Lancer les opérations CPM »). Le CPM la traite ensuite : `F5` pour voir le nouvel état.
-  - « Copier le mot de passe… » : motif et ticket si la plateforme l'exige, puis le mot de passe est copié dans le
-    presse-papiers pendant 20 secondes, **sans être affiché** (droit « Récupérer les comptes » ; la récupération est
-    inscrite dans l'audit du coffre).
-- Sur l'accueil, la **connexion rapide** trouve un serveur au fil de la frappe : Entrée pour s'y connecter.
+### 3. Open a PSM session (remote desktop)
 
-### 3. Ouvrir une session PSM (bureau à distance)
+Double-click the account (or press Enter, or the "Connect" button); a Unix account opens over SSH through the PSMP
+when its address is set (see 4.), and "Advanced connection…" then lets you choose the PSM. CyberArkTerm requests the
+connection from the PVWA and opens the session in Windows **Remote Desktop Connection** (`mstsc`), exactly like the
+PVWA "Connect" button: the PVWA's RDP file is handed over as is. A component that opens a remote application
+(RemoteApp) opens its windows on this computer's desktop.
 
-Double-cliquez sur le compte (ou Entrée, ou bouton « Se connecter ») ; un compte Unix s'ouvre en SSH via le PSMP
-quand son adresse est renseignée (voir 4.), et « Connexion avancée… » permet alors de choisir le PSM. CyberArkTerm
-demande la connexion au PVWA et ouvre la session dans la **Connexion Bureau à distance** de Windows (`mstsc`),
-exactement comme le bouton « Connect » du PVWA : le fichier RDP du PVWA lui est donné tel quel. Un composant en
-application distante (RemoteApp) ouvre ses fenêtres sur le bureau du poste.
+- **PSM component**: deduced from the platform (`PSM-RDP` for Windows, `PSM-SSH` for Unix and network,
+  `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Tick "Remember this component" to keep it for the whole
+  platform. Your PVWA may name its components differently (for example `WIN-PSM`): enter the name its "Connect"
+  button offers; the list then offers the components already used, the platform's first.
+- **Domain accounts**: the window asks for the target machine, prefilled with the account's allowed machines.
+- **Reason and ticket**: if the PVWA refuses the request (reason required, component not configured…), its
+  message is shown and you can fix it and try again.
+- The "Advanced…" button (or right-click → "Advanced connection…") opens this window on demand.
 
-![Connexion à un compte de domaine : machine cible, motif exigé par le PVWA](docs/captures/connexion-psm.png)
+### 4. Open an SSH session through the PSMP
 
-- **Composant PSM** : déduit de la plateforme (`PSM-RDP` pour Windows, `PSM-SSH` pour Unix et réseau,
-  `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Cochez « Mémoriser ce composant » pour le conserver pour
-  toute la plateforme. Votre PVWA peut nommer ses composants autrement (par exemple `WIN-PSM`) : saisissez le nom
-  que propose son bouton « Connect » ; la liste propose ensuite les composants déjà utilisés, celui de la
-  plateforme en premier.
-- **Comptes de domaine** : la fenêtre demande la machine cible, pré-remplie avec les machines autorisées du
-  compte.
-- **Motif et ticket** : si le PVWA refuse la demande (motif obligatoire, composant non configuré…), son
-  message s'affiche et vous pouvez corriger puis réessayer.
-- Le bouton « Connexion… » (ou clic droit → « Connexion avancée… ») ouvre cette fenêtre à la demande.
+Set the PSMP address once in **Settings**: Unix accounts then open over SSH by default (double-click or Enter).
+For another account, right-click → "Connect over SSH" (or the "SSH" button).
 
-### 4. Ouvrir une session SSH via le PSMP
+The session opens **in a CyberArkTerm tab**, with the standard PSMP login
+`<you>@<target account>[#domain]@<target server>`. User names containing spaces (`John Smith`,
+`Local Admin`) are accepted.
 
-Renseignez une fois l'adresse du PSMP dans **Paramètres** : les comptes Unix s'ouvrent alors en SSH par défaut
-(double-clic ou Entrée). Pour un autre compte, clic droit → « Se connecter en SSH » (ou bouton « SSH »).
+<img src="docs/captures/en/psmp-authentication.png" alt="Authentication question asked by the PSMP" width="640">
 
-La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP standard
-`<vous>@<compte cible>[#domaine]@<serveur cible>`. Les noms d'utilisateur contenant des espaces
-(`Jean Dupont`, `Admin Local`) sont acceptés.
+- **Authentication**: if the PVWA provides an "MFA caching" key, no question is asked. Otherwise the PSMP
+  questions (password, MFA code) are shown; the password is reused for the SFTP and SCP connections of the
+  same tab, never saved.
+- **PSMP key**: on first connection, its SHA256 fingerprint is shown and must be accepted; if it changes
+  later, a warning is shown.
+- **Terminal**: selecting copies, right-click pastes, the mouse wheel scrolls back, AltGr works on
+  international keyboards. Close the tab with its cross or a middle click.
+- **Appearance**: colour palette and font size in Settings (Campbell, One Half, Solarized, dark or light);
+  `Ctrl+wheel` enlarges or shrinks a terminal, `Ctrl+0` goes back to the default size.
+- **Search** in the terminal, history included: `Ctrl+Shift+F` (or right-click the tab). Matches are highlighted;
+  `Enter` goes up to older ones, `Shift+Enter` goes down, `Esc` closes.
+- **Save the content** of the terminal (history and screen) to a text file: `Ctrl+Shift+S` (or right-click the
+  tab). Only when you ask: the file may contain sensitive information.
+- **Detach a tab** (another screen): drag the SSH tab out of the window, or right-click → "Detach to a new
+  window". The terminal moves to a separate window and the session goes on. The tab keeps its place ("Show the
+  window", "Bring it back here") and the Files tab works on this session when it is selected. Closing the
+  separate window brings the terminal back to its tab without closing the session. Remote desktop tabs do not
+  detach (use "Full screen"); PSM sessions already open in Windows Remote Desktop Connection, a window of its own.
+- **Parallel view** (up to 8 sessions on screen): "Parallel" toolbar button, or right-click an SSH tab → "Add to
+  the parallel view". Tick the open SSH sessions to show together (8 at most): they are laid out as a grid in the
+  "Parallel" tab, side by side up to 3, then on two rows. Each session has its title and state; "⤢" (or a
+  double-click on the title) enlarges it alone, "✕" sends it back to its tab. The Files tab follows the session you
+  work in. "Close the view" gives each terminal back to its tab without closing the sessions. Remote desktop
+  sessions cannot go there.
+  - **Simultaneous typing**: "Simultaneous typing" button of the view. What you type in a ticked session
+    ("Receives the typing") is also sent to the other ticked, connected sessions: the same command on several
+    servers. It is **off every time the view opens**; when on, an orange banner gives the number and names of the
+    sessions receiving the typing, and an orange frame surrounds them. A session added while it is on is not
+    ticked; what is typed in an unticked session only goes to it. Each key is encoded by the session that receives
+    it (arrows work in a shell as in vim). The mouse wheel is not copied, and pasting several lines into several
+    sessions asks first.
+  - **From "My servers"**: right-click a folder → "Open in the parallel view" connects its SSH servers (subfolders
+    included) and puts them straight in the view; or pick servers with `Ctrl+click` (`Shift+click` for a range),
+    then right-click → "Open the N servers in the parallel view". Beyond the free places (8 at most), a window asks
+    which ones to open; Windows (PSM) servers are left out. Each connection stays a separate PSMP session, with its
+    usual questions.
+  - **Separate window**: "Separate window" button of the view, right-click the "Parallel" tab, or drag the tab out of
+    the window. Closing it brings the view back to its tab without closing the sessions.
+  - **Send files** to the sessions of the view: "Send files…" button (see the Files tab).
 
-<img src="docs/captures/authentification-psmp.png" alt="Question d'authentification posée par le PSMP" width="640">
+### 5. Browse and upload files: "Files" tab
 
-- **Authentification** : si le PVWA fournit une clé « MFA caching », aucune question n'est posée. Sinon, les
-  questions du PSMP (mot de passe, code MFA) s'affichent ; le mot de passe est réutilisé pour les connexions
-  SFTP et SCP du même onglet, jamais enregistré.
-- **Clé du PSMP** : à la première connexion, son empreinte SHA256 est affichée et doit être acceptée ; si elle
-  change ensuite, une alerte s'affiche.
-- **Terminal** : la sélection copie, le clic droit colle, la molette remonte l'historique,
-  AltGr fonctionne sur clavier français. Fermez l'onglet avec la croix ou un clic molette.
-- **Apparence** : palette de couleurs et taille de police dans les Paramètres (Campbell, One Half, Solarized, en
-  sombre ou en clair) ; `Ctrl+molette` agrandit ou réduit un terminal, `Ctrl+0` revient à la taille par défaut.
-- **Rechercher** dans le terminal, historique compris : `Ctrl+Maj+F` (ou clic droit sur l'onglet). Les occurrences
-  sont surlignées ; `Entrée` remonte vers les plus anciennes, `Maj+Entrée` redescend, `Échap` ferme.
-- **Enregistrer le contenu** du terminal (historique et écran) dans un fichier texte : `Ctrl+Maj+S` (ou clic droit
-  sur l'onglet). Seulement à votre demande : le fichier peut contenir des informations sensibles.
-- **Détacher un onglet** (autre écran) : glissez l'onglet SSH hors de la fenêtre, ou clic droit → « Détacher dans
-  une nouvelle fenêtre ». Le terminal passe dans une fenêtre séparée, la session continue. L'onglet garde sa place
-  (« Afficher la fenêtre », « Ramener dans l'onglet ») et l'onglet Fichiers travaille sur cette session quand il
-  est sélectionné. Fermer la fenêtre séparée ramène le terminal dans son onglet, sans fermer la session. Les
-  onglets Bureau à distance ne se détachent pas (utilisez « Plein écran ») ; les sessions PSM s'ouvrent déjà dans
-  la Connexion Bureau à distance de Windows, une fenêtre à part.
-- **Vue parallèle** (jusqu'à 8 sessions à l'écran) : bouton « Parallèle » de la barre d'outils, ou clic droit sur
-  un onglet SSH → « Ajouter à la vue parallèle ». Cochez les sessions SSH ouvertes à afficher ensemble (8 au plus) :
-  elles s'affichent en grille dans l'onglet « Parallèle », côte à côte jusqu'à 3, puis sur deux lignes. Chaque
-  session a son titre et son état ; « ⤢ » (ou double-clic sur le titre) l'agrandit seule, « ✕ » la renvoie dans son
-  onglet. L'onglet Fichiers suit la session où vous travaillez. « Fermer la vue » rend chaque terminal à son onglet,
-  sans fermer les sessions. Les sessions Bureau à distance n'y vont pas.
-  - **Saisie simultanée** : bouton « Saisie simultanée » de la vue. Ce que vous tapez dans une session cochée
-    (« Reçoit la saisie ») est aussi envoyé aux autres sessions cochées et connectées : la même commande sur
-    plusieurs serveurs. Elle est **désactivée à chaque ouverture de la vue** ; active, un bandeau orange donne le
-    nombre et le nom des sessions qui reçoivent la saisie, et un cadre orange les entoure. Une session ajoutée
-    pendant qu'elle est active n'est pas cochée ; ce qui est tapé dans une session décochée ne va qu'à elle. Chaque
-    touche est encodée par la session qui la reçoit (les flèches fonctionnent dans un shell comme dans vim). La
-    molette n'est pas recopiée, et coller plusieurs lignes dans plusieurs sessions demande confirmation.
-  - **Depuis « Courants »** : clic droit sur un dossier → « Ouvrir en vue parallèle » connecte ses serveurs SSH
-    (sous-dossiers compris) et les place directement dans la vue ; ou choisissez des serveurs avec `Ctrl+clic`
-    (`Maj+clic` pour une suite) puis clic droit → « Ouvrir les N serveurs en vue parallèle ». Au-delà des places
-    libres (8 au plus), une fenêtre demande lesquels ouvrir ; les serveurs Windows (PSM) sont laissés de côté.
-    Chaque connexion reste une session PSMP distincte, avec ses questions habituelles.
-  - **Fenêtre séparée** : bouton « Fenêtre séparée » de la vue, clic droit sur l'onglet « Parallèle », ou glissez
-    l'onglet hors de la fenêtre. La fermer ramène la vue dans son onglet, sans fermer les sessions.
-  - **Envoyer des fichiers** aux sessions de la vue : bouton « Envoyer des fichiers… » (voir l'onglet Fichiers).
+When an SSH session opens, the **Files** tab appears on the side and follows the active SSH tab.
 
-### 5. Parcourir et déposer des fichiers : onglet « Fichiers »
+- **Path bar**: current path, editable (type a path, then Enter). Double-click a folder to enter it, `..` to
+  go up, "parent folder" and "home folder" buttons.
+- **Upload files**: drag them from Explorer onto the list (or the "Upload" button). Sent over **SCP** by
+  default (SFTP as an option), folders included; confirmation before overwriting an existing file.
+- **Download by dragging**: drag files or folders from the list to Explorer or the desktop. Nothing is
+  downloaded while dragging: on drop, a window shows the progress (Cancel stops it), then Explorer copies the
+  files where you dropped them. Unix names are made valid for Windows (`\`, `:`, `..`, `CON`… replaced), never
+  writing outside the drop folder; the temporary download folder is deleted afterwards.
+- **Transfer queue**: uploads and downloads run one at a time, in the order requested; what you ask for during a
+  transfer is added to the queue instead of being ignored. An upload goes to the folder shown when you dropped the
+  files, and the overwrite confirmation also counts uploads still waiting. A panel above the status bar shows each
+  item (waiting, progress and file n/N, check, result): ✕ removes a waiting item, "Cancel" stops the running one,
+  "Cancel all" empties the queue. A stopped transfer deletes the file being transferred, which is incomplete (on
+  the server for an upload, on this computer for a download); files already transferred stay. Beware: if the
+  upload was replacing an existing file, its old content is lost. Over SCP, stopping closes the SCP connection;
+  the next SCP upload opens a new one (new PSMP session). An error is shown in the queue and the queue goes on;
+  at the end, a single summary. Browsing, deleting, permissions, the editor and dragging to Explorer get in
+  between two files. Closing the tab or the application with transfers running asks for confirmation.
+- **Many files at once: .tar.gz archive**: from 200 dropped files (threshold in Settings, option "Offer a single
+  .tar.gz archive"), CyberArkTerm offers to send them in a single archive: one file to transfer and check instead
+  of thousands, much faster through the PSMP. The archive is made on this computer (in the queue, can be
+  cancelled), sent and checked (SHA-256), then deleted from this computer; each dropped item is at the root of the
+  archive (permissions 0644 and 0755). Nothing is run on the server: an orange box shows up at the bottom of the
+  Files tab with the extraction command, for example
+  `cd '/opt/app' && /usr/bin/gzip -dc './deploy.tar.gz' | tar xf - && rm -f './deploy.tar.gz'` (the archive is deleted
+  from the server once extracted). "Copy the command", or "Type it in the terminal", which types it at the prompt
+  of the session without running it: check it, then press Enter. The box stays (for that session) until you
+  close it. "Send the files one by one" keeps the usual upload; "Don't offer again" turns
+  the option off.
+  - **Every Unix** (Red Hat 5 to 9, HP-UX 11.11 and 11.31, Solaris, AIX…): the archive is in the standard POSIX tar
+    format (ustar), read by every tar, and the command uses `gzip` and `tar xf` separately, with no GNU tar specific
+    option. It can be typed in any shell (sh, ksh, bash, zsh, csh, tcsh).
+  - **gzip** is looked for on the server (through SFTP) where each system installs it: `/bin`, `/usr/bin`,
+    `/usr/contrib/bin` (HP-UX), `/usr/local/bin`, `/opt/freeware/bin` (AIX), `/usr/sfw/bin` and `/opt/csw/bin`
+    (Solaris). Not found: the archive is sent uncompressed (`.tar`), extracted by `tar` alone.
+  - A name over 100 characters (folders excluded) or a file over 8 GB does not fit this format: the files are then
+    sent one by one, with a message.
+- **Send to several servers**: button (arrow to three servers) or right-click → "Send to several servers…". Pick the
+  files or folders, the destination folder (`~` = the home folder of the account on each server, e.g. `~/deploy`)
+  and the SSH sessions to send to. CyberArkTerm first checks on each server that the folder exists and what would be
+  replaced (a single question for all), then queues one upload per server: same protocol, same SHA-256 check on each
+  server, a single summary at the end.
+- **Compare**: right-click a file → "Compare with…": the same path (or another one) on a server with an open SSH
+  session, or a file of this computer; with two files selected, "Compare the 2 files". The files are read **in
+  memory** (50 MB at most each), without a copy on this computer. The window shows the lines side by side: removed
+  in red on the left, added in green on the right. `F7` / `Shift+F7`: next / previous difference; "Ignore spaces";
+  "Only the differences"; "Save the diff…" in the `diff -u` format. A binary file (or one over 10 MB) is compared by
+  its size and SHA-256 checksum. With a comparison tool chosen in Settings (WinMerge, VS Code…), "Open in …" gives
+  it two temporary copies, deleted when the window closes.
+- **Transfer history**: "History" toolbar button (left of "Settings"), available even without a session. It lists
+  the last 200 uploads and downloads (drag and drop included): date, direction, server, item, destination, number of
+  files, result. "Uploads" / "Downloads" filter; "Checksums…" (or double-click) shows each file's SHA-256
+  checksums, to copy and check again later; "Open the folder" for a download; "Clear the history".
+- **Transfer check (SHA-256)**: every uploaded or downloaded file is checked. On upload (SCP or SFTP), the local
+  file is hashed, then the file on the server is read again over SFTP and hashed. On download, the data received
+  from the server is hashed, then the file written on this computer is read again. The status bar confirms
+  "✓ identical on both sides"; "Checksums…" shows each file's size, both checksums and the result, and copies the
+  checksums in the `sha256sum -c` format to check again on the server. If a file differs, the error is shown and
+  the details open; a drag-and-drop download fails rather than deliver a wrong copy. A file that cannot be read
+  again (permissions) is reported as "not checked". Reading an upload again doubles the data exchanged with the
+  server.
+- **Delete**: select, then Del (or right-click → "Delete (rm)"), with confirmation. Folders must be empty.
+- **Edit a file**: select it, then `F4` (or right-click → "Edit", or the pencil button). The file opens in the
+  text editor chosen in Settings (Notepad by default). Every time you save, CyberArkTerm offers to send it back
+  to the server: sent over SFTP, the file's permissions are kept. If the file changed on the server since you
+  opened it, a warning asks before overwriting it.
+- **Follow a file (tail -f)**: right-click one or several files → "Follow (tail -f)". A window shows the end of the
+  file, then each new line as soon as it is written, like `tail -f`, reading the file over SFTP every second: no
+  command runs on the server. A file truncated or replaced by a rotation is read again from the start; the last
+  10,000 lines are kept.
+  - **Colours and alerts**: errors (ERROR, FATAL, CRITICAL…) in red, warnings (WARN) in orange; words of your choice
+    highlighted in yellow ("Highlight", separated by commas). "Alert on" (e.g. `ERROR, OutOfMemory, Connection
+    refused`): every new line containing one of these words is marked, the "⚠ n alerts" counter goes up (a click
+    goes to the next one) and the window's taskbar button flashes; a Windows notification can be shown, at most one
+    every 30 s, with the number of lines and the file name only, **never the content of the lines** (it may show on
+    the lock screen). These settings are kept for the next windows.
+  - **Combined view**: several selected files open in a single window, and "Add to a follow window" adds a file from
+    another tab, so from another server. Lines are interleaved in the order they arrive, prefixed and coloured by
+    file (`[root@srv01 app.log]`); at the bottom, each file has its state and a button to stop following it.
+  - **Filter and search**: filter (like `grep`), exclusion (like `grep -v`), context lines (like `grep -C 3`), as
+    plain text or regular expressions. `Ctrl+F` searches the lines without filtering them (Enter / `F3`: next,
+    `Shift+F3`: previous). Scrolling up stops following the end.
+  - **Disconnections**: when the connection is lost, a marker says so; when the SSH tab reconnects (or with
+    "Reconnect"), following resumes where it stopped, with the lines written in the meantime. Closing the tab stops
+    following its files; the window keeps the lines received.
+  - **Remembered files**: on a server of the "My servers" tab, followed files are remembered (the last 12); at the
+    next connection, the follow button of the Files tab offers them: "Follow them all in one window" in one click,
+    or a single one.
+  - **Keep a trace**: "Save…" writes the displayed lines to a file on this computer; "Record continuously…" writes
+    the lines already received, then each new line as it arrives, as long as the box is ticked; "Marker" inserts a
+    `—— 14:32:05 ——` line to find a moment again (before a change, for example).
+  - **Connection**: by default, following uses the SFTP connection of the Files tab; it then runs between two files
+    of a transfer. The Settings option "Follow files (tail -f) in an independent session" gives it its own
+    connection, one per window and server: it no longer waits for transfers, but it is one more PSMP session
+    (recorded separately, and an MFA validation may be asked). It is closed with the window. A lost connection is
+    never reopened in a loop.
+- **Permissions**: right-click → "Permissions…" (or the padlock button). Read / write / execute boxes for owner,
+  group and others, special bits (setuid, setgid, sticky) and the octal value (`644`, `1777`…), for one or
+  several items. For a folder, "Apply to the folder contents too" propagates the permissions to subfolders and
+  files; by default, execute (x) is only given to folders and to files that are already executable. Symbolic
+  links are not followed and the owner is not changed.
+- Also: new folder, download, copy path, show hidden files.
+- **Follow the terminal folder**: when ticked, every `cd` in the terminal moves the browser to the same
+  folder (see [How it works](#how-it-works)). After `sudo -i` or `su`, tick the box again at the shell prompt to
+  re-enable tracking in that new shell.
 
-À l'ouverture d'une session SSH, l'onglet **Fichiers** s'affiche sur le côté et suit l'onglet SSH actif.
+### 6. Organize your servers: "My servers" tab
 
-![Dépôt d'un fichier par glisser-déposer depuis l'Explorateur](docs/captures/depot-glisser-deposer.png)
+![My servers organized in folders](docs/captures/en/my-servers.png)
 
-- **Barre de navigation** : chemin courant, modifiable (tapez un chemin puis Entrée). Double-clic sur un
-  dossier pour y entrer, `..` pour remonter, boutons « dossier parent » et « dossier personnel ».
-- **Déposer des fichiers** : glissez-les depuis l'Explorateur sur la liste (ou bouton « Envoyer »). Envoi en
-  **SCP** par défaut (SFTP en option), dossiers compris ; confirmation avant d'écraser un fichier existant.
-- **Télécharger en glissant** : glissez des fichiers ou des dossiers de la liste vers l'Explorateur ou le
-  bureau. Rien n'est téléchargé pendant le glissement : au dépôt, une fenêtre montre la progression (Annuler
-  l'interrompt), puis l'Explorateur copie les fichiers là où vous les avez déposés. Les noms Unix sont rendus
-  valides pour Windows (`\`, `:`, `..`, `CON`… remplacés), sans jamais écrire hors du dossier de dépôt ; le
-  dossier temporaire du téléchargement est effacé ensuite.
-- **File d'attente des transferts** : envois et téléchargements s'exécutent un par un, dans l'ordre des demandes ;
-  ce qui est demandé pendant un transfert s'ajoute à la file au lieu d'être ignoré. La destination d'un envoi est le
-  dossier affiché au moment du dépôt, et la confirmation d'écrasement tient compte des envois encore en attente. Un
-  panneau au-dessus de la barre d'état montre chaque élément (en attente, avancement et fichier n/N, vérification,
-  résultat) : ✕ retire un élément en attente, « Annuler » arrête celui en cours, « Tout annuler » vide la file.
-  Un transfert arrêté supprime le fichier en cours, incomplet (sur le serveur pour un envoi, sur le poste pour un
-  téléchargement) ; les fichiers déjà transférés restent. Attention : si l'envoi remplaçait un fichier existant,
-  son ancien contenu est perdu. En SCP, l'arrêt ferme la connexion SCP ; l'envoi SCP suivant en rouvre une (nouvelle
-  session PSMP). Une erreur est affichée dans la file et la file continue ; à la fin, un seul bilan. La navigation,
-  la suppression, les droits, l'éditeur et le glisser vers l'Explorateur passent entre deux fichiers. Fermer
-  l'onglet ou l'application avec des transferts en cours demande confirmation.
-- **Beaucoup de fichiers d'un coup : archive .tar.gz** : à partir de 200 fichiers déposés (seuil réglable, option
-  « Proposer une archive .tar.gz » des Paramètres), CyberArkTerm propose de les envoyer dans une seule archive :
-  un fichier à transférer et à vérifier au lieu de milliers, beaucoup plus rapide via le PSMP. L'archive est créée
-  sur le poste (dans la file, annulable), envoyée et vérifiée (SHA-256), puis supprimée du poste ; chaque élément
-  déposé est à la racine de l'archive (droits 0644 et 0755). Rien n'est exécuté sur le serveur : « Copier la
-  commande d'extraction » (barre d'état) donne la commande à coller dans le terminal, par exemple
-  `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (l'archive est supprimée
-  du serveur une fois extraite). « Envoyer les fichiers un par un » garde l'envoi habituel ; « Ne plus proposer »
-  décoche l'option.
-- **Envoyer vers plusieurs serveurs** : bouton (flèche vers trois serveurs) ou clic droit → « Envoyer vers plusieurs
-  serveurs… ». Choisissez les fichiers ou dossiers, le dossier de destination (`~` = le dossier personnel du compte
-  sur chaque serveur, par ex. `~/deploy`) et les sessions SSH destinataires. CyberArkTerm vérifie d'abord sur chaque
-  serveur que le dossier existe et ce qui serait remplacé (une seule question pour tous), puis met en file un envoi
-  par serveur : même protocole, même vérification SHA-256 sur chaque serveur, un seul bilan à la fin.
-- **Comparer** : clic droit sur un fichier → « Comparer avec… » : le même chemin (ou un autre) sur un serveur dont une
-  session SSH est ouverte, ou un fichier de ce poste ; avec deux fichiers sélectionnés, « Comparer les 2 fichiers ».
-  Les fichiers sont lus **en mémoire** (50 Mo au plus chacun), sans copie sur le poste. La fenêtre montre les
-  lignes côte à côte : retirées en rouge à gauche, ajoutées en vert à droite. `F7` / `Maj+F7` : différence suivante
-  / précédente ; « Ignorer les espaces » ; « Seulement les différences » ; « Enregistrer le diff… » au format
-  `diff -u`. Un fichier binaire (ou de plus de 10 Mo) est comparé par sa taille et sa somme SHA-256. Avec un outil
-  de comparaison choisi dans les Paramètres (WinMerge, VS Code…), « Ouvrir dans … » lui donne deux copies
-  temporaires, supprimées à la fermeture de la fenêtre.
-- **Historique des transferts** : bouton horloge dans l'en-tête de l'onglet Fichiers, disponible même sans
-  session. Il liste les 200 derniers envois et téléchargements (y compris par glisser-déposer) : date, sens,
-  serveur, élément, destination, nombre de fichiers, résultat. Filtre « Envois » / « Téléchargements » ;
-  « Sommes de contrôle… » (ou double-clic) montre les sommes SHA-256 de chaque fichier, à recopier pour revérifier
-  plus tard ; « Ouvrir le dossier » pour un téléchargement ; « Effacer l'historique ».
-- **Vérification des transferts (SHA-256)** : chaque fichier envoyé ou téléchargé est vérifié. À l'envoi (SCP ou
-  SFTP), le fichier local est haché, puis le fichier arrivé sur le serveur est relu par SFTP et haché. Au
-  téléchargement, les données reçues du serveur sont hachées, puis le fichier écrit sur le poste est relu. La barre
-  d'état confirme « ✓ identique des deux côtés » ; « Sommes de contrôle… » montre, pour chaque fichier, la taille,
-  les deux sommes et le résultat, et copie les sommes au format de `sha256sum -c` pour revérifier sur le serveur.
-  Si un fichier diffère, l'erreur est affichée et le détail s'ouvre ; un téléchargement par glisser-déposer
-  échoue plutôt que de livrer une copie fausse. Un fichier qui ne peut pas être relu (droits) est signalé
-  « non vérifié ». La relecture d'un envoi double le volume échangé avec le serveur.
-- **Supprimer** : sélection puis Suppr (ou clic droit → « Supprimer (rm) »), avec confirmation. Les dossiers
-  doivent être vides.
-- **Modifier un fichier** : sélection puis `F4` (ou clic droit → « Modifier », ou bouton crayon). Le fichier
-  s'ouvre dans l'éditeur de texte choisi dans les Paramètres (Bloc-notes par défaut). À chaque enregistrement,
-  CyberArkTerm propose de le renvoyer sur le serveur : envoi en SFTP, droits du fichier conservés. Si le
-  fichier a changé sur le serveur depuis son ouverture, une alerte demande confirmation avant de l'écraser.
-- **Suivre un fichier (tail -f)** : clic droit sur un ou plusieurs fichiers → « Suivre (tail -f) ». Une fenêtre
-  montre la fin du fichier puis chaque nouvelle ligne dès qu'elle est écrite, comme `tail -f`, en lisant le fichier
-  par SFTP chaque seconde : aucune commande n'est lancée sur le serveur. Un fichier tronqué ou remplacé par une
-  rotation est relu depuis le début ; les 10 000 dernières lignes sont gardées.
-  - **Couleurs et alertes** : erreurs (ERROR, FATAL, CRITICAL…) en rouge, avertissements (WARN) en orange ; mots
-    surlignés en jaune au choix (« Surligner », séparés par des virgules). « Alerte si » (par ex. `ERROR,
-    OutOfMemory, Connection refused`) : chaque nouvelle ligne qui contient l'un de ces mots est marquée, le compteur
-    « ⚠ n alertes » augmente (un clic va à la ligne suivante) et le bouton de la fenêtre clignote dans la barre des
-    tâches ; une notification Windows est possible, au plus une toutes les 30 s, avec le nombre de lignes et le nom
-    du fichier seulement, **jamais le contenu des lignes** (elle peut s'afficher sur l'écran verrouillé). Ces
-    réglages sont gardés pour les fenêtres suivantes.
-  - **Vue combinée** : plusieurs fichiers sélectionnés s'ouvrent dans une seule fenêtre, et « Ajouter à une fenêtre
-    de suivi » y ajoute un fichier d'un autre onglet, donc d'un autre serveur. Les lignes s'intercalent dans l'ordre
-    d'arrivée, préfixées et colorées par fichier (`[root@srv01 app.log]`) ; en bas, chaque fichier a son état et un
-    bouton pour arrêter de le suivre.
-  - **Filtre et recherche** : filtre (comme `grep`), exclusion (comme `grep -v`), lignes de contexte (comme
-    `grep -C 3`), en texte simple ou en expressions régulières. `Ctrl+F` cherche dans les lignes sans les filtrer
-    (Entrée / `F3` : suivant, `Maj+F3` : précédent). Remonter dans les lignes arrête de suivre la fin.
-  - **Coupures** : si la connexion est perdue, un repère l'indique ; quand l'onglet SSH se reconnecte (ou avec
-    « Reconnecter »), le suivi reprend là où il s'était arrêté, avec les lignes écrites entre-temps. Fermer l'onglet
-    arrête le suivi de ses fichiers ; la fenêtre garde les lignes reçues.
-  - **Fichiers mémorisés** : sur un serveur de l'onglet « Courants », les fichiers suivis sont mémorisés (les 12
-    derniers) ; à la connexion suivante, le bouton de suivi de l'onglet Fichiers les propose : « Tout suivre dans
-    une fenêtre » en un clic, ou un seul.
-  - **Garder une trace** : « Enregistrer… » écrit les lignes affichées dans un fichier de ce poste ; « Enregistrer en
-    continu… » écrit les lignes déjà reçues puis chaque nouvelle ligne dès son arrivée, tant que la case est cochée ;
-    « Repère » insère une ligne `—— 14:32:05 ——` pour retrouver un moment (avant une manipulation, par exemple).
-  - **Connexion** : par défaut, le suivi utilise la connexion SFTP de l'onglet Fichiers ; il passe alors entre deux
-    fichiers d'un transfert. L'option « Suivre les fichiers (tail -f) dans une session indépendante » des
-    Paramètres lui donne sa propre connexion, une par fenêtre et par serveur : il n'attend plus les transferts, mais
-    c'est une session PSMP de plus (enregistrée à part, et une validation MFA peut être demandée). Elle est fermée
-    avec la fenêtre. Une connexion perdue n'est jamais rouverte en boucle.
-- **Droits** : clic droit → « Droits… » (ou bouton cadenas). Cases lecture / écriture / exécution pour le
-  propriétaire, le groupe et les autres, bits spéciaux (setuid, setgid, sticky) et valeur octale (`644`,
-  `1777`…), pour un ou plusieurs éléments. Pour un dossier, l'option « Appliquer aussi au contenu » propage
-  les droits aux sous-dossiers et fichiers ; par défaut, l'exécution (x) n'est donnée qu'aux dossiers et aux
-  fichiers déjà exécutables. Les liens symboliques ne sont pas suivis, le propriétaire n'est pas modifié.
-- Aussi : nouveau dossier, téléchargement, copie du chemin, affichage des fichiers cachés.
-- **Suivre le dossier du terminal** : quand la case est cochée, chaque `cd` dans le terminal déplace le
-  navigateur dans le même dossier (voir [Fonctionnement technique](#fonctionnement-technique)). Après un
-  `sudo -i` ou un `su`, recochez la case à l'invite du shell pour réactiver le suivi dans ce nouveau shell.
+- **Add** an account: right-click in "Available" → "Add to my servers" then the folder you want, or drag the
+  account onto the "My servers" tab, or the "Add" toolbar button.
+- **Add a recent connection**: right-click in the recent sessions of the home page → "Add to my servers" then
+  the folder you want. The server keeps the connection type (PSM or SSH), the PSM component and the target
+  machine used.
+- **Folders**: right-click → new folder or subfolder, rename, delete; drag servers and folders to move them.
+- **Search**: box at the top of the tab (or `Ctrl+F` in the tab). It filters servers by name, server, user, folder,
+  component, target machine, and the entries of unlocked KeePass vaults; the folders of the results are expanded.
+  `Enter` or `↓` selects the first result, `Esc` clears.
+- **Several servers at once**: `Ctrl+click` adds or removes a server (or all those of a folder), `Shift+click` picks
+  a range of servers; `Esc` or a plain click cancels. Right-click one of them → "Open the N servers in the parallel
+  view" or "Connect to the N servers" (one tab each). Right-click a folder → "Open in the parallel view" or "Connect
+  to the N servers".
+- **Settings of each server** (right-click → "Properties…"):
 
-### 6. Organiser ses serveurs : onglet « Courants »
-
-![Serveurs courants rangés en dossiers](docs/captures/courants.png)
-
-- **Ajouter** un compte : clic droit dans « Disponibles » → « Ajouter aux serveurs courants » puis le
-  dossier voulu, ou glissez le compte sur l'onglet « Courants », ou bouton « Courant » de la barre d'outils.
-- **Ajouter une session récente** : clic droit dans « Sessions récentes » sur l'accueil → « Ajouter aux
-  serveurs courants » puis le dossier voulu. Le serveur garde le type de connexion (PSM ou SSH), le composant
-  PSM et la machine cible utilisés.
-- **Dossiers** : clic droit → nouveau dossier ou sous-dossier, renommer, supprimer ; glissez serveurs et
-  dossiers pour les déplacer.
-- **Rechercher** : champ en haut de l'onglet (ou `Ctrl+F` dans l'onglet). Il filtre les serveurs par nom, serveur,
-  utilisateur, dossier, composant, machine cible, ainsi que les entrées des coffres KeePass déverrouillés ; les
-  dossiers des résultats sont dépliés. `Entrée` ou `↓` sélectionne le premier résultat, `Échap` efface.
-- **Plusieurs serveurs à la fois** : `Ctrl+clic` ajoute ou retire un serveur (ou tous ceux d'un dossier),
-  `Maj+clic` choisit une suite de serveurs ; `Échap` ou un clic simple annule. Clic droit sur l'un d'eux → « Ouvrir
-  les N serveurs en vue parallèle » ou « Se connecter aux N serveurs » (un onglet chacun). Clic droit sur un dossier
-  → « Ouvrir en vue parallèle » ou « Se connecter aux N serveurs ».
-- **Configuration propre à chaque serveur** (clic droit → « Propriétés… ») :
-
-<img src="docs/captures/proprietes-serveur.png" alt="Propriétés d'un serveur courant" width="800">
-
-| Réglage | Effet |
+| Setting | Effect |
 | --- | --- |
-| Nom, dossier | Affichage et rangement dans l'arbre. |
-| PSM ou SSH via PSMP | Type de connexion ouvert au double-clic. |
-| Composant PSM | Composant à utiliser (vide : déduit de la plateforme). |
-| Machine cible | Serveur sur lequel ouvrir la session pour un compte de domaine. |
-| Motif par défaut | Motif d'accès envoyé automatiquement au PVWA. |
-| Dossier SFTP de départ | Le terminal **et** le navigateur de fichiers s'ouvrent directement dans ce dossier. |
+| Name, folder | Display and position in the tree. |
+| PSM or SSH via PSMP | Connection type opened on double-click. |
+| PSM component | Component to use (empty: deduced from the platform). |
+| Target machine | Server to open the session on, for a domain account. |
+| Default reason | Access reason sent automatically to the PVWA. |
+| SFTP start folder | The terminal **and** the file browser open directly in this folder. |
 
-Un serveur dont le compte n'est plus visible dans CyberArk apparaît grisé.
+A server whose account is no longer visible in CyberArk is greyed out.
 
-### 7. Accès d'urgence hors CyberArk : coffres KeePass
+### 7. Emergency access outside CyberArk: KeePass vaults
 
-Quand CyberArk est indisponible, CyberArkTerm ouvre vos coffres KeePass (`.kdbx`) et se connecte **directement**
-aux serveurs, en SSH ou en bureau à distance, avec les comptes qu'ils contiennent.
+When CyberArk is unavailable, CyberArkTerm opens your KeePass vaults (`.kdbx`) and connects **directly** to the
+servers, over SSH or remote desktop, with the accounts they hold.
 
-> Ces connexions **ne passent pas par le PSM** : ni enregistrement, ni règles CyberArk. Chaque ouverture de
-> coffre, connexion et modification est notée dans le journal local `%APPDATA%\CyberArkTerm\urgence.log`.
+> These connections **do not go through the PSM**: no recording, no CyberArk rules. Every vault opening,
+> connection and change is written to the local log `%APPDATA%\CyberArkTerm\urgence.log`.
 
-![Accès d'urgence : coffre KeePass déverrouillé dans « Courants »](docs/captures/coffre-keepass.png)
+![Emergency access: KeePass vault unlocked in "My servers"](docs/captures/en/keepass-vault.png)
 
-- **Sans CyberArk** : sur l'écran de connexion, « Accès d'urgence (KeePass) » ouvre la fenêtre principale sans
-  PVWA (seuls les coffres KeePass y figurent). Avec CyberArk, les coffres apparaissent aussi en tête de l'onglet
-  « Courants ».
-- **Ajouter un coffre** : bouton coffre-fort de l'onglet « Courants » (ou clic droit → « Ajouter un coffre
-  KeePass… ») : fichier `.kdbx`, nom, fichier clé éventuel.
-- **Déverrouiller** : double-clic sur le coffre. Mot de passe maître et/ou fichier clé (tous les formats de
-  KeePass). « Mémoriser le mot de passe maître dans le coffre local » évite de le ressaisir (voir ci-dessous).
-- **Se connecter** : double-clic sur une entrée. Le protocole vient de son adresse (`ssh://serveur:22`,
-  `rdp://serveur`, `serveur:3389`), d'un champ « Protocol » / « Port » ou d'une étiquette `ssh` / `rdp` ; sinon
-  CyberArkTerm demande SSH ou bureau à distance. Le mot de passe de l'entrée est utilisé directement (onglet
-  terminal + Fichiers en SSH, onglet bureau à distance en RDP) ; il n'est jamais affiché ni écrit sur disque.
-  L'onglet bureau à distance suit sa taille (résolution du bureau distant), propose « Plein écran »
-  (`Ctrl+Alt+Pause` pour revenir), « Déconnecter » et « Reconnecter ».
-- **Modifier le coffre** : clic droit → « Nouvelle entrée… », « Modifier… » (`F2`), « Supprimer » (`Suppr`,
-  vers la corbeille du coffre). Les autres données du coffre (pièces jointes, champs, réglages) sont gardées ;
-  l'ancienne version d'une entrée va dans son historique, comme dans KeePass.
-- **Verrouiller** : clic droit → « Verrouiller ». Les coffres se verrouillent aussi à la déconnexion, à la
-  fermeture et au **verrouillage de Windows**.
+- **Without CyberArk**: on the sign-in screen, "Emergency access (KeePass)" opens the main window without the
+  PVWA (only the KeePass vaults are shown). With CyberArk, the vaults also appear at the top of "My servers".
+- **Add a vault**: vault button of the "My servers" tab (or right-click → "Add a KeePass vault…"): `.kdbx`
+  file, name, optional key file.
+- **Unlock**: double-click the vault. Master password and/or key file (every KeePass format). "Remember the
+  master password in the local vault" saves typing it again (see below).
+- **Connect**: double-click an entry. The protocol comes from its address (`ssh://server:22`, `rdp://server`,
+  `server:3389`), a "Protocol" / "Port" field or an `ssh` / `rdp` tag; otherwise CyberArkTerm asks SSH or
+  remote desktop. The entry's password is used directly (terminal + Files tabs over SSH, remote desktop tab over
+  RDP); it is never shown or written to disk. The remote desktop tab follows its size (remote desktop
+  resolution) and offers "Full screen" (`Ctrl+Alt+Break` to come back), "Disconnect" and "Reconnect".
+- **Edit the vault**: right-click → "New entry…", "Edit…" (`F2`), "Delete" (`Del`, into the vault's recycle
+  bin). The rest of the vault (attachments, fields, settings) is kept; the previous version of an entry goes to
+  its history, like in KeePass.
+- **Lock**: right-click → "Lock". Vaults also lock on sign-out, on exit and when **Windows is locked**.
 
-**Coffre local** : les mots de passe maîtres que vous choisissez de mémoriser sont gardés dans
-`%APPDATA%\CyberArkTerm\coffre-local.dat`, chiffré avec un mot de passe à vous (demandé au déverrouillage
-d'un coffre KeePass dont le mot de passe est mémorisé, « Plus tard » pour saisir plutôt le mot de passe du coffre)
-et lié à votre compte Windows. Gestion dans les **Paramètres** :
-créer, déverrouiller, changer le mot de passe, supprimer.
+**Local vault**: the master passwords you choose to remember are kept in
+`%APPDATA%\CyberArkTerm\coffre-local.dat`, encrypted with a password of your own (asked when you unlock a KeePass
+vault whose password is remembered, "Later" to type the vault password instead) and tied to your Windows account. Manage it in the **Settings**: create, unlock, change the
+password, delete.
 
-## Raccourcis
+## Shortcuts
 
-| Où | Action | Raccourci |
+| Where | Action | Shortcut |
 | --- | --- | --- |
-| Partout | Recharger les comptes depuis le PVWA | `F5` |
-| Partout | Filtrer les comptes (dans « Courants » : rechercher un serveur) | `Ctrl+F` |
-| Listes et arbres | Ouvrir la session | Double-clic ou `Entrée` |
-| Recherche | Effacer le filtre | `Échap` |
-| Courants | Renommer / retirer ou supprimer | `F2` / `Suppr` |
-| Courants | Choisir plusieurs serveurs (puis clic droit pour les ouvrir ensemble) | `Ctrl+clic`, `Maj+clic` ; `Échap` annule |
-| Terminal | Copier | Sélection à la souris, ou `Ctrl+Maj+C` |
-| Terminal | Coller | Clic droit, `Maj+Inser` ou `Ctrl+Maj+V` |
-| Terminal | Historique | Molette, `Maj+Page préc.` / `Maj+Page suiv.` |
-| Terminal | Rechercher (historique compris) | `Ctrl+Maj+F`, puis `Entrée` / `Maj+Entrée` |
-| Terminal | Enregistrer le contenu dans un fichier | `Ctrl+Maj+S` |
-| Terminal | Taille de police / taille par défaut | `Ctrl+molette` / `Ctrl+0` |
-| Comparaison | Différence suivante / précédente | `F7` / `Maj+F7` |
-| Onglet SSH ou Bureau à distance | Fermer | Croix de l'onglet ou clic molette |
-| Onglet SSH ou Bureau à distance | Reconnecter, dupliquer (autre session sur le même compte ou la même entrée), détacher (SSH), fermer, fermer les autres onglets | Clic droit sur l'onglet |
-| Onglet SSH | Détacher dans une fenêtre séparée (autre écran) | Glisser l'onglet hors de la fenêtre |
-| Onglet SSH | Ajouter à la vue parallèle, ou l'en retirer | Clic droit sur l'onglet |
-| Bureau à distance | Plein écran / retour | `Ctrl+Alt+Pause` |
-| Fichiers | Ouvrir / modifier / dossier parent / supprimer / actualiser | `Entrée` / `F4` / `Retour arrière` / `Suppr` / `F5` |
-| Coffre KeePass | Se connecter / modifier / supprimer une entrée | Double-clic ou `Entrée` / `F2` / `Suppr` |
+| Everywhere | Reload the accounts from the PVWA | `F5` |
+| Everywhere | Filter the accounts (in "My servers": search a server) | `Ctrl+F` |
+| Lists and trees | Open the session | Double-click or `Enter` |
+| Search | Clear the filter | `Esc` |
+| My servers | Rename / remove or delete | `F2` / `Del` |
+| My servers | Pick several servers (then right-click to open them together) | `Ctrl+click`, `Shift+click`; `Esc` cancels |
+| Terminal | Copy | Mouse selection, or `Ctrl+Shift+C` |
+| Terminal | Paste | Right-click, `Shift+Insert` or `Ctrl+Shift+V` |
+| Terminal | Scrollback | Mouse wheel, `Shift+Page Up` / `Shift+Page Down` |
+| Terminal | Search (history included) | `Ctrl+Shift+F`, then `Enter` / `Shift+Enter` |
+| Terminal | Save the content to a file | `Ctrl+Shift+S` |
+| Terminal | Font size / default size | `Ctrl+wheel` / `Ctrl+0` |
+| Comparison | Next / previous difference | `F7` / `Shift+F7` |
+| SSH or remote desktop tab | Close | Tab cross or middle click |
+| SSH or remote desktop tab | Reconnect, duplicate (another session on the same account or entry), detach (SSH), close, close the other tabs | Right-click on the tab |
+| SSH tab | Detach to a separate window (another screen) | Drag the tab out of the window |
+| SSH tab | Add to the parallel view, or take it out | Right-click the tab |
+| Remote desktop | Full screen / back | `Ctrl+Alt+Break` |
+| Files | Open / edit / parent folder / delete / refresh | `Enter` / `F4` / `Backspace` / `Del` / `F5` |
+| KeePass vault | Connect / edit / delete an entry | Double-click or `Enter` / `F2` / `Del` |
 
-## Paramètres et fichier de configuration
+## Settings and configuration file
 
-![Paramètres](docs/captures/parametres.png)
+![Settings](docs/captures/en/settings.png)
 
-| Paramètre | Rôle | Défaut |
+| Setting | Purpose | Default |
 | --- | --- | --- |
-| Langue de l'interface | Français, English, Italiano ou langue du système ; appliquée après déconnexion ou au prochain démarrage | langue de Windows (anglais si elle n'est pas traduite) |
-| Garder la session PVWA ouverte | Requête légère toutes les 4 minutes ; suspendue quand Windows est verrouillé | oui |
-| Rechercher une nouvelle version au démarrage | Une requête vers GitHub au plus une fois par jour ; lien dans la barre d'état si une version plus récente existe | non |
-| Coffre local | Mots de passe maîtres KeePass mémorisés : créer, déverrouiller, changer le mot de passe, supprimer | — |
-| Journal de débogage | Menu du bouton Paramètres : déroulement des connexions dans un fichier, sans secret (voir [Sécurité](#sécurité)) ; « Afficher le fichier du journal » l'ouvre dans l'Explorateur | non |
-| Adresse et port PSMP | Serveur PSM for SSH ; renseigné, les comptes Unix s'ouvrent en SSH par défaut ; vide = SSH désactivé | vide, 22 |
-| SSH dans CyberArkTerm | Terminal et onglet Fichiers intégrés ; sinon Windows Terminal | oui |
-| Suivre le dossier du terminal | Autorise l'installation du suivi de dossier dans le shell | oui |
-| Dépôt de fichiers | SCP ou SFTP | SCP |
-| Éditeur de texte | Programme ouvert par « Modifier » dans l'onglet Fichiers | Bloc-notes |
-| Outil de comparaison | Programme proposé dans la fenêtre de comparaison, avec ses arguments (`{0}` = fichier de gauche, `{1}` = de droite) | aucun |
-| Couleurs du terminal, police | Palette (Campbell, One Half, Solarized…) et taille de police des terminaux SSH | Campbell, 14 |
-| Suivi dans une session indépendante | Le suivi d'un fichier (tail -f) ouvre sa propre connexion SFTP (une session PSMP de plus) | Non |
-| Clés de PSMP acceptées | Empreintes mémorisées (bouton « Oublier les clés ») | — |
-| Composants mémorisés | Composant PSM choisi par plateforme (bouton « Oublier ») | — |
+| Interface language | Français, English, Italiano or system language; applied after signing out or at the next start | Windows language (English if it is not translated) |
+| PSMP address and port | PSM for SSH server; when set, Unix accounts open over SSH by default; empty = SSH disabled | empty, 22 |
+| Keep the PVWA session open | Light request every 4 minutes; paused while Windows is locked | yes |
+| Look for a new version at startup | One request to GitHub at most once a day; a link in the status bar when a newer version exists | no |
+| Local vault | Remembered KeePass master passwords: create, unlock, change password, delete | — |
+| Debug log | Settings button menu: how connections unfold, in a file, without secrets (see [Security](#security)); "Show the debug log file" opens it in Explorer | no |
+| SSH in CyberArkTerm | Built-in terminal and Files tab; otherwise Windows Terminal | yes |
+| Follow the terminal folder | Allows setting up folder tracking in the shell | yes |
+| File upload | SCP or SFTP | SCP |
+| Text editor | Program opened by "Edit" in the Files tab | Notepad |
+| Comparison tool | Program offered in the comparison window, with its arguments (`{0}` = left file, `{1}` = right file) | none |
+| Terminal colours, font | Palette (Campbell, One Half, Solarized…) and font size of the SSH terminals | Campbell, 14 |
+| Follow in an independent session | Following a file (tail -f) opens its own SFTP connection (one more PSMP session) | No |
+| Accepted PSMP keys | Remembered fingerprints ("Forget keys" button) | — |
+| Remembered components | PSM component chosen per platform ("Forget" button) | — |
 
-Toutes les préférences sont enregistrées dans `%APPDATA%\CyberArkTerm\settings.json` : langue, adresse du PVWA,
-méthode et identifiant de connexion, paramètres ci-dessus, serveurs « Courants », leurs dossiers et les fichiers qui y ont été suivis (chemins), sessions
-récentes, emplacement des coffres KeePass et de leurs fichiers clés. Ce fichier ne contient **aucun mot de passe,
-jeton ni clé privée**. Pour repartir de zéro, fermez
-l'application et supprimez-le. L'historique des transferts de l'onglet Fichiers est à côté, dans
-`transfers.json` (noms et chemins des fichiers, sommes SHA-256, jamais leur contenu).
+All preferences are saved in `%APPDATA%\CyberArkTerm\settings.json`: language, PVWA address, sign-in method
+and user name, the settings above, "My servers", their folders and the files followed on them (paths), recent sessions, location of the KeePass
+vaults and of their key files. This file contains **no password, token or private key**. To start from scratch, close the application and delete it.
+The transfer history of the Files tab is next to it, in `transfers.json` (file names and paths, SHA-256
+checksums, never their content).
 
-## Sécurité
+## Security
 
-- **HTTPS obligatoire** vers le PVWA ; la validation des certificats n'est jamais désactivée.
-- **Aucun secret sur disque** : mot de passe CyberArk, jeton de session, clé MFA et mot de passe PSMP restent
-  en mémoire, le temps de la session. Déconnexion du PVWA (`Logoff`) à la fermeture.
-- Session PVWA ouverte avec `concurrentSession` : votre session web PVWA éventuelle n'est pas fermée.
-- **Copie d'un mot de passe** : la réponse du PVWA est lue dans un tampon effacé ensuite et décodée sans passer par
-  une chaîne ; le mot de passe est copié directement dans le presse-papiers Windows, marqué pour être exclu de
-  l'historique (`Win+V`), de la synchronisation entre appareils et des outils de surveillance du presse-papiers, puis
-  effacé après 20 s s'il y est encore, ainsi qu'à la déconnexion, à la fermeture et au verrouillage de Windows. Il
-  n'est jamais affiché ni écrit dans le journal de débogage.
-- **Ajout d'un compte** : le mot de passe saisi est lu dans le champ masqué sans passer par une chaîne, envoyé une
-  seule fois au PVWA en HTTPS, puis effacé de la mémoire ; il n'est ni enregistré ni écrit dans le journal de
-  débogage.
-- **Sessions PSM** : le fichier RDP du PVWA (jeton PSM à usage unique) est écrit dans `%TEMP%\CyberArkTerm` pour
-  `mstsc`, qui en vérifie la signature, puis supprimé après 60 s ou à la fermeture.
-- **Saisie simultanée** (vue parallèle) : désactivée à chaque ouverture de la vue, signalée par un bandeau et un cadre
-  orange qui nomment les sessions concernées ; une session ajoutée n'y est pas incluse d'office, et un collage de
-  plusieurs lignes vers plusieurs sessions demande confirmation. Chaque session reste une session PSMP distincte,
-  enregistrée comme d'habitude.
-- **Comparaison de fichiers** : contenus lus en mémoire et effacés à la fermeture de la fenêtre ; seules les copies
-  données à un outil externe passent par le disque (`%TEMP%\CyberArkTerm\compare`), supprimées à la fermeture de la
-  fenêtre et au lancement suivant.
-- **Nouvelle version** : aucune requête vers Internet sans votre action ou l'option des Paramètres (désactivée par
-  défaut) ; seules les adresses du dépôt du projet sont suivies, l'archive n'est gardée que si sa somme SHA-256 est
-  celle de `SHA256SUMS.txt`, et rien n'est installé ni lancé.
-- **Clés d'hôte PSMP épinglées** au premier usage, avec alerte en cas de changement (de même pour les serveurs
-  joints en accès d'urgence).
-- **Maintien de la session PVWA** : il évite l'expiration par inactivité ; rien n'est envoyé tant que Windows
-  est verrouillé, et l'option se désactive dans les Paramètres si votre politique l'exige.
-- **Coffres KeePass** :
-  - mot de passe maître jamais enregistré, sauf dans le coffre local si vous le demandez : Argon2id (64 Mio,
-    3 passes) puis AES-256-GCM, réglages de dérivation authentifiés, le tout protégé par DPAPI (compte Windows) ;
-  - en mémoire, clé du coffre et mots de passe des entrées restent masqués et ne sont révélés qu'au moment de la
-    connexion ; coffres verrouillés à la déconnexion, à la fermeture et au verrouillage de Windows ;
-  - enregistrement sûr : relecture du fichier, modification appliquée à sa version du moment (les changements
-    faits ailleurs sont gardés), vérification du résultat déchiffré, copie `.bak`, remplacement en une fois ;
-    une entrée modifiée ailleurs entre-temps n'est pas écrasée ;
-  - bureau à distance direct : le mot de passe est transmis au seul contrôle Bureau à distance (ni fichier, ni
-    gestionnaire d'identification), authentification réseau (NLA) et alerte si le serveur n'est pas reconnu ;
-  - journal `urgence.log` : date, compte Windows, poste, action, coffre, entrée, cible ; jamais de mot de passe.
-- **Journal de débogage**, désactivé par défaut (menu du bouton Paramètres) : `%LOCALAPPDATA%\CyberArkTerm\debug.log`,
-  5 Mo au plus plus une génération `.1`. Il note le déroulement des connexions PVWA, PSM, Bureau à distance et
-  SSH : adresses et statuts des requêtes, réglages du fichier .rdp, événements et codes du contrôle Bureau à
-  distance, erreurs. Il contient des noms de serveurs et de comptes, mais **jamais** de mot de passe, de jeton de
-  session, de demande de session PSM (`PSM@…` masqué), de signature, d'en-tête ou de corps de requête, ni le
-  contenu des sessions. La barre d'état le signale tant qu'il est actif. Relisez-le avant de le transmettre, et
-  supprimez-le une fois le problème résolu.
-- **Fichiers modifiés** : la copie locale ouverte dans l'éditeur est placée dans `%TEMP%\CyberArkTerm\edit`
-  et supprimée à la fermeture de l'onglet SSH ; une alerte prévient si des modifications n'ont pas été
-  renvoyées.
-- **Pas d'injection de commande** : chemins SCP et dossiers de départ protégés entre apostrophes pour le
-  shell distant ; arguments `ssh` / Windows Terminal validés et passés sans shell.
-- Export CSV protégé contre l'injection de formules Excel.
-- Les sessions PSM et PSMP ouvertes par CyberArkTerm sont des sessions CyberArk standard : elles sont
-  enregistrées et auditées par le PSM comme celles ouvertes depuis le PVWA.
+- **HTTPS required** to the PVWA; certificate validation is never disabled.
+- **No secret on disk**: CyberArk password, session token, MFA key and PSMP password stay in memory for the
+  session. The PVWA session is closed (`Logoff`) on exit.
+- PVWA session opened with `concurrentSession`: your PVWA web session, if any, is not closed.
+- **Copying a password**: the PVWA response is read into a buffer wiped afterwards and decoded without going
+  through a string; the password goes straight to the Windows clipboard, marked to be excluded from the history
+  (`Win+V`), from cross-device sync and from clipboard monitoring tools, then cleared after 20 s if it is still
+  there, and on sign-out, exit and Windows lock. It is never shown nor written to the debug log.
+- **Adding an account**: the password is read from the masked box without going through a string, sent once to
+  the PVWA over HTTPS, then wiped from memory; it is neither saved nor written to the debug log.
+- **PSM sessions**: the PVWA's RDP file (one-time PSM token) is written to `%TEMP%\CyberArkTerm` for `mstsc`,
+  which checks its signature, then deleted after 60 s or on exit.
+- **Simultaneous typing** (parallel view): off every time the view opens, shown by an orange banner and frame that
+  name the sessions concerned; an added session is not included by default, and pasting several lines into several
+  sessions asks first. Each session stays a separate PSMP session, recorded as usual.
+- **File comparison**: contents read in memory and wiped when the window closes; only the copies given to an external
+  tool go through the disk (`%TEMP%\CyberArkTerm\compare`), deleted when the window closes and at the next start.
+- **New version**: no request to the Internet without your action or the Settings option (off by default); only the
+  addresses of the project repository are followed, the archive is kept only when its SHA-256 checksum is the one of
+  `SHA256SUMS.txt`, and nothing is installed or started.
+- **PSMP host keys pinned** on first use, with a warning if they change (the same for servers reached in
+  emergency access).
+- **PVWA session keep-alive**: it avoids the idle timeout; nothing is sent while Windows is locked, and the option
+  can be turned off in the Settings if your policy requires it.
+- **KeePass vaults**:
+  - the master password is never saved, except in the local vault if you ask for it: Argon2id (64 MiB,
+    3 passes) then AES-256-GCM, key derivation settings authenticated, all protected by DPAPI (Windows account);
+  - in memory, the vault key and the entry passwords stay masked and are only revealed when connecting; vaults
+    lock on sign-out, on exit and when Windows is locked;
+  - safe saving: the file is read again, the change is applied to its current version (changes made elsewhere
+    are kept), the decrypted result is checked, a `.bak` copy is kept and the file is replaced in one step; an
+    entry changed elsewhere in the meantime is not overwritten;
+  - direct remote desktop: the password is only passed to the Remote Desktop control (no file, no credential
+    manager), with network level authentication (NLA) and a warning if the server is not recognized;
+  - `urgence.log`: date, Windows account, computer, action, vault, entry, target; never a password.
+- **Debug log**, off by default (Settings button menu): `%LOCALAPPDATA%\CyberArkTerm\debug.log`, 5 MB at most
+  plus one `.1` generation. It records how PVWA, PSM, remote desktop and SSH connections unfold: request addresses
+  and statuses, .rdp file settings, Remote Desktop control events and codes, errors. It contains server and
+  account names, but **never** a password, session token, PSM session request (`PSM@…` masked), signature,
+  request header or body, nor session content. The status bar shows it while it is on. Read it before passing it
+  on, and delete it once the problem is solved.
+- **Edited files**: the local copy opened in the editor is stored in `%TEMP%\CyberArkTerm\edit` and deleted when
+  the SSH tab closes; a warning shows if changes were not sent back.
+- **No command injection**: SCP paths and start folders are quoted for the remote shell; `ssh` / Windows
+  Terminal arguments are validated and passed without a shell.
+- CSV export protected against Excel formula injection.
+- PSM and PSMP sessions opened by CyberArkTerm are standard CyberArk sessions: they are recorded and audited
+  by the PSM like the ones opened from the PVWA.
 
-Pour signaler une vulnérabilité, voir [SECURITY.md](SECURITY.md) (signalement privé, pas d'issue publique).
+To report a vulnerability, see [SECURITY.md](SECURITY.md) (private reporting, no public issue).
 
-## Fonctionnement technique
+## How it works
 
-### API du PVWA utilisées
+### PVWA API calls
 
-| Appel | Usage |
+| Call | Purpose |
 | --- | --- |
-| `POST /PasswordVault/API/auth/{CyberArk\|LDAP\|RADIUS\|Windows}/Logon` | Ouverture de session |
-| `GET /PasswordVault/API/Accounts?offset=…&limit=1000` | Liste paginée des comptes |
-| `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | Fichier RDP de la session PSM |
-| `POST /PasswordVault/API/Accounts` | Création d'un compte dans un safe (« Ajouter un compte ») |
-| `POST /PasswordVault/API/Accounts` (une fois par ligne) | Import de comptes depuis un CSV |
-| `PATCH` / `DELETE /PasswordVault/API/Accounts/{id}` | Modification (seuls les champs changés) et suppression d'un compte |
-| `POST /PasswordVault/API/Accounts/{id}/Verify`, `/Change`, `/Reconcile` | Opérations demandées au CPM |
-| `POST /PasswordVault/API/Accounts/{id}/Password/Retrieve` | Copie du mot de passe (motif, ticket ; usage « copy » dans l'audit) |
-| `POST` / `PUT` / `DELETE /PasswordVault/API/Safes/{safe}/Members[/{membre}]` | Ajout, droits et retrait d'un membre du safe |
-| `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Membres d'un safe et leurs droits (fenêtre « Membres du safe ») |
-| `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Clé SSH temporaire « MFA caching » (si activée) |
-| `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Maintien de la session (toutes les 4 minutes) |
-| `POST /PasswordVault/API/Auth/Logoff` | Fermeture de session |
+| `POST /PasswordVault/API/auth/{CyberArk\|LDAP\|RADIUS\|Windows}/Logon` | Sign in |
+| `GET /PasswordVault/API/Accounts?offset=…&limit=1000` | Paged account list |
+| `POST /PasswordVault/API/Accounts/{id}/PSMConnect` | RDP file of the PSM session |
+| `POST /PasswordVault/API/Accounts` | Creates an account in a safe ("Add an account") |
+| `POST /PasswordVault/API/Accounts` (once per line) | Imports accounts from a CSV |
+| `PATCH` / `DELETE /PasswordVault/API/Accounts/{id}` | Edits (changed fields only) and deletes an account |
+| `POST /PasswordVault/API/Accounts/{id}/Verify`, `/Change`, `/Reconcile` | Operations requested from the CPM |
+| `POST /PasswordVault/API/Accounts/{id}/Password/Retrieve` | Copies the password (reason, ticket; "copy" usage in the audit) |
+| `POST` / `PUT` / `DELETE /PasswordVault/API/Safes/{safe}/Members[/{member}]` | Adds a safe member, sets its rights, removes it |
+| `GET /PasswordVault/API/Safes/{safe}/Members?offset=…&limit=1000` | Members of a safe and their rights ("Safe members" window) |
+| `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Temporary "MFA caching" SSH key (if enabled) |
+| `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Session keep-alive (every 4 minutes) |
+| `POST /PasswordVault/API/Auth/Logoff` | Sign out |
 
-### Coffres KeePass
+### KeePass vaults
 
-Lecture et écriture natives (sans KeePass installé) des formats **KDBX 3.1 et 4.x** : chiffrement AES-256 ou
-ChaCha20, dérivation de clé AES-KDF (instructions AES du processeur) ou Argon2d / Argon2id, fichiers clés XML
-1.0 / 2.0, 32 octets, 64 caractères hexadécimaux ou fichier quelconque. Le fichier réécrit garde la version, le
-chiffrement et la dérivation de clé d'origine, avec de nouvelles graines à chaque enregistrement. Les coffres de
-test (`tests/CyberArkTerm.Core.Tests/KeePass/Vaults`) viennent de KeePassXC et pykeepass, et les fichiers écrits
-par CyberArkTerm ont été vérifiés dans ces deux outils.
+Native reading and writing (no KeePass installed) of the **KDBX 3.1 and 4.x** formats: AES-256 or ChaCha20
+encryption, AES-KDF (processor AES instructions) or Argon2d / Argon2id key derivation, XML 1.0 / 2.0 key files,
+32 bytes, 64 hexadecimal characters or any file. The rewritten file keeps the original version, encryption and
+key derivation, with new seeds on every save. The test vaults (`tests/CyberArkTerm.Core.Tests/KeePass/Vaults`)
+come from KeePassXC and pykeepass, and files written by CyberArkTerm were checked in both tools.
 
-### Sessions Bureau à distance
+### Remote desktop sessions
 
-Les sessions PSM s'ouvrent avec le fichier RDP renvoyé par `PSMConnect`, donné tel quel à la Connexion Bureau à
-distance (`mstsc`) : elle en vérifie la signature et gère aussi bien le bureau que l'application distante
-(RemoteApp). Le journal de débogage en note la structure (jeton, signature et arguments masqués). Les versions 0.4
-à 0.6 ouvraient ces sessions dans un onglet : un PSM qui n'accepte que l'application distante n'y fonctionnait pas
-bien (position et taille des fenêtres sur le serveur, souris), d'où le retour à `mstsc`.
+PSM sessions open with the RDP file returned by `PSMConnect`, handed as is to Remote Desktop Connection (`mstsc`):
+it checks its signature and handles a desktop as well as a remote application (RemoteApp). The debug log records
+its structure (token, signature and arguments masked). Versions 0.4 to 0.6 opened these sessions in a tab: a PSM
+that only accepts remote applications did not work well there (place and size of the windows on the server,
+mouse), hence the return to `mstsc`.
 
-Les onglets Bureau à distance (bureau à distance direct des coffres KeePass) hébergent le contrôle ActiveX de
-Windows (`mstscax.dll`, classe `MsRdpClient` la plus récente disponible), réglé comme une connexion directe :
-authentification réseau (NLA), alerte si le serveur n'est pas reconnu, redirections désactivées sauf le
-presse-papiers. La résolution du bureau distant suit la taille de l'onglet. Les fermetures de session et les
-erreurs de connexion sont expliquées dans l'onglet avec le message et les codes de Windows (raison, raison
-étendue). Un test d'intégration (workflow `rdp-integration`) ouvre une vraie session sur le poste de CI.
+Remote desktop tabs (direct remote desktop from KeePass vaults) host the Windows ActiveX control (`mstscax.dll`,
+the most recent `MsRdpClient` class available), set up as a direct connection: network level authentication
+(NLA), warning if the server is not recognized, redirections off except the clipboard. The remote desktop
+resolution follows the tab size. Session ends and connection errors are explained in the tab with the Windows
+message and codes (reason, extended reason). An integration test (`rdp-integration` workflow) opens a real
+session on the CI machine.
 
-**Un thread par connexion Bureau à distance.** Le contrôle, sa fenêtre et ses événements vivent sur un thread à
-part (STA, avec sa boucle de messages) ; l'interface ne l'attend jamais. L'onglet contient une fenêtre du thread de
-l'interface, dans laquelle ce thread place la fenêtre du contrôle. Avant de libérer le contrôle, il l'en retire :
-une déconnexion ou une libération qui tarde ne fige plus l'application. Si le thread ne répond plus pendant 5 s,
-la barre de l'onglet le signale, et le reste de l'application reste utilisable. Limite : Windows partage le clavier
-et la souris entre une fenêtre et celles qu'elle contient, même d'un autre thread ; un contrôle bloqué pour de bon
-peut encore retenir un clic dans sa zone ou un changement de focus.
+**One thread per remote desktop connection.** The control, its window and its events live on a separate thread
+(STA, with its own message loop); the interface never waits for it. The tab holds a window of the interface thread,
+in which that thread places the control's window. Before releasing the control, it takes the window out: a slow
+disconnection or release no longer freezes the application. If the thread stops responding for 5 s, the tab bar
+says so, and the rest of the application stays usable. Limit: Windows shares keyboard and mouse input between a
+window and the windows it contains, even from another thread; a control that is stuck for good can still hold up a
+click in its area or a focus change.
 
-### Sessions PSMP
+### PSMP sessions
 
-Chaque onglet SSH ouvre jusqu'à trois connexions au PSMP, avec le même identifiant
-`<vous>@<compte>[#domaine]@<cible>` : le terminal, la connexion SFTP de l'onglet Fichiers, et une connexion
-SCP au premier dépôt de fichier en SCP. Chacune est une session PSMP, enregistrée par le PSM.
-Les envois au serveur (frappe, taille du terminal) et la fermeture des connexions se font hors du thread de
-l'interface, dans l'ordre : un serveur ou un PSMP qui ne lit plus ne fige pas l'application.
+Each SSH tab opens up to three connections to the PSMP, with the same login
+`<you>@<account>[#domain]@<target>`: the terminal, the SFTP connection of the Files tab, and an SCP
+connection on the first SCP upload. Each one is a PSMP session, recorded by the PSM.
+Sending to the server (typing, terminal size) and closing connections happen off the interface thread, in order:
+a server or PSMP that stops reading does not freeze the application.
 
-### Suivi du dossier du terminal
+### Following the terminal folder
 
-À l'ouverture d'une session SSH (si l'option est active), CyberArkTerm attend que le shell du serveur cible
-affiche son invite (jusqu'à 60 s : le PSMP met parfois plusieurs secondes à joindre la cible), puis lui envoie
-une commande d'une ligne, précédée d'une espace pour ne pas entrer dans l'historique. Rien n'est envoyé si
-vous avez déjà commencé à taper ; la commande peut être renvoyée sans effet en double (case « Suivre ») :
+When an SSH session opens (if the option is on), CyberArkTerm waits for the target server's shell to show its
+prompt (up to 60 s: the PSMP sometimes takes several seconds to reach the target), then sends it a one-line
+command, preceded by a space so it stays out of the history (bash, or zsh with `HIST_IGNORE_SPACE`). Nothing is
+sent if you already started typing;
+the command can be sent again without duplicate effect (the "Follow" box):
 
-- définition de `PROMPT_COMMAND` (bash) ou `precmd` (zsh) qui émet la séquence standard **OSC 7** avec le
-  dossier courant à chaque invite ;
-- si un dossier de départ est configuré, un `cd` vers ce dossier ;
-- effacement de la commande tapée, pour qu'elle ne reste pas à l'écran.
+- sets `PROMPT_COMMAND` (bash) or `precmd` (zsh) to emit the standard **OSC 7** sequence with the current
+  folder at each prompt;
+- with tcsh, the `cwdcmd` alias (only if it is not already defined), which emits the same sequence at each
+  folder change;
+- if a start folder is configured, a `cd` to that folder;
+- erases the typed command so it does not stay on screen.
 
-Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place dans le dossier indiqué.
+The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that folder.
 
-## Dépannage
+Every shell reads the command without error: each part runs only in the shell family it is written for. With
+csh, ksh, sh or fish, following is not set up and nothing stays on screen.
 
-| Symptôme | Cause probable et solution |
+## Troubleshooting
+
+| Symptom | Likely cause and fix |
 | --- | --- |
-| « Connexion TLS refusée : le certificat du PVWA n'est pas approuvé » | Le certificat (ou l'autorité qui l'a émis) n'est pas dans le magasin Windows du poste. |
-| « Le PVWA doit être joint en HTTPS » | Saisissez l'adresse sans `http://` (ou avec `https://`). |
-| « Le PVWA n'a pas de composant de connexion « PSM-RDP » pour ce compte » (`EPVWA093E Failed to get the relevant connection component`) | La plateforme du compte utilise un composant d'un autre nom (par exemple `WIN-PSM`) : celui que propose le bouton « Connect » du PVWA, ou le nom après `/c` dans une commande `psm /u … /a … /c …`. Saisissez-le dans « Composant » ; « Mémoriser ce composant pour la plateforme » est coché pour les connexions suivantes. |
-| « Votre session CyberArk a expiré » | Délai d'inactivité du PVWA dépassé : reconnectez-vous. |
-| « Mot de passe » → « Copier » : « Le PVWA refuse : … « Récupérer les comptes » … » | Droit manquant sur le safe, ou motif / ticket exigé par la plateforme : saisissez-le. Avec une double validation, faites la demande dans le PVWA. |
-| « Vérifier / Changer / Réconcilier » : « Le PVWA refuse : … « Lancer les opérations CPM » … » | Demandez ce droit sur le safe ; « Membres du safe » montre vos droits. |
-| « Ajouter un compte » : « Le PVWA refuse : votre compte doit avoir le droit « Ajouter des comptes »… » | Demandez ce droit sur le safe (et « Modifier le contenu des comptes » pour fournir le mot de passe), ou créez le compte sans mot de passe. « Membres du safe » montre vos droits. |
-| « Membres du safe » : « Votre compte ne peut pas voir les membres de ce safe » | Le PVWA exige le droit « View Safe Members » sur le safe : demandez-le à un gestionnaire du safe. |
-| « Connection component … is not configured for platform … » | Choisissez le bon composant dans « Connexion avancée », cochez « Mémoriser » pour la plateforme. |
-| « You must specify a reason… » | Saisissez un motif dans la fenêtre qui s'ouvre (ou un motif par défaut dans les propriétés du serveur courant). |
-| Le compte n'apparaît pas | Vous n'avez pas le droit « List accounts » sur son safe, ou la liste doit être rechargée (`F5`). |
-| Le mot de passe PSMP est demandé à chaque onglet | MFA caching non activé sur le PVWA : comportement normal (une fois par onglet). |
-| L'onglet Fichiers indique « Connexion SFTP impossible » | SFTP n'est pas autorisé sur le PSMP ou pour ce compte : voir l'équipe CyberArk. |
-| Le navigateur ne suit pas les `cd` | Le shell distant n'est pas bash ou zsh, l'option est désactivée dans les Paramètres, ou l'invite n'a pas été reconnue : recochez « Suivre le dossier du terminal » à l'invite du shell. |
-| Alerte « la clé du PSMP a changé » | Ne continuez que si l'équipe CyberArk confirme un changement du serveur. |
-| « Mot de passe maître ou fichier clé incorrect » | Vérifiez le mot de passe et le fichier clé ; un coffre protégé par YubiKey n'est pas pris en charge. |
-| Le coffre KeePass demande le mot de passe malgré « Mémoriser » | Coffre local verrouillé (« Plus tard » au déverrouillage) ou mot de passe maître changé ailleurs : saisissez-le, il est remémorisé. |
-| « Le fichier du coffre local est endommagé ou a été créé par un autre compte Windows » | Le coffre local ne suit pas un changement de poste ou de compte : supprimez-le dans les Paramètres et recréez-le. |
-| « L'entrée … a été modifiée ou supprimée dans le coffre entre-temps » | Quelqu'un a changé la même entrée ailleurs : le coffre est rechargé, refaites la modification. |
-| Un compte Unix s'ouvre en PSM et pas en SSH | Adresse du PSMP non renseignée dans les Paramètres, ou compte non reconnu comme Unix : clic droit → « Se connecter en SSH ». |
-| Comprendre un échec de connexion | Paramètres → Journal de débogage, reproduisez le problème, puis Paramètres → « Afficher le fichier du journal ». |
-| Un onglet de bureau à distance direct (KeePass) affiche « Erreur du contrôle Bureau à distance » | Signalez le code affiché (si le contrôle Bureau à distance est absent du poste, la connexion passe par `mstsc`). |
+| "The PVWA has no connection component “PSM-RDP” for this account" (`EPVWA093E Failed to get the relevant connection component`) | The account's platform uses a component with another name (for example `WIN-PSM`): the one offered by the PVWA "Connect" button, or the name after `/c` in a `psm /u … /a … /c …` command. Enter it in "Component"; "Remember this component for platform" is ticked for the next connections. |
+| "TLS connection refused: this computer does not trust the PVWA certificate" | The certificate (or its issuing authority) is not in the workstation's Windows store. |
+| "The PVWA must be reached over HTTPS" | Type the address without `http://` (or with `https://`). |
+| "Your CyberArk session has expired" | PVWA inactivity timeout reached: sign in again. |
+| "Password" → "Copy": "The PVWA refused: … “Retrieve accounts” …" | Missing right on the safe, or reason / ticket required by the platform: type it. With dual control, make the request in the PVWA. |
+| "Verify / Change / Reconcile": "The PVWA refused: … “Initiate CPM account management operations” …" | Ask for this right on the safe; "Safe members" shows your rights. |
+| "Add an account": "The PVWA refused: your account needs the “Add accounts” right…" | Ask for this right on the safe (and "Update account content" to give the password), or create the account without a password. "Safe members" shows your rights. |
+| "Safe members": "Your account cannot see the members of this safe" | The PVWA requires the "View Safe Members" right on the safe: ask a manager of the safe. |
+| "Connection component … is not configured for platform …" | Choose the right component in "Advanced connection", tick "Remember" for the platform. |
+| "You must specify a reason…" | Enter a reason in the window that opens (or a default reason in the server's properties). |
+| The account does not show up | You lack the "List accounts" permission on its safe, or the list needs reloading (`F5`). |
+| The PSMP password is asked for each tab | MFA caching is not enabled on the PVWA: expected behavior (once per tab). |
+| The Files tab shows "SFTP connection failed" | SFTP is not allowed on the PSMP or for this account: ask your CyberArk team. |
+| The browser does not follow `cd` | The remote shell is not bash, zsh or tcsh (or tcsh already has its own `cwdcmd` alias), the option is off in Settings, or the prompt was not recognized: tick "Follow the terminal folder" again at the shell prompt. |
+| "The key of the PSMP has changed" warning | Only continue if your CyberArk team confirms a server change. |
+| "Wrong master password or key file." | Check the password and the key file; a vault protected by a YubiKey is not supported. |
+| The KeePass vault asks for the password despite "Remember" | Local vault locked ("Later" when unlocking) or master password changed elsewhere: type it, it is remembered again. |
+| "The local vault file is damaged or was created by another Windows account." | The local vault does not follow a change of computer or account: delete it in the Settings and create it again. |
+| "The entry … was changed or deleted in the vault in the meantime" | Someone changed the same entry elsewhere: the vault is reloaded, make the change again. |
+| A Unix account opens with PSM, not SSH | PSMP address not set in the Settings, or account not recognized as Unix: right-click → "Connect over SSH". |
+| Understanding a connection failure | Settings → Debug log, reproduce the problem, then Settings → "Show the debug log file". |
+| A direct remote desktop tab (KeePass) shows "Remote Desktop control error" | Report the code shown (if the Remote Desktop control is missing from the computer, the connection goes through `mstsc`). |
 
-## Développement
+## Development
 
 ### Structure
 
-| Projet | Rôle |
+| Project | Role |
 | --- | --- |
-| `src/CyberArkTerm.Core` | Logique sans interface, multiplateforme : client de l'API PVWA, classement des comptes, émulateur de terminal xterm, connexions PSMP et navigateur SFTP/SCP (SSH.NET), serveurs « Courants » en dossiers, coffres KeePass (KDBX), coffre local, préférences. |
-| `src/CyberArkTerm.App` | Application WPF : fenêtres, onglets, contrôle terminal, contrôle Bureau à distance (onglets RDP), lancement de `mstsc`, icône (`Assets`). |
-| `tests/CyberArkTerm.Core.Tests` | Tests xUnit de Core (faux PVWA HTTP, terminal, PSMP, dossiers…). |
-| `tests/CyberArkTerm.App.Tests` | Tests Windows de l'application (vrai contrôle Bureau à distance, DPAPI). |
+| `src/CyberArkTerm.Core` | Cross-platform logic without UI: PVWA API client, account classification, xterm terminal emulator, PSMP connections and SFTP/SCP browser (SSH.NET), "My servers" folders, KeePass vaults (KDBX), local vault, preferences. |
+| `src/CyberArkTerm.App` | WPF application: windows, tabs, terminal control, Remote Desktop control (RDP tabs), `mstsc` launch, icon (`Assets`). |
+| `tests/CyberArkTerm.Core.Tests` | xUnit tests of Core (fake PVWA over HTTP, terminal, PSMP, folders, translations…). |
+| `tests/CyberArkTerm.App.Tests` | Windows tests of the application (real Remote Desktop control, DPAPI). |
 
-Dépendance externe : [SSH.NET](https://github.com/sshnet/SSH.NET) (licence MIT).
+External dependency: [SSH.NET](https://github.com/sshnet/SSH.NET) (MIT license).
 
-### Traductions
+### Translations
 
-Les textes de l'interface sont dans `src/CyberArkTerm.Core/Localization/CoreStrings*.resx` et
-`src/CyberArkTerm.App/Localization/Strings*.resx` : anglais dans le fichier neutre, puis `.fr` et `.it`.
-Les classes `*.Designer.cs` sont générées par Visual Studio (`PublicResXFileCodeGenerator`) ; un test vérifie
-que chaque langue a toutes les clés, les mêmes paramètres `{0}` et les mêmes touches d'accès `_`.
-Pour ajouter une langue : copier les `.resx` avec le nouveau code (`.de.resx`…), traduire, puis ajouter le
-code à `UiLanguage.Supported`.
+Interface texts live in `src/CyberArkTerm.Core/Localization/CoreStrings*.resx` and
+`src/CyberArkTerm.App/Localization/Strings*.resx`: English in the neutral file, then `.fr` and `.it`.
+The `*.Designer.cs` classes are generated by Visual Studio (`PublicResXFileCodeGenerator`); a test checks that
+every language has all the keys, the same `{0}` parameters and the same `_` access keys.
+To add a language: copy the `.resx` files with the new code (`.de.resx`…), translate them, then add the code
+to `UiLanguage.Supported`.
 
-### Compiler et tester
+### Build and test
 
-Avec le [SDK .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) :
+With the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0):
 
 ```powershell
 dotnet test CyberArkTerm.sln
 dotnet run --project src/CyberArkTerm.App
 ```
 
-Le projet compile aussi sous Linux ou macOS (`EnableWindowsTargeting`) ; l'application ne s'exécute que sous
-Windows. Les tests de `tests/CyberArkTerm.App.Tests` (dont un test du vrai contrôle Bureau à distance) ne
-s'exécutent que sous Windows ; ailleurs, lancez `dotnet test tests/CyberArkTerm.Core.Tests`.
+The project also builds on Linux or macOS (`EnableWindowsTargeting`); the application only runs on Windows.
+The tests in `tests/CyberArkTerm.App.Tests` (including a test of the real Remote Desktop control) only run on
+Windows; elsewhere, run `dotnet test tests/CyberArkTerm.Core.Tests`.
 
-### Publier l'exécutable
+### Publish the executable
 
 ```powershell
-# Autonome (~65 Mo) : aucun runtime à installer sur le poste
+# Self-contained (~65 MB): nothing to install on the workstation
 dotnet publish src/CyberArkTerm.App -c Release -r win-x64 -p:SelfContained=true `
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish
 
-# Léger : nécessite le « .NET Desktop Runtime 10 » sur le poste
+# Lightweight: requires the ".NET Desktop Runtime 10" on the workstation
 dotnet publish src/CyberArkTerm.App -c Release -r win-x64 -p:SelfContained=false -p:PublishSingleFile=true -o publish
 ```
 
-La CI ([`.github/workflows/build.yml`](.github/workflows/build.yml)) exécute les tests et publie l'exécutable
-autonome en artefact `CyberArkTerm-win-x64` pour chaque pull request et chaque push sur `main`.
+CI ([`.github/workflows/build.yml`](.github/workflows/build.yml)) runs the tests and publishes the
+self-contained executable as the `CyberArkTerm-win-x64` artifact for every pull request and every push to
+`main`.
 
-### Publier une version
+### Publish a release
 
-Depuis GitHub : **Actions → release → Run workflow** sur `main`, en indiquant le numéro `X.Y.Z` ; ou bien
-poussez un tag `vX.Y.Z` sur `main`. Le workflow [`release.yml`](.github/workflows/release.yml) exécute les
-tests, compile l'exécutable avec ce numéro de version, crée le tag s'il n'existe pas et publie la *Release*
-GitHub avec le zip et `SHA256SUMS.txt`. Les notes de version sont lues dans `docs/releases/vX.Y.Z.md` si ce
-fichier existe.
+From GitHub: **Actions → release → Run workflow** on `main`, with the `X.Y.Z` number; or push a `vX.Y.Z` tag
+on `main`. The [`release.yml`](.github/workflows/release.yml) workflow runs the tests, builds the executable
+with that version number, creates the tag if it does not exist and publishes the GitHub *Release* with the
+zip and `SHA256SUMS.txt`. Release notes are read from `docs/releases/vX.Y.Z.md` when that file exists.
 
-## Limites et pistes
+## Limitations and ideas
 
-**Limites actuelles**
+**Current limitations**
 
-- **Privilege Cloud** (connexion via CyberArk Identity) et **SAML** ne sont pas gérés.
-- L'API Accounts n'indique pas quels composants PSM une plateforme propose : le composant est déduit, puis
-  mémorisable.
-- Coffres KeePass : chiffrement Twofish et clés YubiKey non pris en charge ; pas de création de coffre (créez-le
-  avec KeePass ou KeePassXC) ; pièces jointes gardées mais non affichées.
-- Le suivi du dossier du terminal nécessite bash ou zsh sur le serveur.
-- PSM Gateway (HTML5), double validation (dual control) et accès exclusif ne sont pas gérés.
+- **Privilege Cloud** (sign-in through CyberArk Identity) and **SAML** are not supported.
+- The Accounts API does not say which PSM components a platform offers: the component is deduced, then can be
+  remembered.
+- KeePass vaults: Twofish encryption and YubiKey keys are not supported; no vault creation (create it with KeePass
+  or KeePassXC); attachments are kept but not shown.
+- Following the terminal folder requires bash, zsh or tcsh on the server.
+- PSM Gateway (HTML5), dual control and exclusive access are not supported.
 
-**Pistes**
+**Ideas**
 
-- Exécutable signé et installateur MSI.
-- Plusieurs PVWA (profils de connexion), Privilege Cloud.
-- Autres idées, gardées pour plus tard : voir [IDEAS.md](IDEAS.md).
+- Signed executable and MSI installer.
+- Several PVWAs (connection profiles), Privilege Cloud.
+- Other ideas, kept for later: see [IDEAS.md](IDEAS.md).
 
-## Licence
+## License
 
 [MIT](LICENSE) © 2026 muller-camille

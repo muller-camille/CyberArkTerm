@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -64,8 +65,11 @@ public partial class FileBrowserPanel
         await _queue.WhenStoppedAsync(Matches, TimeSpan.FromSeconds(5));
     }
 
+    /// <summary>Emplacement de gzip sur le serveur de chaque connexion (null : absent), cherché une seule fois.</summary>
+    private readonly ConditionalWeakTable<RemoteFileBrowser, Task<string?>> _gzip = [];
+
     /// <summary>Met en file l'envoi de fichiers ou de dossiers locaux vers le dossier affiché.</summary>
-    private void EnqueueUpload(IReadOnlyList<string> paths)
+    private async Task EnqueueUploadAsync(IReadOnlyList<string> paths)
     {
         var browser = _browser;
         var session = _session;
@@ -80,12 +84,21 @@ public partial class FileBrowserPanel
         // Beaucoup de fichiers d'un coup : proposer une seule archive .tar.gz (option des Paramètres).
         string? archiveName = null;
         int archiveFiles = 0;
+        string? gzip = null;
         if (_settings.OfferArchive)
         {
             var (files, bytes) = TarGzPacker.Measure(paths);
-            if (files >= _settings.ArchiveThreshold)
+            if (files >= _settings.ArchiveThreshold && TarGzPacker.UstarProblem(paths) is { } tooLong)
             {
-                var offer = new ArchiveOfferDialog(files, bytes, directory) { Owner = Window.GetWindow(this) };
+                // Nom trop long ou fichier trop gros pour le format tar standard : envoi un par un.
+                SetStatus(Text.Format(Strings.ArchiveNotPossible, tooLong));
+            }
+            else if (files >= _settings.ArchiveThreshold)
+            {
+                SetStatus(Strings.ArchiveLookingForGzip);
+                gzip = await _gzip.GetValue(browser, b => TarGzPacker.FindGzipAsync(b.ExistsAsync, CancellationToken.None));
+                SetStatus("");
+                var offer = new ArchiveOfferDialog(files, bytes, directory, compressed: gzip is not null) { Owner = Window.GetWindow(this) };
                 if (offer.ShowDialog() != true)
                 {
                     return;
@@ -99,7 +112,7 @@ public partial class FileBrowserPanel
 
                 if (offer.UseArchive)
                 {
-                    archiveName = TarGzPacker.ArchiveName(paths, DateTime.Now);
+                    archiveName = TarGzPacker.ArchiveName(paths, DateTime.Now, compressed: gzip is not null);
                     archiveFiles = files;
                     // L'archive arrive dans le dossier, puis son extraction y recrée les éléments déposés.
                     names.Add(archiveName);
@@ -124,7 +137,7 @@ public partial class FileBrowserPanel
         var protocol = _settings.UploadProtocol;
         if (archiveName is not null)
         {
-            EnqueueArchive(browser, session, paths, directory, archiveName, archiveFiles, names);
+            EnqueueArchive(browser, session, paths, directory, archiveName, archiveFiles, names, gzip);
             return;
         }
 
@@ -147,11 +160,12 @@ public partial class FileBrowserPanel
     }
 
     /// <summary>
-    /// Met en file l'envoi d'une archive .tar.gz des éléments déposés : créée dans un dossier temporaire de ce poste,
-    /// envoyée et vérifiée (SHA-256), puis supprimée du poste. La commande d'extraction est donnée à la fin.
+    /// Met en file l'envoi d'une archive .tar.gz (.tar sans gzip sur le serveur) des éléments déposés : créée dans un
+    /// dossier temporaire de ce poste, envoyée et vérifiée (SHA-256), puis supprimée du poste. La commande d'extraction
+    /// est donnée à la fin.
     /// </summary>
     private void EnqueueArchive(RemoteFileBrowser browser, SshSession session, IReadOnlyList<string> paths, string directory,
-        string archiveName, int files, IReadOnlyList<string> names)
+        string archiveName, int files, IReadOnlyList<string> names, string? gzip)
     {
         var protocol = _settings.UploadProtocol;
         Enqueue(new TransferItem(true, Text.Format(Strings.ArchiveLabel, archiveName, files), directory, async (item, ct) =>
@@ -163,9 +177,9 @@ public partial class FileBrowserPanel
             try
             {
                 var archive = Path.Combine(folder, archiveName);
-                await TarGzPacker.CreateAsync(paths, archive, progress, ct);
+                await TarGzPacker.CreateAsync(paths, archive, compress: gzip is not null, progress, ct);
                 await browser.UploadAsync(archive, directory, protocol, item.Checks, progress, background: true, ct);
-                item.ExtractCommand = TarGzPacker.ExtractCommand(directory, archiveName);
+                item.ExtractCommand = TarGzPacker.ExtractCommand(directory, archiveName, gzip);
             }
             finally
             {
@@ -366,9 +380,13 @@ public partial class FileBrowserPanel
             }
         }
 
-        // Archives envoyées : la commande d'extraction se copie depuis la barre d'état.
-        _extractCommands = string.Join("\n", run.Where(i => i.State == TransferState.Done).Select(i => i.ExtractCommand).OfType<string>());
-        ExtractLink.Visibility = _extractCommands.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        // Archives envoyées : il reste à les extraire, la commande est affichée dans un encadré.
+        foreach (var item in run.Where(i => i.State == TransferState.Done && i.ExtractCommand is not null))
+        {
+            _extracts.Add(new PendingExtract(item.Owner as SshSession, item.Destination, item.ExtractCommand!));
+        }
+
+        UpdateExtractPanel();
         ReportChecks(message, checks, error: failures.Count > 0);
 
         static string Failure(TransferItem item) =>
@@ -381,7 +399,10 @@ public partial class FileBrowserPanel
     /// <summary>Historique (tests).</summary>
     internal TransferHistory History => _history;
 
-    private string _extractCommands = "";
+    /// <summary>Archive envoyée qu'il reste à extraire sur le serveur de sa session.</summary>
+    private sealed record PendingExtract(SshSession? Session, string Directory, string Command);
+
+    private readonly List<PendingExtract> _extracts = [];
     private readonly List<TailWindow> _tails = [];
 
     /// <summary>Fenêtres de suivi ouvertes (tests).</summary>
@@ -508,13 +529,19 @@ public partial class FileBrowserPanel
         menu.IsOpen = true;
     }
 
-    /// <summary>La session se ferme : ses fichiers ne sont plus suivis (les fenêtres restent ouvertes, avec leurs lignes).</summary>
+    /// <summary>
+    /// La session se ferme : ses fichiers ne sont plus suivis (les fenêtres restent ouvertes, avec leurs lignes), et ses
+    /// archives à extraire sont oubliées.
+    /// </summary>
     public void ReleaseTails(SshSession session)
     {
         foreach (var window in _tails)
         {
             window.EndSession(session);
         }
+
+        _extracts.RemoveAll(x => ReferenceEquals(x.Session, session));
+        UpdateExtractPanel();
     }
 
     /// <summary>Ferme les fenêtres de suivi et de comparaison (fermeture de l'application).</summary>
@@ -534,12 +561,37 @@ public partial class FileBrowserPanel
         TailAlerts.Hide();
     }
 
+    /// <summary>Demande d'afficher le terminal d'une session (après y avoir écrit la commande d'extraction).</summary>
+    public event Action<SshSession>? ShowTerminalRequested;
+
+    /// <summary>Archives de la session affichée qu'il reste à extraire.</summary>
+    private List<PendingExtract> SessionExtracts() => _extracts.Where(x => _session is not null && ReferenceEquals(x.Session, _session)).ToList();
+
+    /// <summary>Une seule ligne, sans retour à la ligne : rien ne s'exécute avant que l'utilisateur appuie sur Entrée.</summary>
+    private static string ExtractLine(IEnumerable<PendingExtract> extracts) => string.Join(" ; ", extracts.Select(x => x.Command));
+
+    private void UpdateExtractPanel()
+    {
+        var extracts = SessionExtracts();
+        ExtractPanel.Visibility = extracts.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        if (extracts.Count == 0 || _session is not { } session)
+        {
+            return;
+        }
+
+        ExtractTitle.Text = extracts.Count == 1
+            ? Text.Format(Strings.ArchiveToExtractOne, extracts[0].Directory, session.Label)
+            : Text.Format(Strings.ArchiveToExtractMany, extracts.Count, session.Label);
+        ExtractCommandBox.Text = ExtractLine(extracts);
+        InsertExtractButton.IsEnabled = session.State == SshSessionState.Connected;
+    }
+
     private void OnCopyExtractCommand(object sender, RoutedEventArgs e)
     {
         try
         {
             // Pas un secret : presse-papiers ordinaire, à coller dans le terminal de la session.
-            Clipboard.SetText(_extractCommands + "\n");
+            Clipboard.SetText(ExtractLine(SessionExtracts()));
             SetStatus(Strings.ArchiveCommandCopied);
         }
         catch (System.Runtime.InteropServices.COMException)
@@ -548,7 +600,32 @@ public partial class FileBrowserPanel
         }
     }
 
-    private void OnHistory(object sender, RoutedEventArgs e) =>
+    /// <summary>Écrit la commande à l'invite du terminal, sans l'exécuter, puis affiche ce terminal.</summary>
+    private void OnInsertExtractCommand(object sender, RoutedEventArgs e)
+    {
+        if (_session is not { } session)
+        {
+            return;
+        }
+
+        if (!session.TypeAtPrompt(ExtractLine(SessionExtracts())))
+        {
+            SetStatus(Strings.ArchiveNotAtPrompt, error: true);
+            return;
+        }
+
+        SetStatus(Strings.ArchiveInserted);
+        ShowTerminalRequested?.Invoke(session);
+    }
+
+    private void OnCloseExtract(object sender, RoutedEventArgs e)
+    {
+        _extracts.RemoveAll(x => ReferenceEquals(x.Session, _session));
+        UpdateExtractPanel();
+    }
+
+    /// <summary>Historique des transferts (bouton de la barre d'outils principale), même sans session.</summary>
+    public void ShowHistory() =>
         new TransferHistoryDialog(_history, SaveHistory) { Owner = Window.GetWindow(this) }.ShowDialog();
 
     private void Record(TransferRecord record)

@@ -131,9 +131,13 @@ public class SshSupportTests
         var command = WorkingDirectory.InjectionFor(20, 80, "/opt/appli/logs");
         int occupied = (20 + command.Length - 1 - 1) / 80 + 1;
 
-        Assert.StartsWith(" cd -- '/opt/appli/logs' 2>/dev/null;", command);
+        Assert.StartsWith(" test -n \"$shell\" || test -n \"$FISH_VERSION\" || eval 'cd -- '\\''/opt/appli/logs'\\'' 2>/dev/null;", command);
         Assert.Contains($"\\033[{occupied}A", command);
-        Assert.Equal(" cd -- '/srv/x y'\r", WorkingDirectory.ChangeDirectoryCommand("/srv/x y"));
+        Assert.Equal(" cd '/srv/x y'\r", WorkingDirectory.ChangeDirectoryCommand("/srv/x y"));
+        Assert.Equal(" cd './-x'\r", WorkingDirectory.ChangeDirectoryCommand("-x"));
+        Assert.Equal(" cd 'it'\\''s a'\\!'b'\r", WorkingDirectory.ChangeDirectoryCommand("it's a!b"));
+        Assert.Throws<ArgumentException>(() => WorkingDirectory.ChangeDirectoryCommand("/tmp\rrm -rf ~"));
+        Assert.Throws<ArgumentException>(() => WorkingDirectory.InjectionFor(20, 80, "/tmp\nid"));
     }
 
     [Theory]

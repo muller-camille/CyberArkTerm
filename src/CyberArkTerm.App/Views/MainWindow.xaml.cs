@@ -89,6 +89,7 @@ public partial class MainWindow : Window
         CyberArkTerm.App.Terminal.TerminalAppearance.Apply(settings.TerminalTheme, settings.TerminalFontSize);
         FilesPanel.Initialize(settings, SaveSettings);
         FilesPanel.OpenSessions = () => MainTabs.Items.OfType<TabItem>().Select(t => t.Tag).OfType<SshSession>().ToList();
+        FilesPanel.ShowTerminalRequested += ShowTerminal;
         if (IsOffline)
         {
             // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de l'onglet « Courants ».
@@ -960,6 +961,29 @@ public partial class MainWindow : Window
             UpdateActions();
             StartKeepAlive();
             SetStatus(_settings.Language == language ? Strings.SettingsSaved : Strings.SettingsSavedLanguage);
+        }
+    }
+
+    /// <summary>Bouton Historique : envois et téléchargements de l'onglet Fichiers, même sans session.</summary>
+    private void OnTransferHistory(object sender, RoutedEventArgs e) => FilesPanel.ShowHistory();
+
+    /// <summary>Affiche le terminal d'une session : son onglet, la vue parallèle ou sa fenêtre séparée.</summary>
+    private void ShowTerminal(SshSession session)
+    {
+        if (_detached.TryGetValue(session, out var window))
+        {
+            window.Activate();
+            window.View.FocusTerminal();
+        }
+        else if (_parallel?.ViewOf(session) is { } inParallel)
+        {
+            ShowParallel();
+            inParallel.FocusTerminal();
+        }
+        else if (TabOf(session) is { } tab)
+        {
+            MainTabs.SelectedItem = tab;
+            (tab.Content as SshSessionView)?.FocusTerminal();
         }
     }
 

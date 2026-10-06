@@ -62,6 +62,7 @@ public partial class FileBrowserPanel : UserControl
         FileList.ItemsSource = null;
         PathBox.Text = "";
         StatusText.Text = "";
+        UpdateExtractPanel();
         if (session is null)
         {
             UpdateTailFilesButton();
@@ -205,6 +206,8 @@ public partial class FileBrowserPanel : UserControl
         {
             return;
         }
+
+        UpdateExtractPanel();
 
         if (_session.State == SshSessionState.Connected && _browser is null)
         {
@@ -590,7 +593,7 @@ public partial class FileBrowserPanel : UserControl
         DropHint.Visibility = Visibility.Collapsed;
         if (e.Data.GetData(DataFormats.FileDrop) is string[] paths && paths.Length > 0)
         {
-            EnqueueUpload(paths);
+            _ = EnqueueUploadAsync(paths);
         }
     }
 
@@ -604,7 +607,7 @@ public partial class FileBrowserPanel : UserControl
         var dialog = new OpenFileDialog { Title = Text.Format(Strings.UploadTo, _browser.CurrentDirectory), Multiselect = true };
         if (dialog.ShowDialog(Window.GetWindow(this)) == true)
         {
-            EnqueueUpload(dialog.FileNames);
+            _ = EnqueueUploadAsync(dialog.FileNames);
         }
     }
 

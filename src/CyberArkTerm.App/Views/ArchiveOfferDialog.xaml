@@ -10,7 +10,7 @@
             <AccessText Text="{x:Static loc:Strings.ArchiveOfferNever}" TextWrapping="Wrap" />
         </CheckBox>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="ArchiveButton" Content="{x:Static loc:Strings.ArchiveOfferArchive}" IsDefault="True" Click="OnArchive" />
+            <Button x:Name="ArchiveButton" IsDefault="True" Click="OnArchive" />
             <Button x:Name="FilesButton" Content="{x:Static loc:Strings.ArchiveOfferFiles}" Click="OnFiles" Margin="8,0,0,0" />
             <Button Content="{x:Static loc:Strings.Cancel}" IsCancel="True" Margin="8,0,0,0" />
         </StackPanel>

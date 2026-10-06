@@ -2,10 +2,10 @@
 
 # CyberArkTerm
 
-[Français](README.md) · [English](README.en.md) · **Italiano**
+[Français](README.fr.md) · [English](README.md) · **Italiano**
 
 [![build](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml/badge.svg)](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml)
-[![release](https://img.shields.io/github/v/release/muller-camille/CyberArkTerm)](https://github.com/muller-camille/CyberArkTerm/releases/latest)
+[![release](https://github.com/muller-camille/CyberArkTerm/actions/workflows/release.yml/badge.svg)](https://github.com/muller-camille/CyberArkTerm/releases/latest)
 
 **Client Windows multisessione per CyberArk.** CyberArkTerm si collega al tuo PVWA, elenca gli account a cui
 hai accesso e apre le sessioni con un doppio clic: desktop remoto tramite **PSM**, oppure terminale SSH
@@ -250,11 +250,21 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   un archivio .tar.gz»), CyberArkTerm propone di inviarli in un unico archivio: un solo file da trasferire e
   verificare invece di migliaia, molto più veloce tramite il PSMP. L'archivio viene creato sul computer (nella coda,
   annullabile), inviato e verificato (SHA-256), poi eliminato dal computer; ogni elemento rilasciato è alla radice
-  dell'archivio (permessi 0644 e 0755). Nulla viene eseguito sul server: «Copia il comando di estrazione» (barra di
-  stato) fornisce il comando da incollare nel terminale, per esempio
-  `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (l'archivio viene eliminato
-  dal server dopo l'estrazione). «Invia i file uno per uno» mantiene l'invio abituale; «Non proporre più» disattiva
+  dell'archivio (permessi 0644 e 0755). Nulla viene eseguito sul server: un riquadro arancione compare in fondo alla
+  scheda File con il comando di estrazione, per esempio
+  `cd '/opt/app' && /usr/bin/gzip -dc './deploy.tar.gz' | tar xf - && rm -f './deploy.tar.gz'` (l'archivio viene eliminato
+  dal server dopo l'estrazione). «Copia il comando», oppure «Scrivi nel terminale», che lo digita al prompt della
+  sessione senza eseguirlo: controllalo, poi premi Invio. Il riquadro resta visibile (per quella sessione) finché
+  non lo chiudi. «Invia i file uno per uno» mantiene l'invio abituale; «Non proporre più» disattiva
   l'opzione.
+  - **Tutti gli Unix** (Red Hat da 5 a 9, HP-UX 11.11 e 11.31, Solaris, AIX…): l'archivio è nel formato tar POSIX
+    standard (ustar), letto da tutti i tar, e il comando usa `gzip` e `tar xf` separatamente, senza opzioni proprie di
+    GNU tar. Si digita in qualsiasi shell (sh, ksh, bash, zsh, csh, tcsh).
+  - **gzip** viene cercato sul server (tramite SFTP) dove ogni sistema lo installa: `/bin`, `/usr/bin`,
+    `/usr/contrib/bin` (HP-UX), `/usr/local/bin`, `/opt/freeware/bin` (AIX), `/usr/sfw/bin` e `/opt/csw/bin`
+    (Solaris). Non trovato: l'archivio viene inviato senza compressione (`.tar`), estratto dal solo `tar`.
+  - Un nome oltre 100 caratteri (cartelle escluse) o un file oltre 8 GB non rientra in questo formato: i file vengono
+    allora inviati uno per uno, con un messaggio.
 - **Inviare a più server**: pulsante (freccia verso tre server) o clic destro → «Invia a più server…». Scegli i file o
   le cartelle, la cartella di destinazione (`~` = la cartella personale dell'account su ogni server, ad es.
   `~/deploy`) e le sessioni SSH destinatarie. CyberArkTerm verifica prima su ogni server che la cartella esista e cosa
@@ -267,9 +277,9 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   «Ignora gli spazi»; «Solo le differenze»; «Salva il diff…» nel formato `diff -u`. Un file binario (o oltre 10 MB)
   viene confrontato per dimensione e checksum SHA-256. Con uno strumento di confronto scelto nelle Impostazioni
   (WinMerge, VS Code…), «Apri in …» gli passa due copie temporanee, eliminate alla chiusura della finestra.
-- **Cronologia dei trasferimenti**: pulsante orologio nell'intestazione della scheda File, disponibile anche senza
-  sessione. Elenca gli ultimi 200 invii e download (trascinamento compreso): data, direzione, server, elemento,
-  destinazione, numero di file, risultato. Filtro «Invii» / «Download»; «Checksum…» (o doppio clic) mostra i
+- **Cronologia dei trasferimenti**: pulsante «Cronologia» della barra degli strumenti (a sinistra di
+  «Impostazioni»), disponibile anche senza sessione. Elenca gli ultimi 200 invii e download (trascinamento
+  compreso): data, direzione, server, elemento, destinazione, numero di file, risultato. Filtro «Invii» / «Download»; «Checksum…» (o doppio clic) mostra i
   checksum SHA-256 di ogni file, da copiare per riverificare in seguito; «Apri la cartella» per un download;
   «Cancella la cronologia».
 - **Verifica dei trasferimenti (SHA-256)**: ogni file inviato o scaricato viene verificato. All'invio (SCP o
@@ -571,16 +581,22 @@ thread dell'interfaccia, in ordine: un server o un PSMP che non legge più non b
 
 All'apertura di una sessione SSH (se l'opzione è attiva), CyberArkTerm attende che la shell del server di
 destinazione mostri il prompt (fino a 60 s: il PSMP a volte impiega diversi secondi a raggiungere la
-destinazione), poi le invia un comando di una riga, preceduto da uno spazio per non finire nella cronologia.
+destinazione), poi le invia un comando di una riga, preceduto da uno spazio per non finire nella cronologia
+(bash, o zsh con `HIST_IGNORE_SPACE`).
 Non viene inviato nulla se hai già iniziato a digitare; il comando può essere reinviato senza effetti doppi
 (casella «Segui»):
 
 - definizione di `PROMPT_COMMAND` (bash) o `precmd` (zsh) che emette la sequenza standard **OSC 7** con la
   cartella corrente a ogni prompt;
+- con tcsh, l'alias `cwdcmd` (solo se non è già definito), che emette la stessa sequenza a ogni cambio di
+  cartella;
 - se è configurata una cartella iniziale, un `cd` verso quella cartella;
 - cancellazione del comando digitato, perché non resti sullo schermo.
 
 Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posiziona nella cartella indicata.
+
+Tutte le shell leggono il comando senza errori: ogni parte viene eseguita solo dalla famiglia di shell a cui è
+destinata. Con csh, ksh, sh o fish il monitoraggio non viene installato e sullo schermo non resta nulla.
 
 ## Risoluzione dei problemi
 
@@ -599,7 +615,7 @@ Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posizion
 | L'account non compare | Non hai il permesso «List accounts» sul suo safe, oppure l'elenco va ricaricato (`F5`). |
 | La password PSMP viene chiesta per ogni scheda | MFA caching non attivato sul PVWA: comportamento normale (una volta per scheda). |
 | La scheda File indica «Connessione SFTP impossibile» | SFTP non è consentito sul PSMP o per questo account: rivolgiti al team CyberArk. |
-| Il browser non segue i `cd` | La shell remota non è bash o zsh, l'opzione è disattivata nelle Impostazioni, oppure il prompt non è stato riconosciuto: riseleziona «Segui la cartella del terminale» al prompt della shell. |
+| Il browser non segue i `cd` | La shell remota non è bash, zsh o tcsh (o tcsh ha già un proprio alias `cwdcmd`), l'opzione è disattivata nelle Impostazioni, oppure il prompt non è stato riconosciuto: riseleziona «Segui la cartella del terminale» al prompt della shell. |
 | Avviso «la chiave del PSMP è cambiata» | Prosegui solo se il team CyberArk conferma una modifica del server. |
 | «Password principale o file chiave errati.» | Controlla la password e il file chiave; un archivio protetto da YubiKey non è supportato. |
 | L'archivio KeePass chiede la password nonostante «Memorizza» | Vault locale bloccato («Più tardi» allo sblocco) o password principale cambiata altrove: digitala, viene memorizzata di nuovo. |
@@ -674,7 +690,7 @@ e `SHA256SUMS.txt`. Le note di versione vengono lette da `docs/releases/vX.Y.Z.m
   essere memorizzato.
 - Archivi KeePass: cifratura Twofish e chiavi YubiKey non supportate; nessuna creazione di archivio (crealo con
   KeePass o KeePassXC); allegati conservati ma non mostrati.
-- Il monitoraggio della cartella del terminale richiede bash o zsh sul server.
+- Il monitoraggio della cartella del terminale richiede bash, zsh o tcsh sul server.
 - PSM Gateway (HTML5), doppio controllo (dual control) e accesso esclusivo non sono supportati.
 
 **Sviluppi futuri**

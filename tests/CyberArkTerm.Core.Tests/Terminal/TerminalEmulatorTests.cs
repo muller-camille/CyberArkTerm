@@ -384,6 +384,110 @@ public class TerminalSupportTests
         Assert.Contains("precmd_functions[(I)__catosc7]", command);
     }
 
+    [Fact]
+    public void InjectionCommandRunsEachPartOnlyInItsShellFamily()
+    {
+        // csh refuse toute la ligne s'il y lit du code bash : chaque partie passe entre apostrophes à eval.
+        var command = WorkingDirectory.InjectionCommand(3);
+
+        Assert.StartsWith(" test -n \"$shell\" || test -n \"$FISH_VERSION\" || eval '", command);
+        Assert.Contains(";test -n \"$shell\" && eval '", command);
+        Assert.Contains("printf '\\033[3A\\r\\033[J'\r", command);
+
+        var words = ShellWords(command, fish: false);
+        var posix = words[words.IndexOf("eval") + 1];
+        var csh = words[words.LastIndexOf("eval") + 1];
+        Assert.StartsWith("__catosc7(){ printf '\\033]7;%s\\007' \"$PWD\";};", posix);
+        Assert.Contains("PROMPT_COMMAND=\"__catosc7${PROMPT_COMMAND:+;$PROMPT_COMMAND}\"", posix);
+        Assert.StartsWith("if ($?tcsh && ! $?__catosc7 && `alias cwdcmd | wc -c` == 0) set __catosc7;", csh);
+        Assert.Contains("alias cwdcmd 'printf \"\\033]7;%s\\007\" \"$cwd\"'", csh);
+    }
+
+    [Theory]
+    [InlineData("/var/log")]
+    [InlineData("it's a!b\\c")]
+    [InlineData("-dash")]
+    public void InjectionCommandQuotesTheStartDirectoryForEveryShell(string directory)
+    {
+        var command = WorkingDirectory.InjectionCommand(2, directory);
+
+        // Même découpage pour les shells POSIX et csh que pour fish (« \ » entre apostrophes) ; chaque « ! » est
+        // précédé de « \ », sinon bash, zsh et csh y verraient l'historique.
+        var words = ShellWords(command, fish: false);
+        Assert.Equal(words, ShellWords(command, fish: true));
+        Assert.DoesNotMatch(@"(?<!\\)!", command);
+
+        var posix = words[words.IndexOf("eval") + 1];
+        Assert.StartsWith($"cd -- {WorkingDirectory.ShellQuote(directory)} 2>/dev/null;", posix);
+        var csh = words[words.LastIndexOf("eval") + 1];
+        var cshPath = WorkingDirectory.ShellQuote(directory.StartsWith('-') ? "./" + directory : directory).Replace("!", "\\!");
+        Assert.Contains($"if (-d {cshPath}) cd {cshPath};", csh);
+
+        // fish : « cd » seul, après le test de « shell » pour que csh ne lise jamais FISH_VERSION.
+        var fish = words.LastIndexOf("\"$FISH_VERSION\"");
+        Assert.Equal(["test", "-n", "\"$shell\"", "||", "test", "-z", "\"$FISH_VERSION\"", "||", "cd"], words[(fish - 6)..(fish + 3)]);
+        Assert.Equal(directory.StartsWith('-') ? "./" + directory : directory, words[fish + 3]);
+    }
+
+    /// <summary>Mots d'une ligne de commande : apostrophes, et « \ » hors apostrophes (fish : « \' » et « \\ » aussi dedans).</summary>
+    private static List<string> ShellWords(string line, bool fish)
+    {
+        var words = new List<string>();
+        var word = new System.Text.StringBuilder();
+        bool quoted = false, any = false;
+        for (int i = 0; i < line.Length; i++)
+        {
+            char c = line[i];
+            if (quoted)
+            {
+                if (c == '\'')
+                {
+                    quoted = false;
+                }
+                else if (fish && c == '\\' && i + 1 < line.Length && line[i + 1] is '\'' or '\\')
+                {
+                    word.Append(line[++i]);
+                }
+                else
+                {
+                    word.Append(c);
+                }
+            }
+            else if (c == '\'')
+            {
+                quoted = any = true;
+            }
+            else if (c == '\\' && i + 1 < line.Length)
+            {
+                word.Append(line[++i]);
+                any = true;
+            }
+            else if (c is ' ' or ';' or '\r')
+            {
+                if (any)
+                {
+                    words.Add(word.ToString());
+                }
+
+                word.Clear();
+                any = false;
+            }
+            else
+            {
+                word.Append(c);
+                any = true;
+            }
+        }
+
+        Assert.False(quoted);
+        if (any)
+        {
+            words.Add(word.ToString());
+        }
+
+        return words;
+    }
+
     [Theory]
     [InlineData("[root@srv01 log]# ", true)]
     [InlineData("jdupont@srv01:~$", true)]

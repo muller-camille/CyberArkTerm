@@ -614,7 +614,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Extraction command copied: paste it in the terminal of the session (it deletes the archive once e[rest of string was truncated].
+        ///   Looks up a localized string similar to Extraction command copied: paste it in the terminal of the session, then press Enter (it deletes [rest of string was truncated].
         /// </summary>
         public static string ArchiveCommandCopied {
             get {
@@ -623,11 +623,56 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Copy the extraction command.
+        ///   Looks up a localized string similar to Copy the command.
         /// </summary>
         public static string ArchiveCopyCommand {
             get {
                 return ResourceManager.GetString("ArchiveCopyCommand", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close this box (the archive stays on the server, not extracted).
+        /// </summary>
+        public static string ArchiveDismissTip {
+            get {
+                return ResourceManager.GetString("ArchiveDismissTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Run this command in the terminal of the session: it extracts the archive into its folder, then de[rest of string was truncated].
+        /// </summary>
+        public static string ArchiveExtractHelp {
+            get {
+                return ResourceManager.GetString("ArchiveExtractHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Type it in the terminal.
+        /// </summary>
+        public static string ArchiveInsertCommand {
+            get {
+                return ResourceManager.GetString("ArchiveInsertCommand", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Types the command at the terminal prompt without running it: check it, then press Enter..
+        /// </summary>
+        public static string ArchiveInsertTip {
+            get {
+                return ResourceManager.GetString("ArchiveInsertTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Command typed in the terminal: check it, then press Enter..
+        /// </summary>
+        public static string ArchiveInserted {
+            get {
+                return ResourceManager.GetString("ArchiveInserted", resourceCulture);
             }
         }
 
@@ -641,7 +686,34 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Send a ._tar.gz archive.
+        ///   Looks up a localized string similar to Looking for gzip on the server….
+        /// </summary>
+        public static string ArchiveLookingForGzip {
+            get {
+                return ResourceManager.GetString("ArchiveLookingForGzip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The terminal is not waiting for a command (program running or typing started): copy the command i[rest of string was truncated].
+        /// </summary>
+        public static string ArchiveNotAtPrompt {
+            get {
+                return ResourceManager.GetString("ArchiveNotAtPrompt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No archive: “{0}” does not fit the standard tar format (name over 100 characters or file over 8 G[rest of string was truncated].
+        /// </summary>
+        public static string ArchiveNotPossible {
+            get {
+                return ResourceManager.GetString("ArchiveNotPossible", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send a {0} archive.
         /// </summary>
         public static string ArchiveOfferArchive {
             get {
@@ -668,7 +740,16 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to You are sending {0} files ({1}) to {2}.  Send them in a single .tar.gz archive? One file to trans[rest of string was truncated].
+        ///   Looks up a localized string similar to gzip was not found on this server: the archive will not be compressed (.tar), it is extracted wit[rest of string was truncated].
+        /// </summary>
+        public static string ArchiveOfferNoGzip {
+            get {
+                return ResourceManager.GetString("ArchiveOfferNoGzip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You are sending {0} files ({1}) to {2}.  Send them in a single {3} archive? One file to transfer [rest of string was truncated].
         /// </summary>
         public static string ArchiveOfferText {
             get {
@@ -695,11 +776,29 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Archive {0} sent to {1}: copy the extraction command and paste it in the terminal of the session.
+        ///   Looks up a localized string similar to Archive {0} sent to {1}: it still has to be extracted (see the box above).
         /// </summary>
         public static string ArchiveSent {
             get {
                 return ResourceManager.GetString("ArchiveSent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} archives sent to {1}: they still have to be extracted.
+        /// </summary>
+        public static string ArchiveToExtractMany {
+            get {
+                return ResourceManager.GetString("ArchiveToExtractMany", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Archive sent to {0} on {1}: it still has to be extracted.
+        /// </summary>
+        public static string ArchiveToExtractOne {
+            get {
+                return ResourceManager.GetString("ArchiveToExtractOne", resourceCulture);
             }
         }
 
@@ -8305,6 +8404,15 @@ namespace CyberArkTerm.App.Localization {
         public static string ToolExportTip {
             get {
                 return ResourceManager.GetString("ToolExportTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to History.
+        /// </summary>
+        public static string ToolHistory {
+            get {
+                return ResourceManager.GetString("ToolHistory", resourceCulture);
             }
         }
 

@@ -41,4 +41,4 @@ Out of scope, to be reported to their maintainers:
 - vulnerabilities in the Windows Remote Desktop client or in KeePass / KeePassXC → Microsoft or their projects.
 
 The security measures built into the application are described in the
-[README](README.en.md#security).
+[README](README.md#security).
