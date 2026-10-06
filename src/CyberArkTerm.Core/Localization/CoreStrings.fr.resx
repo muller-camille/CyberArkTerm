@@ -312,4 +312,34 @@
   <data name="ServerListBusy" xml:space="preserve">
     <value>La liste partagée est en cours de modification par quelqu'un d'autre : réessayez dans un instant.</value>
   </data>
+  <data name="VncNotRfb" xml:space="preserve">
+    <value>Ce serveur ne parle pas le protocole VNC (RFB) : vérifiez l'adresse et le port (5900 par défaut).</value>
+  </data>
+  <data name="VncUnsupportedVersion" xml:space="preserve">
+    <value>Version du protocole VNC non prise en charge : {0}</value>
+  </data>
+  <data name="VncRefused" xml:space="preserve">
+    <value>Le serveur VNC refuse la connexion : {0}</value>
+  </data>
+  <data name="VncAuthFailed" xml:space="preserve">
+    <value>Mot de passe VNC refusé. {0}</value>
+  </data>
+  <data name="VncSecurityUnsupported" xml:space="preserve">
+    <value>Le serveur VNC ne propose aucune authentification prise en charge par CyberArkTerm (proposées : {0}). CyberArkTerm accepte le mot de passe VNC ou aucune authentification : activez l'authentification « mot de passe VNC » sur le serveur.</value>
+  </data>
+  <data name="VncPasswordRequired" xml:space="preserve">
+    <value>Le serveur VNC demande un mot de passe et l'entrée n'en a pas.</value>
+  </data>
+  <data name="VncProtocolError" xml:space="preserve">
+    <value>Données inattendues du serveur VNC : connexion fermée.</value>
+  </data>
+  <data name="VncClosedByServer" xml:space="preserve">
+    <value>Le serveur VNC a fermé la connexion.</value>
+  </data>
+  <data name="VncScreenTooLarge" xml:space="preserve">
+    <value>Le serveur VNC annonce un écran de {0} × {1} : trop grand.</value>
+  </data>
+  <data name="VncTimeout" xml:space="preserve">
+    <value>Pas de réponse VNC du serveur en 30 secondes : vérifiez l'adresse et le port (5900 par défaut).</value>
+  </data>
 </root>

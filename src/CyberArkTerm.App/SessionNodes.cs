@@ -101,6 +101,8 @@ public sealed class KindIconConverter : IValueConverter
             {
                 RemoteProtocol.Ssh => "IconUnix",
                 RemoteProtocol.Rdp => "IconWindows",
+                RemoteProtocol.Vnc => "IconConnect",
+                RemoteProtocol.Sftp or RemoteProtocol.Ftp or RemoteProtocol.Ftpes or RemoteProtocol.Ftps => "IconFiles",
                 _ => "IconOther",
             },
             _ => "IconOther",

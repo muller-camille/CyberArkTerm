@@ -2300,7 +2300,13 @@ Fermer quand même ? Les copies locales seront supprimées.</value>
     <value>→ Bureau à distance vers {0}</value>
   </data>
   <data name="KeePassTargetUnknown" xml:space="preserve">
-    <value>→ protocole non précisé : SSH ou RDP vous sera demandé</value>
+    <value>→ protocole non précisé : il vous sera demandé (SSH, RDP, VNC…)</value>
+  </data>
+  <data name="KeePassTargetVnc" xml:space="preserve">
+    <value>→ VNC vers {0}</value>
+  </data>
+  <data name="KeePassTargetFiles" xml:space="preserve">
+    <value>→ fichiers en {0} sur {1}</value>
   </data>
   <data name="KeePassTargetNone" xml:space="preserve">
     <value>→ pas d'adresse de serveur</value>
@@ -3326,5 +3332,74 @@ Les serveurs ajoutés depuis seront retirés et ceux retirés depuis reviendront
   </data>
   <data name="AccountsNotLoaded" xml:space="preserve">
     <value>Les comptes du PVWA ne sont pas chargés (F5 pour réessayer).</value>
+  </data>
+  <data name="MenuKeePassVnc" xml:space="preserve">
+    <value>Se connecter en _VNC</value>
+  </data>
+  <data name="MenuKeePassVncTip" xml:space="preserve">
+    <value>Bureau VNC dans un onglet (connexion non chiffrée)</value>
+  </data>
+  <data name="VncCtrlAltDel" xml:space="preserve">
+    <value>Ctrl+Alt+Suppr</value>
+  </data>
+  <data name="VncCtrlAltDelTip" xml:space="preserve">
+    <value>Envoyer Ctrl+Alt+Suppr au bureau distant</value>
+  </data>
+  <data name="VncSendClipboard" xml:space="preserve">
+    <value>Envoyer le presse-papiers</value>
+  </data>
+  <data name="VncSendClipboardTip" xml:space="preserve">
+    <value>Envoyer le texte du presse-papiers de ce poste au presse-papiers du serveur, pour le coller là-bas</value>
+  </data>
+  <data name="VncCopyRemote" xml:space="preserve">
+    <value>Copier le texte distant</value>
+  </data>
+  <data name="VncCopyRemoteTip" xml:space="preserve">
+    <value>Copier dans le presse-papiers de ce poste le dernier texte copié sur le serveur</value>
+  </data>
+  <data name="VncFit" xml:space="preserve">
+    <value>Ajuster</value>
+  </data>
+  <data name="VncFitTip" xml:space="preserve">
+    <value>Réduire l'écran distant à la taille de l'onglet ; sinon taille réelle avec barres de défilement</value>
+  </data>
+  <data name="VncUnencrypted" xml:space="preserve">
+    <value>Connexion VNC non chiffrée : écran, frappes et presse-papiers circulent en clair sur le réseau. À n'utiliser que sur un réseau de confiance.</value>
+  </data>
+  <data name="VncConnecting" xml:space="preserve">
+    <value>Connexion VNC à {0}…</value>
+  </data>
+  <data name="VncFailed" xml:space="preserve">
+    <value>Connexion VNC impossible</value>
+  </data>
+  <data name="VncClosedText" xml:space="preserve">
+    <value>Session VNC fermée</value>
+  </data>
+  <data name="VncStatus" xml:space="preserve">
+    <value>{0} · {1} · {2} × {3} · RFB {4}</value>
+  </data>
+  <data name="VncClipboardEmpty" xml:space="preserve">
+    <value>Le presse-papiers de ce poste ne contient pas de texte.</value>
+  </data>
+  <data name="VncClipboardSent" xml:space="preserve">
+    <value>{0} caractère(s) envoyé(s) au presse-papiers du serveur : collez-les là-bas.</value>
+  </data>
+  <data name="VncClipboardReceived" xml:space="preserve">
+    <value>Texte copié sur le serveur ({0} caractères) : « Copier le texte distant » pour le récupérer.</value>
+  </data>
+  <data name="VncClipboardCopied" xml:space="preserve">
+    <value>{0} caractère(s) copié(s) depuis le serveur.</value>
+  </data>
+  <data name="VncOpened" xml:space="preserve">
+    <value>Session VNC ouverte : {0}</value>
+  </data>
+  <data name="VncSessionError" xml:space="preserve">
+    <value>Session VNC {0} : {1}</value>
+  </data>
+  <data name="VncClosed" xml:space="preserve">
+    <value>Session VNC {0} fermée</value>
+  </data>
+  <data name="VncCloseTabConfirm" xml:space="preserve">
+    <value>Fermer la session VNC {0} ?</value>
   </data>
 </root>

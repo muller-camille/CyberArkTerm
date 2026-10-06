@@ -84,6 +84,7 @@ public partial class MainWindow : Window
         SystemEvents.SessionSwitch += OnWindowsSessionSwitch;
         Closed += (_, _) =>
         {
+            CloseAllVncSessions();
             _keePass.Changed -= OnKeePassChanged;
             SystemEvents.SessionSwitch -= OnWindowsSessionSwitch;
         };

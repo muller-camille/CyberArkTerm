@@ -11,7 +11,15 @@ public class KeePassTargetTests
     [Theory]
     [InlineData("ssh://srv-lnx01.corp.local:2222", RemoteProtocol.Ssh, "srv-lnx01.corp.local", 2222)]
     [InlineData("ssh://root@srv-lnx01", RemoteProtocol.Ssh, "srv-lnx01", 22)]
-    [InlineData("sftp://10.0.0.5/var/tmp", RemoteProtocol.Ssh, "10.0.0.5", 22)]
+    [InlineData("sftp://10.0.0.5/var/tmp", RemoteProtocol.Sftp, "10.0.0.5", 22)]
+    [InlineData("vnc://srv-lnx03", RemoteProtocol.Vnc, "srv-lnx03", 5900)]
+    [InlineData("vnc://srv-lnx03:1", RemoteProtocol.Vnc, "srv-lnx03", 5901)]
+    [InlineData("vnc://srv-lnx03:5902", RemoteProtocol.Vnc, "srv-lnx03", 5902)]
+    [InlineData("srv-lnx04:5900", RemoteProtocol.Vnc, "srv-lnx04", 5900)]
+    [InlineData("ftp://user@ftp.corp.local/pub", RemoteProtocol.Ftp, "ftp.corp.local", 21)]
+    [InlineData("ftpes://ftp.corp.local:2121", RemoteProtocol.Ftpes, "ftp.corp.local", 2121)]
+    [InlineData("ftps://ftp.corp.local", RemoteProtocol.Ftps, "ftp.corp.local", 990)]
+    [InlineData("ftp.corp.local:990", RemoteProtocol.Ftps, "ftp.corp.local", 990)]
     [InlineData("rdp://srv-win01.corp.local", RemoteProtocol.Rdp, "srv-win01.corp.local", 3389)]
     [InlineData("rdp://[fe80::1]:3390", RemoteProtocol.Rdp, "fe80::1", 3390)]
     [InlineData("srv-win02:3389", RemoteProtocol.Rdp, "srv-win02", 3389)]
@@ -22,6 +30,20 @@ public class KeePassTargetTests
         var target = KeePassTarget.From(Entry(url: url));
 
         Assert.Equal((protocol, host, port), (target.Protocol, target.Host, target.Port));
+    }
+
+    [Theory]
+    [InlineData("vnc", RemoteProtocol.Vnc, 5900)]
+    [InlineData("prod;ftp", RemoteProtocol.Ftp, 21)]
+    [InlineData("FTPS", RemoteProtocol.Ftps, 990)]
+    [InlineData("sftp", RemoteProtocol.Sftp, 22)]
+    public void ReadsVncAndFileTransferTags(string tags, RemoteProtocol protocol, int port)
+    {
+        var target = KeePassTarget.From(Entry(title: "srv-01", tags: tags));
+
+        Assert.Equal((protocol, "srv-01", port), (target.Protocol, target.Host, target.Port));
+        Assert.Equal(protocol != RemoteProtocol.Vnc, KeePassTarget.IsFileTransfer(protocol));
+        Assert.NotEmpty(KeePassTarget.Name(protocol));
     }
 
     [Fact]

@@ -312,4 +312,34 @@
   <data name="ServerListBusy" xml:space="preserve">
     <value>The shared list is being modified by someone else: try again in a moment.</value>
   </data>
+  <data name="VncNotRfb" xml:space="preserve">
+    <value>This server does not speak the VNC protocol (RFB): check the address and the port (5900 by default).</value>
+  </data>
+  <data name="VncUnsupportedVersion" xml:space="preserve">
+    <value>Unsupported VNC protocol version: {0}</value>
+  </data>
+  <data name="VncRefused" xml:space="preserve">
+    <value>The VNC server refuses the connection: {0}</value>
+  </data>
+  <data name="VncAuthFailed" xml:space="preserve">
+    <value>VNC password refused. {0}</value>
+  </data>
+  <data name="VncSecurityUnsupported" xml:space="preserve">
+    <value>The VNC server offers no authentication supported by CyberArkTerm (offered: {0}). CyberArkTerm accepts the VNC password or no authentication: enable “VNC password” authentication on the server.</value>
+  </data>
+  <data name="VncPasswordRequired" xml:space="preserve">
+    <value>The VNC server asks for a password and the entry has none.</value>
+  </data>
+  <data name="VncProtocolError" xml:space="preserve">
+    <value>Unexpected data from the VNC server: connection closed.</value>
+  </data>
+  <data name="VncClosedByServer" xml:space="preserve">
+    <value>The VNC server closed the connection.</value>
+  </data>
+  <data name="VncScreenTooLarge" xml:space="preserve">
+    <value>The VNC server announces a screen of {0} × {1}: too large.</value>
+  </data>
+  <data name="VncTimeout" xml:space="preserve">
+    <value>No VNC answer from the server within 30 seconds: check the address and the port (5900 by default).</value>
+  </data>
 </root>

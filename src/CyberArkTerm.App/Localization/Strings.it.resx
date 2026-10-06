@@ -2300,7 +2300,13 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
     <value>→ Desktop remoto verso {0}</value>
   </data>
   <data name="KeePassTargetUnknown" xml:space="preserve">
-    <value>→ protocollo non specificato: ti verrà chiesto SSH o RDP</value>
+    <value>→ protocollo non specificato: ti verrà chiesto (SSH, RDP, VNC…)</value>
+  </data>
+  <data name="KeePassTargetVnc" xml:space="preserve">
+    <value>→ VNC verso {0}</value>
+  </data>
+  <data name="KeePassTargetFiles" xml:space="preserve">
+    <value>→ file in {0} su {1}</value>
   </data>
   <data name="KeePassTargetNone" xml:space="preserve">
     <value>→ nessun indirizzo di server</value>
@@ -3326,5 +3332,74 @@ I server aggiunti da allora saranno rimossi e quelli rimossi torneranno, per tut
   </data>
   <data name="AccountsNotLoaded" xml:space="preserve">
     <value>Gli account del PVWA non sono caricati (F5 per riprovare).</value>
+  </data>
+  <data name="MenuKeePassVnc" xml:space="preserve">
+    <value>Connetti in _VNC</value>
+  </data>
+  <data name="MenuKeePassVncTip" xml:space="preserve">
+    <value>Desktop VNC in una scheda (connessione non cifrata)</value>
+  </data>
+  <data name="VncCtrlAltDel" xml:space="preserve">
+    <value>Ctrl+Alt+Canc</value>
+  </data>
+  <data name="VncCtrlAltDelTip" xml:space="preserve">
+    <value>Invia Ctrl+Alt+Canc al desktop remoto</value>
+  </data>
+  <data name="VncSendClipboard" xml:space="preserve">
+    <value>Invia gli appunti</value>
+  </data>
+  <data name="VncSendClipboardTip" xml:space="preserve">
+    <value>Invia il testo degli appunti di questo computer agli appunti del server, per incollarlo lì</value>
+  </data>
+  <data name="VncCopyRemote" xml:space="preserve">
+    <value>Copia il testo remoto</value>
+  </data>
+  <data name="VncCopyRemoteTip" xml:space="preserve">
+    <value>Copia negli appunti di questo computer l'ultimo testo copiato sul server</value>
+  </data>
+  <data name="VncFit" xml:space="preserve">
+    <value>Adatta</value>
+  </data>
+  <data name="VncFitTip" xml:space="preserve">
+    <value>Riduci lo schermo remoto alle dimensioni della scheda; altrimenti dimensione reale con barre di scorrimento</value>
+  </data>
+  <data name="VncUnencrypted" xml:space="preserve">
+    <value>Connessione VNC non cifrata: schermo, tasti e appunti viaggiano in chiaro sulla rete. Da usare solo su una rete fidata.</value>
+  </data>
+  <data name="VncConnecting" xml:space="preserve">
+    <value>Connessione VNC a {0}…</value>
+  </data>
+  <data name="VncFailed" xml:space="preserve">
+    <value>Connessione VNC impossibile</value>
+  </data>
+  <data name="VncClosedText" xml:space="preserve">
+    <value>Sessione VNC chiusa</value>
+  </data>
+  <data name="VncStatus" xml:space="preserve">
+    <value>{0} · {1} · {2} × {3} · RFB {4}</value>
+  </data>
+  <data name="VncClipboardEmpty" xml:space="preserve">
+    <value>Gli appunti di questo computer non contengono testo.</value>
+  </data>
+  <data name="VncClipboardSent" xml:space="preserve">
+    <value>{0} caratteri inviati agli appunti del server: incollali lì.</value>
+  </data>
+  <data name="VncClipboardReceived" xml:space="preserve">
+    <value>Testo copiato sul server ({0} caratteri): «Copia il testo remoto» per recuperarlo.</value>
+  </data>
+  <data name="VncClipboardCopied" xml:space="preserve">
+    <value>{0} caratteri copiati dal server.</value>
+  </data>
+  <data name="VncOpened" xml:space="preserve">
+    <value>Sessione VNC aperta: {0}</value>
+  </data>
+  <data name="VncSessionError" xml:space="preserve">
+    <value>Sessione VNC {0}: {1}</value>
+  </data>
+  <data name="VncClosed" xml:space="preserve">
+    <value>Sessione VNC {0} chiusa</value>
+  </data>
+  <data name="VncCloseTabConfirm" xml:space="preserve">
+    <value>Chiudere la sessione VNC {0}?</value>
   </data>
 </root>

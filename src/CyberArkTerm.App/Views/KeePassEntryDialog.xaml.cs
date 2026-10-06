@@ -52,6 +52,8 @@ public partial class KeePassEntryDialog : Window
         {
             RemoteProtocol.Ssh => Text.Format(Strings.KeePassTargetSsh, where),
             RemoteProtocol.Rdp => Text.Format(Strings.KeePassTargetRdp, where),
+            RemoteProtocol.Vnc => Text.Format(Strings.KeePassTargetVnc, target.Address),
+            _ when KeePassTarget.IsFileTransfer(target.Protocol) => Text.Format(Strings.KeePassTargetFiles, KeePassTarget.Name(target.Protocol), where),
             _ => Strings.KeePassTargetUnknown,
         };
     }

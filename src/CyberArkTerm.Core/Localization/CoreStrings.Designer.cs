@@ -947,6 +947,96 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to VNC password refused. {0}.
+        /// </summary>
+        public static string VncAuthFailed {
+            get {
+                return ResourceManager.GetString("VncAuthFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The VNC server closed the connection..
+        /// </summary>
+        public static string VncClosedByServer {
+            get {
+                return ResourceManager.GetString("VncClosedByServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This server does not speak the VNC protocol (RFB): check the address and the port (5900 by default)..
+        /// </summary>
+        public static string VncNotRfb {
+            get {
+                return ResourceManager.GetString("VncNotRfb", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The VNC server asks for a password and the entry has none..
+        /// </summary>
+        public static string VncPasswordRequired {
+            get {
+                return ResourceManager.GetString("VncPasswordRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unexpected data from the VNC server: connection closed..
+        /// </summary>
+        public static string VncProtocolError {
+            get {
+                return ResourceManager.GetString("VncProtocolError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The VNC server refuses the connection: {0}.
+        /// </summary>
+        public static string VncRefused {
+            get {
+                return ResourceManager.GetString("VncRefused", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The VNC server announces a screen of {0} × {1}: too large..
+        /// </summary>
+        public static string VncScreenTooLarge {
+            get {
+                return ResourceManager.GetString("VncScreenTooLarge", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The VNC server offers no authentication supported by CyberArkTerm (offered: {0}). CyberArkTerm ac[rest of string was truncated].
+        /// </summary>
+        public static string VncSecurityUnsupported {
+            get {
+                return ResourceManager.GetString("VncSecurityUnsupported", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No VNC answer from the server within 30 seconds: check the address and the port (5900 by default)..
+        /// </summary>
+        public static string VncTimeout {
+            get {
+                return ResourceManager.GetString("VncTimeout", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported VNC protocol version: {0}.
+        /// </summary>
+        public static string VncUnsupportedVersion {
+            get {
+                return ResourceManager.GetString("VncUnsupportedVersion", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to The server received {0} bytes instead of {1}: the file on the server is incomplete..
         /// </summary>
         public static string WriteIncomplete {

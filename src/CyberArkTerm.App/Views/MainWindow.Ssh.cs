@@ -187,7 +187,7 @@ public partial class MainWindow
     }
 
     /// <summary>Onglets de session (SSH, Bureau à distance), dans l'ordre affiché.</summary>
-    private IEnumerable<TabItem> SessionTabs() => MainTabs.Items.OfType<TabItem>().Where(t => t.Tag is SshSession or RdpSession);
+    private IEnumerable<TabItem> SessionTabs() => MainTabs.Items.OfType<TabItem>().Where(t => t.Tag is SshSession or RdpSession or VncSession);
 
     /// <param name="owner">Fenêtre des questions (celle du terminal détaché) ; par défaut la fenêtre principale.</param>
     private void CloseSessionTab(TabItem tab, Window? owner = null)
@@ -199,6 +199,9 @@ public partial class MainWindow
                 break;
             case RdpSession:
                 _ = CloseRdpTabAsync(tab);
+                break;
+            case VncSession:
+                CloseVncTab(tab, owner);
                 break;
         }
     }
@@ -234,6 +237,13 @@ public partial class MainWindow
                 }
 
                 break;
+            case VncSession vnc:
+                if (!vnc.IsConnected || Confirm(vnc.Label))
+                {
+                    await vnc.ConnectAsync();
+                }
+
+                break;
         }
     }
 
@@ -260,6 +270,9 @@ public partial class MainWindow
                     break;
                 case RdpSession rdp:
                     closing.Add(RemoveRdpTabAsync(rdp));
+                    break;
+                case VncSession:
+                    RemoveVncTab(tab);
                     break;
             }
         }

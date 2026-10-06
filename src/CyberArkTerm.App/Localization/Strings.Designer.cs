@@ -3755,6 +3755,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to → {0} files on {1}.
+        /// </summary>
+        public static string KeePassTargetFiles {
+            get {
+                return ResourceManager.GetString("KeePassTargetFiles", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to The host or user name of this entry contains a line break or a control character..
         /// </summary>
         public static string KeePassTargetInvalid {
@@ -3791,11 +3800,20 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to → protocol not specified: you'll be asked SSH or RDP.
+        ///   Looks up a localized string similar to → protocol not specified: you'll be asked (SSH, RDP, VNC…).
         /// </summary>
         public static string KeePassTargetUnknown {
             get {
                 return ResourceManager.GetString("KeePassTargetUnknown", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to → VNC to {0}.
+        /// </summary>
+        public static string KeePassTargetVnc {
+            get {
+                return ResourceManager.GetString("KeePassTargetVnc", resourceCulture);
             }
         }
 
@@ -4606,6 +4624,24 @@ namespace CyberArkTerm.App.Localization {
         public static string MenuKeePassUnlock {
             get {
                 return ResourceManager.GetString("MenuKeePassUnlock", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connect with _VNC.
+        /// </summary>
+        public static string MenuKeePassVnc {
+            get {
+                return ResourceManager.GetString("MenuKeePassVnc", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to VNC desktop in a tab (unencrypted connection).
+        /// </summary>
+        public static string MenuKeePassVncTip {
+            get {
+                return ResourceManager.GetString("MenuKeePassVncTip", resourceCulture);
             }
         }
 
@@ -9718,6 +9754,195 @@ namespace CyberArkTerm.App.Localization {
         public static string VerifyingFile {
             get {
                 return ResourceManager.GetString("VerifyingFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} character(s) copied from the server..
+        /// </summary>
+        public static string VncClipboardCopied {
+            get {
+                return ResourceManager.GetString("VncClipboardCopied", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The clipboard of this computer contains no text..
+        /// </summary>
+        public static string VncClipboardEmpty {
+            get {
+                return ResourceManager.GetString("VncClipboardEmpty", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Text copied on the server ({0} characters): “Copy remote text” to get it..
+        /// </summary>
+        public static string VncClipboardReceived {
+            get {
+                return ResourceManager.GetString("VncClipboardReceived", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} character(s) sent to the server's clipboard: paste them there..
+        /// </summary>
+        public static string VncClipboardSent {
+            get {
+                return ResourceManager.GetString("VncClipboardSent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close the VNC session {0}?.
+        /// </summary>
+        public static string VncCloseTabConfirm {
+            get {
+                return ResourceManager.GetString("VncCloseTabConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to VNC session {0} closed.
+        /// </summary>
+        public static string VncClosed {
+            get {
+                return ResourceManager.GetString("VncClosed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to VNC session closed.
+        /// </summary>
+        public static string VncClosedText {
+            get {
+                return ResourceManager.GetString("VncClosedText", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to VNC connection to {0}….
+        /// </summary>
+        public static string VncConnecting {
+            get {
+                return ResourceManager.GetString("VncConnecting", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copy remote text.
+        /// </summary>
+        public static string VncCopyRemote {
+            get {
+                return ResourceManager.GetString("VncCopyRemote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copy into this computer's clipboard the last text copied on the server.
+        /// </summary>
+        public static string VncCopyRemoteTip {
+            get {
+                return ResourceManager.GetString("VncCopyRemoteTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+Alt+Del.
+        /// </summary>
+        public static string VncCtrlAltDel {
+            get {
+                return ResourceManager.GetString("VncCtrlAltDel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send Ctrl+Alt+Del to the remote desktop.
+        /// </summary>
+        public static string VncCtrlAltDelTip {
+            get {
+                return ResourceManager.GetString("VncCtrlAltDelTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to VNC connection impossible.
+        /// </summary>
+        public static string VncFailed {
+            get {
+                return ResourceManager.GetString("VncFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fit.
+        /// </summary>
+        public static string VncFit {
+            get {
+                return ResourceManager.GetString("VncFit", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shrink the remote screen to fit the tab; otherwise real size with scroll bars.
+        /// </summary>
+        public static string VncFitTip {
+            get {
+                return ResourceManager.GetString("VncFitTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to VNC session opened: {0}.
+        /// </summary>
+        public static string VncOpened {
+            get {
+                return ResourceManager.GetString("VncOpened", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send clipboard.
+        /// </summary>
+        public static string VncSendClipboard {
+            get {
+                return ResourceManager.GetString("VncSendClipboard", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send the text of this computer's clipboard to the server's clipboard, to paste it there.
+        /// </summary>
+        public static string VncSendClipboardTip {
+            get {
+                return ResourceManager.GetString("VncSendClipboardTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to VNC session {0}: {1}.
+        /// </summary>
+        public static string VncSessionError {
+            get {
+                return ResourceManager.GetString("VncSessionError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · {1} · {2} × {3} · RFB {4}.
+        /// </summary>
+        public static string VncStatus {
+            get {
+                return ResourceManager.GetString("VncStatus", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unencrypted VNC connection: screen, keystrokes and clipboard travel in clear on the network. Use [rest of string was truncated].
+        /// </summary>
+        public static string VncUnencrypted {
+            get {
+                return ResourceManager.GetString("VncUnencrypted", resourceCulture);
             }
         }
 

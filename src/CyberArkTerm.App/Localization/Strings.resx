@@ -2300,7 +2300,13 @@ Close anyway? The local copies will be deleted.</value>
     <value>→ Remote desktop to {0}</value>
   </data>
   <data name="KeePassTargetUnknown" xml:space="preserve">
-    <value>→ protocol not specified: you'll be asked SSH or RDP</value>
+    <value>→ protocol not specified: you'll be asked (SSH, RDP, VNC…)</value>
+  </data>
+  <data name="KeePassTargetVnc" xml:space="preserve">
+    <value>→ VNC to {0}</value>
+  </data>
+  <data name="KeePassTargetFiles" xml:space="preserve">
+    <value>→ {0} files on {1}</value>
   </data>
   <data name="KeePassTargetNone" xml:space="preserve">
     <value>→ no server address</value>
@@ -3326,5 +3332,74 @@ Servers added since will be removed and servers removed since will come back, fo
   </data>
   <data name="AccountsNotLoaded" xml:space="preserve">
     <value>The PVWA accounts are not loaded (F5 to try again).</value>
+  </data>
+  <data name="MenuKeePassVnc" xml:space="preserve">
+    <value>Connect with _VNC</value>
+  </data>
+  <data name="MenuKeePassVncTip" xml:space="preserve">
+    <value>VNC desktop in a tab (unencrypted connection)</value>
+  </data>
+  <data name="VncCtrlAltDel" xml:space="preserve">
+    <value>Ctrl+Alt+Del</value>
+  </data>
+  <data name="VncCtrlAltDelTip" xml:space="preserve">
+    <value>Send Ctrl+Alt+Del to the remote desktop</value>
+  </data>
+  <data name="VncSendClipboard" xml:space="preserve">
+    <value>Send clipboard</value>
+  </data>
+  <data name="VncSendClipboardTip" xml:space="preserve">
+    <value>Send the text of this computer's clipboard to the server's clipboard, to paste it there</value>
+  </data>
+  <data name="VncCopyRemote" xml:space="preserve">
+    <value>Copy remote text</value>
+  </data>
+  <data name="VncCopyRemoteTip" xml:space="preserve">
+    <value>Copy into this computer's clipboard the last text copied on the server</value>
+  </data>
+  <data name="VncFit" xml:space="preserve">
+    <value>Fit</value>
+  </data>
+  <data name="VncFitTip" xml:space="preserve">
+    <value>Shrink the remote screen to fit the tab; otherwise real size with scroll bars</value>
+  </data>
+  <data name="VncUnencrypted" xml:space="preserve">
+    <value>Unencrypted VNC connection: screen, keystrokes and clipboard travel in clear on the network. Use it only on a trusted network.</value>
+  </data>
+  <data name="VncConnecting" xml:space="preserve">
+    <value>VNC connection to {0}…</value>
+  </data>
+  <data name="VncFailed" xml:space="preserve">
+    <value>VNC connection impossible</value>
+  </data>
+  <data name="VncClosedText" xml:space="preserve">
+    <value>VNC session closed</value>
+  </data>
+  <data name="VncStatus" xml:space="preserve">
+    <value>{0} · {1} · {2} × {3} · RFB {4}</value>
+  </data>
+  <data name="VncClipboardEmpty" xml:space="preserve">
+    <value>The clipboard of this computer contains no text.</value>
+  </data>
+  <data name="VncClipboardSent" xml:space="preserve">
+    <value>{0} character(s) sent to the server's clipboard: paste them there.</value>
+  </data>
+  <data name="VncClipboardReceived" xml:space="preserve">
+    <value>Text copied on the server ({0} characters): “Copy remote text” to get it.</value>
+  </data>
+  <data name="VncClipboardCopied" xml:space="preserve">
+    <value>{0} character(s) copied from the server.</value>
+  </data>
+  <data name="VncOpened" xml:space="preserve">
+    <value>VNC session opened: {0}</value>
+  </data>
+  <data name="VncSessionError" xml:space="preserve">
+    <value>VNC session {0}: {1}</value>
+  </data>
+  <data name="VncClosed" xml:space="preserve">
+    <value>VNC session {0} closed</value>
+  </data>
+  <data name="VncCloseTabConfirm" xml:space="preserve">
+    <value>Close the VNC session {0}?</value>
   </data>
 </root>

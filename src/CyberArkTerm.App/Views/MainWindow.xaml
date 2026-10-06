@@ -244,6 +244,11 @@
                     <Image Source="{StaticResource IconWindows}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <MenuItem Header="{x:Static loc:Strings.MenuKeePassVnc}" Click="OnKeePassConnectVnc" ToolTip="{x:Static loc:Strings.MenuKeePassVncTip}">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconConnect}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuKeePassEditEntry}" Click="OnKeePassEditEntry">
                 <MenuItem.Icon>
