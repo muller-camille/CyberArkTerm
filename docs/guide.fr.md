@@ -83,7 +83,8 @@ aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant saisis.
 <img src="captures/fr/psm-connect.png" alt="Connexion PSM avancée : machine cible, motif, ticket" width="520">
 
 Double-cliquez sur le compte (ou Entrée, ou bouton « Se connecter ») ; un compte Unix s'ouvre en SSH via le PSMP
-quand son adresse est renseignée (voir 4.), et « Connexion avancée… » permet alors de choisir le PSM. CyberArkTerm
+quand son adresse est renseignée, ou en fichiers seuls pour une plateforme « SFTP » (voir 4.), et « Connexion
+avancée… » permet alors de choisir le PSM. CyberArkTerm
 demande la connexion au PVWA et ouvre la session dans la **Connexion Bureau à distance** de Windows (`mstsc`),
 exactement comme le bouton « Connect » du PVWA : le fichier RDP du PVWA lui est donné tel quel. Un composant en
 application distante (RemoteApp) ouvre ses fenêtres sur le bureau du poste.
@@ -99,8 +100,23 @@ application distante (RemoteApp) ouvre ses fenêtres sur le bureau du poste.
 
 ## 4. Ouvrir une session SSH via le PSMP
 
-Renseignez une fois l'adresse du PSMP dans **Paramètres** : les comptes Unix s'ouvrent alors en SSH par défaut
-(double-clic ou Entrée). Pour un autre compte, clic droit → « Se connecter en SSH » (ou bouton « SSH »).
+Renseignez une fois l'adresse du PSMP dans **Paramètres**. Le double-clic (ou Entrée) choisit alors d'après le nom
+de la plateforme du compte :
+
+| Nom de la plateforme | Ouverture par défaut |
+| --- | --- |
+| contient « SFTP » (`UnixSFTP`, `SFTP-Partenaires`…) | **fichiers seuls** en SFTP via le PSMP (voir ci-dessous) |
+| contient « SSH » (`UnixSSH`, `CiscoSSH`…), ou autre plateforme Unix | **SSH** via le PSMP |
+| autre | **PSM** (bureau à distance) |
+
+Le clic droit propose toujours les trois (l'ouverture par défaut est en gras) : « Se connecter (PSM) », « Se
+connecter en SSH (PSMP) » (ou bouton « SSH ») et « Ouvrir les fichiers (SFTP, PSMP) ».
+
+**Fichiers seuls** : une seule session PSMP SFTP, sans terminal. Un onglet montre son état ; les fichiers sont dans
+l'onglet « Fichiers », avec les mêmes fonctions (transferts vérifiés, file d'attente, éditeur, comparaison, suivi en
+direct, droits), sauf ce qui a besoin d'un terminal (suivi du dossier du terminal, extraction d'une archive
+`.tar.gz`). Utile pour simplement déposer ou récupérer des fichiers, ou quand la plateforme autorise PSMP-SFTP mais
+pas le shell. Comme toute session PSMP, elle est enregistrée et auditée par CyberArk.
 
 La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP standard `<vous>@<compte
 cible>[#domaine]@<serveur cible>`. Les noms d'utilisateur contenant des espaces (`Jean Dupont`, `Admin Local`) sont
@@ -159,7 +175,8 @@ acceptés.
 ## 5. Parcourir et déposer des fichiers : onglet « Fichiers »
 
 À l'ouverture d'une session SSH, l'onglet **Fichiers** s'affiche sur le côté et suit l'onglet SSH actif. Il sert
-aussi aux sessions de fichiers des entrées KeePass (SFTP, FTP, FTPS : voir la [section 7](#7-accès-durgence-hors-cyberark--coffres-keepass)).
+aussi aux sessions de fichiers seuls : comptes CyberArk en SFTP via le PSMP ([section 4](#4-ouvrir-une-session-ssh-via-le-psmp)) et
+entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--coffres-keepass)).
 
 ![Onglet Fichiers trié par date, à côté du terminal](captures/fr/main-window.png)
 
@@ -297,8 +314,8 @@ aussi aux sessions de fichiers des entrées KeePass (SFTP, FTP, FTPS : voir la [
 - **Ajouter** un compte : clic droit dans « Disponibles » → « Ajouter aux serveurs courants » puis le dossier voulu,
   ou glissez le compte sur l'onglet « Courants », ou bouton « Courant » de la barre d'outils.
 - **Ajouter une session récente** : clic droit dans « Sessions récentes » sur l'accueil → « Ajouter aux serveurs
-  courants » puis le dossier voulu. Le serveur garde le type de connexion (PSM ou SSH), le composant PSM et la
-  machine cible utilisés.
+  courants » puis le dossier voulu. Le serveur garde le type de connexion (PSM, SSH ou fichiers seuls), le composant
+  PSM et la machine cible utilisés.
 - **Dossiers** : clic droit → nouveau dossier ou sous-dossier, renommer, supprimer ; glissez serveurs et dossiers
   pour les déplacer.
 - **Rechercher** : champ en haut de l'onglet (ou `Ctrl+F` dans l'onglet). Il filtre les serveurs par nom, serveur,
@@ -313,7 +330,7 @@ aussi aux sessions de fichiers des entrées KeePass (SFTP, FTP, FTPS : voir la [
 | Réglage | Effet |
 | --- | --- |
 | Nom, dossier | Affichage et rangement dans l'arbre. |
-| PSM ou SSH via PSMP | Type de connexion ouvert au double-clic. |
+| PSM, SSH via PSMP ou fichiers seuls (SFTP via PSMP) | Type de connexion ouvert au double-clic (au départ, d'après la plateforme). |
 | Composant PSM | Composant à utiliser (vide : déduit de la plateforme). |
 | Machine cible | Serveur sur lequel ouvrir la session pour un compte de domaine. |
 | Motif par défaut | Motif d'accès envoyé automatiquement au PVWA. |
@@ -447,7 +464,7 @@ coffre KeePass dont le mot de passe est mémorisé, « Plus tard » pour saisir 
 | Rechercher une nouvelle version au démarrage | Une requête vers GitHub au plus une fois par jour ; lien dans la barre d'état si une version plus récente existe | non |
 | Coffre local | Mots de passe maîtres KeePass mémorisés : créer, déverrouiller, changer le mot de passe, supprimer | — |
 | Journal de débogage | Menu du bouton Paramètres : déroulement des connexions dans un fichier, sans secret (voir [Sécurité](#sécurité)) ; « Afficher le fichier du journal » l'ouvre dans l'Explorateur | non |
-| Adresse et port PSMP | Serveur PSM for SSH ; renseigné, les comptes Unix s'ouvrent en SSH par défaut ; vide = SSH désactivé | vide, 22 |
+| Adresse et port PSMP | Serveur PSM for SSH ; renseigné, les comptes Unix s'ouvrent en SSH par défaut (en fichiers seuls pour une plateforme « SFTP ») ; vide = SSH et SFTP désactivés | vide, 22 |
 | SSH dans CyberArkTerm | Terminal et onglet Fichiers intégrés ; sinon Windows Terminal | oui |
 | Suivre le dossier du terminal | Autorise l'installation du suivi de dossier dans le shell | oui |
 | Dépôt de fichiers | Protocole essayé d'abord (SFTP ou SCP) ; si le serveur le refuse, l'autre prend le relais | SFTP |
@@ -671,6 +688,7 @@ laquelle elle est destinée. Avec csh, ksh, sh ou fish, le suivi n'est pas insta
 | « Le fichier du coffre local est endommagé ou a été créé par un autre compte Windows » | Le coffre local ne suit pas un changement de poste ou de compte : supprimez-le dans les Paramètres et recréez-le. |
 | « L'entrée … a été modifiée ou supprimée dans le coffre entre-temps » | Quelqu'un a changé la même entrée ailleurs : le coffre est rechargé, refaites la modification. |
 | Un compte Unix s'ouvre en PSM et pas en SSH | Adresse du PSMP non renseignée dans les Paramètres, ou compte non reconnu comme Unix : clic droit → « Se connecter en SSH ». |
+| Un compte s'ouvre en fichiers seuls et pas dans un terminal | Le nom de sa plateforme contient « SFTP » : clic droit → « Se connecter en SSH (PSMP) », ou « Propriétés… » dans « Courants » pour changer le type de connexion. |
 | « La liste partagée est en cours de modification par quelqu'un d'autre » | Un autre poste écrit la liste depuis plus de 5 secondes, ou garde le fichier ouvert : réessayez dans un instant. |
 | « vous n'avez pas le droit de modifier ce fichier (droits du partage réseau) » | Le partage est en lecture seule pour vous : demandez le droit d'écriture à son responsable. La liste reste utilisable. |
 | Une liste partagée affiche « (illisible) » | Partage injoignable ou fichier endommagé : l'info-bulle donne l'erreur. Si le fichier est endommagé, copiez la version la plus récente du dossier `nom.versions` à sa place. |

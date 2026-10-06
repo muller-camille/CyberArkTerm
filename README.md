@@ -37,7 +37,7 @@ and opens your sessions with a double-click: remote desktop through **PSM**, or 
 | **Available** | Every account visible in the vault, grouped by safe, platform or target type, with instant search; password actions (CPM, copy), safe members, adding, editing and importing accounts. |
 | **My servers** | Your working servers, organized in folders and subfolders, each with its own settings; export, import and **shared lists** on a network share (everyone adds or removes, history of changes and versions). |
 | **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in Windows Remote Desktop Connection: component, target machine, reason, ticket. |
-| **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colours, vim, less, top…), MFA, right-click menu, search, separate windows. |
+| **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colours, vim, less, top…), MFA, right-click menu, search, separate windows. Files only (SFTP, without a terminal) for "SFTP" platforms or on request. |
 | **Files tab** | SFTP browser of the server: drag-and-drop upload (SFTP, or SCP, the other one taking over if the server refuses) and download, SHA-256 check of every file, transfer queue and history, sortable columns, editing in your text editor, permissions, live following (`tail -f`), comparison, sending to several servers. |
 | **Parallel view** | Up to 8 SSH sessions side by side (a "My servers" folder opens in one click), optional simultaneous typing. |
 | **Emergency access (KeePass)** | Without CyberArk: KeePass vaults (.kdbx) in "My servers", direct SSH, remote desktop and VNC connections, files over SFTP, FTP or FTPS in the Files tab, local log. |

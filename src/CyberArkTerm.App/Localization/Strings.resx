@@ -259,7 +259,7 @@
     <value>Right-click</value>
   </data>
   <data name="ShortcutMenu" xml:space="preserve">
-    <value>: PSM, SSH, advanced connection, my servers</value>
+    <value>: PSM, SSH, files (SFTP), advanced connection, my servers</value>
   </data>
   <data name="ShortcutSshKey" xml:space="preserve">
     <value>SSH session</value>
@@ -3483,5 +3483,23 @@ This may be a renewal, or an interception of the connection. Continue only if th
   </data>
   <data name="FilesClosedBrowse" xml:space="preserve">
     <value>The files session is closed. Reconnect it from its tab to browse its files.</value>
+  </data>
+  <data name="ModeSftp" xml:space="preserve">
+    <value>Files only (SFTP via PSMP)</value>
+  </data>
+  <data name="SftpCommandHint" xml:space="preserve">
+    <value>Command: sftp {0}. A PSMP session without a terminal: the files open in the Files tab.</value>
+  </data>
+  <data name="MenuConnectSftp" xml:space="preserve">
+    <value>Open the _files (SFTP, PSMP)</value>
+  </data>
+  <data name="MenuConnectSftpTip" xml:space="preserve">
+    <value>A single PSMP SFTP session, without a terminal: the files open in the Files tab (the platform must allow PSMP-SFTP)</value>
+  </data>
+  <data name="SftpUnavailable" xml:space="preserve">
+    <value>SFTP connection unavailable: set the PSMP address in the settings.</value>
+  </data>
+  <data name="SftpFilesOpening" xml:space="preserve">
+    <value>Opening the files of {0} via {1}…</value>
   </data>
 </root>

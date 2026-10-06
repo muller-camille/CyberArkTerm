@@ -8399,7 +8399,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to : PSM, SSH, advanced connection, my servers.
+        ///   Looks up a localized string similar to : PSM, SSH, files (SFTP), advanced connection, my servers.
         /// </summary>
         public static string ShortcutMenu {
             get {
@@ -10150,6 +10150,60 @@ namespace CyberArkTerm.App.Localization {
         public static string FilesClosedBrowse {
             get {
                 return ResourceManager.GetString("FilesClosedBrowse", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Files only (SFTP via PSMP).
+        /// </summary>
+        public static string ModeSftp {
+            get {
+                return ResourceManager.GetString("ModeSftp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Command: sftp {0}. A PSMP session without a terminal: the files open in the Files tab..
+        /// </summary>
+        public static string SftpCommandHint {
+            get {
+                return ResourceManager.GetString("SftpCommandHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open the _files (SFTP, PSMP).
+        /// </summary>
+        public static string MenuConnectSftp {
+            get {
+                return ResourceManager.GetString("MenuConnectSftp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A single PSMP SFTP session, without a terminal: the files open in the Files tab (the platform must allow PSMP-SFTP).
+        /// </summary>
+        public static string MenuConnectSftpTip {
+            get {
+                return ResourceManager.GetString("MenuConnectSftpTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SFTP connection unavailable: set the PSMP address in the settings..
+        /// </summary>
+        public static string SftpUnavailable {
+            get {
+                return ResourceManager.GetString("SftpUnavailable", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Opening the files of {0} via {1}….
+        /// </summary>
+        public static string SftpFilesOpening {
+            get {
+                return ResourceManager.GetString("SftpFilesOpening", resourceCulture);
             }
         }
     }

@@ -68,18 +68,25 @@ public sealed class SshSession : IDisposable
         };
     }
 
-    private SshSession(string label, string filesProtocol, Func<CancellationToken, Task<IRemoteFiles>> openFiles, Dispatcher dispatcher)
+    private SshSession(string label, string filesProtocol, Func<CancellationToken, Task<IRemoteFiles>> openFiles, Dispatcher dispatcher,
+        PvwaAccount? account, SavedSession? saved)
     {
+        Account = account;
+        Saved = saved;
         Label = label;
         FilesProtocol = filesProtocol;
         _openFiles = openFiles;
         _dispatcher = dispatcher;
     }
 
-    /// <summary>Session de fichiers seuls (sans terminal), affichée par l'onglet Fichiers.</summary>
+    /// <summary>
+    /// Session de fichiers seuls (sans terminal), affichée par l'onglet Fichiers : SFTP via le PSMP pour un compte
+    /// CyberArk, ou SFTP, FTP, FTPS d'une entrée KeePass.
+    /// </summary>
     /// <param name="protocol">« SFTP », « FTP », « FTPS »… pour l'affichage.</param>
-    public static SshSession ForFiles(string label, string protocol, Func<CancellationToken, Task<IRemoteFiles>> open, Dispatcher dispatcher) =>
-        new(label, protocol, open, dispatcher);
+    public static SshSession ForFiles(string label, string protocol, Func<CancellationToken, Task<IRemoteFiles>> open, Dispatcher dispatcher,
+        PvwaAccount? account = null, SavedSession? saved = null) =>
+        new(label, protocol, open, dispatcher, account, saved);
 
     /// <summary>Terminal SSH (faux : session de fichiers seuls).</summary>
     public bool HasTerminal => _openFiles is null;

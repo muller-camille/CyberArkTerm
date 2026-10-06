@@ -622,9 +622,10 @@ public partial class MainWindow : Window
         }
 
         SetCurrent(account);
-        var request = recent.Mode == RecentModes.Ssh
-            ? DefaultRequest(account, ConnectMode.Ssh) with { RemoteMachine = recent.RemoteMachine }
-            : DefaultRequest(account, ConnectMode.Psm) with { Component = recent.Mode, RemoteMachine = recent.RemoteMachine };
+        var mode = SessionLibrary.RecentMode(recent.Mode);
+        var request = mode == ConnectMode.Psm
+            ? DefaultRequest(account, ConnectMode.Psm) with { Component = recent.Mode, RemoteMachine = recent.RemoteMachine }
+            : DefaultRequest(account, mode) with { RemoteMachine = recent.RemoteMachine };
         _ = ConnectAsync(account, request, showDialog: false);
     }
 
@@ -660,6 +661,14 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OnConnectSftp(object sender, RoutedEventArgs e)
+    {
+        if (_current is { } account)
+        {
+            _ = ConnectAsync(account, DefaultRequest(account, ConnectMode.Sftp));
+        }
+    }
+
     private void OnConnectAdvanced(object sender, RoutedEventArgs e)
     {
         if (_currentSaved is { } saved)
@@ -673,13 +682,13 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Requête par défaut : SSH via le PSMP pour un compte Unix (si le PSMP est renseigné), sinon PSM avec le composant
-    /// mémorisé. « Connexion avancée » permet de choisir l'autre.
+    /// Requête par défaut, d'après la plateforme (si le PSMP est renseigné) : fichiers seuls en SFTP pour une plateforme
+    /// « SFTP », SSH via le PSMP pour une plateforme « SSH » ou Unix, sinon PSM avec le composant mémorisé.
+    /// « Connexion avancée » permet d'en choisir un autre.
     /// </summary>
     private ConnectRequest DefaultRequest(PvwaAccount account, ConnectMode? mode)
     {
-        var effective = mode
-            ?? (HasPsmp && AccountClassifier.Classify(account) == AccountKind.Unix ? ConnectMode.Ssh : ConnectMode.Psm);
+        var effective = mode ?? AccountClassifier.DefaultMode(account, HasPsmp);
         var machines = AccountClassifier.RemoteMachineList(account);
         return new ConnectRequest(effective, _settings.ResolveComponent(account), machines.Count == 1 ? machines[0] : null);
     }
@@ -695,9 +704,9 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (request.Mode == ConnectMode.Ssh && !HasPsmp)
+        if (request.Mode != ConnectMode.Psm && !HasPsmp)
         {
-            SetStatus(Strings.SshUnavailable, isError: true);
+            SetStatus(request.Mode == ConnectMode.Sftp ? Strings.SftpUnavailable : Strings.SshUnavailable, isError: true);
             return;
         }
 
@@ -797,6 +806,13 @@ public partial class MainWindow : Window
             SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
             AddRecent(account, label, request.Component, request.RemoteMachine);
         }
+        else if (request.Mode == ConnectMode.Sftp)
+        {
+            // Fichiers seuls : une session PSMP SFTP, sans terminal, toujours dans l'application.
+            var login = PsmpTarget.BuildLogin(_vaultUser, account, request.RemoteMachine);
+            await OpenPsmpFilesTabAsync(account, login, label, saved, () => ConnectAsync(account, request, saved: saved));
+            AddRecent(account, label, RecentModes.Sftp, request.RemoteMachine);
+        }
         else if (_settings.SshInApp)
         {
             var login = PsmpTarget.BuildLogin(_vaultUser, account, request.RemoteMachine);
@@ -864,6 +880,18 @@ public partial class MainWindow : Window
                 : Visibility.Visible;
         }
 
+        // Action du double-clic en gras : PSM, SSH ou fichiers seuls selon la plateforme.
+        var defaultTag = account is null ? null : AccountClassifier.DefaultMode(account, HasPsmp) switch
+        {
+            ConnectMode.Ssh => "ssh",
+            ConnectMode.Sftp => "sftp",
+            _ => "psm",
+        };
+        foreach (var item in menu.Items.OfType<MenuItem>().Where(i => i.Tag as string is "psm" or "ssh" or "sftp"))
+        {
+            item.FontWeight = item.Tag as string == defaultTag ? FontWeights.SemiBold : FontWeights.Normal;
+        }
+
         foreach (var item in menu.Items.OfType<MenuItem>())
         {
             switch (item.Tag as string)
@@ -874,6 +902,10 @@ public partial class MainWindow : Window
                 case "ssh":
                     item.IsEnabled = HasPsmp;
                     item.ToolTip = HasPsmp ? null : Strings.SetPsmpAddress;
+                    break;
+                case "sftp":
+                    item.IsEnabled = HasPsmp;
+                    item.ToolTip = HasPsmp ? Strings.MenuConnectSftpTip : Strings.SetPsmpAddress;
                     break;
                 case "safemembers":
                     SetSafeMenuItem(item, safe, Strings.MenuSafeMembersOf, Strings.MenuSafeMembers);

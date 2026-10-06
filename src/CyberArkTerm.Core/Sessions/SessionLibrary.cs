@@ -54,11 +54,19 @@ public static class SessionLibrary
         session.Address,
         session.UserName,
         session.Folder,
-        session.Mode == ConnectMode.Ssh ? "SSH" : "PSM",
+        ModeName(session.Mode),
         session.Component,
         session.RemoteMachine,
         session.PlatformId,
         session.SafeName);
+
+    /// <summary>Nom court du type de connexion (recherche, affichage).</summary>
+    public static string ModeName(ConnectMode mode) => mode switch
+    {
+        ConnectMode.Ssh => "SSH",
+        ConnectMode.Sftp => "SFTP",
+        _ => "PSM",
+    };
 
     public static bool IsForHost(SavedSession session, string pvwaHost) =>
         session.PvwaHost.Length == 0 || string.Equals(session.PvwaHost, pvwaHost, StringComparison.OrdinalIgnoreCase);
@@ -141,16 +149,15 @@ public static class SessionLibrary
     }
 
     /// <summary>
-    /// Ajoute une connexion récente avec sa configuration : SSH, ou PSM avec le composant utilisé, et la machine cible
+    /// Ajoute une connexion récente avec sa configuration : SSH, SFTP, ou PSM avec le composant utilisé, et la machine cible
     /// choisie (compte de domaine). Elle garde le nom affiché dans les connexions récentes (« utilisateur@machine »).
     /// </summary>
     public static SavedSession AddFromRecent(AppSettings settings, PvwaAccount account, RecentSession recent, string pvwaHost, string folder)
     {
         var session = AddSession(settings, account, pvwaHost, folder);
         var mode = recent.Mode.Trim();
-        bool ssh = string.Equals(mode, RecentSession.SshMode, StringComparison.OrdinalIgnoreCase);
-        session.Mode = ssh ? ConnectMode.Ssh : ConnectMode.Psm;
-        session.Component = ssh || mode.Length == 0 ? null : mode;
+        session.Mode = RecentMode(mode);
+        session.Component = session.Mode != ConnectMode.Psm || mode.Length == 0 ? null : mode;
         session.RemoteMachine = string.IsNullOrWhiteSpace(recent.RemoteMachine) ? null : recent.RemoteMachine.Trim();
         if (!string.IsNullOrWhiteSpace(recent.Label))
         {
@@ -159,6 +166,12 @@ public static class SessionLibrary
 
         return session;
     }
+
+    /// <summary>Type de connexion d'une connexion récente (« SSH », « SFTP » ou le composant PSM).</summary>
+    public static ConnectMode RecentMode(string mode) =>
+        string.Equals(mode.Trim(), RecentSession.SshMode, StringComparison.OrdinalIgnoreCase) ? ConnectMode.Ssh
+        : string.Equals(mode.Trim(), RecentSession.SftpMode, StringComparison.OrdinalIgnoreCase) ? ConnectMode.Sftp
+        : ConnectMode.Psm;
 
     public static void MoveSession(AppSettings settings, SavedSession session, string folder)
     {

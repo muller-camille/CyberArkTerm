@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services;
+using CyberArkTerm.Core;
 using CyberArkTerm.Core.Ftp;
 using CyberArkTerm.Core.KeePass;
 using CyberArkTerm.Core.Localization;
@@ -10,11 +11,30 @@ using CyberArkTerm.Core.Ssh;
 namespace CyberArkTerm.App.Views;
 
 /// <summary>
-/// Sessions de fichiers seuls (accès d'urgence, entrées KeePass sftp://, ftp://, ftpes://, ftps://) : un onglet d'état,
-/// les fichiers dans l'onglet Fichiers (même explorateur, mêmes transferts vérifiés que les sessions SSH).
+/// Sessions de fichiers seuls (comptes CyberArk en SFTP via le PSMP ; accès d'urgence, entrées KeePass sftp://, ftp://,
+/// ftpes://, ftps://) : un onglet d'état, les fichiers dans l'onglet Fichiers (même explorateur, mêmes transferts
+/// vérifiés que les sessions SSH).
 /// </summary>
 public partial class MainWindow
 {
+    /// <summary>
+    /// Fichiers d'un compte CyberArk sans terminal : une session PSMP SFTP (enregistrée par CyberArk comme les autres),
+    /// rouverte à la reconnexion ; les envois peuvent aussi passer par SCP si la plateforme l'autorise.
+    /// </summary>
+    private async Task OpenPsmpFilesTabAsync(PvwaAccount account, string login, string label, SavedSession? saved, Func<Task>? duplicate)
+    {
+        SetStatus(Text.Format(Strings.SftpFilesOpening, label, _settings.PsmpAddress));
+        var key = await GetPsmpKeyAsync();
+        var connector = new SshConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi, key);
+        var session = SshSession.ForFiles(label, "SFTP", async ct =>
+        {
+            var sftp = await connector.ConnectSftpAsync(ct);
+            sftp.KeepAliveInterval = TimeSpan.FromSeconds(30);
+            return new RemoteFileBrowser(sftp, connector.ConnectScpAsync);
+        }, Dispatcher, account, saved);
+        ShowFilesTab(session, $"{login}@{_settings.PsmpAddress}", duplicate);
+    }
+
     /// <summary>Ouvre la session de fichiers d'une entrée KeePass ; le mot de passe est lu à chaque connexion.</summary>
     private void OpenKeePassFiles(KeePassTarget target, string label, Func<string?> password, Func<Task> duplicate)
     {

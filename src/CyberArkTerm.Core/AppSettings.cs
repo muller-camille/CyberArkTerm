@@ -290,7 +290,10 @@ public sealed class RecentSession
     /// <summary>Valeur de <see cref="Mode"/> pour une connexion SSH via PSMP.</summary>
     public const string SshMode = "SSH";
 
-    /// <summary>Composant PSM utilisé, ou « SSH » pour une connexion via PSMP.</summary>
+    /// <summary>Valeur de <see cref="Mode"/> pour des fichiers seuls (SFTP) via PSMP.</summary>
+    public const string SftpMode = "SFTP";
+
+    /// <summary>Composant PSM utilisé, ou « SSH » / « SFTP » pour une connexion via PSMP.</summary>
     public string Mode { get; set; } = "";
 
     /// <summary>Machine cible choisie pour un compte de domaine.</summary>

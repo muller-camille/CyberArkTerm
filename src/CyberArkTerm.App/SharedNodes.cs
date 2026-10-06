@@ -81,7 +81,7 @@ public sealed class SharedServerNode(SharedServerList list, ServerEntry entry, S
 
     public string Title => Session.Name;
 
-    public string ModeText => Session.Mode == ConnectMode.Ssh ? "SSH" : Session.Component ?? "PSM";
+    public string ModeText => Session.Mode == ConnectMode.Psm ? Session.Component ?? "PSM" : SessionLibrary.ModeName(Session.Mode);
 
     public double Opacity => Account is null ? 0.5 : 1;
 

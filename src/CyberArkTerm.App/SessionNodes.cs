@@ -91,7 +91,7 @@ public sealed class KindIconConverter : IValueConverter
             AccountNode n => IconFor(AccountClassifier.Classify(n.Account)),
             PvwaAccount a => IconFor(AccountClassifier.Classify(a)),
             AccountKind k => IconFor(k),
-            RecentSession r => r.Mode == RecentModes.Ssh ? "IconSsh" : "IconConnect",
+            RecentSession r => r.Mode == RecentModes.Ssh ? "IconSsh" : r.Mode == RecentModes.Sftp ? "IconFiles" : "IconConnect",
             SavedSessionNode n => n.Account is { } a ? IconFor(AccountClassifier.Classify(a)) : IconFor(KindOf(n.Session)),
             SavedSession s => IconFor(KindOf(s)),
             SharedServerNode n => n.Account is { } a ? IconFor(AccountClassifier.Classify(a)) : IconFor(KindOf(n.Session)),
@@ -128,6 +128,7 @@ public sealed class KindIconConverter : IValueConverter
 internal static class RecentModes
 {
     public const string Ssh = RecentSession.SshMode;
+    public const string Sftp = RecentSession.SftpMode;
 }
 
 /// <summary>Dossier de l'onglet « Courants ».</summary>
@@ -171,7 +172,7 @@ public sealed class SavedSessionNode(SavedSession session, PvwaAccount? account)
 
     public string Title => Session.Name;
 
-    public string ModeText => Session.Mode == ConnectMode.Ssh ? "SSH" : Session.Component ?? "PSM";
+    public string ModeText => Session.Mode == ConnectMode.Psm ? Session.Component ?? "PSM" : SessionLibrary.ModeName(Session.Mode);
 
     public double Opacity => Account is null ? 0.5 : 1;
 

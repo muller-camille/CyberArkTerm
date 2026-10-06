@@ -33,6 +33,11 @@
                     <Image Source="{StaticResource IconSsh}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <MenuItem Tag="sftp" Header="{x:Static loc:Strings.MenuConnectSftp}" Click="OnConnectSftp" ToolTipService.ShowOnDisabled="True">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconFiles}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuConnectAdvanced}" Click="OnConnectAdvanced">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconConnectAdvanced}" Width="16" Height="16" />

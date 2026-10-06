@@ -7,6 +7,9 @@ public enum ConnectMode
 
     /// <summary>Session SSH via PSM for SSH (PSMP).</summary>
     Ssh,
+
+    /// <summary>Fichiers seuls via PSM for SSH (session PSMP SFTP, sans terminal).</summary>
+    Sftp,
 }
 
 /// <summary>
@@ -40,7 +43,7 @@ public sealed class SavedSession
     /// <summary>Motif d'accès proposé par défaut.</summary>
     public string? Reason { get; set; }
 
-    /// <summary>Dossier ouvert par le navigateur de fichiers à la connexion SSH ; vide = dossier personnel.</summary>
+    /// <summary>Dossier ouvert par le navigateur de fichiers à la connexion (SSH ou SFTP) ; vide = dossier personnel.</summary>
     public string? StartDirectory { get; set; }
 
     /// <summary>Fichiers suivis (tail -f) sur ce serveur, le plus récent en tête, pour les suivre à nouveau d'un clic.</summary>
@@ -79,7 +82,7 @@ public sealed class SavedSession
         UserName = account.UserName,
         PlatformId = account.PlatformId,
         SafeName = account.SafeName,
-        Mode = AccountClassifier.Classify(account) == AccountKind.Unix ? ConnectMode.Ssh : ConnectMode.Psm,
+        Mode = AccountClassifier.DefaultMode(account, hasPsmp: true),
     };
 }
 

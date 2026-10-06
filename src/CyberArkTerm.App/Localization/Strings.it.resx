@@ -259,7 +259,7 @@
     <value>Clic destro</value>
   </data>
   <data name="ShortcutMenu" xml:space="preserve">
-    <value>: PSM, SSH, connessione avanzata, i miei server</value>
+    <value>: PSM, SSH, file (SFTP), connessione avanzata, i miei server</value>
   </data>
   <data name="ShortcutSshKey" xml:space="preserve">
     <value>Sessione SSH</value>
@@ -3483,5 +3483,23 @@ Può essere un rinnovo, o un'intercettazione della connessione. Continua solo se
   </data>
   <data name="FilesClosedBrowse" xml:space="preserve">
     <value>La sessione di file è chiusa. Riconnettila dalla sua scheda per sfogliarne i file.</value>
+  </data>
+  <data name="ModeSftp" xml:space="preserve">
+    <value>Solo file (SFTP tramite PSMP)</value>
+  </data>
+  <data name="SftpCommandHint" xml:space="preserve">
+    <value>Comando: sftp {0}. Una sessione PSMP senza terminale: i file si aprono nella scheda File.</value>
+  </data>
+  <data name="MenuConnectSftp" xml:space="preserve">
+    <value>Apri i _file (SFTP, PSMP)</value>
+  </data>
+  <data name="MenuConnectSftpTip" xml:space="preserve">
+    <value>Una sola sessione PSMP SFTP, senza terminale: i file si aprono nella scheda File (la piattaforma deve consentire PSMP-SFTP)</value>
+  </data>
+  <data name="SftpUnavailable" xml:space="preserve">
+    <value>Connessione SFTP non disponibile: imposta l'indirizzo del PSMP nelle impostazioni.</value>
+  </data>
+  <data name="SftpFilesOpening" xml:space="preserve">
+    <value>Apertura dei file di {0} tramite {1}…</value>
   </data>
 </root>

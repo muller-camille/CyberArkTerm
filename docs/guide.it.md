@@ -80,8 +80,8 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
 <img src="captures/it/psm-connect.png" alt="Connessione PSM avanzata: macchina di destinazione, motivo, ticket" width="520">
 
 Fai doppio clic sull'account (oppure Invio, oppure il pulsante «Connetti»); un account Unix si apre in SSH tramite
-il PSMP quando il suo indirizzo è impostato (vedi 4.), e «Connessione avanzata…» permette allora di scegliere il
-PSM. CyberArkTerm richiede la connessione al PVWA e apre la sessione in **Connessione Desktop remoto** di Windows
+il PSMP quando il suo indirizzo è impostato, o in soli file per una piattaforma «SFTP» (vedi 4.), e «Connessione
+avanzata…» permette allora di scegliere il PSM. CyberArkTerm richiede la connessione al PVWA e apre la sessione in **Connessione Desktop remoto** di Windows
 (`mstsc`), esattamente come il pulsante «Connect» del PVWA: il file RDP del PVWA le viene passato così com'è. Un
 componente che apre un'applicazione remota (RemoteApp) apre le sue finestre sul desktop del computer.
 
@@ -98,9 +98,23 @@ componente che apre un'applicazione remota (RemoteApp) apre le sue finestre sul 
 
 ## 4. Aprire una sessione SSH tramite il PSMP
 
-Imposta una volta l'indirizzo del PSMP nelle **Impostazioni**: gli account Unix si aprono allora in SSH per
-impostazione predefinita (doppio clic o Invio). Per un altro account, clic destro → «Connetti in SSH» (o il pulsante
-«SSH»).
+Imposta una volta l'indirizzo del PSMP nelle **Impostazioni**. Il doppio clic (o Invio) sceglie allora in base al
+nome della piattaforma dell'account:
+
+| Nome della piattaforma | Apertura predefinita |
+| --- | --- |
+| contiene «SFTP» (`UnixSFTP`, `SFTP-Partner`…) | **solo file** in SFTP tramite il PSMP (vedi sotto) |
+| contiene «SSH» (`UnixSSH`, `CiscoSSH`…), o un'altra piattaforma Unix | **SSH** tramite il PSMP |
+| altro | **PSM** (desktop remoto) |
+
+Il clic destro propone sempre le tre (l'apertura predefinita è in grassetto): «Connetti (PSM)», «Connetti in SSH
+(PSMP)» (o il pulsante «SSH») e «Apri i file (SFTP, PSMP)».
+
+**Solo file**: una sola sessione PSMP SFTP, senza terminale. Una scheda ne mostra lo stato; i file sono nella scheda
+«File», con le stesse funzioni (trasferimenti verificati, coda, editor, confronto, monitoraggio in tempo reale,
+permessi), tranne ciò che richiede un terminale (monitoraggio della cartella del terminale, estrazione di un archivio
+`.tar.gz`). Utile per depositare o recuperare file, o quando la piattaforma consente PSMP-SFTP ma non la shell. Come
+ogni sessione PSMP, è registrata e verificata da CyberArk.
 
 La sessione si apre **in una scheda di CyberArkTerm**, con l'identificativo PSMP standard `<tu>@<account di
 destinazione>[#dominio]@<server di destinazione>`. I nomi utente che contengono spazi (`Mario Rossi`, `Admin
@@ -157,7 +171,8 @@ Locale`) sono accettati.
 ## 5. Sfogliare e inviare file: scheda «File»
 
 All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la scheda SSH attiva. Serve anche alle
-sessioni di file delle voci KeePass (SFTP, FTP, FTPS: vedi la [sezione 7](#7-accesso-di-emergenza-fuori-da-cyberark-archivi-keepass)).
+sessioni di soli file: account CyberArk in SFTP tramite il PSMP ([sezione 4](#4-aprire-una-sessione-ssh-tramite-il-psmp))
+e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyberark-archivi-keepass)).
 
 ![Scheda File ordinata per data, accanto al terminale](captures/it/main-window.png)
 
@@ -296,7 +311,7 @@ sessioni di file delle voci KeePass (SFTP, FTP, FTPS: vedi la [sezione 7](#7-acc
 - **Aggiungere** un account: clic destro in «Disponibili» → «Aggiungi ai miei server» e poi la cartella desiderata,
   oppure trascina l'account sulla scheda «I miei server», oppure il pulsante «Aggiungi» della barra degli strumenti.
 - **Aggiungere una connessione recente**: clic destro nelle sessioni recenti della home → «Aggiungi ai miei server»
-  e poi la cartella desiderata. Il server mantiene il tipo di connessione (PSM o SSH), il componente PSM e la
+  e poi la cartella desiderata. Il server mantiene il tipo di connessione (PSM, SSH o solo file), il componente PSM e la
   macchina di destinazione usati.
 - **Cartelle**: clic destro → nuova cartella o sottocartella, rinomina, elimina; trascina server e cartelle per
   spostarli.
@@ -312,7 +327,7 @@ sessioni di file delle voci KeePass (SFTP, FTP, FTPS: vedi la [sezione 7](#7-acc
 | Impostazione | Effetto |
 | --- | --- |
 | Nome, cartella | Visualizzazione e posizione nell'albero. |
-| PSM o SSH tramite PSMP | Tipo di connessione aperto con il doppio clic. |
+| PSM, SSH tramite PSMP o solo file (SFTP tramite PSMP) | Tipo di connessione aperto con il doppio clic (all'inizio, in base alla piattaforma). |
 | Componente PSM | Componente da usare (vuoto: dedotto dalla piattaforma). |
 | Macchina di destinazione | Server su cui aprire la sessione per un account di dominio. |
 | Motivo predefinito | Motivo di accesso inviato automaticamente al PVWA. |
@@ -442,7 +457,7 @@ Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia password, elimin
 | Impostazione | Ruolo | Predefinito |
 | --- | --- | --- |
 | Lingua dell'interfaccia | Français, English, Italiano o lingua del sistema; applicata dopo la disconnessione o al prossimo avvio | lingua di Windows (inglese se non è tradotta) |
-| Indirizzo e porta PSMP | Server PSM for SSH; se impostato, gli account Unix si aprono in SSH per impostazione predefinita; vuoto = SSH disattivato | vuoto, 22 |
+| Indirizzo e porta PSMP | Server PSM for SSH; se impostato, gli account Unix si aprono in SSH per impostazione predefinita (in soli file per una piattaforma «SFTP»); vuoto = SSH e SFTP disattivati | vuoto, 22 |
 | Mantenere aperta la sessione PVWA | Richiesta leggera ogni 4 minuti; sospesa quando Windows è bloccato | sì |
 | Cercare una nuova versione all'avvio | Una richiesta a GitHub al massimo una volta al giorno; un link nella barra di stato se esiste una versione più recente | no |
 | Vault locale | Password principali KeePass memorizzate: crea, sblocca, cambia password, elimina | — |
@@ -669,6 +684,7 @@ destinata. Con csh, ksh, sh o fish il monitoraggio non viene installato e sullo 
 | «Il file del vault locale è danneggiato o è stato creato da un altro account Windows.» | Il vault locale non segue un cambio di computer o di account: eliminalo nelle Impostazioni e ricrealo. |
 | «La voce … è stata modificata o eliminata nell'archivio nel frattempo» | Qualcuno ha cambiato la stessa voce altrove: l'archivio viene ricaricato, rifai la modifica. |
 | Un account Unix si apre con il PSM e non in SSH | Indirizzo del PSMP non impostato nelle Impostazioni, oppure account non riconosciuto come Unix: clic destro → «Connetti in SSH». |
+| Un account si apre in soli file e non in un terminale | Il nome della sua piattaforma contiene «SFTP»: clic destro → «Connetti in SSH (PSMP)», o «Proprietà…» in «I miei server» per cambiare il tipo di connessione. |
 | «L'elenco condiviso è in corso di modifica da parte di qualcun altro» | Un altro computer scrive l'elenco da più di 5 secondi, o tiene il file aperto: riprova tra un momento. |
 | «non hai il diritto di modificare questo file (diritti della condivisione di rete)» | La condivisione è in sola lettura per te: chiedi il diritto di scrittura al suo responsabile. L'elenco resta utilizzabile. |
 | Un elenco condiviso mostra «(illeggibile)» | Condivisione irraggiungibile o file danneggiato: la descrizione comandi riporta l'errore. Se il file è danneggiato, copia al suo posto la versione più recente della cartella `nome.versions`. |

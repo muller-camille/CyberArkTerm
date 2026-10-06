@@ -34,7 +34,8 @@ public partial class SessionPropertiesDialog : Window
         ReasonBox.Text = session.Reason ?? "";
         StartDirBox.Text = session.StartDirectory ?? "";
         SshRadio.ToolTip = sshAvailable ? null : Strings.SetPsmpAddress;
-        (session.Mode == ConnectMode.Ssh ? SshRadio : PsmRadio).IsChecked = true;
+        SftpRadio.ToolTip = sshAvailable ? Strings.MenuConnectSftpTip : Strings.SetPsmpAddress;
+        (session.Mode switch { ConnectMode.Ssh => SshRadio, ConnectMode.Sftp => SftpRadio, _ => PsmRadio }).IsChecked = true;
         Loaded += (_, _) =>
         {
             NameBox.Focus();
@@ -51,7 +52,7 @@ public partial class SessionPropertiesDialog : Window
 
         ComponentBox.IsEnabled = PsmRadio.IsChecked == true;
         ReasonBox.IsEnabled = PsmRadio.IsChecked == true;
-        StartDirBox.IsEnabled = SshRadio.IsChecked == true;
+        StartDirBox.IsEnabled = PsmRadio.IsChecked != true;
     }
 
     private void OnSave(object sender, RoutedEventArgs e)
@@ -66,7 +67,7 @@ public partial class SessionPropertiesDialog : Window
 
         _session.Name = NameBox.Text.Trim().Length > 0 ? NameBox.Text.Trim() : $"{_session.UserName}@{_session.Address}";
         _session.Folder = SessionFolders.Normalize(FolderBox.Text);
-        _session.Mode = SshRadio.IsChecked == true ? ConnectMode.Ssh : ConnectMode.Psm;
+        _session.Mode = SshRadio.IsChecked == true ? ConnectMode.Ssh : SftpRadio.IsChecked == true ? ConnectMode.Sftp : ConnectMode.Psm;
         _session.Component = NullIfEmpty(ComponentBox.Text);
         _session.RemoteMachine = NullIfEmpty(MachineBox.Text);
         _session.Reason = NullIfEmpty(ReasonBox.Text);

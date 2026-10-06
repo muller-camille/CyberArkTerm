@@ -39,7 +39,14 @@ public partial class ConnectDialog : Window
         bool sshAvailable = !string.IsNullOrWhiteSpace(settings.PsmpAddress);
         SshRadio.IsEnabled = sshAvailable;
         SshRadio.ToolTip = sshAvailable ? null : Strings.SetPsmpAddress;
-        (initial.Mode == ConnectMode.Ssh && sshAvailable ? SshRadio : PsmRadio).IsChecked = true;
+        SftpRadio.IsEnabled = sshAvailable;
+        SftpRadio.ToolTip = sshAvailable ? Strings.MenuConnectSftpTip : Strings.SetPsmpAddress;
+        ((sshAvailable ? initial.Mode : ConnectMode.Psm) switch
+        {
+            ConnectMode.Ssh => SshRadio,
+            ConnectMode.Sftp => SftpRadio,
+            _ => PsmRadio,
+        }).IsChecked = true;
 
         MachineBox.AddHandler(System.Windows.Controls.Primitives.TextBoxBase.TextChangedEvent,
             new System.Windows.Controls.TextChangedEventHandler((_, _) => UpdateSshHint()));
@@ -105,7 +112,8 @@ public partial class ConnectDialog : Window
         {
             var login = PsmpTarget.BuildLogin(_vaultUser, _account, MachineBox.Text);
             var target = $"{login}@{_settings.PsmpAddress}";
-            SshHint.Text = Text.Format(Strings.SshCommandHint, target.Contains(' ') ? $"\"{target}\"" : target);
+            SshHint.Text = Text.Format(SftpRadio.IsChecked == true ? Strings.SftpCommandHint : Strings.SshCommandHint,
+                target.Contains(' ') ? $"\"{target}\"" : target);
         }
         catch (ArgumentException ex)
         {
@@ -124,7 +132,7 @@ public partial class ConnectDialog : Window
         }
 
         Result = new ConnectRequest(
-            psm ? ConnectMode.Psm : ConnectMode.Ssh,
+            psm ? ConnectMode.Psm : SftpRadio.IsChecked == true ? ConnectMode.Sftp : ConnectMode.Ssh,
             component,
             NullIfEmpty(MachineBox.Text),
             NullIfEmpty(ReasonBox.Text),

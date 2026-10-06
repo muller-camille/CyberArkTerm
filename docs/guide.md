@@ -75,7 +75,8 @@ away in the chosen language, keeping the address and user name you typed.
 <img src="captures/en/psm-connect.png" alt="Advanced PSM connection: target machine, reason, ticket" width="520">
 
 Double-click the account (or press Enter, or the "Connect" button); a Unix account opens over SSH through the PSMP
-when its address is set (see 4.), and "Advanced connection…" then lets you choose the PSM. CyberArkTerm requests the
+when its address is set, or as files only for an "SFTP" platform (see 4.), and "Advanced connection…" then lets you
+choose the PSM. CyberArkTerm requests the
 connection from the PVWA and opens the session in Windows **Remote Desktop Connection** (`mstsc`), exactly like the
 PVWA "Connect" button: the PVWA's RDP file is handed over as is. A component that opens a remote application
 (RemoteApp) opens its windows on this computer's desktop.
@@ -91,8 +92,23 @@ PVWA "Connect" button: the PVWA's RDP file is handed over as is. A component tha
 
 ## 4. Open an SSH session through the PSMP
 
-Set the PSMP address once in **Settings**: Unix accounts then open over SSH by default (double-click or Enter). For
-another account, right-click → "Connect over SSH" (or the "SSH" button).
+Set the PSMP address once in **Settings**. Double-click (or Enter) then chooses from the name of the account's
+platform:
+
+| Platform name | Opened by default |
+| --- | --- |
+| contains "SFTP" (`UnixSFTP`, `SFTP-Partners`…) | **files only** over SFTP through the PSMP (see below) |
+| contains "SSH" (`UnixSSH`, `CiscoSSH`…), or another Unix platform | **SSH** through the PSMP |
+| other | **PSM** (remote desktop) |
+
+Right-click always offers the three (the default is in bold): "Connect (PSM)", "Connect over SSH (PSMP)" (or the
+"SSH" button) and "Open the files (SFTP, PSMP)".
+
+**Files only**: a single PSMP SFTP session, without a terminal. A tab shows its state; the files are in the "Files"
+tab, with the same functions (checked transfers, queue, editor, compare, live follow, permissions), except what needs
+a terminal (following the terminal folder, extracting a `.tar.gz` archive). Useful to just drop or fetch files, or
+when the platform allows PSMP-SFTP but not the shell. Like every PSMP session, it is recorded and audited by
+CyberArk.
 
 The session opens **in a CyberArkTerm tab**, with the standard PSMP login `<you>@<target account>[#domain]@<target
 server>`. User names containing spaces (`John Smith`, `Local Admin`) are accepted.
@@ -146,7 +162,8 @@ server>`. User names containing spaces (`John Smith`, `Local Admin`) are accepte
 ## 5. Browse and upload files: "Files" tab
 
 When an SSH session opens, the **Files** tab appears on the side and follows the active SSH tab. It also serves the
-files sessions of KeePass entries (SFTP, FTP, FTPS: see [section 7](#7-emergency-access-outside-cyberark-keepass-vaults)).
+files-only sessions: CyberArk accounts over SFTP through the PSMP ([section 4](#4-open-an-ssh-session-through-the-psmp))
+and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyberark-keepass-vaults)).
 
 ![Files tab sorted by date, next to the terminal](captures/en/main-window.png)
 
@@ -277,7 +294,8 @@ files sessions of KeePass entries (SFTP, FTP, FTPS: see [section 7](#7-emergency
 - **Add** an account: right-click in "Available" → "Add to my servers" then the folder you want, or drag the account
   onto the "My servers" tab, or the "Add" toolbar button.
 - **Add a recent connection**: right-click in the recent sessions of the home page → "Add to my servers" then the
-  folder you want. The server keeps the connection type (PSM or SSH), the PSM component and the target machine used.
+  folder you want. The server keeps the connection type (PSM, SSH or files only), the PSM component and the target machine
+  used.
 - **Folders**: right-click → new folder or subfolder, rename, delete; drag servers and folders to move them.
 - **Search**: box at the top of the tab (or `Ctrl+F` in the tab). It filters servers by name, server, user, folder,
   component, target machine, and the entries of unlocked KeePass vaults; the folders of the results are expanded.
@@ -291,7 +309,7 @@ files sessions of KeePass entries (SFTP, FTP, FTPS: see [section 7](#7-emergency
 | Setting | Effect |
 | --- | --- |
 | Name, folder | Display and position in the tree. |
-| PSM or SSH via PSMP | Connection type opened on double-click. |
+| PSM, SSH via PSMP or files only (SFTP via PSMP) | Connection type opened on double-click (at first, from the platform). |
 | PSM component | Component to use (empty: deduced from the platform). |
 | Target machine | Server to open the session on, for a domain account. |
 | Default reason | Access reason sent automatically to the PVWA. |
@@ -417,7 +435,7 @@ change the password, delete.
 | Setting | Purpose | Default |
 | --- | --- | --- |
 | Interface language | Français, English, Italiano or system language; applied after signing out or at the next start | Windows language (English if it is not translated) |
-| PSMP address and port | PSM for SSH server; when set, Unix accounts open over SSH by default; empty = SSH disabled | empty, 22 |
+| PSMP address and port | PSM for SSH server; when set, Unix accounts open over SSH by default (as files only for an "SFTP" platform); empty = SSH and SFTP disabled | empty, 22 |
 | Keep the PVWA session open | Light request every 4 minutes; paused while Windows is locked | yes |
 | Look for a new version at startup | One request to GitHub at most once a day; a link in the status bar when a newer version exists | no |
 | Local vault | Remembered KeePass master passwords: create, unlock, change password, delete | — |
@@ -634,6 +652,7 @@ ksh, sh or fish, following is not set up and nothing stays on screen.
 | "The local vault file is damaged or was created by another Windows account." | The local vault does not follow a change of computer or account: delete it in the Settings and create it again. |
 | "The entry … was changed or deleted in the vault in the meantime" | Someone changed the same entry elsewhere: the vault is reloaded, make the change again. |
 | A Unix account opens with PSM, not SSH | PSMP address not set in the Settings, or account not recognized as Unix: right-click → "Connect over SSH". |
+| An account opens as files only, not in a terminal | Its platform name contains "SFTP": right-click → "Connect over SSH (PSMP)", or "Properties…" in "My servers" to change the connection type. |
 | "The shared list is being modified by someone else" | Another computer has been writing the list for more than 5 seconds, or keeps the file open: try again in a moment. |
 | "you do not have the right to modify this file (rights of the network share)" | The share is read-only for you: ask its owner for write access. The list can still be used. |
 | A shared list shows "(unreadable)" | Share unreachable or damaged file: the tooltip gives the error. If the file is damaged, copy the most recent version of the `name.versions` folder in its place. |

@@ -259,7 +259,7 @@
     <value>Clic droit</value>
   </data>
   <data name="ShortcutMenu" xml:space="preserve">
-    <value> : PSM, SSH, connexion avancée, serveurs courants</value>
+    <value> : PSM, SSH, fichiers (SFTP), connexion avancée, serveurs courants</value>
   </data>
   <data name="ShortcutSshKey" xml:space="preserve">
     <value>Session SSH</value>
@@ -3483,5 +3483,23 @@ Ce peut être un renouvellement, ou une interception de la connexion. Ne continu
   </data>
   <data name="FilesClosedBrowse" xml:space="preserve">
     <value>La session de fichiers est fermée. Reconnectez-la depuis son onglet pour parcourir ses fichiers.</value>
+  </data>
+  <data name="ModeSftp" xml:space="preserve">
+    <value>Fichiers seuls (SFTP via PSMP)</value>
+  </data>
+  <data name="SftpCommandHint" xml:space="preserve">
+    <value>Commande : sftp {0}. Une session PSMP sans terminal : les fichiers s'ouvrent dans l'onglet Fichiers.</value>
+  </data>
+  <data name="MenuConnectSftp" xml:space="preserve">
+    <value>Ouvrir les _fichiers (SFTP, PSMP)</value>
+  </data>
+  <data name="MenuConnectSftpTip" xml:space="preserve">
+    <value>Une seule session PSMP SFTP, sans terminal : les fichiers s'ouvrent dans l'onglet Fichiers (la plateforme doit autoriser PSMP-SFTP)</value>
+  </data>
+  <data name="SftpUnavailable" xml:space="preserve">
+    <value>Connexion SFTP indisponible : renseignez l'adresse du PSMP dans les paramètres.</value>
+  </data>
+  <data name="SftpFilesOpening" xml:space="preserve">
+    <value>Ouverture des fichiers de {0} via {1}…</value>
   </data>
 </root>

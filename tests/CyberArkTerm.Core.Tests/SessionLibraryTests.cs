@@ -95,9 +95,12 @@ public class SessionLibraryTests
 
         var unix = SessionLibrary.AddSession(settings, Account("1", platform: "UnixSSH"), "pvwa", "");
         var win = SessionLibrary.AddSession(settings, Account("2", "admin", "srv-win", "WinServerLocal"), "pvwa", "Windows");
+        var sftp = SessionLibrary.AddSession(settings, Account("3", platform: "UnixSFTP"), "pvwa", "");
 
         Assert.Equal(ConnectMode.Ssh, unix.Mode);
         Assert.Equal(ConnectMode.Psm, win.Mode);
+        Assert.Equal(ConnectMode.Sftp, sftp.Mode);
+        Assert.True(SessionLibrary.Matches(sftp, "sftp"));
         Assert.Equal("admin@srv-win", win.Name);
         Assert.Equal("WinServerLocal", win.PlatformId);
         Assert.Contains("Windows", settings.SessionFolderList);
@@ -120,13 +123,16 @@ public class SessionLibraryTests
             new RecentSession { AccountId = "1", Label = "root@srv", Mode = "ssh" }, "pvwa", "");
         var unnamed = SessionLibrary.AddFromRecent(settings, Account("3", address: "db01"),
             new RecentSession { AccountId = "3", Mode = "PSM-RDP" }, "pvwa", "");
+        var sftp = SessionLibrary.AddFromRecent(settings, Account("4", platform: "UnixSSH"),
+            new RecentSession { AccountId = "4", Label = "app@srv", Mode = RecentSession.SftpMode }, "pvwa", "");
 
         Assert.Equal((ConnectMode.Psm, "WIN-PSM", "srv01", "adm-t0@srv01", "Prod"), (psm.Mode, psm.Component, psm.RemoteMachine, psm.Name, psm.Folder));
         Assert.Equal(("2", "pvwa", "WinDomain"), (psm.AccountId, psm.PvwaHost, psm.PlatformId));
         Assert.Equal((ConnectMode.Ssh, (string?)null, (string?)null), (ssh.Mode, ssh.Component, ssh.RemoteMachine));
         Assert.Equal("root@db01", unnamed.Name);
+        Assert.Equal((ConnectMode.Sftp, (string?)null), (sftp.Mode, sftp.Component));
         Assert.Contains("Prod", settings.SessionFolderList);
-        Assert.Equal(3, settings.Sessions.Count);
+        Assert.Equal(4, settings.Sessions.Count);
     }
 
     /// <summary>

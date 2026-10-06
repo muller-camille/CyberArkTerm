@@ -46,10 +46,11 @@
                       ToolTip="{x:Static loc:Strings.FolderTip}" />
 
             <TextBlock Grid.Row="3" Grid.ColumnSpan="2" Text="{x:Static loc:Strings.ConnectionSection}" Style="{StaticResource SectionTitle}" />
-            <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
-                <RadioButton x:Name="PsmRadio" Content="{x:Static loc:Strings.ModePsm}" GroupName="Mode" Margin="0,0,24,0" Checked="OnModeChanged" />
-                <RadioButton x:Name="SshRadio" Content="{x:Static loc:Strings.ModeSsh}" GroupName="Mode" Checked="OnModeChanged" />
-            </StackPanel>
+            <WrapPanel Grid.Row="4" Grid.Column="1" Margin="0,0,0,8">
+                <RadioButton x:Name="PsmRadio" Content="{x:Static loc:Strings.ModePsm}" GroupName="Mode" Margin="0,0,24,4" Checked="OnModeChanged" />
+                <RadioButton x:Name="SshRadio" Content="{x:Static loc:Strings.ModeSsh}" GroupName="Mode" Margin="0,0,24,4" Checked="OnModeChanged" />
+                <RadioButton x:Name="SftpRadio" Content="{x:Static loc:Strings.ModeSftp}" GroupName="Mode" Margin="0,0,0,4" Checked="OnModeChanged" />
+            </WrapPanel>
             <Label Grid.Row="5" Content="{x:Static loc:Strings.ComponentLabel}" Target="{Binding ElementName=ComponentBox}" />
             <ComboBox Grid.Row="5" Grid.Column="1" x:Name="ComponentBox" IsEditable="True" Margin="0,0,0,8"
                       ToolTip="{x:Static loc:Strings.ComponentEmptyTip}" />
