@@ -3,8 +3,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:loc="clr-namespace:CyberArkTerm.App.Localization"
              xmlns:term="clr-namespace:CyberArkTerm.App.Terminal">
-    <Grid Background="#0C0C0C">
+    <Grid x:Name="RootGrid" Background="#0C0C0C">
         <term:TerminalView x:Name="Terminal" />
+        <!-- Recherche dans le terminal (Ctrl+Maj+F), historique compris. -->
+        <Border x:Name="SearchBar" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,22,0" Padding="6,4"
+                Background="#F2F4F7" BorderBrush="#9AA5B1" BorderThickness="1" CornerRadius="3" Visibility="Collapsed" Panel.ZIndex="1">
+            <StackPanel Orientation="Horizontal">
+                <TextBox x:Name="SearchBox" Width="200" VerticalAlignment="Center" KeyDown="OnSearchKeyDown" TextChanged="OnSearchChanged"
+                         ToolTip="{x:Static loc:Strings.TerminalSearchTip}" />
+                <Button Content="↑" Width="26" Margin="6,0,0,0" Click="OnSearchOlder" ToolTip="{x:Static loc:Strings.TerminalSearchOlderTip}" Focusable="False" />
+                <Button Content="↓" Width="26" Margin="4,0,0,0" Click="OnSearchNewer" ToolTip="{x:Static loc:Strings.TerminalSearchNewerTip}" Focusable="False" />
+                <TextBlock x:Name="SearchCount" Margin="8,0,0,0" MinWidth="64" VerticalAlignment="Center" Foreground="#3E4A57" />
+                <Button Content="✕" Width="24" Margin="4,0,0,0" Click="OnSearchClose" ToolTip="{x:Static loc:Strings.TerminalSearchCloseTip}" Focusable="False" />
+            </StackPanel>
+        </Border>
         <Border x:Name="Overlay" Background="#D80C0C0C" Visibility="Collapsed">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="560">
                 <Image Source="{StaticResource IconSsh}" Width="44" Height="44" Margin="0,0,0,12" />

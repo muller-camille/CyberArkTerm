@@ -88,3 +88,48 @@ public sealed class TerminalInputTests
         Assert.Equal([a, b, d], Targets(d, broadcast: true));
     }
 }
+
+public sealed class TerminalThemeAndSearchTests
+{
+    [Fact]
+    public void ThemesMapColors()
+    {
+        Assert.Same(TerminalTheme.Campbell, TerminalTheme.Find(null));
+        Assert.Same(TerminalTheme.Campbell, TerminalTheme.Find("unknown"));
+        Assert.Same(TerminalTheme.SolarizedLight, TerminalTheme.Find("Solarized-Light"));
+        Assert.Equal(TerminalTheme.All.Count, TerminalTheme.All.Select(t => t.Id).Distinct().Count());
+
+        // Campbell : mêmes couleurs que la palette d'origine.
+        Assert.Equal(TerminalColor.ToRgb(1, true), TerminalTheme.Campbell.ToRgb(1, true));
+        Assert.Equal(TerminalColor.DefaultBackground, TerminalTheme.Campbell.ToRgb(TerminalColor.Default, false));
+        Assert.Equal(TerminalColor.ToRgb(9, true), TerminalTheme.Campbell.ToRgb(1, true, bold: true));
+
+        // Autre palette : 16 couleurs et fond propres, 256 couleurs et couleurs vraies inchangées.
+        var light = TerminalTheme.OneHalfLight;
+        Assert.True(light.IsLight);
+        Assert.False(TerminalTheme.Campbell.IsLight);
+        Assert.Equal(0xFAFAFAu, light.ToRgb(TerminalColor.Default, false));
+        Assert.Equal(0xE45649u, light.ToRgb(1, true));
+        Assert.Equal(TerminalColor.ToRgb(100, true), light.ToRgb(100, true));
+        Assert.Equal(0x123456u, light.ToRgb(TerminalColor.Rgb(0x12, 0x34, 0x56), true));
+    }
+
+    [Fact]
+    public void FindsTextInTheScreenAndTheHistory()
+    {
+        var emulator = new TerminalEmulator(40, 3);
+        emulator.Feed("error one\r\nok\r\nError two error\r\nlast\r\n");
+        var matches = TerminalSearch.Find(emulator, "ERROR");
+        Assert.Equal(3, matches.Count);
+        Assert.True(matches[0].Row < 0);                       // dans l'historique
+        Assert.Equal((0, 5), (matches[1].Column, matches[1].Length));
+        Assert.Equal(10, matches[2].Column);
+        Assert.Equal(matches[1].Row, matches[2].Row);
+        Assert.Empty(TerminalSearch.Find(emulator, ""));
+        Assert.Empty(TerminalSearch.Find(emulator, "absent"));
+
+        var all = TerminalSearch.AllText(emulator);
+        Assert.StartsWith("error one" + Environment.NewLine + "ok", all);
+        Assert.EndsWith("last", all);
+    }
+}

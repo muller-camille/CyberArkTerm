@@ -38,7 +38,8 @@ through **PSM for SSH (PSMP)** with a built-in **file browser** to upload files 
 | **My servers** | Your working servers, organized in folders and subfolders, each with its own settings. |
 | **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in Windows Remote Desktop Connection: component, target machine, reason, ticket. |
 | **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colors, vim, less, top…), MFA authentication. |
-| **Files tab** | SFTP browser of the server: `ls`, navigation, `rm`, drag-and-drop upload over SCP, SHA-256 check of every transferred file, editing in your text editor, permissions (`chmod`), follows the terminal folder. |
+| **Files tab** | SFTP browser of the server: `ls`, navigation, `rm`, drag-and-drop upload over SCP, SHA-256 check of every transferred file, editing in your text editor, permissions (`chmod`), follows the terminal folder, sending to several servers, file comparison, live following (`tail -f`). |
+| **Parallel view** | Up to 8 SSH sessions side by side (a "My servers" folder opens in one click), optional simultaneous typing, can go to a separate window. |
 | **Emergency access (KeePass)** | Without CyberArk: KeePass vaults (.kdbx) in "My servers", direct SSH and remote desktop connections, creating and editing entries, local log. |
 | **PVWA session kept open** | A light request every 4 minutes avoids the timeout while you work (paused while Windows is locked). |
 | **Home** | Quick connect (type a server, press Enter), recent sessions. |
@@ -60,6 +61,14 @@ artifact in the [Actions](https://github.com/muller-camille/CyberArkTerm/actions
 
 The executable is not signed: on first launch, Windows SmartScreen may show a warning
 ("More info" → "Run anyway").
+
+### Update
+
+Settings button → **"About CyberArkTerm…"**: version, project links, settings folder, and "Check now". When a newer
+version exists, "Download and check" saves the archive to the Downloads folder, then compares it with `SHA256SUMS.txt`
+of the same version (kept only when identical). Nothing is installed automatically: close CyberArkTerm and replace
+the executable; your settings are kept. The option "Look for a new version at startup" (off by default) does this
+check at most once a day and shows a link in the status bar.
 
 ### Requirements
 
@@ -170,6 +179,12 @@ The session opens **in a CyberArkTerm tab**, with the standard PSMP login
   later, a warning is shown.
 - **Terminal**: selecting copies, right-click pastes, the mouse wheel scrolls back, AltGr works on
   international keyboards. Close the tab with its cross or a middle click.
+- **Appearance**: colour palette and font size in Settings (Campbell, One Half, Solarized, dark or light);
+  `Ctrl+wheel` enlarges or shrinks a terminal, `Ctrl+0` goes back to the default size.
+- **Search** in the terminal, history included: `Ctrl+Shift+F` (or right-click the tab). Matches are highlighted;
+  `Enter` goes up to older ones, `Shift+Enter` goes down, `Esc` closes.
+- **Save the content** of the terminal (history and screen) to a text file: `Ctrl+Shift+S` (or right-click the
+  tab). Only when you ask: the file may contain sensitive information.
 - **Detach a tab** (another screen): drag the SSH tab out of the window, or right-click → "Detach to a new
   window". The terminal moves to a separate window and the session goes on. The tab keeps its place ("Show the
   window", "Bring it back here") and the Files tab works on this session when it is selected. Closing the
@@ -188,6 +203,14 @@ The session opens **in a CyberArkTerm tab**, with the standard PSMP login
     ticked; what is typed in an unticked session only goes to it. Each key is encoded by the session that receives
     it (arrows work in a shell as in vim). The mouse wheel is not copied, and pasting several lines into several
     sessions asks first.
+  - **From "My servers"**: right-click a folder → "Open in the parallel view" connects its SSH servers (subfolders
+    included) and puts them straight in the view; or pick servers with `Ctrl+click` (`Shift+click` for a range),
+    then right-click → "Open the N servers in the parallel view". Beyond the free places (8 at most), a window asks
+    which ones to open; Windows (PSM) servers are left out. Each connection stays a separate PSMP session, with its
+    usual questions.
+  - **Separate window**: "Separate window" button of the view, right-click the "Parallel" tab, or drag the tab out of
+    the window. Closing it brings the view back to its tab without closing the sessions.
+  - **Send files** to the sessions of the view: "Send files…" button (see the Files tab).
 
 ### 5. Browse and upload files: "Files" tab
 
@@ -220,6 +243,18 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (the archive is deleted
   from the server once extracted). "Send the files one by one" keeps the usual upload; "Don't offer again" turns
   the option off.
+- **Send to several servers**: button (arrow to three servers) or right-click → "Send to several servers…". Pick the
+  files or folders, the destination folder (`~` = the home folder of the account on each server, e.g. `~/deploy`)
+  and the SSH sessions to send to. CyberArkTerm first checks on each server that the folder exists and what would be
+  replaced (a single question for all), then queues one upload per server: same protocol, same SHA-256 check on each
+  server, a single summary at the end.
+- **Compare**: right-click a file → "Compare with…": the same path (or another one) on a server with an open SSH
+  session, or a file of this computer; with two files selected, "Compare the 2 files". The files are read **in
+  memory** (50 MB at most each), without a copy on this computer. The window shows the lines side by side: removed
+  in red on the left, added in green on the right. `F7` / `Shift+F7`: next / previous difference; "Ignore spaces";
+  "Only the differences"; "Save the diff…" in the `diff -u` format. A binary file (or one over 10 MB) is compared by
+  its size and SHA-256 checksum. With a comparison tool chosen in Settings (WinMerge, VS Code…), "Open in …" gives
+  it two temporary copies, deleted when the window closes.
 - **Transfer history**: clock button in the Files tab header, available even without a session. It lists the
   last 200 uploads and downloads (drag and drop included): date, direction, server, item, destination, number of
   files, result. "Uploads" / "Downloads" filter; "Checksums…" (or double-click) shows each file's SHA-256
@@ -290,6 +325,10 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
 - **Search**: box at the top of the tab (or `Ctrl+F` in the tab). It filters servers by name, server, user, folder,
   component, target machine, and the entries of unlocked KeePass vaults; the folders of the results are expanded.
   `Enter` or `↓` selects the first result, `Esc` clears.
+- **Several servers at once**: `Ctrl+click` adds or removes a server (or all those of a folder), `Shift+click` picks
+  a range of servers; `Esc` or a plain click cancels. Right-click one of them → "Open the N servers in the parallel
+  view" or "Connect to the N servers" (one tab each). Right-click a folder → "Open in the parallel view" or "Connect
+  to the N servers".
 - **Settings of each server** (right-click → "Properties…"):
 
 | Setting | Effect |
@@ -343,9 +382,14 @@ password, delete.
 | Lists and trees | Open the session | Double-click or `Enter` |
 | Search | Clear the filter | `Esc` |
 | My servers | Rename / remove or delete | `F2` / `Del` |
+| My servers | Pick several servers (then right-click to open them together) | `Ctrl+click`, `Shift+click`; `Esc` cancels |
 | Terminal | Copy | Mouse selection, or `Ctrl+Shift+C` |
 | Terminal | Paste | Right-click, `Shift+Insert` or `Ctrl+Shift+V` |
 | Terminal | Scrollback | Mouse wheel, `Shift+Page Up` / `Shift+Page Down` |
+| Terminal | Search (history included) | `Ctrl+Shift+F`, then `Enter` / `Shift+Enter` |
+| Terminal | Save the content to a file | `Ctrl+Shift+S` |
+| Terminal | Font size / default size | `Ctrl+wheel` / `Ctrl+0` |
+| Comparison | Next / previous difference | `F7` / `Shift+F7` |
 | SSH or remote desktop tab | Close | Tab cross or middle click |
 | SSH or remote desktop tab | Reconnect, duplicate (another session on the same account or entry), detach (SSH), close, close the other tabs | Right-click on the tab |
 | SSH tab | Detach to a separate window (another screen) | Drag the tab out of the window |
@@ -363,12 +407,15 @@ password, delete.
 | Interface language | Français, English, Italiano or system language; applied after signing out or at the next start | Windows language (English if it is not translated) |
 | PSMP address and port | PSM for SSH server; when set, Unix accounts open over SSH by default; empty = SSH disabled | empty, 22 |
 | Keep the PVWA session open | Light request every 4 minutes; paused while Windows is locked | yes |
+| Look for a new version at startup | One request to GitHub at most once a day; a link in the status bar when a newer version exists | no |
 | Local vault | Remembered KeePass master passwords: create, unlock, change password, delete | — |
 | Debug log | Settings button menu: how connections unfold, in a file, without secrets (see [Security](#security)); "Show the debug log file" opens it in Explorer | no |
 | SSH in CyberArkTerm | Built-in terminal and Files tab; otherwise Windows Terminal | yes |
 | Follow the terminal folder | Allows setting up folder tracking in the shell | yes |
 | File upload | SCP or SFTP | SCP |
 | Text editor | Program opened by "Edit" in the Files tab | Notepad |
+| Comparison tool | Program offered in the comparison window, with its arguments (`{0}` = left file, `{1}` = right file) | none |
+| Terminal colours, font | Palette (Campbell, One Half, Solarized…) and font size of the SSH terminals | Campbell, 14 |
 | Follow in an independent session | Following a file (tail -f) opens its own SFTP connection (one more PSMP session) | No |
 | Accepted PSMP keys | Remembered fingerprints ("Forget keys" button) | — |
 | Remembered components | PSM component chosen per platform ("Forget" button) | — |
@@ -396,6 +443,11 @@ checksums, never their content).
 - **Simultaneous typing** (parallel view): off every time the view opens, shown by an orange banner and frame that
   name the sessions concerned; an added session is not included by default, and pasting several lines into several
   sessions asks first. Each session stays a separate PSMP session, recorded as usual.
+- **File comparison**: contents read in memory and wiped when the window closes; only the copies given to an external
+  tool go through the disk (`%TEMP%\CyberArkTerm\compare`), deleted when the window closes and at the next start.
+- **New version**: no request to the Internet without your action or the Settings option (off by default); only the
+  addresses of the project repository are followed, the archive is kept only when its SHA-256 checksum is the one of
+  `SHA256SUMS.txt`, and nothing is installed or started.
 - **PSMP host keys pinned** on first use, with a warning if they change (the same for servers reached in
   emergency access).
 - **PVWA session keep-alive**: it avoids the idle timeout; nothing is sent while Windows is locked, and the option
@@ -600,6 +652,7 @@ zip and `SHA256SUMS.txt`. Release notes are read from `docs/releases/vX.Y.Z.md` 
 
 - Signed executable and MSI installer.
 - Several PVWAs (connection profiles), Privilege Cloud.
+- Other ideas, kept for later: see [IDEAS.md](IDEAS.md).
 
 ## License
 

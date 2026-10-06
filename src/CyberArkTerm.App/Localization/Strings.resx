@@ -1290,11 +1290,411 @@ Send them in a single .tar.gz archive? One file to transfer and check instead of
   <data name="ParallelShowView" xml:space="preserve">
     <value>_Show the parallel view</value>
   </data>
+  <data name="MenuOpenInParallel" xml:space="preserve">
+    <value>Open in the _parallel view</value>
+  </data>
+  <data name="MenuOpenManyInParallel" xml:space="preserve">
+    <value>Open the {0} servers in the _parallel view</value>
+  </data>
+  <data name="MenuConnectMany" xml:space="preserve">
+    <value>Connect to the {0} servers (one tab each)</value>
+  </data>
+  <data name="MenuOpenFolderInParallel" xml:space="preserve">
+    <value>Open in the _parallel view ({0} SSH servers)</value>
+  </data>
+  <data name="SavedMarkedStatus" xml:space="preserve">
+    <value>{0} server(s) selected: right-click one of them to open them together (Esc to cancel).</value>
+  </data>
+  <data name="ParallelNoSshServer" xml:space="preserve">
+    <value>None of these servers opens over SSH: only SSH sessions go to the parallel view.</value>
+  </data>
+  <data name="ParallelChooseServers" xml:space="preserve">
+    <value>{0} SSH servers, but the parallel view can take {1} more. Choose which ones to open; each one is a separate PSMP session.</value>
+  </data>
+  <data name="ParallelOpen" xml:space="preserve">
+    <value>_Open</value>
+  </data>
+  <data name="ParallelOpenedStatus" xml:space="preserve">
+    <value>{0} session(s) opened in the parallel view.</value>
+  </data>
+  <data name="SavedOpenedStatus" xml:space="preserve">
+    <value>{0} connection(s) opened.</value>
+  </data>
+  <data name="ParallelSkippedPsm" xml:space="preserve">
+    <value>{0} Windows (PSM) server(s) left out.</value>
+  </data>
+  <data name="SavedMissingAccounts" xml:space="preserve">
+    <value>{0} server(s) no longer found in CyberArk.</value>
+  </data>
+  <data name="ParallelDetach" xml:space="preserve">
+    <value>Separate _window</value>
+  </data>
+  <data name="ParallelDetachTip" xml:space="preserve">
+    <value>Show the parallel view in its own window (another screen); closing it brings the view back to its tab</value>
+  </data>
+  <data name="ParallelWindowTitle" xml:space="preserve">
+    <value>CyberArkTerm — parallel view ({0})</value>
+  </data>
+  <data name="ParallelDetachedPlaceholder" xml:space="preserve">
+    <value>The parallel view is in a separate window.</value>
+  </data>
   <data name="MenuTabAddParallel" xml:space="preserve">
     <value>Add to the _parallel view</value>
   </data>
   <data name="MenuTabRemoveParallel" xml:space="preserve">
     <value>Take out of the _parallel view</value>
+  </data>
+  <data name="MultiUploadTitle" xml:space="preserve">
+    <value>Send to several servers</value>
+  </data>
+  <data name="MultiUploadTip" xml:space="preserve">
+    <value>Send the same files to several servers (checked by SHA-256 on each one)</value>
+  </data>
+  <data name="FileUploadMany" xml:space="preserve">
+    <value>Send to _several servers…</value>
+  </data>
+  <data name="MultiUploadIntro" xml:space="preserve">
+    <value>The same files are sent to each ticked server, one server after the other, in the transfer queue. Each file is checked by SHA-256 on each server; a single summary is given at the end.</value>
+  </data>
+  <data name="MultiUploadFiles" xml:space="preserve">
+    <value>Files and folders to send</value>
+  </data>
+  <data name="MultiUploadAddFiles" xml:space="preserve">
+    <value>Add _files…</value>
+  </data>
+  <data name="MultiUploadAddFolder" xml:space="preserve">
+    <value>Add a f_older…</value>
+  </data>
+  <data name="MultiUploadRemove" xml:space="preserve">
+    <value>_Remove</value>
+  </data>
+  <data name="MultiUploadDestination" xml:space="preserve">
+    <value>_Destination folder on each server</value>
+  </data>
+  <data name="MultiUploadDestinationTip" xml:space="preserve">
+    <value>Absolute path, or ~ for the home folder of the account on each server (e.g. ~/deploy)</value>
+  </data>
+  <data name="MultiUploadServers" xml:space="preserve">
+    <value>Servers (open SSH sessions)</value>
+  </data>
+  <data name="MultiUploadDisconnected" xml:space="preserve">
+    <value>{0} (not connected)</value>
+  </data>
+  <data name="MultiUploadProtocol" xml:space="preserve">
+    <value>Sent over {0} (setting of the Settings).</value>
+  </data>
+  <data name="MultiUploadSend" xml:space="preserve">
+    <value>_Send</value>
+  </data>
+  <data name="MultiUploadNoFile" xml:space="preserve">
+    <value>Add at least one file or folder.</value>
+  </data>
+  <data name="MultiUploadMissing" xml:space="preserve">
+    <value>This file or folder no longer exists: {0}</value>
+  </data>
+  <data name="MultiUploadNoDestination" xml:space="preserve">
+    <value>Enter the destination folder.</value>
+  </data>
+  <data name="MultiUploadNoServer" xml:space="preserve">
+    <value>Tick at least one connected server.</value>
+  </data>
+  <data name="MultiUploadChecking" xml:space="preserve">
+    <value>Checking the destination folder on each server…</value>
+  </data>
+  <data name="MultiUploadNoFolder" xml:space="preserve">
+    <value>{0}: the folder {1} does not exist</value>
+  </data>
+  <data name="MultiUploadProblems" xml:space="preserve">
+    <value>Nothing will be sent to these servers:
+{0}</value>
+  </data>
+  <data name="MultiUploadContinue" xml:space="preserve">
+    <value>Send to the {0} other server(s)?</value>
+  </data>
+  <data name="MultiUploadConflicts" xml:space="preserve">
+    <value>These files already exist and will be replaced (their old content is lost):
+{0}
+
+Send anyway?</value>
+  </data>
+  <data name="MultiUploadLabel" xml:space="preserve">
+    <value>{0} → {1}</value>
+  </data>
+  <data name="ParallelSendFiles" xml:space="preserve">
+    <value>Send _files…</value>
+  </data>
+  <data name="ParallelSendFilesTip" xml:space="preserve">
+    <value>Send the same files to the sessions of the view (checked by SHA-256 on each server)</value>
+  </data>
+  <data name="FileCompareWith" xml:space="preserve">
+    <value>Co_mpare with…</value>
+  </data>
+  <data name="FileCompareTwo" xml:space="preserve">
+    <value>Co_mpare the 2 files</value>
+  </data>
+  <data name="CompareTitle" xml:space="preserve">
+    <value>Compare</value>
+  </data>
+  <data name="CompareIntro" xml:space="preserve">
+    <value>Compare {0} with:</value>
+  </data>
+  <data name="CompareOnServer" xml:space="preserve">
+    <value>A file on a _server (open SSH session)</value>
+  </data>
+  <data name="CompareServer" xml:space="preserve">
+    <value>Ser_ver:</value>
+  </data>
+  <data name="ComparePath" xml:space="preserve">
+    <value>_Path:</value>
+  </data>
+  <data name="ComparePathTip" xml:space="preserve">
+    <value>Same path by default; ~ is the home folder of the account</value>
+  </data>
+  <data name="CompareLocal" xml:space="preserve">
+    <value>A file on this _computer</value>
+  </data>
+  <data name="CompareNote" xml:space="preserve">
+    <value>The files are read into memory (50 MB at most each), without a copy on this computer. Nothing runs on the servers.</value>
+  </data>
+  <data name="CompareButton" xml:space="preserve">
+    <value>_Compare</value>
+  </data>
+  <data name="CompareNoServer" xml:space="preserve">
+    <value>Choose a connected server.</value>
+  </data>
+  <data name="CompareNoPath" xml:space="preserve">
+    <value>Enter the path of the file.</value>
+  </data>
+  <data name="CompareNoLocalFile" xml:space="preserve">
+    <value>Choose an existing file of this computer.</value>
+  </data>
+  <data name="CompareLocalLabel" xml:space="preserve">
+    <value>this computer : {0}</value>
+  </data>
+  <data name="CompareReading" xml:space="preserve">
+    <value>Reading {0}…</value>
+  </data>
+  <data name="CompareFailed" xml:space="preserve">
+    <value>Comparison impossible: {0}</value>
+  </data>
+  <data name="CompareWindowTitle" xml:space="preserve">
+    <value>Compare {0} — {1}</value>
+  </data>
+  <data name="ComparePrevious" xml:space="preserve">
+    <value>◀ _Previous</value>
+  </data>
+  <data name="ComparePreviousTip" xml:space="preserve">
+    <value>Previous difference (Shift+F7)</value>
+  </data>
+  <data name="CompareNext" xml:space="preserve">
+    <value>_Next ▶</value>
+  </data>
+  <data name="CompareNextTip" xml:space="preserve">
+    <value>Next difference (F7)</value>
+  </data>
+  <data name="CompareIgnoreWhitespace" xml:space="preserve">
+    <value>Ignore _spaces</value>
+  </data>
+  <data name="CompareOnlyDifferences" xml:space="preserve">
+    <value>_Only the differences</value>
+  </data>
+  <data name="CompareSave" xml:space="preserve">
+    <value>Save the _diff…</value>
+  </data>
+  <data name="CompareSaveTip" xml:space="preserve">
+    <value>Save the differences in the diff -u format, on this computer</value>
+  </data>
+  <data name="CompareSaveFilter" xml:space="preserve">
+    <value>Differences (*.diff)|*.diff|All files (*.*)|*.*</value>
+  </data>
+  <data name="CompareOpenTool" xml:space="preserve">
+    <value>Open in {0}</value>
+  </data>
+  <data name="CompareToolTip" xml:space="preserve">
+    <value>Open both files in the comparison tool of the Settings (temporary copies, deleted when this window closes)</value>
+  </data>
+  <data name="CompareToolFailed" xml:space="preserve">
+    <value>The comparison tool could not be started: {0}</value>
+  </data>
+  <data name="CompareIdentical" xml:space="preserve">
+    <value>✓ Identical files</value>
+  </data>
+  <data name="CompareIdenticalApart" xml:space="preserve">
+    <value>✓ Identical lines (only spaces or line endings differ)</value>
+  </data>
+  <data name="CompareDifferent" xml:space="preserve">
+    <value>✗ Different files</value>
+  </data>
+  <data name="CompareSummary" xml:space="preserve">
+    <value>{0} difference(s) · {1} line(s) removed, {2} added</value>
+  </data>
+  <data name="CompareHiddenLines" xml:space="preserve">
+    <value>··· {0} identical line(s) ···</value>
+  </data>
+  <data name="CompareLineEndings" xml:space="preserve">
+    <value>Different line endings: {0} on the left, {1} on the right.</value>
+  </data>
+  <data name="CompareApproximate" xml:space="preserve">
+    <value>Very different files: the middle part is shown as replaced.</value>
+  </data>
+  <data name="CompareInMemory" xml:space="preserve">
+    <value>Compared in memory, without a copy on this computer.</value>
+  </data>
+  <data name="CompareBinarySame" xml:space="preserve">
+    <value>Binary files (or too large for a line by line comparison): identical.
+
+{0}
+  {1} · SHA-256 {2}
+
+{3}
+  {4} · SHA-256 {5}</value>
+  </data>
+  <data name="CompareBinaryDifferent" xml:space="preserve">
+    <value>Binary files (or too large for a line by line comparison): different.
+
+{0}
+  {1} · SHA-256 {2}
+
+{3}
+  {4} · SHA-256 {5}</value>
+  </data>
+  <data name="CompareToolLabel" xml:space="preserve">
+    <value>Comparison _tool:</value>
+  </data>
+  <data name="CompareArgumentsLabel" xml:space="preserve">
+    <value>Ar_guments:</value>
+  </data>
+  <data name="CompareToolHelp" xml:space="preserve">
+    <value>Optional: the comparison window offers to open both files in this program (e.g. WinMergeU.exe). {0} is the left file, {1} the right one; for VS Code: code.cmd with --diff "{0}" "{1}".</value>
+  </data>
+  <data name="InvalidCompareArguments" xml:space="preserve">
+    <value>The arguments of the comparison tool must contain {0} and {1}.</value>
+  </data>
+  <data name="TerminalSearchTip" xml:space="preserve">
+    <value>Search in the terminal, history included (Enter: older, Shift+Enter: newer, Esc: close)</value>
+  </data>
+  <data name="TerminalSearchOlderTip" xml:space="preserve">
+    <value>Older (Enter)</value>
+  </data>
+  <data name="TerminalSearchNewerTip" xml:space="preserve">
+    <value>Newer (Shift+Enter)</value>
+  </data>
+  <data name="TerminalSearchCloseTip" xml:space="preserve">
+    <value>Close the search (Esc)</value>
+  </data>
+  <data name="TerminalSaveTitle" xml:space="preserve">
+    <value>Save the terminal content</value>
+  </data>
+  <data name="TerminalSaveFilter" xml:space="preserve">
+    <value>Text files (*.txt)|*.txt|All files (*.*)|*.*</value>
+  </data>
+  <data name="MenuTerminalSearch" xml:space="preserve">
+    <value>_Search in the terminal…</value>
+  </data>
+  <data name="MenuTerminalSave" xml:space="preserve">
+    <value>Save the terminal _content…</value>
+  </data>
+  <data name="MenuTerminalSaveTip" xml:space="preserve">
+    <value>Write the history and the screen to a text file on this computer; it may contain sensitive information</value>
+  </data>
+  <data name="ShortcutTerminalSearch" xml:space="preserve">
+    <value>Ctrl+Shift+F</value>
+  </data>
+  <data name="ShortcutTerminalSave" xml:space="preserve">
+    <value>Ctrl+Shift+S</value>
+  </data>
+  <data name="TerminalThemeLabel" xml:space="preserve">
+    <value>Terminal _colours:</value>
+  </data>
+  <data name="TerminalFontLabel" xml:space="preserve">
+    <value>_Font:</value>
+  </data>
+  <data name="TerminalFontTip" xml:space="preserve">
+    <value>Font size of the terminals (8 to 32). Ctrl+wheel changes it for one terminal, Ctrl+0 restores it.</value>
+  </data>
+  <data name="InvalidFontSize" xml:space="preserve">
+    <value>The font size must be between {0} and {1}.</value>
+  </data>
+  <data name="MenuAbout" xml:space="preserve">
+    <value>_About CyberArkTerm…</value>
+  </data>
+  <data name="AboutTitle" xml:space="preserve">
+    <value>About CyberArkTerm</value>
+  </data>
+  <data name="AboutVersion" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="AboutDescription" xml:space="preserve">
+    <value>Windows client for CyberArk: accounts of the PVWA, PSM sessions, SSH sessions through the PSMP with terminal and files, emergency access with KeePass.</value>
+  </data>
+  <data name="AboutProject" xml:space="preserve">
+    <value>Project page</value>
+  </data>
+  <data name="AboutReleases" xml:space="preserve">
+    <value>Release notes</value>
+  </data>
+  <data name="AboutLicense" xml:space="preserve">
+    <value>MIT license. Not an official CyberArk product.</value>
+  </data>
+  <data name="AboutSystem" xml:space="preserve">
+    <value>{0} · {1} · {2}</value>
+  </data>
+  <data name="AboutSettingsFolder" xml:space="preserve">
+    <value>Settings and history: {0}</value>
+  </data>
+  <data name="AboutOpenFolder" xml:space="preserve">
+    <value>_Open the folder</value>
+  </data>
+  <data name="AboutUpdates" xml:space="preserve">
+    <value>New version</value>
+  </data>
+  <data name="AboutCheck" xml:space="preserve">
+    <value>_Check now</value>
+  </data>
+  <data name="AboutChecking" xml:space="preserve">
+    <value>Asking GitHub for the latest version…</value>
+  </data>
+  <data name="AboutUpToDate" xml:space="preserve">
+    <value>Version {0} is the latest one.</value>
+  </data>
+  <data name="AboutCheckFailed" xml:space="preserve">
+    <value>Check impossible: {0}</value>
+  </data>
+  <data name="AboutNewVersion" xml:space="preserve">
+    <value>Version {0} is available.</value>
+  </data>
+  <data name="AboutNewVersionDated" xml:space="preserve">
+    <value>Version {0} is available (published on {1}).</value>
+  </data>
+  <data name="AboutDownload" xml:space="preserve">
+    <value>_Download and check</value>
+  </data>
+  <data name="AboutDownloadTip" xml:space="preserve">
+    <value>Download the archive to the Downloads folder and compare it with SHA256SUMS.txt of the same version; nothing is installed</value>
+  </data>
+  <data name="AboutReleasePage" xml:space="preserve">
+    <value>_Release page</value>
+  </data>
+  <data name="AboutShowFile" xml:space="preserve">
+    <value>_Show the file</value>
+  </data>
+  <data name="AboutDownloading" xml:space="preserve">
+    <value>Downloading {0}…</value>
+  </data>
+  <data name="AboutDownloaded" xml:space="preserve">
+    <value>✓ Downloaded and checked (SHA-256 identical to SHA256SUMS.txt): {0}. Close CyberArkTerm, then replace the executable with the one of the archive.</value>
+  </data>
+  <data name="AboutDownloadFailed" xml:space="preserve">
+    <value>Download not kept: {0}</value>
+  </data>
+  <data name="AboutAutoCheck" xml:space="preserve">
+    <value>Look for a new version when CyberArkTerm starts (at most once a day; a request to GitHub)</value>
+  </data>
+  <data name="AboutUpdateNote" xml:space="preserve">
+    <value>Nothing is installed automatically: the checked archive is kept in the Downloads folder, and you replace the executable yourself (your settings are kept). The executable is not signed.</value>
+  </data>
+  <data name="UpdateAvailableLink" xml:space="preserve">
+    <value>Version {0} available</value>
   </data>
   <data name="HistoryTip" xml:space="preserve">
     <value>Transfer history (uploads and downloads)</value>

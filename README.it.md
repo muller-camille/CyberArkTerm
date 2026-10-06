@@ -38,7 +38,8 @@ tramite **PSM for SSH (PSMP)** con un **browser dei file** integrato per inviare
 | **I miei server** | I tuoi server di lavoro, organizzati in cartelle e sottocartelle, ognuno con la propria configurazione. |
 | **Sessioni PSM** | Desktop remoto tramite il PSM (come il pulsante «Connect» del PVWA), in Connessione Desktop remoto di Windows: componente, macchina di destinazione, motivo, ticket. |
 | **Sessioni SSH (PSMP)** | Terminale integrato in una scheda (compatibile xterm: colori, vim, less, top…), autenticazione MFA. |
-| **Scheda File** | Browser SFTP del server: `ls`, navigazione, `rm`, invio di file per trascinamento in SCP, verifica SHA-256 di ogni file trasferito, modifica nel tuo editor di testo, permessi (`chmod`), segue la cartella del terminale. |
+| **Scheda File** | Browser SFTP del server: `ls`, navigazione, `rm`, invio di file per trascinamento in SCP, verifica SHA-256 di ogni file trasferito, modifica nel tuo editor di testo, permessi (`chmod`), segue la cartella del terminale, invio a più server, confronto di file, monitoraggio in tempo reale (`tail -f`). |
+| **Vista parallela** | Fino a 8 sessioni SSH affiancate (una cartella di «I miei server» si apre con un clic), digitazione simultanea facoltativa, anche in una finestra separata. |
 | **Accesso di emergenza (KeePass)** | Senza CyberArk: archivi KeePass (.kdbx) in «I miei server», connessioni SSH e desktop remoto dirette, creazione e modifica delle voci, registro locale. |
 | **Sessione PVWA mantenuta** | Una richiesta leggera ogni 4 minuti evita la scadenza mentre lavori (sospesa quando Windows è bloccato). |
 | **Home** | Connessione rapida (digita un server, Invio), sessioni recenti. |
@@ -60,6 +61,15 @@ Versioni di sviluppo: l'eseguibile di ogni compilazione è disponibile anche com
 
 L'eseguibile non è firmato: al primo avvio Windows SmartScreen può mostrare un avviso
 («Ulteriori informazioni» → «Esegui comunque»).
+
+### Aggiornare
+
+Pulsante Impostazioni → **«Informazioni su CyberArkTerm…»**: versione, link del progetto, cartella delle impostazioni e
+«Cerca ora». Se esiste una versione più recente, «Scarica e verifica» salva l'archivio nella cartella Download e lo
+confronta con `SHA256SUMS.txt` della stessa versione (conservato solo se identico). Nulla viene installato
+automaticamente: chiudi CyberArkTerm e sostituisci l'eseguibile; le impostazioni vengono conservate. L'opzione «Cerca
+una nuova versione all'avvio» (disattivata per impostazione predefinita) fa questa ricerca al massimo una volta al
+giorno e mostra un link nella barra di stato.
 
 ### Requisiti
 
@@ -177,6 +187,12 @@ La sessione si apre **in una scheda di CyberArkTerm**, con l'identificativo PSMP
   cambia, viene mostrato un avviso.
 - **Terminale**: la selezione copia, il clic destro incolla, la rotellina scorre la cronologia, AltGr funziona
   sulle tastiere internazionali. Chiudi la scheda con la croce o con un clic centrale.
+- **Aspetto**: tavolozza di colori e dimensione del carattere nelle Impostazioni (Campbell, One Half, Solarized,
+  scuri o chiari); `Ctrl+rotellina` ingrandisce o riduce un terminale, `Ctrl+0` torna alla dimensione predefinita.
+- **Cercare** nel terminale, cronologia compresa: `Ctrl+Maiusc+F` (o clic destro sulla scheda). Le occorrenze sono
+  evidenziate; `Invio` risale verso le più vecchie, `Maiusc+Invio` riscende, `Esc` chiude.
+- **Salvare il contenuto** del terminale (cronologia e schermo) in un file di testo: `Ctrl+Maiusc+S` (o clic destro
+  sulla scheda). Solo su tua richiesta: il file può contenere informazioni sensibili.
 - **Staccare una scheda** (altro schermo): trascina la scheda SSH fuori dalla finestra, o clic destro → «Stacca in
   una nuova finestra». Il terminale passa in una finestra separata e la sessione continua. La scheda mantiene il
   suo posto («Mostra la finestra», «Riporta nella scheda») e la scheda File lavora su questa sessione quando è
@@ -196,6 +212,14 @@ La sessione si apre **in una scheda di CyberArkTerm**, con l'identificativo PSMP
     circonda. Una sessione aggiunta mentre è attiva non è selezionata; ciò che viene digitato in una sessione non
     selezionata va solo a lei. Ogni tasto viene codificato dalla sessione che lo riceve (le frecce funzionano in
     una shell come in vim). La rotellina non viene copiata, e incollare più righe in più sessioni chiede conferma.
+  - **Da «I miei server»**: clic destro su una cartella → «Apri nella vista parallela» connette i suoi server SSH
+    (sottocartelle comprese) e li mette direttamente nella vista; oppure scegli dei server con `Ctrl+clic`
+    (`Maiusc+clic` per una serie), poi clic destro → «Apri i N server nella vista parallela». Oltre i posti liberi
+    (8 al massimo), una finestra chiede quali aprire; i server Windows (PSM) vengono esclusi. Ogni connessione resta
+    una sessione PSMP distinta, con le sue domande abituali.
+  - **Finestra separata**: pulsante «Finestra separata» della vista, clic destro sulla scheda «Parallelo», o trascina
+    la scheda fuori dalla finestra. Chiuderla riporta la vista nella sua scheda senza chiudere le sessioni.
+  - **Inviare file** alle sessioni della vista: pulsante «Invia file…» (vedi la scheda File).
 
 ### 5. Sfogliare e inviare file: scheda «File»
 
@@ -231,6 +255,18 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (l'archivio viene eliminato
   dal server dopo l'estrazione). «Invia i file uno per uno» mantiene l'invio abituale; «Non proporre più» disattiva
   l'opzione.
+- **Inviare a più server**: pulsante (freccia verso tre server) o clic destro → «Invia a più server…». Scegli i file o
+  le cartelle, la cartella di destinazione (`~` = la cartella personale dell'account su ogni server, ad es.
+  `~/deploy`) e le sessioni SSH destinatarie. CyberArkTerm verifica prima su ogni server che la cartella esista e cosa
+  verrebbe sostituito (una sola domanda per tutti), poi mette in coda un invio per server: stesso protocollo, stessa
+  verifica SHA-256 su ogni server, un solo riepilogo alla fine.
+- **Confrontare**: clic destro su un file → «Confronta con…»: lo stesso percorso (o un altro) su un server con una
+  sessione SSH aperta, o un file di questo computer; con due file selezionati, «Confronta i 2 file». I file vengono
+  letti **in memoria** (50 MB al massimo ciascuno), senza copia sul computer. La finestra mostra le righe affiancate:
+  rimosse in rosso a sinistra, aggiunte in verde a destra. `F7` / `Maiusc+F7`: differenza successiva / precedente;
+  «Ignora gli spazi»; «Solo le differenze»; «Salva il diff…» nel formato `diff -u`. Un file binario (o oltre 10 MB)
+  viene confrontato per dimensione e checksum SHA-256. Con uno strumento di confronto scelto nelle Impostazioni
+  (WinMerge, VS Code…), «Apri in …» gli passa due copie temporanee, eliminate alla chiusura della finestra.
 - **Cronologia dei trasferimenti**: pulsante orologio nell'intestazione della scheda File, disponibile anche senza
   sessione. Elenca gli ultimi 200 invii e download (trascinamento compreso): data, direzione, server, elemento,
   destinazione, numero di file, risultato. Filtro «Invii» / «Download»; «Checksum…» (o doppio clic) mostra i
@@ -307,6 +343,10 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
 - **Cercare**: campo in cima alla scheda (o `Ctrl+F` nella scheda). Filtra i server per nome, server, utente,
   cartella, componente, macchina di destinazione, e le voci degli archivi KeePass sbloccati; le cartelle dei
   risultati vengono espanse. `Invio` o `↓` seleziona il primo risultato, `Esc` cancella.
+- **Più server alla volta**: `Ctrl+clic` aggiunge o toglie un server (o tutti quelli di una cartella), `Maiusc+clic`
+  sceglie una serie di server; `Esc` o un clic semplice annulla. Clic destro su uno di essi → «Apri i N server nella
+  vista parallela» o «Connettiti ai N server» (una scheda ciascuno). Clic destro su una cartella → «Apri nella vista
+  parallela» o «Connettiti ai N server».
 - **Configurazione propria di ogni server** (clic destro → «Proprietà…»):
 
 | Impostazione | Effetto |
@@ -364,9 +404,14 @@ password, elimina.
 | Elenchi e alberi | Aprire la sessione | Doppio clic o `Invio` |
 | Ricerca | Cancellare il filtro | `Esc` |
 | I miei server | Rinominare / rimuovere o eliminare | `F2` / `Canc` |
+| I miei server | Scegliere più server (poi clic destro per aprirli insieme) | `Ctrl+clic`, `Maiusc+clic`; `Esc` annulla |
 | Terminale | Copiare | Selezione con il mouse, o `Ctrl+Maiusc+C` |
 | Terminale | Incollare | Clic destro, `Maiusc+Ins` o `Ctrl+Maiusc+V` |
 | Terminale | Cronologia | Rotellina, `Maiusc+Pag su` / `Maiusc+Pag giù` |
+| Terminale | Cercare (cronologia compresa) | `Ctrl+Maiusc+F`, poi `Invio` / `Maiusc+Invio` |
+| Terminale | Salvare il contenuto in un file | `Ctrl+Maiusc+S` |
+| Terminale | Dimensione del carattere / predefinita | `Ctrl+rotellina` / `Ctrl+0` |
+| Confronto | Differenza successiva / precedente | `F7` / `Maiusc+F7` |
 | Scheda SSH o Desktop remoto | Chiudere | Croce della scheda o clic centrale |
 | Scheda SSH o Desktop remoto | Riconnettere, duplicare (altra sessione sullo stesso account o sulla stessa voce), staccare (SSH), chiudere, chiudere le altre schede | Clic destro sulla scheda |
 | Scheda SSH | Staccare in una finestra separata (altro schermo) | Trascinare la scheda fuori dalla finestra |
@@ -384,12 +429,15 @@ password, elimina.
 | Lingua dell'interfaccia | Français, English, Italiano o lingua del sistema; applicata dopo la disconnessione o al prossimo avvio | lingua di Windows (inglese se non è tradotta) |
 | Indirizzo e porta PSMP | Server PSM for SSH; se impostato, gli account Unix si aprono in SSH per impostazione predefinita; vuoto = SSH disattivato | vuoto, 22 |
 | Mantenere aperta la sessione PVWA | Richiesta leggera ogni 4 minuti; sospesa quando Windows è bloccato | sì |
+| Cercare una nuova versione all'avvio | Una richiesta a GitHub al massimo una volta al giorno; un link nella barra di stato se esiste una versione più recente | no |
 | Vault locale | Password principali KeePass memorizzate: crea, sblocca, cambia password, elimina | — |
 | Registro di debug | Menu del pulsante Impostazioni: svolgimento delle connessioni in un file, senza segreti (vedi [Sicurezza](#sicurezza)); «Mostra il file del registro» lo apre in Esplora risorse | no |
 | SSH in CyberArkTerm | Terminale e scheda File integrati; altrimenti Windows Terminal | sì |
 | Segui la cartella del terminale | Consente di attivare il monitoraggio della cartella nella shell | sì |
 | Invio dei file | SCP o SFTP | SCP |
 | Editor di testo | Programma aperto da «Modifica» nella scheda File | Blocco note |
+| Strumento di confronto | Programma proposto nella finestra di confronto, con i suoi argomenti (`{0}` = file di sinistra, `{1}` = di destra) | nessuno |
+| Colori del terminale, carattere | Tavolozza (Campbell, One Half, Solarized…) e dimensione del carattere dei terminali SSH | Campbell, 14 |
 | Monitoraggio in una sessione indipendente | Seguire un file (tail -f) apre una propria connessione SFTP (una sessione PSMP in più) | No |
 | Chiavi PSMP accettate | Impronte memorizzate (pulsante «Dimentica le chiavi») | — |
 | Componenti memorizzati | Componente PSM scelto per piattaforma (pulsante «Dimentica») | — |
@@ -420,6 +468,12 @@ l'applicazione ed eliminalo. La cronologia dei trasferimenti della scheda File �
   una cornice arancioni che nominano le sessioni interessate; una sessione aggiunta non vi è inclusa d'ufficio, e
   incollare più righe in più sessioni chiede conferma. Ogni sessione resta una sessione PSMP distinta, registrata
   come di consueto.
+- **Confronto di file**: contenuti letti in memoria e cancellati alla chiusura della finestra; solo le copie date a uno
+  strumento esterno passano dal disco (`%TEMP%\CyberArkTerm\compare`), eliminate alla chiusura della finestra e
+  all'avvio successivo.
+- **Nuova versione**: nessuna richiesta verso Internet senza una tua azione o l'opzione delle Impostazioni (disattivata
+  per impostazione predefinita); vengono seguiti solo gli indirizzi del repository del progetto, l'archivio viene
+  conservato solo se il suo checksum SHA-256 è quello di `SHA256SUMS.txt`, e nulla viene installato né avviato.
 - **Chiavi host del PSMP fissate** al primo utilizzo, con avviso in caso di modifica (lo stesso per i server
   raggiunti in accesso di emergenza).
 - **Mantenimento della sessione PVWA**: evita la scadenza per inattività; non viene inviato nulla mentre Windows
@@ -627,6 +681,7 @@ e `SHA256SUMS.txt`. Le note di versione vengono lette da `docs/releases/vX.Y.Z.m
 
 - Eseguibile firmato e programma di installazione MSI.
 - Più PVWA (profili di connessione), Privilege Cloud.
+- Altre idee, tenute per dopo: vedi [IDEAS.md](IDEAS.md).
 
 ## Licenza
 

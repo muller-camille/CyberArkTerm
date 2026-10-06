@@ -82,11 +82,21 @@
                     <Image Source="{StaticResource IconTail}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <MenuItem Tag="compare" Header="{x:Static loc:Strings.FileCompareWith}" Click="OnCompare">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconCompare}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
             <!-- Sous-menu rempli à l'ouverture : une entrée par fenêtre de suivi ouverte. -->
             <MenuItem Tag="tailadd" Header="{x:Static loc:Strings.FileTailAdd}" />
             <MenuItem Header="{x:Static loc:Strings.FileUploadHere}" Click="OnUploadDialog">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconUpload}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="{x:Static loc:Strings.FileUploadMany}" Click="OnMultiUpload">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconUploadMany}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
@@ -140,6 +150,9 @@
                 <Rectangle Style="{StaticResource ToolSeparator}" Margin="4,3" />
                 <Button Style="{StaticResource SmallToolButton}" Click="OnUploadDialog" ToolTip="{x:Static loc:Strings.UploadTip}">
                     <Image Source="{StaticResource IconUpload}" Style="{StaticResource SmallIcon}" />
+                </Button>
+                <Button Style="{StaticResource SmallToolButton}" Click="OnMultiUpload" ToolTip="{x:Static loc:Strings.MultiUploadTip}">
+                    <Image Source="{StaticResource IconUploadMany}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Button Style="{StaticResource SmallToolButton}" Click="OnDownload" ToolTip="{x:Static loc:Strings.DownloadTip}">
                     <Image Source="{StaticResource IconDownload}" Style="{StaticResource SmallIcon}" />

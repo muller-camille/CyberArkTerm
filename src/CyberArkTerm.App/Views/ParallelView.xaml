@@ -8,7 +8,15 @@
                 BorderThickness="0,0,0,1" Padding="8,4">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Padding="8,2" Margin="0,0,8,0" Click="OnSendFiles" ToolTip="{x:Static loc:Strings.ParallelSendFilesTip}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="{StaticResource IconUploadMany}" Width="16" Height="16" Margin="0,0,6,0" />
+                            <AccessText Text="{x:Static loc:Strings.ParallelSendFiles}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                     <Button Content="{x:Static loc:Strings.ParallelChoose}" Padding="8,2" Click="OnChoose" />
+                    <Button x:Name="DetachButton" Content="{x:Static loc:Strings.ParallelDetach}" Padding="8,2" Margin="8,0,0,0" Click="OnDetach"
+                            ToolTip="{x:Static loc:Strings.ParallelDetachTip}" />
                     <Button Content="{x:Static loc:Strings.ParallelClose}" Padding="8,2" Margin="8,0,0,0" Click="OnClose"
                             ToolTip="{x:Static loc:Strings.ParallelCloseTip}" />
                 </StackPanel>

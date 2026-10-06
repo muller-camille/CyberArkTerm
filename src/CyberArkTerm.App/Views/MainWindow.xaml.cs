@@ -85,7 +85,10 @@ public partial class MainWindow : Window
             SystemEvents.SessionSwitch -= OnWindowsSessionSwitch;
         };
 
+        CompareWindow.CleanTemporaryFiles();
+        CyberArkTerm.App.Terminal.TerminalAppearance.Apply(settings.TerminalTheme, settings.TerminalFontSize);
         FilesPanel.Initialize(settings, SaveSettings);
+        FilesPanel.OpenSessions = () => MainTabs.Items.OfType<TabItem>().Select(t => t.Tag).OfType<SshSession>().ToList();
         if (IsOffline)
         {
             // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de l'onglet « Courants ».
@@ -107,11 +110,65 @@ public partial class MainWindow : Window
         StartKeepAlive();
         Loaded += async (_, _) =>
         {
+            _ = CheckForUpdateAsync();
             if (!IsOffline)
             {
                 await LoadAccountsAsync();
             }
         };
+    }
+
+    /// <summary>
+    /// Option des Paramètres (désactivée par défaut) : une recherche de nouvelle version par jour au plus, discrète :
+    /// un lien dans la barre d'état si une version plus récente existe ; aucune erreur affichée.
+    /// </summary>
+    private async Task CheckForUpdateAsync()
+    {
+        if (UpdateService.Available is { } known)
+        {
+            ShowUpdateLink(known);
+            return;
+        }
+
+        if (!_settings.CheckForUpdates || DateTime.UtcNow - _settings.LastUpdateCheck < TimeSpan.FromDays(1))
+        {
+            return;
+        }
+
+        try
+        {
+            var latest = await UpdateChecker.CheckAsync(UpdateService.Http, _lifetime.Token);
+            _settings.LastUpdateCheck = DateTime.UtcNow;
+            SaveSettings();
+            if (UpdateChecker.IsNewer(latest.Version, UpdateChecker.CurrentVersion))
+            {
+                UpdateService.Available = latest;
+                ShowUpdateLink(latest);
+            }
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            DebugLog.Write("update", "Recherche de nouvelle version impossible", ex);
+        }
+    }
+
+    private void ShowUpdateLink(UpdateInfo info)
+    {
+        UpdateLinkText.Text = Text.Format(Strings.UpdateAvailableLink, info.Version);
+        UpdateLink.Visibility = Visibility.Visible;
+    }
+
+    private void OnUpdateLink(object sender, RoutedEventArgs e) => ShowAbout();
+
+    private void OnAbout(object sender, RoutedEventArgs e) => ShowAbout();
+
+    private void ShowAbout()
+    {
+        new AboutWindow(_settings, SaveSettings) { Owner = this }.ShowDialog();
+        if (UpdateService.Available is { } info && UpdateChecker.IsNewer(info.Version, UpdateChecker.CurrentVersion))
+        {
+            ShowUpdateLink(info);
+        }
     }
 
     /// <summary>Accès d'urgence, sans connexion à CyberArk.</summary>
@@ -404,6 +461,12 @@ public partial class MainWindow : Window
         // Comme dans l'explorateur : le clic droit sélectionne l'élément avant d'ouvrir le menu.
         if (sender is TreeViewItem item)
         {
+            if (item.DataContext is SavedSessionNode { IsMarked: false } or SavedFolderNode && _savedMarks.Count > 0)
+            {
+                // Clic droit hors des serveurs choisis : la sélection de plusieurs serveurs est abandonnée.
+                ClearSavedMarks();
+            }
+
             item.IsSelected = true;
             item.Focus();
             e.Handled = true;
@@ -893,6 +956,7 @@ public partial class MainWindow : Window
         if (accepted)
         {
             SaveSettings();
+            CyberArkTerm.App.Terminal.TerminalAppearance.Apply(_settings.TerminalTheme, _settings.TerminalFontSize);
             UpdateActions();
             StartKeepAlive();
             SetStatus(_settings.Language == language ? Strings.SettingsSaved : Strings.SettingsSavedLanguage);

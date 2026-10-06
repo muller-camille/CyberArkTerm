@@ -344,6 +344,12 @@ public partial class FileBrowserPanel : UserControl
                 continue;
             }
 
+            if (item.Tag is "compare")
+            {
+                UpdateCompareMenu(item, selected);
+                continue;
+            }
+
             item.IsEnabled = item.Tag switch
             {
                 "open" => selected.Count == 1,

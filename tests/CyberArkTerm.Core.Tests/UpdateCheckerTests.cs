@@ -1,0 +1,124 @@
+using System.Net;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace CyberArkTerm.Core.Tests;
+
+public sealed class UpdateCheckerTests
+{
+    private const string Download = "https://github.com/muller-camille/CyberArkTerm/releases/download/v0.14.0/";
+
+    private static string Release(string tag = "v0.14.0", string? extraAsset = null) => $$"""
+        {
+          "tag_name": "{{tag}}",
+          "html_url": "https://github.com/muller-camille/CyberArkTerm/releases/tag/{{tag}}",
+          "published_at": "2026-11-02T10:00:00Z",
+          "assets": [
+            {{extraAsset}}
+            { "name": "CyberArkTerm-0.14.0-win-x64.zip", "browser_download_url": "{{Download}}CyberArkTerm-0.14.0-win-x64.zip" },
+            { "name": "SHA256SUMS.txt", "browser_download_url": "{{Download}}SHA256SUMS.txt" }
+          ]
+        }
+        """;
+
+    [Fact]
+    public void ReadsTheLatestRelease()
+    {
+        var info = UpdateChecker.ParseRelease(Release());
+        Assert.Equal(new Version(0, 14, 0), info.Version);
+        Assert.Equal("CyberArkTerm-0.14.0-win-x64.zip", info.PackageName);
+        Assert.Equal(Download + "SHA256SUMS.txt", info.SumsUrl);
+        Assert.EndsWith("/releases/tag/v0.14.0", info.PageUrl);
+        Assert.Equal(new DateTimeOffset(2026, 11, 2, 10, 0, 0, TimeSpan.Zero), info.Published);
+    }
+
+    [Fact]
+    public void IgnoresFilesFromElsewhere()
+    {
+        // Une archive servie par une autre adresse que le dépôt du projet n'est jamais retenue.
+        var info = UpdateChecker.ParseRelease(Release(extraAsset:
+            """{ "name": "CyberArkTerm-9.9.9-win-x64.zip", "browser_download_url": "https://evil.example/CyberArkTerm-9.9.9-win-x64.zip" },"""));
+        Assert.Equal("CyberArkTerm-0.14.0-win-x64.zip", info.PackageName);
+
+        var noAssets = UpdateChecker.ParseRelease("""{ "tag_name": "v1.0.0", "html_url": "https://evil.example/" }""");
+        Assert.Null(noAssets.PackageUrl);
+        Assert.Equal(UpdateChecker.ReleasesUrl, noAssets.PageUrl);
+
+        Assert.Throws<FormatException>(() => UpdateChecker.ParseRelease("""{ "tag_name": "latest" }"""));
+    }
+
+    [Fact]
+    public void ComparesVersions()
+    {
+        Assert.True(UpdateChecker.IsNewer(new Version(0, 13, 0), new Version(0, 12, 0)));
+        Assert.True(UpdateChecker.IsNewer(new Version(1, 0), new Version(0, 99, 9)));
+        Assert.False(UpdateChecker.IsNewer(new Version(0, 12, 0), new Version(0, 12, 0, 0)));
+        Assert.False(UpdateChecker.IsNewer(new Version(0, 11, 9), new Version(0, 12, 0)));
+        Assert.Equal(3, UpdateChecker.CurrentVersion.ToString().Split('.').Length);
+    }
+
+    [Fact]
+    public void FindsTheExpectedChecksum()
+    {
+        var hash = new string('a', 64);
+        var sums = $"{new string('b', 64)}  other.zip\r\n{hash.ToUpperInvariant()} *CyberArkTerm-0.14.0-win-x64.zip\r\n";
+        Assert.Equal(hash, UpdateChecker.ExpectedSha256(sums, "CyberArkTerm-0.14.0-win-x64.zip"));
+        Assert.Null(UpdateChecker.ExpectedSha256(sums, "missing.zip"));
+        Assert.Null(UpdateChecker.ExpectedSha256("not a checksum file", "x"));
+    }
+
+    [Fact]
+    public async Task KeepsOnlyAVerifiedDownload()
+    {
+        var package = Encoding.UTF8.GetBytes("archive content");
+        var good = Convert.ToHexStringLower(SHA256.HashData(package));
+        var folder = Directory.CreateTempSubdirectory("cat-update-").FullName;
+        try
+        {
+            var info = UpdateChecker.ParseRelease(Release());
+            using var http = new HttpClient(new FakeGitHub(package, $"{good}  CyberArkTerm-0.14.0-win-x64.zip\n"));
+            var progress = new List<double>();
+            var path = await UpdateChecker.DownloadAsync(http, info, folder, new SyncProgress(progress), default);
+            Assert.Equal(Path.Combine(folder, "CyberArkTerm-0.14.0-win-x64.zip"), path);
+            Assert.Equal(package, await File.ReadAllBytesAsync(path));
+            Assert.Equal(1.0, progress[^1]);
+            File.Delete(path);
+
+            // Somme différente : rien n'est gardé.
+            using var bad = new HttpClient(new FakeGitHub(package, $"{new string('0', 64)}  CyberArkTerm-0.14.0-win-x64.zip\n"));
+            await Assert.ThrowsAsync<InvalidDataException>(() => UpdateChecker.DownloadAsync(bad, info, folder, null, default));
+            Assert.Empty(Directory.GetFiles(folder));
+
+            // Archive absente de SHA256SUMS.txt : pas de téléchargement.
+            using var missing = new HttpClient(new FakeGitHub(package, $"{good}  other.zip\n"));
+            await Assert.ThrowsAsync<InvalidDataException>(() => UpdateChecker.DownloadAsync(missing, info, folder, null, default));
+            Assert.Empty(Directory.GetFiles(folder));
+        }
+        finally
+        {
+            Directory.Delete(folder, recursive: true);
+        }
+    }
+
+    private sealed class SyncProgress(List<double> values) : IProgress<double>
+    {
+        public void Report(double value) => values.Add(value);
+    }
+
+    private sealed class FakeGitHub(byte[] package, string sums) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            var url = request.RequestUri!.ToString();
+            HttpContent content = url.EndsWith("SHA256SUMS.txt", StringComparison.Ordinal)
+                ? new StringContent(sums)
+                : new ByteArrayContent(package);
+            if (content is ByteArrayContent && content is not StringContent)
+            {
+                content.Headers.ContentLength = package.Length;
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = content });
+        }
+    }
+}

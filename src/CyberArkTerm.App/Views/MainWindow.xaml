@@ -91,8 +91,8 @@
         </ContextMenu>
 
         <!-- Menus de l'onglet « Courants ». -->
-        <ContextMenu x:Key="SavedSessionMenu" x:Shared="False">
-            <MenuItem Header="{x:Static loc:Strings.Connect}" Click="OnConnectSelectedSaved" FontWeight="SemiBold">
+        <ContextMenu x:Key="SavedSessionMenu" x:Shared="False" Opened="OnSavedSessionMenuOpened">
+            <MenuItem Tag="connect" Header="{x:Static loc:Strings.Connect}" Click="OnConnectSelectedSaved" FontWeight="SemiBold">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconConnect}" Width="16" Height="16" />
                 </MenuItem.Icon>
@@ -102,6 +102,13 @@
                     <Image Source="{StaticResource IconConnectAdvanced}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <!-- Plusieurs serveurs choisis (Ctrl+clic, Maj+clic) : les ouvrir ensemble. -->
+            <MenuItem Tag="parallel" Header="{x:Static loc:Strings.MenuOpenInParallel}" Click="OnOpenSavedInParallel">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconParallel}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Tag="connectmany" Click="OnConnectMarkedSaved" />
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuPassword}">
                 <MenuItem Header="{x:Static loc:Strings.MenuCopyPassword}" Click="OnCopyPassword" />
@@ -131,7 +138,14 @@
             <MenuItem Header="{x:Static loc:Strings.MenuCopyServer}" Click="OnCopyAddress" />
             <MenuItem Header="{x:Static loc:Strings.MenuCopyUser}" Click="OnCopyUser" />
         </ContextMenu>
-        <ContextMenu x:Key="SavedFolderMenu" x:Shared="False">
+        <ContextMenu x:Key="SavedFolderMenu" x:Shared="False" Opened="OnSavedFolderMenuOpened">
+            <MenuItem Tag="parallel" Header="{x:Static loc:Strings.MenuOpenFolderInParallel}" Click="OnOpenFolderInParallel" FontWeight="SemiBold">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconParallel}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Tag="connectmany" Click="OnConnectFolder" />
+            <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuNewSubfolder}" Click="OnNewSubFolder">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconNewFolder}" Width="16" Height="16" />
@@ -234,6 +248,8 @@
             <MenuItem Tag="debuglog" Header="{x:Static loc:Strings.MenuDebugLog}" IsCheckable="True" Click="OnToggleDebugLog"
                       ToolTip="{x:Static loc:Strings.MenuDebugLogTip}" />
             <MenuItem Header="{x:Static loc:Strings.MenuDebugLogShow}" Click="OnShowDebugLog" />
+            <Separator />
+            <MenuItem Header="{x:Static loc:Strings.MenuAbout}" Click="OnAbout" />
         </ContextMenu>
 
         <!-- Ligne « compte » réutilisée dans les listes (favoris, résultats de recherche). -->
@@ -347,6 +363,10 @@
         <Border DockPanel.Dock="Bottom" Background="{StaticResource StatusBrush}" Padding="10,3">
             <DockPanel>
                 <TextBlock DockPanel.Dock="Right" x:Name="SessionText" Foreground="#C8D3DE" />
+                <!-- Nouvelle version disponible (option des Paramètres, ou recherche depuis « À propos »). -->
+                <TextBlock DockPanel.Dock="Right" x:Name="UpdateLink" Visibility="Collapsed" Margin="0,0,16,0">
+                    <Hyperlink Click="OnUpdateLink" Foreground="#F2C14E"><Run x:Name="UpdateLinkText" /></Hyperlink>
+                </TextBlock>
                 <TextBlock DockPanel.Dock="Right" x:Name="DebugLogText" Foreground="#F2C14E" Margin="0,0,16,0" Visibility="Collapsed"
                            Text="{x:Static loc:Strings.DebugLogActive}" />
                 <TextBlock x:Name="CountText" Foreground="White" Margin="0,0,16,0" />
@@ -468,7 +488,7 @@
                                    Text="{x:Static loc:Strings.NoSavedHelp}" />
                         <TreeView x:Name="SavedTree" BorderThickness="0" Background="Transparent" Padding="2,0,0,0" AllowDrop="True"
                                   SelectedItemChanged="OnSavedSelectionChanged" KeyDown="OnSavedKeyDown" IsKeyboardFocusWithinChanged="OnSelectorFocusChanged"
-                                  PreviewMouseLeftButtonDown="OnDragSourceMouseDown" PreviewMouseMove="OnSavedDragMove"
+                                  PreviewMouseLeftButtonDown="OnSavedMouseDown" PreviewMouseMove="OnSavedDragMove"
                                   DragOver="OnSavedDragOver" Drop="OnSavedDrop" ContextMenu="{StaticResource SavedBackgroundMenu}">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type app:KeePassFolderNode}" ItemsSource="{Binding Children}">
@@ -510,7 +530,20 @@
                                 </HierarchicalDataTemplate>
                                 <DataTemplate DataType="{x:Type app:SavedSessionNode}">
                                     <StackPanel Orientation="Horizontal" Margin="0,1" ToolTip="{Binding Details}" Opacity="{Binding Opacity}"
-                                                ContextMenu="{StaticResource SavedSessionMenu}" Background="Transparent">
+                                                ContextMenu="{StaticResource SavedSessionMenu}">
+                                        <!-- Serveurs choisis avec Ctrl+clic ou Maj+clic : fond et coche. -->
+                                        <StackPanel.Style>
+                                            <Style TargetType="StackPanel">
+                                                <Setter Property="Background" Value="Transparent" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsMarked}" Value="True">
+                                                        <Setter Property="Background" Value="{StaticResource AccentLightBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Style>
+                                        <TextBlock Text="✓" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" Margin="0,0,4,0"
+                                                   Visibility="{Binding IsMarked, Converter={StaticResource BoolToVisibility}}" />
                                         <Image Source="{Binding Converter={StaticResource KindIcon}}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Title}" />
                                         <TextBlock Text="{Binding ModeText}" Foreground="{StaticResource MutedBrush}" FontSize="10.5"

@@ -47,6 +47,25 @@ public partial class ParallelView : UserControl
 
     public event Action? ChooseRequested;
 
+    /// <summary>« Envoyer des fichiers » : vers les sessions de la vue.</summary>
+    public event Action? SendFilesRequested;
+
+    /// <summary>« Fenêtre séparée » ou « Ramener dans l'onglet ».</summary>
+    public event Action? DetachRequested;
+
+    /// <summary>Vue dans une fenêtre séparée : le bouton propose de la ramener dans l'onglet.</summary>
+    public bool IsDetached
+    {
+        get => _detached;
+        set
+        {
+            _detached = value;
+            DetachButton.Content = value ? Strings.DetachedReattach : Strings.ParallelDetach;
+        }
+    }
+
+    private bool _detached;
+
     /// <summary>Session où l'utilisateur travaille (l'onglet Fichiers la suit).</summary>
     public event Action<SshSession>? ActiveSessionChanged;
 
@@ -189,6 +208,10 @@ public partial class ParallelView : UserControl
     }
 
     private void OnChoose(object sender, RoutedEventArgs e) => ChooseRequested?.Invoke();
+
+    private void OnSendFiles(object sender, RoutedEventArgs e) => SendFilesRequested?.Invoke();
+
+    private void OnDetach(object sender, RoutedEventArgs e) => DetachRequested?.Invoke();
 
     private void OnClose(object sender, RoutedEventArgs e) => CloseRequested?.Invoke();
 

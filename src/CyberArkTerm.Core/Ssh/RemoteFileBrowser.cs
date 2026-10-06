@@ -160,6 +160,36 @@ public sealed class RemoteFileBrowser : IDisposable
         return read == count ? buffer : buffer[..read];
     }
 
+    /// <summary>
+    /// Contenu entier d'un fichier, en mémoire (comparaison de fichiers : rien n'est écrit sur le poste).
+    /// </summary>
+    /// <exception cref="FileTooLargeException">Le fichier dépasse <paramref name="maxBytes"/>.</exception>
+    public async Task<byte[]> ReadAllBytesAsync(string path, long maxBytes, CancellationToken ct)
+    {
+        using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
+        var attributes = await _sftp.GetAttributesAsync(path, ct).ConfigureAwait(false);
+        if (attributes.Size > maxBytes)
+        {
+            throw new FileTooLargeException(path, attributes.Size, maxBytes);
+        }
+
+        await using var stream = await _sftp.OpenAsync(path, FileMode.Open, FileAccess.Read, ct).ConfigureAwait(false);
+        using var content = new MemoryStream((int)Math.Max(0, attributes.Size));
+        var buffer = new byte[256 * 1024];
+        int n;
+        while ((n = await stream.ReadAsync(buffer, ct).ConfigureAwait(false)) > 0)
+        {
+            content.Write(buffer, 0, n);
+            if (content.Length > maxBytes)
+            {
+                // Fichier qui grossit pendant la lecture.
+                throw new FileTooLargeException(path, content.Length, maxBytes);
+            }
+        }
+
+        return content.ToArray();
+    }
+
     private sealed class SftpTailSource(RemoteFileBrowser browser, string path) : ITailSource
     {
         public Task<long> GetSizeAsync(CancellationToken ct) => browser.GetSizeAsync(path, ct);

@@ -142,9 +142,27 @@ public sealed class SavedFolderNode(string path, List<object> children, bool isE
 }
 
 /// <summary>Serveur de l'onglet « Courants » ; <see cref="Account"/> est null si le compte n'est plus visible dans CyberArk.</summary>
-public sealed class SavedSessionNode(SavedSession session, PvwaAccount? account)
+public sealed class SavedSessionNode(SavedSession session, PvwaAccount? account) : System.ComponentModel.INotifyPropertyChanged
 {
+    private bool _isMarked;
+
+    public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+
     public SavedSession Session { get; } = session;
+
+    /// <summary>Choisi avec Ctrl+clic ou Maj+clic, pour ouvrir plusieurs serveurs ensemble.</summary>
+    public bool IsMarked
+    {
+        get => _isMarked;
+        set
+        {
+            if (_isMarked != value)
+            {
+                _isMarked = value;
+                PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(IsMarked)));
+            }
+        }
+    }
 
     public PvwaAccount? Account { get; } = account;
 

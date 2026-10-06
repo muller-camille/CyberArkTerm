@@ -711,6 +711,119 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>Comparaison : lignes côte à côte, navigation, seulement les différences ; binaire par somme SHA-256.</summary>
+    [Fact]
+    public void CompareWindowShowsTheDifferences()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var left = System.Text.Encoding.UTF8.GetBytes("listen 80;\nserver_name a;\nroot /var/www;\n" + string.Concat(Enumerable.Range(1, 30).Select(i => $"l{i}\n")) + "}\n");
+            var right = System.Text.Encoding.UTF8.GetBytes("listen 443;\nserver_name a;\nroot /var/www;\n" + string.Concat(Enumerable.Range(1, 30).Select(i => $"l{i}\n")) + "ssl on;\n}\n");
+            var window = new CompareWindow("root@srv01 : /etc/app.conf", left, "root@srv02 : /etc/app.conf", right, new AppSettings());
+            Assert.Contains("app.conf", window.Title);
+            Assert.Equal(2, window.Result!.Blocks);
+            Assert.Contains("2", window.SummaryText.Text);
+            Assert.Equal(Visibility.Collapsed, window.ToolButton.Visibility);
+
+            window.GoToDifference(1);
+            Assert.Equal(0, window.RowsList.SelectedIndex);
+            window.GoToDifference(1);
+            Assert.Equal(DiffKind.Added, ((DiffRow)window.RowsList.SelectedItem).Kind);
+
+            window.OnlyDiffBox.IsChecked = true;
+            window.OnlyDiffBox.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+            Assert.Contains(((IEnumerable<DiffRow>)window.RowsList.ItemsSource), r => r.Kind == DiffKind.Gap);
+            window.Close();
+            Assert.All(left, b => Assert.Equal(0, b));   // contenu effacé de la mémoire à la fermeture
+
+            var binary = new CompareWindow("a", [1, 0, 2], "b", [1, 0, 2], new AppSettings { CompareTool = @"C:\Tools\WinMergeU.exe" });
+            Assert.Equal(Visibility.Visible, binary.BinaryPanel.Visibility);
+            Assert.Equal(Strings.CompareIdentical, binary.SummaryText.Text);
+            Assert.Equal(Visibility.Visible, binary.ToolButton.Visibility);
+            binary.Close();
+        });
+    }
+
+    /// <summary>Envoi vers plusieurs serveurs, choix d'une comparaison, choix de serveurs, À propos : les fenêtres s'ouvrent.</summary>
+    [Fact]
+    public void MultiServerWindowsOpen()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var (s1, _) = NewSshView("root@srv01");
+            var (s2, _) = NewSshView("root@srv02");
+            var upload = new MultiUploadDialog([s1, s2], [s1], "~/deploy", "SCP");
+            Assert.Equal("~/deploy", upload.Destination);
+            // Sessions non connectées : on ne peut pas les choisir.
+            Assert.Empty(upload.Sessions);
+            Assert.All(upload.ServersPanel.Children.OfType<System.Windows.Controls.CheckBox>(), b => Assert.False(b.IsEnabled));
+            var file = Path.GetTempFileName();
+            upload.AddPath(file);
+            upload.AddPath(file);
+            Assert.Single(upload.Paths);
+            File.Delete(file);
+            upload.Close();
+
+            var compare = new CompareDialog("root@srv01 : /etc/app.conf", "/etc/app.conf", [s1, s2], s1);
+            Assert.Equal("/etc/app.conf", compare.RemoteFile);
+            compare.Close();
+
+            var choose = new ParallelDialog(["web01", "web02", "web03"], [0, 1, 2], 2, "intro", Strings.ParallelOpen);
+            Assert.Equal([0, 1], choose.SelectedIndexes);
+            Assert.Equal("intro", choose.IntroText.Text);
+            choose.Close();
+
+            var about = new AboutWindow(new AppSettings(), () => { });
+            Assert.Contains(UpdateChecker.CurrentVersion.ToString(), about.VersionText.Text);
+            about.Close();
+
+            s1.Dispose();
+            s2.Dispose();
+        });
+    }
+
+    /// <summary>Recherche dans le terminal (historique compris) et taille de police.</summary>
+    [Fact]
+    public void TerminalSearchFindsTextInTheHistory()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var (session, view) = NewSshView("root@srv01");
+            session.Emulator.Feed(string.Concat(Enumerable.Range(1, 60).Select(i => $"line {i}{(i % 20 == 0 ? " ERROR" : "")}\r\n")));
+            view.ShowSearch();
+            view.SearchBox.Text = "error";
+            Assert.Equal(3, view.Matches.Count);
+            Assert.Equal(2, view.CurrentMatch);
+            view.MoveSearch(-1);
+            Assert.Equal(1, view.CurrentMatch);
+            view.MoveSearch(1);
+            view.MoveSearch(1);
+            Assert.Equal(0, view.CurrentMatch);
+
+            CyberArkTerm.App.Terminal.TerminalAppearance.Apply("solarized-light", 16);
+            Assert.Same(CyberArkTerm.Core.Terminal.TerminalTheme.SolarizedLight, CyberArkTerm.App.Terminal.TerminalAppearance.Theme);
+            CyberArkTerm.App.Terminal.TerminalAppearance.Apply(null, 99);
+            Assert.Equal(CyberArkTerm.App.Terminal.TerminalAppearance.MaxFontSize, CyberArkTerm.App.Terminal.TerminalAppearance.FontSize);
+            CyberArkTerm.App.Terminal.TerminalAppearance.Apply(null, 14);
+            session.Dispose();
+        });
+    }
+
     private sealed class NoInteraction : CyberArkTerm.Core.Ssh.ISshInteraction
     {
         public bool CheckHostKey(string host, int port, string algorithm, string sha256Fingerprint) => false;

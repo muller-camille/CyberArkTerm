@@ -19,7 +19,10 @@ public sealed class TerminalView : FrameworkElement
     private readonly Dictionary<uint, SolidColorBrush> _brushes = [];
     private readonly Typeface _regular = new(MonoFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
     private readonly Typeface _bold = new(MonoFamily, FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
-    private readonly double _fontSize = 14;
+    private double _fontSize = TerminalAppearance.FontSize;
+    private TerminalTheme _theme = TerminalAppearance.Theme;
+    private IReadOnlyList<TerminalMatch> _matches = [];
+    private int _currentMatch = -1;
     private TerminalEmulator? _emulator;
     private double _cellWidth;
     private double _cellHeight;
@@ -34,9 +37,84 @@ public sealed class TerminalView : FrameworkElement
         FocusVisualStyle = null;
         Cursor = Cursors.IBeam;
         SnapsToDevicePixels = true;
+        MeasureCell();
+        // Palette et taille des Paramètres : suivies tant que le terminal est affiché (il peut changer de place).
+        Loaded += (_, _) =>
+        {
+            TerminalAppearance.Changed += OnAppearanceChanged;
+            if (!ReferenceEquals(_theme, TerminalAppearance.Theme))
+            {
+                _theme = TerminalAppearance.Theme;
+                InvalidateVisual();
+            }
+        };
+        Unloaded += (_, _) => TerminalAppearance.Changed -= OnAppearanceChanged;
+    }
+
+    /// <summary>Ctrl+Maj+F : recherche dans le terminal.</summary>
+    public event Action? SearchRequested;
+
+    /// <summary>Ctrl+Maj+S : enregistrer le contenu du terminal.</summary>
+    public event Action? SaveRequested;
+
+    public TerminalTheme Theme => _theme;
+
+    public double TerminalFontSize => _fontSize;
+
+    private void OnAppearanceChanged()
+    {
+        _theme = TerminalAppearance.Theme;
+        SetFontSize(TerminalAppearance.FontSize);
+        InvalidateVisual();
+    }
+
+    /// <summary>Taille de police de ce terminal (Ctrl+molette) ; le nombre de lignes et colonnes suit.</summary>
+    public void SetFontSize(double size)
+    {
+        size = Math.Clamp(size, TerminalAppearance.MinFontSize, TerminalAppearance.MaxFontSize);
+        if (size == _fontSize)
+        {
+            return;
+        }
+
+        _fontSize = size;
+        MeasureCell();
+        FitToSize();
+        InvalidateVisual();
+    }
+
+    private void MeasureCell()
+    {
         var probe = Format("M", _regular, Brushes.White);
         _cellWidth = probe.WidthIncludingTrailingWhitespace;
         _cellHeight = Math.Ceiling(MonoFamily.LineSpacing * _fontSize);
+    }
+
+    /// <summary>Occurrences de la recherche, surlignées ; la courante est amenée à l'écran.</summary>
+    /// <param name="scroll">Faux quand les occurrences sont recalculées après de nouvelles lignes : la vue ne bouge pas.</param>
+    public void ShowMatches(IReadOnlyList<TerminalMatch> matches, int current, bool scroll = true)
+    {
+        _matches = matches;
+        _currentMatch = current;
+        if (scroll && _emulator is not null && current >= 0 && current < matches.Count)
+        {
+            // Ligne visible : en haut de l'historique si besoin, vers le milieu de l'écran sinon.
+            int row = matches[current].Row;
+            int top = -_scrollOffset;
+            if (row < top || row >= top + _emulator.Rows)
+            {
+                _scrollOffset = Math.Clamp(-row + (_emulator.Rows / 2), 0, _emulator.ScrollbackCount);
+            }
+        }
+
+        InvalidateVisual();
+    }
+
+    public void ClearMatches()
+    {
+        _matches = [];
+        _currentMatch = -1;
+        InvalidateVisual();
     }
 
     /// <summary>Saisie à envoyer au serveur (frappe clavier, collage, molette), encodée par le destinataire.</summary>
@@ -77,7 +155,7 @@ public sealed class TerminalView : FrameworkElement
 
     protected override void OnRender(DrawingContext dc)
     {
-        dc.DrawRectangle(Brush(TerminalColor.DefaultBackground), null, new Rect(RenderSize));
+        dc.DrawRectangle(Brush(_theme.Background), null, new Rect(RenderSize));
         var emulator = _emulator;
         if (emulator is null)
         {
@@ -93,6 +171,7 @@ public sealed class TerminalView : FrameworkElement
                 continue;
             }
 
+            DrawMatches(dc, row, Padding + screenRow * _cellHeight);
             DrawLine(dc, emulator, row, Padding + screenRow * _cellHeight);
         }
 
@@ -102,16 +181,16 @@ public sealed class TerminalView : FrameworkElement
             var rect = new Rect(Padding + emulator.CursorColumn * _cellWidth, Padding + emulator.CursorRow * _cellHeight, _cellWidth, _cellHeight);
             if (IsKeyboardFocused)
             {
-                dc.DrawRectangle(Brush(0xD0D0D0), null, rect);
+                dc.DrawRectangle(Brush(_theme.Cursor), null, rect);
                 var cell = emulator.GetLine(emulator.CursorRow)[Math.Min(emulator.CursorColumn, emulator.Columns - 1)];
                 if (cell.Char != ' ')
                 {
-                    dc.DrawText(Format(cell.Char.ToString(), _regular, Brush(TerminalColor.DefaultBackground)), rect.TopLeft);
+                    dc.DrawText(Format(cell.Char.ToString(), _regular, Brush(_theme.Background)), rect.TopLeft);
                 }
             }
             else
             {
-                dc.DrawRectangle(null, new Pen(Brush(0xD0D0D0), 1), new Rect(rect.X + 0.5, rect.Y + 0.5, rect.Width - 1, rect.Height - 1));
+                dc.DrawRectangle(null, new Pen(Brush(_theme.Cursor), 1), new Rect(rect.X + 0.5, rect.Y + 0.5, rect.Width - 1, rect.Height - 1));
             }
         }
     }
@@ -134,7 +213,7 @@ public sealed class TerminalView : FrameworkElement
 
             double x = Padding + start * _cellWidth;
             double width = (col - start) * _cellWidth;
-            if (bg != TerminalColor.DefaultBackground)
+            if (bg != _theme.Background)
             {
                 dc.DrawRectangle(Brush(bg), null, new Rect(x, y, width, _cellHeight));
             }
@@ -169,11 +248,25 @@ public sealed class TerminalView : FrameworkElement
         }
     }
 
-    private static (uint Fg, uint Bg, bool Bold, bool Underline) Colors(Cell cell, bool selected)
+    /// <summary>Fond des occurrences de la recherche (jaune ; orange pour la courante).</summary>
+    private void DrawMatches(DrawingContext dc, int row, double y)
+    {
+        for (int i = 0; i < _matches.Count; i++)
+        {
+            var match = _matches[i];
+            if (match.Row == row)
+            {
+                dc.DrawRectangle(Brush(i == _currentMatch ? 0xFF9632u : 0xFFE066u), null,
+                    new Rect(Padding + match.Column * _cellWidth, y, match.Length * _cellWidth, _cellHeight));
+            }
+        }
+    }
+
+    private (uint Fg, uint Bg, bool Bold, bool Underline) Colors(Cell cell, bool selected)
     {
         bool bold = cell.Flags.HasFlag(CellFlags.Bold);
-        uint fg = TerminalColor.ToRgb(cell.Foreground, foreground: true, bold);
-        uint bg = TerminalColor.ToRgb(cell.Background, foreground: false);
+        uint fg = _theme.ToRgb(cell.Foreground, foreground: true, bold);
+        uint bg = _theme.ToRgb(cell.Background, foreground: false);
         if (cell.Flags.HasFlag(CellFlags.Dim))
         {
             fg = Blend(fg, bg);
@@ -224,6 +317,12 @@ public sealed class TerminalView : FrameworkElement
         FitToSize();
     }
 
+    /// <summary>
+    /// Réajuste l'émulateur à la taille affichée (et le signale) : utile quand la session a imposé une autre taille, par
+    /// exemple celle mesurée avant que le terminal ne change de place pendant la connexion.
+    /// </summary>
+    public void Refit() => FitToSize();
+
     private void FitToSize()
     {
         if (_emulator is null || ActualWidth <= 0 || ActualHeight <= 0)
@@ -257,6 +356,28 @@ public sealed class TerminalView : FrameworkElement
         var key = e.Key == Key.System ? e.SystemKey : e.Key;
 
         // Raccourcis locaux (non envoyés au serveur).
+        if (ctrl && shift && key == Key.F)
+        {
+            SearchRequested?.Invoke();
+            e.Handled = true;
+            return;
+        }
+
+        if (ctrl && shift && key == Key.S)
+        {
+            SaveRequested?.Invoke();
+            e.Handled = true;
+            return;
+        }
+
+        if (ctrl && !shift && !alt && key is Key.D0 or Key.NumPad0)
+        {
+            // Taille de police par défaut (Ctrl+molette la change).
+            SetFontSize(TerminalAppearance.FontSize);
+            e.Handled = true;
+            return;
+        }
+
         if (ctrl && shift && key == Key.C)
         {
             CopySelection();
@@ -372,6 +493,14 @@ public sealed class TerminalView : FrameworkElement
         base.OnMouseWheel(e);
         if (_emulator is null)
         {
+            return;
+        }
+
+        if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
+        {
+            // Ctrl+molette : taille de police de ce terminal.
+            SetFontSize(_fontSize + Math.Sign(e.Delta));
+            e.Handled = true;
             return;
         }
 

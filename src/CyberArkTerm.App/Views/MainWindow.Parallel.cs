@@ -73,7 +73,14 @@ public partial class MainWindow
         }
 
         UpdateParallelHeader();
+        ShowParallel();
+    }
+
+    /// <summary>Affiche la vue parallèle : son onglet, ou sa fenêtre séparée.</summary>
+    private void ShowParallel()
+    {
         MainTabs.SelectedItem = _parallelTab;
+        _parallelWindow?.Activate();
     }
 
     private void MoveToParallel(SshSession session)
@@ -116,6 +123,8 @@ public partial class MainWindow
         {
             return;
         }
+
+        CloseParallelWindow();
 
         foreach (var session in _parallel.Sessions.ToList())
         {
@@ -187,7 +196,7 @@ public partial class MainWindow
         {
             MoveToParallel(session);
             UpdateParallelHeader();
-            MainTabs.SelectedItem = _parallelTab;
+            ShowParallel();
         }
     }
 
@@ -212,7 +221,19 @@ public partial class MainWindow
             }
         };
         view.CloseRequested += CloseParallel;
+        view.DetachRequested += () =>
+        {
+            if (view.IsDetached)
+            {
+                ReattachParallel();
+            }
+            else
+            {
+                DetachParallel();
+            }
+        };
         view.ChooseRequested += () => ChooseParallelSessions();
+        view.SendFilesRequested += () => FilesPanel.ShowMultiUpload(view.Sessions.ToList());
         view.ActiveSessionChanged += session =>
         {
             if (ReferenceEquals(MainTabs.SelectedItem, _parallelTab))
@@ -240,7 +261,14 @@ public partial class MainWindow
                 CloseParallel();
             }
         };
+        var detach = new MenuItem { Header = Strings.MenuTabDetach };
+        detach.Click += (_, _) => DetachParallel();
+        var closeView = new MenuItem { Header = Strings.ParallelClose };
+        closeView.Click += (_, _) => CloseParallel();
+        header.ContextMenu = new ContextMenu { Items = { detach, new Separator(), closeView } };
+        header.ContextMenu.Opened += (_, _) => detach.IsEnabled = _parallelWindow is null;
         tab.Header = header;
+        EnableDragToDetach(tab, header);
         _parallel = view;
         _parallelTab = tab;
         MainTabs.Items.Add(tab);
@@ -252,6 +280,11 @@ public partial class MainWindow
         {
             title.Text = Text.Format(Strings.ParallelTabHeader, _parallel.Sessions.Count);
         }
+
+        if (_parallelWindow is { } window)
+        {
+            window.Title = ParallelWindowTitle();
+        }
     }
 
     /// <summary>Contenu de l'onglet d'une session affichée dans la vue parallèle.</summary>
@@ -262,7 +295,7 @@ public partial class MainWindow
         {
             if (_parallelTab is not null)
             {
-                MainTabs.SelectedItem = _parallelTab;
+                ShowParallel();
             }
         };
         var back = new Button { Content = Strings.DetachedReattach, Padding = new Thickness(10, 3, 10, 3), Margin = new Thickness(8, 0, 0, 0) };

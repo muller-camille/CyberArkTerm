@@ -43,6 +43,26 @@ public static class RemotePath
         return "/" + string.Join('/', parts);
     }
 
+    /// <summary>
+    /// Chemin saisi pour plusieurs serveurs : « ~ » ou « ~/... » est le dossier personnel de chaque compte
+    /// (<paramref name="home"/>), un chemin relatif part aussi de là ; un chemin absolu reste tel quel.
+    /// </summary>
+    public static string ResolveHome(string path, string home)
+    {
+        path = path.Trim();
+        if (path.Length == 0 || path == "~")
+        {
+            return Normalize(home);
+        }
+
+        if (path.StartsWith("~/", StringComparison.Ordinal))
+        {
+            return Combine(home, path[2..]);
+        }
+
+        return path.StartsWith('/') ? Normalize(path) : Combine(home, path);
+    }
+
     public static string Parent(string path)
     {
         var normalized = Normalize(path);

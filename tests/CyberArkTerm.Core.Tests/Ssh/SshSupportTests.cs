@@ -142,4 +142,14 @@ public class SshSupportTests
     [InlineData("Enter your one-time passcode:", false)]
     [InlineData("Verification code: ", false)]
     public void OnlyPasswordPromptsAreCached(string prompt, bool cached) => Assert.Equal(cached, SshConnector.IsPasswordPrompt(prompt));
+
+    [Theory]
+    [InlineData("~", "/home/ops", "/home/ops")]
+    [InlineData("", "/root", "/root")]
+    [InlineData("~/deploy/", "/home/ops", "/home/ops/deploy")]
+    [InlineData("deploy", "/root", "/root/deploy")]
+    [InlineData("/opt/app/../app", "/root", "/opt/app")]
+    [InlineData("  /tmp  ", "/root", "/tmp")]
+    public void ResolvesTheHomeOfEachServer(string path, string home, string expected) =>
+        Assert.Equal(expected, RemotePath.ResolveHome(path, home));
 }

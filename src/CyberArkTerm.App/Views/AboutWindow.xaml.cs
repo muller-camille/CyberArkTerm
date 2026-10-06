@@ -1,0 +1,192 @@
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Media.Imaging;
+using CyberArkTerm.App.Localization;
+using CyberArkTerm.App.Services;
+using CyberArkTerm.Core;
+
+namespace CyberArkTerm.App.Views;
+
+/// <summary>
+/// « À propos » : version, liens du projet, licence, dossier des paramètres, et recherche d'une nouvelle version
+/// (téléchargement vérifié par SHA-256 dans le dossier Téléchargements ; l'exécutable n'est jamais remplacé ici).
+/// </summary>
+public partial class AboutWindow : Window
+{
+    private readonly AppSettings _settings;
+    private readonly Action _saveSettings;
+    private CancellationTokenSource? _download;
+    private string? _downloaded;
+
+    public AboutWindow(AppSettings settings, Action saveSettings)
+    {
+        InitializeComponent();
+        _settings = settings;
+        _saveSettings = saveSettings;
+        try
+        {
+            LogoImage.Source = BitmapFrame.Create(new Uri("pack://application:,,,/Assets/CyberArkTerm.ico", UriKind.Absolute));
+        }
+        catch (Exception ex) when (ex is IOException or NotSupportedException)
+        {
+            LogoImage.Visibility = Visibility.Collapsed;
+        }
+
+        VersionText.Text = Text.Format(Strings.AboutVersion, UpdateChecker.CurrentVersion);
+        LicenseText.Text = Strings.AboutLicense;
+        SystemText.Text = Text.Format(Strings.AboutSystem, RuntimeInformation.FrameworkDescription, RuntimeInformation.OSDescription,
+            RuntimeInformation.ProcessArchitecture);
+        FolderText.Text = Text.Format(Strings.AboutSettingsFolder, SettingsFolder);
+        AutoCheckBox.IsChecked = settings.CheckForUpdates;
+        if (UpdateService.Available is { } known)
+        {
+            ShowUpdate(known);
+        }
+
+        Closed += (_, _) => _download?.Cancel();
+    }
+
+    private static string SettingsFolder => Path.GetDirectoryName(AppSettings.DefaultPath) ?? "";
+
+    private static string DownloadsFolder
+    {
+        get
+        {
+            var downloads = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+            return Directory.Exists(downloads) ? downloads : Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        }
+    }
+
+    private async void OnCheck(object sender, RoutedEventArgs e)
+    {
+        CheckButton.IsEnabled = false;
+        UpdateText.Text = Strings.AboutChecking;
+        UpdateText.ClearValue(ForegroundProperty);
+        try
+        {
+            var latest = await UpdateChecker.CheckAsync(UpdateService.Http, CancellationToken.None);
+            _settings.LastUpdateCheck = DateTime.UtcNow;
+            _saveSettings();
+            if (UpdateChecker.IsNewer(latest.Version, UpdateChecker.CurrentVersion))
+            {
+                UpdateService.Available = latest;
+                ShowUpdate(latest);
+            }
+            else
+            {
+                UpdateText.Text = Text.Format(Strings.AboutUpToDate, UpdateChecker.CurrentVersion);
+                UpdatePanel.Visibility = Visibility.Collapsed;
+            }
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            UpdateText.Text = Text.Format(Strings.AboutCheckFailed, ErrorText.Describe(ex));
+            UpdateText.Foreground = System.Windows.Media.Brushes.Firebrick;
+        }
+        finally
+        {
+            CheckButton.IsEnabled = true;
+        }
+    }
+
+    private void ShowUpdate(UpdateInfo info)
+    {
+        UpdateText.Text = info.Published is { } date
+            ? Text.Format(Strings.AboutNewVersionDated, info.Version, date.LocalDateTime.ToString("d"))
+            : Text.Format(Strings.AboutNewVersion, info.Version);
+        UpdateText.Foreground = System.Windows.Media.Brushes.ForestGreen;
+        UpdatePanel.Visibility = Visibility.Visible;
+        DownloadButton.IsEnabled = info.PackageUrl is not null && info.SumsUrl is not null;
+    }
+
+    /// <summary>Archive téléchargée dans Téléchargements puis comparée à SHA256SUMS.txt ; gardée seulement si identique.</summary>
+    private async void OnDownload(object sender, RoutedEventArgs e)
+    {
+        if (UpdateService.Available is not { } info)
+        {
+            return;
+        }
+
+        DownloadButton.IsEnabled = false;
+        CheckButton.IsEnabled = false;
+        DownloadProgress.Value = 0;
+        DownloadProgress.Visibility = Visibility.Visible;
+        UpdateText.Text = Text.Format(Strings.AboutDownloading, info.PackageName);
+        UpdateText.ClearValue(ForegroundProperty);
+        _download = new CancellationTokenSource();
+        try
+        {
+            _downloaded = await UpdateChecker.DownloadAsync(UpdateService.Http, info, DownloadsFolder,
+                new Progress<double>(value => DownloadProgress.Value = value), _download.Token);
+            UpdateText.Text = Text.Format(Strings.AboutDownloaded, _downloaded);
+            UpdateText.Foreground = System.Windows.Media.Brushes.ForestGreen;
+            ShowFileButton.Visibility = Visibility.Visible;
+        }
+        catch (OperationCanceledException) when (_download.IsCancellationRequested)
+        {
+            // Fenêtre fermée pendant le téléchargement : le fichier partiel a été supprimé.
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            UpdateText.Text = Text.Format(Strings.AboutDownloadFailed, ErrorText.Describe(ex));
+            UpdateText.Foreground = System.Windows.Media.Brushes.Firebrick;
+            DownloadButton.IsEnabled = true;
+        }
+        finally
+        {
+            DownloadProgress.Visibility = Visibility.Collapsed;
+            CheckButton.IsEnabled = true;
+        }
+    }
+
+    private void OnShowFile(object sender, RoutedEventArgs e)
+    {
+        if (_downloaded is not null && File.Exists(_downloaded))
+        {
+            Start("explorer.exe", $"/select,\"{_downloaded}\"");
+        }
+    }
+
+    private void OnAutoCheck(object sender, RoutedEventArgs e)
+    {
+        _settings.CheckForUpdates = AutoCheckBox.IsChecked == true;
+        _saveSettings();
+    }
+
+    private void OnProject(object sender, RoutedEventArgs e) => OpenUrl(UpdateChecker.ProjectUrl);
+
+    private void OnReleases(object sender, RoutedEventArgs e) => OpenUrl(UpdateChecker.ReleasesUrl);
+
+    private void OnReleasePage(object sender, RoutedEventArgs e) => OpenUrl(UpdateService.Available?.PageUrl ?? UpdateChecker.ReleasesUrl);
+
+    private void OnOpenSettingsFolder(object sender, RoutedEventArgs e)
+    {
+        if (Directory.Exists(SettingsFolder))
+        {
+            Start("explorer.exe", $"\"{SettingsFolder}\"");
+        }
+    }
+
+    /// <summary>Navigateur par défaut, seulement pour les adresses du projet.</summary>
+    private void OpenUrl(string url)
+    {
+        if (url.StartsWith(UpdateChecker.ProjectUrl, StringComparison.Ordinal))
+        {
+            Start(url, null);
+        }
+    }
+
+    private void Start(string file, string? arguments)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(file, arguments ?? "") { UseShellExecute = true })?.Dispose();
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            MessageBox.Show(this, ex.Message, Title, MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+}

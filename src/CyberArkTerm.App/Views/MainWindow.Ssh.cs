@@ -138,7 +138,15 @@ public partial class MainWindow
                 ToggleParallel(session);
             }
         };
-        var menu = new ContextMenu { Items = { reconnect, copy, detach, parallel, new Separator(), close, closeOthers } };
+        var ssh = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed;
+        var search = new MenuItem { Header = Strings.MenuTerminalSearch, InputGestureText = Strings.ShortcutTerminalSearch, Visibility = ssh };
+        search.Click += (_, _) => SshViewOf(tab)?.ShowSearch();
+        var save = new MenuItem { Header = Strings.MenuTerminalSave, InputGestureText = Strings.ShortcutTerminalSave, Visibility = ssh, ToolTip = Strings.MenuTerminalSaveTip };
+        save.Click += (_, _) => SshViewOf(tab)?.SaveContent();
+        var menu = new ContextMenu
+        {
+            Items = { reconnect, copy, detach, parallel, new Separator { Visibility = ssh }, search, save, new Separator(), close, closeOthers },
+        };
         menu.Opened += (_, _) =>
         {
             closeOthers.IsEnabled = SessionTabs().Any(t => t != tab);

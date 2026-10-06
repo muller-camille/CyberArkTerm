@@ -56,6 +56,231 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Look for a new version when CyberArkTerm starts (at most once a day; a request to GitHub).
+        /// </summary>
+        public static string AboutAutoCheck {
+            get {
+                return ResourceManager.GetString("AboutAutoCheck", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Check now.
+        /// </summary>
+        public static string AboutCheck {
+            get {
+                return ResourceManager.GetString("AboutCheck", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Check impossible: {0}.
+        /// </summary>
+        public static string AboutCheckFailed {
+            get {
+                return ResourceManager.GetString("AboutCheckFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Asking GitHub for the latest version….
+        /// </summary>
+        public static string AboutChecking {
+            get {
+                return ResourceManager.GetString("AboutChecking", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Windows client for CyberArk: accounts of the PVWA, PSM sessions, SSH sessions through the PSMP wi[rest of string was truncated].
+        /// </summary>
+        public static string AboutDescription {
+            get {
+                return ResourceManager.GetString("AboutDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Download and check.
+        /// </summary>
+        public static string AboutDownload {
+            get {
+                return ResourceManager.GetString("AboutDownload", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Download not kept: {0}.
+        /// </summary>
+        public static string AboutDownloadFailed {
+            get {
+                return ResourceManager.GetString("AboutDownloadFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Download the archive to the Downloads folder and compare it with SHA256SUMS.txt of the same versi[rest of string was truncated].
+        /// </summary>
+        public static string AboutDownloadTip {
+            get {
+                return ResourceManager.GetString("AboutDownloadTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✓ Downloaded and checked (SHA-256 identical to SHA256SUMS.txt): {0}. Close CyberArkTerm, then rep[rest of string was truncated].
+        /// </summary>
+        public static string AboutDownloaded {
+            get {
+                return ResourceManager.GetString("AboutDownloaded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Downloading {0}….
+        /// </summary>
+        public static string AboutDownloading {
+            get {
+                return ResourceManager.GetString("AboutDownloading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to MIT license. Not an official CyberArk product..
+        /// </summary>
+        public static string AboutLicense {
+            get {
+                return ResourceManager.GetString("AboutLicense", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Version {0} is available..
+        /// </summary>
+        public static string AboutNewVersion {
+            get {
+                return ResourceManager.GetString("AboutNewVersion", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Version {0} is available (published on {1})..
+        /// </summary>
+        public static string AboutNewVersionDated {
+            get {
+                return ResourceManager.GetString("AboutNewVersionDated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Open the folder.
+        /// </summary>
+        public static string AboutOpenFolder {
+            get {
+                return ResourceManager.GetString("AboutOpenFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Project page.
+        /// </summary>
+        public static string AboutProject {
+            get {
+                return ResourceManager.GetString("AboutProject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Release page.
+        /// </summary>
+        public static string AboutReleasePage {
+            get {
+                return ResourceManager.GetString("AboutReleasePage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Release notes.
+        /// </summary>
+        public static string AboutReleases {
+            get {
+                return ResourceManager.GetString("AboutReleases", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Settings and history: {0}.
+        /// </summary>
+        public static string AboutSettingsFolder {
+            get {
+                return ResourceManager.GetString("AboutSettingsFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Show the file.
+        /// </summary>
+        public static string AboutShowFile {
+            get {
+                return ResourceManager.GetString("AboutShowFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · {1} · {2}.
+        /// </summary>
+        public static string AboutSystem {
+            get {
+                return ResourceManager.GetString("AboutSystem", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to About CyberArkTerm.
+        /// </summary>
+        public static string AboutTitle {
+            get {
+                return ResourceManager.GetString("AboutTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Version {0} is the latest one..
+        /// </summary>
+        public static string AboutUpToDate {
+            get {
+                return ResourceManager.GetString("AboutUpToDate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing is installed automatically: the checked archive is kept in the Downloads folder, and you [rest of string was truncated].
+        /// </summary>
+        public static string AboutUpdateNote {
+            get {
+                return ResourceManager.GetString("AboutUpdateNote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to New version.
+        /// </summary>
+        public static string AboutUpdates {
+            get {
+                return ResourceManager.GetString("AboutUpdates", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Version {0}.
+        /// </summary>
+        public static string AboutVersion {
+            get {
+                return ResourceManager.GetString("AboutVersion", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Accounts: {0:N0}.
         /// </summary>
         public static string AccountCount {
@@ -781,6 +1006,375 @@ namespace CyberArkTerm.App.Localization {
         public static string ColumnSize {
             get {
                 return ResourceManager.GetString("ColumnSize", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Very different files: the middle part is shown as replaced..
+        /// </summary>
+        public static string CompareApproximate {
+            get {
+                return ResourceManager.GetString("CompareApproximate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ar_guments:.
+        /// </summary>
+        public static string CompareArgumentsLabel {
+            get {
+                return ResourceManager.GetString("CompareArgumentsLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Binary files (or too large for a line by line comparison): different.  {0}   {1} · SHA-256 {2}  {[rest of string was truncated].
+        /// </summary>
+        public static string CompareBinaryDifferent {
+            get {
+                return ResourceManager.GetString("CompareBinaryDifferent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Binary files (or too large for a line by line comparison): identical.  {0}   {1} · SHA-256 {2}  {[rest of string was truncated].
+        /// </summary>
+        public static string CompareBinarySame {
+            get {
+                return ResourceManager.GetString("CompareBinarySame", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Compare.
+        /// </summary>
+        public static string CompareButton {
+            get {
+                return ResourceManager.GetString("CompareButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✗ Different files.
+        /// </summary>
+        public static string CompareDifferent {
+            get {
+                return ResourceManager.GetString("CompareDifferent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Comparison impossible: {0}.
+        /// </summary>
+        public static string CompareFailed {
+            get {
+                return ResourceManager.GetString("CompareFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ··· {0} identical line(s) ···.
+        /// </summary>
+        public static string CompareHiddenLines {
+            get {
+                return ResourceManager.GetString("CompareHiddenLines", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✓ Identical files.
+        /// </summary>
+        public static string CompareIdentical {
+            get {
+                return ResourceManager.GetString("CompareIdentical", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✓ Identical lines (only spaces or line endings differ).
+        /// </summary>
+        public static string CompareIdenticalApart {
+            get {
+                return ResourceManager.GetString("CompareIdenticalApart", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore _spaces.
+        /// </summary>
+        public static string CompareIgnoreWhitespace {
+            get {
+                return ResourceManager.GetString("CompareIgnoreWhitespace", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Compared in memory, without a copy on this computer..
+        /// </summary>
+        public static string CompareInMemory {
+            get {
+                return ResourceManager.GetString("CompareInMemory", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Compare {0} with:.
+        /// </summary>
+        public static string CompareIntro {
+            get {
+                return ResourceManager.GetString("CompareIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Different line endings: {0} on the left, {1} on the right..
+        /// </summary>
+        public static string CompareLineEndings {
+            get {
+                return ResourceManager.GetString("CompareLineEndings", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A file on this _computer.
+        /// </summary>
+        public static string CompareLocal {
+            get {
+                return ResourceManager.GetString("CompareLocal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to this computer : {0}.
+        /// </summary>
+        public static string CompareLocalLabel {
+            get {
+                return ResourceManager.GetString("CompareLocalLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Next ▶.
+        /// </summary>
+        public static string CompareNext {
+            get {
+                return ResourceManager.GetString("CompareNext", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Next difference (F7).
+        /// </summary>
+        public static string CompareNextTip {
+            get {
+                return ResourceManager.GetString("CompareNextTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose an existing file of this computer..
+        /// </summary>
+        public static string CompareNoLocalFile {
+            get {
+                return ResourceManager.GetString("CompareNoLocalFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the path of the file..
+        /// </summary>
+        public static string CompareNoPath {
+            get {
+                return ResourceManager.GetString("CompareNoPath", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose a connected server..
+        /// </summary>
+        public static string CompareNoServer {
+            get {
+                return ResourceManager.GetString("CompareNoServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The files are read into memory (50 MB at most each), without a copy on this computer. Nothing run[rest of string was truncated].
+        /// </summary>
+        public static string CompareNote {
+            get {
+                return ResourceManager.GetString("CompareNote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A file on a _server (open SSH session).
+        /// </summary>
+        public static string CompareOnServer {
+            get {
+                return ResourceManager.GetString("CompareOnServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Only the differences.
+        /// </summary>
+        public static string CompareOnlyDifferences {
+            get {
+                return ResourceManager.GetString("CompareOnlyDifferences", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open in {0}.
+        /// </summary>
+        public static string CompareOpenTool {
+            get {
+                return ResourceManager.GetString("CompareOpenTool", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Path:.
+        /// </summary>
+        public static string ComparePath {
+            get {
+                return ResourceManager.GetString("ComparePath", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Same path by default; ~ is the home folder of the account.
+        /// </summary>
+        public static string ComparePathTip {
+            get {
+                return ResourceManager.GetString("ComparePathTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ◀ _Previous.
+        /// </summary>
+        public static string ComparePrevious {
+            get {
+                return ResourceManager.GetString("ComparePrevious", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Previous difference (Shift+F7).
+        /// </summary>
+        public static string ComparePreviousTip {
+            get {
+                return ResourceManager.GetString("ComparePreviousTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reading {0}….
+        /// </summary>
+        public static string CompareReading {
+            get {
+                return ResourceManager.GetString("CompareReading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Save the _diff….
+        /// </summary>
+        public static string CompareSave {
+            get {
+                return ResourceManager.GetString("CompareSave", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Differences (*.diff)|*.diff|All files (*.*)|*.*.
+        /// </summary>
+        public static string CompareSaveFilter {
+            get {
+                return ResourceManager.GetString("CompareSaveFilter", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Save the differences in the diff -u format, on this computer.
+        /// </summary>
+        public static string CompareSaveTip {
+            get {
+                return ResourceManager.GetString("CompareSaveTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ser_ver:.
+        /// </summary>
+        public static string CompareServer {
+            get {
+                return ResourceManager.GetString("CompareServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} difference(s) · {1} line(s) removed, {2} added.
+        /// </summary>
+        public static string CompareSummary {
+            get {
+                return ResourceManager.GetString("CompareSummary", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Compare.
+        /// </summary>
+        public static string CompareTitle {
+            get {
+                return ResourceManager.GetString("CompareTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The comparison tool could not be started: {0}.
+        /// </summary>
+        public static string CompareToolFailed {
+            get {
+                return ResourceManager.GetString("CompareToolFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Optional: the comparison window offers to open both files in this program (e.g. WinMergeU.exe). {[rest of string was truncated].
+        /// </summary>
+        public static string CompareToolHelp {
+            get {
+                return ResourceManager.GetString("CompareToolHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Comparison _tool:.
+        /// </summary>
+        public static string CompareToolLabel {
+            get {
+                return ResourceManager.GetString("CompareToolLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open both files in the comparison tool of the Settings (temporary copies, deleted when this windo[rest of string was truncated].
+        /// </summary>
+        public static string CompareToolTip {
+            get {
+                return ResourceManager.GetString("CompareToolTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Compare {0} — {1}.
+        /// </summary>
+        public static string CompareWindowTitle {
+            get {
+                return ResourceManager.GetString("CompareWindowTitle", resourceCulture);
             }
         }
 
@@ -1676,6 +2270,24 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Co_mpare the 2 files.
+        /// </summary>
+        public static string FileCompareTwo {
+            get {
+                return ResourceManager.GetString("FileCompareTwo", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Co_mpare with….
+        /// </summary>
+        public static string FileCompareWith {
+            get {
+                return ResourceManager.GetString("FileCompareWith", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Copy path.
         /// </summary>
         public static string FileCopyPath {
@@ -1762,6 +2374,15 @@ namespace CyberArkTerm.App.Localization {
         public static string FileUploadHere {
             get {
                 return ResourceManager.GetString("FileUploadHere", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send to _several servers….
+        /// </summary>
+        public static string FileUploadMany {
+            get {
+                return ResourceManager.GetString("FileUploadMany", resourceCulture);
             }
         }
 
@@ -2455,6 +3076,24 @@ namespace CyberArkTerm.App.Localization {
         public static string InvalidArchiveThreshold {
             get {
                 return ResourceManager.GetString("InvalidArchiveThreshold", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The arguments of the comparison tool must contain {0} and {1}..
+        /// </summary>
+        public static string InvalidCompareArguments {
+            get {
+                return ResourceManager.GetString("InvalidCompareArguments", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The font size must be between {0} and {1}..
+        /// </summary>
+        public static string InvalidFontSize {
+            get {
+                return ResourceManager.GetString("InvalidFontSize", resourceCulture);
             }
         }
 
@@ -3350,6 +3989,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _About CyberArkTerm….
+        /// </summary>
+        public static string MenuAbout {
+            get {
+                return ResourceManager.GetString("MenuAbout", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Add an account….
         /// </summary>
         public static string MenuAddAccount {
@@ -3382,6 +4030,15 @@ namespace CyberArkTerm.App.Localization {
         public static string MenuConnectAdvanced {
             get {
                 return ResourceManager.GetString("MenuConnectAdvanced", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connect to the {0} servers (one tab each).
+        /// </summary>
+        public static string MenuConnectMany {
+            get {
+                return ResourceManager.GetString("MenuConnectMany", resourceCulture);
             }
         }
 
@@ -3647,6 +4304,33 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Open in the _parallel view ({0} SSH servers).
+        /// </summary>
+        public static string MenuOpenFolderInParallel {
+            get {
+                return ResourceManager.GetString("MenuOpenFolderInParallel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open in the _parallel view.
+        /// </summary>
+        public static string MenuOpenInParallel {
+            get {
+                return ResourceManager.GetString("MenuOpenInParallel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open the {0} servers in the _parallel view.
+        /// </summary>
+        public static string MenuOpenManyInParallel {
+            get {
+                return ResourceManager.GetString("MenuOpenManyInParallel", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Password.
         /// </summary>
         public static string MenuPassword {
@@ -3782,6 +4466,33 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Save the terminal _content….
+        /// </summary>
+        public static string MenuTerminalSave {
+            get {
+                return ResourceManager.GetString("MenuTerminalSave", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Write the history and the screen to a text file on this computer; it may contain sensitive inform[rest of string was truncated].
+        /// </summary>
+        public static string MenuTerminalSaveTip {
+            get {
+                return ResourceManager.GetString("MenuTerminalSaveTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Search in the terminal….
+        /// </summary>
+        public static string MenuTerminalSearch {
+            get {
+                return ResourceManager.GetString("MenuTerminalSearch", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to PSM (remote desktop).
         /// </summary>
         public static string ModePsm {
@@ -3796,6 +4507,213 @@ namespace CyberArkTerm.App.Localization {
         public static string ModeSsh {
             get {
                 return ResourceManager.GetString("ModeSsh", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add _files….
+        /// </summary>
+        public static string MultiUploadAddFiles {
+            get {
+                return ResourceManager.GetString("MultiUploadAddFiles", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add a f_older….
+        /// </summary>
+        public static string MultiUploadAddFolder {
+            get {
+                return ResourceManager.GetString("MultiUploadAddFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Checking the destination folder on each server….
+        /// </summary>
+        public static string MultiUploadChecking {
+            get {
+                return ResourceManager.GetString("MultiUploadChecking", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to These files already exist and will be replaced (their old content is lost): {0}  Send anyway?.
+        /// </summary>
+        public static string MultiUploadConflicts {
+            get {
+                return ResourceManager.GetString("MultiUploadConflicts", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send to the {0} other server(s)?.
+        /// </summary>
+        public static string MultiUploadContinue {
+            get {
+                return ResourceManager.GetString("MultiUploadContinue", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Destination folder on each server.
+        /// </summary>
+        public static string MultiUploadDestination {
+            get {
+                return ResourceManager.GetString("MultiUploadDestination", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Absolute path, or ~ for the home folder of the account on each server (e.g. ~/deploy).
+        /// </summary>
+        public static string MultiUploadDestinationTip {
+            get {
+                return ResourceManager.GetString("MultiUploadDestinationTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (not connected).
+        /// </summary>
+        public static string MultiUploadDisconnected {
+            get {
+                return ResourceManager.GetString("MultiUploadDisconnected", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Files and folders to send.
+        /// </summary>
+        public static string MultiUploadFiles {
+            get {
+                return ResourceManager.GetString("MultiUploadFiles", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The same files are sent to each ticked server, one server after the other, in the transfer queue.[rest of string was truncated].
+        /// </summary>
+        public static string MultiUploadIntro {
+            get {
+                return ResourceManager.GetString("MultiUploadIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} → {1}.
+        /// </summary>
+        public static string MultiUploadLabel {
+            get {
+                return ResourceManager.GetString("MultiUploadLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This file or folder no longer exists: {0}.
+        /// </summary>
+        public static string MultiUploadMissing {
+            get {
+                return ResourceManager.GetString("MultiUploadMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the destination folder..
+        /// </summary>
+        public static string MultiUploadNoDestination {
+            get {
+                return ResourceManager.GetString("MultiUploadNoDestination", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add at least one file or folder..
+        /// </summary>
+        public static string MultiUploadNoFile {
+            get {
+                return ResourceManager.GetString("MultiUploadNoFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the folder {1} does not exist.
+        /// </summary>
+        public static string MultiUploadNoFolder {
+            get {
+                return ResourceManager.GetString("MultiUploadNoFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tick at least one connected server..
+        /// </summary>
+        public static string MultiUploadNoServer {
+            get {
+                return ResourceManager.GetString("MultiUploadNoServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing will be sent to these servers: {0}.
+        /// </summary>
+        public static string MultiUploadProblems {
+            get {
+                return ResourceManager.GetString("MultiUploadProblems", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Sent over {0} (setting of the Settings)..
+        /// </summary>
+        public static string MultiUploadProtocol {
+            get {
+                return ResourceManager.GetString("MultiUploadProtocol", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Remove.
+        /// </summary>
+        public static string MultiUploadRemove {
+            get {
+                return ResourceManager.GetString("MultiUploadRemove", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Send.
+        /// </summary>
+        public static string MultiUploadSend {
+            get {
+                return ResourceManager.GetString("MultiUploadSend", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Servers (open SSH sessions).
+        /// </summary>
+        public static string MultiUploadServers {
+            get {
+                return ResourceManager.GetString("MultiUploadServers", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send the same files to several servers (checked by SHA-256 on each one).
+        /// </summary>
+        public static string MultiUploadTip {
+            get {
+                return ResourceManager.GetString("MultiUploadTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send to several servers.
+        /// </summary>
+        public static string MultiUploadTitle {
+            get {
+                return ResourceManager.GetString("MultiUploadTitle", resourceCulture);
             }
         }
 
@@ -4007,6 +4925,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to {0} SSH servers, but the parallel view can take {1} more. Choose which ones to open; each one is [rest of string was truncated].
+        /// </summary>
+        public static string ParallelChooseServers {
+            get {
+                return ResourceManager.GetString("ParallelChooseServers", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Close the view.
         /// </summary>
         public static string ParallelClose {
@@ -4021,6 +4948,33 @@ namespace CyberArkTerm.App.Localization {
         public static string ParallelCloseTip {
             get {
                 return ResourceManager.GetString("ParallelCloseTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Separate _window.
+        /// </summary>
+        public static string ParallelDetach {
+            get {
+                return ResourceManager.GetString("ParallelDetach", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Show the parallel view in its own window (another screen); closing it brings the view back to its[rest of string was truncated].
+        /// </summary>
+        public static string ParallelDetachTip {
+            get {
+                return ResourceManager.GetString("ParallelDetachTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The parallel view is in a separate window..
+        /// </summary>
+        public static string ParallelDetachedPlaceholder {
+            get {
+                return ResourceManager.GetString("ParallelDetachedPlaceholder", resourceCulture);
             }
         }
 
@@ -4088,6 +5042,33 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to None of these servers opens over SSH: only SSH sessions go to the parallel view..
+        /// </summary>
+        public static string ParallelNoSshServer {
+            get {
+                return ResourceManager.GetString("ParallelNoSshServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Open.
+        /// </summary>
+        public static string ParallelOpen {
+            get {
+                return ResourceManager.GetString("ParallelOpen", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} session(s) opened in the parallel view..
+        /// </summary>
+        public static string ParallelOpenedStatus {
+            get {
+                return ResourceManager.GetString("ParallelOpenedStatus", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Paste {0} lines in {1} sessions? Each line runs as a command on every server..
         /// </summary>
         public static string ParallelPasteConfirm {
@@ -4133,6 +5114,24 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Send _files….
+        /// </summary>
+        public static string ParallelSendFiles {
+            get {
+                return ResourceManager.GetString("ParallelSendFiles", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send the same files to the sessions of the view (checked by SHA-256 on each server).
+        /// </summary>
+        public static string ParallelSendFilesTip {
+            get {
+                return ResourceManager.GetString("ParallelSendFilesTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Show.
         /// </summary>
         public static string ParallelShow {
@@ -4147,6 +5146,15 @@ namespace CyberArkTerm.App.Localization {
         public static string ParallelShowView {
             get {
                 return ResourceManager.GetString("ParallelShowView", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Windows (PSM) server(s) left out..
+        /// </summary>
+        public static string ParallelSkippedPsm {
+            get {
+                return ResourceManager.GetString("ParallelSkippedPsm", resourceCulture);
             }
         }
 
@@ -4192,6 +5200,15 @@ namespace CyberArkTerm.App.Localization {
         public static string ParallelTitle {
             get {
                 return ResourceManager.GetString("ParallelTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CyberArkTerm — parallel view ({0}).
+        /// </summary>
+        public static string ParallelWindowTitle {
+            get {
+                return ResourceManager.GetString("ParallelWindowTitle", resourceCulture);
             }
         }
 
@@ -5726,6 +6743,33 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to {0} server(s) selected: right-click one of them to open them together (Esc to cancel)..
+        /// </summary>
+        public static string SavedMarkedStatus {
+            get {
+                return ResourceManager.GetString("SavedMarkedStatus", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} server(s) no longer found in CyberArk..
+        /// </summary>
+        public static string SavedMissingAccounts {
+            get {
+                return ResourceManager.GetString("SavedMissingAccounts", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} connection(s) opened..
+        /// </summary>
+        public static string SavedOpenedStatus {
+            get {
+                return ResourceManager.GetString("SavedOpenedStatus", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to No server matches “{0}”..
         /// </summary>
         public static string SavedSearchNoMatch {
@@ -6037,6 +7081,24 @@ namespace CyberArkTerm.App.Localization {
         public static string ShortcutSshKey {
             get {
                 return ResourceManager.GetString("ShortcutSshKey", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+Shift+S.
+        /// </summary>
+        public static string ShortcutTerminalSave {
+            get {
+                return ResourceManager.GetString("ShortcutTerminalSave", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+Shift+F.
+        /// </summary>
+        public static string ShortcutTerminalSearch {
+            get {
+                return ResourceManager.GetString("ShortcutTerminalSearch", resourceCulture);
             }
         }
 
@@ -7004,6 +8066,87 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _Font:.
+        /// </summary>
+        public static string TerminalFontLabel {
+            get {
+                return ResourceManager.GetString("TerminalFontLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Font size of the terminals (8 to 32). Ctrl+wheel changes it for one terminal, Ctrl+0 restores it..
+        /// </summary>
+        public static string TerminalFontTip {
+            get {
+                return ResourceManager.GetString("TerminalFontTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Text files (*.txt)|*.txt|All files (*.*)|*.*.
+        /// </summary>
+        public static string TerminalSaveFilter {
+            get {
+                return ResourceManager.GetString("TerminalSaveFilter", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Save the terminal content.
+        /// </summary>
+        public static string TerminalSaveTitle {
+            get {
+                return ResourceManager.GetString("TerminalSaveTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close the search (Esc).
+        /// </summary>
+        public static string TerminalSearchCloseTip {
+            get {
+                return ResourceManager.GetString("TerminalSearchCloseTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Newer (Shift+Enter).
+        /// </summary>
+        public static string TerminalSearchNewerTip {
+            get {
+                return ResourceManager.GetString("TerminalSearchNewerTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Older (Enter).
+        /// </summary>
+        public static string TerminalSearchOlderTip {
+            get {
+                return ResourceManager.GetString("TerminalSearchOlderTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Search in the terminal, history included (Enter: older, Shift+Enter: newer, Esc: close).
+        /// </summary>
+        public static string TerminalSearchTip {
+            get {
+                return ResourceManager.GetString("TerminalSearchTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Terminal _colours:.
+        /// </summary>
+        public static string TerminalThemeLabel {
+            get {
+                return ResourceManager.GetString("TerminalThemeLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Choose the text editor.
         /// </summary>
         public static string TextEditorDialogTitle {
@@ -7315,6 +8458,15 @@ namespace CyberArkTerm.App.Localization {
         public static string TransferVerifiedOne {
             get {
                 return ResourceManager.GetString("TransferVerifiedOne", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Version {0} available.
+        /// </summary>
+        public static string UpdateAvailableLink {
+            get {
+                return ResourceManager.GetString("UpdateAvailableLink", resourceCulture);
             }
         }
 

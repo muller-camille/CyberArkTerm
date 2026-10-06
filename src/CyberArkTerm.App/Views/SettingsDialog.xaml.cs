@@ -1,10 +1,12 @@
 using System.Globalization;
 using System.Windows;
 using CyberArkTerm.App.Localization;
+using CyberArkTerm.App.Terminal;
 using CyberArkTerm.Core;
 using CyberArkTerm.Core.KeePass;
 using CyberArkTerm.Core.Localization;
 using CyberArkTerm.Core.Ssh;
+using CyberArkTerm.Core.Terminal;
 
 namespace CyberArkTerm.App.Views;
 
@@ -22,6 +24,7 @@ public partial class SettingsDialog : Window
         _settings = settings;
         _store = store;
         KeepAliveBox.IsChecked = settings.KeepPvwaSessionAlive;
+        UpdateCheckBox.IsChecked = settings.CheckForUpdates;
         UpdateStore();
         LanguageBox.DisplayMemberPath = "Value";
         LanguageBox.SelectedValuePath = "Key";
@@ -34,6 +37,11 @@ public partial class SettingsDialog : Window
         SshInAppBox.IsChecked = settings.SshInApp;
         FollowBox.IsChecked = settings.FollowTerminalFolder;
         EditorBox.Text = settings.TextEditor;
+        CompareToolBox.Text = settings.CompareTool;
+        ThemeBox.ItemsSource = TerminalTheme.All;
+        ThemeBox.SelectedItem = TerminalTheme.Find(settings.TerminalTheme);
+        FontSizeBox.Text = settings.TerminalFontSize.ToString(CultureInfo.CurrentCulture);
+        CompareArgsBox.Text = settings.CompareToolArguments;
         (settings.UploadProtocol == TransferProtocol.Sftp ? SftpRadio : ScpRadio).IsChecked = true;
         ArchiveBox.IsChecked = settings.OfferArchive;
         ArchiveThresholdBox.Text = settings.ArchiveThreshold.ToString(CultureInfo.InvariantCulture);
@@ -80,17 +88,42 @@ public partial class SettingsDialog : Window
             return;
         }
 
+        if (!double.TryParse(FontSizeBox.Text.Trim(), NumberStyles.Float, CultureInfo.CurrentCulture, out var fontSize)
+            || fontSize < TerminalAppearance.MinFontSize || fontSize > TerminalAppearance.MaxFontSize)
+        {
+            ShowError(Text.Format(Strings.InvalidFontSize, TerminalAppearance.MinFontSize, TerminalAppearance.MaxFontSize));
+            return;
+        }
+
+        var compareArgs = CompareArgsBox.Text.Trim();
+        if (compareArgs.Length == 0)
+        {
+            compareArgs = AppSettings.DefaultCompareArguments;
+        }
+
+        if (!compareArgs.Contains("{0}", StringComparison.Ordinal) || !compareArgs.Contains("{1}", StringComparison.Ordinal)
+            || !IsValidFormat(compareArgs))
+        {
+            ShowError(Strings.InvalidCompareArguments);
+            return;
+        }
+
         _settings.Language = LanguageBox.SelectedValue as string ?? "";
         _settings.PsmpAddress = host;
         _settings.PsmpPort = port;
         _settings.SshInApp = SshInAppBox.IsChecked == true;
         _settings.FollowTerminalFolder = FollowBox.IsChecked == true;
         _settings.KeepPvwaSessionAlive = KeepAliveBox.IsChecked == true;
+        _settings.CheckForUpdates = UpdateCheckBox.IsChecked == true;
         _settings.UploadProtocol = SftpRadio.IsChecked == true ? TransferProtocol.Sftp : TransferProtocol.Scp;
         _settings.OfferArchive = ArchiveBox.IsChecked == true;
         _settings.ArchiveThreshold = threshold;
         _settings.TailIndependentSession = TailSessionBox.IsChecked == true;
         _settings.TextEditor = EditorBox.Text.Trim().Trim('"');
+        _settings.CompareTool = CompareToolBox.Text.Trim().Trim('"');
+        _settings.TerminalTheme = (ThemeBox.SelectedItem as TerminalTheme ?? TerminalTheme.Campbell).Id;
+        _settings.TerminalFontSize = fontSize;
+        _settings.CompareToolArguments = compareArgs;
         if (_forgetHostKeys)
         {
             _settings.KnownHosts.Clear();
@@ -110,6 +143,29 @@ public partial class SettingsDialog : Window
         if (dialog.ShowDialog(this) == true)
         {
             EditorBox.Text = dialog.FileName;
+        }
+    }
+
+    private void OnBrowseCompareTool(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog { Title = Strings.CompareToolLabel.Replace("_", "").TrimEnd(':', ' '), Filter = Strings.ProgramsFilter };
+        if (dialog.ShowDialog(this) == true)
+        {
+            CompareToolBox.Text = dialog.FileName;
+        }
+    }
+
+    /// <summary>Arguments utilisables avec string.Format (accolades équilibrées, au plus {0} et {1}).</summary>
+    private static bool IsValidFormat(string template)
+    {
+        try
+        {
+            _ = string.Format(CultureInfo.InvariantCulture, template, "a", "b");
+            return true;
+        }
+        catch (FormatException)
+        {
+            return false;
         }
     }
 
