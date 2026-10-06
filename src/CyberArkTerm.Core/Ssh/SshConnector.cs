@@ -60,15 +60,18 @@ public sealed class SshConnector
     public Task<SftpClient> ConnectSftpAsync(CancellationToken ct) => ConnectAsync(info => new SftpClient(info), ct);
 
     /// <summary>
-    /// SCP : les chemins sont passés à une commande « scp -t » exécutée par le shell de la cible ;
-    /// ils sont donc protégés entre apostrophes (ShellQuote) pour empêcher toute injection de commande.
+    /// Connexion des envois SCP : les chemins sont passés à une commande « scp -t » exécutée par le shell de la cible ;
+    /// ils sont donc protégés entre apostrophes (ShellQuote, voir <see cref="ScpUpload"/>) pour empêcher toute
+    /// injection de commande.
     /// </summary>
-    public Task<ScpClient> ConnectScpAsync(CancellationToken ct) =>
-        ConnectAsync(info => new ScpClient(info, RemotePathTransformation.ShellQuote), ct);
+    public Task<SshClient> ConnectScpAsync(CancellationToken ct) =>
+        ConnectAsync(info => new SshClient(info), ct, "SCP");
 
-    private async Task<T> ConnectAsync<T>(Func<ConnectionInfo, T> create, CancellationToken ct)
+    /// <param name="purpose">Nom de la connexion dans le journal (par défaut, son type).</param>
+    private async Task<T> ConnectAsync<T>(Func<ConnectionInfo, T> create, CancellationToken ct, string? purpose = null)
         where T : BaseClient
     {
+        purpose ??= typeof(T).Name;
         // 1er essai : clé MFA (ou mot de passe connu) + keyboard-interactive. Ensuite, selon les méthodes que le
         // serveur annonce dans son refus : keyboard-interactive à nouveau (mauvais mot de passe) ou « password ».
         bool usePassword = false;
@@ -141,10 +144,13 @@ public sealed class SshConnector
                 e.CanTrust = _ui.CheckHostKey(Host, Port, e.HostKeyName, e.FingerPrintSHA256);
                 DebugLog.Write("ssh", $"{Host}:{Port} : clé d'hôte {e.HostKeyName} SHA256:{e.FingerPrintSHA256}, acceptée {e.CanTrust}");
             };
-            DebugLog.Write("ssh", $"{Host}:{Port} : connexion {typeof(T).Name}, essai {attempt + 1}, méthodes {string.Join(", ", methods.Select(m => m.Name))}");
+            DebugLog.Write("ssh", $"{Host}:{Port} : connexion {purpose}, essai {attempt + 1}, méthodes {string.Join(", ", methods.Select(m => m.Name))}");
             try
             {
                 await client.ConnectAsync(ct).ConfigureAwait(false);
+                var c = client.ConnectionInfo;
+                DebugLog.Write("ssh", $"{Host}:{Port} : {purpose} connecté, serveur « {c.ServerVersion} », échange de clés {c.CurrentKeyExchangeAlgorithm}, "
+                    + $"chiffrement {c.CurrentServerEncryption}/{c.CurrentClientEncryption}, compression {c.CurrentServerCompressionAlgorithm}");
                 return client;
             }
             catch (SshAuthenticationException ex) when (!cancelled && attempt < 3)
@@ -158,7 +164,7 @@ public sealed class SshConnector
             }
             catch (Exception ex)
             {
-                DebugLog.Write("ssh", $"{Host}:{Port} : échec de la connexion {typeof(T).Name}", ex);
+                DebugLog.Write("ssh", $"{Host}:{Port} : échec de la connexion {purpose}", ex);
                 client.Dispose();
                 if (cancelled)
                 {

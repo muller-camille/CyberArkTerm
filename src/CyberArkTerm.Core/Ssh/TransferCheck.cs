@@ -22,6 +22,15 @@ public sealed record TransferCheck(
     /// <summary>Transfert en échec pendant ce fichier (message dans <see cref="Error"/>).</summary>
     public bool Failed { get; init; }
 
+    /// <summary>Protocole de l'envoi de ce fichier (null pour un téléchargement).</summary>
+    public TransferProtocol? Protocol { get; init; }
+
+    /// <summary>Protocole refusé par le serveur pour ce fichier avant que <see cref="Protocol"/> prenne le relais.</summary>
+    public TransferProtocol? Refused { get; init; }
+
+    /// <summary>Ce que le serveur a répondu en refusant <see cref="Refused"/> (message, code de sortie…).</summary>
+    public string? RefusedReason { get; init; }
+
     public bool Verified => Error is null;
 
     public bool Matches => Verified && LocalLength == RemoteLength && LocalSha256.AsSpan().SequenceEqual(RemoteSha256);

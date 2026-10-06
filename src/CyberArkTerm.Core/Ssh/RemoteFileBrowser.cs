@@ -13,14 +13,18 @@ namespace CyberArkTerm.Core.Ssh;
 public sealed class RemoteFileBrowser : IDisposable
 {
     private readonly SftpClient _sftp;
-    private readonly Func<CancellationToken, Task<ScpClient>> _scpFactory;
+    private readonly Func<CancellationToken, Task<SshClient>> _scpFactory;
     private readonly PriorityGate _gate = new();
 
     // Une seule commande SCP à la fois sur la connexion SCP.
     private readonly SemaphoreSlim _scpGate = new(1, 1);
-    private ScpClient? _scp;
+    private SshClient? _scp;
 
-    public RemoteFileBrowser(SftpClient sftp, Func<CancellationToken, Task<ScpClient>> scpFactory)
+    // Plus petite taille de fichier refusée en SCP dès l'annonce de sa taille : les fichiers au moins aussi gros partent
+    // d'abord en SFTP.
+    private long _scpRefusedFrom = long.MaxValue;
+
+    public RemoteFileBrowser(SftpClient sftp, Func<CancellationToken, Task<SshClient>> scpFactory)
     {
         _sftp = sftp;
         _scpFactory = scpFactory;
@@ -103,6 +107,7 @@ public sealed class RemoteFileBrowser : IDisposable
     /// fois : chaque fichier est envoyé (SCP ou SFTP), puis relu par SFTP pour comparer sa somme SHA-256 à celle du
     /// fichier local. Entre deux fichiers, les demandes interactives (navigation, suppression...) passent avant.
     /// </summary>
+    /// <param name="protocol">Protocole préféré ; refusé par le serveur pour un fichier, l'autre prend le relais.</param>
     /// <param name="checks">Reçoit la vérification de chaque fichier traité, y compris celui en échec ou interrompu.</param>
     /// <param name="background">Transfert de la file d'attente : passe après les demandes interactives.</param>
     /// <exception cref="OperationCanceledException">
@@ -482,7 +487,7 @@ public sealed class RemoteFileBrowser : IDisposable
         // sans AvailableWaitHandle ne retient aucune ressource).
     }
 
-    private async Task<ScpClient> GetScpAsync(CancellationToken ct)
+    private async Task<SshClient> GetScpAsync(CancellationToken ct)
     {
         if (_scp is { } current && IsUsable(current))
         {
@@ -516,29 +521,64 @@ public sealed class RemoteFileBrowser : IDisposable
     }
 
     /// <summary>
-    /// Un fichier : envoi, puis vérification. Annulé pendant l'envoi : le fichier incomplet est supprimé du serveur
-    /// (seulement si son envoi avait commencé, pour ne pas effacer un fichier existant resté intact). En échec : noté
-    /// tel quel, le fichier du serveur pouvant être incomplet.
+    /// Un fichier : envoi, puis vérification. Si le serveur refuse le protocole choisi avant tout contenu (PSMP qui
+    /// limite la taille des envois SCP, SFTP en lecture seule…), l'autre protocole prend le relais aussitôt, sans
+    /// attente ni question. Annulé pendant l'envoi : le fichier incomplet est supprimé du serveur (seulement si son
+    /// envoi avait commencé, pour ne pas effacer un fichier existant resté intact). En échec : noté tel quel, le fichier
+    /// du serveur pouvant être incomplet.
     /// </summary>
     private async Task UploadFileAsync(string localPath, string remotePath, TransferProtocol protocol, ICollection<TransferCheck> checks,
         IProgress<TransferProgress>? progress, bool background, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         var name = Path.GetFileName(localPath);
+        long length = LocalLength(localPath);
+        var used = protocol;
+        TransferProtocol? refused = null;
+        string? reason = null;
+        long refusedFrom = Interlocked.Read(ref _scpRefusedFrom);
+        if (protocol == TransferProtocol.Scp && length >= refusedFrom)
+        {
+            // Un fichier au moins aussi gros a déjà été refusé en SCP à son annonce dans cet onglet : SFTP d'abord, sans
+            // attendre un nouveau refus (SCP reste essayé si SFTP est refusé à son tour).
+            Diagnostics.DebugLog.Write("files", $"SCP refusé plus tôt dans cet onglet pour un fichier de {refusedFrom} octets : {name} ({length} octets) part en SFTP");
+            used = TransferProtocol.Sftp;
+            refused = TransferProtocol.Scp;
+            reason = string.Format(CultureInfo.CurrentCulture, CoreStrings.ScpRefusedEarlier, RemotePath.FormatSize(refusedFrom));
+        }
+
         bool started = false;
         (byte[] Hash, long Length)? sent = null;
         try
         {
-            if (protocol == TransferProtocol.Scp)
+            try
             {
-                await SendScpAsync(localPath, remotePath, name, value => started = value, progress, ct).ConfigureAwait(false);
+                sent = await SendAsync(used, localPath, remotePath, name, length, value => started = value, progress, background, ct)
+                    .ConfigureAwait(false);
             }
-            else
+            catch (UploadRefusedException e)
             {
-                using (await _gate.EnterAsync(background, ct).ConfigureAwait(false))
+                // Refusé avant tout contenu : rien n'a été écrit sur le serveur, l'autre protocole prend le relais.
+                started = false;
+                ct.ThrowIfCancellationRequested();
+                Diagnostics.DebugLog.Write("files", $"{used.Label()} refusé par le serveur pour {name} ({e.Message}) : envoi en {used.Other().Label()}");
+                if (e.AtHeader)
                 {
-                    started = true;
-                    sent = await SendSftpAsync(localPath, remotePath, name, progress, ct).ConfigureAwait(false);
+                    RememberScpRefusal(length);
+                }
+
+                reason = e.Message;
+                refused = used;
+                used = used.Other();
+                try
+                {
+                    sent = await SendAsync(used, localPath, remotePath, name, length, value => started = value, progress, background, ct)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception second) when (second is not OperationCanceledException && second is not OutOfMemoryException)
+                {
+                    throw new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.UploadRefusedThenFailed,
+                        refused.Value.Label(), e.Message, used.Label(), second.Message), second);
                 }
             }
         }
@@ -546,14 +586,16 @@ public sealed class RemoteFileBrowser : IDisposable
         {
             if (started)
             {
-                checks.Add(await DiscardRemoteAsync(name, localPath, remotePath).ConfigureAwait(false));
+                checks.Add((await DiscardRemoteAsync(name, localPath, remotePath).ConfigureAwait(false))
+                    with { Protocol = used, Refused = refused, RefusedReason = reason });
             }
 
             throw;
         }
         catch (Exception e) when (e is not OutOfMemoryException)
         {
-            checks.Add(new TransferCheck(name, localPath, remotePath, -1, [], -1, [], e.Message) { Upload = true, Failed = true });
+            checks.Add(new TransferCheck(name, localPath, remotePath, -1, [], -1, [], e.Message)
+                { Upload = true, Failed = true, Protocol = used, Refused = refused, RefusedReason = reason });
             throw;
         }
 
@@ -564,17 +606,69 @@ public sealed class RemoteFileBrowser : IDisposable
             var (localHash, localLength) = sent ?? await TransferCheck.HashFileAsync(localPath, ct).ConfigureAwait(false);
             using (await _gate.EnterAsync(background, ct).ConfigureAwait(false))
             {
-                checks.Add(await CheckRemoteAsync(name, localPath, remotePath, localLength, localHash, progress, ct).ConfigureAwait(false));
+                var check = await CheckRemoteAsync(name, localPath, remotePath, localLength, localHash, progress, ct).ConfigureAwait(false);
+                checks.Add(check with { Protocol = used, Refused = refused, RefusedReason = reason });
             }
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            checks.Add(new TransferCheck(name, localPath, remotePath, -1, [], -1, [], CoreStrings.TransferCheckCancelled) { Upload = true });
+            checks.Add(new TransferCheck(name, localPath, remotePath, -1, [], -1, [], CoreStrings.TransferCheckCancelled)
+                { Upload = true, Protocol = used, Refused = refused, RefusedReason = reason });
             throw;
         }
     }
 
-    /// <summary>Envoi SFTP, en hachant le fichier local au fil de l'envoi.</summary>
+    /// <summary>Envoi par l'un des deux protocoles ; SFTP rend la somme du fichier, hachée au fil de l'envoi.</summary>
+    /// <param name="started">Vrai quand le fichier du serveur a pu être touché (annulé ensuite : il est supprimé).</param>
+    private async Task<(byte[] Hash, long Length)?> SendAsync(TransferProtocol protocol, string localPath, string remotePath, string name,
+        long length, Action<bool> started, IProgress<TransferProgress>? progress, bool background, CancellationToken ct)
+    {
+        progress?.Report(new TransferProgress(name, 0, length, Protocol: protocol));
+        if (protocol == TransferProtocol.Scp)
+        {
+            await SendScpAsync(localPath, remotePath, name, started, progress, ct).ConfigureAwait(false);
+            return null;
+        }
+
+        using (await _gate.EnterAsync(background, ct).ConfigureAwait(false))
+        {
+            started(true);
+            return await SendSftpAsync(localPath, remotePath, name, progress, ct).ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>Taille du fichier local ; -1 s'il est illisible (l'envoi le signalera).</summary>
+    private static long LocalLength(string path)
+    {
+        try
+        {
+            return new FileInfo(path).Length;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            return -1;
+        }
+    }
+
+    /// <summary>SCP refusé dès l'annonce de la taille (limite de taille du PSMP probable) : retenu pour cet onglet.</summary>
+    private void RememberScpRefusal(long length)
+    {
+        if (length < 0)
+        {
+            return;
+        }
+
+        long current;
+        while (length < (current = Interlocked.Read(ref _scpRefusedFrom))
+               && Interlocked.CompareExchange(ref _scpRefusedFrom, length, current) != current)
+        {
+        }
+    }
+
+    /// <summary>
+    /// Envoi SFTP, en hachant le fichier local au fil de l'envoi. Refusé par le serveur avant tout contenu (ouverture
+    /// du fichier refusée, la connexion restant ouverte) : <see cref="UploadRefusedException"/>.
+    /// </summary>
     private async Task<(byte[] Hash, long Length)> SendSftpAsync(string localPath, string remotePath, string name,
         IProgress<TransferProgress>? progress, CancellationToken ct)
     {
@@ -582,8 +676,19 @@ public sealed class RemoteFileBrowser : IDisposable
         using var hashing = new HashingStream(file);
         long total = file.Length;
         var report = progress is null ? null : new Progress<Renci.SshNet.UploadFileProgressReport>(
-            p => progress.Report(new TransferProgress(name, (long)p.TotalBytesUploaded, total)));
-        await _sftp.UploadFileAsync(hashing, remotePath, report, ct).ConfigureAwait(false);
+            p => progress.Report(new TransferProgress(name, (long)p.TotalBytesUploaded, total, Protocol: TransferProtocol.Sftp)));
+        try
+        {
+            await _sftp.UploadFileAsync(hashing, remotePath, report, ct).ConfigureAwait(false);
+        }
+        catch (Renci.SshNet.Common.SshException e) when (hashing.Count == 0 && _sftp.IsConnected
+            && e is not Renci.SshNet.Common.SftpPathNotFoundException && !ct.IsCancellationRequested)
+        {
+            // Rien n'a été lu du fichier : le serveur a refusé l'ouverture (droits, SFTP en lecture seule…). Dossier
+            // absent : SCP échouerait de même, l'erreur reste telle quelle.
+            throw new UploadRefusedException(e.Message, e);
+        }
+
         return (hashing.GetHash(), hashing.Count);
     }
 
@@ -593,114 +698,120 @@ public sealed class RemoteFileBrowser : IDisposable
     /// </summary>
     internal static TimeSpan ScpStopTimeout { get; set; } = TimeSpan.FromSeconds(2);
 
-    /// <summary>Attente avant de réessayer un envoi SCP dont le canal a été fermé par le serveur avant tout envoi.</summary>
-    internal static TimeSpan ScpRetryDelay { get; set; } = TimeSpan.FromSeconds(2);
-
     /// <summary>
     /// Envoi SCP (connexion SCP dédiée, la connexion SFTP reste libre pendant ce temps). Une annulation arrête l'envoi
     /// à la lecture suivante du fichier : seul son canal se ferme, la connexion SCP reste ouverte pour les envois
     /// suivants (rouvrir une session par le PSMP juste après en avoir coupé une peut être refusé). La connexion n'est
     /// coupée que si l'envoi ne s'arrête pas (serveur muet). Une connexion en échec est oubliée : l'envoi suivant en
-    /// ouvre une neuve ; si le serveur ferme le canal avant le début de l'envoi, un second essai est fait.
+    /// ouvre une neuve. Refusé par le serveur avant le contenu (connexion refusée, canal fermé par le PSMP, refus de
+    /// scp) : <see cref="UploadRefusedException"/>, rien n'a été écrit.
     /// </summary>
-    /// <param name="started">
-    /// Vrai quand le fichier du serveur a pu être touché (annulé ensuite : il est supprimé) ; faux de nouveau pendant
-    /// l'attente du second essai, le serveur ayant fermé le canal avant tout envoi.
-    /// </param>
+    /// <param name="started">Vrai quand le fichier du serveur a pu être touché (annulé ensuite : il est supprimé).</param>
     private async Task SendScpAsync(string localPath, string remotePath, string name, Action<bool> started,
         IProgress<TransferProgress>? progress, CancellationToken ct)
     {
         await _scpGate.WaitAsync(ct).ConfigureAwait(false);
         try
         {
-            for (int attempt = 1; ; attempt++)
+            SshClient scp;
+            try
             {
-                ScpClient scp;
-                try
-                {
-                    scp = await GetScpAsync(ct).ConfigureAwait(false);
-                }
-                catch (Exception e) when (attempt > 1 && e is not OperationCanceledException)
-                {
-                    // Second essai : la connexion neuve est refusée à son tour (PSMP).
-                    throw new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.ScpClosedByServer, e.Message), e);
-                }
+                scp = await GetScpAsync(ct).ConfigureAwait(false);
+            }
+            catch (Exception e) when (!ct.IsCancellationRequested && e is not OutOfMemoryException)
+            {
+                // Connexion SCP refusée (PSMP, authentification abandonnée…).
+                Diagnostics.DebugLog.Write("files", $"SCP {name} : connexion SCP impossible ({e.GetType().Name} : {e.Message})");
+                throw new UploadRefusedException(e.Message, e);
+            }
 
-                await using var file = File.OpenRead(localPath);
-                using var source = new CancellableReadStream(file, ct);
-                var stop = new ScpStop();
-                EventHandler<Renci.SshNet.Common.ScpUploadEventArgs> handler = (_, e) => progress?.Report(new TransferProgress(name, e.Uploaded, e.Size));
-                scp.Uploading += handler;
-                try
+            await using var file = File.OpenRead(localPath);
+            using var source = new CancellableReadStream(file, ct);
+            long length = file.Length;
+            var stop = new ScpStop();
+            try
+            {
+                started(true);
+                // Fil dédié : un envoi qui reste bloqué dans la bibliothèque SSH n'immobilise pas le pool de threads.
+                var upload = Task.Factory.StartNew(
+                    () => ScpUpload.Run(scp, source, length, remotePath,
+                        sent => progress?.Report(new TransferProgress(name, sent, length, Protocol: TransferProtocol.Scp))),
+                    CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                var cut = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+                await using (ct.Register(() => _ = StopStuckScpAsync(upload, scp, stop, cut)))
                 {
-                    started(true);
-                    // Fil dédié : un envoi qui reste bloqué dans la bibliothèque SSH n'immobilise pas le pool de threads.
-                    var upload = Task.Factory.StartNew(() => scp.Upload(source, remotePath), CancellationToken.None,
-                        TaskCreationOptions.LongRunning, TaskScheduler.Default);
-                    var cut = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-                    await using (ct.Register(() => _ = StopStuckScpAsync(upload, scp, stop, cut)))
+                    if (await Task.WhenAny(upload, cut.Task).ConfigureAwait(false) != upload)
                     {
-                        if (await Task.WhenAny(upload, cut.Task).ConfigureAwait(false) != upload)
-                        {
-                            // Connexion coupée, mais l'envoi peut rester bloqué dans l'attente d'une réponse du serveur
-                            // (la bibliothèque SSH ne s'en libère pas) : il est abandonné, la file continue.
-                            _ = upload.ContinueWith(t => _ = t.Exception, CancellationToken.None,
-                                TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
-                            throw new OperationCanceledException(ct);
-                        }
-
-                        await upload.ConfigureAwait(false);
+                        // Connexion coupée, mais l'envoi peut rester bloqué dans l'attente d'une réponse du serveur
+                        // (la bibliothèque SSH ne s'en libère pas) : il est abandonné, la file continue.
+                        _ = upload.ContinueWith(t => _ = t.Exception, CancellationToken.None,
+                            TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
+                        throw new OperationCanceledException(ct);
                     }
 
-                    return;
+                    await upload.ConfigureAwait(false);
                 }
-                catch (Exception) when (ct.IsCancellationRequested)
-                {
-                    // Arrêtée à la lecture suivante : la connexion reste utilisable. Coupée (serveur muet) : oubliée.
-                    if (!IsUsable(scp))
-                    {
-                        ForgetScp(scp);
-                    }
-
-                    throw new OperationCanceledException(ct);
-                }
-                catch (Renci.SshNet.Common.ScpException)
-                {
-                    // Refus de scp sur le serveur (droits, dossier absent…) : message du serveur, connexion intacte.
-                    throw;
-                }
-                catch (Renci.SshNet.Common.SshException e) when (attempt == 1 && !source.WasRead)
-                {
-                    // Canal fermé par le serveur avant l'envoi du contenu (session PSMP refusée…) : rien n'a été écrit,
-                    // nouvel essai sur une connexion neuve ; une annulation pendant l'attente ne supprime rien.
-                    Diagnostics.DebugLog.Write("files", $"SCP : canal fermé par le serveur avant l'envoi de {name} ({e.Message}), nouvel essai");
-                    ForgetScp(scp);
-                    started(false);
-                    await Task.Delay(ScpRetryDelay, ct).ConfigureAwait(false);
-                }
-                catch (Renci.SshNet.Common.SshException e)
+            }
+            catch (Exception) when (ct.IsCancellationRequested)
+            {
+                // Arrêtée à la lecture suivante : la connexion reste utilisable. Coupée (serveur muet) : oubliée.
+                if (!IsUsable(scp))
                 {
                     ForgetScp(scp);
-                    throw new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.ScpClosedByServer, e.Message), e);
                 }
-                catch (Exception)
-                {
-                    // Erreur hors SSH (fichier local illisible…) : seul le canal est fermé, la connexion sert encore.
-                    if (!IsUsable(scp))
-                    {
-                        ForgetScp(scp);
-                    }
 
-                    throw;
-                }
-                finally
+                throw new OperationCanceledException(ct);
+            }
+            catch (ScpStepException e) when (e.Step != ScpStep.End)
+            {
+                // Refusé avant le contenu (commande scp ou annonce du fichier) : rien n'a été écrit. Refus expliqué par
+                // scp (droits…) : connexion intacte ; canal fermé ou sans réponse : connexion oubliée.
+                if (!e.FromScp)
                 {
-                    scp.Uploading -= handler;
-                    // Coupée par la surveillance juste quand l'envoi se terminait : à ne pas laisser au suivant.
-                    if (!stop.Finish())
-                    {
-                        ForgetScp(scp);
-                    }
+                    ForgetScp(scp);
+                }
+
+                throw new UploadRefusedException(e.Message, e, atHeader: e.Step == ScpStep.Header && !e.FromScp);
+            }
+            catch (ScpStepException e) when (e.FromScp)
+            {
+                // Erreur de scp après le contenu (disque plein…) : message du serveur, connexion intacte.
+                throw new IOException(e.Message, e);
+            }
+            catch (ScpStepException e)
+            {
+                ForgetScp(scp);
+                throw new IOException(e.Message, e);
+            }
+            catch (Renci.SshNet.Common.SshException e) when (!source.WasRead)
+            {
+                // Canal refusé ou connexion perdue avant le contenu.
+                Diagnostics.DebugLog.Write("files", $"SCP {name} : échec avant le contenu ({e.GetType().Name} : {e.Message})");
+                ForgetScp(scp);
+                throw new UploadRefusedException(e.Message, e);
+            }
+            catch (Renci.SshNet.Common.SshException e)
+            {
+                Diagnostics.DebugLog.Write("files", $"SCP {name} : échec pendant l'envoi ({e.GetType().Name} : {e.Message})");
+                ForgetScp(scp);
+                throw new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.ScpClosedByServer, e.Message), e);
+            }
+            catch (Exception)
+            {
+                // Erreur hors SSH (fichier local illisible…) : seul le canal est fermé, la connexion sert encore.
+                if (!IsUsable(scp))
+                {
+                    ForgetScp(scp);
+                }
+
+                throw;
+            }
+            finally
+            {
+                // Coupée par la surveillance juste quand l'envoi se terminait : à ne pas laisser au suivant.
+                if (!stop.Finish())
+                {
+                    ForgetScp(scp);
                 }
             }
         }
@@ -708,6 +819,17 @@ public sealed class RemoteFileBrowser : IDisposable
         {
             _scpGate.Release();
         }
+    }
+
+    /// <summary>
+    /// Envoi refusé par le serveur avant tout contenu : rien n'a été écrit, l'autre protocole peut prendre le relais.
+    /// </summary>
+    /// <param name="atHeader">
+    /// Canal SCP fermé par le serveur à l'annonce du fichier (nom et taille), la commande scp ayant été acceptée.
+    /// </param>
+    private sealed class UploadRefusedException(string message, Exception inner, bool atHeader = false) : IOException(message, inner)
+    {
+        public bool AtHeader { get; } = atHeader;
     }
 
     /// <summary>
@@ -728,7 +850,7 @@ public sealed class RemoteFileBrowser : IDisposable
     /// Annulé mais l'envoi ne s'arrête pas (serveur qui ne lit plus ou ne répond plus) : la connexion SCP est coupée et
     /// <paramref name="cut"/> signale de ne plus l'attendre.
     /// </summary>
-    private static async Task StopStuckScpAsync(Task upload, ScpClient scp, ScpStop stop, TaskCompletionSource cut)
+    private static async Task StopStuckScpAsync(Task upload, SshClient scp, ScpStop stop, TaskCompletionSource cut)
     {
         if (await Task.WhenAny(upload, Task.Delay(ScpStopTimeout)).ConfigureAwait(false) != upload && stop.TryCut())
         {
@@ -739,7 +861,7 @@ public sealed class RemoteFileBrowser : IDisposable
     }
 
     /// <summary>Connexion SCP en échec ou coupée : fermée, et la prochaine sera neuve.</summary>
-    private void ForgetScp(ScpClient scp)
+    private void ForgetScp(SshClient scp)
     {
         if (ReferenceEquals(_scp, scp))
         {
@@ -750,7 +872,7 @@ public sealed class RemoteFileBrowser : IDisposable
     }
 
     /// <summary>Connexion SCP encore ouverte (une annulation tombée à la fin d'un envoi a pu la fermer).</summary>
-    private static bool IsUsable(ScpClient scp)
+    private static bool IsUsable(SshClient scp)
     {
         try
         {
@@ -762,7 +884,7 @@ public sealed class RemoteFileBrowser : IDisposable
         }
     }
 
-    private static void AbortScp(ScpClient scp)
+    private static void AbortScp(SshClient scp)
     {
         try
         {

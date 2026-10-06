@@ -44,7 +44,7 @@ public partial class SettingsDialog : Window
         FontSizeBox.Text = settings.TerminalFontSize.ToString(CultureInfo.CurrentCulture);
         RightClickBox.IsChecked = settings.TerminalRightClickPastes;
         CompareArgsBox.Text = settings.CompareToolArguments;
-        (settings.UploadProtocol == TransferProtocol.Sftp ? SftpRadio : ScpRadio).IsChecked = true;
+        (settings.PreferredUploadProtocol == TransferProtocol.Scp ? ScpRadio : SftpRadio).IsChecked = true;
         ArchiveBox.IsChecked = settings.OfferArchive;
         ArchiveThresholdBox.Text = settings.ArchiveThreshold.ToString(CultureInfo.InvariantCulture);
         TailSessionBox.IsChecked = settings.TailIndependentSession;
@@ -134,7 +134,7 @@ public partial class SettingsDialog : Window
         _settings.FollowTerminalFolder = FollowBox.IsChecked == true;
         _settings.KeepPvwaSessionAlive = KeepAliveBox.IsChecked == true;
         _settings.CheckForUpdates = UpdateCheckBox.IsChecked == true;
-        _settings.UploadProtocol = SftpRadio.IsChecked == true ? TransferProtocol.Sftp : TransferProtocol.Scp;
+        _settings.PreferredUploadProtocol = ScpRadio.IsChecked == true ? TransferProtocol.Scp : TransferProtocol.Sftp;
         _settings.OfferArchive = ArchiveBox.IsChecked == true;
         _settings.ArchiveThreshold = threshold;
         _settings.TailIndependentSession = TailSessionBox.IsChecked == true;

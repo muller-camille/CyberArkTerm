@@ -38,7 +38,7 @@ e apre le sessioni con un doppio clic: desktop remoto tramite **PSM**, oppure un
 | **I miei server** | I tuoi server di lavoro, organizzati in cartelle e sottocartelle, ognuno con le proprie impostazioni. |
 | **Sessioni PSM** | Desktop remoto tramite il PSM (come il pulsante «Connect» del PVWA), in Connessione Desktop remoto di Windows: componente, macchina di destinazione, motivo, ticket. |
 | **Sessioni SSH (PSMP)** | Terminale integrato in una scheda (compatibile xterm: colori, vim, less, top…), MFA, menu del clic destro, ricerca, finestre separate. |
-| **Scheda File** | Browser SFTP del server: invio (SCP o SFTP) e download con il trascinamento, verifica SHA-256 di ogni file, coda e cronologia dei trasferimenti, ordinamento per colonna, modifica nel tuo editor di testo, permessi, monitoraggio in tempo reale (`tail -f`), confronto, invio a più server. |
+| **Scheda File** | Browser SFTP del server: invio (SFTP, o SCP, con l'altro che subentra se il server rifiuta) e download con il trascinamento, verifica SHA-256 di ogni file, coda e cronologia dei trasferimenti, ordinamento per colonna, modifica nel tuo editor di testo, permessi, monitoraggio in tempo reale (`tail -f`), confronto, invio a più server. |
 | **Vista parallela** | Fino a 8 sessioni SSH affiancate (una cartella di «I miei server» si apre con un clic), digitazione simultanea opzionale. |
 | **Accesso di emergenza (KeePass)** | Senza CyberArk: archivi KeePass (.kdbx) in «I miei server», connessioni SSH e desktop remoto dirette, registro locale. |
 | **Lingue** | Italiano, francese e inglese: lingua di Windows per impostazione predefinita, modificabile in qualsiasi momento. |
@@ -96,7 +96,7 @@ giorno e mostra un link nella barra di stato.
 - Permesso **List accounts** sui safe interessati: l'applicazione mostra solo ciò che l'API ti consente di
   vedere.
 - PSM configurato sulle piattaforme da usare (componenti `PSM-RDP`, `PSM-SSH`…).
-- Per l'SSH: un **PSM for SSH (PSMP)**, con SFTP consentito per la scheda File (e SCP per l'invio in SCP).
+- Per l'SSH: un **PSM for SSH (PSMP)**, con SFTP consentito per la scheda File (e SCP se scegli l'invio in SCP).
 - Facoltativo: **MFA caching** attivato sul PVWA, per non reinserire password e MFA sul PSMP.
 
 ## Primi passi

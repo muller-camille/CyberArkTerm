@@ -115,7 +115,7 @@ public partial class FileBrowserPanel
             return;
         }
 
-        var protocol = _settings.UploadProtocol;
+        var protocol = _settings.PreferredUploadProtocol;
         var what = paths.Count > 1 ? Text.Format(Strings.QueueItems, paths.Count) : names[0] + (Directory.Exists(paths[0]) ? "/" : "");
         foreach (var (session, browser, directory) in targets)
         {

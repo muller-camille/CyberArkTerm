@@ -713,7 +713,7 @@ public partial class FileBrowserPanel : UserControl
         }
     }
 
-    private string Protocol => _settings.UploadProtocol == TransferProtocol.Scp ? "SCP" : "SFTP";
+    private string Protocol => _settings.PreferredUploadProtocol.Label();
 
     private void OnDownload(object sender, RoutedEventArgs e) =>
         RequestDownload(SelectedEntries().Where(s => !s.IsDirectory).ToList());
@@ -759,7 +759,8 @@ public partial class FileBrowserPanel : UserControl
     /// Bilan de la vérification SHA-256 après des transferts, dans la barre d'état ; le détail de chaque transfert est
     /// dans l'historique. Si un fichier diffère de l'original, l'erreur est affichée et le détail s'ouvre de lui-même.
     /// </summary>
-    private void ReportChecks(string done, IReadOnlyList<TransferCheck> checks, bool error = false)
+    /// <param name="note">Ajouté à la fin du bilan (protocole refusé par le serveur…).</param>
+    private void ReportChecks(string done, IReadOnlyList<TransferCheck> checks, bool error = false, string? note = null)
     {
         int different = checks.Count(c => c.Verified && !c.Matches);
         if (different > 0)
@@ -781,6 +782,11 @@ public partial class FileBrowserPanel : UserControl
         if (unverified > 0)
         {
             parts.Add(Text.Format(Strings.TransferNotVerified, unverified));
+        }
+
+        if (note is not null)
+        {
+            parts.Add(note);
         }
 
         SetStatus(string.Join(" · ", parts), error);

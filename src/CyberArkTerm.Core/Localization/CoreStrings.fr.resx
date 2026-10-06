@@ -259,7 +259,40 @@
     <value>fichier incomplet supprimé</value>
   </data>
   <data name="ScpClosedByServer" xml:space="preserve">
-    <value>Le serveur a fermé la connexion SCP ({0}). Si cela se répète, choisissez SFTP pour les envois dans les Paramètres.</value>
+    <value>Le serveur a fermé la connexion SCP pendant l'envoi : {0}.</value>
+  </data>
+  <data name="ScpRefusedCommand" xml:space="preserve">
+    <value>le serveur a fermé le canal SCP dès la commande scp : {0}</value>
+  </data>
+  <data name="ScpRefusedHeader" xml:space="preserve">
+    <value>le serveur a fermé le canal SCP à l'annonce du fichier ({0}) : {1}</value>
+  </data>
+  <data name="ScpNoAnswer" xml:space="preserve">
+    <value>le serveur n'a pas répondu à la commande scp en {0} s</value>
+  </data>
+  <data name="ScpUnexpectedAnswer" xml:space="preserve">
+    <value>réponse inattendue de scp sur le serveur : {0}</value>
+  </data>
+  <data name="ScpServerSaid" xml:space="preserve">
+    <value>message du serveur « {0} »</value>
+  </data>
+  <data name="ScpExitStatus" xml:space="preserve">
+    <value>code de sortie {0}</value>
+  </data>
+  <data name="ScpExitSignal" xml:space="preserve">
+    <value>signal {0}</value>
+  </data>
+  <data name="ScpNoExplanation" xml:space="preserve">
+    <value>aucune explication du serveur</value>
+  </data>
+  <data name="ScpRefusedEarlier" xml:space="preserve">
+    <value>refusé plus tôt dans cet onglet pour un fichier de {0}</value>
+  </data>
+  <data name="ProtocolFallback" xml:space="preserve">
+    <value>{0} ({1} refusé)</value>
+  </data>
+  <data name="UploadRefusedThenFailed" xml:space="preserve">
+    <value>{0} refusé par le serveur : {1}. {2} : {3}</value>
   </data>
   <data name="TransferIncompleteNotDeleted" xml:space="preserve">
     <value>fichier incomplet non supprimé : {0}</value>

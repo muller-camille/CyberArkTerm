@@ -33,7 +33,7 @@ public sealed class TransferHistoryTests : IDisposable
             Protocol = "SCP",
             State = TransferState.Done,
             FileCount = 2,
-            Files = [Check("a"), Check("b", same: false)],
+            Files = [Check("a"), Check("b", same: false) with { Protocol = TransferProtocol.Scp, Refused = TransferProtocol.Sftp }],
         });
         history.Add(new TransferRecord { Label = "app.log", State = TransferState.Failed, Error = "permission refusée" });
         history.Save();
@@ -44,6 +44,7 @@ public sealed class TransferHistoryTests : IDisposable
         var deploy = loaded.Records[1];
         Assert.Equal((true, "root@srv01", "SCP", TransferState.Done, 1, 1), (deploy.Upload, deploy.Server, deploy.Protocol, deploy.State, deploy.Identical, deploy.Different));
         Assert.Equal("010203  /srv/a", deploy.Files[0].ToSha256SumLine());
+        Assert.Equal((TransferProtocol.Scp, TransferProtocol.Sftp), (deploy.Files[1].Protocol, deploy.Files[1].Refused));
         Assert.Equal("permission refusée", loaded.Records[0].Error);
         Assert.False(File.Exists(_path + ".tmp"));
     }

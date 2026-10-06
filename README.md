@@ -38,7 +38,7 @@ and opens your sessions with a double-click: remote desktop through **PSM**, or 
 | **My servers** | Your working servers, organized in folders and subfolders, each with its own settings. |
 | **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in Windows Remote Desktop Connection: component, target machine, reason, ticket. |
 | **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colours, vim, less, top…), MFA, right-click menu, search, separate windows. |
-| **Files tab** | SFTP browser of the server: drag-and-drop upload (SCP or SFTP) and download, SHA-256 check of every file, transfer queue and history, sortable columns, editing in your text editor, permissions, live following (`tail -f`), comparison, sending to several servers. |
+| **Files tab** | SFTP browser of the server: drag-and-drop upload (SFTP, or SCP, the other one taking over if the server refuses) and download, SHA-256 check of every file, transfer queue and history, sortable columns, editing in your text editor, permissions, live following (`tail -f`), comparison, sending to several servers. |
 | **Parallel view** | Up to 8 SSH sessions side by side (a "My servers" folder opens in one click), optional simultaneous typing. |
 | **Emergency access (KeePass)** | Without CyberArk: KeePass vaults (.kdbx) in "My servers", direct SSH and remote desktop connections, local log. |
 | **Languages** | English, French and Italian: Windows language by default, can be changed at any time. |
@@ -94,7 +94,7 @@ check at most once a day and shows a link in the status bar.
   trusted by the workstation.
 - **List accounts** permission on the relevant safes: the application only shows what the API lets you see.
 - PSM configured on the platforms you use (`PSM-RDP`, `PSM-SSH`… components).
-- For SSH: a **PSM for SSH (PSMP)**, with SFTP allowed for the Files tab (and SCP for SCP uploads).
+- For SSH: a **PSM for SSH (PSMP)**, with SFTP allowed for the Files tab (and SCP if you choose SCP uploads).
 - Optional: **MFA caching** enabled on the PVWA, so you do not type your password and MFA again at the PSMP.
 
 ## Getting started

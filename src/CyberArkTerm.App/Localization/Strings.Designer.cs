@@ -2675,6 +2675,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Protocol.
+        /// </summary>
+        public static string HistoryColProtocol {
+            get {
+                return ResourceManager.GetString("HistoryColProtocol", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Server.
         /// </summary>
         public static string HistoryColServer {
@@ -5704,6 +5713,24 @@ namespace CyberArkTerm.App.Localization {
         public static string PropertiesTitle {
             get {
                 return ResourceManager.GetString("PropertiesTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} files: {1} refused by the server (first: {2}), sent over {3} instead.
+        /// </summary>
+        public static string ProtocolFallbackMany {
+            get {
+                return ResourceManager.GetString("ProtocolFallbackMany", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: {1} refused by the server ({2}), sent over {3} instead.
+        /// </summary>
+        public static string ProtocolFallbackOne {
+            get {
+                return ResourceManager.GetString("ProtocolFallbackOne", resourceCulture);
             }
         }
 
@@ -8746,6 +8773,15 @@ namespace CyberArkTerm.App.Localization {
         public static string UploadLabel {
             get {
                 return ResourceManager.GetString("UploadLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Protocol tried first for uploads. If the server refuses it for a file (rule of the PSMP, read-onl[rest of string was truncated].
+        /// </summary>
+        public static string UploadProtocolTip {
+            get {
+                return ResourceManager.GetString("UploadProtocolTip", resourceCulture);
             }
         }
 

@@ -165,8 +165,12 @@ acceptés.
 - **Tri** : cliquez sur l'en-tête d'une colonne (Nom, Taille, Modifié, Droits) ; un second clic inverse l'ordre (une
   flèche l'indique). La taille et la date commencent par les plus gros et les plus récents. Les dossiers restent en
   tête ; le tri est gardé d'un dossier et d'une session à l'autre.
-- **Déposer des fichiers** : glissez-les depuis l'Explorateur sur la liste (ou bouton « Envoyer »). Envoi en **SCP**
-  par défaut (SFTP en option), dossiers compris ; confirmation avant d'écraser un fichier existant.
+- **Déposer des fichiers** : glissez-les depuis l'Explorateur sur la liste (ou bouton « Envoyer »). Envoi en **SFTP**
+  par défaut (SCP au choix dans les Paramètres), dossiers compris ; confirmation avant d'écraser un fichier existant.
+  Si le serveur refuse ce protocole pour un fichier avant de le recevoir (règle du PSMP, SFTP en lecture seule…),
+  l'autre prend le relais aussitôt, sans question ni attente : la barre d'état et le bilan l'indiquent avec la
+  réponse du serveur, l'Historique aussi (« SCP (SFTP refusé) »). En SCP, après un refus à l'annonce d'un fichier, les
+  fichiers au moins aussi gros partent directement en SFTP jusqu'à la fermeture de l'onglet.
 - **Télécharger en glissant** : glissez des fichiers ou des dossiers de la liste vers l'Explorateur ou le bureau.
   Rien n'est téléchargé pendant le glissement : au dépôt, une fenêtre montre la progression (Annuler l'interrompt),
   puis l'Explorateur copie les fichiers là où vous les avez déposés. Les noms Unix sont rendus valides pour Windows
@@ -181,9 +185,7 @@ acceptés.
   téléchargement) ; les fichiers déjà transférés restent. Attention : si l'envoi remplaçait un fichier existant, son
   ancien contenu est perdu. En SCP, l'arrêt ne concerne que ce transfert : les éléments suivants continuent sur la
   même connexion ; un transfert qui n'avance plus (serveur qui ne lit plus) s'arrête 2 s après « Annuler » et les
-  suivants partent sur une nouvelle connexion. Si le serveur ferme le canal SCP avant le début d'un fichier, CyberArkTerm réessaie une fois sur
-  une nouvelle connexion, puis affiche une erreur claire (l'envoi par SFTP peut être choisi dans les Paramètres). Un
-  fichier envoyé par SCP prend sur le serveur la date de l'envoi (comme `scp` sans `-p`, et comme en SFTP). Une
+  suivants partent sur une nouvelle connexion. Un fichier envoyé par SCP prend sur le serveur la date de l'envoi (comme `scp` sans `-p`, et comme en SFTP). Une
   erreur est affichée dans la file et la file continue ; à la fin, un seul bilan. La navigation, la suppression, les
   droits, l'éditeur et le glisser vers l'Explorateur passent entre deux fichiers. Fermer l'onglet ou l'application
   avec des transferts en cours demande confirmation.
@@ -221,7 +223,7 @@ acceptés.
 - **Historique des transferts** : bouton « Historique » de la barre d'outils (flèches montante et descendante avec
   une horloge, à gauche de « Paramètres »), disponible même sans session. Il liste les 200 derniers envois et
   téléchargements (y compris par glisser-déposer) : date, sens, serveur, élément, destination, nombre de fichiers,
-  résultat. Filtre « Envois » / « Téléchargements » ; « Sommes de contrôle… » (ou double-clic) montre, pour chaque
+  protocole (« SCP (SFTP refusé) » quand l'autre protocole a pris le relais), résultat. Filtre « Envois » / « Téléchargements » ; « Sommes de contrôle… » (ou double-clic) montre, pour chaque
   fichier, la taille, les sommes SHA-256 et le résultat, et les copie au format de `sha256sum -c` pour revérifier
   sur le serveur ; « Ouvrir le dossier » pour un téléchargement ; « Effacer l'historique ».
 - **Vérification des transferts (SHA-256)** : chaque fichier envoyé ou téléchargé est vérifié. À l'envoi (SCP ou
@@ -390,7 +392,7 @@ coffre KeePass dont le mot de passe est mémorisé, « Plus tard » pour saisir 
 | Adresse et port PSMP | Serveur PSM for SSH ; renseigné, les comptes Unix s'ouvrent en SSH par défaut ; vide = SSH désactivé | vide, 22 |
 | SSH dans CyberArkTerm | Terminal et onglet Fichiers intégrés ; sinon Windows Terminal | oui |
 | Suivre le dossier du terminal | Autorise l'installation du suivi de dossier dans le shell | oui |
-| Dépôt de fichiers | SCP ou SFTP | SCP |
+| Dépôt de fichiers | Protocole essayé d'abord (SFTP ou SCP) ; si le serveur le refuse, l'autre prend le relais | SFTP |
 | Éditeur de texte | Programme ouvert par « Modifier » dans l'onglet Fichiers | Bloc-notes |
 | Outil de comparaison | Programme proposé dans la fenêtre de comparaison, avec ses arguments (`{0}` = fichier de gauche, `{1}` = de droite) | aucun |
 | Couleurs du terminal, police | Palette (Campbell, One Half, Solarized…) et taille de police des terminaux SSH | Campbell, 14 |
@@ -449,7 +451,10 @@ des fichiers, sommes SHA-256, jamais leur contenu).
 - **Journal de débogage**, désactivé par défaut (menu du bouton Paramètres) :
   `%LOCALAPPDATA%\CyberArkTerm\debug.log`, 5 Mo au plus plus une génération `.1`. Il note le déroulement des
   connexions PVWA, PSM, Bureau à distance et SSH : adresses et statuts des requêtes, réglages du fichier .rdp,
-  événements et codes du contrôle Bureau à distance, erreurs. Il contient des noms de serveurs et de comptes, mais
+  événements et codes du contrôle Bureau à distance, version et algorithmes du serveur SSH, erreurs. Pour chaque
+  envoi SCP : la commande `scp -t` envoyée, l'annonce du fichier (droits, taille, nom), la réponse du serveur à chaque
+  étape avec sa durée et, si le serveur ferme le canal, sa sortie d'erreur, son code de sortie et son signal ; pour
+  chaque protocole refusé, la réponse du serveur et le protocole qui a pris le relais. Il contient des noms de serveurs et de comptes, mais
   **jamais** de mot de passe, de jeton de session, de demande de session PSM (`PSM@…` masqué), de signature,
   d'en-tête ou de corps de requête, ni le contenu des sessions. La barre d'état le signale tant qu'il est actif.
   Relisez-le avant de le transmettre, et supprimez-le une fois le problème résolu.
@@ -519,7 +524,7 @@ encore retenir un clic dans sa zone ou un changement de focus.
 
 Chaque onglet SSH ouvre jusqu'à trois connexions au PSMP, avec le même identifiant
 `<vous>@<compte>[#domaine]@<cible>` : le terminal, la connexion SFTP de l'onglet Fichiers, et une connexion SCP au
-premier dépôt de fichier en SCP. Chacune est une session PSMP, enregistrée par le PSM. Les envois au serveur
+premier envoi en SCP (choisi dans les Paramètres, ou relais d'un envoi SFTP refusé). Chacune est une session PSMP, enregistrée par le PSM. Les envois au serveur
 (frappe, taille du terminal) et la fermeture des connexions se font hors du thread de l'interface, dans l'ordre : un
 serveur ou un PSMP qui ne lit plus ne fige pas l'application.
 
@@ -560,6 +565,7 @@ laquelle elle est destinée. Avec csh, ksh, sh ou fish, le suivi n'est pas insta
 | Le compte n'apparaît pas | Vous n'avez pas le droit « List accounts » sur son safe, ou la liste doit être rechargée (`F5`). |
 | Le mot de passe PSMP est demandé à chaque onglet | MFA caching non activé sur le PVWA : comportement normal (une fois par onglet). |
 | L'onglet Fichiers indique « Connexion SFTP impossible » | SFTP n'est pas autorisé sur le PSMP ou pour ce compte : voir l'équipe CyberArk. |
+| Un envoi indique « SFTP (SCP refusé) » ou « SCP (SFTP refusé) » | Le PSMP ou le serveur a refusé ce protocole pour ce fichier : l'autre a pris le relais et le fichier a été vérifié comme d'habitude. Le bilan donne la réponse du serveur ; le journal de débogage détaille chaque étape de l'envoi SCP (commande, annonce du fichier, sortie d'erreur et code de sortie du serveur), à transmettre à votre équipe CyberArk. |
 | Le navigateur ne suit pas les `cd` | Le shell distant n'est pas bash, zsh ou tcsh (ou tcsh a déjà son propre alias `cwdcmd`), l'option est désactivée dans les Paramètres, ou l'invite n'a pas été reconnue : recochez « Suivre le dossier du terminal » à l'invite du shell. |
 | Alerte « la clé du PSMP a changé » | Ne continuez que si l'équipe CyberArk confirme un changement du serveur. |
 | « Mot de passe maître ou fichier clé incorrect » | Vérifiez le mot de passe et le fichier clé ; un coffre protégé par YubiKey n'est pas pris en charge. |

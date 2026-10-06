@@ -146,4 +146,44 @@ public sealed class TransferQueueTests
         Assert.Equal(("a.bin", 100.0, true), (item.CurrentFile, item.Percent, item.Verifying));
         Assert.Contains(nameof(TransferItem.Percent), changed);
     }
+
+    /// <summary>Le protocole du fichier en cours suit l'envoi ; la vérification (sans protocole) ne l'efface pas.</summary>
+    [Fact]
+    public void FollowsTheProtocolOfTheCurrentUpload()
+    {
+        var item = new TransferItem(true, "deploy", "/opt/app", (_, _) => Task.CompletedTask) { Protocol = "SFTP" };
+        Assert.Null(item.CurrentProtocol);
+
+        item.Report(new TransferProgress("a.bin", 0, 200, Protocol: TransferProtocol.Sftp));
+        item.Report(new TransferProgress("a.bin", 0, 200, Protocol: TransferProtocol.Scp));
+        item.Report(new TransferProgress("a.bin", 10, 200, Verifying: true));
+
+        Assert.Equal(TransferProtocol.Scp, item.CurrentProtocol);
+    }
+
+    /// <summary>
+    /// Bilan et historique : le protocole des Paramètres tant que le serveur n'en refuse aucun, sinon ceux réellement
+    /// utilisés et celui qui a été refusé.
+    /// </summary>
+    [Fact]
+    public void DescribesTheProtocolsReallyUsed()
+    {
+        using var _ = UiCulture.Use("fr-FR");
+        TransferCheck Sent(string name, TransferProtocol used, TransferProtocol? refused = null) =>
+            new(name, name, "/opt/" + name, 1, [1], 1, [1]) { Upload = true, Protocol = used, Refused = refused };
+
+        var item = new TransferItem(true, "deploy", "/opt", (_, _) => Task.CompletedTask) { Protocol = "SFTP" };
+        Assert.Equal("SFTP", item.ProtocolUsed);
+        item.Checks.Add(Sent("a", TransferProtocol.Sftp));
+        Assert.Equal("SFTP", item.ProtocolUsed);
+
+        item.Checks.Add(Sent("b", TransferProtocol.Scp, refused: TransferProtocol.Sftp));
+        Assert.Equal("SFTP + SCP (SFTP refusé)", item.ProtocolUsed);
+
+        Assert.Equal("SCP (SFTP refusé)", TransferProtocols.Describe("SFTP", [Sent("c", TransferProtocol.Scp, TransferProtocol.Sftp)]));
+        using (UiCulture.Use("en-US"))
+        {
+            Assert.Equal("SFTP (SCP refused)", TransferProtocols.Describe("SCP", [Sent("d", TransferProtocol.Sftp, TransferProtocol.Scp)]));
+        }
+    }
 }

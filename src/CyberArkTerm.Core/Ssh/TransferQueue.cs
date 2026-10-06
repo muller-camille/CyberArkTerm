@@ -27,6 +27,7 @@ public sealed class TransferItem(bool upload, string label, string destination, 
     private bool _packing;
     private string? _error;
     private int _fileCount;
+    private TransferProtocol? _currentProtocol;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -41,8 +42,21 @@ public sealed class TransferItem(bool upload, string label, string destination, 
     /// <summary>Session à laquelle appartient le transfert (annulé à sa fermeture).</summary>
     public object? Owner { get; init; }
 
-    /// <summary>Protocole d'un envoi (SCP ou SFTP).</summary>
+    /// <summary>Protocole d'un envoi (SCP ou SFTP), celui des Paramètres.</summary>
     public string? Protocol { get; init; }
+
+    /// <summary>Protocole de l'envoi du fichier en cours : l'autre que <see cref="Protocol"/> si le serveur l'a refusé.</summary>
+    public TransferProtocol? CurrentProtocol
+    {
+        get => _currentProtocol;
+        private set => Set(ref _currentProtocol, value);
+    }
+
+    /// <summary>
+    /// Protocole pour le bilan et l'historique : <see cref="Protocol"/>, ou ceux réellement utilisés quand le serveur en
+    /// a refusé un (« SCP (SFTP refusé) »).
+    /// </summary>
+    public string? ProtocolUsed => TransferProtocols.Describe(Protocol, Checks);
 
     /// <summary>Noms déposés, pour signaler un écrasement par un autre envoi en attente vers le même dossier.</summary>
     public IReadOnlyList<string> Names { get; init; } = [];
@@ -110,6 +124,11 @@ public sealed class TransferItem(bool upload, string label, string destination, 
     public void Report(TransferProgress progress)
     {
         CurrentFile = progress.FileName;
+        if (progress.Protocol is { } protocol)
+        {
+            CurrentProtocol = protocol;
+        }
+
         Verifying = progress.Verifying;
         Packing = progress.Packing;
         Percent = progress.Total > 0 ? Math.Min(100, 100.0 * progress.Transferred / progress.Total) : 0;
