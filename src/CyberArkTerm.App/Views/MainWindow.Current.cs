@@ -62,7 +62,7 @@ public partial class MainWindow
 
         foreach (var session in node.Sessions)
         {
-            items.Add(new SavedSessionNode(session, _byId.GetValueOrDefault(session.AccountId)));
+            items.Add(new SavedSessionNode(session, _byId.GetValueOrDefault(session.AccountId)) { IsMarked = _savedMarks.Contains(session) });
         }
 
         return items;
@@ -210,6 +210,10 @@ public partial class MainWindow
                 e.Handled = true;
                 DeleteSelectedSaved();
                 break;
+            case Key.Escape when _savedMarks.Count > 0:
+                e.Handled = true;
+                ClearSavedMarks();
+                break;
         }
     }
 
@@ -222,13 +226,7 @@ public partial class MainWindow
             return;
         }
 
-        var machines = AccountClassifier.RemoteMachineList(account);
-        var request = new ConnectRequest(
-            saved.Mode,
-            string.IsNullOrWhiteSpace(saved.Component) ? _settings.ResolveComponent(account) : saved.Component,
-            saved.RemoteMachine ?? (machines.Count == 1 ? machines[0] : null),
-            saved.Reason);
-        _ = ConnectAsync(account, request, showDialog: advanced, saved: saved);
+        _ = ConnectAsync(account, SavedRequest(saved, account), showDialog: advanced, saved: saved);
     }
 
     private void OnSafeMembersOfSelectedSaved(object sender, RoutedEventArgs e)

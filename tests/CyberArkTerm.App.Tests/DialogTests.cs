@@ -7,6 +7,7 @@ using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Views;
 using CyberArkTerm.Core;
 using CyberArkTerm.Core.Ssh;
+using CyberArkTerm.Core.Terminal;
 
 namespace CyberArkTerm.App.Tests;
 
@@ -566,6 +567,259 @@ public sealed class DialogTests
             Assert.Null(window.Content);
             window.SessionClosed = true;
             window.Close();
+            session.Dispose();
+        });
+    }
+
+    private static (CyberArkTerm.App.Services.SshSession Session, SshSessionView View) NewSshView(string label)
+    {
+        var connector = new CyberArkTerm.Core.Ssh.SshConnector("127.0.0.1", 22, "root", new NoInteraction());
+        var session = new CyberArkTerm.App.Services.SshSession(null, label, connector,
+            System.Windows.Threading.Dispatcher.CurrentDispatcher, followTerminal: false, saved: null);
+        return (session, new SshSessionView(session, label, "…"));
+    }
+
+    /// <summary>Vue parallèle : grille, saisie simultanée vers les sessions cochées, encodage par session, collage, limite.</summary>
+    [Fact]
+    public void ParallelViewSendsTypingToTheTickedSessions()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var views = Enumerable.Range(1, 9).Select(i => NewSshView($"root@srv0{i}")).ToList();
+            var sent = new List<(string Label, string Text)>();
+            (int Lines, int Sessions)? asked = null;
+            bool answer = false;
+            var parallel = new ParallelView
+            {
+                IsConnected = _ => true,
+                Deliver = (view, input) => sent.Add((view.Session.Label, input.Encode(view.Session.Emulator))),
+                ConfirmPaste = (lines, sessions) =>
+                {
+                    asked = (lines, sessions);
+                    return answer;
+                },
+            };
+            foreach (var (_, view) in views.Take(3))
+            {
+                parallel.Add(view);
+            }
+
+            Assert.Equal((1, 3), (parallel.PanesGrid.RowDefinitions.Count, parallel.PanesGrid.ColumnDefinitions.Count));
+            Assert.Equal(Visibility.Collapsed, parallel.BroadcastBanner.Visibility);
+            var (s1, v1) = views[0];
+            var (s2, v2) = views[1];
+            var (s3, v3) = views[2];
+
+            // Sans saisie simultanée : seulement la session où l'on tape.
+            v1.InputRouter!(v1, TerminalInput.Typed("uptime\r"));
+            Assert.Equal([("root@srv01", "uptime\r")], sent);
+
+            // Avec : toutes les sessions cochées, chacune avec l'encodage de son terminal (vim dans srv02).
+            parallel.Broadcast = true;
+            Assert.Equal(Visibility.Visible, parallel.BroadcastBanner.Visibility);
+            Assert.Contains("root@srv03", parallel.BroadcastText.Text);
+            s2.Emulator.Feed("\x1b[?1h");
+            sent.Clear();
+            v1.InputRouter!(v1, TerminalInput.Special(CyberArkTerm.Core.Terminal.TerminalKey.Up));
+            Assert.Equal([("root@srv01", "\x1b[A"), ("root@srv02", "\x1bOA"), ("root@srv03", "\x1b[A")], sent);
+
+            // Session décochée : exclue, et ce qu'on y tape ne va qu'à elle.
+            parallel.SetIncluded(s3, false);
+            Assert.DoesNotContain("root@srv03", parallel.BroadcastText.Text);
+            sent.Clear();
+            v2.InputRouter!(v2, TerminalInput.Typed("id\r"));
+            Assert.Equal(["root@srv01", "root@srv02"], sent.Select(x => x.Label));
+            sent.Clear();
+            v3.InputRouter!(v3, TerminalInput.Typed("w\r"));
+            Assert.Equal(["root@srv03"], sent.Select(x => x.Label));
+
+            // Collage de plusieurs lignes vers plusieurs sessions : confirmation ; refusé, rien n'est envoyé.
+            sent.Clear();
+            v1.InputRouter!(v1, TerminalInput.Pasted("cd /tmp\nls"));
+            Assert.Equal((2, 2), asked);
+            Assert.Empty(sent);
+            answer = true;
+            v1.InputRouter!(v1, TerminalInput.Pasted("cd /tmp\nls"));
+            Assert.Equal(2, sent.Count);
+
+            // Ajoutée pendant la saisie simultanée : pas cochée.
+            parallel.Add(views[3].View);
+            Assert.False(parallel.IsIncluded(views[3].Session));
+            Assert.Equal((2, 2), (parallel.PanesGrid.RowDefinitions.Count, parallel.PanesGrid.ColumnDefinitions.Count));
+
+            // Au plus 8 sessions.
+            foreach (var (_, view) in views.Skip(4))
+            {
+                parallel.Add(view);
+            }
+
+            Assert.Equal(8, parallel.Sessions.Count);
+            Assert.True(parallel.IsFull);
+            Assert.False(parallel.Contains(views[8].Session));
+
+            // Une seule session à l'écran, puis toutes.
+            parallel.ToggleZoom(s2);
+            Assert.Equal((1, 1), (parallel.PanesGrid.RowDefinitions.Count, parallel.PanesGrid.ColumnDefinitions.Count));
+            parallel.ToggleZoom(s2);
+            Assert.Equal((2, 4), (parallel.PanesGrid.RowDefinitions.Count, parallel.PanesGrid.ColumnDefinitions.Count));
+
+            // Retirée : le terminal est rendu, sans aiguillage de la saisie.
+            Assert.Same(v1, parallel.Remove(s1));
+            Assert.Null(v1.InputRouter);
+            Assert.Null(v1.Parent);
+            Assert.Equal(7, parallel.Sessions.Count);
+
+            foreach (var (session, _) in views)
+            {
+                session.Dispose();
+            }
+        });
+    }
+
+    /// <summary>Choix des sessions de la vue parallèle : au plus 8 cochées.</summary>
+    [Fact]
+    public void ParallelDialogKeepsAtMostEightSessions()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var sessions = Enumerable.Range(1, 9).Select(i => NewSshView($"root@srv0{i}").Session).ToList();
+            var dialog = new ParallelDialog(sessions, sessions);
+            Assert.Equal(sessions.Take(8), dialog.Selected);
+            var boxes = dialog.SessionsPanel.Children.OfType<System.Windows.Controls.CheckBox>().ToList();
+            Assert.False(boxes[8].IsEnabled);
+            Assert.Contains("8", dialog.CountText.Text);
+            dialog.Close();
+
+            dialog = new ParallelDialog(sessions, [sessions[2]]);
+            Assert.Equal([sessions[2]], dialog.Selected);
+            Assert.True(dialog.SessionsPanel.Children.OfType<System.Windows.Controls.CheckBox>().All(b => b.IsEnabled));
+            dialog.Close();
+            foreach (var session in sessions)
+            {
+                session.Dispose();
+            }
+        });
+    }
+
+    /// <summary>Comparaison : lignes côte à côte, navigation, seulement les différences ; binaire par somme SHA-256.</summary>
+    [Fact]
+    public void CompareWindowShowsTheDifferences()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var left = System.Text.Encoding.UTF8.GetBytes("listen 80;\nserver_name a;\nroot /var/www;\n" + string.Concat(Enumerable.Range(1, 30).Select(i => $"l{i}\n")) + "}\n");
+            var right = System.Text.Encoding.UTF8.GetBytes("listen 443;\nserver_name a;\nroot /var/www;\n" + string.Concat(Enumerable.Range(1, 30).Select(i => $"l{i}\n")) + "ssl on;\n}\n");
+            var window = new CompareWindow("root@srv01 : /etc/app.conf", left, "root@srv02 : /etc/app.conf", right, new AppSettings());
+            Assert.Contains("app.conf", window.Title);
+            Assert.Equal(2, window.Result!.Blocks);
+            Assert.Contains("2", window.SummaryText.Text);
+            Assert.Equal(Visibility.Collapsed, window.ToolButton.Visibility);
+
+            window.GoToDifference(1);
+            Assert.Equal(0, window.RowsList.SelectedIndex);
+            window.GoToDifference(1);
+            Assert.Equal(DiffKind.Added, ((DiffRow)window.RowsList.SelectedItem).Kind);
+
+            window.OnlyDiffBox.IsChecked = true;
+            window.OnlyDiffBox.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+            Assert.Contains(((IEnumerable<DiffRow>)window.RowsList.ItemsSource), r => r.Kind == DiffKind.Gap);
+            window.Close();
+            Assert.All(left, b => Assert.Equal(0, b));   // contenu effacé de la mémoire à la fermeture
+
+            var binary = new CompareWindow("a", [1, 0, 2], "b", [1, 0, 2], new AppSettings { CompareTool = @"C:\Tools\WinMergeU.exe" });
+            Assert.Equal(Visibility.Visible, binary.BinaryPanel.Visibility);
+            Assert.Equal(Strings.CompareIdentical, binary.SummaryText.Text);
+            Assert.Equal(Visibility.Visible, binary.ToolButton.Visibility);
+            binary.Close();
+        });
+    }
+
+    /// <summary>Envoi vers plusieurs serveurs, choix d'une comparaison, choix de serveurs, À propos : les fenêtres s'ouvrent.</summary>
+    [Fact]
+    public void MultiServerWindowsOpen()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var (s1, _) = NewSshView("root@srv01");
+            var (s2, _) = NewSshView("root@srv02");
+            var upload = new MultiUploadDialog([s1, s2], [s1], "~/deploy", "SCP");
+            Assert.Equal("~/deploy", upload.Destination);
+            // Sessions non connectées : on ne peut pas les choisir.
+            Assert.Empty(upload.Sessions);
+            Assert.All(upload.ServersPanel.Children.OfType<System.Windows.Controls.CheckBox>(), b => Assert.False(b.IsEnabled));
+            var file = Path.GetTempFileName();
+            upload.AddPath(file);
+            upload.AddPath(file);
+            Assert.Single(upload.Paths);
+            File.Delete(file);
+            upload.Close();
+
+            var compare = new CompareDialog("root@srv01 : /etc/app.conf", "/etc/app.conf", [s1, s2], s1);
+            Assert.Equal("/etc/app.conf", compare.RemoteFile);
+            compare.Close();
+
+            var choose = new ParallelDialog(["web01", "web02", "web03"], [0, 1, 2], 2, "intro", Strings.ParallelOpen);
+            Assert.Equal([0, 1], choose.SelectedIndexes);
+            Assert.Equal("intro", choose.IntroText.Text);
+            choose.Close();
+
+            var about = new AboutWindow(new AppSettings(), () => { });
+            Assert.Contains(UpdateChecker.CurrentVersion.ToString(), about.VersionText.Text);
+            about.Close();
+
+            s1.Dispose();
+            s2.Dispose();
+        });
+    }
+
+    /// <summary>Recherche dans le terminal (historique compris) et taille de police.</summary>
+    [Fact]
+    public void TerminalSearchFindsTextInTheHistory()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var (session, view) = NewSshView("root@srv01");
+            session.Emulator.Feed(string.Concat(Enumerable.Range(1, 60).Select(i => $"line {i}{(i % 20 == 0 ? " ERROR" : "")}\r\n")));
+            view.ShowSearch();
+            view.SearchBox.Text = "error";
+            Assert.Equal(3, view.Matches.Count);
+            Assert.Equal(2, view.CurrentMatch);
+            view.MoveSearch(-1);
+            Assert.Equal(1, view.CurrentMatch);
+            view.MoveSearch(1);
+            view.MoveSearch(1);
+            Assert.Equal(0, view.CurrentMatch);
+
+            CyberArkTerm.App.Terminal.TerminalAppearance.Apply("solarized-light", 16);
+            Assert.Same(CyberArkTerm.Core.Terminal.TerminalTheme.SolarizedLight, CyberArkTerm.App.Terminal.TerminalAppearance.Theme);
+            CyberArkTerm.App.Terminal.TerminalAppearance.Apply(null, 99);
+            Assert.Equal(CyberArkTerm.App.Terminal.TerminalAppearance.MaxFontSize, CyberArkTerm.App.Terminal.TerminalAppearance.FontSize);
+            CyberArkTerm.App.Terminal.TerminalAppearance.Apply(null, 14);
             session.Dispose();
         });
     }

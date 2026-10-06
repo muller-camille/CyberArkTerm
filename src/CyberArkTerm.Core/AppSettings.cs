@@ -78,6 +78,29 @@ public sealed class AppSettings
     /// <summary>Suivi d'un fichier : notification Windows (sans le contenu de la ligne) pour une alerte.</summary>
     public bool TailAlertNotify { get; set; } = true;
 
+    /// <summary>
+    /// Rechercher une nouvelle version au démarrage (au plus une fois par jour) : une requête vers GitHub, désactivée
+    /// par défaut. La recherche reste possible à la demande depuis « À propos ».
+    /// </summary>
+    public bool CheckForUpdates { get; set; }
+
+    /// <summary>Dernière recherche de nouvelle version (UTC).</summary>
+    public DateTime LastUpdateCheck { get; set; }
+
+    /// <summary>Palette de couleurs des terminaux SSH (identifiant d'une palette de <c>TerminalTheme</c>).</summary>
+    public string TerminalTheme { get; set; } = "campbell";
+
+    /// <summary>Taille de police par défaut des terminaux SSH (Ctrl+molette la change pour un terminal).</summary>
+    public double TerminalFontSize { get; set; } = 14;
+
+    /// <summary>Outil de comparaison de fichiers (exécutable) proposé dans la fenêtre de comparaison ; vide = aucun.</summary>
+    public string CompareTool { get; set; } = "";
+
+    /// <summary>Arguments de l'outil de comparaison : {0} = fichier de gauche, {1} = fichier de droite.</summary>
+    public string CompareToolArguments { get; set; } = DefaultCompareArguments;
+
+    public const string DefaultCompareArguments = "\"{0}\" \"{1}\"";
+
     /// <summary>Installe PROMPT_COMMAND à l'ouverture d'une session SSH pour que le navigateur suive le dossier du terminal.</summary>
     public bool FollowTerminalFolder { get; set; } = true;
 
@@ -214,6 +237,9 @@ public sealed class AppSettings
                 settings.KnownHosts ??= [];
                 settings.TailHighlights ??= "";
                 settings.TailAlerts ??= "";
+                settings.CompareTool ??= "";
+                settings.TerminalTheme ??= "campbell";
+                settings.CompareToolArguments ??= DefaultCompareArguments;
                 foreach (var session in settings.Sessions.OfType<SavedSession>())
                 {
                     session.TailFiles ??= [];

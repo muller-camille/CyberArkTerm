@@ -23,8 +23,11 @@
         </Grid>
 
         <TextBlock Text="{x:Static loc:Strings.PvwaSessionSection}" Style="{StaticResource SectionTitle}" />
-        <CheckBox x:Name="KeepAliveBox" Margin="0,0,0,16">
+        <CheckBox x:Name="KeepAliveBox" Margin="0,0,0,8">
             <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.KeepAlive}" />
+        </CheckBox>
+        <CheckBox x:Name="UpdateCheckBox" Margin="0,0,0,16">
+            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.AboutAutoCheck}" />
         </CheckBox>
 
         <TextBlock Text="{x:Static loc:Strings.SettingsSshSection}" Style="{StaticResource SectionTitle}" />
@@ -41,6 +44,19 @@
             <TextBox Grid.Column="1" x:Name="PsmpBox" VerticalContentAlignment="Center" />
             <Label Grid.Column="2" Content="{x:Static loc:Strings.PortLabel}" Target="{Binding ElementName=PortBox}" Margin="8,0,0,0" />
             <TextBox Grid.Column="3" x:Name="PortBox" VerticalContentAlignment="Center" />
+        </Grid>
+        <!-- Apparence des terminaux SSH. -->
+        <Grid Margin="0,4,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="70" />
+            </Grid.ColumnDefinitions>
+            <Label Content="{x:Static loc:Strings.TerminalThemeLabel}" Target="{Binding ElementName=ThemeBox}" />
+            <ComboBox Grid.Column="1" x:Name="ThemeBox" VerticalAlignment="Center" />
+            <Label Grid.Column="2" Content="{x:Static loc:Strings.TerminalFontLabel}" Target="{Binding ElementName=FontSizeBox}" Margin="8,0,0,0" />
+            <TextBox Grid.Column="3" x:Name="FontSizeBox" VerticalContentAlignment="Center" ToolTip="{x:Static loc:Strings.TerminalFontTip}" />
         </Grid>
         <CheckBox x:Name="SshInAppBox" Margin="0,4,0,8">
             <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SshInApp}" />
@@ -81,6 +97,27 @@
                        Text="notepad.exe" Margin="6,0,0,0" />
             <Button Grid.Column="2" Content="{x:Static loc:Strings.Browse}" Click="OnBrowseEditor" Margin="8,0,0,0" />
             <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{x:Static loc:Strings.TextEditorHelp}"
+                       Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
+        </Grid>
+        <!-- Outil de comparaison externe (facultatif) : la comparaison intégrée suffit sinon. -->
+        <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Label Content="{x:Static loc:Strings.CompareToolLabel}" Target="{Binding ElementName=CompareToolBox}" />
+            <TextBox Grid.Column="1" x:Name="CompareToolBox" VerticalContentAlignment="Center" />
+            <Button Grid.Column="2" Content="{x:Static loc:Strings.Browse}" Click="OnBrowseCompareTool" Margin="8,0,0,0" />
+            <Label Grid.Row="1" Content="{x:Static loc:Strings.CompareArgumentsLabel}" Target="{Binding ElementName=CompareArgsBox}" />
+            <TextBox Grid.Row="1" Grid.Column="1" x:Name="CompareArgsBox" VerticalContentAlignment="Center" Margin="0,4,0,0"
+                     FontFamily="Consolas, Courier New" />
+            <TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="{x:Static loc:Strings.CompareToolHelp}"
                        Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
         </Grid>
         <DockPanel Margin="0,0,0,16">

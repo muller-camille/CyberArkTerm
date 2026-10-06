@@ -39,7 +39,8 @@ serveur.
 | **Courants** | Vos serveurs de travail, rangés en dossiers et sous-dossiers, chacun avec sa propre configuration. |
 | **Sessions PSM** | Bureau à distance via le PSM (comme le bouton « Connect » du PVWA), dans la Connexion Bureau à distance de Windows : composant, machine cible, motif, ticket. |
 | **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), authentification MFA. |
-| **Onglet Fichiers** | Navigateur SFTP du serveur : `ls`, navigation, `rm`, dépôt de fichiers par glisser-déposer en SCP, vérification SHA-256 de chaque fichier transféré, modification dans votre éditeur de texte, droits (`chmod`), suivi du dossier du terminal. |
+| **Onglet Fichiers** | Navigateur SFTP du serveur : `ls`, navigation, `rm`, dépôt de fichiers par glisser-déposer en SCP, vérification SHA-256 de chaque fichier transféré, modification dans votre éditeur de texte, droits (`chmod`), suivi du dossier du terminal, envoi vers plusieurs serveurs, comparaison de fichiers, suivi en direct (`tail -f`). |
+| **Vue parallèle** | Jusqu'à 8 sessions SSH côte à côte (un dossier « Courants » s'ouvre d'un clic), saisie simultanée en option, fenêtre séparée possible. |
 | **Accès d'urgence (KeePass)** | Sans CyberArk : coffres KeePass (.kdbx) dans « Courants », connexions SSH et bureau à distance directes, création et modification des entrées, journal local. |
 | **Session PVWA maintenue** | Une requête légère toutes les 4 minutes évite l'expiration pendant le travail (suspendue quand Windows est verrouillé). |
 | **Accueil** | Connexion rapide (tapez un serveur, Entrée), sessions récentes. |
@@ -61,6 +62,15 @@ Version de développement : l'exécutable de chaque compilation est aussi dispon
 
 L'exécutable n'est pas signé : au premier lancement, Windows SmartScreen peut afficher un avertissement
 (« Informations complémentaires » → « Exécuter quand même »).
+
+### Mettre à jour
+
+Bouton Paramètres → **« À propos de CyberArkTerm… »** : version, liens du projet, dossier des paramètres, et
+« Rechercher maintenant ». Si une version plus récente existe, « Télécharger et vérifier » enregistre l'archive dans
+le dossier Téléchargements puis la compare à `SHA256SUMS.txt` de la même version (gardée seulement si elle est
+identique). Rien n'est installé automatiquement : fermez CyberArkTerm et remplacez l'exécutable ; vos paramètres sont
+conservés. L'option « Rechercher une nouvelle version au démarrage » (désactivée par défaut) fait cette recherche au
+plus une fois par jour et affiche un lien dans la barre d'état.
 
 ### Prérequis
 
@@ -182,12 +192,39 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   change ensuite, une alerte s'affiche.
 - **Terminal** : la sélection copie, le clic droit colle, la molette remonte l'historique,
   AltGr fonctionne sur clavier français. Fermez l'onglet avec la croix ou un clic molette.
+- **Apparence** : palette de couleurs et taille de police dans les Paramètres (Campbell, One Half, Solarized, en
+  sombre ou en clair) ; `Ctrl+molette` agrandit ou réduit un terminal, `Ctrl+0` revient à la taille par défaut.
+- **Rechercher** dans le terminal, historique compris : `Ctrl+Maj+F` (ou clic droit sur l'onglet). Les occurrences
+  sont surlignées ; `Entrée` remonte vers les plus anciennes, `Maj+Entrée` redescend, `Échap` ferme.
+- **Enregistrer le contenu** du terminal (historique et écran) dans un fichier texte : `Ctrl+Maj+S` (ou clic droit
+  sur l'onglet). Seulement à votre demande : le fichier peut contenir des informations sensibles.
 - **Détacher un onglet** (autre écran) : glissez l'onglet SSH hors de la fenêtre, ou clic droit → « Détacher dans
   une nouvelle fenêtre ». Le terminal passe dans une fenêtre séparée, la session continue. L'onglet garde sa place
   (« Afficher la fenêtre », « Ramener dans l'onglet ») et l'onglet Fichiers travaille sur cette session quand il
   est sélectionné. Fermer la fenêtre séparée ramène le terminal dans son onglet, sans fermer la session. Les
   onglets Bureau à distance ne se détachent pas (utilisez « Plein écran ») ; les sessions PSM s'ouvrent déjà dans
   la Connexion Bureau à distance de Windows, une fenêtre à part.
+- **Vue parallèle** (jusqu'à 8 sessions à l'écran) : bouton « Parallèle » de la barre d'outils, ou clic droit sur
+  un onglet SSH → « Ajouter à la vue parallèle ». Cochez les sessions SSH ouvertes à afficher ensemble (8 au plus) :
+  elles s'affichent en grille dans l'onglet « Parallèle », côte à côte jusqu'à 3, puis sur deux lignes. Chaque
+  session a son titre et son état ; « ⤢ » (ou double-clic sur le titre) l'agrandit seule, « ✕ » la renvoie dans son
+  onglet. L'onglet Fichiers suit la session où vous travaillez. « Fermer la vue » rend chaque terminal à son onglet,
+  sans fermer les sessions. Les sessions Bureau à distance n'y vont pas.
+  - **Saisie simultanée** : bouton « Saisie simultanée » de la vue. Ce que vous tapez dans une session cochée
+    (« Reçoit la saisie ») est aussi envoyé aux autres sessions cochées et connectées : la même commande sur
+    plusieurs serveurs. Elle est **désactivée à chaque ouverture de la vue** ; active, un bandeau orange donne le
+    nombre et le nom des sessions qui reçoivent la saisie, et un cadre orange les entoure. Une session ajoutée
+    pendant qu'elle est active n'est pas cochée ; ce qui est tapé dans une session décochée ne va qu'à elle. Chaque
+    touche est encodée par la session qui la reçoit (les flèches fonctionnent dans un shell comme dans vim). La
+    molette n'est pas recopiée, et coller plusieurs lignes dans plusieurs sessions demande confirmation.
+  - **Depuis « Courants »** : clic droit sur un dossier → « Ouvrir en vue parallèle » connecte ses serveurs SSH
+    (sous-dossiers compris) et les place directement dans la vue ; ou choisissez des serveurs avec `Ctrl+clic`
+    (`Maj+clic` pour une suite) puis clic droit → « Ouvrir les N serveurs en vue parallèle ». Au-delà des places
+    libres (8 au plus), une fenêtre demande lesquels ouvrir ; les serveurs Windows (PSM) sont laissés de côté.
+    Chaque connexion reste une session PSMP distincte, avec ses questions habituelles.
+  - **Fenêtre séparée** : bouton « Fenêtre séparée » de la vue, clic droit sur l'onglet « Parallèle », ou glissez
+    l'onglet hors de la fenêtre. La fermer ramène la vue dans son onglet, sans fermer les sessions.
+  - **Envoyer des fichiers** aux sessions de la vue : bouton « Envoyer des fichiers… » (voir l'onglet Fichiers).
 
 ### 5. Parcourir et déposer des fichiers : onglet « Fichiers »
 
@@ -224,6 +261,19 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (l'archive est supprimée
   du serveur une fois extraite). « Envoyer les fichiers un par un » garde l'envoi habituel ; « Ne plus proposer »
   décoche l'option.
+- **Envoyer vers plusieurs serveurs** : bouton (flèche vers trois serveurs) ou clic droit → « Envoyer vers plusieurs
+  serveurs… ». Choisissez les fichiers ou dossiers, le dossier de destination (`~` = le dossier personnel du compte
+  sur chaque serveur, par ex. `~/deploy`) et les sessions SSH destinataires. CyberArkTerm vérifie d'abord sur chaque
+  serveur que le dossier existe et ce qui serait remplacé (une seule question pour tous), puis met en file un envoi
+  par serveur : même protocole, même vérification SHA-256 sur chaque serveur, un seul bilan à la fin.
+- **Comparer** : clic droit sur un fichier → « Comparer avec… » : le même chemin (ou un autre) sur un serveur dont une
+  session SSH est ouverte, ou un fichier de ce poste ; avec deux fichiers sélectionnés, « Comparer les 2 fichiers ».
+  Les fichiers sont lus **en mémoire** (50 Mo au plus chacun), sans copie sur le poste. La fenêtre montre les
+  lignes côte à côte : retirées en rouge à gauche, ajoutées en vert à droite. `F7` / `Maj+F7` : différence suivante
+  / précédente ; « Ignorer les espaces » ; « Seulement les différences » ; « Enregistrer le diff… » au format
+  `diff -u`. Un fichier binaire (ou de plus de 10 Mo) est comparé par sa taille et sa somme SHA-256. Avec un outil
+  de comparaison choisi dans les Paramètres (WinMerge, VS Code…), « Ouvrir dans … » lui donne deux copies
+  temporaires, supprimées à la fermeture de la fenêtre.
 - **Historique des transferts** : bouton horloge dans l'en-tête de l'onglet Fichiers, disponible même sans
   session. Il liste les 200 derniers envois et téléchargements (y compris par glisser-déposer) : date, sens,
   serveur, élément, destination, nombre de fichiers, résultat. Filtre « Envois » / « Téléchargements » ;
@@ -299,6 +349,10 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
 - **Rechercher** : champ en haut de l'onglet (ou `Ctrl+F` dans l'onglet). Il filtre les serveurs par nom, serveur,
   utilisateur, dossier, composant, machine cible, ainsi que les entrées des coffres KeePass déverrouillés ; les
   dossiers des résultats sont dépliés. `Entrée` ou `↓` sélectionne le premier résultat, `Échap` efface.
+- **Plusieurs serveurs à la fois** : `Ctrl+clic` ajoute ou retire un serveur (ou tous ceux d'un dossier),
+  `Maj+clic` choisit une suite de serveurs ; `Échap` ou un clic simple annule. Clic droit sur l'un d'eux → « Ouvrir
+  les N serveurs en vue parallèle » ou « Se connecter aux N serveurs » (un onglet chacun). Clic droit sur un dossier
+  → « Ouvrir en vue parallèle » ou « Se connecter aux N serveurs ».
 - **Configuration propre à chaque serveur** (clic droit → « Propriétés… ») :
 
 <img src="docs/captures/proprietes-serveur.png" alt="Propriétés d'un serveur courant" width="800">
@@ -358,12 +412,18 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Listes et arbres | Ouvrir la session | Double-clic ou `Entrée` |
 | Recherche | Effacer le filtre | `Échap` |
 | Courants | Renommer / retirer ou supprimer | `F2` / `Suppr` |
+| Courants | Choisir plusieurs serveurs (puis clic droit pour les ouvrir ensemble) | `Ctrl+clic`, `Maj+clic` ; `Échap` annule |
 | Terminal | Copier | Sélection à la souris, ou `Ctrl+Maj+C` |
 | Terminal | Coller | Clic droit, `Maj+Inser` ou `Ctrl+Maj+V` |
 | Terminal | Historique | Molette, `Maj+Page préc.` / `Maj+Page suiv.` |
+| Terminal | Rechercher (historique compris) | `Ctrl+Maj+F`, puis `Entrée` / `Maj+Entrée` |
+| Terminal | Enregistrer le contenu dans un fichier | `Ctrl+Maj+S` |
+| Terminal | Taille de police / taille par défaut | `Ctrl+molette` / `Ctrl+0` |
+| Comparaison | Différence suivante / précédente | `F7` / `Maj+F7` |
 | Onglet SSH ou Bureau à distance | Fermer | Croix de l'onglet ou clic molette |
 | Onglet SSH ou Bureau à distance | Reconnecter, dupliquer (autre session sur le même compte ou la même entrée), détacher (SSH), fermer, fermer les autres onglets | Clic droit sur l'onglet |
 | Onglet SSH | Détacher dans une fenêtre séparée (autre écran) | Glisser l'onglet hors de la fenêtre |
+| Onglet SSH | Ajouter à la vue parallèle, ou l'en retirer | Clic droit sur l'onglet |
 | Bureau à distance | Plein écran / retour | `Ctrl+Alt+Pause` |
 | Fichiers | Ouvrir / modifier / dossier parent / supprimer / actualiser | `Entrée` / `F4` / `Retour arrière` / `Suppr` / `F5` |
 | Coffre KeePass | Se connecter / modifier / supprimer une entrée | Double-clic ou `Entrée` / `F2` / `Suppr` |
@@ -376,6 +436,7 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | --- | --- | --- |
 | Langue de l'interface | Français, English, Italiano ou langue du système ; appliquée après déconnexion ou au prochain démarrage | langue de Windows (anglais si elle n'est pas traduite) |
 | Garder la session PVWA ouverte | Requête légère toutes les 4 minutes ; suspendue quand Windows est verrouillé | oui |
+| Rechercher une nouvelle version au démarrage | Une requête vers GitHub au plus une fois par jour ; lien dans la barre d'état si une version plus récente existe | non |
 | Coffre local | Mots de passe maîtres KeePass mémorisés : créer, déverrouiller, changer le mot de passe, supprimer | — |
 | Journal de débogage | Menu du bouton Paramètres : déroulement des connexions dans un fichier, sans secret (voir [Sécurité](#sécurité)) ; « Afficher le fichier du journal » l'ouvre dans l'Explorateur | non |
 | Adresse et port PSMP | Serveur PSM for SSH ; renseigné, les comptes Unix s'ouvrent en SSH par défaut ; vide = SSH désactivé | vide, 22 |
@@ -383,6 +444,8 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Suivre le dossier du terminal | Autorise l'installation du suivi de dossier dans le shell | oui |
 | Dépôt de fichiers | SCP ou SFTP | SCP |
 | Éditeur de texte | Programme ouvert par « Modifier » dans l'onglet Fichiers | Bloc-notes |
+| Outil de comparaison | Programme proposé dans la fenêtre de comparaison, avec ses arguments (`{0}` = fichier de gauche, `{1}` = de droite) | aucun |
+| Couleurs du terminal, police | Palette (Campbell, One Half, Solarized…) et taille de police des terminaux SSH | Campbell, 14 |
 | Suivi dans une session indépendante | Le suivi d'un fichier (tail -f) ouvre sa propre connexion SFTP (une session PSMP de plus) | Non |
 | Clés de PSMP acceptées | Empreintes mémorisées (bouton « Oublier les clés ») | — |
 | Composants mémorisés | Composant PSM choisi par plateforme (bouton « Oublier ») | — |
@@ -410,6 +473,16 @@ l'application et supprimez-le. L'historique des transferts de l'onglet Fichiers 
   débogage.
 - **Sessions PSM** : le fichier RDP du PVWA (jeton PSM à usage unique) est écrit dans `%TEMP%\CyberArkTerm` pour
   `mstsc`, qui en vérifie la signature, puis supprimé après 60 s ou à la fermeture.
+- **Saisie simultanée** (vue parallèle) : désactivée à chaque ouverture de la vue, signalée par un bandeau et un cadre
+  orange qui nomment les sessions concernées ; une session ajoutée n'y est pas incluse d'office, et un collage de
+  plusieurs lignes vers plusieurs sessions demande confirmation. Chaque session reste une session PSMP distincte,
+  enregistrée comme d'habitude.
+- **Comparaison de fichiers** : contenus lus en mémoire et effacés à la fermeture de la fenêtre ; seules les copies
+  données à un outil externe passent par le disque (`%TEMP%\CyberArkTerm\compare`), supprimées à la fermeture de la
+  fenêtre et au lancement suivant.
+- **Nouvelle version** : aucune requête vers Internet sans votre action ou l'option des Paramètres (désactivée par
+  défaut) ; seules les adresses du dépôt du projet sont suivies, l'archive n'est gardée que si sa somme SHA-256 est
+  celle de `SHA256SUMS.txt`, et rien n'est installé ni lancé.
 - **Clés d'hôte PSMP épinglées** au premier usage, avec alerte en cas de changement (de même pour les serveurs
   joints en accès d'urgence).
 - **Maintien de la session PVWA** : il évite l'expiration par inactivité ; rien n'est envoyé tant que Windows
@@ -617,6 +690,7 @@ fichier existe.
 
 - Exécutable signé et installateur MSI.
 - Plusieurs PVWA (profils de connexion), Privilege Cloud.
+- Autres idées, gardées pour plus tard : voir [IDEAS.md](IDEAS.md).
 
 ## Licence
 

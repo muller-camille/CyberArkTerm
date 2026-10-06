@@ -264,4 +264,22 @@
   <data name="TransferCheckCancelled" xml:space="preserve">
     <value>check cancelled, file transferred</value>
   </data>
+  <data name="FileTooLargeToCompare" xml:space="preserve">
+    <value>{0} is too large to be compared ({1}, at most {2}).</value>
+  </data>
+  <data name="UpdateBadVersion" xml:space="preserve">
+    <value>Unexpected version number: {0}</value>
+  </data>
+  <data name="UpdateNoPackage" xml:space="preserve">
+    <value>This version has no Windows archive or no SHA256SUMS.txt file.</value>
+  </data>
+  <data name="UpdateNoChecksum" xml:space="preserve">
+    <value>The archive is missing from SHA256SUMS.txt: it cannot be checked.</value>
+  </data>
+  <data name="UpdateChecksumMismatch" xml:space="preserve">
+    <value>The downloaded archive does not match SHA256SUMS.txt (expected {0}, got {1}): it was deleted.</value>
+  </data>
+  <data name="UpdateTooLarge" xml:space="preserve">
+    <value>The archive is unexpectedly large: download stopped.</value>
+  </data>
 </root>

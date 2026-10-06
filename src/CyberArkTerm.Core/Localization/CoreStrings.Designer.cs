@@ -173,6 +173,15 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to {0} is too large to be compared ({1}, at most {2})..
+        /// </summary>
+        public static string FileTooLargeToCompare {
+            get {
+                return ResourceManager.GetString("FileTooLargeToCompare", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to A folder cannot be moved into itself..
         /// </summary>
         public static string FolderIntoItself {
@@ -781,6 +790,51 @@ namespace CyberArkTerm.Core.Localization {
         public static string TransferIncompleteNotDeleted {
             get {
                 return ResourceManager.GetString("TransferIncompleteNotDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unexpected version number: {0}.
+        /// </summary>
+        public static string UpdateBadVersion {
+            get {
+                return ResourceManager.GetString("UpdateBadVersion", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The downloaded archive does not match SHA256SUMS.txt (expected {0}, got {1}): it was deleted..
+        /// </summary>
+        public static string UpdateChecksumMismatch {
+            get {
+                return ResourceManager.GetString("UpdateChecksumMismatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The archive is missing from SHA256SUMS.txt: it cannot be checked..
+        /// </summary>
+        public static string UpdateNoChecksum {
+            get {
+                return ResourceManager.GetString("UpdateNoChecksum", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This version has no Windows archive or no SHA256SUMS.txt file..
+        /// </summary>
+        public static string UpdateNoPackage {
+            get {
+                return ResourceManager.GetString("UpdateNoPackage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The archive is unexpectedly large: download stopped..
+        /// </summary>
+        public static string UpdateTooLarge {
+            get {
+                return ResourceManager.GetString("UpdateTooLarge", resourceCulture);
             }
         }
 

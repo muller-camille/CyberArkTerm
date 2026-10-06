@@ -517,10 +517,16 @@ public partial class FileBrowserPanel
         }
     }
 
-    /// <summary>Ferme les fenêtres de suivi (fermeture de l'application).</summary>
+    /// <summary>Ferme les fenêtres de suivi et de comparaison (fermeture de l'application).</summary>
     public void CloseTailWindows()
     {
         foreach (var window in _tails.ToList())
+        {
+            window.Close();
+        }
+
+        // Fenêtres de comparaison aussi : leurs contenus sont effacés de la mémoire à la fermeture.
+        foreach (var window in _compares.ToList())
         {
             window.Close();
         }
