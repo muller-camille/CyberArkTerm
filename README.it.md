@@ -571,16 +571,22 @@ thread dell'interfaccia, in ordine: un server o un PSMP che non legge più non b
 
 All'apertura di una sessione SSH (se l'opzione è attiva), CyberArkTerm attende che la shell del server di
 destinazione mostri il prompt (fino a 60 s: il PSMP a volte impiega diversi secondi a raggiungere la
-destinazione), poi le invia un comando di una riga, preceduto da uno spazio per non finire nella cronologia.
+destinazione), poi le invia un comando di una riga, preceduto da uno spazio per non finire nella cronologia
+(bash, o zsh con `HIST_IGNORE_SPACE`).
 Non viene inviato nulla se hai già iniziato a digitare; il comando può essere reinviato senza effetti doppi
 (casella «Segui»):
 
 - definizione di `PROMPT_COMMAND` (bash) o `precmd` (zsh) che emette la sequenza standard **OSC 7** con la
   cartella corrente a ogni prompt;
+- con tcsh, l'alias `cwdcmd` (solo se non è già definito), che emette la stessa sequenza a ogni cambio di
+  cartella;
 - se è configurata una cartella iniziale, un `cd` verso quella cartella;
 - cancellazione del comando digitato, perché non resti sullo schermo.
 
 Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posiziona nella cartella indicata.
+
+Tutte le shell leggono il comando senza errori: ogni parte viene eseguita solo dalla famiglia di shell a cui è
+destinata. Con csh, ksh, sh o fish il monitoraggio non viene installato e sullo schermo non resta nulla.
 
 ## Risoluzione dei problemi
 
@@ -599,7 +605,7 @@ Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posizion
 | L'account non compare | Non hai il permesso «List accounts» sul suo safe, oppure l'elenco va ricaricato (`F5`). |
 | La password PSMP viene chiesta per ogni scheda | MFA caching non attivato sul PVWA: comportamento normale (una volta per scheda). |
 | La scheda File indica «Connessione SFTP impossibile» | SFTP non è consentito sul PSMP o per questo account: rivolgiti al team CyberArk. |
-| Il browser non segue i `cd` | La shell remota non è bash o zsh, l'opzione è disattivata nelle Impostazioni, oppure il prompt non è stato riconosciuto: riseleziona «Segui la cartella del terminale» al prompt della shell. |
+| Il browser non segue i `cd` | La shell remota non è bash, zsh o tcsh (o tcsh ha già un proprio alias `cwdcmd`), l'opzione è disattivata nelle Impostazioni, oppure il prompt non è stato riconosciuto: riseleziona «Segui la cartella del terminale» al prompt della shell. |
 | Avviso «la chiave del PSMP è cambiata» | Prosegui solo se il team CyberArk conferma una modifica del server. |
 | «Password principale o file chiave errati.» | Controlla la password e il file chiave; un archivio protetto da YubiKey non è supportato. |
 | L'archivio KeePass chiede la password nonostante «Memorizza» | Vault locale bloccato («Più tardi» allo sblocco) o password principale cambiata altrove: digitala, viene memorizzata di nuovo. |
@@ -674,7 +680,7 @@ e `SHA256SUMS.txt`. Le note di versione vengono lette da `docs/releases/vX.Y.Z.m
   essere memorizzato.
 - Archivi KeePass: cifratura Twofish e chiavi YubiKey non supportate; nessuna creazione di archivio (crealo con
   KeePass o KeePassXC); allegati conservati ma non mostrati.
-- Il monitoraggio della cartella del terminale richiede bash o zsh sul server.
+- Il monitoraggio della cartella del terminale richiede bash, zsh o tcsh sul server.
 - PSM Gateway (HTML5), doppio controllo (dual control) e accesso esclusivo non sono supportati.
 
 **Sviluppi futuri**

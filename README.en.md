@@ -542,15 +542,21 @@ a server or PSMP that stops reading does not freeze the application.
 
 When an SSH session opens (if the option is on), CyberArkTerm waits for the target server's shell to show its
 prompt (up to 60 s: the PSMP sometimes takes several seconds to reach the target), then sends it a one-line
-command, preceded by a space so it stays out of the history. Nothing is sent if you already started typing;
+command, preceded by a space so it stays out of the history (bash, or zsh with `HIST_IGNORE_SPACE`). Nothing is
+sent if you already started typing;
 the command can be sent again without duplicate effect (the "Follow" box):
 
 - sets `PROMPT_COMMAND` (bash) or `precmd` (zsh) to emit the standard **OSC 7** sequence with the current
   folder at each prompt;
+- with tcsh, the `cwdcmd` alias (only if it is not already defined), which emits the same sequence at each
+  folder change;
 - if a start folder is configured, a `cd` to that folder;
 - erases the typed command so it does not stay on screen.
 
 The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that folder.
+
+Every shell reads the command without error: each part runs only in the shell family it is written for. With
+csh, ksh, sh or fish, following is not set up and nothing stays on screen.
 
 ## Troubleshooting
 
@@ -569,7 +575,7 @@ The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that
 | The account does not show up | You lack the "List accounts" permission on its safe, or the list needs reloading (`F5`). |
 | The PSMP password is asked for each tab | MFA caching is not enabled on the PVWA: expected behavior (once per tab). |
 | The Files tab shows "SFTP connection failed" | SFTP is not allowed on the PSMP or for this account: ask your CyberArk team. |
-| The browser does not follow `cd` | The remote shell is not bash or zsh, the option is off in Settings, or the prompt was not recognized: tick "Follow the terminal folder" again at the shell prompt. |
+| The browser does not follow `cd` | The remote shell is not bash, zsh or tcsh (or tcsh already has its own `cwdcmd` alias), the option is off in Settings, or the prompt was not recognized: tick "Follow the terminal folder" again at the shell prompt. |
 | "The key of the PSMP has changed" warning | Only continue if your CyberArk team confirms a server change. |
 | "Wrong master password or key file." | Check the password and the key file; a vault protected by a YubiKey is not supported. |
 | The KeePass vault asks for the password despite "Remember" | Local vault locked ("Later" when unlocking) or master password changed elsewhere: type it, it is remembered again. |
@@ -645,7 +651,7 @@ zip and `SHA256SUMS.txt`. Release notes are read from `docs/releases/vX.Y.Z.md` 
   remembered.
 - KeePass vaults: Twofish encryption and YubiKey keys are not supported; no vault creation (create it with KeePass
   or KeePassXC); attachments are kept but not shown.
-- Following the terminal folder requires bash or zsh on the server.
+- Following the terminal folder requires bash, zsh or tcsh on the server.
 - PSM Gateway (HTML5), dual control and exclusive access are not supported.
 
 **Ideas**

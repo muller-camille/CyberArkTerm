@@ -580,15 +580,22 @@ l'interface, dans l'ordre : un serveur ou un PSMP qui ne lit plus ne fige pas l'
 
 À l'ouverture d'une session SSH (si l'option est active), CyberArkTerm attend que le shell du serveur cible
 affiche son invite (jusqu'à 60 s : le PSMP met parfois plusieurs secondes à joindre la cible), puis lui envoie
-une commande d'une ligne, précédée d'une espace pour ne pas entrer dans l'historique. Rien n'est envoyé si
+une commande d'une ligne, précédée d'une espace pour ne pas entrer dans l'historique (bash, ou zsh avec
+`HIST_IGNORE_SPACE`). Rien n'est envoyé si
 vous avez déjà commencé à taper ; la commande peut être renvoyée sans effet en double (case « Suivre ») :
 
 - définition de `PROMPT_COMMAND` (bash) ou `precmd` (zsh) qui émet la séquence standard **OSC 7** avec le
   dossier courant à chaque invite ;
+- avec tcsh, l'alias `cwdcmd` (seulement s'il n'est pas déjà défini), qui émet la même séquence à chaque
+  changement de dossier ;
 - si un dossier de départ est configuré, un `cd` vers ce dossier ;
 - effacement de la commande tapée, pour qu'elle ne reste pas à l'écran.
 
 Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place dans le dossier indiqué.
+
+La commande est lisible sans erreur par tous les shells : chaque partie n'est exécutée que par la famille de
+shell à laquelle elle est destinée. Avec csh, ksh, sh ou fish, le suivi n'est pas installé et rien ne reste à
+l'écran.
 
 ## Dépannage
 
@@ -607,7 +614,7 @@ Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place d
 | Le compte n'apparaît pas | Vous n'avez pas le droit « List accounts » sur son safe, ou la liste doit être rechargée (`F5`). |
 | Le mot de passe PSMP est demandé à chaque onglet | MFA caching non activé sur le PVWA : comportement normal (une fois par onglet). |
 | L'onglet Fichiers indique « Connexion SFTP impossible » | SFTP n'est pas autorisé sur le PSMP ou pour ce compte : voir l'équipe CyberArk. |
-| Le navigateur ne suit pas les `cd` | Le shell distant n'est pas bash ou zsh, l'option est désactivée dans les Paramètres, ou l'invite n'a pas été reconnue : recochez « Suivre le dossier du terminal » à l'invite du shell. |
+| Le navigateur ne suit pas les `cd` | Le shell distant n'est pas bash, zsh ou tcsh (ou tcsh a déjà son propre alias `cwdcmd`), l'option est désactivée dans les Paramètres, ou l'invite n'a pas été reconnue : recochez « Suivre le dossier du terminal » à l'invite du shell. |
 | Alerte « la clé du PSMP a changé » | Ne continuez que si l'équipe CyberArk confirme un changement du serveur. |
 | « Mot de passe maître ou fichier clé incorrect » | Vérifiez le mot de passe et le fichier clé ; un coffre protégé par YubiKey n'est pas pris en charge. |
 | Le coffre KeePass demande le mot de passe malgré « Mémoriser » | Coffre local verrouillé (« Plus tard » au déverrouillage) ou mot de passe maître changé ailleurs : saisissez-le, il est remémorisé. |
@@ -683,7 +690,7 @@ fichier existe.
   mémorisable.
 - Coffres KeePass : chiffrement Twofish et clés YubiKey non pris en charge ; pas de création de coffre (créez-le
   avec KeePass ou KeePassXC) ; pièces jointes gardées mais non affichées.
-- Le suivi du dossier du terminal nécessite bash ou zsh sur le serveur.
+- Le suivi du dossier du terminal nécessite bash, zsh ou tcsh sur le serveur.
 - PSM Gateway (HTML5), double validation (dual control) et accès exclusif ne sont pas gérés.
 
 **Pistes**
