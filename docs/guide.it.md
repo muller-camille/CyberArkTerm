@@ -37,7 +37,8 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
 - La casella di ricerca filtra su tutti i campi (server, utente, safe, piattaforma, dominio…), anche con più parole
   (`prd sql`).
 - «Raggruppa per» ordina gli account per safe, piattaforma o tipo di destinazione.
-- Il pulsante «Esporta» della barra degli strumenti salva in CSV gli account mostrati (filtrati dalla ricerca).
+- Clic destro su un account → «Esporta gli account visualizzati (CSV)…» salva in CSV gli account mostrati
+  (filtrati dalla ricerca).
 - **Membri di un safe**: clic destro su un account (o su un safe quando gli account sono raggruppati per safe, o su
   un server di «I miei server») → «Membri del safe». La finestra elenca gli utenti e i gruppi del safe con i loro
   diritti (elencare, usare, recuperare, aggiungere account, aggiornare, eliminare, gestire i membri…), indica chi
@@ -52,12 +53,11 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
   modello (safe, piattaforma, dominio). L'account viene creato con i diritti della tua sessione: serve il diritto
   «Aggiungere account» sul safe e, in genere, «Aggiornare il contenuto degli account» per fornire la password.
   L'elenco viene poi ricaricato e il nuovo account selezionato.
-- **Importare account (CSV)**: pulsante «Importa» della barra degli strumenti, o clic destro su un account o un safe
-  → «Importa account (CSV)…». Una piccola finestra chiede il file («Salva un modello…» fornisce un esempio), il safe
+- **Importare account (CSV)**: clic destro su un account o un safe → «Importa account (CSV)…». Una piccola finestra chiede il file («Salva un modello…» fornisce un esempio), il safe
   e la piattaforma predefiniti e riassume cosa verrà creato; nulla viene inviato prima di «Importa». Colonne
   obbligatorie: indirizzo e utente (più safe e piattaforma, altrimenti i valori predefiniti); facoltative: nome,
   dominio, password, macchine consentite, gestione CPM (sì/no), motivo. Separatore `;`, `,` o tabulazione, nomi
-  delle colonne in italiano, francese o inglese; un file prodotto da «Esporta» si può reimportare. Una seconda
+  delle colonne in italiano, francese o inglese; un file prodotto da «Esporta gli account visualizzati» si può reimportare. Una seconda
   finestra crea poi gli account riga per riga e mostra lo stato di ciascuna (creato, rifiutato con il messaggio del
   PVWA, non importato, non inviato; «Interrompi» disponibile). Alla fine propone di salvare il risultato in CSV
   (senza le password). Le password del file non vengono mai mostrate; elimina il file dopo l'importazione.
@@ -321,6 +321,42 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
 
 Un server il cui account non è più visibile in CyberArk appare in grigio.
 
+### Esportare, importare, condividere
+
+Tre pulsanti in alto nella scheda, a sinistra del pulsante archivio KeePass:
+
+- **Esporta** salva «I miei server» in un file `.json`: cartelle (anche vuote), nome, account CyberArk (ID), tipo di
+  connessione, componente, macchina di destinazione, motivo predefinito, cartella SFTP iniziale. Nessuna password né
+  file seguito. Utile per cambiare computer o passare il proprio elenco.
+- **Importa** legge un file esportato (o un elenco condiviso) e riassume prima di aggiungere: server aggiunti, server
+  già presenti (stesso account, tipo, componente, macchina di destinazione e cartella: ignorati), cartelle create,
+  server aperti su una macchina di destinazione (da verificare: la macchina viene dal file) e PVWA di origine se
+  diverso. Niente viene rimosso o modificato in «I miei server».
+- **Elenchi condivisi** (icona con due persone): un elenco di server in un file su una condivisione di rete, che tutto
+  il team apre e completa.
+  - «Crea un elenco condiviso…»: scegli la posizione (condivisione di rete) e il nome mostrato a tutti; «Apri un
+    elenco condiviso…»: aggiungi un elenco creato da un collega. Gli elenchi aperti compaiono in cima alla scheda
+    (dopo gli archivi KeePass), con le loro cartelle; anche la ricerca li filtra.
+  - **Aggiungere**: clic destro su un server o una cartella di «I miei server» → «Condividi in un elenco» (la
+    cartella viene mantenuta), o trascina un server, una cartella o un account di «Disponibili» sull'elenco o su una
+    sua cartella (conferma). Il motivo predefinito resta personale: non viene mai condiviso.
+  - **Rimuovere**: clic destro → «Rimuovi dall'elenco condiviso…» (o `Canc`), dopo conferma.
+  - **Usare**: doppio clic per connettersi; clic destro per la connessione avanzata, la password, i membri del safe o
+    «Copia in I miei server». Ognuno si connette con i propri diritti CyberArk: un account che non vedi nel vault
+    appare in grigio. La descrizione comandi mostra l'account come lo descrive CyberArk, la macchina di destinazione,
+    chi ha aggiunto il server e quando.
+  - **Macchina di destinazione**: un server condiviso che apre un account di dominio su una macchina non presente tra
+    le macchine consentite dell'account in CyberArk chiede conferma alla prima connessione (chiunque abbia diritto di
+    scrittura sulla condivisione può modificare l'elenco).
+  - **Cronologia**: clic destro → «Cronologia delle modifiche…». La scheda «Modifiche» elenca chi ha aggiunto,
+    rimosso o ripristinato cosa, e quando; la scheda «Versioni» conserva una copia dell'elenco a ogni revisione (le
+    ultime 100, nella cartella `nome.versions` accanto al file). «Ripristina questa versione…» riporta l'elenco in
+    quello stato; il ripristino viene a sua volta registrato, quindi può essere annullato.
+  - Le modifiche di ognuno si sommano: il file viene riletto e modificato in esclusiva (un computer che scrive nello
+    stesso momento attende il proprio turno), e l'elenco mostrato si aggiorna quando un collega lo modifica (`F5` lo
+    rilegge anche). «Chiudi l'elenco» lo toglie dalla tua scheda senza toccare il file.
+  - Diritti: quelli della condivisione di rete. In sola lettura, l'elenco resta utilizzabile ma non modificabile.
+
 ## 7. Accesso di emergenza fuori da CyberArk: archivi KeePass
 
 Quando CyberArk non è disponibile, CyberArkTerm apre i tuoi archivi KeePass (`.kdbx`) e si connette **direttamente**
@@ -406,7 +442,7 @@ Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia password, elimin
 
 Tutte le preferenze sono salvate in `%APPDATA%\CyberArkTerm\settings.json`: lingua, indirizzo del PVWA, metodo e
 nome utente di accesso, impostazioni qui sopra, «I miei server», le loro cartelle e i file seguiti su di essi
-(percorsi), sessioni recenti, posizione degli archivi KeePass e dei loro file chiave. Questo file **non contiene
+(percorsi), sessioni recenti, posizione degli archivi KeePass e dei loro file chiave, e degli elenchi condivisi aperti. Questo file **non contiene
 password, token né chiavi private**. Per ripartire da zero, chiudi l'applicazione ed eliminalo. La cronologia dei
 trasferimenti della scheda File è accanto, in `transfers.json` (nomi e percorsi dei file, checksum SHA-256, mai il
 loro contenuto).
@@ -466,6 +502,12 @@ loro contenuto).
 - **Nessuna iniezione di comandi**: percorsi SCP e cartelle iniziali protetti tra apici per la shell remota;
   argomenti `ssh` / Windows Terminal convalidati e passati senza shell.
 - Esportazione CSV protetta contro l'iniezione di formule Excel.
+- **File di server ed elenchi condivisi**: nessuna password né token, solo nomi di server, account e safe, ID degli
+  account e impostazioni di connessione (il motivo predefinito non viene mai condiviso). Non danno alcun accesso:
+  ognuno si connette con i propri diritti CyberArk, e la descrizione comandi mostra l'account come lo descrive il
+  vault. Una macchina di destinazione proveniente da un elenco condiviso e non consentita per l'account da CyberArk
+  viene confermata prima della prima connessione. L'autore annotato nel registro (account CyberArk e account
+  Windows) è dichiarativo: fa fede l'audit della condivisione di rete. Un file di oltre 8 MB viene rifiutato.
 - Le sessioni PSM e PSMP aperte da CyberArkTerm sono sessioni CyberArk standard: vengono registrate e verificate dal
   PSM come quelle aperte dal PVWA.
 
@@ -490,6 +532,17 @@ Per segnalare una vulnerabilità, vedi [SECURITY.md](../SECURITY.md) (segnalazio
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Chiave SSH temporanea «MFA caching» (se attivata) |
 | `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Mantenimento della sessione (ogni 4 minuti) |
 | `POST /PasswordVault/API/Auth/Logoff` | Chiusura della sessione |
+
+### Elenchi condivisi
+
+File JSON (`"format": "CyberArkTerm.SharedServers"`, versione 1): nome, PVWA di origine, revisione, cartelle,
+server (con chi li ha aggiunti e quando) e registro delle modifiche (le ultime 1.000). Ogni modifica apre il file
+in esclusiva (gli altri computer riprovano per 5 s), lo rilegge, copia la revisione corrente in
+`nome.versions\nome.r00012.20261006-101500.json` (revisione e data del suo salvataggio, 100 versioni conservate),
+applica la modifica, aumenta la revisione, annota chi, quando e cosa, poi riscrive il file (rimesso com'era se la
+scrittura fallisce). La visualizzazione segue le modifiche del file (`FileSystemWatcher`) e lo rilegge con `F5`.
+L'esportazione di «I miei server» ha lo stesso formato con `"format": "CyberArkTerm.Servers"`, senza revisione né
+registro.
 
 ### Archivi KeePass
 
@@ -575,5 +628,8 @@ destinata. Con csh, ksh, sh o fish il monitoraggio non viene installato e sullo 
 | «Il file del vault locale è danneggiato o è stato creato da un altro account Windows.» | Il vault locale non segue un cambio di computer o di account: eliminalo nelle Impostazioni e ricrealo. |
 | «La voce … è stata modificata o eliminata nell'archivio nel frattempo» | Qualcuno ha cambiato la stessa voce altrove: l'archivio viene ricaricato, rifai la modifica. |
 | Un account Unix si apre con il PSM e non in SSH | Indirizzo del PSMP non impostato nelle Impostazioni, oppure account non riconosciuto come Unix: clic destro → «Connetti in SSH». |
+| «L'elenco condiviso è in corso di modifica da parte di qualcun altro» | Un altro computer scrive l'elenco da più di 5 secondi, o tiene il file aperto: riprova tra un momento. |
+| «non hai il diritto di modificare questo file (diritti della condivisione di rete)» | La condivisione è in sola lettura per te: chiedi il diritto di scrittura al suo responsabile. L'elenco resta utilizzabile. |
+| Un elenco condiviso mostra «(illeggibile)» | Condivisione irraggiungibile o file danneggiato: la descrizione comandi riporta l'errore. Se il file è danneggiato, copia al suo posto la versione più recente della cartella `nome.versions`. |
 | Capire un errore di connessione | Impostazioni → Registro di debug, riproduci il problema, poi Impostazioni → «Mostra il file del registro». |
 | Una scheda di desktop remoto diretto (KeePass) mostra «Errore del controllo Desktop remoto» | Segnala il codice mostrato (se il controllo Desktop remoto manca dal computer, la connessione passa da `mstsc`). |

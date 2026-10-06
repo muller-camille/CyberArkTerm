@@ -362,6 +362,24 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to The PVWA accounts are not loaded (F5 to try again)..
+        /// </summary>
+        public static string AccountsNotLoaded {
+            get {
+                return ResourceManager.GetString("AccountsNotLoaded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The accounts are still loading from the PVWA: try again in a moment..
+        /// </summary>
+        public static string AccountsStillLoading {
+            get {
+                return ResourceManager.GetString("AccountsStillLoading", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Address:.
         /// </summary>
         public static string AddAccountAddress {
@@ -1613,6 +1631,24 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to {0} server(s) copied into My servers ({1} already present).
+        /// </summary>
+        public static string CopiedToMyServers {
+            get {
+                return ResourceManager.GetString("CopiedToMyServers", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Already in My servers ({0} server(s))..
+        /// </summary>
+        public static string CopiedToMyServersNone {
+            get {
+                return ResourceManager.GetString("CopiedToMyServersNone", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Password change.
         /// </summary>
         public static string CpmActionChange {
@@ -1753,6 +1789,15 @@ namespace CyberArkTerm.App.Localization {
         public static string CreateFailed {
             get {
                 return ResourceManager.GetString("CreateFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Create a shared list.
+        /// </summary>
+        public static string CreateSharedListTitle {
+            get {
+                return ResourceManager.GetString("CreateSharedListTitle", resourceCulture);
             }
         }
 
@@ -2356,6 +2401,33 @@ namespace CyberArkTerm.App.Localization {
         public static string ExportFilter {
             get {
                 return ResourceManager.GetString("ExportFilter", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to my-servers.
+        /// </summary>
+        public static string ExportServersFileName {
+            get {
+                return ResourceManager.GetString("ExportServersFileName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Export My servers to a file (folders, modes, components, target machines; no password).
+        /// </summary>
+        public static string ExportServersTip {
+            get {
+                return ResourceManager.GetString("ExportServersTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Export My servers.
+        /// </summary>
+        public static string ExportServersTitle {
+            get {
+                return ResourceManager.GetString("ExportServersTitle", resourceCulture);
             }
         }
 
@@ -3103,6 +3175,87 @@ namespace CyberArkTerm.App.Localization {
         public static string ImportSaveResultAsk {
             get {
                 return ResourceManager.GetString("ImportSaveResultAsk", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import {0} server(s) into My servers from “{1}”?.
+        /// </summary>
+        public static string ImportServersConfirm {
+            get {
+                return ResourceManager.GetString("ImportServersConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} server(s) already in My servers will be skipped..
+        /// </summary>
+        public static string ImportServersDuplicates {
+            get {
+                return ResourceManager.GetString("ImportServersDuplicates", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import impossible: {0}.
+        /// </summary>
+        public static string ImportServersFailed {
+            get {
+                return ResourceManager.GetString("ImportServersFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to New folders: {0}.
+        /// </summary>
+        public static string ImportServersFolders {
+            get {
+                return ResourceManager.GetString("ImportServersFolders", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing to import: the {0} server(s) of this file are already in My servers..
+        /// </summary>
+        public static string ImportServersNothing {
+            get {
+                return ResourceManager.GetString("ImportServersNothing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This file comes from the PVWA {0}; you are connected to {1}: servers whose account does not exist[rest of string was truncated].
+        /// </summary>
+        public static string ImportServersOtherPvwa {
+            get {
+                return ResourceManager.GetString("ImportServersOtherPvwa", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Servers opened on a target machine (check them, the machine comes from the file):.
+        /// </summary>
+        public static string ImportServersTargets {
+            get {
+                return ResourceManager.GetString("ImportServersTargets", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import a list of servers (file exported from My servers, or shared list).
+        /// </summary>
+        public static string ImportServersTip {
+            get {
+                return ResourceManager.GetString("ImportServersTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import servers.
+        /// </summary>
+        public static string ImportServersTitle {
+            get {
+                return ResourceManager.GetString("ImportServersTitle", resourceCulture);
             }
         }
 
@@ -4241,6 +4394,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _Create a shared list….
+        /// </summary>
+        public static string MenuCreateSharedList {
+            get {
+                return ResourceManager.GetString("MenuCreateSharedList", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Debug log.
         /// </summary>
         public static string MenuDebugLog {
@@ -4291,6 +4453,15 @@ namespace CyberArkTerm.App.Localization {
         public static string MenuEditAccount {
             get {
                 return ResourceManager.GetString("MenuEditAccount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Export the displayed accounts (CSV)….
+        /// </summary>
+        public static string MenuExportAccounts {
+            get {
+                return ResourceManager.GetString("MenuExportAccounts", resourceCulture);
             }
         }
 
@@ -4475,6 +4646,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _Open a shared list….
+        /// </summary>
+        public static string MenuOpenSharedList {
+            get {
+                return ResourceManager.GetString("MenuOpenSharedList", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Password.
         /// </summary>
         public static string MenuPassword {
@@ -4534,6 +4714,114 @@ namespace CyberArkTerm.App.Localization {
         public static string MenuSettings {
             get {
                 return ResourceManager.GetString("MenuSettings", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Share the folder in a list.
+        /// </summary>
+        public static string MenuShareFolderInList {
+            get {
+                return ResourceManager.GetString("MenuShareFolderInList", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Share in a list.
+        /// </summary>
+        public static string MenuShareInList {
+            get {
+                return ResourceManager.GetString("MenuShareInList", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to C_lose the list.
+        /// </summary>
+        public static string MenuSharedClose {
+            get {
+                return ResourceManager.GetString("MenuSharedClose", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No longer show this list here; the file stays on the share for the others..
+        /// </summary>
+        public static string MenuSharedCloseTip {
+            get {
+                return ResourceManager.GetString("MenuSharedCloseTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Copy everything into My servers.
+        /// </summary>
+        public static string MenuSharedCopyAll {
+            get {
+                return ResourceManager.GetString("MenuSharedCopyAll", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Copy the folder into My servers.
+        /// </summary>
+        public static string MenuSharedCopyFolder {
+            get {
+                return ResourceManager.GetString("MenuSharedCopyFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cop_y into My servers.
+        /// </summary>
+        public static string MenuSharedCopyServer {
+            get {
+                return ResourceManager.GetString("MenuSharedCopyServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _History of changes….
+        /// </summary>
+        public static string MenuSharedHistory {
+            get {
+                return ResourceManager.GetString("MenuSharedHistory", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Re-read the list.
+        /// </summary>
+        public static string MenuSharedRefresh {
+            get {
+                return ResourceManager.GetString("MenuSharedRefresh", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Remove the folder from the shared list….
+        /// </summary>
+        public static string MenuSharedRemoveFolder {
+            get {
+                return ResourceManager.GetString("MenuSharedRemoveFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Remove from the shared list….
+        /// </summary>
+        public static string MenuSharedRemoveServer {
+            get {
+                return ResourceManager.GetString("MenuSharedRemoveServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Show the file in Explorer.
+        /// </summary>
+        public static string MenuSharedShowFile {
+            get {
+                return ResourceManager.GetString("MenuSharedShowFile", resourceCulture);
             }
         }
 
@@ -5051,6 +5339,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to My servers is empty: nothing to export..
+        /// </summary>
+        public static string NoServersToExport {
+            get {
+                return ResourceManager.GetString("NoServersToExport", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to No SSH session.
         /// </summary>
         public static string NoSshSession {
@@ -5083,6 +5380,15 @@ namespace CyberArkTerm.App.Localization {
         public static string Ok {
             get {
                 return ResourceManager.GetString("Ok", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open a shared list.
+        /// </summary>
+        public static string OpenSharedListTitle {
+            get {
+                return ResourceManager.GetString("OpenSharedListTitle", resourceCulture);
             }
         }
 
@@ -6212,6 +6518,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to waiting for the PVWA accounts….
+        /// </summary>
+        public static string RecentWaitingAccounts {
+            get {
+                return ResourceManager.GetString("RecentWaitingAccounts", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Reconnect.
         /// </summary>
         public static string Reconnect {
@@ -7148,6 +7463,33 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Server lists (*.json)|*.json|All files (*.*)|*.*.
+        /// </summary>
+        public static string ServerListFilter {
+            get {
+                return ResourceManager.GetString("ServerListFilter", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} server(s) exported to {1}.
+        /// </summary>
+        public static string ServersExported {
+            get {
+                return ResourceManager.GetString("ServersExported", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} server(s) imported ({1} already present).
+        /// </summary>
+        public static string ServersImported {
+            get {
+                return ResourceManager.GetString("ServersImported", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Session closed by the server..
         /// </summary>
         public static string SessionClosedByServer {
@@ -7324,6 +7666,483 @@ namespace CyberArkTerm.App.Localization {
         public static string SftpOpening {
             get {
                 return ResourceManager.GetString("SftpOpening", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add {0} server(s) to the shared list “{1}”? Everyone who opens this list will see them..
+        /// </summary>
+        public static string ShareDropConfirm {
+            get {
+                return ResourceManager.GetString("ShareDropConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open or create a shared list first (button at the top of the tab)..
+        /// </summary>
+        public static string ShareNoListTip {
+            get {
+                return ResourceManager.GetString("ShareNoListTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Added.
+        /// </summary>
+        public static string SharedActionAdded {
+            get {
+                return ResourceManager.GetString("SharedActionAdded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Creation.
+        /// </summary>
+        public static string SharedActionCreated {
+            get {
+                return ResourceManager.GetString("SharedActionCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Removed.
+        /// </summary>
+        public static string SharedActionRemoved {
+            get {
+                return ResourceManager.GetString("SharedActionRemoved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Restored revision {0}.
+        /// </summary>
+        public static string SharedActionRestored {
+            get {
+                return ResourceManager.GetString("SharedActionRestored", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Added by {0}.
+        /// </summary>
+        public static string SharedAddedBy {
+            get {
+                return ResourceManager.GetString("SharedAddedBy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Added by {0} on {1}.
+        /// </summary>
+        public static string SharedAddedByOn {
+            get {
+                return ResourceManager.GetString("SharedAddedByOn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Action.
+        /// </summary>
+        public static string SharedColAction {
+            get {
+                return ResourceManager.GetString("SharedColAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to By.
+        /// </summary>
+        public static string SharedColBy {
+            get {
+                return ResourceManager.GetString("SharedColBy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Changes.
+        /// </summary>
+        public static string SharedColChanges {
+            get {
+                return ResourceManager.GetString("SharedColChanges", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Folder.
+        /// </summary>
+        public static string SharedColFolder {
+            get {
+                return ResourceManager.GetString("SharedColFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Revision.
+        /// </summary>
+        public static string SharedColRevision {
+            get {
+                return ResourceManager.GetString("SharedColRevision", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Saved.
+        /// </summary>
+        public static string SharedColSaved {
+            get {
+                return ResourceManager.GetString("SharedColSaved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Changes.
+        /// </summary>
+        public static string SharedHistoryChangesTab {
+            get {
+                return ResourceManager.GetString("SharedHistoryChangesTab", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Current revision: {1} · {2} server(s).
+        /// </summary>
+        public static string SharedHistoryHeader {
+            get {
+                return ResourceManager.GetString("SharedHistoryHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reading the history….
+        /// </summary>
+        public static string SharedHistoryLoading {
+            get {
+                return ResourceManager.GetString("SharedHistoryLoading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Versions unreadable: {0}.
+        /// </summary>
+        public static string SharedHistoryNoVersions {
+            get {
+                return ResourceManager.GetString("SharedHistoryNoVersions", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to History of the list “{0}”.
+        /// </summary>
+        public static string SharedHistoryTitle {
+            get {
+                return ResourceManager.GetString("SharedHistoryTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copy of the list at each revision, kept in {0} (the 100 most recent). Restoring a version is itse[rest of string was truncated].
+        /// </summary>
+        public static string SharedHistoryVersionsNote {
+            get {
+                return ResourceManager.GetString("SharedHistoryVersionsNote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Versions.
+        /// </summary>
+        public static string SharedHistoryVersionsTab {
+            get {
+                return ResourceManager.GetString("SharedHistoryVersionsTab", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The shared list “{0}” is already open..
+        /// </summary>
+        public static string SharedListAlreadyOpen {
+            get {
+                return ResourceManager.GetString("SharedListAlreadyOpen", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The list “{0}” was not modified: {1}.
+        /// </summary>
+        public static string SharedListChangeFailed {
+            get {
+                return ResourceManager.GetString("SharedListChangeFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to List “{0}” closed (the file stays on the share: {1})..
+        /// </summary>
+        public static string SharedListClosed {
+            get {
+                return ResourceManager.GetString("SharedListClosed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot create {0}: {1}.
+        /// </summary>
+        public static string SharedListCreateFailed {
+            get {
+                return ResourceManager.GetString("SharedListCreateFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shared list “{0}” created: add servers to it by right-clicking them › Share in a list, or by drag[rest of string was truncated].
+        /// </summary>
+        public static string SharedListCreated {
+            get {
+                return ResourceManager.GetString("SharedListCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shared servers.
+        /// </summary>
+        public static string SharedListDefaultFileName {
+            get {
+                return ResourceManager.GetString("SharedListDefaultFileName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} already exists: open it with “Open a shared list”..
+        /// </summary>
+        public static string SharedListExists {
+            get {
+                return ResourceManager.GetString("SharedListExists", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Revision {0}, modified on {1} by {2}.
+        /// </summary>
+        public static string SharedListLastChange {
+            get {
+                return ResourceManager.GetString("SharedListLastChange", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reading {0}….
+        /// </summary>
+        public static string SharedListLoading {
+            get {
+                return ResourceManager.GetString("SharedListLoading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to (reading…).
+        /// </summary>
+        public static string SharedListLoadingSuffix {
+            get {
+                return ResourceManager.GetString("SharedListLoadingSuffix", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Name of the list shown to everyone:.
+        /// </summary>
+        public static string SharedListNameLabel {
+            get {
+                return ResourceManager.GetString("SharedListNameLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot read {0}: {1}.
+        /// </summary>
+        public static string SharedListOpenFailed {
+            get {
+                return ResourceManager.GetString("SharedListOpenFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shared list “{0}” opened ({1} server(s))..
+        /// </summary>
+        public static string SharedListOpened {
+            get {
+                return ResourceManager.GetString("SharedListOpened", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Created for the PVWA {0}.
+        /// </summary>
+        public static string SharedListOtherPvwa {
+            get {
+                return ResourceManager.GetString("SharedListOtherPvwa", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The list “{0}” was created for the PVWA {1}; you are connected to {2}. Servers whose account does[rest of string was truncated].
+        /// </summary>
+        public static string SharedListOtherPvwaWarning {
+            get {
+                return ResourceManager.GetString("SharedListOtherPvwaWarning", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to you do not have the right to modify this file (rights of the network share)..
+        /// </summary>
+        public static string SharedListReadOnly {
+            get {
+                return ResourceManager.GetString("SharedListReadOnly", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to List “{0}” re-read..
+        /// </summary>
+        public static string SharedListRefreshed {
+            get {
+                return ResourceManager.GetString("SharedListRefreshed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Revision {0}.
+        /// </summary>
+        public static string SharedListRevision {
+            get {
+                return ResourceManager.GetString("SharedListRevision", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Saving the list “{0}”….
+        /// </summary>
+        public static string SharedListSaving {
+            get {
+                return ResourceManager.GetString("SharedListSaving", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shared list: everyone who opens it can add or remove servers; each change is recorded (who, when,[rest of string was truncated].
+        /// </summary>
+        public static string SharedListTip {
+            get {
+                return ResourceManager.GetString("SharedListTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to (unreadable).
+        /// </summary>
+        public static string SharedListUnreadable {
+            get {
+                return ResourceManager.GetString("SharedListUnreadable", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shared lists: server lists on a network share that everyone can complete, with the history of cha[rest of string was truncated].
+        /// </summary>
+        public static string SharedListsTip {
+            get {
+                return ResourceManager.GetString("SharedListsTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shared lists.
+        /// </summary>
+        public static string SharedListsTitle {
+            get {
+                return ResourceManager.GetString("SharedListsTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove “{0}” from the shared list “{1}” for everyone? (The change is recorded and can be undone f[rest of string was truncated].
+        /// </summary>
+        public static string SharedRemoveConfirm {
+            get {
+                return ResourceManager.GetString("SharedRemoveConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove the folder “{0}” and its {1} server(s) from the shared list “{2}” for everyone? (The chang[rest of string was truncated].
+        /// </summary>
+        public static string SharedRemoveFolderConfirm {
+            get {
+                return ResourceManager.GetString("SharedRemoveFolderConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Restore this version….
+        /// </summary>
+        public static string SharedRestore {
+            get {
+                return ResourceManager.GetString("SharedRestore", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Put the list “{0}” back as it was at revision {1} ({2})?  Servers added since will be removed and[rest of string was truncated].
+        /// </summary>
+        public static string SharedRestoreConfirm {
+            get {
+                return ResourceManager.GetString("SharedRestoreConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to List restored to revision {0}..
+        /// </summary>
+        public static string SharedRestored {
+            get {
+                return ResourceManager.GetString("SharedRestored", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shared list: {0}.
+        /// </summary>
+        public static string SharedServerInList {
+            get {
+                return ResourceManager.GetString("SharedServerInList", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} server(s) added to the shared list “{1}” ({2} already there).
+        /// </summary>
+        public static string SharedServersAdded {
+            get {
+                return ResourceManager.GetString("SharedServersAdded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} server(s) removed from the shared list “{1}”.
+        /// </summary>
+        public static string SharedServersRemoved {
+            get {
+                return ResourceManager.GetString("SharedServersRemoved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The server “{0}” of the shared list “{1}” opens the account {2} on the machine “{3}”.  This targe[rest of string was truncated].
+        /// </summary>
+        public static string SharedTargetConfirm {
+            get {
+                return ResourceManager.GetString("SharedTargetConfirm", resourceCulture);
             }
         }
 
@@ -8651,47 +9470,11 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Export.
-        /// </summary>
-        public static string ToolExport {
-            get {
-                return ResourceManager.GetString("ToolExport", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Export the filtered list to CSV.
-        /// </summary>
-        public static string ToolExportTip {
-            get {
-                return ResourceManager.GetString("ToolExportTip", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to History.
         /// </summary>
         public static string ToolHistory {
             get {
                 return ResourceManager.GetString("ToolHistory", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Import.
-        /// </summary>
-        public static string ToolImport {
-            get {
-                return ResourceManager.GetString("ToolImport", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Create accounts from a CSV file.
-        /// </summary>
-        public static string ToolImportTip {
-            get {
-                return ResourceManager.GetString("ToolImportTip", resourceCulture);
             }
         }
 

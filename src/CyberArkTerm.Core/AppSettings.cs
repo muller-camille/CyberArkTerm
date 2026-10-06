@@ -45,6 +45,9 @@ public sealed class AppSettings
     /// <summary>Coffres KeePass affichés comme dossiers de l'onglet « Courants » (accès d'urgence hors CyberArk).</summary>
     public List<KeePassFolder> KeePassFolders { get; set; } = [];
 
+    /// <summary>Listes de serveurs partagées (fichiers sur un partage réseau) affichées dans l'onglet « Courants ».</summary>
+    public List<string> SharedLists { get; set; } = [];
+
     /// <summary>Sessions SSH dans un onglet CyberArkTerm (terminal + navigateur de fichiers) plutôt que Windows Terminal.</summary>
     public bool SshInApp { get; set; } = true;
 
@@ -246,6 +249,7 @@ public sealed class AppSettings
                 settings.ComponentByPlatform ??= [];
                 settings.SessionFolderList ??= [];
                 settings.Sessions ??= [];
+                settings.SharedLists ??= [];
                 settings.KnownHosts ??= [];
                 settings.TailHighlights ??= "";
                 settings.TailAlerts ??= "";

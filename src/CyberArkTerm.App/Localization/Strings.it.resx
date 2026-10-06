@@ -174,18 +174,6 @@
   <data name="ToolRefreshTip" xml:space="preserve">
     <value>Ricarica gli account dal PVWA (F5)</value>
   </data>
-  <data name="ToolExport" xml:space="preserve">
-    <value>Esporta</value>
-  </data>
-  <data name="ToolExportTip" xml:space="preserve">
-    <value>Esporta l'elenco filtrato in CSV</value>
-  </data>
-  <data name="ToolImport" xml:space="preserve">
-    <value>Importa</value>
-  </data>
-  <data name="ToolImportTip" xml:space="preserve">
-    <value>Crea account da un file CSV</value>
-  </data>
   <data name="ToolHistory" xml:space="preserve">
     <value>Cronologia</value>
   </data>
@@ -3060,5 +3048,283 @@ Salvare il risultato in un file CSV (una riga per ogni riga del file, senza le p
   </data>
   <data name="SafeMemberRemoveFailed" xml:space="preserve">
     <value>Il PVWA non ha rimosso il membro: {0}</value>
+  </data>
+  <data name="MenuExportAccounts" xml:space="preserve">
+    <value>_Esporta gli account visualizzati (CSV)…</value>
+  </data>
+  <data name="ImportServersTip" xml:space="preserve">
+    <value>Importa un elenco di server (file esportato da I miei server, o elenco condiviso)</value>
+  </data>
+  <data name="ExportServersTip" xml:space="preserve">
+    <value>Esporta I miei server in un file (cartelle, modalità, componenti, macchine di destinazione; nessuna password)</value>
+  </data>
+  <data name="SharedListsTip" xml:space="preserve">
+    <value>Elenchi condivisi: elenchi di server su una condivisione di rete che tutti possono completare, con la cronologia delle modifiche</value>
+  </data>
+  <data name="ServerListFilter" xml:space="preserve">
+    <value>Elenchi di server (*.json)|*.json|Tutti i file (*.*)|*.*</value>
+  </data>
+  <data name="ExportServersTitle" xml:space="preserve">
+    <value>Esporta I miei server</value>
+  </data>
+  <data name="ExportServersFileName" xml:space="preserve">
+    <value>miei-server</value>
+  </data>
+  <data name="NoServersToExport" xml:space="preserve">
+    <value>I miei server è vuoto: niente da esportare.</value>
+  </data>
+  <data name="ServersExported" xml:space="preserve">
+    <value>{0} server esportati in {1}</value>
+  </data>
+  <data name="ImportServersTitle" xml:space="preserve">
+    <value>Importa server</value>
+  </data>
+  <data name="ImportServersFailed" xml:space="preserve">
+    <value>Importazione impossibile: {0}</value>
+  </data>
+  <data name="ImportServersNothing" xml:space="preserve">
+    <value>Niente da importare: i {0} server di questo file sono già in I miei server.</value>
+  </data>
+  <data name="ImportServersConfirm" xml:space="preserve">
+    <value>Importare {0} server in I miei server da «{1}»?</value>
+  </data>
+  <data name="ImportServersDuplicates" xml:space="preserve">
+    <value>{0} server già presenti in I miei server saranno ignorati.</value>
+  </data>
+  <data name="ImportServersFolders" xml:space="preserve">
+    <value>Nuove cartelle: {0}</value>
+  </data>
+  <data name="ImportServersTargets" xml:space="preserve">
+    <value>Server aperti su una macchina di destinazione (verificali, la macchina viene dal file):</value>
+  </data>
+  <data name="ImportServersOtherPvwa" xml:space="preserve">
+    <value>Questo file proviene dal PVWA {0}; sei connesso a {1}: i server il cui account non esiste qui appariranno in grigio.</value>
+  </data>
+  <data name="ServersImported" xml:space="preserve">
+    <value>{0} server importati ({1} già presenti)</value>
+  </data>
+  <data name="SharedListsTitle" xml:space="preserve">
+    <value>Elenchi condivisi</value>
+  </data>
+  <data name="MenuOpenSharedList" xml:space="preserve">
+    <value>_Apri un elenco condiviso…</value>
+  </data>
+  <data name="MenuCreateSharedList" xml:space="preserve">
+    <value>_Crea un elenco condiviso…</value>
+  </data>
+  <data name="OpenSharedListTitle" xml:space="preserve">
+    <value>Apri un elenco condiviso</value>
+  </data>
+  <data name="CreateSharedListTitle" xml:space="preserve">
+    <value>Crea un elenco condiviso</value>
+  </data>
+  <data name="SharedListDefaultFileName" xml:space="preserve">
+    <value>Server condivisi</value>
+  </data>
+  <data name="SharedListNameLabel" xml:space="preserve">
+    <value>Nome dell'elenco, mostrato a tutti:</value>
+  </data>
+  <data name="SharedListExists" xml:space="preserve">
+    <value>{0} esiste già: aprilo con «Apri un elenco condiviso».</value>
+  </data>
+  <data name="SharedListCreated" xml:space="preserve">
+    <value>Elenco condiviso «{0}» creato: aggiungi server con clic destro › Condividi in un elenco, o trascinandoli sopra.</value>
+  </data>
+  <data name="SharedListCreateFailed" xml:space="preserve">
+    <value>Impossibile creare {0}: {1}</value>
+  </data>
+  <data name="SharedListLoading" xml:space="preserve">
+    <value>Lettura di {0}…</value>
+  </data>
+  <data name="SharedListOpenFailed" xml:space="preserve">
+    <value>Impossibile leggere {0}: {1}</value>
+  </data>
+  <data name="SharedListAlreadyOpen" xml:space="preserve">
+    <value>L'elenco condiviso «{0}» è già aperto.</value>
+  </data>
+  <data name="SharedListOpened" xml:space="preserve">
+    <value>Elenco condiviso «{0}» aperto ({1} server).</value>
+  </data>
+  <data name="SharedListOtherPvwaWarning" xml:space="preserve">
+    <value>L'elenco «{0}» è stato creato per il PVWA {1}; sei connesso a {2}. I server il cui account non esiste qui appaiono in grigio.</value>
+  </data>
+  <data name="SharedListClosed" xml:space="preserve">
+    <value>Elenco «{0}» chiuso (il file resta sulla condivisione: {1}).</value>
+  </data>
+  <data name="SharedListRefreshed" xml:space="preserve">
+    <value>Elenco «{0}» riletto.</value>
+  </data>
+  <data name="SharedListSaving" xml:space="preserve">
+    <value>Salvataggio dell'elenco «{0}»…</value>
+  </data>
+  <data name="SharedListChangeFailed" xml:space="preserve">
+    <value>L'elenco «{0}» non è stato modificato: {1}</value>
+  </data>
+  <data name="SharedListReadOnly" xml:space="preserve">
+    <value>non hai il diritto di modificare questo file (diritti della condivisione di rete).</value>
+  </data>
+  <data name="SharedListTip" xml:space="preserve">
+    <value>Elenco condiviso: chiunque lo apra può aggiungere o rimuovere server; ogni modifica viene registrata (chi, quando, cosa) con una copia della versione precedente.</value>
+  </data>
+  <data name="SharedListRevision" xml:space="preserve">
+    <value>Revisione {0}</value>
+  </data>
+  <data name="SharedListLastChange" xml:space="preserve">
+    <value>Revisione {0}, modificata il {1} da {2}</value>
+  </data>
+  <data name="SharedListOtherPvwa" xml:space="preserve">
+    <value>Creato per il PVWA {0}</value>
+  </data>
+  <data name="SharedListUnreadable" xml:space="preserve">
+    <value>(illeggibile)</value>
+  </data>
+  <data name="SharedListLoadingSuffix" xml:space="preserve">
+    <value>(lettura…)</value>
+  </data>
+  <data name="SharedAddedBy" xml:space="preserve">
+    <value>Aggiunto da {0}</value>
+  </data>
+  <data name="SharedAddedByOn" xml:space="preserve">
+    <value>Aggiunto da {0} il {1}</value>
+  </data>
+  <data name="SharedServerInList" xml:space="preserve">
+    <value>Elenco condiviso: {0}</value>
+  </data>
+  <data name="SharedActionCreated" xml:space="preserve">
+    <value>Creazione</value>
+  </data>
+  <data name="SharedActionAdded" xml:space="preserve">
+    <value>Aggiunta</value>
+  </data>
+  <data name="SharedActionRemoved" xml:space="preserve">
+    <value>Rimozione</value>
+  </data>
+  <data name="SharedActionRestored" xml:space="preserve">
+    <value>Ripristino della revisione {0}</value>
+  </data>
+  <data name="MenuShareInList" xml:space="preserve">
+    <value>_Condividi in un elenco</value>
+  </data>
+  <data name="MenuShareFolderInList" xml:space="preserve">
+    <value>_Condividi la cartella in un elenco</value>
+  </data>
+  <data name="ShareNoListTip" xml:space="preserve">
+    <value>Apri o crea prima un elenco condiviso (pulsante in alto nella scheda).</value>
+  </data>
+  <data name="ShareDropConfirm" xml:space="preserve">
+    <value>Aggiungere {0} server all'elenco condiviso «{1}»? Tutti quelli che aprono questo elenco li vedranno.</value>
+  </data>
+  <data name="SharedServersAdded" xml:space="preserve">
+    <value>{0} server aggiunti all'elenco condiviso «{1}» ({2} già presenti)</value>
+  </data>
+  <data name="SharedServersRemoved" xml:space="preserve">
+    <value>{0} server rimossi dall'elenco condiviso «{1}»</value>
+  </data>
+  <data name="SharedRemoveConfirm" xml:space="preserve">
+    <value>Rimuovere «{0}» dall'elenco condiviso «{1}» per tutti? (La modifica viene registrata e può essere annullata dalla cronologia.)</value>
+  </data>
+  <data name="SharedRemoveFolderConfirm" xml:space="preserve">
+    <value>Rimuovere la cartella «{0}» e i suoi {1} server dall'elenco condiviso «{2}» per tutti? (La modifica viene registrata e può essere annullata dalla cronologia.)</value>
+  </data>
+  <data name="CopiedToMyServers" xml:space="preserve">
+    <value>{0} server copiati in I miei server ({1} già presenti)</value>
+  </data>
+  <data name="CopiedToMyServersNone" xml:space="preserve">
+    <value>Già in I miei server ({0} server).</value>
+  </data>
+  <data name="MenuSharedHistory" xml:space="preserve">
+    <value>_Cronologia delle modifiche…</value>
+  </data>
+  <data name="MenuSharedRefresh" xml:space="preserve">
+    <value>_Rileggi l'elenco</value>
+  </data>
+  <data name="MenuSharedCopyAll" xml:space="preserve">
+    <value>_Copia tutto in I miei server</value>
+  </data>
+  <data name="MenuSharedCopyFolder" xml:space="preserve">
+    <value>_Copia la cartella in I miei server</value>
+  </data>
+  <data name="MenuSharedCopyServer" xml:space="preserve">
+    <value>Cop_ia in I miei server</value>
+  </data>
+  <data name="MenuSharedRemoveFolder" xml:space="preserve">
+    <value>_Rimuovi la cartella dall'elenco condiviso…</value>
+  </data>
+  <data name="MenuSharedRemoveServer" xml:space="preserve">
+    <value>_Rimuovi dall'elenco condiviso…</value>
+  </data>
+  <data name="MenuSharedShowFile" xml:space="preserve">
+    <value>_Mostra il file in Esplora risorse</value>
+  </data>
+  <data name="MenuSharedClose" xml:space="preserve">
+    <value>C_hiudi l'elenco</value>
+  </data>
+  <data name="MenuSharedCloseTip" xml:space="preserve">
+    <value>Non mostrare più questo elenco qui; il file resta sulla condivisione per gli altri.</value>
+  </data>
+  <data name="SharedTargetConfirm" xml:space="preserve">
+    <value>Il server «{0}» dell'elenco condiviso «{1}» apre l'account {2} sulla macchina «{3}».
+
+Questa macchina di destinazione viene dall'elenco condiviso, che chiunque abbia diritto di scrittura sulla condivisione può modificare, e non da CyberArk. Connettersi?</value>
+  </data>
+  <data name="SharedHistoryTitle" xml:space="preserve">
+    <value>Cronologia dell'elenco «{0}»</value>
+  </data>
+  <data name="SharedHistoryHeader" xml:space="preserve">
+    <value>{0}
+Revisione attuale: {1} · {2} server</value>
+  </data>
+  <data name="SharedHistoryChangesTab" xml:space="preserve">
+    <value>Modifiche</value>
+  </data>
+  <data name="SharedHistoryVersionsTab" xml:space="preserve">
+    <value>Versioni</value>
+  </data>
+  <data name="SharedHistoryVersionsNote" xml:space="preserve">
+    <value>Copia dell'elenco a ogni revisione, conservata in {0} (le 100 più recenti). Il ripristino di una versione viene registrato come nuova revisione.</value>
+  </data>
+  <data name="SharedHistoryLoading" xml:space="preserve">
+    <value>Lettura della cronologia…</value>
+  </data>
+  <data name="SharedHistoryNoVersions" xml:space="preserve">
+    <value>Versioni illeggibili: {0}</value>
+  </data>
+  <data name="SharedColRevision" xml:space="preserve">
+    <value>Revisione</value>
+  </data>
+  <data name="SharedColBy" xml:space="preserve">
+    <value>Da</value>
+  </data>
+  <data name="SharedColAction" xml:space="preserve">
+    <value>Azione</value>
+  </data>
+  <data name="SharedColFolder" xml:space="preserve">
+    <value>Cartella</value>
+  </data>
+  <data name="SharedColSaved" xml:space="preserve">
+    <value>Salvata il</value>
+  </data>
+  <data name="SharedColChanges" xml:space="preserve">
+    <value>Modifiche</value>
+  </data>
+  <data name="SharedRestore" xml:space="preserve">
+    <value>_Ripristina questa versione…</value>
+  </data>
+  <data name="SharedRestoreConfirm" xml:space="preserve">
+    <value>Riportare l'elenco «{0}» com'era alla revisione {1} ({2})?
+
+I server aggiunti da allora saranno rimossi e quelli rimossi torneranno, per tutti. Il ripristino viene registrato come nuova revisione: può essere a sua volta annullato.</value>
+  </data>
+  <data name="SharedRestored" xml:space="preserve">
+    <value>Elenco riportato alla revisione {0}.</value>
+  </data>
+  <data name="RecentWaitingAccounts" xml:space="preserve">
+    <value>in attesa degli account del PVWA…</value>
+  </data>
+  <data name="AccountsStillLoading" xml:space="preserve">
+    <value>Gli account sono in caricamento dal PVWA: riprova tra un momento.</value>
+  </data>
+  <data name="AccountsNotLoaded" xml:space="preserve">
+    <value>Gli account del PVWA non sono caricati (F5 per riprovare).</value>
   </data>
 </root>

@@ -37,7 +37,8 @@ aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant saisis.
 - La zone de recherche filtre sur tous les champs (serveur, utilisateur, safe, plateforme, domaine…), plusieurs mots
   possibles (`prd sql`).
 - « Grouper par » range les comptes par safe, plateforme ou type de cible.
-- Le bouton « Exporter » de la barre d'outils enregistre en CSV les comptes affichés (filtrés par la recherche).
+- Clic droit sur un compte → « Exporter les comptes affichés (CSV)… » enregistre en CSV les comptes affichés
+  (filtrés par la recherche).
 - **Membres d'un safe** : clic droit sur un compte (ou sur un safe quand les comptes sont groupés par safe, ou sur
   un serveur de « Courants ») → « Membres du safe ». La fenêtre liste les utilisateurs et groupes du safe avec leurs
   droits (lister, utiliser, récupérer, ajouter des comptes, modifier, supprimer, gérer les membres…), indique qui
@@ -52,13 +53,12 @@ aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant saisis.
   cliqué sert de modèle (safe, plateforme, domaine). Le compte est créé avec les droits de votre session : il faut
   le droit « Ajouter des comptes » sur le safe, et en général « Modifier le contenu des comptes » pour fournir le
   mot de passe. La liste est rechargée ensuite et le nouveau compte sélectionné.
-- **Importer des comptes (CSV)** : bouton « Importer » de la barre d'outils, ou clic droit sur un compte ou un safe
-  → « Importer des comptes (CSV)… ». Une petite fenêtre demande le fichier (« Enregistrer un modèle… » donne un
+- **Importer des comptes (CSV)** : clic droit sur un compte ou un safe → « Importer des comptes (CSV)… ». Une petite fenêtre demande le fichier (« Enregistrer un modèle… » donne un
   exemple), le safe et la plateforme par défaut, et résume ce qui sera créé ; rien n'est envoyé avant « Importer ».
   Colonnes obligatoires : adresse et utilisateur (plus safe et plateforme, sinon les valeurs par défaut) ;
   facultatives : nom, domaine, mot de passe, machines autorisées, gestion CPM (oui/non), motif. Séparateur `;`, `,`
-  ou tabulation, noms de colonnes en français, anglais ou italien ; un fichier produit par « Exporter » se
-  réimporte. Une seconde fenêtre crée ensuite les comptes ligne par ligne et affiche l'état de chacune (créé, refusé
+  ou tabulation, noms de colonnes en français, anglais ou italien ; un fichier produit par « Exporter les
+  comptes affichés » se réimporte. Une seconde fenêtre crée ensuite les comptes ligne par ligne et affiche l'état de chacune (créé, refusé
   avec le message du PVWA, non importé, non envoyé ; « Arrêter » possible). À la fin, elle propose d'enregistrer le
   résultat en CSV (sans les mots de passe). Les mots de passe du fichier ne sont jamais affichés ; supprimez le
   fichier après l'import.
@@ -74,7 +74,9 @@ aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant saisis.
   - « Copier le mot de passe… » : motif et ticket si la plateforme l'exige, puis le mot de passe est copié dans le
     presse-papiers pendant 20 secondes, **sans être affiché** (droit « Récupérer les comptes » ; la récupération est
     inscrite dans l'audit du coffre).
-- Sur l'accueil, la **connexion rapide** trouve un serveur au fil de la frappe : Entrée pour s'y connecter.
+- Sur l'accueil, la **connexion rapide** trouve un serveur au fil de la frappe : Entrée pour s'y connecter. Les
+  **sessions récentes** restent grisées tant que les comptes ne sont pas chargés depuis le PVWA (« en attente des
+  comptes du PVWA… »).
 
 ## 3. Ouvrir une session PSM (bureau à distance)
 
@@ -320,6 +322,42 @@ acceptés.
 
 Un serveur dont le compte n'est plus visible dans CyberArk apparaît grisé.
 
+### Exporter, importer, partager
+
+Trois boutons en haut de l'onglet, à gauche du bouton coffre KeePass :
+
+- **Exporter** enregistre « Mes serveurs » dans un fichier `.json` : dossiers (même vides), nom, compte CyberArk
+  (ID), type de connexion, composant, machine cible, motif par défaut, dossier SFTP de départ. Aucun mot de passe ni
+  fichier suivi. Pratique pour changer de poste ou transmettre sa liste.
+- **Importer** lit un fichier exporté (ou une liste partagée) et résume avant d'ajouter : serveurs ajoutés, serveurs
+  déjà présents (même compte, type, composant, machine cible et dossier : ignorés), dossiers créés, serveurs ouverts
+  sur une machine cible (à vérifier : la machine vient du fichier) et PVWA d'origine s'il diffère. Rien n'est retiré
+  ni modifié dans « Mes serveurs ».
+- **Listes partagées** (icône deux personnes) : une liste de serveurs dans un fichier sur un partage réseau, que
+  toute l'équipe ouvre et complète.
+  - « Créer une liste partagée… » : choisissez l'emplacement (partage réseau) et le nom affiché à tous ; « Ouvrir une
+    liste partagée… » : ajoutez une liste créée par un collègue. Les listes ouvertes s'affichent en tête de l'onglet
+    (après les coffres KeePass), avec leurs dossiers ; la recherche les filtre aussi.
+  - **Ajouter** : clic droit sur un serveur ou un dossier de « Mes serveurs » → « Partager dans une liste » (le
+    dossier est gardé), ou glissez un serveur, un dossier ou un compte de « Disponibles » sur la liste ou l'un de ses
+    dossiers (confirmation). Le motif par défaut reste personnel : il n'est jamais partagé.
+  - **Retirer** : clic droit → « Retirer de la liste partagée… » (ou `Suppr`), après confirmation.
+  - **Utiliser** : double-clic pour se connecter ; clic droit pour la connexion avancée, le mot de passe, les membres
+    du safe ou « Copier dans Mes serveurs ». Chacun se connecte avec ses propres droits CyberArk : un compte que vous
+    ne voyez pas dans le coffre apparaît grisé. L'info-bulle montre le compte tel que CyberArk le décrit, la machine
+    cible, qui a ajouté le serveur et quand.
+  - **Machine cible** : un serveur partagé qui ouvre un compte de domaine sur une machine absente des machines
+    autorisées du compte dans CyberArk demande confirmation à la première connexion (la liste peut être modifiée par
+    quiconque a le droit d'écrire sur le partage).
+  - **Historique** : clic droit → « Historique des modifications… ». L'onglet « Modifications » liste qui a ajouté,
+    retiré ou restauré quoi, et quand ; l'onglet « Versions » garde une copie de la liste à chaque révision (les 100
+    dernières, dans le dossier `nom.versions` à côté du fichier). « Restaurer cette version… » remet la liste dans cet
+    état ; la restauration est elle-même enregistrée, donc annulable.
+  - Les modifications de chacun se cumulent : le fichier est relu et modifié en exclusivité (un poste qui écrit en
+    même temps attend son tour), et la liste affichée se met à jour quand un collègue la modifie (`F5` la relit
+    aussi). « Fermer la liste » la retire de votre onglet sans toucher au fichier.
+  - Droits : ceux du partage réseau. En lecture seule, la liste reste utilisable mais ne peut pas être modifiée.
+
 ## 7. Accès d'urgence hors CyberArk : coffres KeePass
 
 Quand CyberArk est indisponible, CyberArkTerm ouvre vos coffres KeePass (`.kdbx`) et se connecte **directement** aux
@@ -405,7 +443,7 @@ coffre KeePass dont le mot de passe est mémorisé, « Plus tard » pour saisir 
 
 Toutes les préférences sont enregistrées dans `%APPDATA%\CyberArkTerm\settings.json` : langue, adresse du PVWA,
 méthode et identifiant de connexion, paramètres ci-dessus, serveurs « Courants », leurs dossiers et les fichiers qui
-y ont été suivis (chemins), sessions récentes, emplacement des coffres KeePass et de leurs fichiers clés. Ce fichier
+y ont été suivis (chemins), sessions récentes, emplacement des coffres KeePass et de leurs fichiers clés, et des listes partagées ouvertes. Ce fichier
 ne contient **aucun mot de passe, jeton ni clé privée**. Pour repartir de zéro, fermez l'application et
 supprimez-le. L'historique des transferts de l'onglet Fichiers est à côté, dans `transfers.json` (noms et chemins
 des fichiers, sommes SHA-256, jamais leur contenu).
@@ -465,6 +503,12 @@ des fichiers, sommes SHA-256, jamais leur contenu).
 - **Pas d'injection de commande** : chemins SCP et dossiers de départ protégés entre apostrophes pour le shell
   distant ; arguments `ssh` / Windows Terminal validés et passés sans shell.
 - Export CSV protégé contre l'injection de formules Excel.
+- **Fichiers de serveurs et listes partagées** : ni mot de passe ni jeton, seulement des noms de serveurs, de
+  comptes et de safes, des ID de comptes et les réglages de connexion (le motif par défaut n'est jamais partagé).
+  Ils ne donnent aucun accès : chacun se connecte avec ses droits CyberArk, et l'info-bulle montre le compte tel
+  que le coffre le décrit. Une machine cible venue d'une liste partagée et non autorisée pour le compte par
+  CyberArk est confirmée avant la première connexion. L'auteur inscrit au journal (compte CyberArk et compte
+  Windows) est déclaratif : l'audit du partage réseau fait foi. Un fichier de plus de 8 Mo est refusé.
 - Les sessions PSM et PSMP ouvertes par CyberArkTerm sont des sessions CyberArk standard : elles sont enregistrées
   et auditées par le PSM comme celles ouvertes depuis le PVWA.
 
@@ -489,6 +533,16 @@ Pour signaler une vulnérabilité, voir [SECURITY.md](../SECURITY.md) (signaleme
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Clé SSH temporaire « MFA caching » (si activée) |
 | `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Maintien de la session (toutes les 4 minutes) |
 | `POST /PasswordVault/API/Auth/Logoff` | Fermeture de session |
+
+### Listes partagées
+
+Fichier JSON (`"format": "CyberArkTerm.SharedServers"`, version 1) : nom, PVWA d'origine, révision, dossiers,
+serveurs (avec qui les a ajoutés et quand) et journal des modifications (les 1 000 dernières). Chaque modification
+ouvre le fichier en exclusivité (les autres postes réessaient pendant 5 s), le relit, copie la révision en cours
+dans `nom.versions\nom.r00012.20261006-101500.json` (révision et date de son enregistrement, 100 versions gardées),
+applique la modification, augmente la révision, note qui, quand et quoi, puis réécrit le fichier (remis tel quel si
+l'écriture échoue). L'affichage suit les changements du fichier (`FileSystemWatcher`) et se relit avec `F5`. L'export
+de « Mes serveurs » a le même format avec `"format": "CyberArkTerm.Servers"`, sans révision ni journal.
 
 ### Coffres KeePass
 
@@ -575,5 +629,8 @@ laquelle elle est destinée. Avec csh, ksh, sh ou fish, le suivi n'est pas insta
 | « Le fichier du coffre local est endommagé ou a été créé par un autre compte Windows » | Le coffre local ne suit pas un changement de poste ou de compte : supprimez-le dans les Paramètres et recréez-le. |
 | « L'entrée … a été modifiée ou supprimée dans le coffre entre-temps » | Quelqu'un a changé la même entrée ailleurs : le coffre est rechargé, refaites la modification. |
 | Un compte Unix s'ouvre en PSM et pas en SSH | Adresse du PSMP non renseignée dans les Paramètres, ou compte non reconnu comme Unix : clic droit → « Se connecter en SSH ». |
+| « La liste partagée est en cours de modification par quelqu'un d'autre » | Un autre poste écrit la liste depuis plus de 5 secondes, ou garde le fichier ouvert : réessayez dans un instant. |
+| « vous n'avez pas le droit de modifier ce fichier (droits du partage réseau) » | Le partage est en lecture seule pour vous : demandez le droit d'écriture à son responsable. La liste reste utilisable. |
+| Une liste partagée affiche « (illisible) » | Partage injoignable ou fichier endommagé : l'info-bulle donne l'erreur. Si le fichier est endommagé, copiez la version la plus récente du dossier `nom.versions` à sa place. |
 | Comprendre un échec de connexion | Paramètres → Journal de débogage, reproduisez le problème, puis Paramètres → « Afficher le fichier du journal ». |
 | Un onglet de bureau à distance direct (KeePass) affiche « Erreur du contrôle Bureau à distance » | Signalez le code affiché (si le contrôle Bureau à distance est absent du poste, la connexion passe par `mstsc`). |

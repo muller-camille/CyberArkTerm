@@ -174,18 +174,6 @@
   <data name="ToolRefreshTip" xml:space="preserve">
     <value>Recharger les comptes depuis le PVWA (F5)</value>
   </data>
-  <data name="ToolExport" xml:space="preserve">
-    <value>Exporter</value>
-  </data>
-  <data name="ToolExportTip" xml:space="preserve">
-    <value>Exporter la liste filtrée en CSV</value>
-  </data>
-  <data name="ToolImport" xml:space="preserve">
-    <value>Importer</value>
-  </data>
-  <data name="ToolImportTip" xml:space="preserve">
-    <value>Créer des comptes à partir d'un fichier CSV</value>
-  </data>
   <data name="ToolHistory" xml:space="preserve">
     <value>Historique</value>
   </data>
@@ -3060,5 +3048,283 @@ Enregistrer le résultat dans un fichier CSV (une ligne par ligne du fichier, sa
   </data>
   <data name="SafeMemberRemoveFailed" xml:space="preserve">
     <value>Le PVWA n'a pas retiré le membre : {0}</value>
+  </data>
+  <data name="MenuExportAccounts" xml:space="preserve">
+    <value>_Exporter les comptes affichés (CSV)…</value>
+  </data>
+  <data name="ImportServersTip" xml:space="preserve">
+    <value>Importer une liste de serveurs (fichier exporté de Mes serveurs, ou liste partagée)</value>
+  </data>
+  <data name="ExportServersTip" xml:space="preserve">
+    <value>Exporter Mes serveurs dans un fichier (dossiers, modes, composants, machines cibles ; aucun mot de passe)</value>
+  </data>
+  <data name="SharedListsTip" xml:space="preserve">
+    <value>Listes partagées : listes de serveurs sur un partage réseau que chacun peut compléter, avec l'historique des modifications</value>
+  </data>
+  <data name="ServerListFilter" xml:space="preserve">
+    <value>Listes de serveurs (*.json)|*.json|Tous les fichiers (*.*)|*.*</value>
+  </data>
+  <data name="ExportServersTitle" xml:space="preserve">
+    <value>Exporter Mes serveurs</value>
+  </data>
+  <data name="ExportServersFileName" xml:space="preserve">
+    <value>mes-serveurs</value>
+  </data>
+  <data name="NoServersToExport" xml:space="preserve">
+    <value>Mes serveurs est vide : rien à exporter.</value>
+  </data>
+  <data name="ServersExported" xml:space="preserve">
+    <value>{0} serveur(s) exporté(s) dans {1}</value>
+  </data>
+  <data name="ImportServersTitle" xml:space="preserve">
+    <value>Importer des serveurs</value>
+  </data>
+  <data name="ImportServersFailed" xml:space="preserve">
+    <value>Import impossible : {0}</value>
+  </data>
+  <data name="ImportServersNothing" xml:space="preserve">
+    <value>Rien à importer : les {0} serveur(s) de ce fichier sont déjà dans Mes serveurs.</value>
+  </data>
+  <data name="ImportServersConfirm" xml:space="preserve">
+    <value>Importer {0} serveur(s) dans Mes serveurs depuis « {1} » ?</value>
+  </data>
+  <data name="ImportServersDuplicates" xml:space="preserve">
+    <value>{0} serveur(s) déjà dans Mes serveurs seront ignorés.</value>
+  </data>
+  <data name="ImportServersFolders" xml:space="preserve">
+    <value>Nouveaux dossiers : {0}</value>
+  </data>
+  <data name="ImportServersTargets" xml:space="preserve">
+    <value>Serveurs ouverts sur une machine cible (vérifiez-les, la machine vient du fichier) :</value>
+  </data>
+  <data name="ImportServersOtherPvwa" xml:space="preserve">
+    <value>Ce fichier vient du PVWA {0} ; vous êtes connecté à {1} : les serveurs dont le compte n'existe pas ici apparaîtront grisés.</value>
+  </data>
+  <data name="ServersImported" xml:space="preserve">
+    <value>{0} serveur(s) importé(s) ({1} déjà présent(s))</value>
+  </data>
+  <data name="SharedListsTitle" xml:space="preserve">
+    <value>Listes partagées</value>
+  </data>
+  <data name="MenuOpenSharedList" xml:space="preserve">
+    <value>_Ouvrir une liste partagée…</value>
+  </data>
+  <data name="MenuCreateSharedList" xml:space="preserve">
+    <value>_Créer une liste partagée…</value>
+  </data>
+  <data name="OpenSharedListTitle" xml:space="preserve">
+    <value>Ouvrir une liste partagée</value>
+  </data>
+  <data name="CreateSharedListTitle" xml:space="preserve">
+    <value>Créer une liste partagée</value>
+  </data>
+  <data name="SharedListDefaultFileName" xml:space="preserve">
+    <value>Serveurs partagés</value>
+  </data>
+  <data name="SharedListNameLabel" xml:space="preserve">
+    <value>Nom de la liste, affiché à tous :</value>
+  </data>
+  <data name="SharedListExists" xml:space="preserve">
+    <value>{0} existe déjà : ouvrez-le avec « Ouvrir une liste partagée ».</value>
+  </data>
+  <data name="SharedListCreated" xml:space="preserve">
+    <value>Liste partagée « {0} » créée : ajoutez-y des serveurs par clic droit › Partager dans une liste, ou en les glissant dessus.</value>
+  </data>
+  <data name="SharedListCreateFailed" xml:space="preserve">
+    <value>Impossible de créer {0} : {1}</value>
+  </data>
+  <data name="SharedListLoading" xml:space="preserve">
+    <value>Lecture de {0}…</value>
+  </data>
+  <data name="SharedListOpenFailed" xml:space="preserve">
+    <value>Impossible de lire {0} : {1}</value>
+  </data>
+  <data name="SharedListAlreadyOpen" xml:space="preserve">
+    <value>La liste partagée « {0} » est déjà ouverte.</value>
+  </data>
+  <data name="SharedListOpened" xml:space="preserve">
+    <value>Liste partagée « {0} » ouverte ({1} serveur(s)).</value>
+  </data>
+  <data name="SharedListOtherPvwaWarning" xml:space="preserve">
+    <value>La liste « {0} » a été créée pour le PVWA {1} ; vous êtes connecté à {2}. Les serveurs dont le compte n'existe pas ici apparaissent grisés.</value>
+  </data>
+  <data name="SharedListClosed" xml:space="preserve">
+    <value>Liste « {0} » fermée (le fichier reste sur le partage : {1}).</value>
+  </data>
+  <data name="SharedListRefreshed" xml:space="preserve">
+    <value>Liste « {0} » relue.</value>
+  </data>
+  <data name="SharedListSaving" xml:space="preserve">
+    <value>Enregistrement de la liste « {0} »…</value>
+  </data>
+  <data name="SharedListChangeFailed" xml:space="preserve">
+    <value>La liste « {0} » n'a pas été modifiée : {1}</value>
+  </data>
+  <data name="SharedListReadOnly" xml:space="preserve">
+    <value>vous n'avez pas le droit de modifier ce fichier (droits du partage réseau).</value>
+  </data>
+  <data name="SharedListTip" xml:space="preserve">
+    <value>Liste partagée : chacun de ceux qui l'ouvrent peut ajouter ou retirer des serveurs ; chaque modification est enregistrée (qui, quand, quoi) avec une copie de la version précédente.</value>
+  </data>
+  <data name="SharedListRevision" xml:space="preserve">
+    <value>Révision {0}</value>
+  </data>
+  <data name="SharedListLastChange" xml:space="preserve">
+    <value>Révision {0}, modifiée le {1} par {2}</value>
+  </data>
+  <data name="SharedListOtherPvwa" xml:space="preserve">
+    <value>Créée pour le PVWA {0}</value>
+  </data>
+  <data name="SharedListUnreadable" xml:space="preserve">
+    <value>(illisible)</value>
+  </data>
+  <data name="SharedListLoadingSuffix" xml:space="preserve">
+    <value>(lecture…)</value>
+  </data>
+  <data name="SharedAddedBy" xml:space="preserve">
+    <value>Ajouté par {0}</value>
+  </data>
+  <data name="SharedAddedByOn" xml:space="preserve">
+    <value>Ajouté par {0} le {1}</value>
+  </data>
+  <data name="SharedServerInList" xml:space="preserve">
+    <value>Liste partagée : {0}</value>
+  </data>
+  <data name="SharedActionCreated" xml:space="preserve">
+    <value>Création</value>
+  </data>
+  <data name="SharedActionAdded" xml:space="preserve">
+    <value>Ajout</value>
+  </data>
+  <data name="SharedActionRemoved" xml:space="preserve">
+    <value>Retrait</value>
+  </data>
+  <data name="SharedActionRestored" xml:space="preserve">
+    <value>Restauration de la révision {0}</value>
+  </data>
+  <data name="MenuShareInList" xml:space="preserve">
+    <value>_Partager dans une liste</value>
+  </data>
+  <data name="MenuShareFolderInList" xml:space="preserve">
+    <value>_Partager le dossier dans une liste</value>
+  </data>
+  <data name="ShareNoListTip" xml:space="preserve">
+    <value>Ouvrez ou créez d'abord une liste partagée (bouton en haut de l'onglet).</value>
+  </data>
+  <data name="ShareDropConfirm" xml:space="preserve">
+    <value>Ajouter {0} serveur(s) à la liste partagée « {1} » ? Tous ceux qui ouvrent cette liste les verront.</value>
+  </data>
+  <data name="SharedServersAdded" xml:space="preserve">
+    <value>{0} serveur(s) ajouté(s) à la liste partagée « {1} » ({2} déjà présent(s))</value>
+  </data>
+  <data name="SharedServersRemoved" xml:space="preserve">
+    <value>{0} serveur(s) retiré(s) de la liste partagée « {1} »</value>
+  </data>
+  <data name="SharedRemoveConfirm" xml:space="preserve">
+    <value>Retirer « {0} » de la liste partagée « {1} » pour tout le monde ? (La modification est enregistrée et peut être annulée depuis l'historique.)</value>
+  </data>
+  <data name="SharedRemoveFolderConfirm" xml:space="preserve">
+    <value>Retirer le dossier « {0} » et ses {1} serveur(s) de la liste partagée « {2} » pour tout le monde ? (La modification est enregistrée et peut être annulée depuis l'historique.)</value>
+  </data>
+  <data name="CopiedToMyServers" xml:space="preserve">
+    <value>{0} serveur(s) copié(s) dans Mes serveurs ({1} déjà présent(s))</value>
+  </data>
+  <data name="CopiedToMyServersNone" xml:space="preserve">
+    <value>Déjà dans Mes serveurs ({0} serveur(s)).</value>
+  </data>
+  <data name="MenuSharedHistory" xml:space="preserve">
+    <value>_Historique des modifications…</value>
+  </data>
+  <data name="MenuSharedRefresh" xml:space="preserve">
+    <value>_Relire la liste</value>
+  </data>
+  <data name="MenuSharedCopyAll" xml:space="preserve">
+    <value>_Copier tout dans Mes serveurs</value>
+  </data>
+  <data name="MenuSharedCopyFolder" xml:space="preserve">
+    <value>_Copier le dossier dans Mes serveurs</value>
+  </data>
+  <data name="MenuSharedCopyServer" xml:space="preserve">
+    <value>Cop_ier dans Mes serveurs</value>
+  </data>
+  <data name="MenuSharedRemoveFolder" xml:space="preserve">
+    <value>_Retirer le dossier de la liste partagée…</value>
+  </data>
+  <data name="MenuSharedRemoveServer" xml:space="preserve">
+    <value>_Retirer de la liste partagée…</value>
+  </data>
+  <data name="MenuSharedShowFile" xml:space="preserve">
+    <value>_Afficher le fichier dans l'Explorateur</value>
+  </data>
+  <data name="MenuSharedClose" xml:space="preserve">
+    <value>_Fermer la liste</value>
+  </data>
+  <data name="MenuSharedCloseTip" xml:space="preserve">
+    <value>Ne plus afficher cette liste ici ; le fichier reste sur le partage pour les autres.</value>
+  </data>
+  <data name="SharedTargetConfirm" xml:space="preserve">
+    <value>Le serveur « {0} » de la liste partagée « {1} » ouvre le compte {2} sur la machine « {3} ».
+
+Cette machine cible vient de la liste partagée, que peut modifier quiconque a le droit d'écrire sur le partage, et non de CyberArk. Se connecter ?</value>
+  </data>
+  <data name="SharedHistoryTitle" xml:space="preserve">
+    <value>Historique de la liste « {0} »</value>
+  </data>
+  <data name="SharedHistoryHeader" xml:space="preserve">
+    <value>{0}
+Révision actuelle : {1} · {2} serveur(s)</value>
+  </data>
+  <data name="SharedHistoryChangesTab" xml:space="preserve">
+    <value>Modifications</value>
+  </data>
+  <data name="SharedHistoryVersionsTab" xml:space="preserve">
+    <value>Versions</value>
+  </data>
+  <data name="SharedHistoryVersionsNote" xml:space="preserve">
+    <value>Copie de la liste à chaque révision, gardée dans {0} (les 100 plus récentes). Restaurer une version est enregistré comme une nouvelle révision.</value>
+  </data>
+  <data name="SharedHistoryLoading" xml:space="preserve">
+    <value>Lecture de l'historique…</value>
+  </data>
+  <data name="SharedHistoryNoVersions" xml:space="preserve">
+    <value>Versions illisibles : {0}</value>
+  </data>
+  <data name="SharedColRevision" xml:space="preserve">
+    <value>Révision</value>
+  </data>
+  <data name="SharedColBy" xml:space="preserve">
+    <value>Par</value>
+  </data>
+  <data name="SharedColAction" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="SharedColFolder" xml:space="preserve">
+    <value>Dossier</value>
+  </data>
+  <data name="SharedColSaved" xml:space="preserve">
+    <value>Enregistrée le</value>
+  </data>
+  <data name="SharedColChanges" xml:space="preserve">
+    <value>Modifications</value>
+  </data>
+  <data name="SharedRestore" xml:space="preserve">
+    <value>_Restaurer cette version…</value>
+  </data>
+  <data name="SharedRestoreConfirm" xml:space="preserve">
+    <value>Remettre la liste « {0} » telle qu'elle était à la révision {1} ({2}) ?
+
+Les serveurs ajoutés depuis seront retirés et ceux retirés depuis reviendront, pour tout le monde. La restauration est enregistrée comme une nouvelle révision : elle peut elle-même être annulée.</value>
+  </data>
+  <data name="SharedRestored" xml:space="preserve">
+    <value>Liste remise à la révision {0}.</value>
+  </data>
+  <data name="RecentWaitingAccounts" xml:space="preserve">
+    <value>en attente des comptes du PVWA…</value>
+  </data>
+  <data name="AccountsStillLoading" xml:space="preserve">
+    <value>Les comptes sont en cours de chargement depuis le PVWA : réessayez dans un instant.</value>
+  </data>
+  <data name="AccountsNotLoaded" xml:space="preserve">
+    <value>Les comptes du PVWA ne sont pas chargés (F5 pour réessayer).</value>
   </data>
 </root>

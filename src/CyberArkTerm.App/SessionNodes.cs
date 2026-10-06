@@ -94,6 +94,7 @@ public sealed class KindIconConverter : IValueConverter
             RecentSession r => r.Mode == RecentModes.Ssh ? "IconSsh" : "IconConnect",
             SavedSessionNode n => n.Account is { } a ? IconFor(AccountClassifier.Classify(a)) : IconFor(KindOf(n.Session)),
             SavedSession s => IconFor(KindOf(s)),
+            SharedServerNode n => n.Account is { } a ? IconFor(AccountClassifier.Classify(a)) : IconFor(KindOf(n.Session)),
             KeePassFolderNode => "IconKeePass",
             KeePassHintNode => "IconPermissions",
             KeePassEntryNode e => e.Target.Protocol switch

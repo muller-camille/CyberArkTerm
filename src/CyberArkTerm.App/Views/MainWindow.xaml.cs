@@ -42,6 +42,9 @@ public partial class MainWindow : Window
     private PvwaAccount? _current;
     private SavedSession? _currentSaved;
     private bool _loading;
+
+    // Comptes du PVWA chargés au moins une fois : avant, un compte absent n'est pas encore un compte disparu.
+    private bool _accountsLoaded;
     private bool _connecting;
     private bool _loggedOff;
 
@@ -95,7 +98,8 @@ public partial class MainWindow : Window
             // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de l'onglet « Courants ».
             AvailableTab.Visibility = Visibility.Collapsed;
             QuickPanel.Visibility = HomeLists.Visibility = NewFolderButton.Visibility = Visibility.Collapsed;
-            ExportButton.IsEnabled = ImportToolButton.IsEnabled = false;
+            ImportServersButton.Visibility = ExportServersButton.Visibility = Visibility.Collapsed;
+            SharedListsButton.Visibility = SharedSeparator.Visibility = Visibility.Collapsed;
             NoSavedText.Text = Strings.NoKeePassHelp;
             SideTabs.SelectedItem = CurrentTab;
             CountText.Text = "";
@@ -103,6 +107,7 @@ public partial class MainWindow : Window
         else
         {
             RefreshRecent();
+            StartSharedLists();
         }
 
         RefreshSaved();
@@ -223,10 +228,12 @@ public partial class MainWindow : Window
             }
 
             _current = null;
+            _accountsLoaded = true;
             ApplyFilter();
             SessionLibrary.MigrateFavorites(_settings, _byId, Client.BaseUri.Host);
             SaveSettings();
             RefreshSaved();
+            RefreshRecent();
             RefreshQuickResults();
             UpdateWelcome();
             UpdateActions();
@@ -283,12 +290,23 @@ public partial class MainWindow : Window
         WelcomeText.Text = _client is null ? Strings.EmergencyWelcome : Text.Format(Strings.Welcome, _client.BaseUri.Host, _sessionUser, _accounts.Count);
     }
 
+    /// <summary>
+    /// Connexions récentes : grisées tant que les comptes du PVWA ne sont pas chargés (un clic ne pourrait que
+    /// répondre, à tort, que le compte n'existe plus).
+    /// </summary>
     private void RefreshRecent()
     {
         RecentList.ItemsSource = _settings.Recent.ToList();
         NoRecentText.Visibility = _settings.Recent.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         RecentList.Visibility = _settings.Recent.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        RecentList.IsEnabled = _accountsLoaded;
+        RecentList.Opacity = _accountsLoaded ? 1 : 0.45;
+        RecentLoadingText.Visibility = _accountsLoaded || _settings.Recent.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
     }
+
+    /// <summary>Compte introuvable : comptes pas encore chargés, chargement échoué, ou compte vraiment disparu.</summary>
+    private string MissingAccountText(string gone) =>
+        _accountsLoaded ? gone : _loading ? Strings.AccountsStillLoading : Strings.AccountsNotLoaded;
 
     private void RefreshQuickResults()
     {
@@ -373,7 +391,15 @@ public partial class MainWindow : Window
 
     private void CanRefresh(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = !_loading && !IsOffline;
 
-    private async void OnRefresh(object sender, ExecutedRoutedEventArgs e) => await LoadAccountsAsync();
+    private async void OnRefresh(object sender, ExecutedRoutedEventArgs e)
+    {
+        if (_sharedLists.Count > 0)
+        {
+            _ = ReloadSharedAsync(_sharedLists.ToList());
+        }
+
+        await LoadAccountsAsync();
+    }
 
     // ===================== Sélection =====================
 
@@ -397,6 +423,9 @@ public partial class MainWindow : Window
                 SetCurrent(null, keePass: entry);
                 break;
             case SavedSessionNode node:
+                SetCurrent(node.Account, node.Session);
+                break;
+            case SharedServerNode node:
                 SetCurrent(node.Account, node.Session);
                 break;
             case AccountNode node:
@@ -587,7 +616,7 @@ public partial class MainWindow : Window
 
         if (!_byId.TryGetValue(recent.AccountId, out var account))
         {
-            SetStatus(Text.Format(Strings.AccountGone, recent.Label), isError: true);
+            SetStatus(MissingAccountText(Text.Format(Strings.AccountGone, recent.Label)), isError: true);
             return;
         }
 

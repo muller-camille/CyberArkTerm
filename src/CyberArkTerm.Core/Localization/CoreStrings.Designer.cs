@@ -758,6 +758,42 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to The shared list is being modified by someone else: try again in a moment..
+        /// </summary>
+        public static string ServerListBusy {
+            get {
+                return ResourceManager.GetString("ServerListBusy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This file is not a CyberArkTerm server list..
+        /// </summary>
+        public static string ServerListInvalid {
+            get {
+                return ResourceManager.GetString("ServerListInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This file is an export of My servers, not a shared list: import it instead..
+        /// </summary>
+        public static string ServerListNotShared {
+            get {
+                return ResourceManager.GetString("ServerListNotShared", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This server list was written by a newer version of CyberArkTerm (format {0}): update CyberArkTerm[rest of string was truncated].
+        /// </summary>
+        public static string ServerListTooNew {
+            get {
+                return ResourceManager.GetString("ServerListTooNew", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to {0} B.
         /// </summary>
         public static string SizeBytes {

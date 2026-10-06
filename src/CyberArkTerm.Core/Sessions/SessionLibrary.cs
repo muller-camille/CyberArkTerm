@@ -5,12 +5,15 @@ namespace CyberArkTerm.Core;
 /// <summary>Opérations sur les dossiers et sessions de l'onglet « Courants » (stockés dans les préférences).</summary>
 public static class SessionLibrary
 {
-    /// <summary>Arbre des dossiers et sessions du PVWA <paramref name="pvwaHost"/>, triés par nom.</summary>
     /// <summary>
     /// Arbre de l'onglet « Courants » pour le PVWA <paramref name="pvwaHost"/>. Avec une recherche
     /// (<paramref name="filter"/>), seuls les serveurs qui y répondent et leurs dossiers sont gardés.
     /// </summary>
-    public static SessionFolderNode BuildTree(AppSettings settings, string pvwaHost, string? filter = null)
+    public static SessionFolderNode BuildTree(AppSettings settings, string pvwaHost, string? filter = null) =>
+        BuildTree(settings.SessionFolderList, settings.Sessions.Where(s => IsForHost(s, pvwaHost)), filter);
+
+    /// <summary>Arbre de dossiers (vides compris, sauf pendant une recherche) et de serveurs, triés par nom.</summary>
+    public static SessionFolderNode BuildTree(IEnumerable<string> folders, IEnumerable<SavedSession> sessions, string? filter = null)
     {
         bool filtered = !string.IsNullOrWhiteSpace(filter);
         var root = new SessionFolderNode("");
@@ -30,12 +33,12 @@ public static class SessionLibrary
             return node;
         }
 
-        foreach (var folder in filtered ? [] : settings.SessionFolderList)
+        foreach (var folder in filtered ? [] : folders)
         {
             Ensure(folder);
         }
 
-        foreach (var session in settings.Sessions.Where(s => IsForHost(s, pvwaHost) && (!filtered || Matches(s, filter))))
+        foreach (var session in sessions.Where(s => !filtered || Matches(s, filter)))
         {
             Ensure(session.Folder).Sessions.Add(session);
         }

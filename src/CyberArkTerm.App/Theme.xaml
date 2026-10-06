@@ -546,6 +546,20 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <!-- Liste de serveurs partagée : deux personnes. -->
+    <DrawingImage x:Key="IconShared">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#8FB8E8" Geometry="M13,7 A3.2,3.2 0 1 1 19.4,7 A3.2,3.2 0 1 1 13,7 Z M10.6,18.5 C10.6,13.8 13.2,11.6 16.2,11.6 C19.2,11.6 21.8,13.8 21.8,18.5 Z" />
+                <GeometryDrawing Brush="#1565C0" Geometry="M5.3,9.5 A3.7,3.7 0 1 1 12.7,9.5 A3.7,3.7 0 1 1 5.3,9.5 Z M2.4,22 C2.4,16.6 5.4,14.3 9,14.3 C12.6,14.3 15.6,16.6 15.6,22 Z">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="White" Thickness="1" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
     <!-- ===== Styles ===== -->
 
     <!-- Gros bouton icône + libellé de la barre d'outils. -->

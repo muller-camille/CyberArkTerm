@@ -36,7 +36,8 @@ away in the chosen language, keeping the address and user name you typed.
 
 - The search box filters on every field (server, user, safe, platform, domain…), several words allowed (`prd sql`).
 - "Group by" sorts accounts by safe, platform or target type.
-- The "Export" toolbar button saves the accounts shown (filtered by the search) to CSV.
+- Right-click an account → "Export the displayed accounts (CSV)…" saves the accounts shown (filtered by the
+  search) to CSV.
 - **Safe members**: right-click an account (or a safe when accounts are grouped by safe, or a server in "My
   servers") → "Safe members". The window lists the users and groups of the safe with their rights (list, use,
   retrieve, add accounts, update, delete, manage members…), shows who can **add accounts**, and details every right
@@ -49,12 +50,11 @@ away in the chosen language, keeping the address and user name you typed.
   and CPM management are optional. The account you clicked is used as a template (safe, platform, domain). The
   account is created with the rights of your session: the "Add accounts" right on the safe is required, and usually
   "Update account content" to give the password. The list is then reloaded and the new account selected.
-- **Import accounts (CSV)**: "Import" toolbar button, or right-click an account or a safe → "Import accounts
-  (CSV)…". A small window asks for the file ("Save a template…" gives an example), the default safe and platform,
+- **Import accounts (CSV)**: right-click an account or a safe → "Import accounts (CSV)…". A small window asks for the file ("Save a template…" gives an example), the default safe and platform,
   and sums up what will be created; nothing is sent before "Import". Required columns: address and user name (plus
   safe and platform, otherwise the defaults); optional: name, domain, password, allowed machines, CPM management
-  (yes/no), reason. Separator `;`, `,` or tab, column names in English, French or Italian; a file made with "Export"
-  can be imported again. A second window then creates the accounts line by line and shows each line's status
+  (yes/no), reason. Separator `;`, `,` or tab, column names in English, French or Italian; a file made with "Export the
+  displayed accounts" can be imported again. A second window then creates the accounts line by line and shows each line's status
   (created, refused with the PVWA message, not imported, not sent; "Stop" available). At the end it offers to save
   the result as CSV (without the passwords). The file's passwords are never shown; delete the file after the import.
 - **Edit / delete an account**: right-click → "Edit the account…" (platform, address, user name, domain, name,
@@ -300,6 +300,42 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
 
 A server whose account is no longer visible in CyberArk is greyed out.
 
+### Export, import, share
+
+Three buttons at the top of the tab, left of the KeePass vault button:
+
+- **Export** saves "My servers" to a `.json` file: folders (even empty ones), name, CyberArk account (ID), connection
+  type, component, target machine, default reason, SFTP start folder. No password and no followed file. Handy to move
+  to another computer or to pass your list on.
+- **Import** reads an exported file (or a shared list) and sums up before adding: servers added, servers already
+  there (same account, type, component, target machine and folder: skipped), folders created, servers opened on a
+  target machine (check them: the machine comes from the file) and the source PVWA when it differs. Nothing is removed
+  or changed in "My servers".
+- **Shared lists** (two-people icon): a list of servers in a file on a network share, which the whole team opens and
+  completes.
+  - "Create a shared list…": choose the location (network share) and the name shown to everyone; "Open a shared
+    list…": add a list created by a colleague. Open lists are shown at the top of the tab (after the KeePass vaults),
+    with their folders; the search filters them too.
+  - **Add**: right-click a server or a folder of "My servers" → "Share in a list" (the folder is kept), or drag a
+    server, a folder or an account of "Available" onto the list or one of its folders (confirmation). The default
+    reason stays personal: it is never shared.
+  - **Remove**: right-click → "Remove from the shared list…" (or `Del`), after confirmation.
+  - **Use**: double-click to connect; right-click for the advanced connection, the password, the safe members or
+    "Copy into My servers". Everyone connects with their own CyberArk rights: an account you cannot see in the vault
+    is greyed out. The tooltip shows the account as CyberArk describes it, the target machine, who added the server
+    and when.
+  - **Target machine**: a shared server that opens a domain account on a machine not among the account's allowed
+    machines in CyberArk asks for confirmation on the first connection (anyone with write access to the share can
+    change the list).
+  - **History**: right-click → "History of changes…". The "Changes" tab lists who added, removed or restored what,
+    and when; the "Versions" tab keeps a copy of the list at each revision (the last 100, in the `name.versions` folder
+    next to the file). "Restore this version…" puts the list back in that state; the restore is itself recorded, so
+    it can be undone.
+  - Everyone's changes add up: the file is re-read and changed exclusively (a computer writing at the same time waits
+    for its turn), and the list shown updates when a colleague changes it (`F5` re-reads it too). "Close the list"
+    removes it from your tab without touching the file.
+  - Rights: those of the network share. Read-only, the list can still be used but not changed.
+
 ## 7. Emergency access outside CyberArk: KeePass vaults
 
 When CyberArk is unavailable, CyberArkTerm opens your KeePass vaults (`.kdbx`) and connects **directly** to the
@@ -382,7 +418,7 @@ change the password, delete.
 
 All preferences are saved in `%APPDATA%\CyberArkTerm\settings.json`: language, PVWA address, sign-in method and user
 name, the settings above, "My servers", their folders and the files followed on them (paths), recent sessions,
-location of the KeePass vaults and of their key files. This file contains **no password, token or private key**. To
+location of the KeePass vaults and of their key files, and of the open shared lists. This file contains **no password, token or private key**. To
 start from scratch, close the application and delete it. The transfer history of the Files tab is next to it, in
 `transfers.json` (file names and paths, SHA-256 checksums, never their content).
 
@@ -436,6 +472,12 @@ start from scratch, close the application and delete it. The transfer history of
 - **No command injection**: SCP paths and start folders are quoted for the remote shell; `ssh` / Windows Terminal
   arguments are validated and passed without a shell.
 - CSV export protected against Excel formula injection.
+- **Server files and shared lists**: no password or token, only server, account and safe names, account IDs and
+  connection settings (the default reason is never shared). They grant no access: everyone connects with their
+  own CyberArk rights, and the tooltip shows the account as the vault describes it. A target machine coming from a
+  shared list and not allowed for the account by CyberArk is confirmed before the first connection. The author
+  written in the journal (CyberArk account and Windows account) is declarative: the network share's audit is
+  authoritative. A file larger than 8 MB is refused.
 - PSM and PSMP sessions opened by CyberArkTerm are standard CyberArk sessions: they are recorded and audited by the
   PSM like the ones opened from the PVWA.
 
@@ -460,6 +502,16 @@ To report a vulnerability, see [SECURITY.md](../SECURITY.md) (private reporting,
 | `POST /PasswordVault/API/Users/Secret/SSHKeys/Cache` | Temporary "MFA caching" SSH key (if enabled) |
 | `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Session keep-alive (every 4 minutes) |
 | `POST /PasswordVault/API/Auth/Logoff` | Sign out |
+
+### Shared lists
+
+JSON file (`"format": "CyberArkTerm.SharedServers"`, version 1): name, source PVWA, revision, folders, servers
+(with who added them and when) and journal of changes (the last 1,000). Each change opens the file exclusively
+(other computers retry for 5 s), re-reads it, copies the current revision to
+`name.versions\name.r00012.20261006-101500.json` (revision and the date it was saved, 100 versions kept), applies
+the change, increases the revision, records who, when and what, then rewrites the file (put back as it was if the
+write fails). The display follows the file's changes (`FileSystemWatcher`) and re-reads it with `F5`. The "My
+servers" export has the same format with `"format": "CyberArkTerm.Servers"`, without revision or journal.
 
 ### KeePass vaults
 
@@ -543,5 +595,8 @@ ksh, sh or fish, following is not set up and nothing stays on screen.
 | "The local vault file is damaged or was created by another Windows account." | The local vault does not follow a change of computer or account: delete it in the Settings and create it again. |
 | "The entry … was changed or deleted in the vault in the meantime" | Someone changed the same entry elsewhere: the vault is reloaded, make the change again. |
 | A Unix account opens with PSM, not SSH | PSMP address not set in the Settings, or account not recognized as Unix: right-click → "Connect over SSH". |
+| "The shared list is being modified by someone else" | Another computer has been writing the list for more than 5 seconds, or keeps the file open: try again in a moment. |
+| "you do not have the right to modify this file (rights of the network share)" | The share is read-only for you: ask its owner for write access. The list can still be used. |
+| A shared list shows "(unreadable)" | Share unreachable or damaged file: the tooltip gives the error. If the file is damaged, copy the most recent version of the `name.versions` folder in its place. |
 | Understanding a connection failure | Settings → Debug log, reproduce the problem, then Settings → "Show the debug log file". |
 | A direct remote desktop tab (KeePass) shows "Remote Desktop control error" | Report the code shown (if the Remote Desktop control is missing from the computer, the connection goes through `mstsc`). |

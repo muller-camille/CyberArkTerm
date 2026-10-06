@@ -300,4 +300,16 @@
   <data name="UpdateTooLarge" xml:space="preserve">
     <value>L'archivio è insolitamente grande: download interrotto.</value>
   </data>
+  <data name="ServerListInvalid" xml:space="preserve">
+    <value>Questo file non è un elenco di server CyberArkTerm.</value>
+  </data>
+  <data name="ServerListTooNew" xml:space="preserve">
+    <value>Questo elenco di server è stato scritto da una versione più recente di CyberArkTerm (formato {0}): aggiorna CyberArkTerm per aprirlo.</value>
+  </data>
+  <data name="ServerListNotShared" xml:space="preserve">
+    <value>Questo file è un'esportazione di I miei server, non un elenco condiviso: importalo invece.</value>
+  </data>
+  <data name="ServerListBusy" xml:space="preserve">
+    <value>L'elenco condiviso è in corso di modifica da parte di qualcun altro: riprova tra un momento.</value>
+  </data>
 </root>

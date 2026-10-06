@@ -35,7 +35,7 @@ and opens your sessions with a double-click: remote desktop through **PSM**, or 
 | --- | --- |
 | **CyberArk sign-in** | CyberArk, LDAP, RADIUS (challenge / OTP included) or Windows (current session) authentication. |
 | **Available** | Every account visible in the vault, grouped by safe, platform or target type, with instant search; password actions (CPM, copy), safe members, adding, editing and importing accounts. |
-| **My servers** | Your working servers, organized in folders and subfolders, each with its own settings. |
+| **My servers** | Your working servers, organized in folders and subfolders, each with its own settings; export, import and **shared lists** on a network share (everyone adds or removes, history of changes and versions). |
 | **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in Windows Remote Desktop Connection: component, target machine, reason, ticket. |
 | **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colours, vim, less, top…), MFA, right-click menu, search, separate windows. |
 | **Files tab** | SFTP browser of the server: drag-and-drop upload (SFTP, or SCP, the other one taking over if the server refuses) and download, SHA-256 check of every file, transfer queue and history, sortable columns, editing in your text editor, permissions, live following (`tail -f`), comparison, sending to several servers. |

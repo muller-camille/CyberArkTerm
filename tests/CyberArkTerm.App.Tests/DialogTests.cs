@@ -954,6 +954,136 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>Historique d'une liste partagée : journal (le plus récent d'abord) et versions avec leurs auteurs.</summary>
+    [Fact]
+    public void SharedListHistoryShowsTheChangesAndTheVersions()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var directory = Directory.CreateTempSubdirectory("cat-shared-").FullName;
+        try
+        {
+            var list = SharedServerList.Create(Path.Combine(directory, "Équipe.json"), "Équipe", "pvwa", "alice");
+            list.Add([Server("1", "web01", "Prod"), Server("2", "db01")], "alice");
+            list.Remove([list.Content!.Servers.Single(s => s.Name == "db01").Id], "bob");
+
+            RunWithTheme(() =>
+            {
+                UseDispatcherContext();
+                var restored = new List<int>();
+                var dialog = new SharedHistoryDialog(new SharedServerList(list.Path), version =>
+                {
+                    restored.Add(version.Revision);
+                    return Task.FromResult<int?>(0);
+                });
+                Pump(dialog.LoadAsync());
+
+                Assert.Equal(
+                    [$"{Strings.SharedActionRemoved} db01 bob", $"{Strings.SharedActionAdded} db01 alice",
+                     $"{Strings.SharedActionAdded} web01 alice", $"{Strings.SharedActionCreated} Équipe alice"],
+                    dialog.Changes.Select(c => $"{c.Action} {c.Server} {c.By}"));
+                Assert.Equal([2, 1], dialog.Versions.Select(v => v.Revision));
+                Assert.Equal(("alice", "+ web01, + db01"), (dialog.Versions[0].By, dialog.Versions[0].Summary));
+                Assert.Contains("3", dialog.HeaderText.Text);
+                Assert.False(dialog.RestoreButton.IsEnabled);
+                dialog.VersionsGrid.SelectedIndex = 0;
+                Assert.True(dialog.RestoreButton.IsEnabled);
+                Assert.Empty(restored);
+                dialog.Close();
+            });
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    /// <summary>
+    /// Fenêtre principale avant le chargement des comptes : connexions récentes grisées, liste partagée lue en
+    /// arrière-plan et affichée avant « Mes serveurs », boutons d'import et d'export dans l'onglet.
+    /// </summary>
+    [Fact]
+    public void MainWindowShowsSharedListsAndWaitsForTheAccounts()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var directory = Directory.CreateTempSubdirectory("cat-shared-").FullName;
+        try
+        {
+            var list = SharedServerList.Create(Path.Combine(directory, "Équipe.json"), "Équipe", "pvwa.test", "alice");
+            list.Add([Server("1", "web01", "Prod"), Server("2", "db01")], "alice");
+            var settings = new AppSettings { KeepPvwaSessionAlive = false, SharedLists = [list.Path] };
+            settings.Recent.Add(new RecentSession { AccountId = "1", Label = "root@web01", Mode = "PSM-RDP", When = DateTime.Now });
+            settings.Sessions.Add(new SavedSession { AccountId = "3", PvwaHost = "pvwa.test", Name = "root@app01" });
+
+            RunWithTheme(() =>
+            {
+                UseDispatcherContext();
+                using var client = new PvwaClient(new Uri("https://pvwa.test"), new System.Net.Http.HttpClientHandler());
+                var window = new MainWindow(client, settings, "jdoe", "jdoe", new Services.KeePass.KeePassManager());
+
+                Assert.False(window.RecentList.IsEnabled);
+                Assert.Equal(Visibility.Visible, window.RecentLoadingText.Visibility);
+                Assert.Equal(Visibility.Visible, window.ImportServersButton.Visibility);
+                Assert.Equal(Visibility.Visible, window.SharedListsButton.Visibility);
+
+                PumpUntil(() => window.SavedTree.ItemsSource is IEnumerable<object> items && items.OfType<SharedListNode>().Any(n => n.IsReadable));
+                var nodes = ((IEnumerable<object>)window.SavedTree.ItemsSource).ToList();
+                var shared = Assert.IsType<SharedListNode>(nodes[0]);
+                Assert.Equal(("Équipe", " (2)"), (shared.Name, shared.StateText));
+                Assert.Equal("Prod", Assert.IsType<SharedFolderNode>(shared.Children[0]).Name);
+                var db = Assert.IsType<SharedServerNode>(shared.Children[1]);
+                Assert.Equal(("db01", 0.5), (db.Title, db.Opacity));
+                Assert.Contains("alice", db.Details);
+                Assert.Equal("root@app01", Assert.IsType<SavedSessionNode>(nodes[1]).Title);
+                window.StopWatchingSharedLists();
+            });
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    private static ServerEntry Server(string account, string name, string folder = "") =>
+        new() { AccountId = account, Name = name, Folder = folder, Address = name, UserName = "root", PlatformId = "UnixSSH" };
+
+    /// <summary>Les suites des tâches attendues reviennent sur le fil de la fenêtre, comme dans l'application.</summary>
+    private static void UseDispatcherContext() =>
+        SynchronizationContext.SetSynchronizationContext(new System.Windows.Threading.DispatcherSynchronizationContext(
+            System.Windows.Threading.Dispatcher.CurrentDispatcher));
+
+    /// <summary>Fait tourner la file du fil de la fenêtre jusqu'à la fin de la tâche.</summary>
+    private static void Pump(Task task)
+    {
+        PumpUntil(() => task.IsCompleted);
+        task.GetAwaiter().GetResult();
+    }
+
+    private static void PumpUntil(Func<bool> done, int timeoutMs = 10000)
+    {
+        var frame = new System.Windows.Threading.DispatcherFrame();
+        var started = Environment.TickCount64;
+        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(15) };
+        timer.Tick += (_, _) =>
+        {
+            if (done() || Environment.TickCount64 - started > timeoutMs)
+            {
+                timer.Stop();
+                frame.Continue = false;
+            }
+        };
+        timer.Start();
+        System.Windows.Threading.Dispatcher.PushFrame(frame);
+        Assert.True(done(), "délai dépassé");
+    }
+
     /// <summary>Recherche dans le terminal (historique compris) et taille de police.</summary>
     [Fact]
     public void TerminalSearchFindsTextInTheHistory()

@@ -30,6 +30,7 @@ public partial class MainWindow
         var items = KeePassNodes(filtered ? filter : null);
         if (!IsOffline)
         {
+            items.AddRange(SharedNodes(filtered ? filter : null));
             items.AddRange(Children(SessionLibrary.BuildTree(_settings, PvwaHost, filter), expandAll: filtered));
         }
 
@@ -48,6 +49,7 @@ public partial class MainWindow
         if (!_savedTreeFiltered && SavedTree.ItemsSource is IEnumerable<object> previous)
         {
             RememberExpansion(previous);
+            RememberSharedExpansion(previous);
         }
     }
 
@@ -141,7 +143,7 @@ public partial class MainWindow
                 continue;
             }
 
-            if (data is SavedSessionNode or KeePassEntryNode)
+            if (data is SavedSessionNode or SharedServerNode or KeePassEntryNode)
             {
                 return item;
             }
@@ -176,6 +178,11 @@ public partial class MainWindow
             e.Handled = true;
             ConnectSaved(node.Session, advanced: false);
         }
+        else if (item.DataContext is SharedServerNode shared)
+        {
+            e.Handled = true;
+            ConnectSaved(shared.Session, advanced: false);
+        }
         else if (item.DataContext is KeePassEntryNode or KeePassHintNode or KeePassFolderNode { IsUnlocked: false })
         {
             e.Handled = true;
@@ -190,6 +197,17 @@ public partial class MainWindow
             case Key.Enter when SavedTree.SelectedItem is SavedSessionNode node:
                 e.Handled = true;
                 ConnectSaved(node.Session, advanced: false);
+                break;
+            case Key.Enter when SavedTree.SelectedItem is SharedServerNode shared:
+                e.Handled = true;
+                ConnectSaved(shared.Session, advanced: false);
+                break;
+            case Key.Delete when SavedTree.SelectedItem is SharedServerNode or SharedFolderNode:
+                e.Handled = true;
+                _ = RemoveSharedAsync(SavedTree.SelectedItem);
+                break;
+            case Key.F2 or Key.Delete when SavedTree.SelectedItem is SharedListNode:
+                e.Handled = true;
                 break;
             case Key.Enter:
                 e.Handled = ActivateKeePassNode(SavedTree.SelectedItem);
@@ -222,7 +240,12 @@ public partial class MainWindow
     {
         if (!_byId.TryGetValue(saved.AccountId, out var account))
         {
-            SetStatus(Text.Format(Strings.SavedAccountGone, saved.Name), isError: true);
+            SetStatus(MissingAccountText(Text.Format(Strings.SavedAccountGone, saved.Name)), isError: true);
+            return;
+        }
+
+        if (!ConfirmSharedTarget(saved, account))
+        {
             return;
         }
 
@@ -231,27 +254,40 @@ public partial class MainWindow
 
     private void OnSafeMembersOfSelectedSaved(object sender, RoutedEventArgs e)
     {
-        if (SavedTree.SelectedItem is SavedSessionNode node)
+        switch (SavedTree.SelectedItem)
         {
-            ShowSafeMembers(node.Account?.SafeName ?? node.Session.SafeName);
+            case SavedSessionNode node:
+                ShowSafeMembers(node.Account?.SafeName ?? node.Session.SafeName);
+                break;
+            case SharedServerNode shared:
+                ShowSafeMembers(shared.Account?.SafeName ?? shared.Session.SafeName);
+                break;
         }
     }
 
     private void OnConnectSelectedSaved(object sender, RoutedEventArgs e)
     {
-        if (SavedTree.SelectedItem is SavedSessionNode node)
+        if (SelectedSavedSession() is { } session)
         {
-            ConnectSaved(node.Session, advanced: false);
+            ConnectSaved(session, advanced: false);
         }
     }
 
     private void OnConnectSelectedSavedAdvanced(object sender, RoutedEventArgs e)
     {
-        if (SavedTree.SelectedItem is SavedSessionNode node)
+        if (SelectedSavedSession() is { } session)
         {
-            ConnectSaved(node.Session, advanced: true);
+            ConnectSaved(session, advanced: true);
         }
     }
+
+    /// <summary>Serveur sélectionné, de « Mes serveurs » ou d'une liste partagée.</summary>
+    private SavedSession? SelectedSavedSession() => SavedTree.SelectedItem switch
+    {
+        SavedSessionNode node => node.Session,
+        SharedServerNode shared => shared.Session,
+        _ => null,
+    };
 
     // ===================== Ajout depuis « Disponibles » =====================
 
@@ -440,6 +476,9 @@ public partial class MainWindow
                 }
 
                 break;
+            case SharedServerNode or SharedFolderNode:
+                _ = RemoveSharedAsync(SavedTree.SelectedItem);
+                break;
         }
     }
 
@@ -501,7 +540,14 @@ public partial class MainWindow
 
     private void OnSavedDrop(object sender, DragEventArgs e)
     {
-        var target = ItemUnder<TreeViewItem>(e.OriginalSource)?.DataContext switch
+        var over = ItemUnder<TreeViewItem>(e.OriginalSource)?.DataContext;
+        if (SharedListOf(over) is { } sharedList)
+        {
+            _ = DropOnSharedAsync(sharedList, over!, e.Data);
+            return;
+        }
+
+        var target = over switch
         {
             SavedFolderNode folder => folder.Path,
             SavedSessionNode node => node.Session.Folder,
