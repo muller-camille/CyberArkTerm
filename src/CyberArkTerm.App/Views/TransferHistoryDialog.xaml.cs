@@ -50,6 +50,8 @@ public partial class TransferHistoryDialog : Window
         Add(Strings.HistoryColItem, new Binding(nameof(TransferRecord.Label)), 1.2);
         Add(Strings.HistoryColDestination, new Binding(nameof(TransferRecord.Destination)), 1.5);
         Add(Strings.HistoryColFiles, new Binding(nameof(TransferRecord.FileCount)), 1, DataGridLengthUnitType.Auto);
+        // Téléchargements : toujours par la connexion SFTP de l'onglet.
+        Add(Strings.HistoryColProtocol, new Binding(nameof(TransferRecord.Protocol)) { TargetNullValue = "SFTP" }, 1, DataGridLengthUnitType.Auto);
         Add(Strings.ChecksColResult, new Binding(".") { Converter = new ResultConverter() }, 1.5);
     }
 

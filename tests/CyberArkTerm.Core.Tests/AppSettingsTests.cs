@@ -28,6 +28,23 @@ public sealed class AppSettingsTests : IDisposable
         Assert.DoesNotContain("password", File.ReadAllText(path), StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// Envois : SFTP d'abord, y compris pour une installation existante dont l'ancienne clé valait SCP (défaut de
+    /// l'époque) ; un choix fait avec la nouvelle clé est gardé.
+    /// </summary>
+    [Fact]
+    public void Load_UploadsPreferSftp_ExceptWhenScpChosenWithTheNewKey()
+    {
+        Directory.CreateDirectory(_dir);
+        var path = Path.Combine(_dir, "settings.json");
+        File.WriteAllText(path, """{ "PvwaUrl": "https://pvwa", "UploadProtocol": 0 }""");
+        Assert.Equal(Core.Ssh.TransferProtocol.Sftp, AppSettings.Load(path).PreferredUploadProtocol);
+        Assert.Equal(Core.Ssh.TransferProtocol.Sftp, new AppSettings().PreferredUploadProtocol);
+
+        new AppSettings { PreferredUploadProtocol = Core.Ssh.TransferProtocol.Scp }.Save(path);
+        Assert.Equal(Core.Ssh.TransferProtocol.Scp, AppSettings.Load(path).PreferredUploadProtocol);
+    }
+
     [Fact]
     public void Load_MissingOrCorruptFile_ReturnsDefaults()
     {

@@ -165,8 +165,12 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
 - **Ordinamento**: clic sull'intestazione di una colonna (Nome, Dimensione, Modificato, Permessi); un secondo clic
   inverte l'ordine (lo indica una freccia). Dimensione e data partono dai più grandi e dai più recenti. Le cartelle
   restano in cima; l'ordinamento è mantenuto da una cartella e da una sessione all'altra.
-- **Inviare file**: trascinali da Esplora file sull'elenco (o il pulsante «Invia»). Invio in **SCP** per
-  impostazione predefinita (SFTP in opzione), cartelle comprese; conferma prima di sovrascrivere un file esistente.
+- **Inviare file**: trascinali da Esplora file sull'elenco (o il pulsante «Invia»). Invio in **SFTP** per
+  impostazione predefinita (SCP a scelta nelle Impostazioni), cartelle comprese; conferma prima di sovrascrivere un
+  file esistente. Se il server rifiuta quel protocollo per un file prima di riceverlo (regola del PSMP, SFTP in sola
+  lettura…), l'altro subentra subito, senza domande né attese: la barra di stato e il riepilogo lo indicano con la
+  risposta del server, e così la Cronologia («SCP (SFTP rifiutato)»). In SCP, dopo un rifiuto all'annuncio di un
+  file, i file grandi almeno altrettanto partono direttamente in SFTP fino alla chiusura della scheda.
 - **Scaricare trascinando**: trascina file o cartelle dall'elenco verso Esplora file o il desktop. Nulla viene
   scaricato durante il trascinamento: al rilascio, una finestra mostra l'avanzamento (Annulla lo interrompe), poi
   Esplora file copia i file dove li hai rilasciati. I nomi Unix vengono resi validi per Windows (`\`, `:`, `..`,
@@ -181,9 +185,7 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   download); i file già trasferiti restano. Attenzione: se l'invio sostituiva un file esistente, il vecchio
   contenuto è perso. In SCP, l'interruzione riguarda solo quel trasferimento: gli elementi successivi proseguono
   sulla stessa connessione; un trasferimento che non avanza più (server che non legge più) si ferma 2 s dopo
-  «Annulla» e i successivi partono su una nuova connessione. Se il server chiude il canale SCP prima dell'inizio di un file, CyberArkTerm riprova una
-  volta su una nuova connessione, poi mostra un errore chiaro (l'invio via SFTP si può scegliere nelle
-  Impostazioni). Un file inviato via SCP prende sul server la data dell'invio (come `scp` senza `-p`, e come in
+  «Annulla» e i successivi partono su una nuova connessione. Un file inviato via SCP prende sul server la data dell'invio (come `scp` senza `-p`, e come in
   SFTP). Un errore viene mostrato nella coda e la coda prosegue; alla fine, un unico riepilogo. Navigazione,
   eliminazione, permessi, editor e trascinamento verso Esplora file passano tra due file. Chiudere la scheda o
   l'applicazione con trasferimenti in corso chiede conferma.
@@ -220,7 +222,8 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   finestra.
 - **Cronologia dei trasferimenti**: pulsante «Cronologia» della barra degli strumenti (frecce su e giù con un
   orologio, a sinistra di «Impostazioni»), disponibile anche senza sessione. Elenca gli ultimi 200 invii e download
-  (trascinamento compreso): data, direzione, server, elemento, destinazione, numero di file, risultato. Filtro
+  (trascinamento compreso): data, direzione, server, elemento, destinazione, numero di file, protocollo («SCP (SFTP
+  rifiutato)» quando l'altro protocollo è subentrato), risultato. Filtro
   «Invii» / «Download»; «Checksum…» (o doppio clic) mostra per ogni file la dimensione, i checksum SHA-256 e il
   risultato, e li copia nel formato di `sha256sum -c` per riverificare sul server; «Apri la cartella» per un
   download; «Cancella la cronologia».
@@ -389,7 +392,7 @@ Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia password, elimin
 | Registro di debug | Menu del pulsante Impostazioni: svolgimento delle connessioni in un file, senza segreti (vedi [Sicurezza](#sicurezza)); «Mostra il file del registro» lo apre in Esplora risorse | no |
 | SSH in CyberArkTerm | Terminale e scheda File integrati; altrimenti Windows Terminal | sì |
 | Segui la cartella del terminale | Consente di attivare il monitoraggio della cartella nella shell | sì |
-| Invio dei file | SCP o SFTP | SCP |
+| Invio dei file | Protocollo provato per primo (SFTP o SCP); se il server lo rifiuta, subentra l'altro | SFTP |
 | Editor di testo | Programma aperto da «Modifica» nella scheda File | Blocco note |
 | Strumento di confronto | Programma proposto nella finestra di confronto, con i suoi argomenti (`{0}` = file di sinistra, `{1}` = di destra) | nessuno |
 | Colori del terminale, carattere | Tavolozza (Campbell, One Half, Solarized…) e dimensione del carattere dei terminali SSH | Campbell, 14 |
@@ -448,7 +451,10 @@ loro contenuto).
 - **Registro di debug**, disattivato per impostazione predefinita (menu del pulsante Impostazioni):
   `%LOCALAPPDATA%\CyberArkTerm\debug.log`, al massimo 5 MB più una generazione `.1`. Registra lo svolgimento delle
   connessioni PVWA, PSM, desktop remoto e SSH: indirizzi e stati delle richieste, impostazioni del file .rdp, eventi
-  e codici del controllo Desktop remoto, errori. Contiene nomi di server e di account, ma **mai** password, token di
+  e codici del controllo Desktop remoto, versione e algoritmi del server SSH, errori. Per ogni invio SCP: il comando
+  `scp -t` inviato, l'annuncio del file (permessi, dimensione, nome), la risposta del server a ogni passo con la sua
+  durata e, se il server chiude il canale, il suo output di errore, il codice di uscita e il segnale; per ogni
+  protocollo rifiutato, la risposta del server e il protocollo subentrato. Contiene nomi di server e di account, ma **mai** password, token di
   sessione, richiesta di sessione PSM (`PSM@…` mascherata), firma, intestazione o corpo delle richieste, né il
   contenuto delle sessioni. La barra di stato lo segnala finché è attivo. Rileggilo prima di trasmetterlo, ed
   eliminalo una volta risolto il problema.
@@ -518,7 +524,7 @@ definitivamente può ancora trattenere un clic nella sua area o un cambio di foc
 
 Ogni scheda SSH apre fino a tre connessioni al PSMP, con lo stesso identificativo
 `<tu>@<account>[#dominio]@<destinazione>`: il terminale, la connessione SFTP della scheda File e una connessione SCP
-al primo invio in SCP. Ognuna è una sessione PSMP, registrata dal PSM. Gli invii al server (digitazione, dimensione
+al primo invio in SCP (scelto nelle Impostazioni, o subentrato a un invio SFTP rifiutato). Ognuna è una sessione PSMP, registrata dal PSM. Gli invii al server (digitazione, dimensione
 del terminale) e la chiusura delle connessioni avvengono fuori dal thread dell'interfaccia, in ordine: un server o
 un PSMP che non legge più non blocca l'applicazione.
 
@@ -558,6 +564,7 @@ destinata. Con csh, ksh, sh o fish il monitoraggio non viene installato e sullo 
 | L'account non compare | Non hai il permesso «List accounts» sul suo safe, oppure l'elenco va ricaricato (`F5`). |
 | La password PSMP viene chiesta per ogni scheda | MFA caching non attivato sul PVWA: comportamento normale (una volta per scheda). |
 | La scheda File indica «Connessione SFTP impossibile» | SFTP non è consentito sul PSMP o per questo account: rivolgiti al team CyberArk. |
+| Un invio indica «SFTP (SCP rifiutato)» o «SCP (SFTP rifiutato)» | Il PSMP o il server ha rifiutato quel protocollo per questo file: l'altro è subentrato e il file è stato verificato come al solito. Il riepilogo riporta la risposta del server; il registro di debug dettaglia ogni passo dell'invio SCP (comando, annuncio del file, output di errore e codice di uscita del server), da trasmettere al tuo team CyberArk. |
 | Il browser non segue i `cd` | La shell remota non è bash, zsh o tcsh (o tcsh ha già un proprio alias `cwdcmd`), l'opzione è disattivata nelle Impostazioni, oppure il prompt non è stato riconosciuto: riseleziona «Segui la cartella del terminale» al prompt della shell. |
 | Avviso «la chiave del PSMP è cambiata» | Prosegui solo se il team CyberArk conferma una modifica del server. |
 | «Password principale o file chiave errati.» | Controlla la password e il file chiave; un archivio protetto da YubiKey non è supportato. |

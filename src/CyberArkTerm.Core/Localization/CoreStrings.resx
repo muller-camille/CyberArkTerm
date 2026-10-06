@@ -259,7 +259,40 @@
     <value>incomplete file deleted</value>
   </data>
   <data name="ScpClosedByServer" xml:space="preserve">
-    <value>The server closed the SCP connection ({0}). If this happens again, choose SFTP for uploads in Settings.</value>
+    <value>The server closed the SCP connection during the upload: {0}.</value>
+  </data>
+  <data name="ScpRefusedCommand" xml:space="preserve">
+    <value>the server closed the SCP channel as soon as the scp command was sent: {0}</value>
+  </data>
+  <data name="ScpRefusedHeader" xml:space="preserve">
+    <value>the server closed the SCP channel when the file ({0}) was announced: {1}</value>
+  </data>
+  <data name="ScpNoAnswer" xml:space="preserve">
+    <value>the server did not answer the scp command within {0} s</value>
+  </data>
+  <data name="ScpUnexpectedAnswer" xml:space="preserve">
+    <value>unexpected answer from scp on the server: {0}</value>
+  </data>
+  <data name="ScpServerSaid" xml:space="preserve">
+    <value>server message “{0}”</value>
+  </data>
+  <data name="ScpExitStatus" xml:space="preserve">
+    <value>exit code {0}</value>
+  </data>
+  <data name="ScpExitSignal" xml:space="preserve">
+    <value>signal {0}</value>
+  </data>
+  <data name="ScpNoExplanation" xml:space="preserve">
+    <value>no explanation from the server</value>
+  </data>
+  <data name="ScpRefusedEarlier" xml:space="preserve">
+    <value>refused earlier in this tab for a file of {0}</value>
+  </data>
+  <data name="ProtocolFallback" xml:space="preserve">
+    <value>{0} ({1} refused)</value>
+  </data>
+  <data name="UploadRefusedThenFailed" xml:space="preserve">
+    <value>{0} refused by the server: {1}. {2}: {3}</value>
   </data>
   <data name="TransferIncompleteNotDeleted" xml:space="preserve">
     <value>incomplete file not deleted: {0}</value>

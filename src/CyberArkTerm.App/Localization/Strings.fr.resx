@@ -530,6 +530,9 @@ Les comptes restent disponibles dans l'onglet « Disponibles ».</value>
   <data name="UploadLabel" xml:space="preserve">
     <value>Dépôt de fichiers :</value>
   </data>
+  <data name="UploadProtocolTip" xml:space="preserve">
+    <value>Protocole essayé d'abord pour les envois. Si le serveur le refuse pour un fichier (règle du PSMP, SFTP en lecture seule…), l'autre prend le relais aussitôt, sans question ; le bilan donne la réponse du serveur, l'Historique l'indique.</value>
+  </data>
   <data name="ForgetKeys" xml:space="preserve">
     <value>Oublier les _clés</value>
   </data>
@@ -795,6 +798,12 @@ Continuer ?</value>
   </data>
   <data name="Uploaded" xml:space="preserve">
     <value>Envoyés en {1} vers {2} : {0}</value>
+  </data>
+  <data name="ProtocolFallbackOne" xml:space="preserve">
+    <value>{0} : {1} refusé par le serveur ({2}), envoyé en {3} à la place</value>
+  </data>
+  <data name="ProtocolFallbackMany" xml:space="preserve">
+    <value>{0} fichiers : {1} refusé par le serveur (premier refus : {2}), envoyés en {3} à la place</value>
   </data>
   <data name="DownloadTitle" xml:space="preserve">
     <value>Télécharger</value>
@@ -1809,6 +1818,9 @@ Envoyer quand même ?</value>
   </data>
   <data name="HistoryColFiles" xml:space="preserve">
     <value>Fichiers</value>
+  </data>
+  <data name="HistoryColProtocol" xml:space="preserve">
+    <value>Protocole</value>
   </data>
   <data name="HistoryDone" xml:space="preserve">
     <value>✓ réussi · {0} identique(s)</value>

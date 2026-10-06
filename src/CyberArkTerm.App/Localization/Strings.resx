@@ -530,6 +530,9 @@ The accounts remain available in the “Available” tab.</value>
   <data name="UploadLabel" xml:space="preserve">
     <value>File upload:</value>
   </data>
+  <data name="UploadProtocolTip" xml:space="preserve">
+    <value>Protocol tried first for uploads. If the server refuses it for a file (rule of the PSMP, read-only SFTP…), the other one takes over at once, without any question; the summary gives the server's answer, the History shows it.</value>
+  </data>
   <data name="ForgetKeys" xml:space="preserve">
     <value>Forget _keys</value>
   </data>
@@ -795,6 +798,12 @@ Continue?</value>
   </data>
   <data name="Uploaded" xml:space="preserve">
     <value>Uploaded over {1} to {2}: {0}</value>
+  </data>
+  <data name="ProtocolFallbackOne" xml:space="preserve">
+    <value>{0}: {1} refused by the server ({2}), sent over {3} instead</value>
+  </data>
+  <data name="ProtocolFallbackMany" xml:space="preserve">
+    <value>{0} files: {1} refused by the server (first: {2}), sent over {3} instead</value>
   </data>
   <data name="DownloadTitle" xml:space="preserve">
     <value>Download</value>
@@ -1809,6 +1818,9 @@ Send anyway?</value>
   </data>
   <data name="HistoryColFiles" xml:space="preserve">
     <value>Files</value>
+  </data>
+  <data name="HistoryColProtocol" xml:space="preserve">
+    <value>Protocol</value>
   </data>
   <data name="HistoryDone" xml:space="preserve">
     <value>✓ done · {0} identical</value>

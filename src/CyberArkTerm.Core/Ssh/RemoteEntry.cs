@@ -1,3 +1,6 @@
+using System.Globalization;
+using CyberArkTerm.Core.Localization;
+
 namespace CyberArkTerm.Core.Ssh;
 
 /// <summary>Fichier ou dossier distant listé par le navigateur SFTP.</summary>
@@ -15,7 +18,7 @@ public sealed record RemoteEntry(
     public string SizeText => IsDirectory ? "" : RemotePath.FormatSize(Length);
 
     /// <summary>Date courte et heure selon les réglages régionaux (01/10/2026 21:05, 10/1/2026 9:05 PM...).</summary>
-    public string ModifiedText => LastWriteTime == default ? "" : LastWriteTime.ToString("g", System.Globalization.CultureInfo.CurrentCulture);
+    public string ModifiedText => LastWriteTime == default ? "" : LastWriteTime.ToString("g", CultureInfo.CurrentCulture);
 
     /// <summary>Entrée « .. » affichée en tête de liste pour remonter d'un niveau.</summary>
     public bool IsParentLink => Name == "..";
@@ -110,8 +113,38 @@ public enum TransferProtocol
     Sftp,
 }
 
+public static class TransferProtocols
+{
+    /// <summary>« SCP » ou « SFTP ».</summary>
+    public static string Label(this TransferProtocol protocol) => protocol == TransferProtocol.Scp ? "SCP" : "SFTP";
+
+    /// <summary>L'autre protocole, qui prend le relais quand le serveur refuse le premier.</summary>
+    public static TransferProtocol Other(this TransferProtocol protocol) =>
+        protocol == TransferProtocol.Scp ? TransferProtocol.Sftp : TransferProtocol.Scp;
+
+    /// <summary>
+    /// Protocole d'un envoi pour le bilan et l'historique : <paramref name="preferred"/>, ou ceux réellement utilisés
+    /// quand le serveur en a refusé un pour certains fichiers (« SCP (SFTP refusé) »).
+    /// </summary>
+    public static string? Describe(string? preferred, IEnumerable<TransferCheck> checks)
+    {
+        var list = checks.ToList();
+        var refused = list.Select(c => c.Refused).OfType<TransferProtocol>().Distinct().ToList();
+        if (refused.Count == 0)
+        {
+            return preferred;
+        }
+
+        var used = list.Select(c => c.Protocol).OfType<TransferProtocol>().Distinct();
+        return string.Format(CultureInfo.CurrentCulture, CoreStrings.ProtocolFallback,
+            string.Join(" + ", used.Select(Label)), string.Join(" + ", refused.Select(Label)));
+    }
+}
+
 /// <summary>
 /// Avancement d'un transfert ; <paramref name="Verifying"/> : relecture pour la vérification SHA-256 ;
-/// <paramref name="Packing"/> : création de l'archive .tar.gz d'un envoi.
+/// <paramref name="Packing"/> : création de l'archive .tar.gz d'un envoi ; <paramref name="Protocol"/> : protocole de
+/// l'envoi en cours (celui des Paramètres, ou l'autre quand le serveur l'a refusé).
 /// </summary>
-public sealed record TransferProgress(string FileName, long Transferred, long Total, bool Verifying = false, bool Packing = false);
+public sealed record TransferProgress(string FileName, long Transferred, long Total, bool Verifying = false, bool Packing = false,
+    TransferProtocol? Protocol = null);

@@ -195,7 +195,7 @@ public class SessionLibraryTests
             var copy = Assert.Single(loaded.Sessions);
             Assert.Equal(("Prod", "/opt/appli", "Maintenance", ConnectMode.Ssh), (copy.Folder, copy.StartDirectory, copy.Reason, copy.Mode));
             Assert.Equal("ssh-ed25519 SHA256:abc", loaded.KnownHosts["psmp:22"]);
-            Assert.Equal(CyberArkTerm.Core.Ssh.TransferProtocol.Scp, loaded.UploadProtocol);
+            Assert.Equal(CyberArkTerm.Core.Ssh.TransferProtocol.Sftp, loaded.PreferredUploadProtocol);
         }
         finally
         {

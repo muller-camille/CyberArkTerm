@@ -138,7 +138,7 @@ public partial class FileBrowserPanel
             return;
         }
 
-        var protocol = _settings.UploadProtocol;
+        var protocol = _settings.PreferredUploadProtocol;
         if (archiveName is not null)
         {
             EnqueueArchive(browser, session, paths, directory, archiveName, archiveFiles, names, gzip);
@@ -171,7 +171,7 @@ public partial class FileBrowserPanel
     private void EnqueueArchive(RemoteFileBrowser browser, SshSession session, IReadOnlyList<string> paths, string directory,
         string archiveName, int files, IReadOnlyList<string> names, string? gzip)
     {
-        var protocol = _settings.UploadProtocol;
+        var protocol = _settings.PreferredUploadProtocol;
         Enqueue(new TransferItem(true, Text.Format(Strings.ArchiveLabel, archiveName, files), directory, async (item, ct) =>
         {
             var progress = new Progress<TransferProgress>(item.Report);
@@ -286,13 +286,13 @@ public partial class FileBrowserPanel
     private void OnCurrentTransferChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName is nameof(TransferItem.CurrentFile) or nameof(TransferItem.Verifying) or nameof(TransferItem.Packing)
-            or nameof(TransferItem.FileCount))
+            or nameof(TransferItem.FileCount) or nameof(TransferItem.CurrentProtocol))
         {
             UpdateTransferStatus();
         }
     }
 
-    /// <summary>Barre d'état pendant la file : « Envoi SCP de deploy/ (3/12)… · 2 en attente ».</summary>
+    /// <summary>Barre d'état pendant la file : « Envoi SFTP de deploy/ (3/12)… · 2 en attente » (protocole du fichier en cours).</summary>
     private void UpdateTransferStatus()
     {
         if (_queue.Current is not { } item)
@@ -302,7 +302,7 @@ public partial class FileBrowserPanel
 
         var text = item.Packing ? Text.Format(Strings.ArchivePacking, item.Label)
             : item.Verifying ? Text.Format(Strings.VerifyingFile, item.CurrentFile)
-            : item.Upload ? Text.Format(Strings.Uploading, item.Protocol, item.Label, TransferStatusConverter.FileNumber(item), TransferStatusConverter.FileTotal(item))
+            : item.Upload ? Text.Format(Strings.Uploading, item.CurrentProtocol?.Label() ?? item.Protocol, item.Label, TransferStatusConverter.FileNumber(item), TransferStatusConverter.FileTotal(item))
             : Text.Format(Strings.Downloading, item.CurrentFile ?? item.Label);
         if (_queue.PendingCount is > 0 and var pending)
         {
@@ -324,7 +324,7 @@ public partial class FileBrowserPanel
                 Server = (item.Owner as SshSession)?.Label ?? "",
                 Label = item.Label,
                 Destination = item.Destination,
-                Protocol = item.Protocol,
+                Protocol = item.ProtocolUsed,
                 State = item.State,
                 Error = item.Error,
                 FileCount = item.FileCount,
@@ -354,7 +354,7 @@ public partial class FileBrowserPanel
             message = item.State switch
             {
                 TransferState.Done when item.ExtractCommand is not null => Text.Format(Strings.ArchiveSent, item.Label, item.Destination),
-                TransferState.Done when item.Upload => Text.Format(Strings.Uploaded, item.Names.Count, item.Protocol, item.Destination),
+                TransferState.Done when item.Upload => Text.Format(Strings.Uploaded, item.Names.Count, item.ProtocolUsed, item.Destination),
                 TransferState.Done => Text.Format(Strings.Downloaded, item.FileCount, item.Destination),
                 TransferState.Failed => Failure(item),
                 _ => Text.Format(Strings.QueueCancelledOne, item.Label),
@@ -394,10 +394,30 @@ public partial class FileBrowserPanel
         }
 
         UpdateExtractPanel();
-        ReportChecks(message, checks, error: failures.Count > 0);
+        ReportChecks(message, checks, error: failures.Count > 0, note: FallbackNote(checks));
 
         static string Failure(TransferItem item) =>
             Text.Format(item.Upload ? Strings.UploadFailed : Strings.QueueDownloadFailed, item.Label, item.Error);
+    }
+
+    /// <summary>
+    /// Fichiers partis par l'autre protocole parce que le serveur a refusé le premier : lequel, et ce que le serveur a
+    /// répondu (le premier refus), dans le bilan, sans interrompre.
+    /// </summary>
+    private static string? FallbackNote(IReadOnlyList<TransferCheck> checks)
+    {
+        var sent = checks.Where(c => c is { Refused: not null, Protocol: not null, Failed: false, Interrupted: false }).ToList();
+        if (sent.Count == 0)
+        {
+            return null;
+        }
+
+        var first = sent[0];
+        var refused = first.Refused!.Value.Label();
+        var used = first.Protocol!.Value.Label();
+        return sent.Count == 1
+            ? Text.Format(Strings.ProtocolFallbackOne, first.Name, refused, first.RefusedReason, used)
+            : Text.Format(Strings.ProtocolFallbackMany, sent.Count, refused, first.RefusedReason, used);
     }
 }
 

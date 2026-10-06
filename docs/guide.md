@@ -154,8 +154,12 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
 - **Sort**: click a column header (Name, Size, Modified, Permissions); click it again to reverse the order (an arrow
   shows it). Size and date start with the largest and the newest. Folders stay on top; the sort is kept from one
   folder and one session to the next.
-- **Upload files**: drag them from Explorer onto the list (or the "Upload" button). Sent over **SCP** by default
-  (SFTP as an option), folders included; confirmation before overwriting an existing file.
+- **Upload files**: drag them from Explorer onto the list (or the "Upload" button). Sent over **SFTP** by default
+  (SCP can be chosen in Settings), folders included; confirmation before overwriting an existing file. If the server
+  refuses that protocol for a file before receiving it (rule of the PSMP, read-only SFTP…), the other one takes over
+  at once, with no question and no wait: the status bar and the summary show it with the server's answer, and so does
+  the History ("SCP (SFTP refused)"). Over SCP, after a refusal when a file is announced, files at least as large go
+  straight over SFTP until the tab is closed.
 - **Download by dragging**: drag files or folders from the list to Explorer or the desktop. Nothing is downloaded
   while dragging: on drop, a window shows the progress (Cancel stops it), then Explorer copies the files where you
   dropped them. Unix names are made valid for Windows (`\`, `:`, `..`, `CON`… replaced), never writing outside the
@@ -168,9 +172,7 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   server for an upload, on this computer for a download); files already transferred stay. Beware: if the upload was
   replacing an existing file, its old content is lost. Over SCP, stopping ends only that transfer: the next items go
   on over the same connection; a transfer that no longer moves (server not reading) stops 2 s after "Cancel" and the next
-  ones go on over a new connection. If the server closes the SCP channel before a file starts, CyberArkTerm tries once
-  more on a new connection, then reports a clear error (SFTP uploads can be chosen in Settings). A file sent over
-  SCP gets the upload date on the server (as `scp` without `-p`, and as over SFTP). An error is shown in the queue
+  ones go on over a new connection. A file sent over SCP gets the upload date on the server (as `scp` without `-p`, and as over SFTP). An error is shown in the queue
   and the queue goes on; at the end, a single summary. Browsing, deleting, permissions, the editor and dragging to
   Explorer get in between two files. Closing the tab or the application with transfers running asks for
   confirmation.
@@ -206,7 +208,8 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   it two temporary copies, deleted when the window closes.
 - **Transfer history**: "History" toolbar button (up and down arrows with a clock, left of "Settings"), available
   even without a session. It lists the last 200 uploads and downloads (drag and drop included): date, direction,
-  server, item, destination, number of files, result. "Uploads" / "Downloads" filter; "Checksums…" (or double-click)
+  server, item, destination, number of files, protocol ("SCP (SFTP refused)" when the other protocol took over),
+  result. "Uploads" / "Downloads" filter; "Checksums…" (or double-click)
   shows each file's size, SHA-256 checksums and result, and copies them in the `sha256sum -c` format to check again
   on the server; "Open the folder" for a download; "Clear the history".
 - **Transfer check (SHA-256)**: every uploaded or downloaded file is checked. On upload (SCP or SFTP), the local
@@ -366,7 +369,7 @@ change the password, delete.
 | Debug log | Settings button menu: how connections unfold, in a file, without secrets (see [Security](#security)); "Show the debug log file" opens it in Explorer | no |
 | SSH in CyberArkTerm | Built-in terminal and Files tab; otherwise Windows Terminal | yes |
 | Follow the terminal folder | Allows setting up folder tracking in the shell | yes |
-| File upload | SCP or SFTP | SCP |
+| File upload | Protocol tried first (SFTP or SCP); if the server refuses it, the other one takes over | SFTP |
 | Text editor | Program opened by "Edit" in the Files tab | Notepad |
 | Comparison tool | Program offered in the comparison window, with its arguments (`{0}` = left file, `{1}` = right file) | none |
 | Terminal colours, font | Palette (Campbell, One Half, Solarized…) and font size of the SSH terminals | Campbell, 14 |
@@ -420,7 +423,10 @@ start from scratch, close the application and delete it. The transfer history of
   - `urgence.log`: date, Windows account, computer, action, vault, entry, target; never a password.
 - **Debug log**, off by default (Settings button menu): `%LOCALAPPDATA%\CyberArkTerm\debug.log`, 5 MB at most plus
   one `.1` generation. It records how PVWA, PSM, remote desktop and SSH connections unfold: request addresses and
-  statuses, .rdp file settings, Remote Desktop control events and codes, errors. It contains server and account
+  statuses, .rdp file settings, Remote Desktop control events and codes, SSH server version and algorithms, errors.
+  For each SCP upload: the `scp -t` command sent, the file announcement (mode, size, name), the server's answer at
+  each step with its duration and, if the server closes the channel, its error output, exit code and signal; for
+  each refused protocol, the server's answer and the protocol that took over. It contains server and account
   names, but **never** a password, session token, PSM session request (`PSM@…` masked), signature, request header or
   body, nor session content. The status bar shows it while it is on. Read it before passing it on, and delete it
   once the problem is solved.
@@ -487,7 +493,8 @@ its area or a focus change.
 ### PSMP sessions
 
 Each SSH tab opens up to three connections to the PSMP, with the same login `<you>@<account>[#domain]@<target>`: the
-terminal, the SFTP connection of the Files tab, and an SCP connection on the first SCP upload. Each one is a PSMP
+terminal, the SFTP connection of the Files tab, and an SCP connection on the first SCP upload (chosen in Settings, or
+taking over from a refused SFTP upload). Each one is a PSMP
 session, recorded by the PSM. Sending to the server (typing, terminal size) and closing connections happen off the
 interface thread, in order: a server or PSMP that stops reading does not freeze the application.
 
@@ -527,6 +534,7 @@ ksh, sh or fish, following is not set up and nothing stays on screen.
 | The account does not show up | You lack the "List accounts" permission on its safe, or the list needs reloading (`F5`). |
 | The PSMP password is asked for each tab | MFA caching is not enabled on the PVWA: expected behavior (once per tab). |
 | The Files tab shows "SFTP connection failed" | SFTP is not allowed on the PSMP or for this account: ask your CyberArk team. |
+| An upload shows "SFTP (SCP refused)" or "SCP (SFTP refused)" | The PSMP or the server refused that protocol for this file: the other one took over and the file was checked as usual. The summary gives the server's answer; the debug log details each step of the SCP upload (command, file announcement, error output and exit code of the server), to pass on to your CyberArk team. |
 | The browser does not follow `cd` | The remote shell is not bash, zsh or tcsh (or tcsh already has its own `cwdcmd` alias), the option is off in Settings, or the prompt was not recognized: tick "Follow the terminal folder" again at the shell prompt. |
 | "The key of the PSMP has changed" warning | Only continue if your CyberArk team confirms a server change. |
 | "Wrong master password or key file." | Check the password and the key file; a vault protected by a YubiKey is not supported. |

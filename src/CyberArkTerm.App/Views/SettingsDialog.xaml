@@ -78,10 +78,10 @@
         <CheckBox x:Name="FollowBox" Margin="0,0,0,8">
             <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.FollowSetting}" />
         </CheckBox>
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8" ToolTip="{x:Static loc:Strings.UploadProtocolTip}">
             <TextBlock Text="{x:Static loc:Strings.UploadLabel}" VerticalAlignment="Center" Margin="0,0,12,0" />
-            <RadioButton x:Name="ScpRadio" Content="SCP" GroupName="Upload" Margin="0,0,16,0" VerticalAlignment="Center" />
-            <RadioButton x:Name="SftpRadio" Content="SFTP" GroupName="Upload" VerticalAlignment="Center" />
+            <RadioButton x:Name="SftpRadio" Content="SFTP" GroupName="Upload" Margin="0,0,16,0" VerticalAlignment="Center" />
+            <RadioButton x:Name="ScpRadio" Content="SCP" GroupName="Upload" VerticalAlignment="Center" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8" ToolTip="{x:Static loc:Strings.SettingsArchiveTip}">
             <CheckBox x:Name="ArchiveBox" VerticalAlignment="Center">

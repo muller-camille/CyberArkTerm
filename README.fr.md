@@ -38,7 +38,7 @@ avez accès et ouvre vos sessions en un double-clic : bureau à distance via **P
 | **Courants** | Vos serveurs de travail, rangés en dossiers et sous-dossiers, chacun avec sa propre configuration. |
 | **Sessions PSM** | Bureau à distance via le PSM (comme le bouton « Connect » du PVWA), dans la Connexion Bureau à distance de Windows : composant, machine cible, motif, ticket. |
 | **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), MFA, menu du clic droit, recherche, fenêtres séparées. |
-| **Onglet Fichiers** | Navigateur SFTP du serveur : dépôt (SCP ou SFTP) et téléchargement par glisser-déposer, vérification SHA-256 de chaque fichier, file d'attente et historique des transferts, tri par colonne, modification dans votre éditeur de texte, droits, suivi en direct (`tail -f`), comparaison, envoi vers plusieurs serveurs. |
+| **Onglet Fichiers** | Navigateur SFTP du serveur : dépôt (SFTP, ou SCP, l'autre prenant le relais si le serveur refuse) et téléchargement par glisser-déposer, vérification SHA-256 de chaque fichier, file d'attente et historique des transferts, tri par colonne, modification dans votre éditeur de texte, droits, suivi en direct (`tail -f`), comparaison, envoi vers plusieurs serveurs. |
 | **Vue parallèle** | Jusqu'à 8 sessions SSH côte à côte (un dossier « Courants » s'ouvre d'un clic), saisie simultanée en option. |
 | **Accès d'urgence (KeePass)** | Sans CyberArk : coffres KeePass (.kdbx) dans « Courants », connexions SSH et bureau à distance directes, journal local. |
 | **Langues** | Français, anglais et italien : langue de Windows par défaut, modifiable à tout moment. |
@@ -95,8 +95,8 @@ plus une fois par jour et affiche un lien dans la barre d'état.
   approuvé par le poste.
 - Droit **List accounts** sur les safes concernés : l'application n'affiche que ce que l'API vous laisse voir.
 - PSM configuré sur les plateformes à utiliser (composants `PSM-RDP`, `PSM-SSH`…).
-- Pour le SSH : un **PSM for SSH (PSMP)**, avec SFTP autorisé pour l'onglet Fichiers (et SCP pour le dépôt
-  en SCP).
+- Pour le SSH : un **PSM for SSH (PSMP)**, avec SFTP autorisé pour l'onglet Fichiers (et SCP si vous
+  choisissez le dépôt en SCP).
 - Facultatif : **MFA caching** activé sur le PVWA, pour éviter de ressaisir mot de passe et MFA au PSMP.
 
 ## Prise en main
