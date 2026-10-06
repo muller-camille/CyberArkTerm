@@ -379,7 +379,8 @@ public sealed class DialogTests
 
             var dialog = new TransferHistoryDialog(history, () => saved++);
 
-            Assert.Equal(7, dialog.RecordsGrid.Columns.Count);
+            Assert.Equal(8, dialog.RecordsGrid.Columns.Count);
+            Assert.Contains(dialog.RecordsGrid.Columns, c => Equals(c.Header, Strings.HistoryColProtocol));
             Assert.Equal(2, ((IEnumerable<TransferRecord>)dialog.RecordsGrid.ItemsSource).Count());
             dialog.FilterBox.SelectedIndex = 2;
             var download = Assert.Single((IEnumerable<TransferRecord>)dialog.RecordsGrid.ItemsSource);
