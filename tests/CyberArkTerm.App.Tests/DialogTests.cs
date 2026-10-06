@@ -282,7 +282,7 @@ public sealed class DialogTests
             var settings = new AppSettings();
             int saved = 0;
             var panel = new FileBrowserPanel();
-            panel.Initialize(settings, () => saved++);
+            panel.Initialize(settings, () => saved++, new TransferHistory());
             Assert.Equal(false, (panel.NameColumn.Header as FrameworkElement)?.Tag); // croissant
             RemoteEntry E(string name, bool dir, long size, int day) =>
                 new(name, "/opt/" + name, dir, false, size, new DateTime(2026, 10, day), dir ? "drwxr-xr-x" : "-rw-r--r--");
@@ -954,6 +954,12 @@ public sealed class DialogTests
             Assert.Equal(2, view.Matches.Count); // lignes 40 et 60 : l'écran (30 lignes) montre les lignes 32 à 60
             Assert.False(view.Terminal.BuildMenu(atCursor: false)!.Items.OfType<System.Windows.Controls.MenuItem>()
                 .Single(i => i.Header as string == Strings.MenuTerminalClear).IsEnabled);
+
+            // Tout sélectionner : jusqu'à l'invite, sans les lignes vides du bas de l'écran (après « clear »).
+            session.Emulator.Feed("\x1b[2J\x1b[H[root@srv01 ~]# ");
+            view.Terminal.BuildMenu(atCursor: false)!.Items.OfType<System.Windows.Controls.MenuItem>()
+                .Single(i => i.Header as string == Strings.MenuTerminalSelectAll).RaiseEvent(new RoutedEventArgs(System.Windows.Controls.MenuItem.ClickEvent));
+            Assert.Equal("[root@srv01 ~]#", view.Terminal.SelectedText);
             session.Dispose();
         });
     }

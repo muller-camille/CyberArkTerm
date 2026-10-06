@@ -478,7 +478,8 @@ public sealed class RemoteFileBrowser : IDisposable
     {
         _sftp.Dispose();
         _scp?.Dispose();
-        _scpGate.Dispose();
+        // _scpGate n'est pas libéré : un envoi SCP arrêté pendant la fermeture le relâche encore après (SemaphoreSlim
+        // sans AvailableWaitHandle ne retient aucune ressource).
     }
 
     private async Task<ScpClient> GetScpAsync(CancellationToken ct)
@@ -530,7 +531,7 @@ public sealed class RemoteFileBrowser : IDisposable
         {
             if (protocol == TransferProtocol.Scp)
             {
-                await SendScpAsync(localPath, remotePath, name, () => started = true, progress, ct).ConfigureAwait(false);
+                await SendScpAsync(localPath, remotePath, name, value => started = value, progress, ct).ConfigureAwait(false);
             }
             else
             {
@@ -586,8 +587,11 @@ public sealed class RemoteFileBrowser : IDisposable
         return (hashing.GetHash(), hashing.Count);
     }
 
-    /// <summary>Après une annulation, temps laissé à l'envoi SCP pour s'arrêter de lui-même avant de couper la connexion.</summary>
-    internal static TimeSpan ScpStopTimeout { get; set; } = TimeSpan.FromSeconds(5);
+    /// <summary>
+    /// Après une annulation, temps laissé à l'envoi SCP pour s'arrêter de lui-même avant de couper la connexion : bien
+    /// moins que les 5 s qu'attend la fermeture d'un onglet, pour que le fichier incomplet soit encore supprimé.
+    /// </summary>
+    internal static TimeSpan ScpStopTimeout { get; set; } = TimeSpan.FromSeconds(2);
 
     /// <summary>Attente avant de réessayer un envoi SCP dont le canal a été fermé par le serveur avant tout envoi.</summary>
     internal static TimeSpan ScpRetryDelay { get; set; } = TimeSpan.FromSeconds(2);
@@ -599,7 +603,11 @@ public sealed class RemoteFileBrowser : IDisposable
     /// coupée que si l'envoi ne s'arrête pas (serveur muet). Une connexion en échec est oubliée : l'envoi suivant en
     /// ouvre une neuve ; si le serveur ferme le canal avant le début de l'envoi, un second essai est fait.
     /// </summary>
-    private async Task SendScpAsync(string localPath, string remotePath, string name, Action started,
+    /// <param name="started">
+    /// Vrai quand le fichier du serveur a pu être touché (annulé ensuite : il est supprimé) ; faux de nouveau pendant
+    /// l'attente du second essai, le serveur ayant fermé le canal avant tout envoi.
+    /// </param>
+    private async Task SendScpAsync(string localPath, string remotePath, string name, Action<bool> started,
         IProgress<TransferProgress>? progress, CancellationToken ct)
     {
         await _scpGate.WaitAsync(ct).ConfigureAwait(false);
@@ -607,17 +615,40 @@ public sealed class RemoteFileBrowser : IDisposable
         {
             for (int attempt = 1; ; attempt++)
             {
-                var scp = await GetScpAsync(ct).ConfigureAwait(false);
+                ScpClient scp;
+                try
+                {
+                    scp = await GetScpAsync(ct).ConfigureAwait(false);
+                }
+                catch (Exception e) when (attempt > 1 && e is not OperationCanceledException)
+                {
+                    // Second essai : la connexion neuve est refusée à son tour (PSMP).
+                    throw new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.ScpClosedByServer, e.Message), e);
+                }
+
                 await using var file = File.OpenRead(localPath);
                 using var source = new CancellableReadStream(file, ct);
+                var stop = new ScpStop();
                 EventHandler<Renci.SshNet.Common.ScpUploadEventArgs> handler = (_, e) => progress?.Report(new TransferProgress(name, e.Uploaded, e.Size));
                 scp.Uploading += handler;
                 try
                 {
-                    started();
-                    var upload = Task.Run(() => scp.Upload(source, remotePath), CancellationToken.None);
-                    await using (ct.Register(() => _ = StopStuckScpAsync(upload, scp)))
+                    started(true);
+                    // Fil dédié : un envoi qui reste bloqué dans la bibliothèque SSH n'immobilise pas le pool de threads.
+                    var upload = Task.Factory.StartNew(() => scp.Upload(source, remotePath), CancellationToken.None,
+                        TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                    var cut = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+                    await using (ct.Register(() => _ = StopStuckScpAsync(upload, scp, stop, cut)))
                     {
+                        if (await Task.WhenAny(upload, cut.Task).ConfigureAwait(false) != upload)
+                        {
+                            // Connexion coupée, mais l'envoi peut rester bloqué dans l'attente d'une réponse du serveur
+                            // (la bibliothèque SSH ne s'en libère pas) : il est abandonné, la file continue.
+                            _ = upload.ContinueWith(t => _ = t.Exception, CancellationToken.None,
+                                TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
+                            throw new OperationCanceledException(ct);
+                        }
+
                         await upload.ConfigureAwait(false);
                     }
 
@@ -640,9 +671,11 @@ public sealed class RemoteFileBrowser : IDisposable
                 }
                 catch (Renci.SshNet.Common.SshException e) when (attempt == 1 && !source.WasRead)
                 {
-                    // Canal fermé par le serveur avant l'envoi du contenu (session PSMP refusée…) : nouvel essai, connexion neuve.
+                    // Canal fermé par le serveur avant l'envoi du contenu (session PSMP refusée…) : rien n'a été écrit,
+                    // nouvel essai sur une connexion neuve ; une annulation pendant l'attente ne supprime rien.
                     Diagnostics.DebugLog.Write("files", $"SCP : canal fermé par le serveur avant l'envoi de {name} ({e.Message}), nouvel essai");
                     ForgetScp(scp);
+                    started(false);
                     await Task.Delay(ScpRetryDelay, ct).ConfigureAwait(false);
                 }
                 catch (Renci.SshNet.Common.SshException e)
@@ -652,12 +685,22 @@ public sealed class RemoteFileBrowser : IDisposable
                 }
                 catch (Exception)
                 {
-                    ForgetScp(scp);
+                    // Erreur hors SSH (fichier local illisible…) : seul le canal est fermé, la connexion sert encore.
+                    if (!IsUsable(scp))
+                    {
+                        ForgetScp(scp);
+                    }
+
                     throw;
                 }
                 finally
                 {
                     scp.Uploading -= handler;
+                    // Coupée par la surveillance juste quand l'envoi se terminait : à ne pas laisser au suivant.
+                    if (!stop.Finish())
+                    {
+                        ForgetScp(scp);
+                    }
                 }
             }
         }
@@ -667,13 +710,31 @@ public sealed class RemoteFileBrowser : IDisposable
         }
     }
 
-    /// <summary>Annulé mais l'envoi ne s'arrête pas (serveur qui ne lit plus) : la connexion SCP est coupée.</summary>
-    private static async Task StopStuckScpAsync(Task upload, ScpClient scp)
+    /// <summary>
+    /// Fin d'un envoi SCP ou coupure par la surveillance, le premier des deux l'emporte : la connexion n'est jamais coupée
+    /// une fois l'envoi terminé (elle peut déjà servir à l'envoi suivant).
+    /// </summary>
+    private sealed class ScpStop
     {
-        if (await Task.WhenAny(upload, Task.Delay(ScpStopTimeout)).ConfigureAwait(false) != upload)
+        private int _state; // 0 : en cours, 1 : terminé, 2 : coupé
+
+        public bool TryCut() => Interlocked.CompareExchange(ref _state, 2, 0) == 0;
+
+        /// <summary>Faux si la connexion a été coupée avant la fin.</summary>
+        public bool Finish() => Interlocked.CompareExchange(ref _state, 1, 0) != 2;
+    }
+
+    /// <summary>
+    /// Annulé mais l'envoi ne s'arrête pas (serveur qui ne lit plus ou ne répond plus) : la connexion SCP est coupée et
+    /// <paramref name="cut"/> signale de ne plus l'attendre.
+    /// </summary>
+    private static async Task StopStuckScpAsync(Task upload, ScpClient scp, ScpStop stop, TaskCompletionSource cut)
+    {
+        if (await Task.WhenAny(upload, Task.Delay(ScpStopTimeout)).ConfigureAwait(false) != upload && stop.TryCut())
         {
             Diagnostics.DebugLog.Write("files", "SCP : l'envoi annulé ne s'arrête pas, connexion SCP coupée");
             AbortScp(scp);
+            cut.TrySetResult();
         }
     }
 

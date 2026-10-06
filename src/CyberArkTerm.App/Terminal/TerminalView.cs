@@ -641,8 +641,10 @@ public sealed class TerminalView : FrameworkElement
         var menu = new ContextMenu { PlacementTarget = this, Placement = atCursor ? PlacementMode.Relative : PlacementMode.MousePoint };
         if (atCursor)
         {
+            // Sous le curseur ; historique remonté (curseur hors de la vue) : en bas du terminal.
+            int row = Math.Min(_emulator.CursorRow + _scrollOffset, _emulator.Rows - 1);
             menu.HorizontalOffset = Padding + (_emulator.CursorColumn * _cellWidth);
-            menu.VerticalOffset = Padding + ((_emulator.CursorRow + _scrollOffset + 1) * _cellHeight);
+            menu.VerticalOffset = Padding + ((row + 1) * _cellHeight);
         }
 
         menu.Items.Add(MenuEntry(Strings.MenuTerminalCopy, CopySelection, Strings.ShortcutTerminalCopy, enabled: selection));
@@ -697,7 +699,10 @@ public sealed class TerminalView : FrameworkElement
         return item;
     }
 
-    /// <summary>Tout l'historique et l'écran, copiés comme toute sélection.</summary>
+    /// <summary>
+    /// Tout l'historique et l'écran, copiés comme toute sélection ; jusqu'à la dernière ligne écrite (au moins celle du
+    /// curseur), sans les lignes vides du bas de l'écran.
+    /// </summary>
     private void SelectAll()
     {
         if (_emulator is null)
@@ -705,11 +710,21 @@ public sealed class TerminalView : FrameworkElement
             return;
         }
 
+        int last = _emulator.Rows - 1;
+        while (last > _emulator.CursorRow && _emulator.GetLine(last).All(c => c.Char is ' ' or '\0'))
+        {
+            last--;
+        }
+
         _selectionStart = (-_emulator.ScrollbackCount, 0);
-        _selectionEnd = (_emulator.Rows - 1, _emulator.Columns - 1);
+        _selectionEnd = (last, _emulator.Columns - 1);
         CopySelection();
         InvalidateVisual();
     }
+
+    /// <summary>Texte sélectionné (tests).</summary>
+    internal string SelectedText =>
+        _emulator is not null && _selectionStart is { } a && _selectionEnd is { } b ? _emulator.GetText(a.Row, a.Col, b.Row, b.Col) : "";
 
     /// <summary>Oublie les lignes sorties de l'écran (sur ce poste : rien n'est envoyé au serveur).</summary>
     private void ClearScrollback()

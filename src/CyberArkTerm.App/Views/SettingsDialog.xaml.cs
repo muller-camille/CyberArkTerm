@@ -21,6 +21,7 @@ public partial class SettingsDialog : Window
     public SettingsDialog(AppSettings settings, LocalSecretStore? store = null)
     {
         InitializeComponent();
+        SourceInitialized += (_, _) => FitToScreen();
         _settings = settings;
         _store = store;
         KeepAliveBox.IsChecked = settings.KeepPvwaSessionAlive;
@@ -54,6 +55,23 @@ public partial class SettingsDialog : Window
             ? Strings.NoComponents
             : string.Join(", ", settings.ComponentByPlatform.Select(kv => Text.Format(Strings.ComponentEntry, kv.Key, kv.Value)));
         Loaded += (_, _) => PsmpBox.Focus();
+    }
+
+    /// <summary>
+    /// Hauteur maximale : la zone de travail de l'écran où s'ouvre la fenêtre (celui de la fenêtre principale, qui peut
+    /// être un second écran moins haut que l'écran principal) ; au-delà, le contenu défile.
+    /// </summary>
+    private void FitToScreen()
+    {
+        var anchor = Owner ?? this;
+        var handle = new System.Windows.Interop.WindowInteropHelper(anchor).Handle;
+        if (handle == IntPtr.Zero || PresentationSource.FromVisual(this)?.CompositionTarget is not { } target)
+        {
+            return;
+        }
+
+        var area = System.Windows.Forms.Screen.FromHandle(handle).WorkingArea;
+        MaxHeight = target.TransformFromDevice.Transform(new Point(0, area.Height)).Y;
     }
 
     private void OnForgetComponents(object sender, RoutedEventArgs e)

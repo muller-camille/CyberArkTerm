@@ -43,7 +43,7 @@ public partial class MainWindow
         var view = new SshSessionView(session, target, connectingText);
         var tab = new TabItem { Content = view, Tag = session };
         tab.Header = TabHeader(tab, label, icon, duplicate);
-        view.SessionMenu = items => AddSessionMenuItems(items, tab, duplicate, inTerminal: true)();
+        view.SessionMenu = items => AddTerminalSessionItems(items, tab, duplicate);
         session.StateChanged += () =>
         {
             switch (session.State)
@@ -100,23 +100,57 @@ public partial class MainWindow
     /// <summary>Menu de l'en-tête d'un onglet de session : reconnecter, dupliquer, fermer, fermer les autres.</summary>
     private ContextMenu TabMenu(TabItem tab, Func<Task>? duplicate)
     {
-        var menu = new ContextMenu();
-        var refresh = AddSessionMenuItems(menu.Items, tab, duplicate, inTerminal: false);
-        menu.Opened += (_, _) => refresh();
+        var actions = CreateSessionActions(tab, duplicate, () => this);
+        var ssh = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed;
+        var search = new MenuItem { Header = Strings.MenuTerminalSearch, InputGestureText = Strings.ShortcutTerminalSearch, Visibility = ssh };
+        search.Click += (_, _) => SshViewOf(tab)?.ShowSearch();
+        var save = new MenuItem { Header = Strings.MenuTerminalSave, InputGestureText = Strings.ShortcutTerminalSave, Visibility = ssh, ToolTip = Strings.MenuTerminalSaveTip };
+        save.Click += (_, _) => SshViewOf(tab)?.SaveContent();
+        var closeOthers = new MenuItem { Header = Strings.MenuTabCloseOthers };
+        closeOthers.Click += async (_, _) => await CloseOtherTabsAsync(tab);
+        var menu = new ContextMenu
+        {
+            Items =
+            {
+                actions.Reconnect, actions.Duplicate, actions.Detach, actions.Parallel, new Separator { Visibility = ssh }, search, save,
+                new Separator(), actions.Close, closeOthers,
+            },
+        };
+        menu.Opened += (_, _) =>
+        {
+            actions.Refresh();
+            closeOthers.IsEnabled = SessionTabs().Any(t => t != tab);
+        };
         return menu;
     }
 
     /// <summary>
-    /// Actions d'un onglet de session, pour le menu de son en-tête ou pour la fin du menu du clic droit dans le
-    /// terminal (<paramref name="inTerminal"/> : sans « Rechercher » ni « Enregistrer », déjà au début de ce menu, ni
-    /// « Fermer les autres »). Renvoie la mise à jour à faire à l'ouverture du menu.
+    /// Actions de la session à la fin du menu du clic droit dans son terminal, qu'il soit dans l'onglet, dans une fenêtre
+    /// séparée ou dans la vue parallèle : leurs questions s'affichent dans la fenêtre du terminal.
     /// </summary>
-    private Action AddSessionMenuItems(ItemCollection items, TabItem tab, Func<Task>? duplicate, bool inTerminal)
+    private void AddTerminalSessionItems(ItemCollection items, TabItem tab, Func<Task>? duplicate)
+    {
+        var actions = CreateSessionActions(tab, duplicate, () => SshViewOf(tab) is { } view ? Window.GetWindow(view) : null);
+        actions.Refresh();
+        // Déjà dans une fenêtre séparée ou dans la vue parallèle : rien à détacher depuis le terminal.
+        actions.Detach.Visibility = actions.Detach.IsEnabled ? Visibility.Visible : Visibility.Collapsed;
+        foreach (var item in new object[] { actions.Reconnect, actions.Duplicate, actions.Detach, actions.Parallel, new Separator(), actions.Close })
+        {
+            items.Add(item);
+        }
+    }
+
+    /// <summary>Actions communes au menu de l'en-tête d'un onglet et au menu du clic droit dans son terminal.</summary>
+    private sealed record SessionActions(MenuItem Reconnect, MenuItem Duplicate, MenuItem Detach, MenuItem Parallel, MenuItem Close, Action Refresh);
+
+    /// <param name="owner">Fenêtre où afficher les questions (confirmation de reconnexion, transferts en cours…).</param>
+    private SessionActions CreateSessionActions(TabItem tab, Func<Task>? duplicate, Func<Window?> owner)
     {
         static Image MenuIcon(object source) => new() { Source = (System.Windows.Media.ImageSource)source, Width = 16, Height = 16 };
 
+        var ssh = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed;
         var reconnect = new MenuItem { Header = Strings.MenuTabReconnect, Icon = MenuIcon(FindResource("IconRefresh")) };
-        reconnect.Click += async (_, _) => await ReconnectTabAsync(tab);
+        reconnect.Click += async (_, _) => await ReconnectTabAsync(tab, owner());
         var copy = new MenuItem
         {
             Header = Strings.MenuTabDuplicate,
@@ -131,20 +165,10 @@ public partial class MainWindow
                 await duplicate();
             }
         };
-        var close = new MenuItem { Header = Strings.MenuTabClose, Icon = MenuIcon(FindResource("IconClose")) };
-        close.Click += (_, _) => CloseSessionTab(tab);
-        var closeOthers = new MenuItem { Header = Strings.MenuTabCloseOthers };
-        closeOthers.Click += async (_, _) => await CloseOtherTabsAsync(tab);
-        // Fenêtre séparée : terminal SSH seulement (voir MainWindow.Detach.cs).
-        var detach = new MenuItem { Header = Strings.MenuTabDetach, Visibility = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed };
+        // Fenêtre séparée et vue parallèle : terminal SSH seulement (voir MainWindow.Detach.cs et MainWindow.Parallel.cs).
+        var detach = new MenuItem { Header = Strings.MenuTabDetach, Visibility = ssh };
         detach.Click += (_, _) => DetachTab(tab);
-        // Vue parallèle : terminal SSH seulement (voir MainWindow.Parallel.cs).
-        var parallel = new MenuItem
-        {
-            Header = Strings.MenuTabAddParallel,
-            Icon = MenuIcon(FindResource("IconParallel")),
-            Visibility = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed,
-        };
+        var parallel = new MenuItem { Header = Strings.MenuTabAddParallel, Icon = MenuIcon(FindResource("IconParallel")), Visibility = ssh };
         parallel.Click += (_, _) =>
         {
             if (tab.Tag is SshSession session)
@@ -152,43 +176,26 @@ public partial class MainWindow
                 ToggleParallel(session);
             }
         };
-        var ssh = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed;
-        var search = new MenuItem { Header = Strings.MenuTerminalSearch, InputGestureText = Strings.ShortcutTerminalSearch, Visibility = ssh };
-        search.Click += (_, _) => SshViewOf(tab)?.ShowSearch();
-        var save = new MenuItem { Header = Strings.MenuTerminalSave, InputGestureText = Strings.ShortcutTerminalSave, Visibility = ssh, ToolTip = Strings.MenuTerminalSaveTip };
-        save.Click += (_, _) => SshViewOf(tab)?.SaveContent();
-        object[] entries = inTerminal
-            ? [reconnect, copy, detach, parallel, new Separator(), close]
-            : [reconnect, copy, detach, parallel, new Separator { Visibility = ssh }, search, save, new Separator(), close, closeOthers];
-        foreach (var entry in entries)
+        var close = new MenuItem { Header = Strings.MenuTabClose, Icon = MenuIcon(FindResource("IconClose")) };
+        close.Click += (_, _) => CloseSessionTab(tab, owner());
+        return new SessionActions(reconnect, copy, detach, parallel, close, () =>
         {
-            items.Add(entry);
-        }
-
-        return () =>
-        {
-            closeOthers.IsEnabled = SessionTabs().Any(t => t != tab);
             detach.IsEnabled = tab.Content is SshSessionView;
-            if (inTerminal && !detach.IsEnabled)
-            {
-                // Déjà dans une fenêtre séparée ou dans la vue parallèle : rien à détacher depuis le terminal.
-                detach.Visibility = Visibility.Collapsed;
-            }
-
             bool inParallel = tab.Tag is SshSession session && _parallel?.Contains(session) == true;
             parallel.Header = inParallel ? Strings.MenuTabRemoveParallel : Strings.MenuTabAddParallel;
-        };
+        });
     }
 
     /// <summary>Onglets de session (SSH, Bureau à distance), dans l'ordre affiché.</summary>
     private IEnumerable<TabItem> SessionTabs() => MainTabs.Items.OfType<TabItem>().Where(t => t.Tag is SshSession or RdpSession);
 
-    private void CloseSessionTab(TabItem tab)
+    /// <param name="owner">Fenêtre des questions (celle du terminal détaché) ; par défaut la fenêtre principale.</param>
+    private void CloseSessionTab(TabItem tab, Window? owner = null)
     {
         switch (tab.Tag)
         {
             case SshSession:
-                CloseSshTab(tab);
+                CloseSshTab(tab, owner);
                 break;
             case RdpSession:
                 _ = CloseRdpTabAsync(tab);
@@ -197,12 +204,18 @@ public partial class MainWindow
     }
 
     /// <summary>Nouvelle connexion dans le même onglet (nouvelle demande au PVWA) ; confirmation si la session est ouverte.</summary>
-    private async Task ReconnectTabAsync(TabItem tab)
+    /// <param name="owner">Fenêtre de la question (celle du terminal détaché) ; par défaut la fenêtre principale.</param>
+    private async Task ReconnectTabAsync(TabItem tab, Window? owner = null)
     {
-        // Session de la vue parallèle : c'est là que son terminal est affiché.
-        MainTabs.SelectedItem = tab.Tag is SshSession inView && _parallel?.Contains(inView) == true ? _parallelTab : tab;
+        owner ??= this;
+        if (ReferenceEquals(owner, this))
+        {
+            // Session de la vue parallèle : c'est là que son terminal est affiché.
+            MainTabs.SelectedItem = tab.Tag is SshSession inView && _parallel?.Contains(inView) == true ? _parallelTab : tab;
+        }
+
         bool Confirm(string label) =>
-            MessageBox.Show(this, Text.Format(Strings.TabReconnectConfirm, label), "CyberArkTerm",
+            MessageBox.Show(owner, Text.Format(Strings.TabReconnectConfirm, label), "CyberArkTerm",
                 MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes;
 
         switch (tab.Tag)
@@ -255,19 +268,20 @@ public partial class MainWindow
         MainTabs.SelectedItem = keep;
     }
 
-    private void CloseSshTab(TabItem tab)
+    private void CloseSshTab(TabItem tab, Window? owner = null)
     {
         if (tab.Tag is not SshSession session)
         {
             return;
         }
 
-        if (session.Editor is { } editor && !RemoteEditor.ConfirmClose(this, [editor]))
+        owner ??= this;
+        if (session.Editor is { } editor && !RemoteEditor.ConfirmClose(owner, [editor]))
         {
             return;
         }
 
-        if (!FilesPanel.ConfirmCancelTransfers(this, session))
+        if (!FilesPanel.ConfirmCancelTransfers(owner, session))
         {
             return;
         }

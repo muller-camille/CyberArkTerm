@@ -180,7 +180,8 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   trasferimento interrotto elimina il file in corso, incompleto (sul server per un invio, sul computer per un
   download); i file già trasferiti restano. Attenzione: se l'invio sostituiva un file esistente, il vecchio
   contenuto è perso. In SCP, l'interruzione riguarda solo quel trasferimento: gli elementi successivi proseguono
-  sulla stessa connessione. Se il server chiude il canale SCP prima dell'inizio di un file, CyberArkTerm riprova una
+  sulla stessa connessione; un trasferimento che non avanza più (server che non legge più) si ferma 2 s dopo
+  «Annulla» e i successivi partono su una nuova connessione. Se il server chiude il canale SCP prima dell'inizio di un file, CyberArkTerm riprova una
   volta su una nuova connessione, poi mostra un errore chiaro (l'invio via SFTP si può scegliere nelle
   Impostazioni). Un file inviato via SCP prende sul server la data dell'invio (come `scp` senza `-p`, e come in
   SFTP). Un errore viene mostrato nella coda e la coda prosegue; alla fine, un unico riepilogo. Navigazione,

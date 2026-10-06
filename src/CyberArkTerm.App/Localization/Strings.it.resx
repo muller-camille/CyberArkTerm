@@ -1622,10 +1622,10 @@ Inviare comunque?</value>
     <value>File di testo (*.txt)|*.txt|Tutti i file (*.*)|*.*</value>
   </data>
   <data name="MenuTerminalSearch" xml:space="preserve">
-    <value>_Cerca nel terminale…</value>
+    <value>C_erca nel terminale…</value>
   </data>
   <data name="MenuTerminalSave" xml:space="preserve">
-    <value>Salva il _contenuto del terminale…</value>
+    <value>_Salva il contenuto del terminale…</value>
   </data>
   <data name="MenuTerminalSaveTip" xml:space="preserve">
     <value>Scrive la cronologia e lo schermo in un file di testo di questo computer; può contenere informazioni sensibili</value>
@@ -1649,13 +1649,13 @@ Inviare comunque?</value>
     <value>Seleziona la cronologia e lo schermo e li copia negli appunti</value>
   </data>
   <data name="MenuTerminalClear" xml:space="preserve">
-    <value>Cancella la c_ronologia</value>
+    <value>Cancella la cronolo_gia</value>
   </data>
   <data name="MenuTerminalClearTip" xml:space="preserve">
     <value>Dimentica le righe uscite dallo schermo (solo su questo computer: nulla viene inviato al server)</value>
   </data>
   <data name="MenuTerminalFont" xml:space="preserve">
-    <value>Dimensione del _carattere</value>
+    <value>Dimensione del c_arattere</value>
   </data>
   <data name="MenuFontBigger" xml:space="preserve">
     <value>_Ingrandisci</value>
@@ -2120,13 +2120,13 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
     <value>Apre un'altra sessione sullo stesso account o sulla stessa voce, in una nuova scheda</value>
   </data>
   <data name="MenuTabClose" xml:space="preserve">
-    <value>_Chiudi scheda</value>
+    <value>C_hiudi scheda</value>
   </data>
   <data name="MenuTabCloseOthers" xml:space="preserve">
     <value>Chiudi le _altre schede</value>
   </data>
   <data name="MenuTabDetach" xml:space="preserve">
-    <value>_Stacca in una nuova finestra</value>
+    <value>Stacca in una _nuova finestra</value>
   </data>
   <data name="TabDetachTip" xml:space="preserve">
     <value>Trascina la scheda fuori dalla finestra, o clic destro, per mostrare la sessione in una finestra separata (altro schermo…)</value>

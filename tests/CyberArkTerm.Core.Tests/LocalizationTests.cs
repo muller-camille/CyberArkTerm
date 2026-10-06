@@ -47,6 +47,32 @@ public partial class LocalizationTests
         }
     }
 
+    /// <summary>
+    /// Dans un même menu, deux éléments ne partagent pas une touche d'accès : sinon la touche passe de l'un à l'autre au
+    /// lieu d'agir (et peut finir sur « Fermer l'onglet »).
+    /// </summary>
+    [Theory]
+    [InlineData("MenuTerminalCopy", "MenuTerminalPaste", "MenuTerminalSelectAll", "MenuTerminalSearch", "MenuTerminalSave",
+        "MenuTerminalClear", "MenuTerminalFont", "MenuTabReconnect", "MenuTabDuplicate", "MenuTabDetach", "MenuTabAddParallel",
+        "MenuTabClose")]
+    [InlineData("MenuTerminalCopy", "MenuTerminalPaste", "MenuTerminalSelectAll", "MenuTerminalSearch", "MenuTerminalSave",
+        "MenuTerminalClear", "MenuTerminalFont", "MenuTabReconnect", "MenuTabDuplicate", "MenuTabDetach", "MenuTabRemoveParallel",
+        "MenuTabClose")]
+    [InlineData("MenuTabReconnect", "MenuTabDuplicate", "MenuTabDetach", "MenuTabAddParallel", "MenuTerminalSearch",
+        "MenuTerminalSave", "MenuTabClose", "MenuTabCloseOthers")]
+    [InlineData("MenuFontBigger", "MenuFontSmaller", "MenuFontDefault")]
+    public void MenuItems_HaveDistinctAccessKeys(params string[] keys)
+    {
+        var neutral = Path.Combine(RepositoryRoot(), "src", "CyberArkTerm.App", "Localization", "Strings.resx");
+        foreach (var file in new[] { neutral }.Concat(Translations.Select(l => Path.ChangeExtension(neutral, $".{l}.resx"))))
+        {
+            var texts = Load(file);
+            var accessKeys = keys.Select(k => char.ToLowerInvariant(texts[k][texts[k].IndexOf('_') + 1])).ToList();
+            Assert.True(accessKeys.Distinct().Count() == keys.Length,
+                $"{Path.GetFileName(file)} : touches d'accès en double ({string.Join(", ", keys.Zip(accessKeys, (k, c) => $"{k}={c}"))})");
+        }
+    }
+
     [Theory]
     [MemberData(nameof(NeutralResxFiles))]
     public void DesignerClass_MatchesTheResx(string neutralFile)

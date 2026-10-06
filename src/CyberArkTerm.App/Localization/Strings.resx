@@ -1372,10 +1372,10 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>The parallel view is in a separate window.</value>
   </data>
   <data name="MenuTabAddParallel" xml:space="preserve">
-    <value>Add to the _parallel view</value>
+    <value>Add to the para_llel view</value>
   </data>
   <data name="MenuTabRemoveParallel" xml:space="preserve">
-    <value>Take out of the _parallel view</value>
+    <value>Take out of the para_llel view</value>
   </data>
   <data name="MultiUploadTitle" xml:space="preserve">
     <value>Send to several servers</value>
@@ -1625,7 +1625,7 @@ Send anyway?</value>
     <value>_Search in the terminal…</value>
   </data>
   <data name="MenuTerminalSave" xml:space="preserve">
-    <value>Save the terminal _content…</value>
+    <value>Sa_ve the terminal content…</value>
   </data>
   <data name="MenuTerminalSaveTip" xml:space="preserve">
     <value>Write the history and the screen to a text file on this computer; it may contain sensitive information</value>
@@ -2114,13 +2114,13 @@ Close anyway? The local copies will be deleted.</value>
     <value>_Reconnect</value>
   </data>
   <data name="MenuTabDuplicate" xml:space="preserve">
-    <value>_Duplicate tab</value>
+    <value>D_uplicate tab</value>
   </data>
   <data name="MenuTabDuplicateTip" xml:space="preserve">
     <value>Opens another session on the same account or entry, in a new tab</value>
   </data>
   <data name="MenuTabClose" xml:space="preserve">
-    <value>_Close tab</value>
+    <value>Close _tab</value>
   </data>
   <data name="MenuTabCloseOthers" xml:space="preserve">
     <value>Close _other tabs</value>
