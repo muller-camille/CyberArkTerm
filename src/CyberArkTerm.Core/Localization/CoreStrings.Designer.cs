@@ -704,6 +704,15 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to The server closed the SCP connection ({0}). If this happens again, choose SFTP for uploads in Set[rest of string was truncated].
+        /// </summary>
+        public static string ScpClosedByServer {
+            get {
+                return ResourceManager.GetString("ScpClosedByServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to the server address.
         /// </summary>
         public static string ServerAddressWhat {

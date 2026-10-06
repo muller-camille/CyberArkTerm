@@ -43,6 +43,7 @@ public partial class MainWindow
         var view = new SshSessionView(session, target, connectingText);
         var tab = new TabItem { Content = view, Tag = session };
         tab.Header = TabHeader(tab, label, icon, duplicate);
+        view.SessionMenu = items => AddSessionMenuItems(items, tab, duplicate, inTerminal: true)();
         session.StateChanged += () =>
         {
             switch (session.State)
@@ -99,6 +100,19 @@ public partial class MainWindow
     /// <summary>Menu de l'en-tête d'un onglet de session : reconnecter, dupliquer, fermer, fermer les autres.</summary>
     private ContextMenu TabMenu(TabItem tab, Func<Task>? duplicate)
     {
+        var menu = new ContextMenu();
+        var refresh = AddSessionMenuItems(menu.Items, tab, duplicate, inTerminal: false);
+        menu.Opened += (_, _) => refresh();
+        return menu;
+    }
+
+    /// <summary>
+    /// Actions d'un onglet de session, pour le menu de son en-tête ou pour la fin du menu du clic droit dans le
+    /// terminal (<paramref name="inTerminal"/> : sans « Rechercher » ni « Enregistrer », déjà au début de ce menu, ni
+    /// « Fermer les autres »). Renvoie la mise à jour à faire à l'ouverture du menu.
+    /// </summary>
+    private Action AddSessionMenuItems(ItemCollection items, TabItem tab, Func<Task>? duplicate, bool inTerminal)
+    {
         static Image MenuIcon(object source) => new() { Source = (System.Windows.Media.ImageSource)source, Width = 16, Height = 16 };
 
         var reconnect = new MenuItem { Header = Strings.MenuTabReconnect, Icon = MenuIcon(FindResource("IconRefresh")) };
@@ -143,18 +157,27 @@ public partial class MainWindow
         search.Click += (_, _) => SshViewOf(tab)?.ShowSearch();
         var save = new MenuItem { Header = Strings.MenuTerminalSave, InputGestureText = Strings.ShortcutTerminalSave, Visibility = ssh, ToolTip = Strings.MenuTerminalSaveTip };
         save.Click += (_, _) => SshViewOf(tab)?.SaveContent();
-        var menu = new ContextMenu
+        object[] entries = inTerminal
+            ? [reconnect, copy, detach, parallel, new Separator(), close]
+            : [reconnect, copy, detach, parallel, new Separator { Visibility = ssh }, search, save, new Separator(), close, closeOthers];
+        foreach (var entry in entries)
         {
-            Items = { reconnect, copy, detach, parallel, new Separator { Visibility = ssh }, search, save, new Separator(), close, closeOthers },
-        };
-        menu.Opened += (_, _) =>
+            items.Add(entry);
+        }
+
+        return () =>
         {
             closeOthers.IsEnabled = SessionTabs().Any(t => t != tab);
             detach.IsEnabled = tab.Content is SshSessionView;
+            if (inTerminal && !detach.IsEnabled)
+            {
+                // Déjà dans une fenêtre séparée ou dans la vue parallèle : rien à détacher depuis le terminal.
+                detach.Visibility = Visibility.Collapsed;
+            }
+
             bool inParallel = tab.Tag is SshSession session && _parallel?.Contains(session) == true;
             parallel.Header = inParallel ? Strings.MenuTabRemoveParallel : Strings.MenuTabAddParallel;
         };
-        return menu;
     }
 
     /// <summary>Onglets de session (SSH, Bureau à distance), dans l'ordre affiché.</summary>

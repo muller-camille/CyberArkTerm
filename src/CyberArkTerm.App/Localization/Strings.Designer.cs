@@ -983,15 +983,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Checksums….
-        /// </summary>
-        public static string ChecksLink {
-            get {
-                return ResourceManager.GetString("ChecksLink", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to ✗ {0} file(s) out of {1} differ: transfer them again..
         /// </summary>
         public static string ChecksSomeDiffer {
@@ -2774,7 +2765,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Transfer history (uploads and downloads).
+        ///   Looks up a localized string similar to Transfer history (uploads and downloads) and SHA-256 checksums.
         /// </summary>
         public static string HistoryTip {
             get {
@@ -4277,6 +4268,33 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to _Larger.
+        /// </summary>
+        public static string MenuFontBigger {
+            get {
+                return ResourceManager.GetString("MenuFontBigger", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Default size.
+        /// </summary>
+        public static string MenuFontDefault {
+            get {
+                return ResourceManager.GetString("MenuFontDefault", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Smaller.
+        /// </summary>
+        public static string MenuFontSmaller {
+            get {
+                return ResourceManager.GetString("MenuFontSmaller", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Import accounts (CSV)….
         /// </summary>
         public static string MenuImportAccounts {
@@ -4565,6 +4583,51 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Clear the _history.
+        /// </summary>
+        public static string MenuTerminalClear {
+            get {
+                return ResourceManager.GetString("MenuTerminalClear", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Forget the lines that scrolled off the screen (on this computer only: nothing is sent to the server).
+        /// </summary>
+        public static string MenuTerminalClearTip {
+            get {
+                return ResourceManager.GetString("MenuTerminalClearTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Copy.
+        /// </summary>
+        public static string MenuTerminalCopy {
+            get {
+                return ResourceManager.GetString("MenuTerminalCopy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Font size.
+        /// </summary>
+        public static string MenuTerminalFont {
+            get {
+                return ResourceManager.GetString("MenuTerminalFont", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Paste.
+        /// </summary>
+        public static string MenuTerminalPaste {
+            get {
+                return ResourceManager.GetString("MenuTerminalPaste", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Save the terminal _content….
         /// </summary>
         public static string MenuTerminalSave {
@@ -4588,6 +4651,24 @@ namespace CyberArkTerm.App.Localization {
         public static string MenuTerminalSearch {
             get {
                 return ResourceManager.GetString("MenuTerminalSearch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Select _all.
+        /// </summary>
+        public static string MenuTerminalSelectAll {
+            get {
+                return ResourceManager.GetString("MenuTerminalSelectAll", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Select the history and the screen, and copy them to the clipboard.
+        /// </summary>
+        public static string MenuTerminalSelectAllTip {
+            get {
+                return ResourceManager.GetString("MenuTerminalSelectAllTip", resourceCulture);
             }
         }
 
@@ -7022,6 +7103,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Right-click in the terminal pastes the clipboard (Shift+right-click then opens the menu).
+        /// </summary>
+        public static string SettingsRightClickPastes {
+            get {
+                return ResourceManager.GetString("SettingsRightClickPastes", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Settings saved.
         /// </summary>
         public static string SettingsSaved {
@@ -7121,6 +7211,33 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Ctrl+Wheel up.
+        /// </summary>
+        public static string ShortcutFontBigger {
+            get {
+                return ResourceManager.GetString("ShortcutFontBigger", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+0.
+        /// </summary>
+        public static string ShortcutFontDefault {
+            get {
+                return ResourceManager.GetString("ShortcutFontDefault", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+Wheel down.
+        /// </summary>
+        public static string ShortcutFontSmaller {
+            get {
+                return ResourceManager.GetString("ShortcutFontSmaller", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to : PSM, SSH, advanced connection, my servers.
         /// </summary>
         public static string ShortcutMenu {
@@ -7180,6 +7297,24 @@ namespace CyberArkTerm.App.Localization {
         public static string ShortcutSshKey {
             get {
                 return ResourceManager.GetString("ShortcutSshKey", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+Shift+C.
+        /// </summary>
+        public static string ShortcutTerminalCopy {
+            get {
+                return ResourceManager.GetString("ShortcutTerminalCopy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+Shift+V.
+        /// </summary>
+        public static string ShortcutTerminalPaste {
+            get {
+                return ResourceManager.GetString("ShortcutTerminalPaste", resourceCulture);
             }
         }
 

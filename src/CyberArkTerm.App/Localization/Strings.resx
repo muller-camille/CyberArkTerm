@@ -841,9 +841,6 @@ Continue?</value>
   <data name="TransferMismatchFile" xml:space="preserve">
     <value>{0}: the downloaded file differs from the server's (SHA-256).</value>
   </data>
-  <data name="ChecksLink" xml:space="preserve">
-    <value>Checksums…</value>
-  </data>
   <data name="ChecksTitle" xml:space="preserve">
     <value>Check of the transferred files</value>
   </data>
@@ -1639,6 +1636,54 @@ Send anyway?</value>
   <data name="ShortcutTerminalSave" xml:space="preserve">
     <value>Ctrl+Shift+S</value>
   </data>
+  <data name="MenuTerminalCopy" xml:space="preserve">
+    <value>_Copy</value>
+  </data>
+  <data name="MenuTerminalPaste" xml:space="preserve">
+    <value>_Paste</value>
+  </data>
+  <data name="MenuTerminalSelectAll" xml:space="preserve">
+    <value>Select _all</value>
+  </data>
+  <data name="MenuTerminalSelectAllTip" xml:space="preserve">
+    <value>Select the history and the screen, and copy them to the clipboard</value>
+  </data>
+  <data name="MenuTerminalClear" xml:space="preserve">
+    <value>Clear the _history</value>
+  </data>
+  <data name="MenuTerminalClearTip" xml:space="preserve">
+    <value>Forget the lines that scrolled off the screen (on this computer only: nothing is sent to the server)</value>
+  </data>
+  <data name="MenuTerminalFont" xml:space="preserve">
+    <value>_Font size</value>
+  </data>
+  <data name="MenuFontBigger" xml:space="preserve">
+    <value>_Larger</value>
+  </data>
+  <data name="MenuFontSmaller" xml:space="preserve">
+    <value>_Smaller</value>
+  </data>
+  <data name="MenuFontDefault" xml:space="preserve">
+    <value>_Default size</value>
+  </data>
+  <data name="ShortcutTerminalCopy" xml:space="preserve">
+    <value>Ctrl+Shift+C</value>
+  </data>
+  <data name="ShortcutTerminalPaste" xml:space="preserve">
+    <value>Ctrl+Shift+V</value>
+  </data>
+  <data name="ShortcutFontBigger" xml:space="preserve">
+    <value>Ctrl+Wheel up</value>
+  </data>
+  <data name="ShortcutFontSmaller" xml:space="preserve">
+    <value>Ctrl+Wheel down</value>
+  </data>
+  <data name="ShortcutFontDefault" xml:space="preserve">
+    <value>Ctrl+0</value>
+  </data>
+  <data name="SettingsRightClickPastes" xml:space="preserve">
+    <value>Right-click in the terminal pastes the clipboard (Shift+right-click then opens the menu)</value>
+  </data>
   <data name="TerminalThemeLabel" xml:space="preserve">
     <value>Terminal _colours:</value>
   </data>
@@ -1733,7 +1778,7 @@ Send anyway?</value>
     <value>Version {0} available</value>
   </data>
   <data name="HistoryTip" xml:space="preserve">
-    <value>Transfer history (uploads and downloads)</value>
+    <value>Transfer history (uploads and downloads) and SHA-256 checksums</value>
   </data>
   <data name="HistoryTitle" xml:space="preserve">
     <value>Transfer history</value>

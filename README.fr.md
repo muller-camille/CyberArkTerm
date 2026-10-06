@@ -190,14 +190,19 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   SFTP et SCP du même onglet, jamais enregistré.
 - **Clé du PSMP** : à la première connexion, son empreinte SHA256 est affichée et doit être acceptée ; si elle
   change ensuite, une alerte s'affiche.
-- **Terminal** : la sélection copie, le clic droit colle, la molette remonte l'historique,
-  AltGr fonctionne sur clavier français. Fermez l'onglet avec la croix ou un clic molette.
+- **Terminal** : la sélection copie, la molette remonte l'historique, AltGr fonctionne sur clavier français. Fermez
+  l'onglet avec la croix ou un clic molette.
+- **Clic droit dans le terminal** (ou touche Menu du clavier) : copier, coller, tout sélectionner, rechercher,
+  enregistrer le contenu, effacer l'historique (sur ce poste seulement, rien n'est envoyé au serveur), taille de
+  police, et les actions de l'onglet (reconnecter, dupliquer, détacher, vue parallèle, fermer). Pour coller d'un
+  simple clic droit, cochez « Le clic droit dans le terminal colle le presse-papiers » dans les Paramètres ;
+  Maj+clic droit ouvre alors le menu.
 - **Apparence** : palette de couleurs et taille de police dans les Paramètres (Campbell, One Half, Solarized, en
   sombre ou en clair) ; `Ctrl+molette` agrandit ou réduit un terminal, `Ctrl+0` revient à la taille par défaut.
-- **Rechercher** dans le terminal, historique compris : `Ctrl+Maj+F` (ou clic droit sur l'onglet). Les occurrences
+- **Rechercher** dans le terminal, historique compris : `Ctrl+Maj+F` (ou clic droit dans le terminal ou sur l'onglet). Les occurrences
   sont surlignées ; `Entrée` remonte vers les plus anciennes, `Maj+Entrée` redescend, `Échap` ferme.
 - **Enregistrer le contenu** du terminal (historique et écran) dans un fichier texte : `Ctrl+Maj+S` (ou clic droit
-  sur l'onglet). Seulement à votre demande : le fichier peut contenir des informations sensibles.
+  dans le terminal ou sur l'onglet). Seulement à votre demande : le fichier peut contenir des informations sensibles.
 - **Détacher un onglet** (autre écran) : glissez l'onglet SSH hors de la fenêtre, ou clic droit → « Détacher dans
   une nouvelle fenêtre ». Le terminal passe dans une fenêtre séparée, la session continue. L'onglet garde sa place
   (« Afficher la fenêtre », « Ramener dans l'onglet ») et l'onglet Fichiers travaille sur cette session quand il
@@ -234,6 +239,9 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
 
 - **Barre de navigation** : chemin courant, modifiable (tapez un chemin puis Entrée). Double-clic sur un
   dossier pour y entrer, `..` pour remonter, boutons « dossier parent » et « dossier personnel ».
+- **Tri** : cliquez sur l'en-tête d'une colonne (Nom, Taille, Modifié, Droits) ; un second clic inverse l'ordre (une
+  flèche l'indique). La taille et la date commencent par les plus gros et les plus récents. Les dossiers restent en
+  tête ; le tri est gardé d'un dossier et d'une session à l'autre.
 - **Déposer des fichiers** : glissez-les depuis l'Explorateur sur la liste (ou bouton « Envoyer »). Envoi en
   **SCP** par défaut (SFTP en option), dossiers compris ; confirmation avant d'écraser un fichier existant.
 - **Télécharger en glissant** : glissez des fichiers ou des dossiers de la liste vers l'Explorateur ou le
@@ -248,8 +256,11 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   résultat) : ✕ retire un élément en attente, « Annuler » arrête celui en cours, « Tout annuler » vide la file.
   Un transfert arrêté supprime le fichier en cours, incomplet (sur le serveur pour un envoi, sur le poste pour un
   téléchargement) ; les fichiers déjà transférés restent. Attention : si l'envoi remplaçait un fichier existant,
-  son ancien contenu est perdu. En SCP, l'arrêt ferme la connexion SCP ; l'envoi SCP suivant en rouvre une (nouvelle
-  session PSMP). Une erreur est affichée dans la file et la file continue ; à la fin, un seul bilan. La navigation,
+  son ancien contenu est perdu. En SCP, l'arrêt ne concerne que ce transfert : les éléments
+  suivants continuent sur la même connexion. Si le serveur ferme le canal SCP avant le début d'un fichier,
+  CyberArkTerm réessaie une fois sur une nouvelle connexion, puis affiche une erreur claire (l'envoi par SFTP peut
+  être choisi dans les Paramètres). Un fichier envoyé par SCP prend sur le serveur la date de l'envoi (comme `scp`
+  sans `-p`, et comme en SFTP). Une erreur est affichée dans la file et la file continue ; à la fin, un seul bilan. La navigation,
   la suppression, les droits, l'éditeur et le glisser vers l'Explorateur passent entre deux fichiers. Fermer
   l'onglet ou l'application avec des transferts en cours demande confirmation.
 - **Beaucoup de fichiers d'un coup : archive .tar.gz** : à partir de 200 fichiers déposés (seuil réglable, option
@@ -284,17 +295,18 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   `diff -u`. Un fichier binaire (ou de plus de 10 Mo) est comparé par sa taille et sa somme SHA-256. Avec un outil
   de comparaison choisi dans les Paramètres (WinMerge, VS Code…), « Ouvrir dans … » lui donne deux copies
   temporaires, supprimées à la fermeture de la fenêtre.
-- **Historique des transferts** : bouton « Historique » de la barre d'outils (à gauche de « Paramètres »),
+- **Historique des transferts** : bouton « Historique » de la barre d'outils (flèches montante et descendante avec
+  une horloge, à gauche de « Paramètres »),
   disponible même sans session. Il liste les 200 derniers envois et téléchargements (y compris par
   glisser-déposer) : date, sens, serveur, élément, destination, nombre de fichiers, résultat. Filtre « Envois » / « Téléchargements » ;
-  « Sommes de contrôle… » (ou double-clic) montre les sommes SHA-256 de chaque fichier, à recopier pour revérifier
-  plus tard ; « Ouvrir le dossier » pour un téléchargement ; « Effacer l'historique ».
+  « Sommes de contrôle… » (ou double-clic) montre, pour chaque fichier, la taille, les sommes SHA-256 et le
+  résultat, et les copie au format de `sha256sum -c` pour revérifier sur le serveur ; « Ouvrir le dossier » pour un
+  téléchargement ; « Effacer l'historique ».
 - **Vérification des transferts (SHA-256)** : chaque fichier envoyé ou téléchargé est vérifié. À l'envoi (SCP ou
   SFTP), le fichier local est haché, puis le fichier arrivé sur le serveur est relu par SFTP et haché. Au
   téléchargement, les données reçues du serveur sont hachées, puis le fichier écrit sur le poste est relu. La barre
-  d'état confirme « ✓ identique des deux côtés » ; « Sommes de contrôle… » montre, pour chaque fichier, la taille,
-  les deux sommes et le résultat, et copie les sommes au format de `sha256sum -c` pour revérifier sur le serveur.
-  Si un fichier diffère, l'erreur est affichée et le détail s'ouvre ; un téléchargement par glisser-déposer
+  d'état confirme « ✓ identique des deux côtés » ; les sommes de chaque fichier sont dans l'**Historique** (bouton de
+  la barre d'outils). Si un fichier diffère, l'erreur est affichée et le détail s'ouvre de lui-même ; un téléchargement par glisser-déposer
   échoue plutôt que de livrer une copie fausse. Un fichier qui ne peut pas être relu (droits) est signalé
   « non vérifié ». La relecture d'un envoi double le volume échangé avec le serveur.
 - **Supprimer** : sélection puis Suppr (ou clic droit → « Supprimer (rm) »), avec confirmation. Les dossiers
@@ -424,7 +436,8 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Courants | Renommer / retirer ou supprimer | `F2` / `Suppr` |
 | Courants | Choisir plusieurs serveurs (puis clic droit pour les ouvrir ensemble) | `Ctrl+clic`, `Maj+clic` ; `Échap` annule |
 | Terminal | Copier | Sélection à la souris, ou `Ctrl+Maj+C` |
-| Terminal | Coller | Clic droit, `Maj+Inser` ou `Ctrl+Maj+V` |
+| Terminal | Coller | `Maj+Inser` ou `Ctrl+Maj+V` (clic droit avec l'option des Paramètres) |
+| Terminal | Menu : copier, coller, tout sélectionner, rechercher, enregistrer, effacer l'historique, police, actions de l'onglet | Clic droit ou touche Menu (Maj+clic droit avec l'option de collage) |
 | Terminal | Historique | Molette, `Maj+Page préc.` / `Maj+Page suiv.` |
 | Terminal | Rechercher (historique compris) | `Ctrl+Maj+F`, puis `Entrée` / `Maj+Entrée` |
 | Terminal | Enregistrer le contenu dans un fichier | `Ctrl+Maj+S` |
@@ -436,6 +449,7 @@ créer, déverrouiller, changer le mot de passe, supprimer.
 | Onglet SSH | Ajouter à la vue parallèle, ou l'en retirer | Clic droit sur l'onglet |
 | Bureau à distance | Plein écran / retour | `Ctrl+Alt+Pause` |
 | Fichiers | Ouvrir / modifier / dossier parent / supprimer / actualiser | `Entrée` / `F4` / `Retour arrière` / `Suppr` / `F5` |
+| Fichiers | Trier par une colonne, puis inverser | Clic sur son en-tête |
 | Coffre KeePass | Se connecter / modifier / supprimer une entrée | Double-clic ou `Entrée` / `F2` / `Suppr` |
 
 ## Paramètres et fichier de configuration

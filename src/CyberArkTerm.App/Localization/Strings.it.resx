@@ -841,9 +841,6 @@ Continuare?</value>
   <data name="TransferMismatchFile" xml:space="preserve">
     <value>{0}: il file scaricato è diverso da quello del server (SHA-256).</value>
   </data>
-  <data name="ChecksLink" xml:space="preserve">
-    <value>Checksum…</value>
-  </data>
   <data name="ChecksTitle" xml:space="preserve">
     <value>Verifica dei file trasferiti</value>
   </data>
@@ -1639,6 +1636,54 @@ Inviare comunque?</value>
   <data name="ShortcutTerminalSave" xml:space="preserve">
     <value>Ctrl+Maiusc+S</value>
   </data>
+  <data name="MenuTerminalCopy" xml:space="preserve">
+    <value>_Copia</value>
+  </data>
+  <data name="MenuTerminalPaste" xml:space="preserve">
+    <value>_Incolla</value>
+  </data>
+  <data name="MenuTerminalSelectAll" xml:space="preserve">
+    <value>Seleziona _tutto</value>
+  </data>
+  <data name="MenuTerminalSelectAllTip" xml:space="preserve">
+    <value>Seleziona la cronologia e lo schermo e li copia negli appunti</value>
+  </data>
+  <data name="MenuTerminalClear" xml:space="preserve">
+    <value>Cancella la c_ronologia</value>
+  </data>
+  <data name="MenuTerminalClearTip" xml:space="preserve">
+    <value>Dimentica le righe uscite dallo schermo (solo su questo computer: nulla viene inviato al server)</value>
+  </data>
+  <data name="MenuTerminalFont" xml:space="preserve">
+    <value>Dimensione del _carattere</value>
+  </data>
+  <data name="MenuFontBigger" xml:space="preserve">
+    <value>_Ingrandisci</value>
+  </data>
+  <data name="MenuFontSmaller" xml:space="preserve">
+    <value>_Riduci</value>
+  </data>
+  <data name="MenuFontDefault" xml:space="preserve">
+    <value>Dimensione _predefinita</value>
+  </data>
+  <data name="ShortcutTerminalCopy" xml:space="preserve">
+    <value>Ctrl+Maiusc+C</value>
+  </data>
+  <data name="ShortcutTerminalPaste" xml:space="preserve">
+    <value>Ctrl+Maiusc+V</value>
+  </data>
+  <data name="ShortcutFontBigger" xml:space="preserve">
+    <value>Ctrl+rotellina su</value>
+  </data>
+  <data name="ShortcutFontSmaller" xml:space="preserve">
+    <value>Ctrl+rotellina giù</value>
+  </data>
+  <data name="ShortcutFontDefault" xml:space="preserve">
+    <value>Ctrl+0</value>
+  </data>
+  <data name="SettingsRightClickPastes" xml:space="preserve">
+    <value>Il clic destro nel terminale incolla gli appunti (Maiusc+clic destro apre allora il menu)</value>
+  </data>
   <data name="TerminalThemeLabel" xml:space="preserve">
     <value>_Colori del terminale:</value>
   </data>
@@ -1733,7 +1778,7 @@ Inviare comunque?</value>
     <value>Versione {0} disponibile</value>
   </data>
   <data name="HistoryTip" xml:space="preserve">
-    <value>Cronologia dei trasferimenti (invii e download)</value>
+    <value>Cronologia dei trasferimenti (invii e download) e checksum SHA-256</value>
   </data>
   <data name="HistoryTitle" xml:space="preserve">
     <value>Cronologia dei trasferimenti</value>

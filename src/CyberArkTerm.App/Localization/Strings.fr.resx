@@ -841,9 +841,6 @@ Continuer ?</value>
   <data name="TransferMismatchFile" xml:space="preserve">
     <value>{0} : le fichier téléchargé diffère de celui du serveur (SHA-256).</value>
   </data>
-  <data name="ChecksLink" xml:space="preserve">
-    <value>Sommes de contrôle…</value>
-  </data>
   <data name="ChecksTitle" xml:space="preserve">
     <value>Vérification des fichiers transférés</value>
   </data>
@@ -1639,6 +1636,54 @@ Envoyer quand même ?</value>
   <data name="ShortcutTerminalSave" xml:space="preserve">
     <value>Ctrl+Maj+S</value>
   </data>
+  <data name="MenuTerminalCopy" xml:space="preserve">
+    <value>_Copier</value>
+  </data>
+  <data name="MenuTerminalPaste" xml:space="preserve">
+    <value>C_oller</value>
+  </data>
+  <data name="MenuTerminalSelectAll" xml:space="preserve">
+    <value>_Tout sélectionner</value>
+  </data>
+  <data name="MenuTerminalSelectAllTip" xml:space="preserve">
+    <value>Sélectionner l'historique et l'écran, et les copier dans le presse-papiers</value>
+  </data>
+  <data name="MenuTerminalClear" xml:space="preserve">
+    <value>_Effacer l'historique</value>
+  </data>
+  <data name="MenuTerminalClearTip" xml:space="preserve">
+    <value>Oublier les lignes sorties de l'écran (sur ce poste seulement : rien n'est envoyé au serveur)</value>
+  </data>
+  <data name="MenuTerminalFont" xml:space="preserve">
+    <value>Taille de _police</value>
+  </data>
+  <data name="MenuFontBigger" xml:space="preserve">
+    <value>_Agrandir</value>
+  </data>
+  <data name="MenuFontSmaller" xml:space="preserve">
+    <value>_Réduire</value>
+  </data>
+  <data name="MenuFontDefault" xml:space="preserve">
+    <value>Taille par _défaut</value>
+  </data>
+  <data name="ShortcutTerminalCopy" xml:space="preserve">
+    <value>Ctrl+Maj+C</value>
+  </data>
+  <data name="ShortcutTerminalPaste" xml:space="preserve">
+    <value>Ctrl+Maj+V</value>
+  </data>
+  <data name="ShortcutFontBigger" xml:space="preserve">
+    <value>Ctrl+molette haut</value>
+  </data>
+  <data name="ShortcutFontSmaller" xml:space="preserve">
+    <value>Ctrl+molette bas</value>
+  </data>
+  <data name="ShortcutFontDefault" xml:space="preserve">
+    <value>Ctrl+0</value>
+  </data>
+  <data name="SettingsRightClickPastes" xml:space="preserve">
+    <value>Le clic droit dans le terminal colle le presse-papiers (Maj+clic droit ouvre alors le menu)</value>
+  </data>
   <data name="TerminalThemeLabel" xml:space="preserve">
     <value>_Couleurs du terminal :</value>
   </data>
@@ -1733,7 +1778,7 @@ Envoyer quand même ?</value>
     <value>Version {0} disponible</value>
   </data>
   <data name="HistoryTip" xml:space="preserve">
-    <value>Historique des transferts (envois et téléchargements)</value>
+    <value>Historique des transferts (envois et téléchargements) et sommes de contrôle SHA-256</value>
   </data>
   <data name="HistoryTitle" xml:space="preserve">
     <value>Historique des transferts</value>

@@ -58,6 +58,9 @@
             <Label Grid.Column="2" Content="{x:Static loc:Strings.TerminalFontLabel}" Target="{Binding ElementName=FontSizeBox}" Margin="8,0,0,0" />
             <TextBox Grid.Column="3" x:Name="FontSizeBox" VerticalContentAlignment="Center" ToolTip="{x:Static loc:Strings.TerminalFontTip}" />
         </Grid>
+        <CheckBox x:Name="RightClickBox" Margin="0,6,0,4">
+            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SettingsRightClickPastes}" />
+        </CheckBox>
         <CheckBox x:Name="SshInAppBox" Margin="0,4,0,8">
             <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SshInApp}" />
         </CheckBox>

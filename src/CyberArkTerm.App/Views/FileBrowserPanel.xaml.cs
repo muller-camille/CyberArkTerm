@@ -23,7 +23,6 @@ public partial class FileBrowserPanel : UserControl
     private RemoteFileBrowser? _browser;
     private int _generation;
     private int _busy;
-    private IReadOnlyList<TransferCheck> _lastChecks = [];
 
     public FileBrowserPanel()
     {
@@ -40,6 +39,7 @@ public partial class FileBrowserPanel : UserControl
         _saveSettings = saveSettings;
         _history = TransferHistory.Load(TransferHistory.DefaultPath);
         HiddenBox.IsChecked = settings.ShowHiddenFiles;
+        ShowSortArrow();
     }
 
     /// <summary>Associe le panneau à la session de l'onglet actif (ou à aucune).</summary>
@@ -134,7 +134,10 @@ public partial class FileBrowserPanel : UserControl
         }
     }
 
-    private async Task NavigateAsync(string path)
+    /// <param name="quiet">
+    /// Relecture après un transfert : la barre d'état garde le bilan des transferts (seule une erreur la remplace).
+    /// </param>
+    private async Task NavigateAsync(string path, bool quiet = false)
     {
         var browser = _browser;
         if (browser is null)
@@ -143,7 +146,11 @@ public partial class FileBrowserPanel : UserControl
         }
 
         int generation = _generation;
-        SetStatus(Text.Format(Strings.Reading, path));
+        if (!quiet)
+        {
+            SetStatus(Text.Format(Strings.Reading, path));
+        }
+
         try
         {
             var entries = await browser.ListAsync(path, _settings.ShowHiddenFiles, CancellationToken.None);
@@ -159,7 +166,7 @@ public partial class FileBrowserPanel : UserControl
                 items.Add(RemoteEntry.ParentLink(directory));
             }
 
-            items.AddRange(entries);
+            items.AddRange(RemoteEntry.Sort(entries, _settings.FileSortColumn, _settings.FileSortDescending));
             FileList.ItemsSource = items;
             PathBox.Text = directory;
             if (_session is not null)
@@ -167,8 +174,11 @@ public partial class FileBrowserPanel : UserControl
                 _session.BrowserDirectory = directory;
             }
 
-            int folders = entries.Count(e => e.IsDirectory);
-            SetStatus(Text.Format(Strings.FolderSummary, folders, entries.Count - folders));
+            if (!quiet)
+            {
+                int folders = entries.Count(e => e.IsDirectory);
+                SetStatus(Text.Format(Strings.FolderSummary, folders, entries.Count - folders));
+            }
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -269,6 +279,93 @@ public partial class FileBrowserPanel : UserControl
             {
                 _ = NavigateAsync(dir);
             }
+        }
+    }
+
+    // ===================== Tri (clic sur un en-tête de colonne) =====================
+
+    /// <summary>
+    /// Tri par la colonne cliquée, puis dans l'autre sens au clic suivant (la taille et la date commencent par les plus
+    /// grandes et les plus récentes). Dossiers toujours en tête ; le tri est gardé d'un dossier et d'une session à l'autre.
+    /// </summary>
+    private void OnColumnHeaderClick(object sender, RoutedEventArgs e)
+    {
+        if (e.OriginalSource is not GridViewColumnHeader { Column: { } column, Role: not GridViewColumnHeaderRole.Padding })
+        {
+            return;
+        }
+
+        var sort = column == SizeColumn ? RemoteSortColumn.Size
+            : column == ModifiedColumn ? RemoteSortColumn.Modified
+            : column == PermissionsColumn ? RemoteSortColumn.Permissions
+            : RemoteSortColumn.Name;
+        SortBy(sort, sort == _settings.FileSortColumn
+            ? !_settings.FileSortDescending
+            : sort is RemoteSortColumn.Size or RemoteSortColumn.Modified);
+    }
+
+    internal void SortBy(RemoteSortColumn column, bool descending)
+    {
+        _settings.FileSortColumn = column;
+        _settings.FileSortDescending = descending;
+        _saveSettings();
+        ShowSortArrow();
+        if (FileList.ItemsSource is not IEnumerable<RemoteEntry> shown)
+        {
+            return;
+        }
+
+        var selected = FileList.SelectedItems.Cast<RemoteEntry>().ToList();
+        var entries = shown.ToList();
+        FileList.ItemsSource = entries.Where(e => e.IsParentLink)
+            .Concat(RemoteEntry.Sort(entries.Where(e => !e.IsParentLink), column, descending))
+            .ToList();
+        foreach (var entry in selected)
+        {
+            FileList.SelectedItems.Add(entry);
+        }
+
+        if (selected.Count > 0)
+        {
+            FileList.ScrollIntoView(selected[0]);
+        }
+    }
+
+    /// <summary>
+    /// Triangle vers le haut (croissant) ou vers le bas (décroissant) dans l'en-tête de la colonne de tri, dessiné pour
+    /// ne pas dépendre de la police. Le sens est aussi dans <c>Tag</c> de l'en-tête.
+    /// </summary>
+    private void ShowSortArrow()
+    {
+        (GridViewColumn Column, string Text, RemoteSortColumn Sort)[] columns =
+        [
+            (NameColumn, Core.Localization.CoreStrings.ColumnName, RemoteSortColumn.Name),
+            (SizeColumn, Strings.ColumnSize, RemoteSortColumn.Size),
+            (ModifiedColumn, Strings.ColumnModified, RemoteSortColumn.Modified),
+            (PermissionsColumn, Strings.ColumnPermissions, RemoteSortColumn.Permissions),
+        ];
+        foreach (var (column, text, sort) in columns)
+        {
+            if (sort != _settings.FileSortColumn)
+            {
+                column.Header = text;
+                continue;
+            }
+
+            bool descending = _settings.FileSortDescending;
+            var arrow = new System.Windows.Shapes.Path
+            {
+                Data = System.Windows.Media.Geometry.Parse(descending ? "M0,0 L8,0 L4,4.5 Z" : "M0,4.5 L8,4.5 L4,0 Z"),
+                Fill = (System.Windows.Media.Brush)FindResource("MutedBrush"),
+                Margin = new Thickness(5, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+            column.Header = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Tag = descending,
+                Children = { new TextBlock { Text = text }, arrow },
+            };
         }
     }
 
@@ -654,17 +751,16 @@ public partial class FileBrowserPanel : UserControl
     // ===================== Vérification des transferts =====================
 
     /// <summary>
-    /// Bilan de la vérification SHA-256 après des transferts : confirmation dans la barre d'état et lien « Sommes de
-    /// contrôle… ». Si un fichier diffère de l'original, l'erreur est affichée et le détail s'ouvre de lui-même.
+    /// Bilan de la vérification SHA-256 après des transferts, dans la barre d'état ; le détail de chaque transfert est
+    /// dans l'historique. Si un fichier diffère de l'original, l'erreur est affichée et le détail s'ouvre de lui-même.
     /// </summary>
     private void ReportChecks(string done, IReadOnlyList<TransferCheck> checks, bool error = false)
     {
-        KeepChecks(checks);
         int different = checks.Count(c => c.Verified && !c.Matches);
         if (different > 0)
         {
             SetStatus(Text.Format(Strings.TransferMismatch, different), error: true);
-            ShowChecks();
+            new TransferChecksDialog(checks) { Owner = Window.GetWindow(this) }.ShowDialog();
             return;
         }
 
@@ -683,22 +779,6 @@ public partial class FileBrowserPanel : UserControl
         }
 
         SetStatus(string.Join(" · ", parts), error);
-    }
-
-    private void KeepChecks(IReadOnlyList<TransferCheck> checks)
-    {
-        _lastChecks = checks;
-        ChecksLink.Visibility = checks.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-    }
-
-    private void OnShowChecks(object sender, RoutedEventArgs e) => ShowChecks();
-
-    private void ShowChecks()
-    {
-        if (_lastChecks.Count > 0)
-        {
-            new TransferChecksDialog(_lastChecks) { Owner = Window.GetWindow(this) }.ShowDialog();
-        }
     }
 
     // ===================== Utilitaires =====================

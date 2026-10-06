@@ -221,13 +221,8 @@
                         </ScrollViewer>
                     </DockPanel>
                 </Border>
-                <DockPanel>
-                    <!-- Détail de la vérification SHA-256 des derniers transferts. -->
-                    <TextBlock x:Name="ChecksLink" DockPanel.Dock="Right" Margin="8,0,0,0" Visibility="Collapsed">
-                        <Hyperlink Click="OnShowChecks"><Run Text="{x:Static loc:Strings.ChecksLink}" /></Hyperlink>
-                    </TextBlock>
-                    <TextBlock x:Name="StatusText" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
-                </DockPanel>
+                <!-- Sommes SHA-256 de chaque transfert : bouton « Historique » de la barre d'outils. -->
+                <TextBlock x:Name="StatusText" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
             </StackPanel>
         </Border>
 
@@ -236,7 +231,7 @@
                       ContextMenu="{StaticResource FileMenu}" KeyDown="OnListKeyDown"
                       DragEnter="OnDragEnter" DragOver="OnDragEnter" DragLeave="OnDragLeave" Drop="OnDrop"
                       PreviewMouseLeftButtonDown="OnListPreviewMouseDown" PreviewMouseMove="OnListPreviewMouseMove"
-                      PreviewMouseLeftButtonUp="OnListPreviewMouseUp"
+                      PreviewMouseLeftButtonUp="OnListPreviewMouseUp" GridViewColumnHeader.Click="OnColumnHeaderClick"
                       VirtualizingPanel.IsVirtualizing="True">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
@@ -246,7 +241,7 @@
                 </ListView.ItemContainerStyle>
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="{x:Static corel:CoreStrings.ColumnName}" Width="165">
+                        <GridViewColumn x:Name="NameColumn" Header="{x:Static corel:CoreStrings.ColumnName}" Width="165">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
@@ -256,15 +251,15 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="{x:Static loc:Strings.ColumnSize}" Width="76">
+                        <GridViewColumn x:Name="SizeColumn" Header="{x:Static loc:Strings.ColumnSize}" Width="76">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding SizeText}" HorizontalAlignment="Right" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="{x:Static loc:Strings.ColumnModified}" Width="112" DisplayMemberBinding="{Binding ModifiedText}" />
-                        <GridViewColumn Header="{x:Static loc:Strings.ColumnPermissions}" Width="84">
+                        <GridViewColumn x:Name="ModifiedColumn" Header="{x:Static loc:Strings.ColumnModified}" Width="112" DisplayMemberBinding="{Binding ModifiedText}" />
+                        <GridViewColumn x:Name="PermissionsColumn" Header="{x:Static loc:Strings.ColumnPermissions}" Width="84">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Permissions}" FontFamily="Consolas, Courier New" />

@@ -24,11 +24,44 @@ public sealed record RemoteEntry(
         new("..", RemotePath.Parent(directory), true, false, 0, default, "");
 
     /// <summary>Dossiers d'abord, puis ordre alphabétique sans tenir compte de la casse.</summary>
-    public static List<RemoteEntry> Sort(IEnumerable<RemoteEntry> entries) =>
-        entries.OrderByDescending(e => e.IsDirectory)
-               .ThenBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
-               .ThenBy(e => e.Name, StringComparer.Ordinal)
-               .ToList();
+    public static List<RemoteEntry> Sort(IEnumerable<RemoteEntry> entries) => Sort(entries, RemoteSortColumn.Name);
+
+    /// <summary>
+    /// Dossiers d'abord, puis selon la colonne (dans l'ordre inverse si <paramref name="descending"/>) ; à égalité, et
+    /// pour la taille des dossiers (sans objet), par nom.
+    /// </summary>
+    public static List<RemoteEntry> Sort(IEnumerable<RemoteEntry> entries, RemoteSortColumn column, bool descending = false)
+    {
+        var comparer = Comparer<RemoteEntry>.Create((a, b) =>
+        {
+            if (a.IsDirectory != b.IsDirectory)
+            {
+                return a.IsDirectory ? -1 : 1;
+            }
+
+            int order = column switch
+            {
+                RemoteSortColumn.Size when !a.IsDirectory => a.Length.CompareTo(b.Length),
+                RemoteSortColumn.Size => 0,
+                RemoteSortColumn.Modified => a.LastWriteTime.CompareTo(b.LastWriteTime),
+                RemoteSortColumn.Permissions => string.CompareOrdinal(a.Permissions, b.Permissions),
+                _ => ByName(a, b),
+            };
+            if (descending && !(column == RemoteSortColumn.Size && a.IsDirectory))
+            {
+                order = -order;
+            }
+
+            return order != 0 ? order : ByName(a, b);
+        });
+        return entries.OrderBy(e => e, comparer).ToList();
+    }
+
+    private static int ByName(RemoteEntry a, RemoteEntry b)
+    {
+        int order = StringComparer.OrdinalIgnoreCase.Compare(a.Name, b.Name);
+        return order != 0 ? order : string.CompareOrdinal(a.Name, b.Name);
+    }
 
     /// <summary>Droits au format <c>ls -l</c>, bits spéciaux compris (ex. <c>drwxrwxrwt</c>, <c>-rwsr-xr-x</c>).</summary>
     public static string FormatPermissions(bool isDirectory, bool isSymbolicLink, int mode) =>
@@ -46,6 +79,15 @@ public sealed record RemoteEntry(
 
         return new string(chars);
     }
+}
+
+/// <summary>Colonne de tri de l'onglet Fichiers (clic sur l'en-tête).</summary>
+public enum RemoteSortColumn
+{
+    Name,
+    Size,
+    Modified,
+    Permissions,
 }
 
 /// <summary>Élément à télécharger avec son chemin relatif (noms Unix, depuis l'élément choisi).</summary>

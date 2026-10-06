@@ -177,14 +177,18 @@ The session opens **in a CyberArkTerm tab**, with the standard PSMP login
   same tab, never saved.
 - **PSMP key**: on first connection, its SHA256 fingerprint is shown and must be accepted; if it changes
   later, a warning is shown.
-- **Terminal**: selecting copies, right-click pastes, the mouse wheel scrolls back, AltGr works on
-  international keyboards. Close the tab with its cross or a middle click.
+- **Terminal**: selecting copies, the mouse wheel scrolls back, AltGr works on international keyboards. Close the
+  tab with its cross or a middle click.
+- **Right-click in the terminal** (or the keyboard's Menu key): copy, paste, select all, search, save the content,
+  clear the history (on this computer only, nothing is sent to the server), font size, and the tab's actions
+  (reconnect, duplicate, detach, parallel view, close). To paste with a plain right-click instead, tick "Right-click
+  in the terminal pastes the clipboard" in Settings; Shift+right-click then opens the menu.
 - **Appearance**: colour palette and font size in Settings (Campbell, One Half, Solarized, dark or light);
   `Ctrl+wheel` enlarges or shrinks a terminal, `Ctrl+0` goes back to the default size.
-- **Search** in the terminal, history included: `Ctrl+Shift+F` (or right-click the tab). Matches are highlighted;
+- **Search** in the terminal, history included: `Ctrl+Shift+F` (or right-click in the terminal or on the tab). Matches are highlighted;
   `Enter` goes up to older ones, `Shift+Enter` goes down, `Esc` closes.
-- **Save the content** of the terminal (history and screen) to a text file: `Ctrl+Shift+S` (or right-click the
-  tab). Only when you ask: the file may contain sensitive information.
+- **Save the content** of the terminal (history and screen) to a text file: `Ctrl+Shift+S` (or right-click in the
+  terminal or on the tab). Only when you ask: the file may contain sensitive information.
 - **Detach a tab** (another screen): drag the SSH tab out of the window, or right-click → "Detach to a new
   window". The terminal moves to a separate window and the session goes on. The tab keeps its place ("Show the
   window", "Bring it back here") and the Files tab works on this session when it is selected. Closing the
@@ -218,6 +222,9 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
 
 - **Path bar**: current path, editable (type a path, then Enter). Double-click a folder to enter it, `..` to
   go up, "parent folder" and "home folder" buttons.
+- **Sort**: click a column header (Name, Size, Modified, Permissions); click it again to reverse the order (an arrow
+  shows it). Size and date start with the largest and the newest. Folders stay on top; the sort is kept from one
+  folder and one session to the next.
 - **Upload files**: drag them from Explorer onto the list (or the "Upload" button). Sent over **SCP** by
   default (SFTP as an option), folders included; confirmation before overwriting an existing file.
 - **Download by dragging**: drag files or folders from the list to Explorer or the desktop. Nothing is
@@ -230,8 +237,10 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   item (waiting, progress and file n/N, check, result): ✕ removes a waiting item, "Cancel" stops the running one,
   "Cancel all" empties the queue. A stopped transfer deletes the file being transferred, which is incomplete (on
   the server for an upload, on this computer for a download); files already transferred stay. Beware: if the
-  upload was replacing an existing file, its old content is lost. Over SCP, stopping closes the SCP connection;
-  the next SCP upload opens a new one (new PSMP session). An error is shown in the queue and the queue goes on;
+  upload was replacing an existing file, its old content is lost. Over SCP, stopping ends only that transfer: the next items
+  go on over the same connection. If the server closes the SCP channel before a file starts, CyberArkTerm tries
+  once more on a new connection, then reports a clear error (SFTP uploads can be chosen in Settings). A file sent
+  over SCP gets the upload date on the server (as `scp` without `-p`, and as over SFTP). An error is shown in the queue and the queue goes on;
   at the end, a single summary. Browsing, deleting, permissions, the editor and dragging to Explorer get in
   between two files. Closing the tab or the application with transfers running asks for confirmation.
 - **Many files at once: .tar.gz archive**: from 200 dropped files (threshold in Settings, option "Offer a single
@@ -265,16 +274,16 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   "Only the differences"; "Save the diff…" in the `diff -u` format. A binary file (or one over 10 MB) is compared by
   its size and SHA-256 checksum. With a comparison tool chosen in Settings (WinMerge, VS Code…), "Open in …" gives
   it two temporary copies, deleted when the window closes.
-- **Transfer history**: "History" toolbar button (left of "Settings"), available even without a session. It lists
+- **Transfer history**: "History" toolbar button (up and down arrows with a clock, left of "Settings"), available even without a session. It lists
   the last 200 uploads and downloads (drag and drop included): date, direction, server, item, destination, number of
-  files, result. "Uploads" / "Downloads" filter; "Checksums…" (or double-click) shows each file's SHA-256
-  checksums, to copy and check again later; "Open the folder" for a download; "Clear the history".
+  files, result. "Uploads" / "Downloads" filter; "Checksums…" (or double-click) shows each file's size, SHA-256
+  checksums and result, and copies them in the `sha256sum -c` format to check again on the server; "Open the
+  folder" for a download; "Clear the history".
 - **Transfer check (SHA-256)**: every uploaded or downloaded file is checked. On upload (SCP or SFTP), the local
   file is hashed, then the file on the server is read again over SFTP and hashed. On download, the data received
   from the server is hashed, then the file written on this computer is read again. The status bar confirms
-  "✓ identical on both sides"; "Checksums…" shows each file's size, both checksums and the result, and copies the
-  checksums in the `sha256sum -c` format to check again on the server. If a file differs, the error is shown and
-  the details open; a drag-and-drop download fails rather than deliver a wrong copy. A file that cannot be read
+  "✓ identical on both sides"; the checksums of each file are in the **History** (toolbar button). If a file
+  differs, the error is shown and the details open by themselves; a drag-and-drop download fails rather than deliver a wrong copy. A file that cannot be read
   again (permissions) is reported as "not checked". Reading an upload again doubles the data exchanged with the
   server.
 - **Delete**: select, then Del (or right-click → "Delete (rm)"), with confirmation. Folders must be empty.
@@ -394,7 +403,8 @@ password, delete.
 | My servers | Rename / remove or delete | `F2` / `Del` |
 | My servers | Pick several servers (then right-click to open them together) | `Ctrl+click`, `Shift+click`; `Esc` cancels |
 | Terminal | Copy | Mouse selection, or `Ctrl+Shift+C` |
-| Terminal | Paste | Right-click, `Shift+Insert` or `Ctrl+Shift+V` |
+| Terminal | Paste | `Shift+Insert` or `Ctrl+Shift+V` (right-click with the Settings option) |
+| Terminal | Menu: copy, paste, select all, search, save, clear the history, font size, tab actions | Right-click or Menu key (Shift+right-click with the paste option) |
 | Terminal | Scrollback | Mouse wheel, `Shift+Page Up` / `Shift+Page Down` |
 | Terminal | Search (history included) | `Ctrl+Shift+F`, then `Enter` / `Shift+Enter` |
 | Terminal | Save the content to a file | `Ctrl+Shift+S` |
@@ -406,6 +416,7 @@ password, delete.
 | SSH tab | Add to the parallel view, or take it out | Right-click the tab |
 | Remote desktop | Full screen / back | `Ctrl+Alt+Break` |
 | Files | Open / edit / parent folder / delete / refresh | `Enter` / `F4` / `Backspace` / `Del` / `F5` |
+| Files | Sort by a column, then reverse | Click its header |
 | KeePass vault | Connect / edit / delete an entry | Double-click or `Enter` / `F2` / `Del` |
 
 ## Settings and configuration file

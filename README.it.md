@@ -185,14 +185,19 @@ La sessione si apre **in una scheda di CyberArkTerm**, con l'identificativo PSMP
   le connessioni SFTP e SCP della stessa scheda, mai salvata.
 - **Chiave del PSMP**: alla prima connessione ne viene mostrata l'impronta SHA256, da accettare; se in seguito
   cambia, viene mostrato un avviso.
-- **Terminale**: la selezione copia, il clic destro incolla, la rotellina scorre la cronologia, AltGr funziona
-  sulle tastiere internazionali. Chiudi la scheda con la croce o con un clic centrale.
+- **Terminale**: la selezione copia, la rotellina scorre la cronologia, AltGr funziona sulle tastiere
+  internazionali. Chiudi la scheda con la croce o con un clic centrale.
+- **Clic destro nel terminale** (o tasto Menu della tastiera): copia, incolla, seleziona tutto, cerca, salva il
+  contenuto, cancella la cronologia (solo su questo computer, nulla viene inviato al server), dimensione del
+  carattere, e le azioni della scheda (riconnetti, duplica, stacca, vista parallela, chiudi). Per incollare con un
+  semplice clic destro, spunta «Il clic destro nel terminale incolla gli appunti» nelle Impostazioni; Maiusc+clic
+  destro apre allora il menu.
 - **Aspetto**: tavolozza di colori e dimensione del carattere nelle Impostazioni (Campbell, One Half, Solarized,
   scuri o chiari); `Ctrl+rotellina` ingrandisce o riduce un terminale, `Ctrl+0` torna alla dimensione predefinita.
-- **Cercare** nel terminale, cronologia compresa: `Ctrl+Maiusc+F` (o clic destro sulla scheda). Le occorrenze sono
+- **Cercare** nel terminale, cronologia compresa: `Ctrl+Maiusc+F` (o clic destro nel terminale o sulla scheda). Le occorrenze sono
   evidenziate; `Invio` risale verso le più vecchie, `Maiusc+Invio` riscende, `Esc` chiude.
 - **Salvare il contenuto** del terminale (cronologia e schermo) in un file di testo: `Ctrl+Maiusc+S` (o clic destro
-  sulla scheda). Solo su tua richiesta: il file può contenere informazioni sensibili.
+  nel terminale o sulla scheda). Solo su tua richiesta: il file può contenere informazioni sensibili.
 - **Staccare una scheda** (altro schermo): trascina la scheda SSH fuori dalla finestra, o clic destro → «Stacca in
   una nuova finestra». Il terminale passa in una finestra separata e la sessione continua. La scheda mantiene il
   suo posto («Mostra la finestra», «Riporta nella scheda») e la scheda File lavora su questa sessione quando è
@@ -227,6 +232,9 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
 
 - **Barra del percorso**: percorso corrente, modificabile (digita un percorso e premi Invio). Doppio clic su
   una cartella per entrarvi, `..` per risalire, pulsanti «cartella superiore» e «cartella home».
+- **Ordinamento**: clic sull'intestazione di una colonna (Nome, Dimensione, Modificato, Permessi); un secondo clic
+  inverte l'ordine (lo indica una freccia). Dimensione e data partono dai più grandi e dai più recenti. Le cartelle
+  restano in cima; l'ordinamento è mantenuto da una cartella e da una sessione all'altra.
 - **Inviare file**: trascinali da Esplora file sull'elenco (o il pulsante «Invia»). Invio in **SCP** per
   impostazione predefinita (SFTP in opzione), cartelle comprese; conferma prima di sovrascrivere un file
   esistente.
@@ -242,8 +250,11 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   ✕ rimuove un elemento in attesa, «Annulla» interrompe quello in corso, «Annulla tutto» svuota la coda. Un
   trasferimento interrotto elimina il file in corso, incompleto (sul server per un invio, sul computer per un
   download); i file già trasferiti restano. Attenzione: se l'invio sostituiva un file esistente, il vecchio
-  contenuto è perso. In SCP, l'interruzione chiude la connessione SCP; l'invio SCP successivo ne apre una nuova
-  (nuova sessione PSMP). Un errore viene mostrato nella coda e la coda prosegue; alla fine, un unico riepilogo.
+  contenuto è perso. In SCP, l'interruzione riguarda solo quel trasferimento: gli elementi
+  successivi proseguono sulla stessa connessione. Se il server chiude il canale SCP prima dell'inizio di un file,
+  CyberArkTerm riprova una volta su una nuova connessione, poi mostra un errore chiaro (l'invio via SFTP si può
+  scegliere nelle Impostazioni). Un file inviato via SCP prende sul server la data dell'invio (come `scp` senza
+  `-p`, e come in SFTP). Un errore viene mostrato nella coda e la coda prosegue; alla fine, un unico riepilogo.
   Navigazione, eliminazione, permessi, editor e trascinamento verso Esplora file passano tra due file. Chiudere la
   scheda o l'applicazione con trasferimenti in corso chiede conferma.
 - **Molti file insieme: archivio .tar.gz**: da 200 file rilasciati (soglia nelle Impostazioni, opzione «Proporre
@@ -277,17 +288,17 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   «Ignora gli spazi»; «Solo le differenze»; «Salva il diff…» nel formato `diff -u`. Un file binario (o oltre 10 MB)
   viene confrontato per dimensione e checksum SHA-256. Con uno strumento di confronto scelto nelle Impostazioni
   (WinMerge, VS Code…), «Apri in …» gli passa due copie temporanee, eliminate alla chiusura della finestra.
-- **Cronologia dei trasferimenti**: pulsante «Cronologia» della barra degli strumenti (a sinistra di
-  «Impostazioni»), disponibile anche senza sessione. Elenca gli ultimi 200 invii e download (trascinamento
-  compreso): data, direzione, server, elemento, destinazione, numero di file, risultato. Filtro «Invii» / «Download»; «Checksum…» (o doppio clic) mostra i
-  checksum SHA-256 di ogni file, da copiare per riverificare in seguito; «Apri la cartella» per un download;
-  «Cancella la cronologia».
+- **Cronologia dei trasferimenti**: pulsante «Cronologia» della barra degli strumenti (frecce su e giù con un
+  orologio, a sinistra di «Impostazioni»), disponibile anche senza sessione. Elenca gli ultimi 200 invii e download (trascinamento
+  compreso): data, direzione, server, elemento, destinazione, numero di file, risultato. Filtro «Invii» / «Download»; «Checksum…» (o doppio clic) mostra per
+  ogni file la dimensione, i checksum SHA-256 e il risultato, e li copia nel formato di `sha256sum -c` per
+  riverificare sul server; «Apri la cartella» per un download; «Cancella la cronologia».
 - **Verifica dei trasferimenti (SHA-256)**: ogni file inviato o scaricato viene verificato. All'invio (SCP o
   SFTP), il file locale viene sottoposto a hash, poi il file arrivato sul server viene riletto via SFTP e
   sottoposto a hash. Al download, i dati ricevuti dal server vengono sottoposti a hash, poi il file scritto sul
-  computer viene riletto. La barra di stato conferma «✓ identico su entrambi i lati»; «Checksum…» mostra per
-  ogni file la dimensione, le due somme e il risultato, e copia le somme nel formato di `sha256sum -c` per
-  riverificare sul server. Se un file è diverso, l'errore viene mostrato e il dettaglio si apre; un download per
+  computer viene riletto. La barra di stato conferma «✓ identico su entrambi i lati»; i checksum di ogni file sono nella
+  **Cronologia** (pulsante della barra degli strumenti). Se un file è diverso, l'errore viene mostrato e il
+  dettaglio si apre da solo; un download per
   trascinamento fallisce invece di consegnare una copia errata. Un file che non può essere riletto (permessi) è
   segnalato «non verificato». La rilettura di un invio raddoppia il volume scambiato con il server.
 - **Eliminare**: selezione poi Canc (o clic destro → «Elimina (rm)»), con conferma. Le cartelle devono essere
@@ -416,7 +427,8 @@ password, elimina.
 | I miei server | Rinominare / rimuovere o eliminare | `F2` / `Canc` |
 | I miei server | Scegliere più server (poi clic destro per aprirli insieme) | `Ctrl+clic`, `Maiusc+clic`; `Esc` annulla |
 | Terminale | Copiare | Selezione con il mouse, o `Ctrl+Maiusc+C` |
-| Terminale | Incollare | Clic destro, `Maiusc+Ins` o `Ctrl+Maiusc+V` |
+| Terminale | Incollare | `Maiusc+Ins` o `Ctrl+Maiusc+V` (clic destro con l'opzione delle Impostazioni) |
+| Terminale | Menu: copia, incolla, seleziona tutto, cerca, salva, cancella la cronologia, carattere, azioni della scheda | Clic destro o tasto Menu (Maiusc+clic destro con l'opzione di incolla) |
 | Terminale | Cronologia | Rotellina, `Maiusc+Pag su` / `Maiusc+Pag giù` |
 | Terminale | Cercare (cronologia compresa) | `Ctrl+Maiusc+F`, poi `Invio` / `Maiusc+Invio` |
 | Terminale | Salvare il contenuto in un file | `Ctrl+Maiusc+S` |
@@ -428,6 +440,7 @@ password, elimina.
 | Scheda SSH | Aggiungere alla vista parallela, o toglierla | Clic destro sulla scheda |
 | Desktop remoto | Schermo intero / ritorno | `Ctrl+Alt+Pausa` |
 | File | Aprire / modificare / cartella superiore / eliminare / aggiornare | `Invio` / `F4` / `Backspace` / `Canc` / `F5` |
+| File | Ordinare per una colonna, poi invertire | Clic sulla sua intestazione |
 | Archivio KeePass | Connettere / modificare / eliminare una voce | Doppio clic o `Invio` / `F2` / `Canc` |
 
 ## Impostazioni e file di configurazione

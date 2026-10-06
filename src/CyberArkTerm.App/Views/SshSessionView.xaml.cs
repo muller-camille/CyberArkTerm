@@ -27,6 +27,13 @@ public partial class SshSessionView : UserControl
         UpdateOverlay();
         Terminal.SearchRequested += ShowSearch;
         Terminal.SaveRequested += SaveContent;
+        Terminal.ScrollbackCleared += () =>
+        {
+            if (SearchBar.Visibility == Visibility.Visible)
+            {
+                RunSearch(keepPosition: false);
+            }
+        };
         session.ScreenUpdated += OnScreenUpdatedForSearch;
         _searchTimer.Tick += (_, _) =>
         {
@@ -197,6 +204,13 @@ public partial class SshSessionView : UserControl
         {
             Send(input);
         }
+    }
+
+    /// <summary>Actions de la session (reconnecter, dupliquer…) à la fin du menu du clic droit dans le terminal.</summary>
+    public Action<ItemCollection>? SessionMenu
+    {
+        get => Terminal.ExtraMenuItems;
+        set => Terminal.ExtraMenuItems = value;
     }
 
     public (int Columns, int Rows) TerminalSize => Terminal.ActualWidth > 0 ? Terminal.SizeInCells : (100, 30);
