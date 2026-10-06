@@ -722,42 +722,6 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to signal {0}.
-        /// </summary>
-        public static string ScpExitSignal {
-            get {
-                return ResourceManager.GetString("ScpExitSignal", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to exit code {0}.
-        /// </summary>
-        public static string ScpExitStatus {
-            get {
-                return ResourceManager.GetString("ScpExitStatus", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to the server did not answer the scp command within {0} s.
-        /// </summary>
-        public static string ScpNoAnswer {
-            get {
-                return ResourceManager.GetString("ScpNoAnswer", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to no explanation from the server.
-        /// </summary>
-        public static string ScpNoExplanation {
-            get {
-                return ResourceManager.GetString("ScpNoExplanation", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to the server closed the SCP channel as soon as the scp command was sent: {0}.
         /// </summary>
         public static string ScpRefusedCommand {
@@ -781,24 +745,6 @@ namespace CyberArkTerm.Core.Localization {
         public static string ScpRefusedHeader {
             get {
                 return ResourceManager.GetString("ScpRefusedHeader", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to server message “{0}”.
-        /// </summary>
-        public static string ScpServerSaid {
-            get {
-                return ResourceManager.GetString("ScpServerSaid", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to unexpected answer from scp on the server: {0}.
-        /// </summary>
-        public static string ScpUnexpectedAnswer {
-            get {
-                return ResourceManager.GetString("ScpUnexpectedAnswer", resourceCulture);
             }
         }
 

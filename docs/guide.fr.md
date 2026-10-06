@@ -451,10 +451,9 @@ des fichiers, sommes SHA-256, jamais leur contenu).
 - **Journal de débogage**, désactivé par défaut (menu du bouton Paramètres) :
   `%LOCALAPPDATA%\CyberArkTerm\debug.log`, 5 Mo au plus plus une génération `.1`. Il note le déroulement des
   connexions PVWA, PSM, Bureau à distance et SSH : adresses et statuts des requêtes, réglages du fichier .rdp,
-  événements et codes du contrôle Bureau à distance, version et algorithmes du serveur SSH, erreurs. Pour chaque
-  envoi SCP : la commande `scp -t` envoyée, l'annonce du fichier (droits, taille, nom), la réponse du serveur à chaque
-  étape avec sa durée et, si le serveur ferme le canal, sa sortie d'erreur, son code de sortie et son signal ; pour
-  chaque protocole refusé, la réponse du serveur et le protocole qui a pris le relais. Il contient des noms de serveurs et de comptes, mais
+  événements et codes du contrôle Bureau à distance, version et algorithmes du serveur SSH, erreurs ; pour chaque
+  protocole d'envoi refusé, l'étape (connexion, commande scp, annonce du fichier), la réponse du serveur et le
+  protocole qui a pris le relais. Il contient des noms de serveurs et de comptes, mais
   **jamais** de mot de passe, de jeton de session, de demande de session PSM (`PSM@…` masqué), de signature,
   d'en-tête ou de corps de requête, ni le contenu des sessions. La barre d'état le signale tant qu'il est actif.
   Relisez-le avant de le transmettre, et supprimez-le une fois le problème résolu.
@@ -565,7 +564,7 @@ laquelle elle est destinée. Avec csh, ksh, sh ou fish, le suivi n'est pas insta
 | Le compte n'apparaît pas | Vous n'avez pas le droit « List accounts » sur son safe, ou la liste doit être rechargée (`F5`). |
 | Le mot de passe PSMP est demandé à chaque onglet | MFA caching non activé sur le PVWA : comportement normal (une fois par onglet). |
 | L'onglet Fichiers indique « Connexion SFTP impossible » | SFTP n'est pas autorisé sur le PSMP ou pour ce compte : voir l'équipe CyberArk. |
-| Un envoi indique « SFTP (SCP refusé) » ou « SCP (SFTP refusé) » | Le PSMP ou le serveur a refusé ce protocole pour ce fichier : l'autre a pris le relais et le fichier a été vérifié comme d'habitude. Le bilan donne la réponse du serveur ; le journal de débogage détaille chaque étape de l'envoi SCP (commande, annonce du fichier, sortie d'erreur et code de sortie du serveur), à transmettre à votre équipe CyberArk. |
+| Un envoi indique « SFTP (SCP refusé) » ou « SCP (SFTP refusé) » | Le PSMP ou le serveur a refusé ce protocole pour ce fichier : l'autre a pris le relais et le fichier a été vérifié comme d'habitude. Le bilan donne la réponse du serveur. Un PSMP qui refuse SCP pour une plateforme (erreur `118E Selected component PSMP-SCP does not contain the target settings definitions…` dans ses journaux) n'a pas le composant de connexion PSMP-SCP : votre équipe CyberArk peut l'ajouter à la plateforme, sinon les envois passent en SFTP. |
 | Le navigateur ne suit pas les `cd` | Le shell distant n'est pas bash, zsh ou tcsh (ou tcsh a déjà son propre alias `cwdcmd`), l'option est désactivée dans les Paramètres, ou l'invite n'a pas été reconnue : recochez « Suivre le dossier du terminal » à l'invite du shell. |
 | Alerte « la clé du PSMP a changé » | Ne continuez que si l'équipe CyberArk confirme un changement du serveur. |
 | « Mot de passe maître ou fichier clé incorrect » | Vérifiez le mot de passe et le fichier clé ; un coffre protégé par YubiKey n'est pas pris en charge. |

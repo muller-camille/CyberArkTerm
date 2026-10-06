@@ -9,13 +9,26 @@ internal sealed class CancellableReadStream(Stream inner, CancellationToken ct) 
     /// <summary>Le contenu a commencé à être lu : le serveur a accepté l'envoi.</summary>
     public bool WasRead { get; private set; }
 
+    /// <summary>
+    /// La taille a été lue : SSH.NET la lit une fois la commande scp acceptée, juste avant d'annoncer le fichier (nom
+    /// et taille) au serveur.
+    /// </summary>
+    public bool LengthRead { get; private set; }
+
     public override bool CanRead => true;
 
     public override bool CanSeek => false;
 
     public override bool CanWrite => false;
 
-    public override long Length => inner.Length;
+    public override long Length
+    {
+        get
+        {
+            LengthRead = true;
+            return inner.Length;
+        }
+    }
 
     public override long Position
     {

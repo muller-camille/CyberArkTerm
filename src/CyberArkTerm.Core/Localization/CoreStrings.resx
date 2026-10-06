@@ -267,24 +267,6 @@
   <data name="ScpRefusedHeader" xml:space="preserve">
     <value>the server closed the SCP channel when the file ({0}) was announced: {1}</value>
   </data>
-  <data name="ScpNoAnswer" xml:space="preserve">
-    <value>the server did not answer the scp command within {0} s</value>
-  </data>
-  <data name="ScpUnexpectedAnswer" xml:space="preserve">
-    <value>unexpected answer from scp on the server: {0}</value>
-  </data>
-  <data name="ScpServerSaid" xml:space="preserve">
-    <value>server message “{0}”</value>
-  </data>
-  <data name="ScpExitStatus" xml:space="preserve">
-    <value>exit code {0}</value>
-  </data>
-  <data name="ScpExitSignal" xml:space="preserve">
-    <value>signal {0}</value>
-  </data>
-  <data name="ScpNoExplanation" xml:space="preserve">
-    <value>no explanation from the server</value>
-  </data>
   <data name="ScpRefusedEarlier" xml:space="preserve">
     <value>refused earlier in this tab for a file of {0}</value>
   </data>

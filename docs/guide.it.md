@@ -451,10 +451,9 @@ loro contenuto).
 - **Registro di debug**, disattivato per impostazione predefinita (menu del pulsante Impostazioni):
   `%LOCALAPPDATA%\CyberArkTerm\debug.log`, al massimo 5 MB più una generazione `.1`. Registra lo svolgimento delle
   connessioni PVWA, PSM, desktop remoto e SSH: indirizzi e stati delle richieste, impostazioni del file .rdp, eventi
-  e codici del controllo Desktop remoto, versione e algoritmi del server SSH, errori. Per ogni invio SCP: il comando
-  `scp -t` inviato, l'annuncio del file (permessi, dimensione, nome), la risposta del server a ogni passo con la sua
-  durata e, se il server chiude il canale, il suo output di errore, il codice di uscita e il segnale; per ogni
-  protocollo rifiutato, la risposta del server e il protocollo subentrato. Contiene nomi di server e di account, ma **mai** password, token di
+  e codici del controllo Desktop remoto, versione e algoritmi del server SSH, errori; per ogni protocollo di invio
+  rifiutato, il passo (connessione, comando scp, annuncio del file), la risposta del server e il protocollo
+  subentrato. Contiene nomi di server e di account, ma **mai** password, token di
   sessione, richiesta di sessione PSM (`PSM@…` mascherata), firma, intestazione o corpo delle richieste, né il
   contenuto delle sessioni. La barra di stato lo segnala finché è attivo. Rileggilo prima di trasmetterlo, ed
   eliminalo una volta risolto il problema.
@@ -564,7 +563,7 @@ destinata. Con csh, ksh, sh o fish il monitoraggio non viene installato e sullo 
 | L'account non compare | Non hai il permesso «List accounts» sul suo safe, oppure l'elenco va ricaricato (`F5`). |
 | La password PSMP viene chiesta per ogni scheda | MFA caching non attivato sul PVWA: comportamento normale (una volta per scheda). |
 | La scheda File indica «Connessione SFTP impossibile» | SFTP non è consentito sul PSMP o per questo account: rivolgiti al team CyberArk. |
-| Un invio indica «SFTP (SCP rifiutato)» o «SCP (SFTP rifiutato)» | Il PSMP o il server ha rifiutato quel protocollo per questo file: l'altro è subentrato e il file è stato verificato come al solito. Il riepilogo riporta la risposta del server; il registro di debug dettaglia ogni passo dell'invio SCP (comando, annuncio del file, output di errore e codice di uscita del server), da trasmettere al tuo team CyberArk. |
+| Un invio indica «SFTP (SCP rifiutato)» o «SCP (SFTP rifiutato)» | Il PSMP o il server ha rifiutato quel protocollo per questo file: l'altro è subentrato e il file è stato verificato come al solito. Il riepilogo riporta la risposta del server. Un PSMP che rifiuta SCP per una piattaforma (errore `118E Selected component PSMP-SCP does not contain the target settings definitions…` nei suoi log) non ha il componente di connessione PSMP-SCP: il tuo team CyberArk può aggiungerlo alla piattaforma, altrimenti gli invii passano in SFTP. |
 | Il browser non segue i `cd` | La shell remota non è bash, zsh o tcsh (o tcsh ha già un proprio alias `cwdcmd`), l'opzione è disattivata nelle Impostazioni, oppure il prompt non è stato riconosciuto: riseleziona «Segui la cartella del terminale» al prompt della shell. |
 | Avviso «la chiave del PSMP è cambiata» | Prosegui solo se il team CyberArk conferma una modifica del server. |
 | «Password principale o file chiave errati.» | Controlla la password e il file chiave; un archivio protetto da YubiKey non è supportato. |
