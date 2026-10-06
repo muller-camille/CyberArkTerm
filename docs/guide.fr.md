@@ -258,8 +258,9 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   relu (droits) est signalé « non vérifié ». La relecture d'un envoi double le volume échangé avec le serveur.
 - **Supprimer** : sélection puis Suppr (ou clic droit → « Supprimer (rm) »), avec confirmation. Les dossiers doivent
   être vides.
-- **Modifier un fichier** : sélection puis `F4` (ou clic droit → « Modifier », ou bouton crayon). Le fichier s'ouvre
-  dans l'éditeur de texte choisi dans les Paramètres (Bloc-notes par défaut). À chaque enregistrement, CyberArkTerm
+- **Modifier un fichier** : **double-clic** sur le fichier (ou `Entrée`, `F4`, clic droit → « Modifier », bouton
+  crayon). Le fichier s'ouvre dans l'éditeur de texte choisi dans les Paramètres (Bloc-notes par défaut). Au
+  double-clic, une archive, une image, un exécutable ou un document bureautique est téléchargé plutôt qu'ouvert. À chaque enregistrement, CyberArkTerm
   propose de le renvoyer sur le serveur : envoi en SFTP, droits du fichier conservés. Si le fichier a changé sur le
   serveur depuis son ouverture, une alerte demande confirmation avant de l'écraser.
 - **Suivre un fichier (tail -f)** : clic droit sur un ou plusieurs fichiers → « Suivre (tail -f) ». Une fenêtre
@@ -449,7 +450,7 @@ coffre KeePass dont le mot de passe est mémorisé, « Plus tard » pour saisir 
 | Onglet SSH | Détacher dans une fenêtre séparée (autre écran) | Glisser l'onglet hors de la fenêtre |
 | Onglet SSH | Ajouter à la vue parallèle, ou l'en retirer | Clic droit sur l'onglet |
 | Bureau à distance | Plein écran / retour | `Ctrl+Alt+Pause` |
-| Fichiers | Ouvrir / modifier / dossier parent / supprimer / actualiser | `Entrée` / `F4` / `Retour arrière` / `Suppr` / `F5` |
+| Fichiers | Ouvrir le dossier ou modifier le fichier / modifier / dossier parent / supprimer / actualiser | Double-clic ou `Entrée` / `F4` / `Retour arrière` / `Suppr` / `F5` |
 | Fichiers | Trier par une colonne, puis inverser | Clic sur son en-tête |
 | Coffre KeePass | Se connecter / modifier / supprimer une entrée | Double-clic ou `Entrée` / `F2` / `Suppr` |
 

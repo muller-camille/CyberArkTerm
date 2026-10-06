@@ -410,11 +410,19 @@ public partial class FileBrowserPanel : UserControl
         }
     }
 
+    /// <summary>
+    /// Double-clic, Entrée ou « Ouvrir » : un dossier s'affiche, un fichier s'ouvre dans l'éditeur (renvoyé au serveur à
+    /// l'enregistrement) ; une archive, une image ou un exécutable est téléchargé.
+    /// </summary>
     private void Open(RemoteEntry entry)
     {
         if (entry.IsDirectory)
         {
             _ = NavigateAsync(entry.FullPath);
+        }
+        else if (_session?.Editor is { } editor && _browser is not null && !EditedFile.LooksBinary(entry.Name))
+        {
+            _ = editor.EditAsync(entry);
         }
         else
         {

@@ -241,8 +241,9 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   copy. A file that cannot be read again (permissions) is reported as "not checked". Reading an upload again doubles
   the data exchanged with the server.
 - **Delete**: select, then Del (or right-click → "Delete (rm)"), with confirmation. Folders must be empty.
-- **Edit a file**: select it, then `F4` (or right-click → "Edit", or the pencil button). The file opens in the text
-  editor chosen in Settings (Notepad by default). Every time you save, CyberArkTerm offers to send it back to the
+- **Edit a file**: **double-click** the file (or `Enter`, `F4`, right-click → "Edit", the pencil button). The file
+  opens in the text editor chosen in Settings (Notepad by default). On double-click, an archive, an image, an
+  executable or an office document is downloaded instead of opened. Every time you save, CyberArkTerm offers to send it back to the
   server: sent over SFTP, the file's permissions are kept. If the file changed on the server since you opened it, a
   warning asks before overwriting it.
 - **Follow a file (tail -f)**: right-click one or several files → "Follow (tail -f)". A window shows the end of the
@@ -424,7 +425,7 @@ change the password, delete.
 | SSH tab | Detach to a separate window (another screen) | Drag the tab out of the window |
 | SSH tab | Add to the parallel view, or take it out | Right-click the tab |
 | Remote desktop | Full screen / back | `Ctrl+Alt+Break` |
-| Files | Open / edit / parent folder / delete / refresh | `Enter` / `F4` / `Backspace` / `Del` / `F5` |
+| Files | Open the folder or edit the file / edit / parent folder / delete / refresh | Double-click or `Enter` / `F4` / `Backspace` / `Del` / `F5` |
 | Files | Sort by a column, then reverse | Click its header |
 | KeePass vault | Connect / edit / delete an entry | Double-click or `Enter` / `F2` / `Del` |
 

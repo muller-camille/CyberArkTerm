@@ -256,8 +256,10 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   che non può essere riletto (permessi) è segnalato «non verificato». La rilettura di un invio raddoppia il volume
   scambiato con il server.
 - **Eliminare**: selezione poi Canc (o clic destro → «Elimina (rm)»), con conferma. Le cartelle devono essere vuote.
-- **Modificare un file**: selezionalo, poi `F4` (o clic destro → «Modifica», o il pulsante matita). Il file si apre
-  nell'editor di testo scelto nelle Impostazioni (Blocco note per impostazione predefinita). A ogni salvataggio,
+- **Modificare un file**: **doppio clic** sul file (o `Invio`, `F4`, clic destro → «Modifica», il pulsante matita).
+  Il file si apre nell'editor di testo scelto nelle Impostazioni (Blocco note per impostazione predefinita). Con il
+  doppio clic, un archivio, un'immagine, un eseguibile o un documento d'ufficio viene scaricato invece di essere
+  aperto. A ogni salvataggio,
   CyberArkTerm propone di rinviarlo al server: invio in SFTP, permessi del file conservati. Se il file è cambiato
   sul server dopo l'apertura, un avviso chiede conferma prima di sovrascriverlo.
 - **Seguire un file (tail -f)**: clic destro su uno o più file → «Segui (tail -f)». Una finestra mostra la fine del
@@ -446,7 +448,7 @@ Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia password, elimin
 | Scheda SSH | Staccare in una finestra separata (altro schermo) | Trascinare la scheda fuori dalla finestra |
 | Scheda SSH | Aggiungere alla vista parallela, o toglierla | Clic destro sulla scheda |
 | Desktop remoto | Schermo intero / ritorno | `Ctrl+Alt+Pausa` |
-| File | Aprire / modificare / cartella superiore / eliminare / aggiornare | `Invio` / `F4` / `Backspace` / `Canc` / `F5` |
+| File | Aprire la cartella o modificare il file / modificare / cartella superiore / eliminare / aggiornare | Doppio clic o `Invio` / `F4` / `Backspace` / `Canc` / `F5` |
 | File | Ordinare per una colonna, poi invertire | Clic sulla sua intestazione |
 | Archivio KeePass | Connettere / modificare / eliminare una voce | Doppio clic o `Invio` / `F2` / `Canc` |
 

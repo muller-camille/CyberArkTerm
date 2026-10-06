@@ -109,6 +109,23 @@ public sealed class EditedFileTests : IDisposable
     public void LocalCopyName_KeepsOnlySafeCharacters(string remote, string expected) =>
         Assert.Equal(expected, EditedFile.LocalCopyName(remote));
 
+    /// <summary>Double-clic dans l'onglet Fichiers : les fichiers texte s'ouvrent dans l'éditeur, les binaires connus sont téléchargés.</summary>
+    [Theory]
+    [InlineData("app.conf", false)]
+    [InlineData("messages", false)]
+    [InlineData(".bashrc", false)]
+    [InlineData("deploy.sh", false)]
+    [InlineData("server.log.1", false)]
+    [InlineData("cert.pem", false)]
+    [InlineData("backup-2026-09-30.tar.gz", true)]
+    [InlineData("RELEASE.ZIP", true)]
+    [InlineData("app.jar", true)]
+    [InlineData("logo.png", true)]
+    [InlineData("rapport.pdf", true)]
+    [InlineData("keystore.p12", true)]
+    public void LooksBinary_UsesTheExtension(string name, bool binary) =>
+        Assert.Equal(binary, EditedFile.LooksBinary(name));
+
     private string Write(string name, string content)
     {
         var path = Path.Combine(_dir, name);
