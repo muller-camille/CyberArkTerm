@@ -167,7 +167,8 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   "Cancel all" empties the queue. A stopped transfer deletes the file being transferred, which is incomplete (on the
   server for an upload, on this computer for a download); files already transferred stay. Beware: if the upload was
   replacing an existing file, its old content is lost. Over SCP, stopping ends only that transfer: the next items go
-  on over the same connection. If the server closes the SCP channel before a file starts, CyberArkTerm tries once
+  on over the same connection; a transfer that no longer moves (server not reading) stops 2 s after "Cancel" and the next
+  ones go on over a new connection. If the server closes the SCP channel before a file starts, CyberArkTerm tries once
   more on a new connection, then reports a clear error (SFTP uploads can be chosen in Settings). A file sent over
   SCP gets the upload date on the server (as `scp` without `-p`, and as over SFTP). An error is shown in the queue
   and the queue goes on; at the end, a single summary. Browsing, deleting, permissions, the editor and dragging to

@@ -180,7 +180,8 @@ acceptés.
   transfert arrêté supprime le fichier en cours, incomplet (sur le serveur pour un envoi, sur le poste pour un
   téléchargement) ; les fichiers déjà transférés restent. Attention : si l'envoi remplaçait un fichier existant, son
   ancien contenu est perdu. En SCP, l'arrêt ne concerne que ce transfert : les éléments suivants continuent sur la
-  même connexion. Si le serveur ferme le canal SCP avant le début d'un fichier, CyberArkTerm réessaie une fois sur
+  même connexion ; un transfert qui n'avance plus (serveur qui ne lit plus) s'arrête 2 s après « Annuler » et les
+  suivants partent sur une nouvelle connexion. Si le serveur ferme le canal SCP avant le début d'un fichier, CyberArkTerm réessaie une fois sur
   une nouvelle connexion, puis affiche une erreur claire (l'envoi par SFTP peut être choisi dans les Paramètres). Un
   fichier envoyé par SCP prend sur le serveur la date de l'envoi (comme `scp` sans `-p`, et comme en SFTP). Une
   erreur est affichée dans la file et la file continue ; à la fin, un seul bilan. La navigation, la suppression, les

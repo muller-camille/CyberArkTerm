@@ -1372,10 +1372,10 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>La vue parallèle est dans une fenêtre séparée.</value>
   </data>
   <data name="MenuTabAddParallel" xml:space="preserve">
-    <value>Ajouter à la vue _parallèle</value>
+    <value>Ajouter à la _vue parallèle</value>
   </data>
   <data name="MenuTabRemoveParallel" xml:space="preserve">
-    <value>Retirer de la vue _parallèle</value>
+    <value>Retirer de la _vue parallèle</value>
   </data>
   <data name="MultiUploadTitle" xml:space="preserve">
     <value>Envoyer vers plusieurs serveurs</value>
@@ -1622,10 +1622,10 @@ Envoyer quand même ?</value>
     <value>Fichiers texte (*.txt)|*.txt|Tous les fichiers (*.*)|*.*</value>
   </data>
   <data name="MenuTerminalSearch" xml:space="preserve">
-    <value>_Rechercher dans le terminal…</value>
+    <value>R_echercher dans le terminal…</value>
   </data>
   <data name="MenuTerminalSave" xml:space="preserve">
-    <value>Enregistrer le _contenu du terminal…</value>
+    <value>Enre_gistrer le contenu du terminal…</value>
   </data>
   <data name="MenuTerminalSaveTip" xml:space="preserve">
     <value>Écrire l'historique et l'écran dans un fichier texte de ce poste ; il peut contenir des informations sensibles</value>
@@ -1649,7 +1649,7 @@ Envoyer quand même ?</value>
     <value>Sélectionner l'historique et l'écran, et les copier dans le presse-papiers</value>
   </data>
   <data name="MenuTerminalClear" xml:space="preserve">
-    <value>_Effacer l'historique</value>
+    <value>Effacer l'_historique</value>
   </data>
   <data name="MenuTerminalClearTip" xml:space="preserve">
     <value>Oublier les lignes sorties de l'écran (sur ce poste seulement : rien n'est envoyé au serveur)</value>
@@ -2126,7 +2126,7 @@ Fermer quand même ? Les copies locales seront supprimées.</value>
     <value>Fermer les _autres onglets</value>
   </data>
   <data name="MenuTabDetach" xml:space="preserve">
-    <value>_Détacher dans une nouvelle fenêtre</value>
+    <value>Détacher dans une _nouvelle fenêtre</value>
   </data>
   <data name="TabDetachTip" xml:space="preserve">
     <value>Glissez l'onglet hors de la fenêtre, ou clic droit, pour afficher la session dans une fenêtre séparée (autre écran…)</value>

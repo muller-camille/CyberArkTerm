@@ -4,9 +4,9 @@
         xmlns:loc="clr-namespace:CyberArkTerm.App.Localization"
         Title="{x:Static loc:Strings.SettingsTitle}"
         Width="580" SizeToContent="Height" ResizeMode="NoResize"
-        MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
-    <!-- Plus haute que certains écrans (portable en 1080p à 125 %) : le contenu défile, les boutons restent visibles. -->
+    <!-- Plus haute que certains écrans (portable en 1080p à 125 %) : le contenu défile, les boutons restent visibles
+         (hauteur maximale : celle de l'écran de la fenêtre principale, voir FitToScreen). -->
     <DockPanel>
     <StackPanel DockPanel.Dock="Bottom" Margin="16,8,16,16">
         <TextBlock x:Name="ErrorText" Foreground="Firebrick" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,0,0,8" />

@@ -33,11 +33,12 @@ public partial class FileBrowserPanel : UserControl
         UpdateToolbar();
     }
 
-    public void Initialize(AppSettings settings, Action saveSettings)
+    /// <param name="history">Historique des transferts ; par défaut celui du profil Windows (les tests en donnent un en mémoire).</param>
+    public void Initialize(AppSettings settings, Action saveSettings, TransferHistory? history = null)
     {
         _settings = settings;
         _saveSettings = saveSettings;
-        _history = TransferHistory.Load(TransferHistory.DefaultPath);
+        _history = history ?? TransferHistory.Load(TransferHistory.DefaultPath);
         HiddenBox.IsChecked = settings.ShowHiddenFiles;
         ShowSortArrow();
     }
@@ -295,10 +296,12 @@ public partial class FileBrowserPanel : UserControl
             return;
         }
 
-        var sort = column == SizeColumn ? RemoteSortColumn.Size
-            : column == ModifiedColumn ? RemoteSortColumn.Modified
-            : column == PermissionsColumn ? RemoteSortColumn.Permissions
-            : RemoteSortColumn.Name;
+        if (SortColumns().FirstOrDefault(c => c.Column == column) is not { Column: not null } clicked)
+        {
+            return;
+        }
+
+        var sort = clicked.Sort;
         SortBy(sort, sort == _settings.FileSortColumn
             ? !_settings.FileSortDescending
             : sort is RemoteSortColumn.Size or RemoteSortColumn.Modified);
@@ -331,20 +334,22 @@ public partial class FileBrowserPanel : UserControl
         }
     }
 
+    /// <summary>Colonnes triables : colonne de la liste, titre, tri correspondant.</summary>
+    private (GridViewColumn Column, string Text, RemoteSortColumn Sort)[] SortColumns() =>
+    [
+        (NameColumn, Core.Localization.CoreStrings.ColumnName, RemoteSortColumn.Name),
+        (SizeColumn, Strings.ColumnSize, RemoteSortColumn.Size),
+        (ModifiedColumn, Strings.ColumnModified, RemoteSortColumn.Modified),
+        (PermissionsColumn, Strings.ColumnPermissions, RemoteSortColumn.Permissions),
+    ];
+
     /// <summary>
     /// Triangle vers le haut (croissant) ou vers le bas (décroissant) dans l'en-tête de la colonne de tri, dessiné pour
     /// ne pas dépendre de la police. Le sens est aussi dans <c>Tag</c> de l'en-tête.
     /// </summary>
     private void ShowSortArrow()
     {
-        (GridViewColumn Column, string Text, RemoteSortColumn Sort)[] columns =
-        [
-            (NameColumn, Core.Localization.CoreStrings.ColumnName, RemoteSortColumn.Name),
-            (SizeColumn, Strings.ColumnSize, RemoteSortColumn.Size),
-            (ModifiedColumn, Strings.ColumnModified, RemoteSortColumn.Modified),
-            (PermissionsColumn, Strings.ColumnPermissions, RemoteSortColumn.Permissions),
-        ];
-        foreach (var (column, text, sort) in columns)
+        foreach (var (column, text, sort) in SortColumns())
         {
             if (sort != _settings.FileSortColumn)
             {

@@ -4511,7 +4511,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Add to the _parallel view.
+        ///   Looks up a localized string similar to Add to the para_llel view.
         /// </summary>
         public static string MenuTabAddParallel {
             get {
@@ -4520,7 +4520,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Close tab.
+        ///   Looks up a localized string similar to Close _tab.
         /// </summary>
         public static string MenuTabClose {
             get {
@@ -4547,7 +4547,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Duplicate tab.
+        ///   Looks up a localized string similar to D_uplicate tab.
         /// </summary>
         public static string MenuTabDuplicate {
             get {
@@ -4574,7 +4574,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Take out of the _parallel view.
+        ///   Looks up a localized string similar to Take out of the para_llel view.
         /// </summary>
         public static string MenuTabRemoveParallel {
             get {
@@ -4628,7 +4628,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Save the terminal _content….
+        ///   Looks up a localized string similar to Sa_ve the terminal content….
         /// </summary>
         public static string MenuTerminalSave {
             get {
