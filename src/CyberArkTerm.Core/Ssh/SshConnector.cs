@@ -60,12 +60,11 @@ public sealed class SshConnector
     public Task<SftpClient> ConnectSftpAsync(CancellationToken ct) => ConnectAsync(info => new SftpClient(info), ct);
 
     /// <summary>
-    /// Connexion des envois SCP : les chemins sont passés à une commande « scp -t » exécutée par le shell de la cible ;
-    /// ils sont donc protégés entre apostrophes (ShellQuote, voir <see cref="ScpUpload"/>) pour empêcher toute
-    /// injection de commande.
+    /// SCP : les chemins sont passés à une commande « scp -t » exécutée par le shell de la cible ;
+    /// ils sont donc protégés entre apostrophes (ShellQuote) pour empêcher toute injection de commande.
     /// </summary>
-    public Task<SshClient> ConnectScpAsync(CancellationToken ct) =>
-        ConnectAsync(info => new SshClient(info), ct, "SCP");
+    public Task<ScpClient> ConnectScpAsync(CancellationToken ct) =>
+        ConnectAsync(info => new ScpClient(info, RemotePathTransformation.ShellQuote), ct, "SCP");
 
     /// <param name="purpose">Nom de la connexion dans le journal (par défaut, son type).</param>
     private async Task<T> ConnectAsync<T>(Func<ConnectionInfo, T> create, CancellationToken ct, string? purpose = null)

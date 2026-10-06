@@ -423,11 +423,9 @@ start from scratch, close the application and delete it. The transfer history of
   - `urgence.log`: date, Windows account, computer, action, vault, entry, target; never a password.
 - **Debug log**, off by default (Settings button menu): `%LOCALAPPDATA%\CyberArkTerm\debug.log`, 5 MB at most plus
   one `.1` generation. It records how PVWA, PSM, remote desktop and SSH connections unfold: request addresses and
-  statuses, .rdp file settings, Remote Desktop control events and codes, SSH server version and algorithms, errors.
-  For each SCP upload: the `scp -t` command sent, the file announcement (mode, size, name), the server's answer at
-  each step with its duration and, if the server closes the channel, its error output, exit code and signal; for
-  each refused protocol, the server's answer and the protocol that took over. It contains server and account
-  names, but **never** a password, session token, PSM session request (`PSM@…` masked), signature, request header or
+  statuses, .rdp file settings, Remote Desktop control events and codes, SSH server version and algorithms, errors;
+  for each refused upload protocol, the step (connection, scp command, file announcement), the server's answer and
+  the protocol that took over. It contains server and account names, but **never** a password, session token, PSM session request (`PSM@…` masked), signature, request header or
   body, nor session content. The status bar shows it while it is on. Read it before passing it on, and delete it
   once the problem is solved.
 - **Edited files**: the local copy opened in the editor is stored in `%TEMP%\CyberArkTerm\edit` and deleted when the
@@ -534,7 +532,7 @@ ksh, sh or fish, following is not set up and nothing stays on screen.
 | The account does not show up | You lack the "List accounts" permission on its safe, or the list needs reloading (`F5`). |
 | The PSMP password is asked for each tab | MFA caching is not enabled on the PVWA: expected behavior (once per tab). |
 | The Files tab shows "SFTP connection failed" | SFTP is not allowed on the PSMP or for this account: ask your CyberArk team. |
-| An upload shows "SFTP (SCP refused)" or "SCP (SFTP refused)" | The PSMP or the server refused that protocol for this file: the other one took over and the file was checked as usual. The summary gives the server's answer; the debug log details each step of the SCP upload (command, file announcement, error output and exit code of the server), to pass on to your CyberArk team. |
+| An upload shows "SFTP (SCP refused)" or "SCP (SFTP refused)" | The PSMP or the server refused that protocol for this file: the other one took over and the file was checked as usual. The summary gives the server's answer. A PSMP that refuses SCP for a platform (error `118E Selected component PSMP-SCP does not contain the target settings definitions…` in its logs) lacks the PSMP-SCP connection component: your CyberArk team can add it to the platform, otherwise uploads go over SFTP. |
 | The browser does not follow `cd` | The remote shell is not bash, zsh or tcsh (or tcsh already has its own `cwdcmd` alias), the option is off in Settings, or the prompt was not recognized: tick "Follow the terminal folder" again at the shell prompt. |
 | "The key of the PSMP has changed" warning | Only continue if your CyberArk team confirms a server change. |
 | "Wrong master password or key file." | Check the password and the key file; a vault protected by a YubiKey is not supported. |
