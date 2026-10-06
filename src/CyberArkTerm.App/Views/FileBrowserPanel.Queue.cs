@@ -20,7 +20,11 @@ namespace CyberArkTerm.App.Views;
 /// </summary>
 public partial class FileBrowserPanel
 {
-    private readonly TransferQueue _queue = new(ex => Describe(ex));
+    private readonly TransferQueue _queue = new(ex =>
+    {
+        Core.Diagnostics.DebugLog.Write("files", "Transfert en échec", ex);
+        return Describe(ex);
+    });
     private TransferItem? _watched;
 
     // Historique des transferts ; sans chemin (tests, avant l'initialisation), rien n'est écrit sur le disque.
@@ -328,10 +332,13 @@ public partial class FileBrowserPanel
             });
         }
 
-        // Envoi terminé (ou arrêté) vers le dossier affiché : la liste est relue.
+        Core.Diagnostics.DebugLog.Write("files", $"{(item.Upload ? "Envoi" : "Téléchargement")} {item.State} : {item.Label} → {item.Destination}"
+            + (item.Error is null ? "" : $" ({item.Error})"));
+
+        // Envoi terminé (ou arrêté) vers le dossier affiché : la liste est relue, sans effacer le bilan des transferts.
         if (item.Upload && ReferenceEquals(item.Owner, _session) && _browser is { } browser && browser.CurrentDirectory == item.Destination)
         {
-            _ = NavigateAsync(item.Destination);
+            _ = NavigateAsync(item.Destination, quiet: true);
         }
     }
 

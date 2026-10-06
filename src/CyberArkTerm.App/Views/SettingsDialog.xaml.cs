@@ -41,6 +41,7 @@ public partial class SettingsDialog : Window
         ThemeBox.ItemsSource = TerminalTheme.All;
         ThemeBox.SelectedItem = TerminalTheme.Find(settings.TerminalTheme);
         FontSizeBox.Text = settings.TerminalFontSize.ToString(CultureInfo.CurrentCulture);
+        RightClickBox.IsChecked = settings.TerminalRightClickPastes;
         CompareArgsBox.Text = settings.CompareToolArguments;
         (settings.UploadProtocol == TransferProtocol.Sftp ? SftpRadio : ScpRadio).IsChecked = true;
         ArchiveBox.IsChecked = settings.OfferArchive;
@@ -123,6 +124,7 @@ public partial class SettingsDialog : Window
         _settings.CompareTool = CompareToolBox.Text.Trim().Trim('"');
         _settings.TerminalTheme = (ThemeBox.SelectedItem as TerminalTheme ?? TerminalTheme.Campbell).Id;
         _settings.TerminalFontSize = fontSize;
+        _settings.TerminalRightClickPastes = RightClickBox.IsChecked == true;
         _settings.CompareToolArguments = compareArgs;
         if (_forgetHostKeys)
         {

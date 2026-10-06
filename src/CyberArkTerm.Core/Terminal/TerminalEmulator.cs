@@ -141,6 +141,13 @@ public sealed class TerminalEmulator
         Version++;
     }
 
+    /// <summary>Oublie l'historique (lignes sorties de l'écran) ; l'écran lui-même ne change pas.</summary>
+    public void ClearScrollback()
+    {
+        _scrollback.Clear();
+        Version++;
+    }
+
     public void Resize(int columns, int rows)
     {
         columns = Math.Max(columns, 2);

@@ -93,6 +93,9 @@ public sealed class AppSettings
     /// <summary>Taille de police par défaut des terminaux SSH (Ctrl+molette la change pour un terminal).</summary>
     public double TerminalFontSize { get; set; } = 14;
 
+    /// <summary>Le clic droit dans le terminal colle le presse-papiers au lieu d'ouvrir le menu (Maj+clic droit l'ouvre).</summary>
+    public bool TerminalRightClickPastes { get; set; }
+
     /// <summary>Outil de comparaison de fichiers (exécutable) proposé dans la fenêtre de comparaison ; vide = aucun.</summary>
     public string CompareTool { get; set; } = "";
 
@@ -105,6 +108,11 @@ public sealed class AppSettings
     public bool FollowTerminalFolder { get; set; } = true;
 
     public bool ShowHiddenFiles { get; set; }
+
+    /// <summary>Tri de l'onglet Fichiers : colonne dont l'en-tête a été cliqué, et sens.</summary>
+    public RemoteSortColumn FileSortColumn { get; set; } = RemoteSortColumn.Name;
+
+    public bool FileSortDescending { get; set; }
 
     /// <summary>Éditeur de texte pour « Modifier » dans l'onglet Fichiers (chemin d'un exécutable) ; vide = Bloc-notes.</summary>
     public string TextEditor { get; set; } = "";

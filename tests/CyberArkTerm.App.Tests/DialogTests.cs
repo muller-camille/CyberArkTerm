@@ -268,6 +268,46 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>Onglet Fichiers : tri par colonne (« .. » et dossiers en tête), flèche dans l'en-tête, réglage enregistré.</summary>
+    [Fact]
+    public void FileListSortsByTheClickedColumn()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var settings = new AppSettings();
+            int saved = 0;
+            var panel = new FileBrowserPanel();
+            panel.Initialize(settings, () => saved++);
+            Assert.Equal(false, (panel.NameColumn.Header as FrameworkElement)?.Tag); // croissant
+            RemoteEntry E(string name, bool dir, long size, int day) =>
+                new(name, "/opt/" + name, dir, false, size, new DateTime(2026, 10, day), dir ? "drwxr-xr-x" : "-rw-r--r--");
+            var big = E("big.tar", false, 9000, 1);
+            panel.FileList.ItemsSource = new List<RemoteEntry>
+            {
+                RemoteEntry.ParentLink("/opt"), E("app", true, 4096, 2), E("a.log", false, 10, 9), big, E("z.conf", false, 200, 5),
+            };
+            panel.FileList.SelectedItems.Add(big);
+
+            panel.SortBy(RemoteSortColumn.Modified, descending: true);
+
+            Assert.Equal(["..", "app", "a.log", "z.conf", "big.tar"],
+                panel.FileList.Items.Cast<RemoteEntry>().Select(e => e.Name));
+            Assert.Equal(true, (panel.ModifiedColumn.Header as FrameworkElement)?.Tag); // décroissant
+            Assert.Equal(CyberArkTerm.Core.Localization.CoreStrings.ColumnName, panel.NameColumn.Header);
+            Assert.Same(big, Assert.Single(panel.FileList.SelectedItems.Cast<RemoteEntry>()));
+            Assert.Equal((RemoteSortColumn.Modified, true, 1), (settings.FileSortColumn, settings.FileSortDescending, saved));
+
+            panel.SortBy(RemoteSortColumn.Size, descending: false);
+            Assert.Equal(["..", "app", "a.log", "z.conf", "big.tar"],
+                panel.FileList.Items.Cast<RemoteEntry>().Select(e => e.Name));
+        });
+    }
+
     /// <summary>
     /// Archive .tar.gz envoyée : encadré bien visible avec la commande d'extraction de sa session (une seule ligne, sans
     /// retour à la ligne), qui reste jusqu'à ce qu'on le ferme ou que la session se ferme.
@@ -871,11 +911,49 @@ public sealed class DialogTests
             view.MoveSearch(1);
             Assert.Equal(0, view.CurrentMatch);
 
-            CyberArkTerm.App.Terminal.TerminalAppearance.Apply("solarized-light", 16);
+            CyberArkTerm.App.Terminal.TerminalAppearance.Apply("solarized-light", 16, rightClickPastes: false);
             Assert.Same(CyberArkTerm.Core.Terminal.TerminalTheme.SolarizedLight, CyberArkTerm.App.Terminal.TerminalAppearance.Theme);
-            CyberArkTerm.App.Terminal.TerminalAppearance.Apply(null, 99);
+            CyberArkTerm.App.Terminal.TerminalAppearance.Apply(null, 99, rightClickPastes: false);
             Assert.Equal(CyberArkTerm.App.Terminal.TerminalAppearance.MaxFontSize, CyberArkTerm.App.Terminal.TerminalAppearance.FontSize);
-            CyberArkTerm.App.Terminal.TerminalAppearance.Apply(null, 14);
+            CyberArkTerm.App.Terminal.TerminalAppearance.Apply(null, 14, rightClickPastes: false);
+            session.Dispose();
+        });
+    }
+
+    /// <summary>Menu du clic droit dans le terminal : actions selon l'état, effacer l'historique, actions de la session.</summary>
+    [Fact]
+    public void TerminalMenuOffersTheTerminalAndSessionActions()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var (session, view) = NewSshView("root@srv01");
+            view.SessionMenu = items => items.Add(new System.Windows.Controls.MenuItem { Header = "session" });
+            session.Emulator.Feed(string.Concat(Enumerable.Range(1, 60).Select(i => $"line {i}{(i % 20 == 0 ? " ERROR" : "")}\r\n")));
+            view.ShowSearch();
+            view.SearchBox.Text = "error";
+            Assert.Equal(3, view.Matches.Count);
+
+            var menu = view.Terminal.BuildMenu(atCursor: true)!;
+            var entries = menu.Items.OfType<System.Windows.Controls.MenuItem>().ToList();
+            System.Windows.Controls.MenuItem Entry(string header) => entries.Single(i => i.Header as string == header);
+            Assert.False(Entry(Strings.MenuTerminalCopy).IsEnabled); // rien de sélectionné
+            Assert.Equal(Strings.ShortcutTerminalPaste, Entry(Strings.MenuTerminalPaste).InputGestureText);
+            Assert.NotNull(Entry(Strings.MenuTerminalSearch));
+            Assert.NotNull(Entry(Strings.MenuTerminalSave));
+            Assert.Equal(3, Entry(Strings.MenuTerminalFont).Items.Count);
+            Assert.Equal("session", entries[^1].Header);
+
+            // Effacer l'historique : l'écran reste, la recherche ne trouve plus que ce qui est à l'écran.
+            Entry(Strings.MenuTerminalClear).RaiseEvent(new RoutedEventArgs(System.Windows.Controls.MenuItem.ClickEvent));
+            Assert.Equal(0, session.Emulator.ScrollbackCount);
+            Assert.Equal(2, view.Matches.Count); // lignes 40 et 60 : l'écran (30 lignes) montre les lignes 32 à 60
+            Assert.False(view.Terminal.BuildMenu(atCursor: false)!.Items.OfType<System.Windows.Controls.MenuItem>()
+                .Single(i => i.Header as string == Strings.MenuTerminalClear).IsEnabled);
             session.Dispose();
         });
     }

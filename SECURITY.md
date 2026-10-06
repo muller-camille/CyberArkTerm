@@ -40,5 +40,5 @@ Out of scope, to be reported to their maintainers:
   [Konscious.Security.Cryptography](https://github.com/kmaragon/Konscious.Security.Cryptography) (Argon2) or .NET → their projects;
 - vulnerabilities in the Windows Remote Desktop client or in KeePass / KeePassXC → Microsoft or their projects.
 
-The security measures built into the application are described in the
-[README](README.md#security).
+The security measures built into the application are summed up in the [README](README.md#security) and described in
+detail in the [user guide](docs/guide.md#security).

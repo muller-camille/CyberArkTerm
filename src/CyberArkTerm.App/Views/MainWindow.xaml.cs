@@ -86,7 +86,7 @@ public partial class MainWindow : Window
         };
 
         CompareWindow.CleanTemporaryFiles();
-        CyberArkTerm.App.Terminal.TerminalAppearance.Apply(settings.TerminalTheme, settings.TerminalFontSize);
+        CyberArkTerm.App.Terminal.TerminalAppearance.Apply(settings.TerminalTheme, settings.TerminalFontSize, settings.TerminalRightClickPastes);
         FilesPanel.Initialize(settings, SaveSettings);
         FilesPanel.OpenSessions = () => MainTabs.Items.OfType<TabItem>().Select(t => t.Tag).OfType<SshSession>().ToList();
         FilesPanel.ShowTerminalRequested += ShowTerminal;
@@ -957,7 +957,7 @@ public partial class MainWindow : Window
         if (accepted)
         {
             SaveSettings();
-            CyberArkTerm.App.Terminal.TerminalAppearance.Apply(_settings.TerminalTheme, _settings.TerminalFontSize);
+            CyberArkTerm.App.Terminal.TerminalAppearance.Apply(_settings.TerminalTheme, _settings.TerminalFontSize, _settings.TerminalRightClickPastes);
             UpdateActions();
             StartKeepAlive();
             SetStatus(_settings.Language == language ? Strings.SettingsSaved : Strings.SettingsSavedLanguage);

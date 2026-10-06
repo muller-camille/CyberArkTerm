@@ -55,6 +55,23 @@ public class TerminalEmulatorTests
     }
 
     [Fact]
+    public void ClearScrollbackKeepsTheScreen()
+    {
+        var t = new TerminalEmulator(5, 2);
+        t.Feed("1\r\n2\r\n3\r\n4");
+        long version = t.Version;
+
+        t.ClearScrollback();
+
+        Assert.Equal(0, t.ScrollbackCount);
+        Assert.Equal(["3", "4"], Screen(t));
+        Assert.True(t.Version > version);
+        t.Feed("\r\n5");
+        Assert.Equal(1, t.ScrollbackCount);
+        Assert.Equal("3", Row(t, -1));
+    }
+
+    [Fact]
     public void CursorPositionAndErase()
     {
         var t = new TerminalEmulator(6, 3);

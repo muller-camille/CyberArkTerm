@@ -65,6 +65,32 @@ public class SshSupportTests
     }
 
     [Fact]
+    public void SortsByTheChosenColumnWithDirectoriesFirst()
+    {
+        RemoteEntry E(string name, bool dir, long size, int day, string rights) =>
+            new(name, "/" + name, dir, false, size, new DateTime(2026, 10, day), rights);
+        RemoteEntry[] entries =
+        [
+            E("b.log", false, 300, 3, "-rw-r--r--"),
+            E("logs", true, 4096, 1, "drwxr-xr-x"),
+            E("A.txt", false, 10, 5, "-rwx------"),
+            E("bin", true, 512, 7, "drwx------"),
+            E("c.gz", false, 300, 1, "-rw-------"),
+        ];
+        string[] Names(RemoteSortColumn column, bool descending) =>
+            RemoteEntry.Sort(entries, column, descending).Select(e => e.Name).ToArray();
+
+        Assert.Equal(["bin", "logs", "A.txt", "b.log", "c.gz"], Names(RemoteSortColumn.Name, false));
+        Assert.Equal(["logs", "bin", "c.gz", "b.log", "A.txt"], Names(RemoteSortColumn.Name, true));
+        // Taille : les dossiers restent par nom ; à taille égale, par nom.
+        Assert.Equal(["bin", "logs", "A.txt", "b.log", "c.gz"], Names(RemoteSortColumn.Size, false));
+        Assert.Equal(["bin", "logs", "b.log", "c.gz", "A.txt"], Names(RemoteSortColumn.Size, true));
+        Assert.Equal(["bin", "logs", "A.txt", "b.log", "c.gz"], Names(RemoteSortColumn.Modified, true));
+        Assert.Equal(["logs", "bin", "c.gz", "b.log", "A.txt"], Names(RemoteSortColumn.Modified, false));
+        Assert.Equal(["bin", "logs", "c.gz", "b.log", "A.txt"], Names(RemoteSortColumn.Permissions, false));
+    }
+
+    [Fact]
     public void KnownHostsTrustOnFirstUseAndDetectChanges()
     {
         var store = new Dictionary<string, string>();

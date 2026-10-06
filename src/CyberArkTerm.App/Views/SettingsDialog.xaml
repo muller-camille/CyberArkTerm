@@ -4,8 +4,19 @@
         xmlns:loc="clr-namespace:CyberArkTerm.App.Localization"
         Title="{x:Static loc:Strings.SettingsTitle}"
         Width="580" SizeToContent="Height" ResizeMode="NoResize"
+        MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
-    <StackPanel Margin="16">
+    <!-- Plus haute que certains écrans (portable en 1080p à 125 %) : le contenu défile, les boutons restent visibles. -->
+    <DockPanel>
+    <StackPanel DockPanel.Dock="Bottom" Margin="16,8,16,16">
+        <TextBlock x:Name="ErrorText" Foreground="Firebrick" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,0,0,8" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="{x:Static loc:Strings.Save}" IsDefault="True" Click="OnSave" />
+            <Button Content="{x:Static loc:Strings.Cancel}" IsCancel="True" Margin="8,0,0,0" />
+        </StackPanel>
+    </StackPanel>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+    <StackPanel Margin="16,16,16,0">
         <TextBlock Text="{x:Static loc:Strings.LanguageSection}" Style="{StaticResource SectionTitle}" />
         <Grid Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
@@ -58,6 +69,9 @@
             <Label Grid.Column="2" Content="{x:Static loc:Strings.TerminalFontLabel}" Target="{Binding ElementName=FontSizeBox}" Margin="8,0,0,0" />
             <TextBox Grid.Column="3" x:Name="FontSizeBox" VerticalContentAlignment="Center" ToolTip="{x:Static loc:Strings.TerminalFontTip}" />
         </Grid>
+        <CheckBox x:Name="RightClickBox" Margin="0,6,0,4">
+            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SettingsRightClickPastes}" />
+        </CheckBox>
         <CheckBox x:Name="SshInAppBox" Margin="0,4,0,8">
             <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SshInApp}" />
         </CheckBox>
@@ -142,11 +156,7 @@
             <TextBlock x:Name="ComponentsText" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"
                        VerticalAlignment="Center" Margin="0,0,12,0" />
         </DockPanel>
-
-        <TextBlock x:Name="ErrorText" Foreground="Firebrick" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,0,0,8" />
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="{x:Static loc:Strings.Save}" IsDefault="True" Click="OnSave" />
-            <Button Content="{x:Static loc:Strings.Cancel}" IsCancel="True" Margin="8,0,0,0" />
-        </StackPanel>
     </StackPanel>
+    </ScrollViewer>
+    </DockPanel>
 </Window>

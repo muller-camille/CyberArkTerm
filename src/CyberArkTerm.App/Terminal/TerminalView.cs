@@ -1,14 +1,17 @@
 using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core.Terminal;
 
 namespace CyberArkTerm.App.Terminal;
 
 /// <summary>
 /// Affichage d'un <see cref="TerminalEmulator"/> et saisie clavier :
-/// sélection = copie, clic droit = collage, molette = historique.
+/// sélection = copie, clic droit = menu (ou collage, option des Paramètres), molette = historique.
 /// </summary>
 public sealed class TerminalView : FrameworkElement
 {
@@ -56,6 +59,12 @@ public sealed class TerminalView : FrameworkElement
 
     /// <summary>Ctrl+Maj+S : enregistrer le contenu du terminal.</summary>
     public event Action? SaveRequested;
+
+    /// <summary>Historique effacé depuis le menu : les occurrences d'une recherche sont à recalculer.</summary>
+    public event Action? ScrollbackCleared;
+
+    /// <summary>Actions de la session (reconnecter, dupliquer…) ajoutées à la fin du menu du clic droit, à chaque ouverture.</summary>
+    public Action<ItemCollection>? ExtraMenuItems { get; set; }
 
     public TerminalTheme Theme => _theme;
 
@@ -392,6 +401,14 @@ public sealed class TerminalView : FrameworkElement
             return;
         }
 
+        if (key == Key.Apps)
+        {
+            // Touche Menu du clavier : le menu du clic droit, au curseur.
+            OpenMenu(atCursor: true);
+            e.Handled = true;
+            return;
+        }
+
         if (shift && key is Key.PageUp or Key.PageDown)
         {
             ScrollBy(key == Key.PageUp ? _emulator.Rows - 1 : -(_emulator.Rows - 1));
@@ -585,8 +602,142 @@ public sealed class TerminalView : FrameworkElement
     {
         base.OnMouseRightButtonUp(e);
         Focus();
-        Paste();
+        // Collage direct (option des Paramètres) : Maj+clic droit ouvre alors le menu.
+        if (TerminalAppearance.RightClickPastes && !Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
+        {
+            Paste();
+        }
+        else
+        {
+            OpenMenu(atCursor: false);
+        }
+
         e.Handled = true;
+    }
+
+    // ===================== Menu du clic droit =====================
+
+    /// <summary>
+    /// Copier, coller, tout sélectionner, rechercher, enregistrer, effacer l'historique, taille de police, puis les
+    /// actions de la session. Recréé à chaque ouverture pour refléter la sélection et le presse-papiers.
+    /// </summary>
+    /// <param name="atCursor">Sous le curseur du terminal (touche Menu) plutôt que sous la souris.</param>
+    private void OpenMenu(bool atCursor)
+    {
+        if (BuildMenu(atCursor) is { } menu)
+        {
+            menu.IsOpen = true;
+        }
+    }
+
+    internal ContextMenu? BuildMenu(bool atCursor)
+    {
+        if (_emulator is null)
+        {
+            return null;
+        }
+
+        bool selection = _selectionStart is { } a && _selectionEnd is { } b && a != b;
+        var menu = new ContextMenu { PlacementTarget = this, Placement = atCursor ? PlacementMode.Relative : PlacementMode.MousePoint };
+        if (atCursor)
+        {
+            menu.HorizontalOffset = Padding + (_emulator.CursorColumn * _cellWidth);
+            menu.VerticalOffset = Padding + ((_emulator.CursorRow + _scrollOffset + 1) * _cellHeight);
+        }
+
+        menu.Items.Add(MenuEntry(Strings.MenuTerminalCopy, CopySelection, Strings.ShortcutTerminalCopy, enabled: selection));
+        menu.Items.Add(MenuEntry(Strings.MenuTerminalPaste, Paste, Strings.ShortcutTerminalPaste, enabled: ClipboardHasText()));
+        var selectAll = MenuEntry(Strings.MenuTerminalSelectAll, SelectAll);
+        selectAll.ToolTip = Strings.MenuTerminalSelectAllTip;
+        menu.Items.Add(selectAll);
+        menu.Items.Add(new Separator());
+        if (SearchRequested is not null)
+        {
+            menu.Items.Add(MenuEntry(Strings.MenuTerminalSearch, () => SearchRequested?.Invoke(), Strings.ShortcutTerminalSearch,
+                icon: "IconSearch"));
+        }
+
+        if (SaveRequested is not null)
+        {
+            var save = MenuEntry(Strings.MenuTerminalSave, () => SaveRequested?.Invoke(), Strings.ShortcutTerminalSave);
+            save.ToolTip = Strings.MenuTerminalSaveTip;
+            menu.Items.Add(save);
+        }
+
+        var clear = MenuEntry(Strings.MenuTerminalClear, ClearScrollback, enabled: _emulator.ScrollbackCount > 0, icon: "IconDelete");
+        clear.ToolTip = Strings.MenuTerminalClearTip;
+        ToolTipService.SetShowOnDisabled(clear, true);
+        menu.Items.Add(clear);
+        var font = new MenuItem { Header = Strings.MenuTerminalFont };
+        font.Items.Add(MenuEntry(Strings.MenuFontBigger, () => SetFontSize(_fontSize + 1), Strings.ShortcutFontBigger,
+            enabled: _fontSize < TerminalAppearance.MaxFontSize));
+        font.Items.Add(MenuEntry(Strings.MenuFontSmaller, () => SetFontSize(_fontSize - 1), Strings.ShortcutFontSmaller,
+            enabled: _fontSize > TerminalAppearance.MinFontSize));
+        font.Items.Add(MenuEntry(Strings.MenuFontDefault, () => SetFontSize(TerminalAppearance.FontSize), Strings.ShortcutFontDefault,
+            enabled: _fontSize != TerminalAppearance.FontSize));
+        menu.Items.Add(font);
+        if (ExtraMenuItems is { } extra)
+        {
+            menu.Items.Add(new Separator());
+            extra(menu.Items);
+        }
+
+        return menu;
+    }
+
+    private MenuItem MenuEntry(string header, Action action, string? gesture = null, bool enabled = true, string? icon = null)
+    {
+        var item = new MenuItem { Header = header, InputGestureText = gesture ?? "", IsEnabled = enabled };
+        if (icon is not null && TryFindResource(icon) is ImageSource source)
+        {
+            item.Icon = new System.Windows.Controls.Image { Source = source, Width = 16, Height = 16 };
+        }
+
+        item.Click += (_, _) => action();
+        return item;
+    }
+
+    /// <summary>Tout l'historique et l'écran, copiés comme toute sélection.</summary>
+    private void SelectAll()
+    {
+        if (_emulator is null)
+        {
+            return;
+        }
+
+        _selectionStart = (-_emulator.ScrollbackCount, 0);
+        _selectionEnd = (_emulator.Rows - 1, _emulator.Columns - 1);
+        CopySelection();
+        InvalidateVisual();
+    }
+
+    /// <summary>Oublie les lignes sorties de l'écran (sur ce poste : rien n'est envoyé au serveur).</summary>
+    private void ClearScrollback()
+    {
+        if (_emulator is null)
+        {
+            return;
+        }
+
+        _emulator.ClearScrollback();
+        _scrollOffset = 0;
+        ClearSelection();
+        _matches = [];
+        _currentMatch = -1;
+        ScrollbackCleared?.Invoke();
+        InvalidateVisual();
+    }
+
+    private static bool ClipboardHasText()
+    {
+        try
+        {
+            return Clipboard.ContainsText();
+        }
+        catch (System.Runtime.InteropServices.COMException)
+        {
+            return false;
+        }
     }
 
     protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e)

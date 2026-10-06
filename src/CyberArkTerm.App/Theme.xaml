@@ -292,6 +292,39 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <!-- Historique des transferts : flèches d'envoi et de téléchargement, horloge en médaillon. -->
+    <DrawingImage x:Key="IconTransferHistory">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Geometry="M2,14.5 V20.5 H13">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#5A6573" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M5.5,15.5 V3.5 M2.3,6.7 L5.5,3.5 L8.7,6.7">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#2E7D32" Thickness="2.1" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M12,3.5 V15.5 M8.8,12.3 L12,15.5 L15.2,12.3">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#1565C0" Thickness="2.1" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="White" Geometry="M13.7,18 A4.9,4.9 0 1 1 23.5,18 A4.9,4.9 0 1 1 13.7,18 Z">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#5A6573" Thickness="1.5" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M18.6,15.3 V18 L20.4,19.2">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#5A6573" Thickness="1.4" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
     <DrawingImage x:Key="IconSearch">
         <DrawingImage.Drawing>
             <GeometryDrawing Geometry="M3,10 A7,7 0 1 1 17,10 A7,7 0 1 1 3,10 Z M15,15 L21,21">

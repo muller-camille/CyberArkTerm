@@ -258,6 +258,9 @@
   <data name="TransferIncompleteDeleted" xml:space="preserve">
     <value>file incompleto eliminato</value>
   </data>
+  <data name="ScpClosedByServer" xml:space="preserve">
+    <value>Il server ha chiuso la connessione SCP ({0}). Se succede di nuovo, scegli SFTP per gli invii nelle Impostazioni.</value>
+  </data>
   <data name="TransferIncompleteNotDeleted" xml:space="preserve">
     <value>file incompleto non eliminato: {0}</value>
   </data>
