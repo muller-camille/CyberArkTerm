@@ -213,7 +213,11 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   cosa verrebbe sostituito (una sola domanda per tutti), poi mette in coda un invio per server: stesso protocollo,
   stessa verifica SHA-256 su ogni server, un solo riepilogo alla fine.
 - **Confrontare**: clic destro su un file → «Confronta con…»: lo stesso percorso (o un altro) su un server con una
-  sessione SSH aperta, o un file di questo computer; con due file selezionati, «Confronta i 2 file». I file vengono
+  sessione SSH aperta, o un file di questo computer; con due file selezionati, «Confronta i 2 file». «Sfoglia…»
+  accanto al percorso apre un esploratore dell'altro server, sulla stessa cartella con il file preselezionato (o
+  sulla cartella superiore più vicina che esiste): doppio clic su una cartella per entrarvi, Backspace per risalire,
+  si può anche digitare un percorso; il file scelto sostituisce il percorso. La scheda File di quel server resta
+  sulla sua cartella. I file vengono
   letti **in memoria** (50 MB al massimo ciascuno), senza copia sul computer. La finestra mostra le righe
   affiancate: rimosse in rosso a sinistra, aggiunte in verde a destra. `F7` / `Maiusc+F7`: differenza successiva /
   precedente; «Ignora gli spazi»; «Solo le differenze»; «Salva il diff…» nel formato `diff -u`. Un file binario (o

@@ -200,7 +200,10 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   replaced (a single question for all), then queues one upload per server: same protocol, same SHA-256 check on each
   server, a single summary at the end.
 - **Compare**: right-click a file → "Compare with…": the same path (or another one) on a server with an open SSH
-  session, or a file of this computer; with two files selected, "Compare the 2 files". The files are read **in
+  session, or a file of this computer; with two files selected, "Compare the 2 files". "Browse…" next to the path
+  opens an explorer of the other server, on the same folder with the file preselected (or on the closest existing
+  parent folder): double-click a folder to enter it, Backspace to go up, a path can also be typed; the chosen file
+  replaces the path. The Files tab of that server stays on its folder. The files are read **in
   memory** (50 MB at most each), without a copy on this computer. The window shows the lines side by side: removed
   in red on the left, added in green on the right. `F7` / `Shift+F7`: next / previous difference; "Ignore spaces";
   "Only the differences"; "Save the diff…" in the `diff -u` format. A binary file (or one over 10 MB) is compared by

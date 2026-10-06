@@ -182,4 +182,13 @@ public class SshSupportTests
     [InlineData("  /tmp  ", "/root", "/tmp")]
     public void ResolvesTheHomeOfEachServer(string path, string home, string expected) =>
         Assert.Equal(expected, RemotePath.ResolveHome(path, home));
+
+    /// <summary>Dossiers essayés pour ouvrir l'explorateur d'un serveur : le dossier, puis ses parents jusqu'à « / ».</summary>
+    [Fact]
+    public void ListsTheAncestorsOfAPath()
+    {
+        Assert.Equal(["/opt/app/conf", "/opt/app", "/opt", "/"], RemotePath.Ancestors("/opt/app/conf/"));
+        Assert.Equal(["/"], RemotePath.Ancestors("/"));
+        Assert.Equal(["/etc", "/"], RemotePath.Ancestors("/etc/./x/.."));
+    }
 }

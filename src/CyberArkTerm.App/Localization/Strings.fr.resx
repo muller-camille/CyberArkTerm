@@ -1492,6 +1492,39 @@ Envoyer quand même ?</value>
   <data name="ComparePathTip" xml:space="preserve">
     <value>Même chemin par défaut ; ~ est le dossier personnel du compte</value>
   </data>
+  <data name="CompareBrowseServer" xml:space="preserve">
+    <value>Parc_ourir…</value>
+  </data>
+  <data name="CompareBrowseServerTip" xml:space="preserve">
+    <value>Chercher le fichier sur le serveur choisi (s'ouvre sur le même chemin)</value>
+  </data>
+  <data name="RemotePickTitle" xml:space="preserve">
+    <value>Choisir un fichier sur {0}</value>
+  </data>
+  <data name="RemotePickUp" xml:space="preserve">
+    <value>Dossier parent (Retour arrière)</value>
+  </data>
+  <data name="RemotePickGo" xml:space="preserve">
+    <value>_Aller</value>
+  </data>
+  <data name="RemotePickPathTip" xml:space="preserve">
+    <value>Chemin d'un dossier ou d'un fichier, puis Entrée ; ~ est le dossier personnel du compte</value>
+  </data>
+  <data name="RemotePickHidden" xml:space="preserve">
+    <value>Fichiers _cachés</value>
+  </data>
+  <data name="RemotePickChoose" xml:space="preserve">
+    <value>C_hoisir</value>
+  </data>
+  <data name="RemotePickLoading" xml:space="preserve">
+    <value>Lecture de {0}…</value>
+  </data>
+  <data name="RemotePickCount" xml:space="preserve">
+    <value>{0} élément(s)</value>
+  </data>
+  <data name="RemotePickError" xml:space="preserve">
+    <value>Impossible de lire {0} : {1}</value>
+  </data>
   <data name="CompareLocal" xml:space="preserve">
     <value>Un fichier de ce _poste</value>
   </data>

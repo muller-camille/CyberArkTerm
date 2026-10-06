@@ -1,0 +1,68 @@
+<Window x:Class="CyberArkTerm.App.Views.RemoteFileDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:app="clr-namespace:CyberArkTerm.App"
+        xmlns:loc="clr-namespace:CyberArkTerm.App.Localization"
+        xmlns:corel="clr-namespace:CyberArkTerm.Core.Localization;assembly=CyberArkTerm.Core"
+        Width="680" Height="500" MinWidth="420" MinHeight="300"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <Window.Resources>
+        <app:FileIconConverter x:Key="FileIcon" />
+    </Window.Resources>
+    <DockPanel Margin="12">
+        <!-- Dossier affiché : remonter, ou saisir un chemin (dossier, ou fichier à sélectionner) -->
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+            <Button x:Name="UpButton" DockPanel.Dock="Left" ToolTip="{x:Static loc:Strings.RemotePickUp}" Click="OnUp"
+                    Padding="4,2" Margin="0,0,6,0">
+                <Image Source="{StaticResource IconUp}" Width="16" Height="16" />
+            </Button>
+            <Button DockPanel.Dock="Right" Content="{x:Static loc:Strings.RemotePickGo}" Click="OnGo" Margin="6,0,0,0" />
+            <TextBox x:Name="PathBox" FontFamily="Consolas, Courier New" VerticalContentAlignment="Center"
+                     PreviewKeyDown="OnPathKeyDown" ToolTip="{x:Static loc:Strings.RemotePickPathTip}" />
+        </DockPanel>
+
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button x:Name="ChooseButton" Content="{x:Static loc:Strings.RemotePickChoose}" IsDefault="True" IsEnabled="False"
+                        Click="OnChoose" />
+                <Button Content="{x:Static loc:Strings.Cancel}" IsCancel="True" Margin="8,0,0,0" />
+            </StackPanel>
+            <CheckBox x:Name="HiddenBox" VerticalAlignment="Center" Checked="OnHiddenChanged" Unchecked="OnHiddenChanged">
+                <AccessText Text="{x:Static loc:Strings.RemotePickHidden}" />
+            </CheckBox>
+        </DockPanel>
+        <TextBlock x:Name="StatusText" DockPanel.Dock="Bottom" TextWrapping="Wrap" Margin="0,6,0,0"
+                   Foreground="{StaticResource MutedBrush}" />
+
+        <ListView x:Name="FileList" SelectionMode="Single" PreviewKeyDown="OnListKeyDown" SelectionChanged="OnSelectionChanged">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Padding" Value="2,1" />
+                    <EventSetter Event="MouseDoubleClick" Handler="OnItemDoubleClick" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="{x:Static corel:CoreStrings.ColumnName}" Width="330">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding Converter={StaticResource FileIcon}}" Width="16" Height="16" Margin="0,0,5,0" />
+                                    <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="{x:Static loc:Strings.ColumnSize}" Width="90">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding SizeText}" HorizontalAlignment="Right" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="{x:Static loc:Strings.ColumnModified}" Width="140" DisplayMemberBinding="{Binding ModifiedText}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </DockPanel>
+</Window>

@@ -1492,6 +1492,39 @@ Inviare comunque?</value>
   <data name="ComparePathTip" xml:space="preserve">
     <value>Stesso percorso per impostazione predefinita; ~ è la cartella personale dell'account</value>
   </data>
+  <data name="CompareBrowseServer" xml:space="preserve">
+    <value>Sfogl_ia…</value>
+  </data>
+  <data name="CompareBrowseServerTip" xml:space="preserve">
+    <value>Cerca il file sul server scelto (si apre sullo stesso percorso)</value>
+  </data>
+  <data name="RemotePickTitle" xml:space="preserve">
+    <value>Scegli un file su {0}</value>
+  </data>
+  <data name="RemotePickUp" xml:space="preserve">
+    <value>Cartella superiore (Backspace)</value>
+  </data>
+  <data name="RemotePickGo" xml:space="preserve">
+    <value>_Vai</value>
+  </data>
+  <data name="RemotePickPathTip" xml:space="preserve">
+    <value>Percorso di una cartella o di un file, poi Invio; ~ è la cartella personale dell'account</value>
+  </data>
+  <data name="RemotePickHidden" xml:space="preserve">
+    <value>File _nascosti</value>
+  </data>
+  <data name="RemotePickChoose" xml:space="preserve">
+    <value>_Scegli</value>
+  </data>
+  <data name="RemotePickLoading" xml:space="preserve">
+    <value>Lettura di {0}…</value>
+  </data>
+  <data name="RemotePickCount" xml:space="preserve">
+    <value>{0} elemento/i</value>
+  </data>
+  <data name="RemotePickError" xml:space="preserve">
+    <value>Impossibile leggere {0}: {1}</value>
+  </data>
   <data name="CompareLocal" xml:space="preserve">
     <value>Un file di questo _computer</value>
   </data>

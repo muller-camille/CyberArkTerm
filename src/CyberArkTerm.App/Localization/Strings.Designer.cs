@@ -1136,6 +1136,24 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Br_owse….
+        /// </summary>
+        public static string CompareBrowseServer {
+            get {
+                return ResourceManager.GetString("CompareBrowseServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Find the file on the chosen server (opens on the same path).
+        /// </summary>
+        public static string CompareBrowseServerTip {
+            get {
+                return ResourceManager.GetString("CompareBrowseServerTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to _Compare.
         /// </summary>
         public static string CompareButton {
@@ -6217,6 +6235,87 @@ namespace CyberArkTerm.App.Localization {
         public static string RememberComponent {
             get {
                 return ResourceManager.GetString("RememberComponent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choo_se.
+        /// </summary>
+        public static string RemotePickChoose {
+            get {
+                return ResourceManager.GetString("RemotePickChoose", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} item(s).
+        /// </summary>
+        public static string RemotePickCount {
+            get {
+                return ResourceManager.GetString("RemotePickCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot read {0}: {1}.
+        /// </summary>
+        public static string RemotePickError {
+            get {
+                return ResourceManager.GetString("RemotePickError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Go.
+        /// </summary>
+        public static string RemotePickGo {
+            get {
+                return ResourceManager.GetString("RemotePickGo", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Hidden files.
+        /// </summary>
+        public static string RemotePickHidden {
+            get {
+                return ResourceManager.GetString("RemotePickHidden", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reading {0}….
+        /// </summary>
+        public static string RemotePickLoading {
+            get {
+                return ResourceManager.GetString("RemotePickLoading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Folder or file path, then Enter; ~ is the home folder of the account.
+        /// </summary>
+        public static string RemotePickPathTip {
+            get {
+                return ResourceManager.GetString("RemotePickPathTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose a file on {0}.
+        /// </summary>
+        public static string RemotePickTitle {
+            get {
+                return ResourceManager.GetString("RemotePickTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Parent folder (Backspace).
+        /// </summary>
+        public static string RemotePickUp {
+            get {
+                return ResourceManager.GetString("RemotePickUp", resourceCulture);
             }
         }
 

@@ -2,6 +2,7 @@ using System.IO;
 using System.Windows;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services;
+using CyberArkTerm.Core.Ssh;
 using Microsoft.Win32;
 
 namespace CyberArkTerm.App.Views;
@@ -32,6 +33,54 @@ public partial class CompareDialog : Window
 
     public string LocalFile => LocalPathBox.Text.Trim().Trim('"');
 
+    /// <summary>
+    /// Explorateur du serveur choisi, ouvert sur le chemin saisi (le même par défaut) : le fichier choisi remplace le
+    /// chemin. La connexion SFTP du serveur est ouverte si son onglet Fichiers ne l'a pas encore fait.
+    /// </summary>
+    private async void OnBrowseServer(object sender, RoutedEventArgs e)
+    {
+        if (SessionBox.SelectedItem is not SshSession session)
+        {
+            ShowError(Strings.CompareNoServer);
+            return;
+        }
+
+        RemoteFileBrowser browser;
+        BrowseServerButton.IsEnabled = false;
+        try
+        {
+            browser = await session.GetBrowserAsync();
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            ShowError(Text.Format(Strings.SftpFailed, ex.Message));
+            return;
+        }
+        finally
+        {
+            BrowseServerButton.IsEnabled = true;
+        }
+
+        if (!IsLoaded)
+        {
+            return;
+        }
+
+        var picker = new RemoteFileDialog(session.Label, RemotePathBox.Text, browser.HomeDirectory, browser.BrowseAsync) { Owner = this };
+        if (picker.ShowDialog() == true && picker.SelectedPath is { } path)
+        {
+            RemotePathBox.Text = path;
+            ServerRadio.IsChecked = true;
+            ErrorText.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private void ShowError(string text)
+    {
+        ErrorText.Text = text;
+        ErrorText.Visibility = Visibility.Visible;
+    }
+
     private void OnBrowse(object sender, RoutedEventArgs e)
     {
         var dialog = new OpenFileDialog { Title = Strings.CompareLocal.Replace("_", "") };
@@ -49,8 +98,7 @@ public partial class CompareDialog : Window
             : !File.Exists(LocalFile) ? Strings.CompareNoLocalFile : null;
         if (error is not null)
         {
-            ErrorText.Text = error;
-            ErrorText.Visibility = Visibility.Visible;
+            ShowError(error);
             return;
         }
 

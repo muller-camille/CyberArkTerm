@@ -1492,6 +1492,39 @@ Send anyway?</value>
   <data name="ComparePathTip" xml:space="preserve">
     <value>Same path by default; ~ is the home folder of the account</value>
   </data>
+  <data name="CompareBrowseServer" xml:space="preserve">
+    <value>Br_owse…</value>
+  </data>
+  <data name="CompareBrowseServerTip" xml:space="preserve">
+    <value>Find the file on the chosen server (opens on the same path)</value>
+  </data>
+  <data name="RemotePickTitle" xml:space="preserve">
+    <value>Choose a file on {0}</value>
+  </data>
+  <data name="RemotePickUp" xml:space="preserve">
+    <value>Parent folder (Backspace)</value>
+  </data>
+  <data name="RemotePickGo" xml:space="preserve">
+    <value>_Go</value>
+  </data>
+  <data name="RemotePickPathTip" xml:space="preserve">
+    <value>Folder or file path, then Enter; ~ is the home folder of the account</value>
+  </data>
+  <data name="RemotePickHidden" xml:space="preserve">
+    <value>_Hidden files</value>
+  </data>
+  <data name="RemotePickChoose" xml:space="preserve">
+    <value>Choo_se</value>
+  </data>
+  <data name="RemotePickLoading" xml:space="preserve">
+    <value>Reading {0}…</value>
+  </data>
+  <data name="RemotePickCount" xml:space="preserve">
+    <value>{0} item(s)</value>
+  </data>
+  <data name="RemotePickError" xml:space="preserve">
+    <value>Cannot read {0}: {1}</value>
+  </data>
   <data name="CompareLocal" xml:space="preserve">
     <value>A file on this _computer</value>
   </data>

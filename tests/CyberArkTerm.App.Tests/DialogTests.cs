@@ -873,6 +873,7 @@ public sealed class DialogTests
 
             var compare = new CompareDialog("root@srv01 : /etc/app.conf", "/etc/app.conf", [s1, s2], s1);
             Assert.Equal("/etc/app.conf", compare.RemoteFile);
+            Assert.True(compare.BrowseServerButton.IsEnabled);
             compare.Close();
 
             var choose = new ParallelDialog(["web01", "web02", "web03"], [0, 1, 2], 2, "intro", Strings.ParallelOpen);
@@ -886,6 +887,70 @@ public sealed class DialogTests
 
             s1.Dispose();
             s2.Dispose();
+        });
+    }
+
+    /// <summary>
+    /// Explorateur d'un serveur (Comparer → Parcourir) : s'ouvre sur le dossier du même chemin, ou son plus proche
+    /// parent lisible, fichier présélectionné ; on y navigue et on choisit un fichier.
+    /// </summary>
+    [Fact]
+    public void RemoteFilePickerOpensOnTheSamePathAndReturnsTheChosenFile()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            static RemoteEntry Entry(string path, bool directory = false) =>
+                new(RemotePath.Name(path), path, directory, false, directory ? 0 : 1234, new DateTime(2026, 10, 6, 9, 0, 0), "");
+            var tree = new Dictionary<string, List<RemoteEntry>>
+            {
+                ["/opt/app"] = [Entry("/opt/app/conf", directory: true), Entry("/opt/app/run.sh")],
+                ["/opt/app/conf"] = [Entry("/opt/app/conf/app.yml"), Entry("/opt/app/conf/logging.xml")],
+            };
+            var listed = new List<string>();
+            Task<List<RemoteEntry>> List(string directory, bool hidden, CancellationToken ct)
+            {
+                listed.Add(directory);
+                return tree.TryGetValue(directory, out var entries)
+                    ? Task.FromResult(entries)
+                    : Task.FromException<List<RemoteEntry>>(new IOException("No such file"));
+            }
+
+            // Même chemin que le fichier comparé : son dossier s'ouvre, le fichier est sélectionné.
+            var picker = new RemoteFileDialog("root@srv02", "/opt/app/conf/app.yml", "/root", List);
+            picker.StartAsync().GetAwaiter().GetResult();
+            Assert.Equal("/opt/app/conf", picker.CurrentDirectory);
+            Assert.Equal("app.yml", ((RemoteEntry?)picker.FileList.SelectedItem)?.Name);
+            Assert.True(picker.ChooseButton.IsEnabled);
+            Assert.Equal("..", ((RemoteEntry)picker.FileList.Items[0]).Name);
+            picker.Close();
+
+            // Dossier absent sur ce serveur : le plus proche parent lisible ; « .. » puis un fichier.
+            picker = new RemoteFileDialog("root@srv02", "/opt/app/old/app.yml", "/root", List);
+            listed.Clear();
+            picker.StartAsync().GetAwaiter().GetResult();
+            Assert.Equal(["/opt/app/old", "/opt/app"], listed);
+            Assert.Equal("/opt/app", picker.CurrentDirectory);
+            Assert.Null(picker.FileList.SelectedItem);
+            picker.OpenAsync(Entry("/opt/app/conf", directory: true)).GetAwaiter().GetResult();
+            picker.OpenAsync(RemoteEntry.ParentLink("/opt/app/conf")).GetAwaiter().GetResult();
+            Assert.Equal("conf", ((RemoteEntry?)picker.FileList.SelectedItem)?.Name);
+            Assert.False(picker.ChooseButton.IsEnabled);
+            picker.OpenAsync(Entry("/opt/app/run.sh")).GetAwaiter().GetResult();
+            Assert.Equal("/opt/app/run.sh", picker.SelectedPath);
+
+            // Chemin saisi : un fichier ouvre son dossier et le sélectionne ; « ~ » est le dossier personnel.
+            picker.GoToAsync("/opt/app/conf/logging.xml").GetAwaiter().GetResult();
+            Assert.Equal(("/opt/app/conf", "logging.xml"), (picker.CurrentDirectory, ((RemoteEntry?)picker.FileList.SelectedItem)?.Name));
+            listed.Clear();
+            picker.GoToAsync("~").GetAwaiter().GetResult();
+            Assert.Equal(["/root", "/"], listed);
+            Assert.Contains("/", picker.StatusText.Text);
+            picker.Close();
         });
     }
 
