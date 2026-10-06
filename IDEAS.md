@@ -31,6 +31,60 @@ d'extraction à coller dans le terminal. Piste : l'extraire automatiquement une 
 La barre de chaque élément repart de zéro. Piste : une progression d'ensemble (« 3 sur 7 éléments, 1,2 Go sur 2 Go »)
 au-dessus de la file.
 
+### Reprendre un envoi interrompu
+
+Si la connexion tombe pendant l'envoi d'une grosse archive (plusieurs Go par le PSMP), il faut aujourd'hui tout
+renvoyer. Piste : reprendre l'envoi SFTP là où il s'est arrêté (écriture à partir de la taille déjà reçue).
+
+- Rien n'est lancé sur le serveur : tout passe par la session SFTP de l'onglet.
+- La vérification SHA-256 porte toujours sur le fichier complet, pour ne jamais garder un fichier recollé faux.
+- À proposer seulement si le fichier du serveur est plus petit que l'original et n'a pas changé depuis l'échec.
+
+### Comparer et synchroniser un dossier
+
+Comparer un dossier de ce poste avec un dossier du serveur (nouveaux, modifiés, absents), puis n'envoyer que les
+différences : utile pour redéployer un dossier de configuration sans tout renvoyer.
+
+- Comparaison par taille et date, ou par SHA-256 à la demande (plus lent : relecture des fichiers du serveur).
+- Liste des différences affichée avant tout envoi ; jamais de suppression sur le serveur sans confirmation.
+
+### Bilan de livraison exportable
+
+Depuis l'Historique, exporter une livraison dans un fichier texte ou CSV à joindre au ticket de changement : serveur,
+dossier, date, protocole, liste des fichiers et leurs sommes SHA-256. Aujourd'hui, seules les sommes se copient (au
+format `sha256sum -c`).
+
+### Notification en fin de transfert
+
+Notification Windows quand une file de transferts se termine alors que la fenêtre n'est pas au premier plan, avec le
+résultat (vérifié, différent, en échec).
+
+### Signets de dossiers par serveur
+
+Garder des dossiers favoris par serveur « Courants » (`/opt/app/logs`, dossier de livraison…) et la liste des
+derniers dossiers visités, pour y revenir en un clic dans l'onglet Fichiers.
+
+### Rechercher un fichier par nom
+
+Chercher un fichier par son nom dans le dossier affiché et ses sous-dossiers, par SFTP seulement (sans lancer de
+commande sur le serveur), avec une limite de profondeur et de nombre de dossiers lus.
+
+## PSMP
+
+### Tester l'accès d'un serveur
+
+Un bouton « Tester l'accès » sur un serveur : vérifie ce que le PSMP autorise pour ce compte (SSH, SFTP, SCP), avec
+le message du PSMP en cas de refus (par ex. l'erreur `118E … PSMP-SCP does not contain the target settings
+definitions`, composant de connexion absent de la plateforme).
+
+- Chaque test ouvre une session PSMP (enregistrée, avec peut-être une validation MFA) : seulement à la demande.
+
+### Retenir un refus SCP pour l'onglet
+
+Quand le PSMP refuse SCP dès la commande `scp` (composant PSMP-SCP absent de la plateforme), l'onglet le retient :
+les fichiers suivants partent directement par l'autre protocole, sans rouvrir à chaque fichier une session PSMP qui
+sera refusée (une par fichier pour un dossier de 1 500 fichiers). Le bilan expliquerait l'erreur `118E` en clair.
+
 ## Suivi de fichier (tail -f)
 
 ### Suivre le fichier le plus récent d'un dossier
@@ -103,6 +157,9 @@ Piste : une sélection multiple dans « Disponibles » (Ctrl+clic, comme dans «
 - Clés YubiKey (challenge-response).
 - Création d'un coffre depuis CyberArkTerm (aujourd'hui : avec KeePass ou KeePassXC).
 - Affichage des pièces jointes (aujourd'hui gardées mais non affichées).
+- **VNC chiffré** : VeNCrypt (TLS) ou passage par un tunnel SSH vers le serveur, pour ne plus rien envoyer en clair.
+- **FTPS avec reprise de session TLS** : certains serveurs (vsftpd avec `require_ssl_reuse`) refusent une connexion
+  de données qui ne reprend pas la session TLS de la connexion de commande.
 
 ## Distribution et projet
 

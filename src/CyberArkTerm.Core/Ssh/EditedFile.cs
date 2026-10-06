@@ -108,6 +108,24 @@ public sealed class EditedFile : IDisposable
         }
     }
 
+    // Fichiers qui ne se lisent pas dans un éditeur de texte : archives, images, exécutables, documents bureautiques...
+    private static readonly HashSet<string> BinaryExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".gz", ".tgz", ".bz2", ".tbz", ".xz", ".txz", ".zst", ".z", ".lz", ".lzma", ".zip", ".7z", ".rar", ".tar", ".cpio",
+        ".jar", ".war", ".ear", ".rpm", ".deb", ".apk", ".iso", ".img", ".dmg", ".vmdk", ".qcow2",
+        ".exe", ".dll", ".so", ".o", ".a", ".lib", ".bin", ".class", ".pyc", ".msi",
+        ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".tif", ".tiff", ".webp",
+        ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".odt", ".ods", ".odp",
+        ".mp3", ".mp4", ".avi", ".mkv", ".mov", ".wav", ".flac",
+        ".db", ".sqlite", ".dmp", ".dbf", ".mdb", ".p12", ".pfx", ".jks", ".keystore", ".der", ".kdbx",
+    };
+
+    /// <summary>
+    /// Vrai pour un fichier à ne pas ouvrir dans un éditeur de texte d'un double-clic (archive, image, exécutable...) :
+    /// son extension le dit binaire. Les autres (sans extension, .conf, .log, .sh, .yml...) s'ouvrent dans l'éditeur.
+    /// </summary>
+    public static bool LooksBinary(string remoteName) => BinaryExtensions.Contains(Path.GetExtension(remoteName));
+
     /// <summary>
     /// Nom de la copie locale : celui du fichier distant, limité aux caractères sûrs pour Windows et pour la
     /// ligne de commande de l'éditeur (lettres, chiffres, espace, « . », « - », « _ »).

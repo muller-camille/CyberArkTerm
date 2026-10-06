@@ -40,12 +40,33 @@ public static class AccountClassifier
             return AccountKind.Network;
         }
 
-        if (ContainsAny(p, "Unix", "Linux", "SSH", "AIX", "Solaris", "HPUX", "RHEL"))
+        if (ContainsAny(p, "Unix", "Linux", "SSH", "SFTP", "AIX", "Solaris", "HPUX", "RHEL"))
         {
             return AccountKind.Unix;
         }
 
         return AccountKind.Other;
+    }
+
+    /// <summary>
+    /// Connexion par défaut (double-clic, ajout à « Courants ») : d'après le nom de la plateforme, « SFTP » donne les
+    /// fichiers seuls via le PSMP, « SSH » une session SSH via le PSMP ; sinon SSH pour une cible Unix, PSM pour le reste.
+    /// Sans PSMP renseigné, toujours PSM.
+    /// </summary>
+    public static ConnectMode DefaultMode(PvwaAccount account, bool hasPsmp)
+    {
+        var p = account.PlatformId ?? "";
+        if (!hasPsmp)
+        {
+            return ConnectMode.Psm;
+        }
+
+        if (ContainsAny(p, "SFTP"))
+        {
+            return ConnectMode.Sftp;
+        }
+
+        return ContainsAny(p, "SSH") || Classify(account) == AccountKind.Unix ? ConnectMode.Ssh : ConnectMode.Psm;
     }
 
     public static string DefaultComponent(PvwaAccount account)

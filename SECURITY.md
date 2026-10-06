@@ -30,13 +30,13 @@ an explanation.
 ## Scope
 
 In scope: the CyberArkTerm code in this repository (PVWA client, PSM / PSMP connections, SSH terminal,
-SFTP / SCP file transfers, embedded remote desktop tabs, KeePass vault reading and writing, the local encrypted
-vault, the emergency access log, settings storage, release executables).
+SFTP / SCP and FTP / FTPS file transfers, embedded remote desktop and VNC tabs, KeePass vault reading and writing, the
+local encrypted vault, the emergency access log, settings storage, release executables).
 
 Out of scope, to be reported to their maintainers:
 
 - vulnerabilities in CyberArk products (PVWA, PSM, PSMP) → CyberArk;
-- vulnerabilities in [SSH.NET](https://github.com/sshnet/SSH.NET),
+- vulnerabilities in [SSH.NET](https://github.com/sshnet/SSH.NET), [FluentFTP](https://github.com/robinrodricks/FluentFTP),
   [Konscious.Security.Cryptography](https://github.com/kmaragon/Konscious.Security.Cryptography) (Argon2) or .NET → their projects;
 - vulnerabilities in the Windows Remote Desktop client or in KeePass / KeePassXC → Microsoft or their projects.
 

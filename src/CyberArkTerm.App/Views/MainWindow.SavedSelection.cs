@@ -194,6 +194,9 @@ public partial class MainWindow
                 case "connect":
                     item.FontWeight = many ? FontWeights.Normal : FontWeights.SemiBold;
                     break;
+                case "share":
+                    BuildShareMenu(item, () => servers);
+                    break;
             }
         }
     }
@@ -213,6 +216,10 @@ public partial class MainWindow
                 case "connectmany":
                     item.Header = Text.Format(Strings.MenuConnectMany, servers.Count);
                     item.IsEnabled = servers.Count > 0 && !IsOffline;
+                    break;
+                case "share":
+                    BuildShareMenu(item, () => servers);
+                    item.IsEnabled &= servers.Count > 0;
                     break;
             }
         }

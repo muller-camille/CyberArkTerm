@@ -88,7 +88,7 @@ public partial class MainWindow
             }
         };
         header.ContextMenu = TabMenu(tab, duplicate);
-        if (tab.Tag is SshSession)
+        if (tab.Tag is SshSession { HasTerminal: true })
         {
             header.ToolTip = Strings.TabDetachTip;
             EnableDragToDetach(tab, header);
@@ -101,7 +101,7 @@ public partial class MainWindow
     private ContextMenu TabMenu(TabItem tab, Func<Task>? duplicate)
     {
         var actions = CreateSessionActions(tab, duplicate, () => this);
-        var ssh = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed;
+        var ssh = tab.Tag is SshSession { HasTerminal: true } ? Visibility.Visible : Visibility.Collapsed;
         var search = new MenuItem { Header = Strings.MenuTerminalSearch, InputGestureText = Strings.ShortcutTerminalSearch, Visibility = ssh };
         search.Click += (_, _) => SshViewOf(tab)?.ShowSearch();
         var save = new MenuItem { Header = Strings.MenuTerminalSave, InputGestureText = Strings.ShortcutTerminalSave, Visibility = ssh, ToolTip = Strings.MenuTerminalSaveTip };
@@ -148,7 +148,7 @@ public partial class MainWindow
     {
         static Image MenuIcon(object source) => new() { Source = (System.Windows.Media.ImageSource)source, Width = 16, Height = 16 };
 
-        var ssh = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed;
+        var ssh = tab.Tag is SshSession { HasTerminal: true } ? Visibility.Visible : Visibility.Collapsed;
         var reconnect = new MenuItem { Header = Strings.MenuTabReconnect, Icon = MenuIcon(FindResource("IconRefresh")) };
         reconnect.Click += async (_, _) => await ReconnectTabAsync(tab, owner());
         var copy = new MenuItem
@@ -187,7 +187,7 @@ public partial class MainWindow
     }
 
     /// <summary>Onglets de session (SSH, Bureau à distance), dans l'ordre affiché.</summary>
-    private IEnumerable<TabItem> SessionTabs() => MainTabs.Items.OfType<TabItem>().Where(t => t.Tag is SshSession or RdpSession);
+    private IEnumerable<TabItem> SessionTabs() => MainTabs.Items.OfType<TabItem>().Where(t => t.Tag is SshSession or RdpSession or VncSession);
 
     /// <param name="owner">Fenêtre des questions (celle du terminal détaché) ; par défaut la fenêtre principale.</param>
     private void CloseSessionTab(TabItem tab, Window? owner = null)
@@ -199,6 +199,9 @@ public partial class MainWindow
                 break;
             case RdpSession:
                 _ = CloseRdpTabAsync(tab);
+                break;
+            case VncSession:
+                CloseVncTab(tab, owner);
                 break;
         }
     }
@@ -227,10 +230,24 @@ public partial class MainWindow
                 }
 
                 break;
+            case SshSession files when tab.Content is FilesSessionView view:
+                if (files.State != SshSessionState.Connected || Confirm(files.Label))
+                {
+                    await view.ConnectAsync();
+                }
+
+                break;
             case RdpSession rdp:
                 if (!rdp.IsConnected || Confirm(rdp.Label))
                 {
                     await rdp.ReconnectAsync();
+                }
+
+                break;
+            case VncSession vnc:
+                if (!vnc.IsConnected || Confirm(vnc.Label))
+                {
+                    await vnc.ConnectAsync();
                 }
 
                 break;
@@ -260,6 +277,9 @@ public partial class MainWindow
                     break;
                 case RdpSession rdp:
                     closing.Add(RemoveRdpTabAsync(rdp));
+                    break;
+                case VncSession:
+                    RemoveVncTab(tab);
                     break;
             }
         }
@@ -293,7 +313,7 @@ public partial class MainWindow
         _sshSessions.Remove(session);
         _ = DisposeAfterTransfersAsync(session);
         MainTabs.SelectedItem ??= HomeTab;
-        SetStatus(Text.Format(Strings.SshClosed, session.Label));
+        SetStatus(Text.Format(session.HasTerminal ? Strings.SshClosed : Strings.FilesClosed, session.Label));
     }
 
     /// <summary>Annule les transferts de la session, laisse le fichier interrompu être supprimé, puis ferme ses connexions.</summary>

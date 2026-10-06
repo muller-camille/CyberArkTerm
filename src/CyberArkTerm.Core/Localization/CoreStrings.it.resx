@@ -300,4 +300,70 @@
   <data name="UpdateTooLarge" xml:space="preserve">
     <value>L'archivio è insolitamente grande: download interrotto.</value>
   </data>
+  <data name="ServerListInvalid" xml:space="preserve">
+    <value>Questo file non è un elenco di server CyberArkTerm.</value>
+  </data>
+  <data name="ServerListTooNew" xml:space="preserve">
+    <value>Questo elenco di server è stato scritto da una versione più recente di CyberArkTerm (formato {0}): aggiorna CyberArkTerm per aprirlo.</value>
+  </data>
+  <data name="ServerListNotShared" xml:space="preserve">
+    <value>Questo file è un'esportazione di I miei server, non un elenco condiviso: importalo invece.</value>
+  </data>
+  <data name="ServerListBusy" xml:space="preserve">
+    <value>L'elenco condiviso è in corso di modifica da parte di qualcun altro: riprova tra un momento.</value>
+  </data>
+  <data name="VncNotRfb" xml:space="preserve">
+    <value>Questo server non parla il protocollo VNC (RFB): verifica l'indirizzo e la porta (5900 per impostazione predefinita).</value>
+  </data>
+  <data name="VncUnsupportedVersion" xml:space="preserve">
+    <value>Versione del protocollo VNC non supportata: {0}</value>
+  </data>
+  <data name="VncRefused" xml:space="preserve">
+    <value>Il server VNC rifiuta la connessione: {0}</value>
+  </data>
+  <data name="VncAuthFailed" xml:space="preserve">
+    <value>Password VNC rifiutata. {0}</value>
+  </data>
+  <data name="VncSecurityUnsupported" xml:space="preserve">
+    <value>Il server VNC non propone alcuna autenticazione supportata da CyberArkTerm (proposte: {0}). CyberArkTerm accetta la password VNC o nessuna autenticazione: attiva l'autenticazione «password VNC» sul server.</value>
+  </data>
+  <data name="VncPasswordRequired" xml:space="preserve">
+    <value>Il server VNC chiede una password e la voce non ne ha.</value>
+  </data>
+  <data name="VncProtocolError" xml:space="preserve">
+    <value>Dati imprevisti dal server VNC: connessione chiusa.</value>
+  </data>
+  <data name="VncClosedByServer" xml:space="preserve">
+    <value>Il server VNC ha chiuso la connessione.</value>
+  </data>
+  <data name="VncScreenTooLarge" xml:space="preserve">
+    <value>Il server VNC annuncia uno schermo di {0} × {1}: troppo grande.</value>
+  </data>
+  <data name="VncTimeout" xml:space="preserve">
+    <value>Nessuna risposta VNC dal server entro 30 secondi: verifica l'indirizzo e la porta (5900 per impostazione predefinita).</value>
+  </data>
+  <data name="FtpCleartextDeclined" xml:space="preserve">
+    <value>Il server FTP non propone la cifratura (TLS): connessione in chiaro rifiutata.</value>
+  </data>
+  <data name="FtpCertificateDeclined" xml:space="preserve">
+    <value>Certificato del server FTPS rifiutato: connessione interrotta.</value>
+  </data>
+  <data name="CertificateNameMismatch" xml:space="preserve">
+    <value>il certificato non è emesso per questo nome di server</value>
+  </data>
+  <data name="CertificateUntrusted" xml:space="preserve">
+    <value>il certificato non è emesso da un'autorità considerata attendibile da Windows (autofirmato, scaduto o revocato)</value>
+  </data>
+  <data name="CertificateMissing" xml:space="preserve">
+    <value>il server non ha inviato alcun certificato</value>
+  </data>
+  <data name="FtpTransferFailed" xml:space="preserve">
+    <value>Trasferimento di {0} non completato dal server FTP.</value>
+  </data>
+  <data name="FtpNoSuchFile" xml:space="preserve">
+    <value>{0}: file non trovato sul server FTP.</value>
+  </data>
+  <data name="FtpTlsRequired" xml:space="preserve">
+    <value>Il server FTP non propone la cifratura (TLS), richiesta da questa voce (ftpes:// o ftps://).</value>
+  </data>
 </root>

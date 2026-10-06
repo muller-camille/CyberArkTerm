@@ -23,6 +23,7 @@ public class ConnectionPlanningTests
     [InlineData("UnixSSHKeys", AccountKind.Unix, "PSM-SSH")]
     [InlineData("RHEL-Prod", AccountKind.Unix, "PSM-SSH")]
     [InlineData("CiscoSSH", AccountKind.Network, "PSM-SSH")]
+    [InlineData("SFTP-Partners", AccountKind.Unix, "PSM-SSH")]
     [InlineData("Oracle", AccountKind.Database, "PSM-SQLPlus")]
     [InlineData("MSSql", AccountKind.Database, "PSM-SQLServerMgmtStudio")]
     [InlineData("MySQL", AccountKind.Database, "PSM-RDP")]
@@ -34,6 +35,26 @@ public class ConnectionPlanningTests
 
         Assert.Equal(kind, AccountClassifier.Classify(account));
         Assert.Equal(component, AccountClassifier.DefaultComponent(account));
+    }
+
+    /// <summary>
+    /// Connexion par défaut d'après le nom de la plateforme : « SFTP » donne les fichiers seuls, « SSH » le terminal via
+    /// le PSMP (même pour un équipement réseau), une autre cible Unix le terminal, le reste PSM ; sans PSMP, toujours PSM.
+    /// </summary>
+    [Theory]
+    [InlineData("UnixSSH", ConnectMode.Ssh)]
+    [InlineData("RHEL-Prod", ConnectMode.Ssh)]
+    [InlineData("CiscoSSH", ConnectMode.Ssh)]
+    [InlineData("UnixSFTP", ConnectMode.Sftp)]
+    [InlineData("SFTP-Partners", ConnectMode.Sftp)]
+    [InlineData("Unix-SSH-sftp-only", ConnectMode.Sftp)]
+    [InlineData("WinServerLocal", ConnectMode.Psm)]
+    [InlineData("Oracle", ConnectMode.Psm)]
+    [InlineData("", ConnectMode.Psm)]
+    public void DefaultModeFollowsThePlatformName(string platform, ConnectMode mode)
+    {
+        Assert.Equal(mode, AccountClassifier.DefaultMode(Account(platform), hasPsmp: true));
+        Assert.Equal(ConnectMode.Psm, AccountClassifier.DefaultMode(Account(platform), hasPsmp: false));
     }
 
     [Fact]

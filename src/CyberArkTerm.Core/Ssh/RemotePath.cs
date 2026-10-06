@@ -70,6 +70,22 @@ public static class RemotePath
         return slash <= 0 ? "/" : normalized[..slash];
     }
 
+    /// <summary>Le chemin puis chacun de ses dossiers parents, jusqu'à « / » inclus.</summary>
+    public static IEnumerable<string> Ancestors(string path)
+    {
+        var current = Normalize(path);
+        while (true)
+        {
+            yield return current;
+            if (current == "/")
+            {
+                yield break;
+            }
+
+            current = Parent(current);
+        }
+    }
+
     public static string Name(string path)
     {
         var normalized = Normalize(path);

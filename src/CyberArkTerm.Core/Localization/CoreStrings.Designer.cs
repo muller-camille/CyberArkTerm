@@ -83,6 +83,33 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to the server sent no certificate.
+        /// </summary>
+        public static string CertificateMissing {
+            get {
+                return ResourceManager.GetString("CertificateMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to the certificate is not issued for this server name.
+        /// </summary>
+        public static string CertificateNameMismatch {
+            get {
+                return ResourceManager.GetString("CertificateNameMismatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to the certificate is not issued by an authority trusted by Windows (self-signed, expired or revoked).
+        /// </summary>
+        public static string CertificateUntrusted {
+            get {
+                return ResourceManager.GetString("CertificateUntrusted", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Character not allowed in {0}: “{1}”..
         /// </summary>
         public static string CharacterNotAllowed {
@@ -187,6 +214,51 @@ namespace CyberArkTerm.Core.Localization {
         public static string FolderIntoItself {
             get {
                 return ResourceManager.GetString("FolderIntoItself", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Certificate of the FTPS server refused: connection stopped..
+        /// </summary>
+        public static string FtpCertificateDeclined {
+            get {
+                return ResourceManager.GetString("FtpCertificateDeclined", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The FTP server does not offer encryption (TLS): connection in clear declined..
+        /// </summary>
+        public static string FtpCleartextDeclined {
+            get {
+                return ResourceManager.GetString("FtpCleartextDeclined", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: file not found on the FTP server..
+        /// </summary>
+        public static string FtpNoSuchFile {
+            get {
+                return ResourceManager.GetString("FtpNoSuchFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The FTP server does not offer encryption (TLS), required by this entry (ftpes:// or ftps://)..
+        /// </summary>
+        public static string FtpTlsRequired {
+            get {
+                return ResourceManager.GetString("FtpTlsRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Transfer of {0} not completed by the FTP server..
+        /// </summary>
+        public static string FtpTransferFailed {
+            get {
+                return ResourceManager.GetString("FtpTransferFailed", resourceCulture);
             }
         }
 
@@ -758,6 +830,42 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to The shared list is being modified by someone else: try again in a moment..
+        /// </summary>
+        public static string ServerListBusy {
+            get {
+                return ResourceManager.GetString("ServerListBusy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This file is not a CyberArkTerm server list..
+        /// </summary>
+        public static string ServerListInvalid {
+            get {
+                return ResourceManager.GetString("ServerListInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This file is an export of My servers, not a shared list: import it instead..
+        /// </summary>
+        public static string ServerListNotShared {
+            get {
+                return ResourceManager.GetString("ServerListNotShared", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This server list was written by a newer version of CyberArkTerm (format {0}): update CyberArkTerm[rest of string was truncated].
+        /// </summary>
+        public static string ServerListTooNew {
+            get {
+                return ResourceManager.GetString("ServerListTooNew", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to {0} B.
         /// </summary>
         public static string SizeBytes {
@@ -907,6 +1015,96 @@ namespace CyberArkTerm.Core.Localization {
         public static string VaultUserUnknown {
             get {
                 return ResourceManager.GetString("VaultUserUnknown", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to VNC password refused. {0}.
+        /// </summary>
+        public static string VncAuthFailed {
+            get {
+                return ResourceManager.GetString("VncAuthFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The VNC server closed the connection..
+        /// </summary>
+        public static string VncClosedByServer {
+            get {
+                return ResourceManager.GetString("VncClosedByServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This server does not speak the VNC protocol (RFB): check the address and the port (5900 by default)..
+        /// </summary>
+        public static string VncNotRfb {
+            get {
+                return ResourceManager.GetString("VncNotRfb", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The VNC server asks for a password and the entry has none..
+        /// </summary>
+        public static string VncPasswordRequired {
+            get {
+                return ResourceManager.GetString("VncPasswordRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unexpected data from the VNC server: connection closed..
+        /// </summary>
+        public static string VncProtocolError {
+            get {
+                return ResourceManager.GetString("VncProtocolError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The VNC server refuses the connection: {0}.
+        /// </summary>
+        public static string VncRefused {
+            get {
+                return ResourceManager.GetString("VncRefused", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The VNC server announces a screen of {0} × {1}: too large..
+        /// </summary>
+        public static string VncScreenTooLarge {
+            get {
+                return ResourceManager.GetString("VncScreenTooLarge", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The VNC server offers no authentication supported by CyberArkTerm (offered: {0}). CyberArkTerm ac[rest of string was truncated].
+        /// </summary>
+        public static string VncSecurityUnsupported {
+            get {
+                return ResourceManager.GetString("VncSecurityUnsupported", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No VNC answer from the server within 30 seconds: check the address and the port (5900 by default)..
+        /// </summary>
+        public static string VncTimeout {
+            get {
+                return ResourceManager.GetString("VncTimeout", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported VNC protocol version: {0}.
+        /// </summary>
+        public static string VncUnsupportedVersion {
+            get {
+                return ResourceManager.GetString("VncUnsupportedVersion", resourceCulture);
             }
         }
 

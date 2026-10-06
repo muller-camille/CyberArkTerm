@@ -5,12 +5,15 @@ namespace CyberArkTerm.Core;
 /// <summary>Opérations sur les dossiers et sessions de l'onglet « Courants » (stockés dans les préférences).</summary>
 public static class SessionLibrary
 {
-    /// <summary>Arbre des dossiers et sessions du PVWA <paramref name="pvwaHost"/>, triés par nom.</summary>
     /// <summary>
     /// Arbre de l'onglet « Courants » pour le PVWA <paramref name="pvwaHost"/>. Avec une recherche
     /// (<paramref name="filter"/>), seuls les serveurs qui y répondent et leurs dossiers sont gardés.
     /// </summary>
-    public static SessionFolderNode BuildTree(AppSettings settings, string pvwaHost, string? filter = null)
+    public static SessionFolderNode BuildTree(AppSettings settings, string pvwaHost, string? filter = null) =>
+        BuildTree(settings.SessionFolderList, settings.Sessions.Where(s => IsForHost(s, pvwaHost)), filter);
+
+    /// <summary>Arbre de dossiers (vides compris, sauf pendant une recherche) et de serveurs, triés par nom.</summary>
+    public static SessionFolderNode BuildTree(IEnumerable<string> folders, IEnumerable<SavedSession> sessions, string? filter = null)
     {
         bool filtered = !string.IsNullOrWhiteSpace(filter);
         var root = new SessionFolderNode("");
@@ -30,12 +33,12 @@ public static class SessionLibrary
             return node;
         }
 
-        foreach (var folder in filtered ? [] : settings.SessionFolderList)
+        foreach (var folder in filtered ? [] : folders)
         {
             Ensure(folder);
         }
 
-        foreach (var session in settings.Sessions.Where(s => IsForHost(s, pvwaHost) && (!filtered || Matches(s, filter))))
+        foreach (var session in sessions.Where(s => !filtered || Matches(s, filter)))
         {
             Ensure(session.Folder).Sessions.Add(session);
         }
@@ -51,11 +54,19 @@ public static class SessionLibrary
         session.Address,
         session.UserName,
         session.Folder,
-        session.Mode == ConnectMode.Ssh ? "SSH" : "PSM",
+        ModeName(session.Mode),
         session.Component,
         session.RemoteMachine,
         session.PlatformId,
         session.SafeName);
+
+    /// <summary>Nom court du type de connexion (recherche, affichage).</summary>
+    public static string ModeName(ConnectMode mode) => mode switch
+    {
+        ConnectMode.Ssh => "SSH",
+        ConnectMode.Sftp => "SFTP",
+        _ => "PSM",
+    };
 
     public static bool IsForHost(SavedSession session, string pvwaHost) =>
         session.PvwaHost.Length == 0 || string.Equals(session.PvwaHost, pvwaHost, StringComparison.OrdinalIgnoreCase);
@@ -138,16 +149,15 @@ public static class SessionLibrary
     }
 
     /// <summary>
-    /// Ajoute une connexion récente avec sa configuration : SSH, ou PSM avec le composant utilisé, et la machine cible
+    /// Ajoute une connexion récente avec sa configuration : SSH, SFTP, ou PSM avec le composant utilisé, et la machine cible
     /// choisie (compte de domaine). Elle garde le nom affiché dans les connexions récentes (« utilisateur@machine »).
     /// </summary>
     public static SavedSession AddFromRecent(AppSettings settings, PvwaAccount account, RecentSession recent, string pvwaHost, string folder)
     {
         var session = AddSession(settings, account, pvwaHost, folder);
         var mode = recent.Mode.Trim();
-        bool ssh = string.Equals(mode, RecentSession.SshMode, StringComparison.OrdinalIgnoreCase);
-        session.Mode = ssh ? ConnectMode.Ssh : ConnectMode.Psm;
-        session.Component = ssh || mode.Length == 0 ? null : mode;
+        session.Mode = RecentMode(mode);
+        session.Component = session.Mode != ConnectMode.Psm || mode.Length == 0 ? null : mode;
         session.RemoteMachine = string.IsNullOrWhiteSpace(recent.RemoteMachine) ? null : recent.RemoteMachine.Trim();
         if (!string.IsNullOrWhiteSpace(recent.Label))
         {
@@ -156,6 +166,12 @@ public static class SessionLibrary
 
         return session;
     }
+
+    /// <summary>Type de connexion d'une connexion récente (« SSH », « SFTP » ou le composant PSM).</summary>
+    public static ConnectMode RecentMode(string mode) =>
+        string.Equals(mode.Trim(), RecentSession.SshMode, StringComparison.OrdinalIgnoreCase) ? ConnectMode.Ssh
+        : string.Equals(mode.Trim(), RecentSession.SftpMode, StringComparison.OrdinalIgnoreCase) ? ConnectMode.Sftp
+        : ConnectMode.Psm;
 
     public static void MoveSession(AppSettings settings, SavedSession session, string folder)
     {

@@ -46,7 +46,7 @@ public partial class FileBrowserPanel
     private async Task EnqueueMultiUploadAsync(IReadOnlyList<string> paths, string destination, IReadOnlyList<SshSession> sessions)
     {
         var names = paths.Select(p => Path.GetFileName(p.TrimEnd('\\', '/'))).ToList();
-        var targets = new List<(SshSession Session, RemoteFileBrowser Browser, string Directory)>();
+        var targets = new List<(SshSession Session, IRemoteFiles Browser, string Directory)>();
         var problems = new List<string>();
         var conflicts = new List<string>();
         SetStatus(Strings.MultiUploadChecking);
@@ -130,7 +130,7 @@ public partial class FileBrowserPanel
             })
             {
                 Owner = session,
-                Protocol = Protocol,
+                Protocol = ProtocolOf(browser),
                 Names = names,
             });
         }

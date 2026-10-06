@@ -30,11 +30,12 @@
             </Border>
 
             <TextBlock Text="{x:Static loc:Strings.ConnectionType}" Style="{StaticResource SectionTitle}" />
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                <RadioButton x:Name="PsmRadio" Content="{x:Static loc:Strings.ModePsm}" GroupName="Mode" Margin="0,0,24,0"
+            <WrapPanel Margin="0,0,0,12">
+                <RadioButton x:Name="PsmRadio" Content="{x:Static loc:Strings.ModePsm}" GroupName="Mode" Margin="0,0,24,4"
                              Checked="OnModeChanged" />
-                <RadioButton x:Name="SshRadio" Content="{x:Static loc:Strings.ModeSsh}" GroupName="Mode" Checked="OnModeChanged" />
-            </StackPanel>
+                <RadioButton x:Name="SshRadio" Content="{x:Static loc:Strings.ModeSsh}" GroupName="Mode" Margin="0,0,24,4" Checked="OnModeChanged" />
+                <RadioButton x:Name="SftpRadio" Content="{x:Static loc:Strings.ModeSftp}" GroupName="Mode" Margin="0,0,0,4" Checked="OnModeChanged" />
+            </WrapPanel>
 
             <Grid>
                 <Grid.ColumnDefinitions>

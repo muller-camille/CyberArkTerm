@@ -50,7 +50,7 @@ public partial class FileBrowserPanel
     private static string Label(SshSession session, string path) => $"{session.Label} : {path}";
 
     /// <summary>Fichier d'un serveur ; « ~ » et les chemins relatifs partent du dossier personnel du compte.</summary>
-    private static (string Label, Func<Task<byte[]>> Read) RemoteSide(SshSession session, RemoteFileBrowser? browser, string path) =>
+    private static (string Label, Func<Task<byte[]>> Read) RemoteSide(SshSession session, IRemoteFiles? browser, string path) =>
         (Label(session, path), async () =>
         {
             var target = browser ?? await session.GetBrowserAsync();

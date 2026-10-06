@@ -460,6 +460,17 @@ public partial class MainWindow
 
     private void OnKeePassConnectRdp(object sender, RoutedEventArgs e) => ConnectSelectedKeePass(RemoteProtocol.Rdp);
 
+    private void OnKeePassConnectVnc(object sender, RoutedEventArgs e) => ConnectSelectedKeePass(RemoteProtocol.Vnc);
+
+    /// <summary>Fichiers de l'entrée : son protocole de fichiers (FTP, FTPS…) s'il en a un, sinon SFTP.</summary>
+    private void OnKeePassOpenFiles(object sender, RoutedEventArgs e)
+    {
+        if (SavedTree.SelectedItem is KeePassEntryNode node)
+        {
+            ConnectSelectedKeePass(KeePassTarget.IsFileTransfer(node.Target.Protocol) ? node.Target.Protocol : RemoteProtocol.Sftp);
+        }
+    }
+
     private void ConnectSelectedKeePass(RemoteProtocol? protocol)
     {
         if (SavedTree.SelectedItem is KeePassEntryNode node)
@@ -496,7 +507,7 @@ public partial class MainWindow
             return;
         }
 
-        if (target.Protocol == RemoteProtocol.Ssh && target.UserName.Length == 0)
+        if (target.Protocol is RemoteProtocol.Ssh or RemoteProtocol.Sftp && target.UserName.Length == 0)
         {
             MessageBox.Show(this, Text.Format(Strings.KeePassNoUserError, node.Title), Strings.KeePassFolderTitle,
                 MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -514,12 +525,20 @@ public partial class MainWindow
         string? Password() => _keePass.Get(folder.Id)?.RevealPassword(entryId);
 
         var label = Text.Format(Strings.KeePassTabLabel, node.Title);
-        _keePass.Log.Write(target.Protocol == RemoteProtocol.Ssh ? "ssh" : "rdp", ("vault", folder.FilePath), ("entry", node.Entry.Title),
+        _keePass.Log.Write(KeePassTarget.Name(target.Protocol).ToLowerInvariant(), ("vault", folder.FilePath), ("entry", node.Entry.Title),
             ("user", target.UserName), ("target", target.Address));
         SetStatus(Text.Format(Strings.KeePassConnecting, node.Title, target.Address));
         try
         {
-            if (target.Protocol == RemoteProtocol.Ssh)
+            if (target.Protocol == RemoteProtocol.Vnc)
+            {
+                OpenVncTab(label, target.Host, target.Port, Password, () => ConnectKeePassAsync(node, target.Protocol));
+            }
+            else if (KeePassTarget.IsFileTransfer(target.Protocol))
+            {
+                OpenKeePassFiles(target, label, Password, () => ConnectKeePassAsync(node, target.Protocol));
+            }
+            else if (target.Protocol == RemoteProtocol.Ssh)
             {
                 var connector = new Core.Ssh.SshConnector(target.Host, target.Port, target.UserName, _directUi,
                     password: Password, addressWhat: CoreStrings.ServerAddressWhat);
@@ -554,6 +573,9 @@ public partial class MainWindow
         var menu = new ContextMenu { PlacementTarget = SavedTree, Placement = PlacementMode.MousePoint };
         menu.Items.Add(MenuEntry(Strings.MenuKeePassSsh.Replace("_", ""), () => _ = ConnectKeePassAsync(node, RemoteProtocol.Ssh)));
         menu.Items.Add(MenuEntry(Strings.MenuKeePassRdp.Replace("_", ""), () => _ = ConnectKeePassAsync(node, RemoteProtocol.Rdp)));
+        menu.Items.Add(MenuEntry(Strings.MenuKeePassVnc.Replace("_", ""), () => _ = ConnectKeePassAsync(node, RemoteProtocol.Vnc)));
+        menu.Items.Add(MenuEntry(Strings.MenuKeePassSftp.Replace("_", ""), () => _ = ConnectKeePassAsync(node, RemoteProtocol.Sftp)));
+        menu.Items.Add(MenuEntry(Strings.MenuKeePassFtp.Replace("_", ""), () => _ = ConnectKeePassAsync(node, RemoteProtocol.Ftp)));
         // Ouvert après le double-clic : sinon le relâchement du bouton le refermerait aussitôt.
         Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, () => menu.IsOpen = true);
     }

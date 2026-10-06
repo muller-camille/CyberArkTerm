@@ -10,7 +10,7 @@ namespace CyberArkTerm.Core.Ssh;
 /// de fichiers par SCP ou SFTP. Les opérations sont sérialisées : une seule à la fois sur la connexion. Chaque fichier
 /// envoyé ou téléchargé est vérifié par sa somme SHA-256 des deux côtés (<see cref="TransferCheck"/>).
 /// </summary>
-public sealed class RemoteFileBrowser : IDisposable
+public sealed class RemoteFileBrowser : IRemoteFiles
 {
     private readonly SftpClient _sftp;
     private readonly Func<CancellationToken, Task<ScpClient>> _scpFactory;
@@ -39,6 +39,12 @@ public sealed class RemoteFileBrowser : IDisposable
 
     public bool IsConnected => _sftp.IsConnected;
 
+    public bool ChoosesUploadProtocol => true;
+
+    public TransferProtocol UploadProtocol => TransferProtocol.Sftp;
+
+    public bool SupportsPermissions => true;
+
     /// <summary>Liste un dossier (chemin absolu ou relatif au dossier courant) et en fait le dossier courant.</summary>
     public async Task<List<RemoteEntry>> ListAsync(string path, bool showHidden, CancellationToken ct)
     {
@@ -47,6 +53,24 @@ public sealed class RemoteFileBrowser : IDisposable
         // ChangeDirectory renvoie le chemin canonique (liens symboliques résolus, comme « cd » puis « pwd -P »).
         await _sftp.ChangeDirectoryAsync(target, ct).ConfigureAwait(false);
         var directory = _sftp.WorkingDirectory;
+        var entries = await ReadDirectoryAsync(directory, showHidden, ct).ConfigureAwait(false);
+        CurrentDirectory = directory;
+        return entries;
+    }
+
+    /// <summary>
+    /// Liste un dossier (chemin absolu) sans en faire le dossier courant : pour choisir un fichier depuis une autre
+    /// fenêtre sans déplacer l'onglet Fichiers de ce serveur.
+    /// </summary>
+    public async Task<List<RemoteEntry>> BrowseAsync(string directory, bool showHidden, CancellationToken ct)
+    {
+        using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
+        return await ReadDirectoryAsync(RemotePath.Normalize(directory), showHidden, ct).ConfigureAwait(false);
+    }
+
+    /// <summary>Contenu d'un dossier, trié (dossiers d'abord) ; un lien vers un dossier compte comme un dossier.</summary>
+    private async Task<List<RemoteEntry>> ReadDirectoryAsync(string directory, bool showHidden, CancellationToken ct)
+    {
         var entries = new List<RemoteEntry>();
         await foreach (var file in _sftp.ListDirectoryAsync(directory, ct).ConfigureAwait(false))
         {
@@ -72,7 +96,6 @@ public sealed class RemoteFileBrowser : IDisposable
             entries.Add(ToEntry(file, isDirectory));
         }
 
-        CurrentDirectory = directory;
         return RemoteEntry.Sort(entries);
     }
 

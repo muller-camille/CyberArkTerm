@@ -35,12 +35,12 @@ and opens your sessions with a double-click: remote desktop through **PSM**, or 
 | --- | --- |
 | **CyberArk sign-in** | CyberArk, LDAP, RADIUS (challenge / OTP included) or Windows (current session) authentication. |
 | **Available** | Every account visible in the vault, grouped by safe, platform or target type, with instant search; password actions (CPM, copy), safe members, adding, editing and importing accounts. |
-| **My servers** | Your working servers, organized in folders and subfolders, each with its own settings. |
+| **My servers** | Your working servers, organized in folders and subfolders, each with its own settings; export, import and **shared lists** on a network share (everyone adds or removes, history of changes and versions). |
 | **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in Windows Remote Desktop Connection: component, target machine, reason, ticket. |
-| **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colours, vim, less, top…), MFA, right-click menu, search, separate windows. |
+| **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colours, vim, less, top…), MFA, right-click menu, search, separate windows. Files only (SFTP, without a terminal) for "SFTP" platforms or on request. |
 | **Files tab** | SFTP browser of the server: drag-and-drop upload (SFTP, or SCP, the other one taking over if the server refuses) and download, SHA-256 check of every file, transfer queue and history, sortable columns, editing in your text editor, permissions, live following (`tail -f`), comparison, sending to several servers. |
 | **Parallel view** | Up to 8 SSH sessions side by side (a "My servers" folder opens in one click), optional simultaneous typing. |
-| **Emergency access (KeePass)** | Without CyberArk: KeePass vaults (.kdbx) in "My servers", direct SSH and remote desktop connections, local log. |
+| **Emergency access (KeePass)** | Without CyberArk: KeePass vaults (.kdbx) in "My servers", direct SSH, remote desktop and VNC connections, files over SFTP, FTP or FTPS in the Files tab, local log. |
 | **Languages** | English, French and Italian: Windows language by default, can be changed at any time. |
 
 <table>
@@ -113,7 +113,8 @@ check at most once a day and shows a link in the status bar.
 5. **My servers**: keep your working servers in folders, each with its connection settings (PSM or SSH, component,
    target machine, start folder); open a whole folder in the **parallel view**.
 6. **Emergency access**: when CyberArk is unavailable, "Emergency access (KeePass)" on the sign-in window opens your
-   KeePass vaults and connects directly over SSH or remote desktop (not recorded by the PSM, logged on this computer).
+   KeePass vaults and connects directly over SSH, remote desktop or VNC, or to the files over SFTP, FTP or FTPS (not
+   recorded by the PSM, logged on this computer).
 
 The **[user guide](docs/guide.md)** describes every tab in detail, the
 [shortcuts](docs/guide.md#shortcuts), the [settings and configuration file](docs/guide.md#settings-and-configuration-file),
@@ -128,7 +129,10 @@ The **[user guide](docs/guide.md)** describes every tab in detail, the
   the ones opened from the PVWA.
 - **Copied passwords** go straight to the Windows clipboard, kept out of its history and synchronization, and are
   cleared after 20 s; they are never shown nor logged.
-- **PSMP host keys** are pinned on first use, with a warning if they change.
+- **PSMP host keys** are pinned on first use, with a warning if they change (likewise for SSH servers and FTPS
+  certificates of KeePass entries).
+- **Unencrypted protocols** (VNC, FTP without TLS) are flagged by a permanent banner; FTP only goes to clear text
+  after your agreement.
 - **KeePass vaults**: the master password is never saved, except in the local vault if you ask for it (Argon2id,
   AES-256-GCM, protected by your Windows account); every opening and connection is written to a local log.
 - **No request to the Internet** without your action or the update option (off by default); a downloaded update is
@@ -144,12 +148,14 @@ All the details: [user guide → Security](docs/guide.md#security). To report a 
 
 | Project | Role |
 | --- | --- |
-| `src/CyberArkTerm.Core` | Cross-platform logic without UI: PVWA API client, account classification, xterm terminal emulator, PSMP connections and SFTP/SCP browser (SSH.NET), "My servers" folders, KeePass vaults (KDBX), local vault, preferences. |
+| `src/CyberArkTerm.Core` | Cross-platform logic without UI: PVWA API client, account classification, xterm terminal emulator, PSMP connections and SFTP/SCP browser (SSH.NET), FTP/FTPS browser (FluentFTP), VNC client, "My servers" folders, KeePass vaults (KDBX), local vault, preferences. |
 | `src/CyberArkTerm.App` | WPF application: windows, tabs, terminal control, Remote Desktop control (RDP tabs), `mstsc` launch, icon (`Assets`). |
 | `tests/CyberArkTerm.Core.Tests` | xUnit tests of Core (fake PVWA over HTTP, terminal, PSMP, folders, translations…). |
 | `tests/CyberArkTerm.App.Tests` | Windows tests of the application (real Remote Desktop control, DPAPI). |
 
-External dependency: [SSH.NET](https://github.com/sshnet/SSH.NET) (MIT license).
+External dependencies: [SSH.NET](https://github.com/sshnet/SSH.NET), [FluentFTP](https://github.com/robinrodricks/FluentFTP)
+and [Konscious.Security.Cryptography](https://github.com/kmaragon/Konscious.Security.Cryptography) (Argon2), all
+under the MIT license.
 
 ### Translations
 
@@ -205,6 +211,8 @@ zip and `SHA256SUMS.txt`. Release notes are read from `docs/releases/vX.Y.Z.md` 
 - KeePass vaults: Twofish encryption and YubiKey keys are not supported; no vault creation (create it with KeePass
   or KeePassXC); attachments are kept but not shown.
 - Following the terminal folder requires bash, zsh or tcsh on the server.
+- VNC: VNC password or no authentication only (no vendor-specific authentication or encryption). FTPS: a server
+  that requires TLS session reuse on data connections may refuse transfers.
 - PSM Gateway (HTML5), dual control and exclusive access are not supported.
 
 **Ideas**

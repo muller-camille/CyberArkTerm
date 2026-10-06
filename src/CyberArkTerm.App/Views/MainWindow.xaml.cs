@@ -42,6 +42,9 @@ public partial class MainWindow : Window
     private PvwaAccount? _current;
     private SavedSession? _currentSaved;
     private bool _loading;
+
+    // Comptes du PVWA chargés au moins une fois : avant, un compte absent n'est pas encore un compte disparu.
+    private bool _accountsLoaded;
     private bool _connecting;
     private bool _loggedOff;
 
@@ -81,6 +84,7 @@ public partial class MainWindow : Window
         SystemEvents.SessionSwitch += OnWindowsSessionSwitch;
         Closed += (_, _) =>
         {
+            CloseAllVncSessions();
             _keePass.Changed -= OnKeePassChanged;
             SystemEvents.SessionSwitch -= OnWindowsSessionSwitch;
         };
@@ -95,7 +99,8 @@ public partial class MainWindow : Window
             // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de l'onglet « Courants ».
             AvailableTab.Visibility = Visibility.Collapsed;
             QuickPanel.Visibility = HomeLists.Visibility = NewFolderButton.Visibility = Visibility.Collapsed;
-            ExportButton.IsEnabled = ImportToolButton.IsEnabled = false;
+            ImportServersButton.Visibility = ExportServersButton.Visibility = Visibility.Collapsed;
+            SharedListsButton.Visibility = SharedSeparator.Visibility = Visibility.Collapsed;
             NoSavedText.Text = Strings.NoKeePassHelp;
             SideTabs.SelectedItem = CurrentTab;
             CountText.Text = "";
@@ -103,6 +108,7 @@ public partial class MainWindow : Window
         else
         {
             RefreshRecent();
+            StartSharedLists();
         }
 
         RefreshSaved();
@@ -223,10 +229,12 @@ public partial class MainWindow : Window
             }
 
             _current = null;
+            _accountsLoaded = true;
             ApplyFilter();
             SessionLibrary.MigrateFavorites(_settings, _byId, Client.BaseUri.Host);
             SaveSettings();
             RefreshSaved();
+            RefreshRecent();
             RefreshQuickResults();
             UpdateWelcome();
             UpdateActions();
@@ -283,12 +291,23 @@ public partial class MainWindow : Window
         WelcomeText.Text = _client is null ? Strings.EmergencyWelcome : Text.Format(Strings.Welcome, _client.BaseUri.Host, _sessionUser, _accounts.Count);
     }
 
+    /// <summary>
+    /// Connexions récentes : grisées tant que les comptes du PVWA ne sont pas chargés (un clic ne pourrait que
+    /// répondre, à tort, que le compte n'existe plus).
+    /// </summary>
     private void RefreshRecent()
     {
         RecentList.ItemsSource = _settings.Recent.ToList();
         NoRecentText.Visibility = _settings.Recent.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         RecentList.Visibility = _settings.Recent.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        RecentList.IsEnabled = _accountsLoaded;
+        RecentList.Opacity = _accountsLoaded ? 1 : 0.45;
+        RecentLoadingText.Visibility = _accountsLoaded || _settings.Recent.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
     }
+
+    /// <summary>Compte introuvable : comptes pas encore chargés, chargement échoué, ou compte vraiment disparu.</summary>
+    private string MissingAccountText(string gone) =>
+        _accountsLoaded ? gone : _loading ? Strings.AccountsStillLoading : Strings.AccountsNotLoaded;
 
     private void RefreshQuickResults()
     {
@@ -373,7 +392,15 @@ public partial class MainWindow : Window
 
     private void CanRefresh(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = !_loading && !IsOffline;
 
-    private async void OnRefresh(object sender, ExecutedRoutedEventArgs e) => await LoadAccountsAsync();
+    private async void OnRefresh(object sender, ExecutedRoutedEventArgs e)
+    {
+        if (_sharedLists.Count > 0)
+        {
+            _ = ReloadSharedAsync(_sharedLists.ToList());
+        }
+
+        await LoadAccountsAsync();
+    }
 
     // ===================== Sélection =====================
 
@@ -397,6 +424,9 @@ public partial class MainWindow : Window
                 SetCurrent(null, keePass: entry);
                 break;
             case SavedSessionNode node:
+                SetCurrent(node.Account, node.Session);
+                break;
+            case SharedServerNode node:
                 SetCurrent(node.Account, node.Session);
                 break;
             case AccountNode node:
@@ -587,14 +617,15 @@ public partial class MainWindow : Window
 
         if (!_byId.TryGetValue(recent.AccountId, out var account))
         {
-            SetStatus(Text.Format(Strings.AccountGone, recent.Label), isError: true);
+            SetStatus(MissingAccountText(Text.Format(Strings.AccountGone, recent.Label)), isError: true);
             return;
         }
 
         SetCurrent(account);
-        var request = recent.Mode == RecentModes.Ssh
-            ? DefaultRequest(account, ConnectMode.Ssh) with { RemoteMachine = recent.RemoteMachine }
-            : DefaultRequest(account, ConnectMode.Psm) with { Component = recent.Mode, RemoteMachine = recent.RemoteMachine };
+        var mode = SessionLibrary.RecentMode(recent.Mode);
+        var request = mode == ConnectMode.Psm
+            ? DefaultRequest(account, ConnectMode.Psm) with { Component = recent.Mode, RemoteMachine = recent.RemoteMachine }
+            : DefaultRequest(account, mode) with { RemoteMachine = recent.RemoteMachine };
         _ = ConnectAsync(account, request, showDialog: false);
     }
 
@@ -630,6 +661,14 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OnConnectSftp(object sender, RoutedEventArgs e)
+    {
+        if (_current is { } account)
+        {
+            _ = ConnectAsync(account, DefaultRequest(account, ConnectMode.Sftp));
+        }
+    }
+
     private void OnConnectAdvanced(object sender, RoutedEventArgs e)
     {
         if (_currentSaved is { } saved)
@@ -643,13 +682,13 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Requête par défaut : SSH via le PSMP pour un compte Unix (si le PSMP est renseigné), sinon PSM avec le composant
-    /// mémorisé. « Connexion avancée » permet de choisir l'autre.
+    /// Requête par défaut, d'après la plateforme (si le PSMP est renseigné) : fichiers seuls en SFTP pour une plateforme
+    /// « SFTP », SSH via le PSMP pour une plateforme « SSH » ou Unix, sinon PSM avec le composant mémorisé.
+    /// « Connexion avancée » permet d'en choisir un autre.
     /// </summary>
     private ConnectRequest DefaultRequest(PvwaAccount account, ConnectMode? mode)
     {
-        var effective = mode
-            ?? (HasPsmp && AccountClassifier.Classify(account) == AccountKind.Unix ? ConnectMode.Ssh : ConnectMode.Psm);
+        var effective = mode ?? AccountClassifier.DefaultMode(account, HasPsmp);
         var machines = AccountClassifier.RemoteMachineList(account);
         return new ConnectRequest(effective, _settings.ResolveComponent(account), machines.Count == 1 ? machines[0] : null);
     }
@@ -665,9 +704,9 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (request.Mode == ConnectMode.Ssh && !HasPsmp)
+        if (request.Mode != ConnectMode.Psm && !HasPsmp)
         {
-            SetStatus(Strings.SshUnavailable, isError: true);
+            SetStatus(request.Mode == ConnectMode.Sftp ? Strings.SftpUnavailable : Strings.SshUnavailable, isError: true);
             return;
         }
 
@@ -767,6 +806,13 @@ public partial class MainWindow : Window
             SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
             AddRecent(account, label, request.Component, request.RemoteMachine);
         }
+        else if (request.Mode == ConnectMode.Sftp)
+        {
+            // Fichiers seuls : une session PSMP SFTP, sans terminal, toujours dans l'application.
+            var login = PsmpTarget.BuildLogin(_vaultUser, account, request.RemoteMachine);
+            await OpenPsmpFilesTabAsync(account, login, label, saved, () => ConnectAsync(account, request, saved: saved));
+            AddRecent(account, label, RecentModes.Sftp, request.RemoteMachine);
+        }
         else if (_settings.SshInApp)
         {
             var login = PsmpTarget.BuildLogin(_vaultUser, account, request.RemoteMachine);
@@ -834,6 +880,18 @@ public partial class MainWindow : Window
                 : Visibility.Visible;
         }
 
+        // Action du double-clic en gras : PSM, SSH ou fichiers seuls selon la plateforme.
+        var defaultTag = account is null ? null : AccountClassifier.DefaultMode(account, HasPsmp) switch
+        {
+            ConnectMode.Ssh => "ssh",
+            ConnectMode.Sftp => "sftp",
+            _ => "psm",
+        };
+        foreach (var item in menu.Items.OfType<MenuItem>().Where(i => i.Tag as string is "psm" or "ssh" or "sftp"))
+        {
+            item.FontWeight = item.Tag as string == defaultTag ? FontWeights.SemiBold : FontWeights.Normal;
+        }
+
         foreach (var item in menu.Items.OfType<MenuItem>())
         {
             switch (item.Tag as string)
@@ -844,6 +902,10 @@ public partial class MainWindow : Window
                 case "ssh":
                     item.IsEnabled = HasPsmp;
                     item.ToolTip = HasPsmp ? null : Strings.SetPsmpAddress;
+                    break;
+                case "sftp":
+                    item.IsEnabled = HasPsmp;
+                    item.ToolTip = HasPsmp ? Strings.MenuConnectSftpTip : Strings.SetPsmpAddress;
                     break;
                 case "safemembers":
                     SetSafeMenuItem(item, safe, Strings.MenuSafeMembersOf, Strings.MenuSafeMembers);

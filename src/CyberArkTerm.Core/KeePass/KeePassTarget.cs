@@ -8,16 +8,35 @@ public enum RemoteProtocol
     Unknown,
     Ssh,
     Rdp,
+
+    /// <summary>Bureau VNC (RFB), dans un onglet.</summary>
+    Vnc,
+
+    /// <summary>Fichiers seulement, en SFTP (sans terminal).</summary>
+    Sftp,
+
+    /// <summary>FTP : TLS si le serveur le propose (AUTH TLS), sinon en clair après confirmation.</summary>
+    Ftp,
+
+    /// <summary>FTP avec TLS explicite exigé (ftpes://).</summary>
+    Ftpes,
+
+    /// <summary>FTP avec TLS implicite (ftps://, port 990).</summary>
+    Ftps,
 }
 
 /// <summary>
 /// Serveur à joindre d'après une entrée KeePass : protocole, hôte et port tirés de l'URL (<c>ssh://hôte:22</c>,
-/// <c>rdp://hôte</c>, <c>hôte:3389</c>), de champs personnalisés (« Protocol », « Host », « Port »), des étiquettes
-/// (« ssh », « rdp ») ou à défaut du titre, s'il ressemble à un nom de serveur.
+/// <c>rdp://hôte</c>, <c>vnc://hôte:1</c>, <c>sftp://</c>, <c>ftp://</c>, <c>ftpes://</c>, <c>ftps://</c>,
+/// <c>hôte:3389</c>), de champs personnalisés (« Protocol », « Host », « Port »), des étiquettes (« ssh », « rdp »,
+/// « vnc », « ftp »…) ou à défaut du titre, s'il ressemble à un nom de serveur.
 /// </summary>
 public sealed record KeePassTarget(RemoteProtocol Protocol, string Host, int Port, string UserName)
 {
     public const int SshPort = 22;
+    public const int VncPort = 5900;
+    public const int FtpPort = 21;
+    public const int FtpsPort = 990;
 
     public static KeePassTarget From(KeePassEntry entry)
     {
@@ -31,8 +50,13 @@ public sealed record KeePassTarget(RemoteProtocol Protocol, string Host, int Por
             var scheme = url.IndexOf("://", StringComparison.Ordinal) is var i and > 0 ? url[..i].ToLowerInvariant() : "";
             protocol = scheme switch
             {
-                "ssh" or "sftp" or "scp" => RemoteProtocol.Ssh,
+                "ssh" or "scp" => RemoteProtocol.Ssh,
                 "rdp" or "ms-rd" or "mstsc" => RemoteProtocol.Rdp,
+                "vnc" => RemoteProtocol.Vnc,
+                "sftp" => RemoteProtocol.Sftp,
+                "ftp" => RemoteProtocol.Ftp,
+                "ftpes" => RemoteProtocol.Ftpes,
+                "ftps" => RemoteProtocol.Ftps,
                 _ => RemoteProtocol.Unknown,
             };
             if (scheme.Length == 0 || protocol != RemoteProtocol.Unknown || scheme is "http" or "https")
@@ -70,8 +94,17 @@ public sealed record KeePassTarget(RemoteProtocol Protocol, string Host, int Por
             {
                 SshPort => RemoteProtocol.Ssh,
                 RdpConnectionSettings.DefaultPort => RemoteProtocol.Rdp,
+                VncPort => RemoteProtocol.Vnc,
+                FtpPort => RemoteProtocol.Ftp,
+                FtpsPort => RemoteProtocol.Ftps,
                 _ => RemoteProtocol.Unknown,
             };
+        }
+
+        // VNC : « hôte:1 » désigne l'écran 1, soit le port 5901.
+        if (protocol == RemoteProtocol.Vnc && port is < 100)
+        {
+            port = VncPort + port;
         }
 
         if (host.Length == 0 && LooksLikeHost(entry.Title))
@@ -86,7 +119,31 @@ public sealed record KeePassTarget(RemoteProtocol Protocol, string Host, int Por
     public KeePassTarget WithProtocol(RemoteProtocol protocol) =>
         this with { Protocol = protocol, Port = Port == DefaultPort(Protocol) ? DefaultPort(protocol) : Port };
 
-    public static int DefaultPort(RemoteProtocol protocol) => protocol == RemoteProtocol.Rdp ? RdpConnectionSettings.DefaultPort : SshPort;
+    public static int DefaultPort(RemoteProtocol protocol) => protocol switch
+    {
+        RemoteProtocol.Rdp => RdpConnectionSettings.DefaultPort,
+        RemoteProtocol.Vnc => VncPort,
+        RemoteProtocol.Ftp or RemoteProtocol.Ftpes => FtpPort,
+        RemoteProtocol.Ftps => FtpsPort,
+        _ => SshPort,
+    };
+
+    /// <summary>Nom court du protocole (« SSH », « VNC »…) ; vide s'il n'est pas connu.</summary>
+    public static string Name(RemoteProtocol protocol) => protocol switch
+    {
+        RemoteProtocol.Ssh => "SSH",
+        RemoteProtocol.Rdp => "RDP",
+        RemoteProtocol.Vnc => "VNC",
+        RemoteProtocol.Sftp => "SFTP",
+        RemoteProtocol.Ftp => "FTP",
+        RemoteProtocol.Ftpes => "FTPES",
+        RemoteProtocol.Ftps => "FTPS",
+        _ => "",
+    };
+
+    /// <summary>Protocole de transfert de fichiers seulement (onglet Fichiers, sans terminal).</summary>
+    public static bool IsFileTransfer(RemoteProtocol protocol) =>
+        protocol is RemoteProtocol.Sftp or RemoteProtocol.Ftp or RemoteProtocol.Ftpes or RemoteProtocol.Ftps;
 
     /// <summary>
     /// Recherche dans l'onglet « Courants » : titre, utilisateur, URL, dossier, étiquettes, serveur et protocole de
@@ -100,12 +157,7 @@ public sealed record KeePassTarget(RemoteProtocol Protocol, string Host, int Por
         }
 
         var target = From(entry);
-        var protocol = target.Protocol switch
-        {
-            RemoteProtocol.Ssh => "SSH",
-            RemoteProtocol.Rdp => "RDP",
-            _ => null,
-        };
+        var protocol = Name(target.Protocol) is { Length: > 0 } name ? name : null;
         return SearchQuery.Matches(query, entry.Title, entry.UserName, entry.Url, entry.Group, entry.Tags, target.Host, target.UserName, protocol);
     }
 
@@ -133,8 +185,13 @@ public sealed record KeePassTarget(RemoteProtocol Protocol, string Host, int Por
 
     private static RemoteProtocol? ParseProtocol(string text) => text.Trim().ToLowerInvariant() switch
     {
-        "ssh" or "sftp" or "scp" or "linux" or "unix" => RemoteProtocol.Ssh,
+        "ssh" or "scp" or "linux" or "unix" => RemoteProtocol.Ssh,
         "rdp" or "windows" or "bureau à distance" or "remote desktop" => RemoteProtocol.Rdp,
+        "vnc" or "rfb" => RemoteProtocol.Vnc,
+        "sftp" => RemoteProtocol.Sftp,
+        "ftp" => RemoteProtocol.Ftp,
+        "ftpes" => RemoteProtocol.Ftpes,
+        "ftps" => RemoteProtocol.Ftps,
         _ => null,
     };
 

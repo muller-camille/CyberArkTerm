@@ -68,12 +68,7 @@ public sealed class KeePassEntryNode(KeePassFolder folder, KeePassEntry entry)
 
     public string Title => Entry.Title.Length > 0 ? Entry.Title : Target.Host;
 
-    public string ModeText => Target.Protocol switch
-    {
-        RemoteProtocol.Ssh => "SSH",
-        RemoteProtocol.Rdp => "RDP",
-        _ => "",
-    };
+    public string ModeText => KeePassTarget.Name(Target.Protocol);
 
     public bool IsExpanded { get; set; }
 

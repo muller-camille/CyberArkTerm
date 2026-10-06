@@ -873,6 +873,7 @@ public sealed class DialogTests
 
             var compare = new CompareDialog("root@srv01 : /etc/app.conf", "/etc/app.conf", [s1, s2], s1);
             Assert.Equal("/etc/app.conf", compare.RemoteFile);
+            Assert.True(compare.BrowseServerButton.IsEnabled);
             compare.Close();
 
             var choose = new ParallelDialog(["web01", "web02", "web03"], [0, 1, 2], 2, "intro", Strings.ParallelOpen);
@@ -887,6 +888,297 @@ public sealed class DialogTests
             s1.Dispose();
             s2.Dispose();
         });
+    }
+
+    /// <summary>
+    /// Explorateur d'un serveur (Comparer → Parcourir) : s'ouvre sur le dossier du même chemin, ou son plus proche
+    /// parent lisible, fichier présélectionné ; on y navigue et on choisit un fichier.
+    /// </summary>
+    [Fact]
+    public void RemoteFilePickerOpensOnTheSamePathAndReturnsTheChosenFile()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            static RemoteEntry Entry(string path, bool directory = false) =>
+                new(RemotePath.Name(path), path, directory, false, directory ? 0 : 1234, new DateTime(2026, 10, 6, 9, 0, 0), "");
+            var tree = new Dictionary<string, List<RemoteEntry>>
+            {
+                ["/opt/app"] = [Entry("/opt/app/conf", directory: true), Entry("/opt/app/run.sh")],
+                ["/opt/app/conf"] = [Entry("/opt/app/conf/app.yml"), Entry("/opt/app/conf/logging.xml")],
+            };
+            var listed = new List<string>();
+            Task<List<RemoteEntry>> List(string directory, bool hidden, CancellationToken ct)
+            {
+                listed.Add(directory);
+                return tree.TryGetValue(directory, out var entries)
+                    ? Task.FromResult(entries)
+                    : Task.FromException<List<RemoteEntry>>(new IOException("No such file"));
+            }
+
+            // Même chemin que le fichier comparé : son dossier s'ouvre, le fichier est sélectionné.
+            var picker = new RemoteFileDialog("root@srv02", "/opt/app/conf/app.yml", "/root", List);
+            picker.StartAsync().GetAwaiter().GetResult();
+            Assert.Equal("/opt/app/conf", picker.CurrentDirectory);
+            Assert.Equal("app.yml", ((RemoteEntry?)picker.FileList.SelectedItem)?.Name);
+            Assert.True(picker.ChooseButton.IsEnabled);
+            Assert.Equal("..", ((RemoteEntry)picker.FileList.Items[0]).Name);
+            picker.Close();
+
+            // Dossier absent sur ce serveur : le plus proche parent lisible ; « .. » puis un fichier.
+            picker = new RemoteFileDialog("root@srv02", "/opt/app/old/app.yml", "/root", List);
+            listed.Clear();
+            picker.StartAsync().GetAwaiter().GetResult();
+            Assert.Equal(["/opt/app/old", "/opt/app"], listed);
+            Assert.Equal("/opt/app", picker.CurrentDirectory);
+            Assert.Null(picker.FileList.SelectedItem);
+            picker.OpenAsync(Entry("/opt/app/conf", directory: true)).GetAwaiter().GetResult();
+            picker.OpenAsync(RemoteEntry.ParentLink("/opt/app/conf")).GetAwaiter().GetResult();
+            Assert.Equal("conf", ((RemoteEntry?)picker.FileList.SelectedItem)?.Name);
+            Assert.False(picker.ChooseButton.IsEnabled);
+            picker.OpenAsync(Entry("/opt/app/run.sh")).GetAwaiter().GetResult();
+            Assert.Equal("/opt/app/run.sh", picker.SelectedPath);
+
+            // Chemin saisi : un fichier ouvre son dossier et le sélectionne ; « ~ » est le dossier personnel.
+            picker.GoToAsync("/opt/app/conf/logging.xml").GetAwaiter().GetResult();
+            Assert.Equal(("/opt/app/conf", "logging.xml"), (picker.CurrentDirectory, ((RemoteEntry?)picker.FileList.SelectedItem)?.Name));
+            listed.Clear();
+            picker.GoToAsync("~").GetAwaiter().GetResult();
+            Assert.Equal(["/root", "/"], listed);
+            Assert.Contains("/", picker.StatusText.Text);
+            picker.Close();
+        });
+    }
+
+    /// <summary>Historique d'une liste partagée : journal (le plus récent d'abord) et versions avec leurs auteurs.</summary>
+    [Fact]
+    public void SharedListHistoryShowsTheChangesAndTheVersions()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var directory = Directory.CreateTempSubdirectory("cat-shared-").FullName;
+        try
+        {
+            var list = SharedServerList.Create(Path.Combine(directory, "Équipe.json"), "Équipe", "pvwa", "alice");
+            list.Add([Server("1", "web01", "Prod"), Server("2", "db01")], "alice");
+            list.Remove([list.Content!.Servers.Single(s => s.Name == "db01").Id], "bob");
+
+            RunWithTheme(() =>
+            {
+                UseDispatcherContext();
+                var restored = new List<int>();
+                var dialog = new SharedHistoryDialog(new SharedServerList(list.Path), version =>
+                {
+                    restored.Add(version.Revision);
+                    return Task.FromResult<int?>(0);
+                });
+                Pump(dialog.LoadAsync());
+
+                Assert.Equal(
+                    [$"{Strings.SharedActionRemoved} db01 bob", $"{Strings.SharedActionAdded} db01 alice",
+                     $"{Strings.SharedActionAdded} web01 alice", $"{Strings.SharedActionCreated} Équipe alice"],
+                    dialog.Changes.Select(c => $"{c.Action} {c.Server} {c.By}"));
+                Assert.Equal([2, 1], dialog.Versions.Select(v => v.Revision));
+                Assert.Equal(("alice", "+ web01, + db01"), (dialog.Versions[0].By, dialog.Versions[0].Summary));
+                Assert.Contains("3", dialog.HeaderText.Text);
+                Assert.False(dialog.RestoreButton.IsEnabled);
+                dialog.VersionsGrid.SelectedIndex = 0;
+                Assert.True(dialog.RestoreButton.IsEnabled);
+                Assert.Empty(restored);
+                dialog.Close();
+            });
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    /// <summary>
+    /// Fenêtre principale avant le chargement des comptes : connexions récentes grisées, liste partagée lue en
+    /// arrière-plan et affichée avant « Mes serveurs », boutons d'import et d'export dans l'onglet.
+    /// </summary>
+    [Fact]
+    public void MainWindowShowsSharedListsAndWaitsForTheAccounts()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var directory = Directory.CreateTempSubdirectory("cat-shared-").FullName;
+        try
+        {
+            var list = SharedServerList.Create(Path.Combine(directory, "Équipe.json"), "Équipe", "pvwa.test", "alice");
+            list.Add([Server("1", "web01", "Prod"), Server("2", "db01")], "alice");
+            var settings = new AppSettings { KeepPvwaSessionAlive = false, SharedLists = [list.Path] };
+            settings.Recent.Add(new RecentSession { AccountId = "1", Label = "root@web01", Mode = "PSM-RDP", When = DateTime.Now });
+            settings.Sessions.Add(new SavedSession { AccountId = "3", PvwaHost = "pvwa.test", Name = "root@app01" });
+
+            RunWithTheme(() =>
+            {
+                UseDispatcherContext();
+                using var client = new PvwaClient(new Uri("https://pvwa.test"), new System.Net.Http.HttpClientHandler());
+                var window = new MainWindow(client, settings, "jdoe", "jdoe", new Services.KeePass.KeePassManager());
+
+                Assert.False(window.RecentList.IsEnabled);
+                Assert.Equal(Visibility.Visible, window.RecentLoadingText.Visibility);
+                Assert.Equal(Visibility.Visible, window.ImportServersButton.Visibility);
+                Assert.Equal(Visibility.Visible, window.SharedListsButton.Visibility);
+
+                PumpUntil(() => window.SavedTree.ItemsSource is IEnumerable<object> items && items.OfType<SharedListNode>().Any(n => n.IsReadable));
+                var nodes = ((IEnumerable<object>)window.SavedTree.ItemsSource).ToList();
+                var shared = Assert.IsType<SharedListNode>(nodes[0]);
+                Assert.Equal(("Équipe", " (2)"), (shared.Name, shared.StateText));
+                Assert.Equal("Prod", Assert.IsType<SharedFolderNode>(shared.Children[0]).Name);
+                var db = Assert.IsType<SharedServerNode>(shared.Children[1]);
+                Assert.Equal(("db01", 0.5), (db.Title, db.Opacity));
+                Assert.Contains("alice", db.Details);
+                Assert.Equal("root@app01", Assert.IsType<SavedSessionNode>(nodes[1]).Title);
+                window.StopWatchingSharedLists();
+            });
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    private static ServerEntry Server(string account, string name, string folder = "") =>
+        new() { AccountId = account, Name = name, Folder = folder, Address = name, UserName = "root", PlatformId = "UnixSSH" };
+
+    /// <summary>Session de fichiers seuls (entrée KeePass FTP) : état dans l'onglet, fichiers dans le panneau, pas de terminal.</summary>
+    [Fact]
+    public void FilesSessionShowsItsStateAndTheFilesPanelBrowsesIt()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            UseDispatcherContext();
+            var attempts = new Queue<TaskCompletionSource<IRemoteFiles>>([new(), new()]);
+            var pending = attempts.ToArray();
+            var session = CyberArkTerm.App.Services.SshSession.ForFiles("ftp-test · KeePass", "FTPES", _ => attempts.Dequeue().Task,
+                System.Windows.Threading.Dispatcher.CurrentDispatcher);
+            var view = new FilesSessionView(session, "alice@ftp.test:21");
+            var panel = new FileBrowserPanel();
+            panel.Attach(session);
+            Assert.False(session.HasTerminal);
+            Assert.Equal(Visibility.Collapsed, panel.FollowBox.Visibility);
+
+            var first = view.ConnectAsync();
+            Assert.Equal(Strings.FilesSessionConnecting, view.StateText.Text);
+            Assert.Equal(Text.Format(Strings.FilesConnectingBrowse, "FTPES"), panel.MessageText.Text);
+            Assert.False(view.ShowFilesButton.IsEnabled);
+
+            pending[0].SetException(new IOException("certificat refusé"));
+            Pump(first);
+            Assert.Equal(CyberArkTerm.App.Services.SshSessionState.Failed, session.State);
+            Assert.Contains("certificat refusé", view.StateText.Text);
+            Assert.Equal(Visibility.Visible, view.ReconnectButton.Visibility);
+            Assert.Equal(Strings.FilesClosedBrowse, panel.MessageText.Text);
+
+            var files = new FakeFiles("/srv/ftp", [
+                new RemoteEntry("logs", "/srv/ftp/logs", true, false, 0, new DateTime(2026, 10, 6, 9, 0, 0), ""),
+                new RemoteEntry("app.conf", "/srv/ftp/app.conf", false, false, 120, new DateTime(2026, 10, 6, 9, 0, 0), ""),
+            ]);
+            var second = view.ConnectAsync();
+            Assert.Equal(Text.Format(Strings.FilesConnectingBrowse, "FTPES"), panel.MessageText.Text);
+            pending[1].SetResult(files);
+            Pump(second);
+            Assert.Equal(CyberArkTerm.App.Services.SshSessionState.Connected, session.State);
+            Assert.Equal(Strings.FilesSessionConnected, view.StateText.Text);
+            Assert.True(view.ShowFilesButton.IsEnabled);
+            Assert.Equal(Visibility.Collapsed, view.ReconnectButton.Visibility);
+            Assert.Equal(Visibility.Collapsed, view.CleartextBanner.Visibility);
+            PumpUntil(() => panel.PathBox.Text == "/srv/ftp");
+            Assert.Contains(panel.FileList.Items.OfType<RemoteEntry>(), e => e.Name == "app.conf");
+
+            session.Dispose();
+            PumpUntil(() => files.Disposed);
+        });
+    }
+
+    /// <summary>Fichiers d'un serveur en mémoire : une liste fixe, le reste non utilisé.</summary>
+    private sealed class FakeFiles(string home, List<RemoteEntry> entries) : IRemoteFiles
+    {
+        public bool Disposed { get; private set; }
+        public string HomeDirectory { get; } = home;
+        public string CurrentDirectory { get; private set; } = home;
+        public bool IsConnected => !Disposed;
+        public bool ChoosesUploadProtocol => false;
+        public TransferProtocol UploadProtocol => TransferProtocol.Ftps;
+        public bool SupportsPermissions => false;
+
+        public Task<List<RemoteEntry>> ListAsync(string path, bool showHidden, CancellationToken ct)
+        {
+            CurrentDirectory = path;
+            return Task.FromResult(entries.ToList());
+        }
+
+        public Task<List<RemoteEntry>> BrowseAsync(string directory, bool showHidden, CancellationToken ct) => Task.FromResult(entries.ToList());
+        public Task DeleteAsync(RemoteEntry entry, CancellationToken ct) => throw new NotSupportedException();
+        public Task CreateDirectoryAsync(string path, CancellationToken ct) => throw new NotSupportedException();
+        public Task<bool> ExistsAsync(string path, CancellationToken ct) => Task.FromResult(true);
+        public Task UploadAsync(string localPath, string remoteDirectory, TransferProtocol protocol, ICollection<TransferCheck> checks,
+            IProgress<TransferProgress>? progress, bool background, CancellationToken ct) => throw new NotSupportedException();
+        public ITailSource TailSource(string path) => throw new NotSupportedException();
+        public Task<long> GetSizeAsync(string path, CancellationToken ct) => throw new NotSupportedException();
+        public Task<byte[]> ReadAsync(string path, long offset, int count, CancellationToken ct) => throw new NotSupportedException();
+        public Task<byte[]> ReadAllBytesAsync(string path, long maxBytes, CancellationToken ct) => throw new NotSupportedException();
+        public Task<(DateTime LastWriteTime, long Length)> GetStatAsync(string path, CancellationToken ct) => throw new NotSupportedException();
+        public Task<(DateTime LastWriteTime, long Length)> WriteFileAsync(string remotePath, byte[] content, CancellationToken ct) =>
+            throw new NotSupportedException();
+        public Task<int?> GetModeAsync(string path, CancellationToken ct) => Task.FromResult<int?>(null);
+        public Task<PermissionsResult> SetPermissionsAsync(string path, int mode, bool includeSpecial, bool recursive,
+            bool executeOnlyIfAlready, IProgress<int>? progress, CancellationToken ct) => throw new NotSupportedException();
+        public Task<List<RemoteTreeItem>> ListTreeAsync(IReadOnlyList<RemoteEntry> roots, int maxItems, CancellationToken ct) =>
+            throw new NotSupportedException();
+        public Task<TransferCheck> DownloadAsync(RemoteEntry entry, string localPath, IProgress<TransferProgress>? progress, CancellationToken ct) =>
+            throw new NotSupportedException();
+        public Task<TransferCheck> DownloadAsync(RemoteEntry entry, string localPath, ICollection<TransferCheck>? checks,
+            IProgress<TransferProgress>? progress, bool background, CancellationToken ct) => throw new NotSupportedException();
+        public void Dispose() => Disposed = true;
+    }
+
+    /// <summary>Les suites des tâches attendues reviennent sur le fil de la fenêtre, comme dans l'application.</summary>
+    private static void UseDispatcherContext() =>
+        SynchronizationContext.SetSynchronizationContext(new System.Windows.Threading.DispatcherSynchronizationContext(
+            System.Windows.Threading.Dispatcher.CurrentDispatcher));
+
+    /// <summary>Fait tourner la file du fil de la fenêtre jusqu'à la fin de la tâche.</summary>
+    private static void Pump(Task task)
+    {
+        PumpUntil(() => task.IsCompleted);
+        task.GetAwaiter().GetResult();
+    }
+
+    private static void PumpUntil(Func<bool> done, int timeoutMs = 10000)
+    {
+        var frame = new System.Windows.Threading.DispatcherFrame();
+        var started = Environment.TickCount64;
+        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(15) };
+        timer.Tick += (_, _) =>
+        {
+            if (done() || Environment.TickCount64 - started > timeoutMs)
+            {
+                timer.Stop();
+                frame.Continue = false;
+            }
+        };
+        timer.Start();
+        System.Windows.Threading.Dispatcher.PushFrame(frame);
+        Assert.True(done(), "délai dépassé");
     }
 
     /// <summary>Recherche dans le terminal (historique compris) et taille de police.</summary>

@@ -186,7 +186,7 @@ public partial class FileBrowserPanel
     /// fenêtre de progression. Renvoie le fichier local de chaque élément (null pour un dossier), ou null si le
     /// téléchargement a été annulé ou a échoué.
     /// </summary>
-    private IReadOnlyList<string?>? DownloadForDrop(RemoteFileBrowser browser, List<RemoteTreeItem> items, List<VirtualFile> files,
+    private IReadOnlyList<string?>? DownloadForDrop(IRemoteFiles browser, List<RemoteTreeItem> items, List<VirtualFile> files,
         Action<string> setStaging)
     {
         var root = Path.Combine(DragRoot, Guid.NewGuid().ToString("N"));

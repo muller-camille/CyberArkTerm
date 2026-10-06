@@ -37,7 +37,8 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
 - La casella di ricerca filtra su tutti i campi (server, utente, safe, piattaforma, dominio…), anche con più parole
   (`prd sql`).
 - «Raggruppa per» ordina gli account per safe, piattaforma o tipo di destinazione.
-- Il pulsante «Esporta» della barra degli strumenti salva in CSV gli account mostrati (filtrati dalla ricerca).
+- Clic destro su un account → «Esporta gli account visualizzati (CSV)…» salva in CSV gli account mostrati
+  (filtrati dalla ricerca).
 - **Membri di un safe**: clic destro su un account (o su un safe quando gli account sono raggruppati per safe, o su
   un server di «I miei server») → «Membri del safe». La finestra elenca gli utenti e i gruppi del safe con i loro
   diritti (elencare, usare, recuperare, aggiungere account, aggiornare, eliminare, gestire i membri…), indica chi
@@ -52,12 +53,11 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
   modello (safe, piattaforma, dominio). L'account viene creato con i diritti della tua sessione: serve il diritto
   «Aggiungere account» sul safe e, in genere, «Aggiornare il contenuto degli account» per fornire la password.
   L'elenco viene poi ricaricato e il nuovo account selezionato.
-- **Importare account (CSV)**: pulsante «Importa» della barra degli strumenti, o clic destro su un account o un safe
-  → «Importa account (CSV)…». Una piccola finestra chiede il file («Salva un modello…» fornisce un esempio), il safe
+- **Importare account (CSV)**: clic destro su un account o un safe → «Importa account (CSV)…». Una piccola finestra chiede il file («Salva un modello…» fornisce un esempio), il safe
   e la piattaforma predefiniti e riassume cosa verrà creato; nulla viene inviato prima di «Importa». Colonne
   obbligatorie: indirizzo e utente (più safe e piattaforma, altrimenti i valori predefiniti); facoltative: nome,
   dominio, password, macchine consentite, gestione CPM (sì/no), motivo. Separatore `;`, `,` o tabulazione, nomi
-  delle colonne in italiano, francese o inglese; un file prodotto da «Esporta» si può reimportare. Una seconda
+  delle colonne in italiano, francese o inglese; un file prodotto da «Esporta gli account visualizzati» si può reimportare. Una seconda
   finestra crea poi gli account riga per riga e mostra lo stato di ciascuna (creato, rifiutato con il messaggio del
   PVWA, non importato, non inviato; «Interrompi» disponibile). Alla fine propone di salvare il risultato in CSV
   (senza le password). Le password del file non vengono mai mostrate; elimina il file dopo l'importazione.
@@ -80,8 +80,8 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
 <img src="captures/it/psm-connect.png" alt="Connessione PSM avanzata: macchina di destinazione, motivo, ticket" width="520">
 
 Fai doppio clic sull'account (oppure Invio, oppure il pulsante «Connetti»); un account Unix si apre in SSH tramite
-il PSMP quando il suo indirizzo è impostato (vedi 4.), e «Connessione avanzata…» permette allora di scegliere il
-PSM. CyberArkTerm richiede la connessione al PVWA e apre la sessione in **Connessione Desktop remoto** di Windows
+il PSMP quando il suo indirizzo è impostato, o in soli file per una piattaforma «SFTP» (vedi 4.), e «Connessione
+avanzata…» permette allora di scegliere il PSM. CyberArkTerm richiede la connessione al PVWA e apre la sessione in **Connessione Desktop remoto** di Windows
 (`mstsc`), esattamente come il pulsante «Connect» del PVWA: il file RDP del PVWA le viene passato così com'è. Un
 componente che apre un'applicazione remota (RemoteApp) apre le sue finestre sul desktop del computer.
 
@@ -98,9 +98,23 @@ componente che apre un'applicazione remota (RemoteApp) apre le sue finestre sul 
 
 ## 4. Aprire una sessione SSH tramite il PSMP
 
-Imposta una volta l'indirizzo del PSMP nelle **Impostazioni**: gli account Unix si aprono allora in SSH per
-impostazione predefinita (doppio clic o Invio). Per un altro account, clic destro → «Connetti in SSH» (o il pulsante
-«SSH»).
+Imposta una volta l'indirizzo del PSMP nelle **Impostazioni**. Il doppio clic (o Invio) sceglie allora in base al
+nome della piattaforma dell'account:
+
+| Nome della piattaforma | Apertura predefinita |
+| --- | --- |
+| contiene «SFTP» (`UnixSFTP`, `SFTP-Partner`…) | **solo file** in SFTP tramite il PSMP (vedi sotto) |
+| contiene «SSH» (`UnixSSH`, `CiscoSSH`…), o un'altra piattaforma Unix | **SSH** tramite il PSMP |
+| altro | **PSM** (desktop remoto) |
+
+Il clic destro propone sempre le tre (l'apertura predefinita è in grassetto): «Connetti (PSM)», «Connetti in SSH
+(PSMP)» (o il pulsante «SSH») e «Apri i file (SFTP, PSMP)».
+
+**Solo file**: una sola sessione PSMP SFTP, senza terminale. Una scheda ne mostra lo stato; i file sono nella scheda
+«File», con le stesse funzioni (trasferimenti verificati, coda, editor, confronto, monitoraggio in tempo reale,
+permessi), tranne ciò che richiede un terminale (monitoraggio della cartella del terminale, estrazione di un archivio
+`.tar.gz`). Utile per depositare o recuperare file, o quando la piattaforma consente PSMP-SFTP ma non la shell. Come
+ogni sessione PSMP, è registrata e verificata da CyberArk.
 
 La sessione si apre **in una scheda di CyberArkTerm**, con l'identificativo PSMP standard `<tu>@<account di
 destinazione>[#dominio]@<server di destinazione>`. I nomi utente che contengono spazi (`Mario Rossi`, `Admin
@@ -156,7 +170,9 @@ Locale`) sono accettati.
 
 ## 5. Sfogliare e inviare file: scheda «File»
 
-All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la scheda SSH attiva.
+All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la scheda SSH attiva. Serve anche alle
+sessioni di soli file: account CyberArk in SFTP tramite il PSMP ([sezione 4](#4-aprire-una-sessione-ssh-tramite-il-psmp))
+e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyberark-archivi-keepass)).
 
 ![Scheda File ordinata per data, accanto al terminale](captures/it/main-window.png)
 
@@ -213,7 +229,11 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   cosa verrebbe sostituito (una sola domanda per tutti), poi mette in coda un invio per server: stesso protocollo,
   stessa verifica SHA-256 su ogni server, un solo riepilogo alla fine.
 - **Confrontare**: clic destro su un file → «Confronta con…»: lo stesso percorso (o un altro) su un server con una
-  sessione SSH aperta, o un file di questo computer; con due file selezionati, «Confronta i 2 file». I file vengono
+  sessione SSH aperta, o un file di questo computer; con due file selezionati, «Confronta i 2 file». «Sfoglia…»
+  accanto al percorso apre un esploratore dell'altro server, sulla stessa cartella con il file preselezionato (o
+  sulla cartella superiore più vicina che esiste): doppio clic su una cartella per entrarvi, Backspace per risalire,
+  si può anche digitare un percorso; il file scelto sostituisce il percorso. La scheda File di quel server resta
+  sulla sua cartella. I file vengono
   letti **in memoria** (50 MB al massimo ciascuno), senza copia sul computer. La finestra mostra le righe
   affiancate: rimosse in rosso a sinistra, aggiunte in verde a destra. `F7` / `Maiusc+F7`: differenza successiva /
   precedente; «Ignora gli spazi»; «Solo le differenze»; «Salva il diff…» nel formato `diff -u`. Un file binario (o
@@ -236,8 +256,10 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   che non può essere riletto (permessi) è segnalato «non verificato». La rilettura di un invio raddoppia il volume
   scambiato con il server.
 - **Eliminare**: selezione poi Canc (o clic destro → «Elimina (rm)»), con conferma. Le cartelle devono essere vuote.
-- **Modificare un file**: selezionalo, poi `F4` (o clic destro → «Modifica», o il pulsante matita). Il file si apre
-  nell'editor di testo scelto nelle Impostazioni (Blocco note per impostazione predefinita). A ogni salvataggio,
+- **Modificare un file**: **doppio clic** sul file (o `Invio`, `F4`, clic destro → «Modifica», il pulsante matita).
+  Il file si apre nell'editor di testo scelto nelle Impostazioni (Blocco note per impostazione predefinita). Con il
+  doppio clic, un archivio, un'immagine, un eseguibile o un documento d'ufficio viene scaricato invece di essere
+  aperto. A ogni salvataggio,
   CyberArkTerm propone di rinviarlo al server: invio in SFTP, permessi del file conservati. Se il file è cambiato
   sul server dopo l'apertura, un avviso chiede conferma prima di sovrascriverlo.
 - **Seguire un file (tail -f)**: clic destro su uno o più file → «Segui (tail -f)». Una finestra mostra la fine del
@@ -291,7 +313,7 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
 - **Aggiungere** un account: clic destro in «Disponibili» → «Aggiungi ai miei server» e poi la cartella desiderata,
   oppure trascina l'account sulla scheda «I miei server», oppure il pulsante «Aggiungi» della barra degli strumenti.
 - **Aggiungere una connessione recente**: clic destro nelle sessioni recenti della home → «Aggiungi ai miei server»
-  e poi la cartella desiderata. Il server mantiene il tipo di connessione (PSM o SSH), il componente PSM e la
+  e poi la cartella desiderata. Il server mantiene il tipo di connessione (PSM, SSH o solo file), il componente PSM e la
   macchina di destinazione usati.
 - **Cartelle**: clic destro → nuova cartella o sottocartella, rinomina, elimina; trascina server e cartelle per
   spostarli.
@@ -307,7 +329,7 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
 | Impostazione | Effetto |
 | --- | --- |
 | Nome, cartella | Visualizzazione e posizione nell'albero. |
-| PSM o SSH tramite PSMP | Tipo di connessione aperto con il doppio clic. |
+| PSM, SSH tramite PSMP o solo file (SFTP tramite PSMP) | Tipo di connessione aperto con il doppio clic (all'inizio, in base alla piattaforma). |
 | Componente PSM | Componente da usare (vuoto: dedotto dalla piattaforma). |
 | Macchina di destinazione | Server su cui aprire la sessione per un account di dominio. |
 | Motivo predefinito | Motivo di accesso inviato automaticamente al PVWA. |
@@ -317,10 +339,47 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
 
 Un server il cui account non è più visibile in CyberArk appare in grigio.
 
+### Esportare, importare, condividere
+
+Tre pulsanti in alto nella scheda, a sinistra del pulsante archivio KeePass:
+
+- **Esporta** salva «I miei server» in un file `.json`: cartelle (anche vuote), nome, account CyberArk (ID), tipo di
+  connessione, componente, macchina di destinazione, motivo predefinito, cartella SFTP iniziale. Nessuna password né
+  file seguito. Utile per cambiare computer o passare il proprio elenco.
+- **Importa** legge un file esportato (o un elenco condiviso) e riassume prima di aggiungere: server aggiunti, server
+  già presenti (stesso account, tipo, componente, macchina di destinazione e cartella: ignorati), cartelle create,
+  server aperti su una macchina di destinazione (da verificare: la macchina viene dal file) e PVWA di origine se
+  diverso. Niente viene rimosso o modificato in «I miei server».
+- **Elenchi condivisi** (icona con due persone): un elenco di server in un file su una condivisione di rete, che tutto
+  il team apre e completa.
+  - «Crea un elenco condiviso…»: scegli la posizione (condivisione di rete) e il nome mostrato a tutti; «Apri un
+    elenco condiviso…»: aggiungi un elenco creato da un collega. Gli elenchi aperti compaiono in cima alla scheda
+    (dopo gli archivi KeePass), con le loro cartelle; anche la ricerca li filtra.
+  - **Aggiungere**: clic destro su un server o una cartella di «I miei server» → «Condividi in un elenco» (la
+    cartella viene mantenuta), o trascina un server, una cartella o un account di «Disponibili» sull'elenco o su una
+    sua cartella (conferma). Il motivo predefinito resta personale: non viene mai condiviso.
+  - **Rimuovere**: clic destro → «Rimuovi dall'elenco condiviso…» (o `Canc`), dopo conferma.
+  - **Usare**: doppio clic per connettersi; clic destro per la connessione avanzata, la password, i membri del safe o
+    «Copia in I miei server». Ognuno si connette con i propri diritti CyberArk: un account che non vedi nel vault
+    appare in grigio. La descrizione comandi mostra l'account come lo descrive CyberArk, la macchina di destinazione,
+    chi ha aggiunto il server e quando.
+  - **Macchina di destinazione**: un server condiviso che apre un account di dominio su una macchina non presente tra
+    le macchine consentite dell'account in CyberArk chiede conferma alla prima connessione (chiunque abbia diritto di
+    scrittura sulla condivisione può modificare l'elenco).
+  - **Cronologia**: clic destro → «Cronologia delle modifiche…». La scheda «Modifiche» elenca chi ha aggiunto,
+    rimosso o ripristinato cosa, e quando; la scheda «Versioni» conserva una copia dell'elenco a ogni revisione (le
+    ultime 100, nella cartella `nome.versions` accanto al file). «Ripristina questa versione…» riporta l'elenco in
+    quello stato; il ripristino viene a sua volta registrato, quindi può essere annullato.
+  - Le modifiche di ognuno si sommano: il file viene riletto e modificato in esclusiva (un computer che scrive nello
+    stesso momento attende il proprio turno), e l'elenco mostrato si aggiorna quando un collega lo modifica (`F5` lo
+    rilegge anche). «Chiudi l'elenco» lo toglie dalla tua scheda senza toccare il file.
+  - Diritti: quelli della condivisione di rete. In sola lettura, l'elenco resta utilizzabile ma non modificabile.
+
 ## 7. Accesso di emergenza fuori da CyberArk: archivi KeePass
 
 Quando CyberArk non è disponibile, CyberArkTerm apre i tuoi archivi KeePass (`.kdbx`) e si connette **direttamente**
-ai server, in SSH o in desktop remoto, con gli account che contengono.
+ai server, in SSH, in desktop remoto o in VNC, o ai soli loro file (SFTP, FTP, FTPS), con gli account che
+contengono.
 
 > Queste connessioni **non passano dal PSM**: nessuna registrazione, nessuna regola CyberArk. Ogni apertura di
 > archivio, connessione e modifica è annotata nel registro locale `%APPDATA%\CyberArkTerm\urgence.log`.
@@ -335,11 +394,26 @@ ai server, in SSH o in desktop remoto, con gli account che contengono.
 - **Sbloccare**: doppio clic sull'archivio. Password principale e/o file chiave (tutti i formati di KeePass).
   «Memorizza la password principale nel vault locale» evita di ridigitarla (vedi sotto).
 - **Connettersi**: doppio clic su una voce. Il protocollo viene dal suo indirizzo (`ssh://server:22`,
-  `rdp://server`, `server:3389`), da un campo «Protocol» / «Port» o da un'etichetta `ssh` / `rdp`; altrimenti
-  CyberArkTerm chiede SSH o desktop remoto. La password della voce è usata direttamente (schede terminale + File in
-  SSH, scheda desktop remoto in RDP); non è mai mostrata né scritta su disco. La scheda desktop remoto ne segue la
-  dimensione (risoluzione del desktop remoto) e propone «Schermo intero» (`Ctrl+Alt+Pausa` per tornare),
-  «Disconnetti» e «Riconnetti».
+  `rdp://server`, `vnc://server`, `sftp://`, `ftp://`, `ftpes://`, `ftps://`, o `server:3389`), da un campo
+  «Protocol» / «Port» o da un'etichetta (`ssh`, `rdp`, `vnc`, `sftp`, `ftp`, `ftpes`, `ftps`); altrimenti
+  CyberArkTerm chiede il protocollo. La password della voce è usata direttamente; non è mai mostrata né scritta su
+  disco.
+  - **SSH**: schede terminale + File.
+  - **Desktop remoto**: la scheda ne segue la dimensione (risoluzione del desktop remoto) e propone «Schermo intero»
+    (`Ctrl+Alt+Pausa` per tornare), «Disconnetti» e «Riconnetti».
+  - **VNC** (`vnc://server`, porta 5900; `vnc://server:1` indica lo schermo 1, porta 5901): desktop in una scheda,
+    adattato alla finestra o a dimensione reale («Adatta»), pulsanti «Ctrl+Alt+Canc», «Invia gli appunti» e «Copia
+    il testo remoto»: gli appunti sono scambiati solo tramite questi pulsanti. Autenticazione con password VNC (8
+    caratteri al massimo, limite del protocollo) o senza autenticazione. **VNC non cifra nulla**: un banner lo
+    ricorda; riservalo a una rete fidata.
+  - **File** (`sftp://`, `ftp://`, `ftpes://` per FTP con TLS esplicito, `ftps://` per TLS implicito, porta 990):
+    una scheda di stato, senza terminale, e i file nella scheda «File» con le stesse funzioni (trasferimenti
+    verificati con SHA-256, coda, cronologia, editor, confronto, monitoraggio in tempo reale, permessi se il server
+    accetta `SITE CHMOD`). Clic destro → «Apri i file (SFTP, FTP)» fa lo stesso per una voce SSH, in SFTP. Con
+    `ftp://`, la cifratura TLS è tentata per prima; se il server non la propone, CyberArkTerm chiede prima di
+    connettersi in chiaro (una volta per sessione) e un banner lo ricorda. `ftpes://` e `ftps://` non passano mai
+    in chiaro. Un certificato FTPS che Windows non approva (autofirmato…) è mostrato con la sua impronta SHA-256,
+    poi memorizzato per quel server se lo accetti.
 - **Modificare l'archivio**: clic destro → «Nuova voce…», «Modifica…» (`F2`), «Elimina» (`Canc`, nel cestino
   dell'archivio). Il resto dell'archivio (allegati, campi, impostazioni) è conservato; la versione precedente di una
   voce va nella sua cronologia, come in KeePass.
@@ -374,7 +448,7 @@ Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia password, elimin
 | Scheda SSH | Staccare in una finestra separata (altro schermo) | Trascinare la scheda fuori dalla finestra |
 | Scheda SSH | Aggiungere alla vista parallela, o toglierla | Clic destro sulla scheda |
 | Desktop remoto | Schermo intero / ritorno | `Ctrl+Alt+Pausa` |
-| File | Aprire / modificare / cartella superiore / eliminare / aggiornare | `Invio` / `F4` / `Backspace` / `Canc` / `F5` |
+| File | Aprire la cartella o modificare il file / modificare / cartella superiore / eliminare / aggiornare | Doppio clic o `Invio` / `F4` / `Backspace` / `Canc` / `F5` |
 | File | Ordinare per una colonna, poi invertire | Clic sulla sua intestazione |
 | Archivio KeePass | Connettere / modificare / eliminare una voce | Doppio clic o `Invio` / `F2` / `Canc` |
 
@@ -385,7 +459,7 @@ Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia password, elimin
 | Impostazione | Ruolo | Predefinito |
 | --- | --- | --- |
 | Lingua dell'interfaccia | Français, English, Italiano o lingua del sistema; applicata dopo la disconnessione o al prossimo avvio | lingua di Windows (inglese se non è tradotta) |
-| Indirizzo e porta PSMP | Server PSM for SSH; se impostato, gli account Unix si aprono in SSH per impostazione predefinita; vuoto = SSH disattivato | vuoto, 22 |
+| Indirizzo e porta PSMP | Server PSM for SSH; se impostato, gli account Unix si aprono in SSH per impostazione predefinita (in soli file per una piattaforma «SFTP»); vuoto = SSH e SFTP disattivati | vuoto, 22 |
 | Mantenere aperta la sessione PVWA | Richiesta leggera ogni 4 minuti; sospesa quando Windows è bloccato | sì |
 | Cercare una nuova versione all'avvio | Una richiesta a GitHub al massimo una volta al giorno; un link nella barra di stato se esiste una versione più recente | no |
 | Vault locale | Password principali KeePass memorizzate: crea, sblocca, cambia password, elimina | — |
@@ -397,12 +471,12 @@ Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia password, elimin
 | Strumento di confronto | Programma proposto nella finestra di confronto, con i suoi argomenti (`{0}` = file di sinistra, `{1}` = di destra) | nessuno |
 | Colori del terminale, carattere | Tavolozza (Campbell, One Half, Solarized…) e dimensione del carattere dei terminali SSH | Campbell, 14 |
 | Monitoraggio in una sessione indipendente | Seguire un file (tail -f) apre una propria connessione SFTP (una sessione PSMP in più) | No |
-| Chiavi PSMP accettate | Impronte memorizzate (pulsante «Dimentica le chiavi») | — |
+| Chiavi dei server accettate | Impronte memorizzate: PSMP, server SSH e certificati FTPS delle voci KeePass (pulsante «Dimentica le chiavi») | — |
 | Componenti memorizzati | Componente PSM scelto per piattaforma (pulsante «Dimentica») | — |
 
 Tutte le preferenze sono salvate in `%APPDATA%\CyberArkTerm\settings.json`: lingua, indirizzo del PVWA, metodo e
 nome utente di accesso, impostazioni qui sopra, «I miei server», le loro cartelle e i file seguiti su di essi
-(percorsi), sessioni recenti, posizione degli archivi KeePass e dei loro file chiave. Questo file **non contiene
+(percorsi), sessioni recenti, posizione degli archivi KeePass e dei loro file chiave, e degli elenchi condivisi aperti. Questo file **non contiene
 password, token né chiavi private**. Per ripartire da zero, chiudi l'applicazione ed eliminalo. La cronologia dei
 trasferimenti della scheda File è accanto, in `transfers.json` (nomi e percorsi dei file, checksum SHA-256, mai il
 loro contenuto).
@@ -447,6 +521,15 @@ loro contenuto).
     sostituito in un solo passo; una voce modificata altrove nel frattempo non viene sovrascritta;
   - desktop remoto diretto: la password è passata solo al controllo Desktop remoto (nessun file, nessun gestore
     credenziali), con autenticazione a livello di rete (NLA) e avviso se il server non è riconosciuto;
+  - VNC: il protocollo non cifra né lo schermo, né i tasti, né gli appunti (banner permanente); la password non è
+    inviata così com'è (sfida-risposta del protocollo); gli appunti sono scambiati solo con un clic; la dimensione
+    dello schermo annunciata dal server è limitata (8.192 pixel per lato);
+  - FTP: TLS tentato per primo, connessione in chiaro solo dopo il tuo consenso (banner permanente), mai per
+    `ftpes://` e `ftps://`; con TLS, anche i trasferimenti sono cifrati (`PROT P`);
+  - certificato FTPS: quello che Windows approva è accettato; altrimenti la sua impronta SHA-256 è mostrata e
+    fissata al primo consenso (come una chiave host SSH), un cambiamento è segnalato; rifiutato, la connessione si
+    ferma prima dell'invio del nome utente;
+  - nomi di file con caratteri di controllo rifiutati (nessuna iniezione di comandi FTP);
   - `urgence.log`: data, account Windows, computer, azione, archivio, voce, destinazione; mai una password.
 - **Registro di debug**, disattivato per impostazione predefinita (menu del pulsante Impostazioni):
   `%LOCALAPPDATA%\CyberArkTerm\debug.log`, al massimo 5 MB più una generazione `.1`. Registra lo svolgimento delle
@@ -462,6 +545,12 @@ loro contenuto).
 - **Nessuna iniezione di comandi**: percorsi SCP e cartelle iniziali protetti tra apici per la shell remota;
   argomenti `ssh` / Windows Terminal convalidati e passati senza shell.
 - Esportazione CSV protetta contro l'iniezione di formule Excel.
+- **File di server ed elenchi condivisi**: nessuna password né token, solo nomi di server, account e safe, ID degli
+  account e impostazioni di connessione (il motivo predefinito non viene mai condiviso). Non danno alcun accesso:
+  ognuno si connette con i propri diritti CyberArk, e la descrizione comandi mostra l'account come lo descrive il
+  vault. Una macchina di destinazione proveniente da un elenco condiviso e non consentita per l'account da CyberArk
+  viene confermata prima della prima connessione. L'autore annotato nel registro (account CyberArk e account
+  Windows) è dichiarativo: fa fede l'audit della condivisione di rete. Un file di oltre 8 MB viene rifiutato.
 - Le sessioni PSM e PSMP aperte da CyberArkTerm sono sessioni CyberArk standard: vengono registrate e verificate dal
   PSM come quelle aperte dal PVWA.
 
@@ -487,6 +576,17 @@ Per segnalare una vulnerabilità, vedi [SECURITY.md](../SECURITY.md) (segnalazio
 | `GET /PasswordVault/API/Accounts?offset=0&limit=1` | Mantenimento della sessione (ogni 4 minuti) |
 | `POST /PasswordVault/API/Auth/Logoff` | Chiusura della sessione |
 
+### Elenchi condivisi
+
+File JSON (`"format": "CyberArkTerm.SharedServers"`, versione 1): nome, PVWA di origine, revisione, cartelle,
+server (con chi li ha aggiunti e quando) e registro delle modifiche (le ultime 1.000). Ogni modifica apre il file
+in esclusiva (gli altri computer riprovano per 5 s), lo rilegge, copia la revisione corrente in
+`nome.versions\nome.r00012.20261006-101500.json` (revisione e data del suo salvataggio, 100 versioni conservate),
+applica la modifica, aumenta la revisione, annota chi, quando e cosa, poi riscrive il file (rimesso com'era se la
+scrittura fallisce). La visualizzazione segue le modifiche del file (`FileSystemWatcher`) e lo rilegge con `F5`.
+L'esportazione di «I miei server» ha lo stesso formato con `"format": "CyberArkTerm.Servers"`, senza revisione né
+registro.
+
 ### Archivi KeePass
 
 Lettura e scrittura native (senza KeePass installato) dei formati **KDBX 3.1 e 4.x**: cifratura AES-256 o ChaCha20,
@@ -495,6 +595,21 @@ byte, 64 caratteri esadecimali o file qualsiasi. Il file riscritto mantiene la v
 derivazione della chiave originali, con nuovi semi a ogni salvataggio. Gli archivi di test
 (`tests/CyberArkTerm.Core.Tests/KeePass/Vaults`) provengono da KeePassXC e pykeepass, e i file scritti da
 CyberArkTerm sono stati verificati in entrambi gli strumenti.
+
+### Sessioni VNC
+
+Client integrato (protocollo RFB 3.3, 3.7 e 3.8, RFC 6143), nulla da installare: autenticazione «nessuna» o
+«password VNC» (DES del protocollo, implementato in CyberArkTerm perché la modalità FIPS di Windows può vietare DES),
+codifiche Raw, CopyRect e Hextile, cambio di dimensione dello schermo, pixel a 32 bit. La tastiera è inviata come
+«keysym» X11 (i caratteri AltGr sono inviati come caratteri), la rotellina come pulsanti 4 e 5.
+
+### Sessioni di file FTP / FTPS
+
+Libreria FluentFTP (licenza MIT). Modalità passiva (`EPSV` / `PASV`), binaria, `PBSZ 0` e `PROT P` con TLS;
+certificato verificato da Windows, altrimenti fissato (`ftps://server:porta` tra le chiavi dei server accettate,
+nelle Impostazioni). FTP non ha una somma di controllo standard: ogni invio è riletto dal server e confrontato con
+SHA-256. Lettura parziale (`REST`) per il confronto e il monitoraggio in tempo reale. Dopo un trasferimento
+interrotto, la connessione è riaperta e il file incompleto eliminato.
 
 ### Sessioni Desktop remoto
 
@@ -571,5 +686,13 @@ destinata. Con csh, ksh, sh o fish il monitoraggio non viene installato e sullo 
 | «Il file del vault locale è danneggiato o è stato creato da un altro account Windows.» | Il vault locale non segue un cambio di computer o di account: eliminalo nelle Impostazioni e ricrealo. |
 | «La voce … è stata modificata o eliminata nell'archivio nel frattempo» | Qualcuno ha cambiato la stessa voce altrove: l'archivio viene ricaricato, rifai la modifica. |
 | Un account Unix si apre con il PSM e non in SSH | Indirizzo del PSMP non impostato nelle Impostazioni, oppure account non riconosciuto come Unix: clic destro → «Connetti in SSH». |
+| Un account si apre in soli file e non in un terminale | Il nome della sua piattaforma contiene «SFTP»: clic destro → «Connetti in SSH (PSMP)», o «Proprietà…» in «I miei server» per cambiare il tipo di connessione. |
+| «L'elenco condiviso è in corso di modifica da parte di qualcun altro» | Un altro computer scrive l'elenco da più di 5 secondi, o tiene il file aperto: riprova tra un momento. |
+| «non hai il diritto di modificare questo file (diritti della condivisione di rete)» | La condivisione è in sola lettura per te: chiedi il diritto di scrittura al suo responsabile. L'elenco resta utilizzabile. |
+| Un elenco condiviso mostra «(illeggibile)» | Condivisione irraggiungibile o file danneggiato: la descrizione comandi riporta l'errore. Se il file è danneggiato, copia al suo posto la versione più recente della cartella `nome.versions`. |
 | Capire un errore di connessione | Impostazioni → Registro di debug, riproduci il problema, poi Impostazioni → «Mostra il file del registro». |
 | Una scheda di desktop remoto diretto (KeePass) mostra «Errore del controllo Desktop remoto» | Segnala il codice mostrato (se il controllo Desktop remoto manca dal computer, la connessione passa da `mstsc`). |
+| VNC: «Il server VNC non propone alcuna autenticazione supportata da CyberArkTerm…» | Il server richiede un'autenticazione propria del suo produttore (account Windows, cifratura VeNCrypt…): attiva l'autenticazione «password VNC» sul server. |
+| VNC: «Nessuna risposta VNC dal server entro 30 secondi» | Porta sbagliata (5900 + numero dello schermo) o servizio diverso da VNC a questo indirizzo. |
+| FTP: «Il server FTP non propone la cifratura (TLS), richiesta da questa voce» | Il server non accetta TLS: usa `ftp://` (connessione in chiaro dopo conferma) o SFTP se disponibile. |
+| FTPS: l'elenco dei file non appare o un trasferimento scade | Un firewall blocca le porte passive del server, o il server esige la ripresa della sessione TLS sulle connessioni dati (`522`, per esempio `require_ssl_reuse` di vsftpd): rivolgiti all'amministratore del server. |

@@ -174,18 +174,6 @@
   <data name="ToolRefreshTip" xml:space="preserve">
     <value>Reload the accounts from the PVWA (F5)</value>
   </data>
-  <data name="ToolExport" xml:space="preserve">
-    <value>Export</value>
-  </data>
-  <data name="ToolExportTip" xml:space="preserve">
-    <value>Export the filtered list to CSV</value>
-  </data>
-  <data name="ToolImport" xml:space="preserve">
-    <value>Import</value>
-  </data>
-  <data name="ToolImportTip" xml:space="preserve">
-    <value>Create accounts from a CSV file</value>
-  </data>
   <data name="ToolHistory" xml:space="preserve">
     <value>History</value>
   </data>
@@ -244,7 +232,7 @@
     <value>Files</value>
   </data>
   <data name="TabFilesTip" xml:space="preserve">
-    <value>Files on the server of the active SSH session (SFTP / SCP)</value>
+    <value>Files on the server of the active session (SFTP / SCP, FTP / FTPS)</value>
   </data>
   <data name="TabHome" xml:space="preserve">
     <value>Home</value>
@@ -271,7 +259,7 @@
     <value>Right-click</value>
   </data>
   <data name="ShortcutMenu" xml:space="preserve">
-    <value>: PSM, SSH, advanced connection, my servers</value>
+    <value>: PSM, SSH, files (SFTP), advanced connection, my servers</value>
   </data>
   <data name="ShortcutSshKey" xml:space="preserve">
     <value>SSH session</value>
@@ -546,7 +534,7 @@ The accounts remain available in the “Available” tab.</value>
     <value>No PSMP key remembered.</value>
   </data>
   <data name="HostKeys" xml:space="preserve">
-    <value>Accepted PSMP keys: {0}</value>
+    <value>Accepted server keys (SSH, FTPS certificates): {0}</value>
   </data>
   <data name="NoComponents" xml:space="preserve">
     <value>None: the component is deduced from the platform (PSM-RDP for Windows, PSM-SSH for Unix...).</value>
@@ -700,10 +688,10 @@ This may mean the connection is being intercepted. Only accept if your CyberArk 
     <value>_Retry</value>
   </data>
   <data name="NoSshSession" xml:space="preserve">
-    <value>No SSH session</value>
+    <value>No session</value>
   </data>
   <data name="NoSshSessionHelp" xml:space="preserve">
-    <value>Open an SSH session (PSMP) to browse the server's files and upload files to it.</value>
+    <value>Open an SSH session (PSMP), or a KeePass SFTP / FTP entry, to browse the server's files and upload files to it.</value>
   </data>
   <data name="SshConnecting" xml:space="preserve">
     <value>SSH connection in progress…</value>
@@ -1492,6 +1480,39 @@ Send anyway?</value>
   <data name="ComparePathTip" xml:space="preserve">
     <value>Same path by default; ~ is the home folder of the account</value>
   </data>
+  <data name="CompareBrowseServer" xml:space="preserve">
+    <value>Br_owse…</value>
+  </data>
+  <data name="CompareBrowseServerTip" xml:space="preserve">
+    <value>Find the file on the chosen server (opens on the same path)</value>
+  </data>
+  <data name="RemotePickTitle" xml:space="preserve">
+    <value>Choose a file on {0}</value>
+  </data>
+  <data name="RemotePickUp" xml:space="preserve">
+    <value>Parent folder (Backspace)</value>
+  </data>
+  <data name="RemotePickGo" xml:space="preserve">
+    <value>_Go</value>
+  </data>
+  <data name="RemotePickPathTip" xml:space="preserve">
+    <value>Folder or file path, then Enter; ~ is the home folder of the account</value>
+  </data>
+  <data name="RemotePickHidden" xml:space="preserve">
+    <value>_Hidden files</value>
+  </data>
+  <data name="RemotePickChoose" xml:space="preserve">
+    <value>Choo_se</value>
+  </data>
+  <data name="RemotePickLoading" xml:space="preserve">
+    <value>Reading {0}…</value>
+  </data>
+  <data name="RemotePickCount" xml:space="preserve">
+    <value>{0} item(s)</value>
+  </data>
+  <data name="RemotePickError" xml:space="preserve">
+    <value>Cannot read {0}: {1}</value>
+  </data>
   <data name="CompareLocal" xml:space="preserve">
     <value>A file on this _computer</value>
   </data>
@@ -2279,7 +2300,13 @@ Close anyway? The local copies will be deleted.</value>
     <value>→ Remote desktop to {0}</value>
   </data>
   <data name="KeePassTargetUnknown" xml:space="preserve">
-    <value>→ protocol not specified: you'll be asked SSH or RDP</value>
+    <value>→ protocol not specified: you'll be asked (SSH, RDP, VNC…)</value>
+  </data>
+  <data name="KeePassTargetVnc" xml:space="preserve">
+    <value>→ VNC to {0}</value>
+  </data>
+  <data name="KeePassTargetFiles" xml:space="preserve">
+    <value>→ {0} files on {1}</value>
   </data>
   <data name="KeePassTargetNone" xml:space="preserve">
     <value>→ no server address</value>
@@ -3027,5 +3054,452 @@ Save the result to a CSV file (one line per line of the file, without the passwo
   </data>
   <data name="SafeMemberRemoveFailed" xml:space="preserve">
     <value>The PVWA did not remove the member: {0}</value>
+  </data>
+  <data name="MenuExportAccounts" xml:space="preserve">
+    <value>_Export the displayed accounts (CSV)…</value>
+  </data>
+  <data name="ImportServersTip" xml:space="preserve">
+    <value>Import a list of servers (file exported from My servers, or shared list)</value>
+  </data>
+  <data name="ExportServersTip" xml:space="preserve">
+    <value>Export My servers to a file (folders, modes, components, target machines; no password)</value>
+  </data>
+  <data name="SharedListsTip" xml:space="preserve">
+    <value>Shared lists: server lists on a network share that everyone can complete, with the history of changes</value>
+  </data>
+  <data name="ServerListFilter" xml:space="preserve">
+    <value>Server lists (*.json)|*.json|All files (*.*)|*.*</value>
+  </data>
+  <data name="ExportServersTitle" xml:space="preserve">
+    <value>Export My servers</value>
+  </data>
+  <data name="ExportServersFileName" xml:space="preserve">
+    <value>my-servers</value>
+  </data>
+  <data name="NoServersToExport" xml:space="preserve">
+    <value>My servers is empty: nothing to export.</value>
+  </data>
+  <data name="ServersExported" xml:space="preserve">
+    <value>{0} server(s) exported to {1}</value>
+  </data>
+  <data name="ImportServersTitle" xml:space="preserve">
+    <value>Import servers</value>
+  </data>
+  <data name="ImportServersFailed" xml:space="preserve">
+    <value>Import impossible: {0}</value>
+  </data>
+  <data name="ImportServersNothing" xml:space="preserve">
+    <value>Nothing to import: the {0} server(s) of this file are already in My servers.</value>
+  </data>
+  <data name="ImportServersConfirm" xml:space="preserve">
+    <value>Import {0} server(s) into My servers from “{1}”?</value>
+  </data>
+  <data name="ImportServersDuplicates" xml:space="preserve">
+    <value>{0} server(s) already in My servers will be skipped.</value>
+  </data>
+  <data name="ImportServersFolders" xml:space="preserve">
+    <value>New folders: {0}</value>
+  </data>
+  <data name="ImportServersTargets" xml:space="preserve">
+    <value>Servers opened on a target machine (check them, the machine comes from the file):</value>
+  </data>
+  <data name="ImportServersOtherPvwa" xml:space="preserve">
+    <value>This file comes from the PVWA {0}; you are connected to {1}: servers whose account does not exist here will appear greyed out.</value>
+  </data>
+  <data name="ServersImported" xml:space="preserve">
+    <value>{0} server(s) imported ({1} already present)</value>
+  </data>
+  <data name="SharedListsTitle" xml:space="preserve">
+    <value>Shared lists</value>
+  </data>
+  <data name="MenuOpenSharedList" xml:space="preserve">
+    <value>_Open a shared list…</value>
+  </data>
+  <data name="MenuCreateSharedList" xml:space="preserve">
+    <value>_Create a shared list…</value>
+  </data>
+  <data name="OpenSharedListTitle" xml:space="preserve">
+    <value>Open a shared list</value>
+  </data>
+  <data name="CreateSharedListTitle" xml:space="preserve">
+    <value>Create a shared list</value>
+  </data>
+  <data name="SharedListDefaultFileName" xml:space="preserve">
+    <value>Shared servers</value>
+  </data>
+  <data name="SharedListNameLabel" xml:space="preserve">
+    <value>Name of the list shown to everyone:</value>
+  </data>
+  <data name="SharedListExists" xml:space="preserve">
+    <value>{0} already exists: open it with “Open a shared list”.</value>
+  </data>
+  <data name="SharedListCreated" xml:space="preserve">
+    <value>Shared list “{0}” created: add servers to it by right-clicking them › Share in a list, or by dragging them onto it.</value>
+  </data>
+  <data name="SharedListCreateFailed" xml:space="preserve">
+    <value>Cannot create {0}: {1}</value>
+  </data>
+  <data name="SharedListLoading" xml:space="preserve">
+    <value>Reading {0}…</value>
+  </data>
+  <data name="SharedListOpenFailed" xml:space="preserve">
+    <value>Cannot read {0}: {1}</value>
+  </data>
+  <data name="SharedListAlreadyOpen" xml:space="preserve">
+    <value>The shared list “{0}” is already open.</value>
+  </data>
+  <data name="SharedListOpened" xml:space="preserve">
+    <value>Shared list “{0}” opened ({1} server(s)).</value>
+  </data>
+  <data name="SharedListOtherPvwaWarning" xml:space="preserve">
+    <value>The list “{0}” was created for the PVWA {1}; you are connected to {2}. Servers whose account does not exist here appear greyed out.</value>
+  </data>
+  <data name="SharedListClosed" xml:space="preserve">
+    <value>List “{0}” closed (the file stays on the share: {1}).</value>
+  </data>
+  <data name="SharedListRefreshed" xml:space="preserve">
+    <value>List “{0}” re-read.</value>
+  </data>
+  <data name="SharedListSaving" xml:space="preserve">
+    <value>Saving the list “{0}”…</value>
+  </data>
+  <data name="SharedListChangeFailed" xml:space="preserve">
+    <value>The list “{0}” was not modified: {1}</value>
+  </data>
+  <data name="SharedListReadOnly" xml:space="preserve">
+    <value>you do not have the right to modify this file (rights of the network share).</value>
+  </data>
+  <data name="SharedListTip" xml:space="preserve">
+    <value>Shared list: everyone who opens it can add or remove servers; each change is recorded (who, when, what) with a copy of the previous version.</value>
+  </data>
+  <data name="SharedListRevision" xml:space="preserve">
+    <value>Revision {0}</value>
+  </data>
+  <data name="SharedListLastChange" xml:space="preserve">
+    <value>Revision {0}, modified on {1} by {2}</value>
+  </data>
+  <data name="SharedListOtherPvwa" xml:space="preserve">
+    <value>Created for the PVWA {0}</value>
+  </data>
+  <data name="SharedListUnreadable" xml:space="preserve">
+    <value>(unreadable)</value>
+  </data>
+  <data name="SharedListLoadingSuffix" xml:space="preserve">
+    <value>(reading…)</value>
+  </data>
+  <data name="SharedAddedBy" xml:space="preserve">
+    <value>Added by {0}</value>
+  </data>
+  <data name="SharedAddedByOn" xml:space="preserve">
+    <value>Added by {0} on {1}</value>
+  </data>
+  <data name="SharedServerInList" xml:space="preserve">
+    <value>Shared list: {0}</value>
+  </data>
+  <data name="SharedActionCreated" xml:space="preserve">
+    <value>Creation</value>
+  </data>
+  <data name="SharedActionAdded" xml:space="preserve">
+    <value>Added</value>
+  </data>
+  <data name="SharedActionRemoved" xml:space="preserve">
+    <value>Removed</value>
+  </data>
+  <data name="SharedActionRestored" xml:space="preserve">
+    <value>Restored revision {0}</value>
+  </data>
+  <data name="MenuShareInList" xml:space="preserve">
+    <value>_Share in a list</value>
+  </data>
+  <data name="MenuShareFolderInList" xml:space="preserve">
+    <value>_Share the folder in a list</value>
+  </data>
+  <data name="ShareNoListTip" xml:space="preserve">
+    <value>Open or create a shared list first (button at the top of the tab).</value>
+  </data>
+  <data name="ShareDropConfirm" xml:space="preserve">
+    <value>Add {0} server(s) to the shared list “{1}”? Everyone who opens this list will see them.</value>
+  </data>
+  <data name="SharedServersAdded" xml:space="preserve">
+    <value>{0} server(s) added to the shared list “{1}” ({2} already there)</value>
+  </data>
+  <data name="SharedServersRemoved" xml:space="preserve">
+    <value>{0} server(s) removed from the shared list “{1}”</value>
+  </data>
+  <data name="SharedRemoveConfirm" xml:space="preserve">
+    <value>Remove “{0}” from the shared list “{1}” for everyone? (The change is recorded and can be undone from the history.)</value>
+  </data>
+  <data name="SharedRemoveFolderConfirm" xml:space="preserve">
+    <value>Remove the folder “{0}” and its {1} server(s) from the shared list “{2}” for everyone? (The change is recorded and can be undone from the history.)</value>
+  </data>
+  <data name="CopiedToMyServers" xml:space="preserve">
+    <value>{0} server(s) copied into My servers ({1} already present)</value>
+  </data>
+  <data name="CopiedToMyServersNone" xml:space="preserve">
+    <value>Already in My servers ({0} server(s)).</value>
+  </data>
+  <data name="MenuSharedHistory" xml:space="preserve">
+    <value>_History of changes…</value>
+  </data>
+  <data name="MenuSharedRefresh" xml:space="preserve">
+    <value>_Re-read the list</value>
+  </data>
+  <data name="MenuSharedCopyAll" xml:space="preserve">
+    <value>_Copy everything into My servers</value>
+  </data>
+  <data name="MenuSharedCopyFolder" xml:space="preserve">
+    <value>_Copy the folder into My servers</value>
+  </data>
+  <data name="MenuSharedCopyServer" xml:space="preserve">
+    <value>Cop_y into My servers</value>
+  </data>
+  <data name="MenuSharedRemoveFolder" xml:space="preserve">
+    <value>_Remove the folder from the shared list…</value>
+  </data>
+  <data name="MenuSharedRemoveServer" xml:space="preserve">
+    <value>_Remove from the shared list…</value>
+  </data>
+  <data name="MenuSharedShowFile" xml:space="preserve">
+    <value>_Show the file in Explorer</value>
+  </data>
+  <data name="MenuSharedClose" xml:space="preserve">
+    <value>C_lose the list</value>
+  </data>
+  <data name="MenuSharedCloseTip" xml:space="preserve">
+    <value>No longer show this list here; the file stays on the share for the others.</value>
+  </data>
+  <data name="SharedTargetConfirm" xml:space="preserve">
+    <value>The server “{0}” of the shared list “{1}” opens the account {2} on the machine “{3}”.
+
+This target machine comes from the shared list, which anyone with write access to the share can modify, and not from CyberArk. Connect?</value>
+  </data>
+  <data name="SharedHistoryTitle" xml:space="preserve">
+    <value>History of the list “{0}”</value>
+  </data>
+  <data name="SharedHistoryHeader" xml:space="preserve">
+    <value>{0}
+Current revision: {1} · {2} server(s)</value>
+  </data>
+  <data name="SharedHistoryChangesTab" xml:space="preserve">
+    <value>Changes</value>
+  </data>
+  <data name="SharedHistoryVersionsTab" xml:space="preserve">
+    <value>Versions</value>
+  </data>
+  <data name="SharedHistoryVersionsNote" xml:space="preserve">
+    <value>Copy of the list at each revision, kept in {0} (the 100 most recent). Restoring a version is itself recorded as a new revision.</value>
+  </data>
+  <data name="SharedHistoryLoading" xml:space="preserve">
+    <value>Reading the history…</value>
+  </data>
+  <data name="SharedHistoryNoVersions" xml:space="preserve">
+    <value>Versions unreadable: {0}</value>
+  </data>
+  <data name="SharedColRevision" xml:space="preserve">
+    <value>Revision</value>
+  </data>
+  <data name="SharedColBy" xml:space="preserve">
+    <value>By</value>
+  </data>
+  <data name="SharedColAction" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="SharedColFolder" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="SharedColSaved" xml:space="preserve">
+    <value>Saved</value>
+  </data>
+  <data name="SharedColChanges" xml:space="preserve">
+    <value>Changes</value>
+  </data>
+  <data name="SharedRestore" xml:space="preserve">
+    <value>_Restore this version…</value>
+  </data>
+  <data name="SharedRestoreConfirm" xml:space="preserve">
+    <value>Put the list “{0}” back as it was at revision {1} ({2})?
+
+Servers added since will be removed and servers removed since will come back, for everyone. The restore is recorded as a new revision: it can itself be undone.</value>
+  </data>
+  <data name="SharedRestored" xml:space="preserve">
+    <value>List restored to revision {0}.</value>
+  </data>
+  <data name="RecentWaitingAccounts" xml:space="preserve">
+    <value>waiting for the PVWA accounts…</value>
+  </data>
+  <data name="AccountsStillLoading" xml:space="preserve">
+    <value>The accounts are still loading from the PVWA: try again in a moment.</value>
+  </data>
+  <data name="AccountsNotLoaded" xml:space="preserve">
+    <value>The PVWA accounts are not loaded (F5 to try again).</value>
+  </data>
+  <data name="MenuKeePassVnc" xml:space="preserve">
+    <value>Connect with _VNC</value>
+  </data>
+  <data name="MenuKeePassVncTip" xml:space="preserve">
+    <value>VNC desktop in a tab (unencrypted connection)</value>
+  </data>
+  <data name="VncCtrlAltDel" xml:space="preserve">
+    <value>Ctrl+Alt+Del</value>
+  </data>
+  <data name="VncCtrlAltDelTip" xml:space="preserve">
+    <value>Send Ctrl+Alt+Del to the remote desktop</value>
+  </data>
+  <data name="VncSendClipboard" xml:space="preserve">
+    <value>Send clipboard</value>
+  </data>
+  <data name="VncSendClipboardTip" xml:space="preserve">
+    <value>Send the text of this computer's clipboard to the server's clipboard, to paste it there</value>
+  </data>
+  <data name="VncCopyRemote" xml:space="preserve">
+    <value>Copy remote text</value>
+  </data>
+  <data name="VncCopyRemoteTip" xml:space="preserve">
+    <value>Copy into this computer's clipboard the last text copied on the server</value>
+  </data>
+  <data name="VncFit" xml:space="preserve">
+    <value>Fit</value>
+  </data>
+  <data name="VncFitTip" xml:space="preserve">
+    <value>Shrink the remote screen to fit the tab; otherwise real size with scroll bars</value>
+  </data>
+  <data name="VncUnencrypted" xml:space="preserve">
+    <value>Unencrypted VNC connection: screen, keystrokes and clipboard travel in clear on the network. Use it only on a trusted network.</value>
+  </data>
+  <data name="VncConnecting" xml:space="preserve">
+    <value>VNC connection to {0}…</value>
+  </data>
+  <data name="VncFailed" xml:space="preserve">
+    <value>VNC connection impossible</value>
+  </data>
+  <data name="VncClosedText" xml:space="preserve">
+    <value>VNC session closed</value>
+  </data>
+  <data name="VncStatus" xml:space="preserve">
+    <value>{0} · {1} · {2} × {3} · RFB {4}</value>
+  </data>
+  <data name="VncClipboardEmpty" xml:space="preserve">
+    <value>The clipboard of this computer contains no text.</value>
+  </data>
+  <data name="VncClipboardSent" xml:space="preserve">
+    <value>{0} character(s) sent to the server's clipboard: paste them there.</value>
+  </data>
+  <data name="VncClipboardReceived" xml:space="preserve">
+    <value>Text copied on the server ({0} characters): “Copy remote text” to get it.</value>
+  </data>
+  <data name="VncClipboardCopied" xml:space="preserve">
+    <value>{0} character(s) copied from the server.</value>
+  </data>
+  <data name="VncOpened" xml:space="preserve">
+    <value>VNC session opened: {0}</value>
+  </data>
+  <data name="VncSessionError" xml:space="preserve">
+    <value>VNC session {0}: {1}</value>
+  </data>
+  <data name="VncClosed" xml:space="preserve">
+    <value>VNC session {0} closed</value>
+  </data>
+  <data name="VncCloseTabConfirm" xml:space="preserve">
+    <value>Close the VNC session {0}?</value>
+  </data>
+  <data name="MenuKeePassFiles" xml:space="preserve">
+    <value>Open the _files (SFTP, FTP)</value>
+  </data>
+  <data name="MenuKeePassFilesTip" xml:space="preserve">
+    <value>Files tab only, without terminal: the entry's file protocol (ftp://, ftps://…), otherwise SFTP</value>
+  </data>
+  <data name="MenuKeePassSftp" xml:space="preserve">
+    <value>Files over SFTP</value>
+  </data>
+  <data name="MenuKeePassFtp" xml:space="preserve">
+    <value>Files over FTP (TLS if offered)</value>
+  </data>
+  <data name="FilesSessionTitle" xml:space="preserve">
+    <value>Files of {0}</value>
+  </data>
+  <data name="FilesSessionDetail" xml:space="preserve">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="FilesSessionConnecting" xml:space="preserve">
+    <value>Connecting…</value>
+  </data>
+  <data name="FilesSessionConnected" xml:space="preserve">
+    <value>Connected (encrypted): the files are in the “Files” tab on the left.</value>
+  </data>
+  <data name="FilesSessionConnectedClear" xml:space="preserve">
+    <value>Connected without encryption: the files are in the “Files” tab on the left.</value>
+  </data>
+  <data name="FilesSessionFailed" xml:space="preserve">
+    <value>Connection impossible: {0}</value>
+  </data>
+  <data name="FilesShow" xml:space="preserve">
+    <value>Show the files</value>
+  </data>
+  <data name="FilesOpened" xml:space="preserve">
+    <value>Files of {0} opened ({1})</value>
+  </data>
+  <data name="FilesSessionError" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="FilesClosed" xml:space="preserve">
+    <value>Files session {0} closed</value>
+  </data>
+  <data name="FtpUnencrypted" xml:space="preserve">
+    <value>Unencrypted FTP connection: the password and the files travel in clear on the network.</value>
+  </data>
+  <data name="FtpCleartextTitle" xml:space="preserve">
+    <value>FTP without encryption</value>
+  </data>
+  <data name="FtpCleartextConfirm" xml:space="preserve">
+    <value>The FTP server {0} does not offer encryption (TLS).
+
+The password of the entry and the files would travel in clear on the network, readable by anyone who can observe it. Connect anyway?</value>
+  </data>
+  <data name="FtpCertificateTitle" xml:space="preserve">
+    <value>FTPS server certificate</value>
+  </data>
+  <data name="FtpCertificateUnknown" xml:space="preserve">
+    <value>The certificate of the FTPS server {0} is not trusted by Windows: {1}.
+
+Subject: {2}
+Issuer: {3}
+Valid from {4} to {5}
+SHA-256: {6}
+
+Check this fingerprint with the server's administrator. Trust this certificate for this server (it will be remembered)?</value>
+  </data>
+  <data name="FtpCertificateChanged" xml:space="preserve">
+    <value>WARNING: the certificate of the FTPS server {0} has CHANGED since the last connection ({1}).
+
+Subject: {2}
+Issuer: {3}
+Valid from {4} to {5}
+New SHA-256: {6}
+
+This may be a renewal, or an interception of the connection. Continue only if the server's administrator confirms the change. Trust the new certificate?</value>
+  </data>
+  <data name="FilesConnectingBrowse" xml:space="preserve">
+    <value>Connection to {0} in progress…</value>
+  </data>
+  <data name="FilesClosedBrowse" xml:space="preserve">
+    <value>The files session is closed. Reconnect it from its tab to browse its files.</value>
+  </data>
+  <data name="ModeSftp" xml:space="preserve">
+    <value>Files only (SFTP via PSMP)</value>
+  </data>
+  <data name="SftpCommandHint" xml:space="preserve">
+    <value>Command: sftp {0}. A PSMP session without a terminal: the files open in the Files tab.</value>
+  </data>
+  <data name="MenuConnectSftp" xml:space="preserve">
+    <value>Open the _files (SFTP, PSMP)</value>
+  </data>
+  <data name="MenuConnectSftpTip" xml:space="preserve">
+    <value>A single PSMP SFTP session, without a terminal: the files open in the Files tab (the platform must allow PSMP-SFTP)</value>
+  </data>
+  <data name="SftpUnavailable" xml:space="preserve">
+    <value>SFTP connection unavailable: set the PSMP address in the settings.</value>
+  </data>
+  <data name="SftpFilesOpening" xml:space="preserve">
+    <value>Opening the files of {0} via {1}…</value>
   </data>
 </root>

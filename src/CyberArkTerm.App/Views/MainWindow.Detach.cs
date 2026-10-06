@@ -164,7 +164,7 @@ public partial class MainWindow
         header.PreviewMouseLeftButtonDown += (_, e) =>
         {
             // Pas depuis le bouton de fermeture.
-            pressed = tab.Tag is SshSession or ParallelView && !IsInButton(e.OriginalSource as DependencyObject, header) ? e.GetPosition(this) : null;
+            pressed = tab.Tag is SshSession { HasTerminal: true } or ParallelView && !IsInButton(e.OriginalSource as DependencyObject, header) ? e.GetPosition(this) : null;
         };
         header.PreviewMouseMove += (_, e) =>
         {
