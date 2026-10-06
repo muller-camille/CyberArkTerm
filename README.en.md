@@ -238,10 +238,12 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   .tar.gz archive"), CyberArkTerm offers to send them in a single archive: one file to transfer and check instead
   of thousands, much faster through the PSMP. The archive is made on this computer (in the queue, can be
   cancelled), sent and checked (SHA-256), then deleted from this computer; each dropped item is at the root of the
-  archive (permissions 0644 and 0755). Nothing is run on the server: "Copy the extraction command" (status bar)
-  gives the command to paste in the terminal, for example
+  archive (permissions 0644 and 0755). Nothing is run on the server: an orange box shows up at the bottom of the
+  Files tab with the extraction command, for example
   `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (the archive is deleted
-  from the server once extracted). "Send the files one by one" keeps the usual upload; "Don't offer again" turns
+  from the server once extracted). "Copy the command", or "Type it in the terminal", which types it at the prompt
+  of the session without running it: check it, then press Enter. The box stays (for that session) until you
+  close it. "Send the files one by one" keeps the usual upload; "Don't offer again" turns
   the option off.
 - **Send to several servers**: button (arrow to three servers) or right-click → "Send to several servers…". Pick the
   files or folders, the destination folder (`~` = the home folder of the account on each server, e.g. `~/deploy`)
@@ -255,8 +257,8 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   "Only the differences"; "Save the diff…" in the `diff -u` format. A binary file (or one over 10 MB) is compared by
   its size and SHA-256 checksum. With a comparison tool chosen in Settings (WinMerge, VS Code…), "Open in …" gives
   it two temporary copies, deleted when the window closes.
-- **Transfer history**: clock button in the Files tab header, available even without a session. It lists the
-  last 200 uploads and downloads (drag and drop included): date, direction, server, item, destination, number of
+- **Transfer history**: "History" toolbar button (left of "Settings"), available even without a session. It lists
+  the last 200 uploads and downloads (drag and drop included): date, direction, server, item, destination, number of
   files, result. "Uploads" / "Downloads" filter; "Checksums…" (or double-click) shows each file's SHA-256
   checksums, to copy and check again later; "Open the folder" for a download; "Clear the history".
 - **Transfer check (SHA-256)**: every uploaded or downloaded file is checked. On upload (SCP or SFTP), the local

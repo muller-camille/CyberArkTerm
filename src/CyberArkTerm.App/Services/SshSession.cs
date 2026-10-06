@@ -176,6 +176,21 @@ public sealed class SshSession : IDisposable
         return true;
     }
 
+    /// <summary>
+    /// Écrit une commande à l'invite du shell, sans l'exécuter (pas de retour à la ligne) : l'utilisateur la relit et
+    /// appuie sur Entrée. Refusé si le shell n'attend pas de commande (programme en cours, saisie commencée).
+    /// </summary>
+    public bool TypeAtPrompt(string command)
+    {
+        if (State != SshSessionState.Connected || !IsAtPrompt() || command.Any(char.IsControl))
+        {
+            return false;
+        }
+
+        SendInput(command);
+        return true;
+    }
+
     public void Send(string text)
     {
         if (_shell is not { } shell || State != SshSessionState.Connected)

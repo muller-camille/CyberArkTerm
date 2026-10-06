@@ -250,10 +250,12 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   un archivio .tar.gz»), CyberArkTerm propone di inviarli in un unico archivio: un solo file da trasferire e
   verificare invece di migliaia, molto più veloce tramite il PSMP. L'archivio viene creato sul computer (nella coda,
   annullabile), inviato e verificato (SHA-256), poi eliminato dal computer; ogni elemento rilasciato è alla radice
-  dell'archivio (permessi 0644 e 0755). Nulla viene eseguito sul server: «Copia il comando di estrazione» (barra di
-  stato) fornisce il comando da incollare nel terminale, per esempio
+  dell'archivio (permessi 0644 e 0755). Nulla viene eseguito sul server: un riquadro arancione compare in fondo alla
+  scheda File con il comando di estrazione, per esempio
   `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (l'archivio viene eliminato
-  dal server dopo l'estrazione). «Invia i file uno per uno» mantiene l'invio abituale; «Non proporre più» disattiva
+  dal server dopo l'estrazione). «Copia il comando», oppure «Scrivi nel terminale», che lo digita al prompt della
+  sessione senza eseguirlo: controllalo, poi premi Invio. Il riquadro resta visibile (per quella sessione) finché
+  non lo chiudi. «Invia i file uno per uno» mantiene l'invio abituale; «Non proporre più» disattiva
   l'opzione.
 - **Inviare a più server**: pulsante (freccia verso tre server) o clic destro → «Invia a più server…». Scegli i file o
   le cartelle, la cartella di destinazione (`~` = la cartella personale dell'account su ogni server, ad es.
@@ -267,9 +269,9 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   «Ignora gli spazi»; «Solo le differenze»; «Salva il diff…» nel formato `diff -u`. Un file binario (o oltre 10 MB)
   viene confrontato per dimensione e checksum SHA-256. Con uno strumento di confronto scelto nelle Impostazioni
   (WinMerge, VS Code…), «Apri in …» gli passa due copie temporanee, eliminate alla chiusura della finestra.
-- **Cronologia dei trasferimenti**: pulsante orologio nell'intestazione della scheda File, disponibile anche senza
-  sessione. Elenca gli ultimi 200 invii e download (trascinamento compreso): data, direzione, server, elemento,
-  destinazione, numero di file, risultato. Filtro «Invii» / «Download»; «Checksum…» (o doppio clic) mostra i
+- **Cronologia dei trasferimenti**: pulsante «Cronologia» della barra degli strumenti (a sinistra di
+  «Impostazioni»), disponibile anche senza sessione. Elenca gli ultimi 200 invii e download (trascinamento
+  compreso): data, direzione, server, elemento, destinazione, numero di file, risultato. Filtro «Invii» / «Download»; «Checksum…» (o doppio clic) mostra i
   checksum SHA-256 di ogni file, da copiare per riverificare in seguito; «Apri la cartella» per un download;
   «Cancella la cronologia».
 - **Verifica dei trasferimenti (SHA-256)**: ogni file inviato o scaricato viene verificato. All'invio (SCP o

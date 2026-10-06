@@ -62,6 +62,7 @@ public partial class FileBrowserPanel : UserControl
         FileList.ItemsSource = null;
         PathBox.Text = "";
         StatusText.Text = "";
+        UpdateExtractPanel();
         if (session is null)
         {
             UpdateTailFilesButton();
@@ -205,6 +206,8 @@ public partial class FileBrowserPanel : UserControl
         {
             return;
         }
+
+        UpdateExtractPanel();
 
         if (_session.State == SshSessionState.Connected && _browser is null)
         {

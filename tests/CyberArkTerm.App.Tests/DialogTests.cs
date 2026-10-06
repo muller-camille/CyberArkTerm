@@ -268,6 +268,54 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>
+    /// Archive .tar.gz envoyée : encadré bien visible avec la commande d'extraction de sa session (une seule ligne, sans
+    /// retour à la ligne), qui reste jusqu'à ce qu'on le ferme ou que la session se ferme.
+    /// </summary>
+    [Fact]
+    public void ArchiveExtractBoxShowsTheCommandOfItsSession()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            SynchronizationContext.SetSynchronizationContext(null);
+            var (srv01, _) = NewSshView("root@srv01");
+            var (srv02, _) = NewSshView("root@srv02");
+            var panel = new FileBrowserPanel();
+            panel.Attach(srv01);
+            Assert.Equal(Visibility.Collapsed, panel.ExtractPanel.Visibility);
+
+            const string command = "cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'";
+            var archive = new TransferItem(true, "deploy.tar.gz", "/opt/app", (item, _) =>
+            {
+                item.ExtractCommand = command;
+                return Task.CompletedTask;
+            }) { Owner = srv01 };
+            panel.Queue.Enqueue(archive);
+
+            Assert.Equal(Visibility.Visible, panel.ExtractPanel.Visibility);
+            Assert.Equal(command, panel.ExtractCommandBox.Text);
+            Assert.Equal(Text.Format(Strings.ArchiveToExtractOne, "/opt/app", "root@srv01"), panel.ExtractTitle.Text);
+            // Session non connectée : rien ne peut être écrit dans son terminal.
+            Assert.False(panel.InsertExtractButton.IsEnabled);
+
+            // L'encadré suit la session affichée.
+            panel.Attach(srv02);
+            Assert.Equal(Visibility.Collapsed, panel.ExtractPanel.Visibility);
+            panel.Attach(srv01);
+            Assert.Equal(Visibility.Visible, panel.ExtractPanel.Visibility);
+
+            panel.ReleaseTails(srv01);
+            Assert.Equal(Visibility.Collapsed, panel.ExtractPanel.Visibility);
+            srv01.Dispose();
+            srv02.Dispose();
+        });
+    }
+
     /// <summary>Historique : filtre par sens, résultat lisible, sommes et dossier disponibles pour un téléchargement.</summary>
     [Fact]
     public void TransferHistoryWindowOpens()

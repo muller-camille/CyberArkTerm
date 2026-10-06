@@ -349,6 +349,12 @@
                         </StackPanel>
                     </Button>
                     <Rectangle Style="{StaticResource ToolSeparator}" />
+                    <Button x:Name="HistoryButton" Style="{StaticResource ToolButton}" Click="OnTransferHistory" ToolTip="{x:Static loc:Strings.HistoryTip}">
+                        <StackPanel>
+                            <Image Source="{StaticResource IconHistory}" Style="{StaticResource ToolIcon}" />
+                            <TextBlock Text="{x:Static loc:Strings.ToolHistory}" Style="{StaticResource ToolLabel}" />
+                        </StackPanel>
+                    </Button>
                     <Button Style="{StaticResource ToolButton}" Click="OnSettingsMenu" ToolTip="{x:Static loc:Strings.ToolSettingsTip}">
                         <StackPanel>
                             <Image Source="{StaticResource IconSettings}" Style="{StaticResource ToolIcon}" />

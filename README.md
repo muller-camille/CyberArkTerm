@@ -256,10 +256,12 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   « Proposer une archive .tar.gz » des Paramètres), CyberArkTerm propose de les envoyer dans une seule archive :
   un fichier à transférer et à vérifier au lieu de milliers, beaucoup plus rapide via le PSMP. L'archive est créée
   sur le poste (dans la file, annulable), envoyée et vérifiée (SHA-256), puis supprimée du poste ; chaque élément
-  déposé est à la racine de l'archive (droits 0644 et 0755). Rien n'est exécuté sur le serveur : « Copier la
-  commande d'extraction » (barre d'état) donne la commande à coller dans le terminal, par exemple
+  déposé est à la racine de l'archive (droits 0644 et 0755). Rien n'est exécuté sur le serveur : un encadré orange
+  apparaît en bas de l'onglet Fichiers avec la commande d'extraction, par exemple
   `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (l'archive est supprimée
-  du serveur une fois extraite). « Envoyer les fichiers un par un » garde l'envoi habituel ; « Ne plus proposer »
+  du serveur une fois extraite). « Copier la commande », ou « Écrire dans le terminal » qui la tape à l'invite de la
+  session sans l'exécuter : vérifiez-la, puis appuyez sur Entrée. L'encadré reste affiché (pour la session
+  concernée) jusqu'à ce que vous le fermiez. « Envoyer les fichiers un par un » garde l'envoi habituel ; « Ne plus proposer »
   décoche l'option.
 - **Envoyer vers plusieurs serveurs** : bouton (flèche vers trois serveurs) ou clic droit → « Envoyer vers plusieurs
   serveurs… ». Choisissez les fichiers ou dossiers, le dossier de destination (`~` = le dossier personnel du compte
@@ -274,9 +276,9 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   `diff -u`. Un fichier binaire (ou de plus de 10 Mo) est comparé par sa taille et sa somme SHA-256. Avec un outil
   de comparaison choisi dans les Paramètres (WinMerge, VS Code…), « Ouvrir dans … » lui donne deux copies
   temporaires, supprimées à la fermeture de la fenêtre.
-- **Historique des transferts** : bouton horloge dans l'en-tête de l'onglet Fichiers, disponible même sans
-  session. Il liste les 200 derniers envois et téléchargements (y compris par glisser-déposer) : date, sens,
-  serveur, élément, destination, nombre de fichiers, résultat. Filtre « Envois » / « Téléchargements » ;
+- **Historique des transferts** : bouton « Historique » de la barre d'outils (à gauche de « Paramètres »),
+  disponible même sans session. Il liste les 200 derniers envois et téléchargements (y compris par
+  glisser-déposer) : date, sens, serveur, élément, destination, nombre de fichiers, résultat. Filtre « Envois » / « Téléchargements » ;
   « Sommes de contrôle… » (ou double-clic) montre les sommes SHA-256 de chaque fichier, à recopier pour revérifier
   plus tard ; « Ouvrir le dossier » pour un téléchargement ; « Effacer l'historique ».
 - **Vérification des transferts (SHA-256)** : chaque fichier envoyé ou téléchargé est vérifié. À l'envoi (SCP ou

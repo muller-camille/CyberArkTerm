@@ -186,6 +186,9 @@
   <data name="ToolImportTip" xml:space="preserve">
     <value>Créer des comptes à partir d'un fichier CSV</value>
   </data>
+  <data name="ToolHistory" xml:space="preserve">
+    <value>Historique</value>
+  </data>
   <data name="ToolSettings" xml:space="preserve">
     <value>Paramètres</value>
   </data>
@@ -958,13 +961,37 @@ Les envoyer dans une seule archive .tar.gz ? Un seul fichier à transférer et �
     <value>archive .tar.gz · {0} %</value>
   </data>
   <data name="ArchiveSent" xml:space="preserve">
-    <value>Archive {0} envoyée vers {1} : copiez la commande d'extraction et collez-la dans le terminal de la session</value>
+    <value>Archive {0} envoyée vers {1} : il reste à l'extraire (voir l'encadré ci-dessus)</value>
+  </data>
+  <data name="ArchiveToExtractOne" xml:space="preserve">
+    <value>Archive envoyée dans {0} sur {1} : il reste à l'extraire</value>
+  </data>
+  <data name="ArchiveToExtractMany" xml:space="preserve">
+    <value>{0} archives envoyées sur {1} : il reste à les extraire</value>
+  </data>
+  <data name="ArchiveExtractHelp" xml:space="preserve">
+    <value>Lancez cette commande dans le terminal de la session : elle extrait l'archive dans son dossier, puis la supprime.</value>
   </data>
   <data name="ArchiveCopyCommand" xml:space="preserve">
-    <value>Copier la commande d'extraction</value>
+    <value>Copier la commande</value>
+  </data>
+  <data name="ArchiveInsertCommand" xml:space="preserve">
+    <value>Écrire dans le terminal</value>
+  </data>
+  <data name="ArchiveInsertTip" xml:space="preserve">
+    <value>Écrit la commande à l'invite du terminal sans l'exécuter : vérifiez-la, puis appuyez sur Entrée.</value>
+  </data>
+  <data name="ArchiveInserted" xml:space="preserve">
+    <value>Commande écrite dans le terminal : vérifiez-la, puis appuyez sur Entrée.</value>
+  </data>
+  <data name="ArchiveNotAtPrompt" xml:space="preserve">
+    <value>Le terminal n'attend pas de commande (programme en cours ou saisie commencée) : copiez plutôt la commande.</value>
+  </data>
+  <data name="ArchiveDismissTip" xml:space="preserve">
+    <value>Fermer cet encadré (l'archive reste sur le serveur, non extraite)</value>
   </data>
   <data name="ArchiveCommandCopied" xml:space="preserve">
-    <value>Commande d'extraction copiée : collez-la dans le terminal de la session (elle supprime l'archive une fois extraite).</value>
+    <value>Commande d'extraction copiée : collez-la dans le terminal de la session, puis appuyez sur Entrée (elle supprime l'archive une fois extraite).</value>
   </data>
   <data name="FileTail" xml:space="preserve">
     <value>_Suivre (tail -f)</value>

@@ -186,6 +186,9 @@
   <data name="ToolImportTip" xml:space="preserve">
     <value>Create accounts from a CSV file</value>
   </data>
+  <data name="ToolHistory" xml:space="preserve">
+    <value>History</value>
+  </data>
   <data name="ToolSettings" xml:space="preserve">
     <value>Settings</value>
   </data>
@@ -958,13 +961,37 @@ Send them in a single .tar.gz archive? One file to transfer and check instead of
     <value>packing .tar.gz · {0} %</value>
   </data>
   <data name="ArchiveSent" xml:space="preserve">
-    <value>Archive {0} sent to {1}: copy the extraction command and paste it in the terminal of the session</value>
+    <value>Archive {0} sent to {1}: it still has to be extracted (see the box above)</value>
+  </data>
+  <data name="ArchiveToExtractOne" xml:space="preserve">
+    <value>Archive sent to {0} on {1}: it still has to be extracted</value>
+  </data>
+  <data name="ArchiveToExtractMany" xml:space="preserve">
+    <value>{0} archives sent to {1}: they still have to be extracted</value>
+  </data>
+  <data name="ArchiveExtractHelp" xml:space="preserve">
+    <value>Run this command in the terminal of the session: it extracts the archive into its folder, then deletes it.</value>
   </data>
   <data name="ArchiveCopyCommand" xml:space="preserve">
-    <value>Copy the extraction command</value>
+    <value>Copy the command</value>
+  </data>
+  <data name="ArchiveInsertCommand" xml:space="preserve">
+    <value>Type it in the terminal</value>
+  </data>
+  <data name="ArchiveInsertTip" xml:space="preserve">
+    <value>Types the command at the terminal prompt without running it: check it, then press Enter.</value>
+  </data>
+  <data name="ArchiveInserted" xml:space="preserve">
+    <value>Command typed in the terminal: check it, then press Enter.</value>
+  </data>
+  <data name="ArchiveNotAtPrompt" xml:space="preserve">
+    <value>The terminal is not waiting for a command (program running or typing started): copy the command instead.</value>
+  </data>
+  <data name="ArchiveDismissTip" xml:space="preserve">
+    <value>Close this box (the archive stays on the server, not extracted)</value>
   </data>
   <data name="ArchiveCommandCopied" xml:space="preserve">
-    <value>Extraction command copied: paste it in the terminal of the session (it deletes the archive once extracted).</value>
+    <value>Extraction command copied: paste it in the terminal of the session, then press Enter (it deletes the archive once extracted).</value>
   </data>
   <data name="FileTail" xml:space="preserve">
     <value>_Follow (tail -f)</value>

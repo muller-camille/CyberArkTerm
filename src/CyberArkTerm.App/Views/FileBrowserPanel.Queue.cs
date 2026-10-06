@@ -366,9 +366,13 @@ public partial class FileBrowserPanel
             }
         }
 
-        // Archives envoyées : la commande d'extraction se copie depuis la barre d'état.
-        _extractCommands = string.Join("\n", run.Where(i => i.State == TransferState.Done).Select(i => i.ExtractCommand).OfType<string>());
-        ExtractLink.Visibility = _extractCommands.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        // Archives envoyées : il reste à les extraire, la commande est affichée dans un encadré.
+        foreach (var item in run.Where(i => i.State == TransferState.Done && i.ExtractCommand is not null))
+        {
+            _extracts.Add(new PendingExtract(item.Owner as SshSession, item.Destination, item.ExtractCommand!));
+        }
+
+        UpdateExtractPanel();
         ReportChecks(message, checks, error: failures.Count > 0);
 
         static string Failure(TransferItem item) =>
@@ -381,7 +385,10 @@ public partial class FileBrowserPanel
     /// <summary>Historique (tests).</summary>
     internal TransferHistory History => _history;
 
-    private string _extractCommands = "";
+    /// <summary>Archive envoyée qu'il reste à extraire sur le serveur de sa session.</summary>
+    private sealed record PendingExtract(SshSession? Session, string Directory, string Command);
+
+    private readonly List<PendingExtract> _extracts = [];
     private readonly List<TailWindow> _tails = [];
 
     /// <summary>Fenêtres de suivi ouvertes (tests).</summary>
@@ -508,13 +515,19 @@ public partial class FileBrowserPanel
         menu.IsOpen = true;
     }
 
-    /// <summary>La session se ferme : ses fichiers ne sont plus suivis (les fenêtres restent ouvertes, avec leurs lignes).</summary>
+    /// <summary>
+    /// La session se ferme : ses fichiers ne sont plus suivis (les fenêtres restent ouvertes, avec leurs lignes), et ses
+    /// archives à extraire sont oubliées.
+    /// </summary>
     public void ReleaseTails(SshSession session)
     {
         foreach (var window in _tails)
         {
             window.EndSession(session);
         }
+
+        _extracts.RemoveAll(x => ReferenceEquals(x.Session, session));
+        UpdateExtractPanel();
     }
 
     /// <summary>Ferme les fenêtres de suivi et de comparaison (fermeture de l'application).</summary>
@@ -534,12 +547,37 @@ public partial class FileBrowserPanel
         TailAlerts.Hide();
     }
 
+    /// <summary>Demande d'afficher le terminal d'une session (après y avoir écrit la commande d'extraction).</summary>
+    public event Action<SshSession>? ShowTerminalRequested;
+
+    /// <summary>Archives de la session affichée qu'il reste à extraire.</summary>
+    private List<PendingExtract> SessionExtracts() => _extracts.Where(x => _session is not null && ReferenceEquals(x.Session, _session)).ToList();
+
+    /// <summary>Une seule ligne, sans retour à la ligne : rien ne s'exécute avant que l'utilisateur appuie sur Entrée.</summary>
+    private static string ExtractLine(IEnumerable<PendingExtract> extracts) => string.Join(" ; ", extracts.Select(x => x.Command));
+
+    private void UpdateExtractPanel()
+    {
+        var extracts = SessionExtracts();
+        ExtractPanel.Visibility = extracts.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        if (extracts.Count == 0 || _session is not { } session)
+        {
+            return;
+        }
+
+        ExtractTitle.Text = extracts.Count == 1
+            ? Text.Format(Strings.ArchiveToExtractOne, extracts[0].Directory, session.Label)
+            : Text.Format(Strings.ArchiveToExtractMany, extracts.Count, session.Label);
+        ExtractCommandBox.Text = ExtractLine(extracts);
+        InsertExtractButton.IsEnabled = session.State == SshSessionState.Connected;
+    }
+
     private void OnCopyExtractCommand(object sender, RoutedEventArgs e)
     {
         try
         {
             // Pas un secret : presse-papiers ordinaire, à coller dans le terminal de la session.
-            Clipboard.SetText(_extractCommands + "\n");
+            Clipboard.SetText(ExtractLine(SessionExtracts()));
             SetStatus(Strings.ArchiveCommandCopied);
         }
         catch (System.Runtime.InteropServices.COMException)
@@ -548,7 +586,32 @@ public partial class FileBrowserPanel
         }
     }
 
-    private void OnHistory(object sender, RoutedEventArgs e) =>
+    /// <summary>Écrit la commande à l'invite du terminal, sans l'exécuter, puis affiche ce terminal.</summary>
+    private void OnInsertExtractCommand(object sender, RoutedEventArgs e)
+    {
+        if (_session is not { } session)
+        {
+            return;
+        }
+
+        if (!session.TypeAtPrompt(ExtractLine(SessionExtracts())))
+        {
+            SetStatus(Strings.ArchiveNotAtPrompt, error: true);
+            return;
+        }
+
+        SetStatus(Strings.ArchiveInserted);
+        ShowTerminalRequested?.Invoke(session);
+    }
+
+    private void OnCloseExtract(object sender, RoutedEventArgs e)
+    {
+        _extracts.RemoveAll(x => ReferenceEquals(x.Session, _session));
+        UpdateExtractPanel();
+    }
+
+    /// <summary>Historique des transferts (bouton de la barre d'outils principale), même sans session.</summary>
+    public void ShowHistory() =>
         new TransferHistoryDialog(_history, SaveHistory) { Owner = Window.GetWindow(this) }.ShowDialog();
 
     private void Record(TransferRecord record)

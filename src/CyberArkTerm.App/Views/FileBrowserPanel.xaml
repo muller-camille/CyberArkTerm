@@ -124,9 +124,6 @@
     <DockPanel Background="{StaticResource SidePanelBrush}">
         <StackPanel DockPanel.Dock="Top" Margin="8,8,8,4">
             <DockPanel>
-                <Button DockPanel.Dock="Right" Style="{StaticResource SmallToolButton}" Click="OnHistory" ToolTip="{x:Static loc:Strings.HistoryTip}">
-                    <Image Source="{StaticResource IconHistory}" Style="{StaticResource SmallIcon}" />
-                </Button>
                 <!-- Fichiers déjà suivis sur ce serveur « Courants » : les suivre à nouveau d'un clic. -->
                 <Button x:Name="TailFilesButton" DockPanel.Dock="Right" Style="{StaticResource SmallToolButton}" Click="OnTailFiles"
                         ToolTip="{x:Static loc:Strings.TailFilesTip}" Visibility="Collapsed">
@@ -187,6 +184,29 @@
 
         <Border DockPanel.Dock="Bottom" BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="0,1,0,0" Padding="8,4">
             <StackPanel>
+                <!-- Archive .tar.gz envoyée : il reste à l'extraire sur le serveur. Encadré visible jusqu'à ce qu'on le ferme. -->
+                <Border x:Name="ExtractPanel" Visibility="Collapsed" Background="#FFF4D6" BorderBrush="#F59E0B" BorderThickness="1"
+                        CornerRadius="3" Padding="8,6" Margin="0,0,0,6">
+                    <StackPanel>
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Style="{StaticResource SmallToolButton}" VerticalAlignment="Top" Click="OnCloseExtract"
+                                    ToolTip="{x:Static loc:Strings.ArchiveDismissTip}">
+                                <Image Source="{StaticResource IconClose}" Style="{StaticResource SmallIcon}" />
+                            </Button>
+                            <TextBlock x:Name="ExtractTitle" FontWeight="SemiBold" Foreground="#7A4A00" TextWrapping="Wrap" />
+                        </DockPanel>
+                        <TextBlock Text="{x:Static loc:Strings.ArchiveExtractHelp}" TextWrapping="Wrap" Margin="0,4,0,4" />
+                        <TextBox x:Name="ExtractCommandBox" IsReadOnly="True" FontFamily="Consolas, Courier New" TextWrapping="Wrap"
+                                 Padding="4" Background="White" />
+                        <WrapPanel Margin="0,6,0,0">
+                            <Button Padding="10,3" Margin="0,0,6,0" FontWeight="SemiBold" Click="OnCopyExtractCommand"
+                                    Content="{x:Static loc:Strings.ArchiveCopyCommand}" />
+                            <Button x:Name="InsertExtractButton" Padding="10,3" Click="OnInsertExtractCommand"
+                                    Content="{x:Static loc:Strings.ArchiveInsertCommand}" ToolTip="{x:Static loc:Strings.ArchiveInsertTip}"
+                                    ToolTipService.ShowOnDisabled="True" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
                 <!-- File d'attente des transferts : visible tant qu'une série est en cours. -->
                 <Border x:Name="QueuePanel" Visibility="Collapsed" BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="0,0,0,1"
                         Padding="0,0,0,6" Margin="0,0,0,4">
@@ -205,10 +225,6 @@
                     <!-- Détail de la vérification SHA-256 des derniers transferts. -->
                     <TextBlock x:Name="ChecksLink" DockPanel.Dock="Right" Margin="8,0,0,0" Visibility="Collapsed">
                         <Hyperlink Click="OnShowChecks"><Run Text="{x:Static loc:Strings.ChecksLink}" /></Hyperlink>
-                    </TextBlock>
-                    <!-- Archive .tar.gz envoyée : commande d'extraction à coller dans le terminal. -->
-                    <TextBlock x:Name="ExtractLink" DockPanel.Dock="Right" Margin="8,0,0,0" Visibility="Collapsed">
-                        <Hyperlink Click="OnCopyExtractCommand"><Run Text="{x:Static loc:Strings.ArchiveCopyCommand}" /></Hyperlink>
                     </TextBlock>
                     <TextBlock x:Name="StatusText" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
                 </DockPanel>
