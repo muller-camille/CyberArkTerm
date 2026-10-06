@@ -240,11 +240,19 @@ When an SSH session opens, the **Files** tab appears on the side and follows the
   cancelled), sent and checked (SHA-256), then deleted from this computer; each dropped item is at the root of the
   archive (permissions 0644 and 0755). Nothing is run on the server: an orange box shows up at the bottom of the
   Files tab with the extraction command, for example
-  `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (the archive is deleted
+  `cd '/opt/app' && /usr/bin/gzip -dc './deploy.tar.gz' | tar xf - && rm -f './deploy.tar.gz'` (the archive is deleted
   from the server once extracted). "Copy the command", or "Type it in the terminal", which types it at the prompt
   of the session without running it: check it, then press Enter. The box stays (for that session) until you
   close it. "Send the files one by one" keeps the usual upload; "Don't offer again" turns
   the option off.
+  - **Every Unix** (Red Hat 5 to 9, HP-UX 11.11 and 11.31, Solaris, AIX…): the archive is in the standard POSIX tar
+    format (ustar), read by every tar, and the command uses `gzip` and `tar xf` separately, with no GNU tar specific
+    option. It can be typed in any shell (sh, ksh, bash, zsh, csh, tcsh).
+  - **gzip** is looked for on the server (through SFTP) where each system installs it: `/bin`, `/usr/bin`,
+    `/usr/contrib/bin` (HP-UX), `/usr/local/bin`, `/opt/freeware/bin` (AIX), `/usr/sfw/bin` and `/opt/csw/bin`
+    (Solaris). Not found: the archive is sent uncompressed (`.tar`), extracted by `tar` alone.
+  - A name over 100 characters (folders excluded) or a file over 8 GB does not fit this format: the files are then
+    sent one by one, with a message.
 - **Send to several servers**: button (arrow to three servers) or right-click → "Send to several servers…". Pick the
   files or folders, the destination folder (`~` = the home folder of the account on each server, e.g. `~/deploy`)
   and the SSH sessions to send to. CyberArkTerm first checks on each server that the folder exists and what would be

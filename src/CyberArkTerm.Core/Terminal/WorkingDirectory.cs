@@ -37,9 +37,9 @@ public static class WorkingDirectory
                   "if ($?__catosc7) " + CshAnnounce;
         // csh doit sauter ce « cd » sans lire FISH_VERSION, qu'il ne connaît pas : d'où le test de « shell » en tête.
         var fish = startDirectory is null ? "" :
-            $"test -n \"$shell\" || test -z \"$FISH_VERSION\" || cd {InputQuote(NotAnOption(startDirectory))} 2>/dev/null;";
-        return $" test -n \"$shell\" || test -n \"$FISH_VERSION\" || eval {InputQuote(posix)} 2>/dev/null;" +
-               $"test -n \"$shell\" && eval {InputQuote(csh)};{fish}{erase}\r";
+            $"test -n \"$shell\" || test -z \"$FISH_VERSION\" || cd {TypedQuote(NotAnOption(startDirectory))} 2>/dev/null;";
+        return $" test -n \"$shell\" || test -n \"$FISH_VERSION\" || eval {TypedQuote(posix)} 2>/dev/null;" +
+               $"test -n \"$shell\" && eval {TypedQuote(csh)};{fish}{erase}\r";
     }
 
     private const string CshAnnounce = "printf \"\\033]7;%s\\007\" \"$cwd\"";
@@ -58,7 +58,7 @@ public static class WorkingDirectory
     /// placés hors des apostrophes derrière une barre oblique inverse. Un caractère de contrôle (retour à la ligne…)
     /// terminerait la commande : il est refusé.
     /// </summary>
-    private static string InputQuote(string value)
+    public static string TypedQuote(string value)
     {
         if (value.Any(char.IsControl))
         {
@@ -106,7 +106,7 @@ public static class WorkingDirectory
     /// « cd » visible vers le dossier de départ, quand le suivi du dossier n'est pas installé. Sans « -- », que csh
     /// refuse : un dossier commençant par « - » est précédé de « ./ ».
     /// </summary>
-    public static string ChangeDirectoryCommand(string directory) => $" cd {InputQuote(NotAnOption(directory))}\r";
+    public static string ChangeDirectoryCommand(string directory) => $" cd {TypedQuote(NotAnOption(directory))}\r";
 
     private static string NotAnOption(string directory) => directory.StartsWith('-') ? "./" + directory : directory;
 

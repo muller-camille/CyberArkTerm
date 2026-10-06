@@ -940,10 +940,19 @@ Continue?</value>
   <data name="ArchiveOfferText" xml:space="preserve">
     <value>You are sending {0} files ({1}) to {2}.
 
-Send them in a single .tar.gz archive? One file to transfer and check instead of {0}: much faster through the PSMP. The archive is made on this computer, sent, checked (SHA-256), then deleted from this computer; you extract it on the server with the command given at the end (to copy and paste in the terminal).</value>
+Send them in a single {3} archive? One file to transfer and check instead of {0}: much faster through the PSMP. The archive is made on this computer, sent, checked (SHA-256), then deleted from this computer; you extract it on the server with the command given at the end (to copy and paste in the terminal).</value>
   </data>
   <data name="ArchiveOfferArchive" xml:space="preserve">
-    <value>Send a ._tar.gz archive</value>
+    <value>Send a {0} archive</value>
+  </data>
+  <data name="ArchiveOfferNoGzip" xml:space="preserve">
+    <value>gzip was not found on this server: the archive will not be compressed (.tar), it is extracted with tar alone.</value>
+  </data>
+  <data name="ArchiveLookingForGzip" xml:space="preserve">
+    <value>Looking for gzip on the server…</value>
+  </data>
+  <data name="ArchiveNotPossible" xml:space="preserve">
+    <value>No archive: “{0}” does not fit the standard tar format (name over 100 characters or file over 8 GB); files sent one by one.</value>
   </data>
   <data name="ArchiveOfferFiles" xml:space="preserve">
     <value>Send the _files one by one</value>

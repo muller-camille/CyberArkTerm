@@ -5,15 +5,17 @@ using CyberArkTerm.Core.Ssh;
 namespace CyberArkTerm.App.Views;
 
 /// <summary>
-/// Dépôt d'un grand nombre de fichiers : propose de les envoyer dans une seule archive .tar.gz, ou un par un.
-/// Fermée sans choisir : rien n'est envoyé.
+/// Dépôt d'un grand nombre de fichiers : propose de les envoyer dans une seule archive .tar.gz (.tar si gzip manque sur
+/// le serveur), ou un par un. Fermée sans choisir : rien n'est envoyé.
 /// </summary>
 public partial class ArchiveOfferDialog : Window
 {
-    public ArchiveOfferDialog(int files, long bytes, string destination)
+    public ArchiveOfferDialog(int files, long bytes, string destination, bool compressed = true)
     {
         InitializeComponent();
-        MessageText.Text = Text.Format(Strings.ArchiveOfferText, files, RemotePath.FormatSize(bytes), destination);
+        MessageText.Text = Text.Format(Strings.ArchiveOfferText, files, RemotePath.FormatSize(bytes), destination, compressed ? ".tar.gz" : ".tar")
+            + (compressed ? "" : "\n\n" + Strings.ArchiveOfferNoGzip);
+        ArchiveButton.Content = Text.Format(Strings.ArchiveOfferArchive, compressed ? "._tar.gz" : "._tar");
     }
 
     /// <summary>Envoyer une archive (sinon les fichiers un par un).</summary>

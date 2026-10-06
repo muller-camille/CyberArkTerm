@@ -372,7 +372,15 @@ public sealed class DialogTests
             Assert.Contains(RemotePath.FormatSize(5L * 1024 * 1024), offer.MessageText.Text);
             Assert.False(offer.UseArchive);
             Assert.False(offer.DontOfferAgain);
+            Assert.Equal(Text.Format(Strings.ArchiveOfferArchive, "._tar.gz"), offer.ArchiveButton.Content);
             offer.Close();
+
+            // gzip absent du serveur : archive .tar, et la fenêtre le dit.
+            var plain = new ArchiveOfferDialog(2345, 5L * 1024 * 1024, "/opt/app", compressed: false);
+            Assert.Contains(Strings.ArchiveOfferNoGzip, plain.MessageText.Text);
+            Assert.DoesNotContain(".tar.gz", plain.MessageText.Text);
+            Assert.Equal(Text.Format(Strings.ArchiveOfferArchive, "._tar"), plain.ArchiveButton.Content);
+            plain.Close();
 
             var settings = new AppSettings { OfferArchive = true, ArchiveThreshold = 500 };
             var dialog = new SettingsDialog(settings);

@@ -258,11 +258,19 @@ La session s'ouvre **dans un onglet de CyberArkTerm**, avec l'identifiant PSMP s
   sur le poste (dans la file, annulable), envoyée et vérifiée (SHA-256), puis supprimée du poste ; chaque élément
   déposé est à la racine de l'archive (droits 0644 et 0755). Rien n'est exécuté sur le serveur : un encadré orange
   apparaît en bas de l'onglet Fichiers avec la commande d'extraction, par exemple
-  `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (l'archive est supprimée
-  du serveur une fois extraite). « Copier la commande », ou « Écrire dans le terminal » qui la tape à l'invite de la
+  `cd '/opt/app' && /usr/bin/gzip -dc './deploy.tar.gz' | tar xf - && rm -f './deploy.tar.gz'` (l'archive est
+  supprimée du serveur une fois extraite). « Copier la commande », ou « Écrire dans le terminal » qui la tape à l'invite de la
   session sans l'exécuter : vérifiez-la, puis appuyez sur Entrée. L'encadré reste affiché (pour la session
-  concernée) jusqu'à ce que vous le fermiez. « Envoyer les fichiers un par un » garde l'envoi habituel ; « Ne plus proposer »
-  décoche l'option.
+  concernée) jusqu'à ce que vous le fermiez. « Envoyer les fichiers un par un » garde l'envoi habituel ; « Ne plus
+  proposer » décoche l'option.
+  - **Tous les Unix** (Red Hat 5 à 9, HP-UX 11.11 et 11.31, Solaris, AIX…) : l'archive est au format tar POSIX standard
+    (ustar), lu par tous les tar, et la commande utilise `gzip` et `tar xf` séparément, sans option propre à GNU tar.
+    Elle se tape dans n'importe quel shell (sh, ksh, bash, zsh, csh, tcsh).
+  - **gzip** est cherché sur le serveur (par SFTP) là où chaque système l'installe : `/bin`, `/usr/bin`,
+    `/usr/contrib/bin` (HP-UX), `/usr/local/bin`, `/opt/freeware/bin` (AIX), `/usr/sfw/bin` et `/opt/csw/bin`
+    (Solaris). Introuvable : l'archive est envoyée sans compression (`.tar`), extraite par `tar` seul.
+  - Un nom de plus de 100 caractères (hors dossiers) ou un fichier de plus de 8 Go ne tient pas dans ce format : les
+    fichiers sont alors envoyés un par un, avec un message.
 - **Envoyer vers plusieurs serveurs** : bouton (flèche vers trois serveurs) ou clic droit → « Envoyer vers plusieurs
   serveurs… ». Choisissez les fichiers ou dossiers, le dossier de destination (`~` = le dossier personnel du compte
   sur chaque serveur, par ex. `~/deploy`) et les sessions SSH destinataires. CyberArkTerm vérifie d'abord sur chaque

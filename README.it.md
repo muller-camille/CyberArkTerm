@@ -252,11 +252,19 @@ All'apertura di una sessione SSH, la scheda **File** appare sul lato e segue la 
   annullabile), inviato e verificato (SHA-256), poi eliminato dal computer; ogni elemento rilasciato è alla radice
   dell'archivio (permessi 0644 e 0755). Nulla viene eseguito sul server: un riquadro arancione compare in fondo alla
   scheda File con il comando di estrazione, per esempio
-  `cd '/opt/app' && gzip -dc './deploy.tar.gz' | tar -xf - && rm -f './deploy.tar.gz'` (l'archivio viene eliminato
+  `cd '/opt/app' && /usr/bin/gzip -dc './deploy.tar.gz' | tar xf - && rm -f './deploy.tar.gz'` (l'archivio viene eliminato
   dal server dopo l'estrazione). «Copia il comando», oppure «Scrivi nel terminale», che lo digita al prompt della
   sessione senza eseguirlo: controllalo, poi premi Invio. Il riquadro resta visibile (per quella sessione) finché
   non lo chiudi. «Invia i file uno per uno» mantiene l'invio abituale; «Non proporre più» disattiva
   l'opzione.
+  - **Tutti gli Unix** (Red Hat da 5 a 9, HP-UX 11.11 e 11.31, Solaris, AIX…): l'archivio è nel formato tar POSIX
+    standard (ustar), letto da tutti i tar, e il comando usa `gzip` e `tar xf` separatamente, senza opzioni proprie di
+    GNU tar. Si digita in qualsiasi shell (sh, ksh, bash, zsh, csh, tcsh).
+  - **gzip** viene cercato sul server (tramite SFTP) dove ogni sistema lo installa: `/bin`, `/usr/bin`,
+    `/usr/contrib/bin` (HP-UX), `/usr/local/bin`, `/opt/freeware/bin` (AIX), `/usr/sfw/bin` e `/opt/csw/bin`
+    (Solaris). Non trovato: l'archivio viene inviato senza compressione (`.tar`), estratto dal solo `tar`.
+  - Un nome oltre 100 caratteri (cartelle escluse) o un file oltre 8 GB non rientra in questo formato: i file vengono
+    allora inviati uno per uno, con un messaggio.
 - **Inviare a più server**: pulsante (freccia verso tre server) o clic destro → «Invia a più server…». Scegli i file o
   le cartelle, la cartella di destinazione (`~` = la cartella personale dell'account su ogni server, ad es.
   `~/deploy`) e le sessioni SSH destinatarie. CyberArkTerm verifica prima su ogni server che la cartella esista e cosa

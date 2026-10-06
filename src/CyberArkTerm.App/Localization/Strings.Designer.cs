@@ -686,6 +686,15 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Looking for gzip on the server….
+        /// </summary>
+        public static string ArchiveLookingForGzip {
+            get {
+                return ResourceManager.GetString("ArchiveLookingForGzip", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to The terminal is not waiting for a command (program running or typing started): copy the command i[rest of string was truncated].
         /// </summary>
         public static string ArchiveNotAtPrompt {
@@ -695,7 +704,16 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Send a ._tar.gz archive.
+        ///   Looks up a localized string similar to No archive: “{0}” does not fit the standard tar format (name over 100 characters or file over 8 G[rest of string was truncated].
+        /// </summary>
+        public static string ArchiveNotPossible {
+            get {
+                return ResourceManager.GetString("ArchiveNotPossible", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send a {0} archive.
         /// </summary>
         public static string ArchiveOfferArchive {
             get {
@@ -722,7 +740,16 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to You are sending {0} files ({1}) to {2}.  Send them in a single .tar.gz archive? One file to trans[rest of string was truncated].
+        ///   Looks up a localized string similar to gzip was not found on this server: the archive will not be compressed (.tar), it is extracted wit[rest of string was truncated].
+        /// </summary>
+        public static string ArchiveOfferNoGzip {
+            get {
+                return ResourceManager.GetString("ArchiveOfferNoGzip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You are sending {0} files ({1}) to {2}.  Send them in a single {3} archive? One file to transfer [rest of string was truncated].
         /// </summary>
         public static string ArchiveOfferText {
             get {

@@ -940,10 +940,19 @@ Continuer ?</value>
   <data name="ArchiveOfferText" xml:space="preserve">
     <value>Vous envoyez {0} fichiers ({1}) vers {2}.
 
-Les envoyer dans une seule archive .tar.gz ? Un seul fichier à transférer et à vérifier au lieu de {0} : beaucoup plus rapide via le PSMP. L'archive est créée sur ce poste, envoyée, vérifiée (SHA-256), puis supprimée de ce poste ; vous l'extrayez sur le serveur avec la commande donnée à la fin (à copier dans le terminal).</value>
+Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à vérifier au lieu de {0} : beaucoup plus rapide via le PSMP. L'archive est créée sur ce poste, envoyée, vérifiée (SHA-256), puis supprimée de ce poste ; vous l'extrayez sur le serveur avec la commande donnée à la fin (à copier dans le terminal).</value>
   </data>
   <data name="ArchiveOfferArchive" xml:space="preserve">
-    <value>Envoyer une archive ._tar.gz</value>
+    <value>Envoyer une archive {0}</value>
+  </data>
+  <data name="ArchiveOfferNoGzip" xml:space="preserve">
+    <value>gzip est introuvable sur ce serveur : l'archive ne sera pas compressée (.tar), elle s'extrait avec tar seul.</value>
+  </data>
+  <data name="ArchiveLookingForGzip" xml:space="preserve">
+    <value>Recherche de gzip sur le serveur…</value>
+  </data>
+  <data name="ArchiveNotPossible" xml:space="preserve">
+    <value>Pas d'archive : « {0} » ne tient pas dans le format tar standard (nom de plus de 100 caractères ou fichier de plus de 8 Go) ; envoi fichier par fichier.</value>
   </data>
   <data name="ArchiveOfferFiles" xml:space="preserve">
     <value>Envoyer les _fichiers un par un</value>

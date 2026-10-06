@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -64,8 +65,11 @@ public partial class FileBrowserPanel
         await _queue.WhenStoppedAsync(Matches, TimeSpan.FromSeconds(5));
     }
 
+    /// <summary>Emplacement de gzip sur le serveur de chaque connexion (null : absent), cherché une seule fois.</summary>
+    private readonly ConditionalWeakTable<RemoteFileBrowser, Task<string?>> _gzip = [];
+
     /// <summary>Met en file l'envoi de fichiers ou de dossiers locaux vers le dossier affiché.</summary>
-    private void EnqueueUpload(IReadOnlyList<string> paths)
+    private async Task EnqueueUploadAsync(IReadOnlyList<string> paths)
     {
         var browser = _browser;
         var session = _session;
@@ -80,12 +84,21 @@ public partial class FileBrowserPanel
         // Beaucoup de fichiers d'un coup : proposer une seule archive .tar.gz (option des Paramètres).
         string? archiveName = null;
         int archiveFiles = 0;
+        string? gzip = null;
         if (_settings.OfferArchive)
         {
             var (files, bytes) = TarGzPacker.Measure(paths);
-            if (files >= _settings.ArchiveThreshold)
+            if (files >= _settings.ArchiveThreshold && TarGzPacker.UstarProblem(paths) is { } tooLong)
             {
-                var offer = new ArchiveOfferDialog(files, bytes, directory) { Owner = Window.GetWindow(this) };
+                // Nom trop long ou fichier trop gros pour le format tar standard : envoi un par un.
+                SetStatus(Text.Format(Strings.ArchiveNotPossible, tooLong));
+            }
+            else if (files >= _settings.ArchiveThreshold)
+            {
+                SetStatus(Strings.ArchiveLookingForGzip);
+                gzip = await _gzip.GetValue(browser, b => TarGzPacker.FindGzipAsync(b.ExistsAsync, CancellationToken.None));
+                SetStatus("");
+                var offer = new ArchiveOfferDialog(files, bytes, directory, compressed: gzip is not null) { Owner = Window.GetWindow(this) };
                 if (offer.ShowDialog() != true)
                 {
                     return;
@@ -99,7 +112,7 @@ public partial class FileBrowserPanel
 
                 if (offer.UseArchive)
                 {
-                    archiveName = TarGzPacker.ArchiveName(paths, DateTime.Now);
+                    archiveName = TarGzPacker.ArchiveName(paths, DateTime.Now, compressed: gzip is not null);
                     archiveFiles = files;
                     // L'archive arrive dans le dossier, puis son extraction y recrée les éléments déposés.
                     names.Add(archiveName);
@@ -124,7 +137,7 @@ public partial class FileBrowserPanel
         var protocol = _settings.UploadProtocol;
         if (archiveName is not null)
         {
-            EnqueueArchive(browser, session, paths, directory, archiveName, archiveFiles, names);
+            EnqueueArchive(browser, session, paths, directory, archiveName, archiveFiles, names, gzip);
             return;
         }
 
@@ -147,11 +160,12 @@ public partial class FileBrowserPanel
     }
 
     /// <summary>
-    /// Met en file l'envoi d'une archive .tar.gz des éléments déposés : créée dans un dossier temporaire de ce poste,
-    /// envoyée et vérifiée (SHA-256), puis supprimée du poste. La commande d'extraction est donnée à la fin.
+    /// Met en file l'envoi d'une archive .tar.gz (.tar sans gzip sur le serveur) des éléments déposés : créée dans un
+    /// dossier temporaire de ce poste, envoyée et vérifiée (SHA-256), puis supprimée du poste. La commande d'extraction
+    /// est donnée à la fin.
     /// </summary>
     private void EnqueueArchive(RemoteFileBrowser browser, SshSession session, IReadOnlyList<string> paths, string directory,
-        string archiveName, int files, IReadOnlyList<string> names)
+        string archiveName, int files, IReadOnlyList<string> names, string? gzip)
     {
         var protocol = _settings.UploadProtocol;
         Enqueue(new TransferItem(true, Text.Format(Strings.ArchiveLabel, archiveName, files), directory, async (item, ct) =>
@@ -163,9 +177,9 @@ public partial class FileBrowserPanel
             try
             {
                 var archive = Path.Combine(folder, archiveName);
-                await TarGzPacker.CreateAsync(paths, archive, progress, ct);
+                await TarGzPacker.CreateAsync(paths, archive, compress: gzip is not null, progress, ct);
                 await browser.UploadAsync(archive, directory, protocol, item.Checks, progress, background: true, ct);
-                item.ExtractCommand = TarGzPacker.ExtractCommand(directory, archiveName);
+                item.ExtractCommand = TarGzPacker.ExtractCommand(directory, archiveName, gzip);
             }
             finally
             {
