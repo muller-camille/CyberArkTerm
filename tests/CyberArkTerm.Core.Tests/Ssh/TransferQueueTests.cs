@@ -4,7 +4,8 @@ namespace CyberArkTerm.Core.Tests.Ssh;
 
 public sealed class TransferQueueTests
 {
-    private static readonly TimeSpan Wait = TimeSpan.FromSeconds(5);
+    /// <summary>Garde-fou contre un blocage, pas une mesure de durée : large, pour une machine de CI chargée.</summary>
+    private static readonly TimeSpan Wait = TimeSpan.FromSeconds(30);
 
     /// <summary>Une demande interactive passe avant les transferts en attente, jamais pendant l'opération en cours.</summary>
     [Fact]
@@ -22,16 +23,17 @@ public sealed class TransferQueueTests
         await Task.WhenAll(background, interactive).WaitAsync(Wait);
         Assert.Equal(["navigation", "transfert"], order);
 
+        // Suites hors du contexte de xUnit : elles n'attendent pas qu'un de ses fils, pris par d'autres tests, se libère.
         async Task Take(string name, bool background)
         {
-            using (await gate.EnterAsync(background, default))
+            using (await gate.EnterAsync(background, default).ConfigureAwait(false))
             {
                 lock (order)
                 {
                     order.Add(name);
                 }
 
-                await Task.Delay(20);
+                await Task.Delay(20).ConfigureAwait(false);
             }
         }
     }

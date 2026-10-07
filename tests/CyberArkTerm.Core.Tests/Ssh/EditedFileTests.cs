@@ -5,7 +5,8 @@ namespace CyberArkTerm.Core.Tests.Ssh;
 public sealed class EditedFileTests : IDisposable
 {
     private static readonly TimeSpan Delay = TimeSpan.FromMilliseconds(50);
-    private static readonly TimeSpan Wait = TimeSpan.FromSeconds(5);
+    /// <summary>Garde-fou contre un blocage, pas une mesure de durée : large, pour une machine de CI chargée.</summary>
+    private static readonly TimeSpan Wait = TimeSpan.FromSeconds(30);
     private readonly string _dir = Path.Combine(Path.GetTempPath(), "cyberarkterm-edit-" + Guid.NewGuid().ToString("N"));
 
     public EditedFileTests() => Directory.CreateDirectory(_dir);
