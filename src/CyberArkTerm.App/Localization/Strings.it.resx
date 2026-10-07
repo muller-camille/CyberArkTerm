@@ -4289,4 +4289,58 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   <data name="PsmpNoRoute" xml:space="preserve">
     <value>Nessun PSMP per {0}: il suo dominio non corrisponde a nessun PSMP configurato. Aggiungi il suo PSMP o un PSMP predefinito in Impostazioni &gt; CyberArk.</value>
   </data>
+  <data name="ServerPromptTitle" xml:space="preserve">
+    <value>Scegli il server</value>
+  </data>
+  <data name="ServerPromptQuestion" xml:space="preserve">
+    <value>Su quale server aprire la sessione?</value>
+  </data>
+  <data name="ServerPromptAddQuestion" xml:space="preserve">
+    <value>Quale server per questo account in «I miei server»?</value>
+  </data>
+  <data name="ServerPromptHint" xml:space="preserve">
+    <value>Questo account è registrato per il dominio {0}, non per un server.</value>
+  </data>
+  <data name="ServerLabel" xml:space="preserve">
+    <value>_Server:</value>
+  </data>
+  <data name="ServerPromptKnown" xml:space="preserve">
+    <value>L'elenco propone i server già usati con questo account.</value>
+  </data>
+  <data name="ServerPromptRestricted" xml:space="preserve">
+    <value>Questo account può aprire sessioni solo su: {0}.</value>
+  </data>
+  <data name="ServerPromptOptional" xml:space="preserve">
+    <value>Vuoto: il server verrà chiesto a ogni connessione.</value>
+  </data>
+  <data name="ServerPromptKeep" xml:space="preserve">
+    <value>_Mantieni questo server in «I miei server»</value>
+  </data>
+  <data name="ServerPromptFolder" xml:space="preserve">
+    <value>Ca_rtella:</value>
+  </data>
+  <data name="ServerPromptFolderTip" xml:space="preserve">
+    <value>Vuoto: nella radice di «I miei server».</value>
+  </data>
+  <data name="ServerPromptAlreadySaved" xml:space="preserve">
+    <value>Questo server è già in «I miei server» per questo account.</value>
+  </data>
+  <data name="ServerPromptAdvanced" xml:space="preserve">
+    <value>A_vanzata…</value>
+  </data>
+  <data name="ServerPromptAdvancedTip" xml:space="preserve">
+    <value>Apre la finestra di connessione completa (tipo, componente PSM, motivo, ticket) con questo server.</value>
+  </data>
+  <data name="ServerPromptAdd" xml:space="preserve">
+    <value>A_ggiungi</value>
+  </data>
+  <data name="ServerPromptRequired" xml:space="preserve">
+    <value>Inserisci il nome del server.</value>
+  </data>
+  <data name="ServerPromptInvalid" xml:space="preserve">
+    <value>Nome server non valido: inserisci un nome host o un indirizzo IP.</value>
+  </data>
+  <data name="ServerPromptNotAllowed" xml:space="preserve">
+    <value>{0} non è consentito per questo account: scegli uno dei server sopra.</value>
+  </data>
 </root>

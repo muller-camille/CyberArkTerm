@@ -86,10 +86,34 @@ public static class AccountClassifier
     /// sur quelle machine ouvrir la session (paramètre <c>PSMRemoteMachine</c>).
     /// </summary>
     public static bool NeedsRemoteMachine(PvwaAccount account) =>
-        !string.IsNullOrWhiteSpace(account.RemoteMachines) || ContainsAny(account.PlatformId ?? "", "Domain");
+        !string.IsNullOrWhiteSpace(account.RemoteMachines) || ContainsAny(account.PlatformId ?? "", "Domain")
+        || IsRegisteredForDomain(account);
+
+    /// <summary>
+    /// Compte Windows enregistré pour son domaine et non pour un serveur : son adresse est le domaine de connexion
+    /// (« corp.local » ou « CORP », domaine CORP). Jamais un compte local, dont le domaine est souvent le serveur lui-même.
+    /// </summary>
+    private static bool IsRegisteredForDomain(PvwaAccount account)
+    {
+        var domain = account.LogonDomain.Trim().TrimEnd('.');
+        var address = (account.Address ?? "").Trim().TrimEnd('.');
+        if (Classify(account) != AccountKind.Windows || ContainsAny(account.PlatformId ?? "", "Local")
+            || domain.Length == 0 || address.Length == 0)
+        {
+            return false;
+        }
+
+        var labels = address.Split('.');
+        return address.Equals(domain, StringComparison.OrdinalIgnoreCase)
+               || (labels.Length == 2 && labels[0].Equals(domain, StringComparison.OrdinalIgnoreCase));
+    }
 
     public static IReadOnlyList<string> RemoteMachineList(PvwaAccount account) =>
         account.RemoteMachines.Split([';', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    /// <summary>Le compte ne peut ouvrir de session que sur ses machines autorisées.</summary>
+    public static bool IsRestrictedToRemoteMachines(PvwaAccount account) =>
+        account.RemoteMachinesAccess?.AccessRestrictedToRemoteMachines == true && RemoteMachineList(account).Count > 0;
 
     private static bool ContainsAny(string value, params string[] keywords) =>
         keywords.Any(k => value.Contains(k, StringComparison.OrdinalIgnoreCase));

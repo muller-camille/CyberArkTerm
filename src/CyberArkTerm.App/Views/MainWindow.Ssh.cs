@@ -24,12 +24,16 @@ public partial class MainWindow
     private DateTime _mfaRetryAfter;
 
     private async Task OpenSshTabAsync(PvwaAccount account, PsmpEndpoint psmp, string login, string label, SavedSession? saved,
-        Func<Task>? duplicate)
+        Func<Task>? duplicate, ConnectRequest request)
     {
         SetStatus(Text.Format(Strings.SshOpening, label, psmp.Host));
         var key = await GetPsmpKeyAsync();
         var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), key);
-        var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved) { Psmp = psmp.Host };
+        var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved)
+        {
+            Psmp = psmp.Host,
+            Request = request,
+        };
         ShowSshTab(session, $"{login}@{psmp.Host}", Strings.ConnectingViaPsmp, "IconSsh",
             Text.Format(Strings.SshOpened, label, psmp.Host), duplicate);
     }
@@ -155,7 +159,8 @@ public partial class MainWindow
         {
             Items =
             {
-                actions.Reconnect, actions.Duplicate, actions.Detach, actions.Parallel, new Separator { Visibility = ssh }, search, save,
+                actions.Reconnect, actions.Duplicate, actions.Detach, actions.Parallel, actions.AddSaved, new Separator { Visibility = ssh },
+                search, save,
                 new Separator(), actions.Close, closeOthers,
             },
         };
@@ -177,14 +182,35 @@ public partial class MainWindow
         actions.Refresh();
         // Déjà dans une fenêtre séparée ou dans la vue parallèle : rien à détacher depuis le terminal.
         actions.Detach.Visibility = actions.Detach.IsEnabled ? Visibility.Visible : Visibility.Collapsed;
-        foreach (var item in new object[] { actions.Reconnect, actions.Duplicate, actions.Detach, actions.Parallel, new Separator(), actions.Close })
+        foreach (var item in new object[] { actions.Reconnect, actions.Duplicate, actions.Detach, actions.Parallel, actions.AddSaved, new Separator(), actions.Close })
         {
             items.Add(item);
         }
     }
 
+    /// <summary>
+    /// « Ajouter à Mes serveurs » d'une session CyberArk : sous-menu des dossiers, ou grisé si ce compte et cette machine y
+    /// sont déjà ; masqué pour une connexion directe.
+    /// </summary>
+    private void RefreshAddSaved(MenuItem item, RemoteSession? session)
+    {
+        if (IsOffline || session is not { Account: { } account, Request: { } request })
+        {
+            item.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        bool saved = SessionLibrary.FindSession(_settings, account, PvwaHost, request.RemoteMachine) is not null;
+        item.Visibility = Visibility.Visible;
+        item.IsEnabled = !saved;
+        item.ToolTip = saved ? Strings.ToolAlreadyInMyServers : null;
+        BuildAddToCurrentMenu(item, saved ? null : folder => ShowAddedToCurrent(SessionLibrary.AddConnection(_settings, account,
+            PvwaHost, folder, request.Mode, request.Component, request.RemoteMachine)));
+    }
+
     /// <summary>Actions communes au menu de l'en-tête d'un onglet et au menu du clic droit dans son terminal.</summary>
-    private sealed record SessionActions(MenuItem Reconnect, MenuItem Duplicate, MenuItem Detach, MenuItem Parallel, MenuItem Close, Action Refresh);
+    private sealed record SessionActions(MenuItem Reconnect, MenuItem Duplicate, MenuItem Detach, MenuItem Parallel, MenuItem AddSaved,
+        MenuItem Close, Action Refresh);
 
     /// <param name="owner">Fenêtre où afficher les questions (confirmation de reconnexion, transferts en cours…).</param>
     private SessionActions CreateSessionActions(TabItem tab, Func<Task>? duplicate, Func<Window?> owner)
@@ -219,13 +245,17 @@ public partial class MainWindow
                 ToggleParallel(session);
             }
         };
+        // Session CyberArk : « Ajouter à Mes serveurs » avec son type et sa machine cible (sous-menu des dossiers).
+        var addSaved = new MenuItem { Header = Strings.MenuAddToMyServers, Icon = MenuIcon(FindResource("IconBookmark")), Visibility = Visibility.Collapsed };
+        ToolTipService.SetShowOnDisabled(addSaved, true);
         var close = new MenuItem { Header = Strings.MenuTabClose, Icon = MenuIcon(FindResource("IconClose")), InputGestureText = Strings.ShortcutTabClose };
         close.Click += (_, _) => CloseSessionTab(tab, owner());
-        return new SessionActions(reconnect, copy, detach, parallel, close, () =>
+        return new SessionActions(reconnect, copy, detach, parallel, addSaved, close, () =>
         {
             detach.IsEnabled = tab.Content is SshSessionView;
             bool inParallel = tab.Tag is SshSession session && _parallel?.Contains(session) == true;
             parallel.Header = inParallel ? Strings.MenuTabRemoveParallel : Strings.MenuTabAddParallel;
+            RefreshAddSaved(addSaved, tab.Tag as RemoteSession);
         });
     }
 

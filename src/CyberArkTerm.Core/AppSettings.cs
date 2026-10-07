@@ -39,6 +39,12 @@ public sealed class AppSettings
     /// <summary>Anciens favoris (remplacés par « Mes serveurs », migrés au chargement des comptes).</summary>
     public List<string> Favorites { get; set; } = [];
 
+    /// <summary>Fenêtre « Sur quel serveur ? » (compte de domaine) : dernier choix de « Garder dans « Mes serveurs » ».</summary>
+    public bool KeepChosenServer { get; set; }
+
+    /// <summary>Dossier de « Mes serveurs » choisi la dernière fois dans la fenêtre « Sur quel serveur ? ».</summary>
+    public string KeepChosenServerFolder { get; set; } = "";
+
     /// <summary>Dossiers de « Mes serveurs » (« Prod/Web »...), y compris les dossiers vides.</summary>
     public List<string> SessionFolderList { get; set; } = [];
 
@@ -330,6 +336,7 @@ public sealed class AppSettings
         settings.PvwaUrl ??= "";
         settings.UserName ??= "";
         settings.PsmpAddress ??= "";
+        settings.KeepChosenServerFolder ??= "";
         settings.PsmpServers ??= [];
         settings.PsmpServers.RemoveAll(p => p is null);
         foreach (var psmp in settings.PsmpServers)

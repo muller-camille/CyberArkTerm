@@ -22,12 +22,16 @@ public partial class MainWindow
     /// rouverte à la reconnexion ; les envois peuvent aussi passer par SCP si la plateforme l'autorise.
     /// </summary>
     private async Task OpenPsmpFilesTabAsync(PvwaAccount account, PsmpEndpoint psmp, string login, string label, SavedSession? saved,
-        Func<Task>? duplicate)
+        Func<Task>? duplicate, ConnectRequest request)
     {
         SetStatus(Text.Format(Strings.SftpFilesOpening, label, psmp.Host));
         var key = await GetPsmpKeyAsync();
         var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), key);
-        var session = new FilesSession(label, "SFTP", connector.OpenFileBrowserAsync, Dispatcher, account, saved) { Psmp = psmp.Host };
+        var session = new FilesSession(label, "SFTP", connector.OpenFileBrowserAsync, Dispatcher, account, saved)
+        {
+            Psmp = psmp.Host,
+            Request = request,
+        };
         ShowFilesTab(session, $"{login}@{psmp.Host}", duplicate);
     }
 

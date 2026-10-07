@@ -851,6 +851,63 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>
+    /// Compte de domaine : la fenêtre « Choisir le serveur » propose les serveurs déjà utilisés, cache « Garder dans Mes
+    /// serveurs » pour un serveur déjà gardé, refuse un serveur hors des machines autorisées ; à l'ajout, le serveur est
+    /// facultatif.
+    /// </summary>
+    [Fact]
+    public void ServerPromptOffersKnownServersAndKeepsTheChoice()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var account = new PvwaAccount
+            {
+                Id = "5_1", UserName = "adm-t1", Address = "corp.local", PlatformId = "WinDomain", SafeName = "T1-ADMINS",
+                RemoteMachinesAccess = new RemoteMachinesAccess { RemoteMachines = "srv01.corp.local;srv02.corp.local" },
+            };
+            var dialog = new ServerPromptDialog(account, ["srv02.corp.local", "srv01.corp.local"], ["Prod", "Prod/Web"],
+                server => server.Equals("srv02.corp.local", StringComparison.OrdinalIgnoreCase), keep: true, folder: "Prod");
+            Assert.Equal("srv02.corp.local", dialog.Server);
+            Assert.Equal(Strings.ServerPromptKnown, dialog.ServerHint.Text);
+            Assert.Equal(Visibility.Collapsed, dialog.KeepPanel.Visibility);
+            Assert.Equal(Visibility.Visible, dialog.AlreadySavedText.Visibility);
+            Assert.False(dialog.Keep);
+
+            dialog.ServerBox.Text = "srv03.corp.local";
+            Assert.Equal(Visibility.Visible, dialog.KeepPanel.Visibility);
+            Assert.True(dialog.Keep);
+            Assert.Equal("Prod", dialog.Folder);
+            Assert.True(dialog.Validate(required: true));
+
+            dialog.ServerBox.Text = "srv 03";
+            Assert.False(dialog.Validate(required: true));
+            Assert.Equal(Strings.ServerPromptInvalid, dialog.ErrorText.Text);
+            dialog.ServerBox.Text = "";
+            Assert.False(dialog.Validate(required: true));
+            Assert.True(dialog.Validate(required: false));
+            dialog.Close();
+
+            // Compte limité à ses machines : un autre serveur est refusé.
+            account.RemoteMachinesAccess.AccessRestrictedToRemoteMachines = true;
+            var restricted = new ServerPromptDialog(account, ["srv01.corp.local"], [], _ => false, keep: false, folder: "", adding: true);
+            Assert.Equal(Visibility.Collapsed, restricted.KeepPanel.Visibility);
+            Assert.Equal(Strings.ServerPromptAdd, restricted.OkButton.Content);
+            restricted.ServerBox.Text = "srv09.corp.local";
+            Assert.False(restricted.Validate(required: false));
+            Assert.Equal(Text.Format(Strings.ServerPromptRestricted, "srv01.corp.local, srv02.corp.local"), restricted.ServerHint.Text);
+            Assert.Equal(Text.Format(Strings.ServerPromptNotAllowed, "srv09.corp.local"), restricted.ErrorText.Text);
+            restricted.ServerBox.Text = "SRV02.corp.local";
+            Assert.True(restricted.Validate(required: false));
+            restricted.Close();
+        });
+    }
+
     /// <summary>Onglet détaché : le terminal passe dans la fenêtre séparée, puis en ressort pour revenir dans l'onglet.</summary>
     [Fact]
     public void DetachedWindowHoldsTheTerminal()

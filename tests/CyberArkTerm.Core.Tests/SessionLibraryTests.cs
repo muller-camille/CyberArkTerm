@@ -154,6 +154,52 @@ public class SessionLibraryTests
     }
 
     /// <summary>
+    /// Connexion ouverte gardée dans « Mes serveurs » : son type, son composant PSM (seulement pour PSM), sa machine cible,
+    /// et le nom « utilisateur@machine » ; on la retrouve ensuite par compte et machine.
+    /// </summary>
+    [Fact]
+    public void OpenedConnectionIsKeptWithItsMachine()
+    {
+        var settings = new AppSettings();
+        var domain = Account("2", "adm-t0", "corp.local", "WinDomain");
+
+        var psm = SessionLibrary.AddConnection(settings, domain, "pvwa", "Prod", ConnectMode.Psm, " PSM-RDP ", " srv01.corp.local ");
+        var ssh = SessionLibrary.AddConnection(settings, Account("1"), "pvwa", "", ConnectMode.Ssh, "PSM-SSH", null);
+
+        Assert.Equal((ConnectMode.Psm, "PSM-RDP", "srv01.corp.local", "adm-t0@srv01.corp.local", "Prod"),
+            (psm.Mode, psm.Component, psm.RemoteMachine, psm.Name, psm.Folder));
+        Assert.Equal((ConnectMode.Ssh, (string?)null, (string?)null, "root@srv"), (ssh.Mode, ssh.Component, ssh.RemoteMachine, ssh.Name));
+        Assert.Same(psm, SessionLibrary.FindSession(settings, domain, "pvwa", "SRV01.corp.local"));
+        Assert.Null(SessionLibrary.FindSession(settings, domain, "pvwa", "srv02.corp.local"));
+        Assert.Null(SessionLibrary.FindSession(settings, domain, "pvwa", null));
+        Assert.Null(SessionLibrary.FindSession(settings, domain, "autre-pvwa", "srv01.corp.local"));
+        Assert.Same(ssh, SessionLibrary.FindSession(settings, Account("1"), "pvwa", " "));
+    }
+
+    /// <summary>
+    /// Serveurs proposés pour un compte de domaine : ceux des connexions récentes (la plus récente d'abord), puis de « Mes
+    /// serveurs », puis les machines autorisées, sans doublon ; seulement celles-ci si le compte y est limité.
+    /// </summary>
+    [Fact]
+    public void KnownMachinesComeFromRecentSavedAndAllowed()
+    {
+        var settings = new AppSettings();
+        var domain = Account("2", "adm-t0", "corp.local", "WinDomain");
+        domain.RemoteMachinesAccess = new RemoteMachinesAccess { RemoteMachines = "jump01;srv01" };
+        settings.Recent.Add(new RecentSession { AccountId = "2", PvwaHost = "pvwa", RemoteMachine = "srv01", When = new DateTime(2026, 1, 1) });
+        settings.Recent.Add(new RecentSession { AccountId = "2", PvwaHost = "pvwa", RemoteMachine = "srv02", When = new DateTime(2026, 2, 1) });
+        settings.Recent.Add(new RecentSession { AccountId = "2", PvwaHost = "autre", RemoteMachine = "ailleurs", When = new DateTime(2026, 3, 1) });
+        settings.Recent.Add(new RecentSession { AccountId = "9", PvwaHost = "pvwa", RemoteMachine = "autre-compte", When = new DateTime(2026, 3, 1) });
+        SessionLibrary.AddConnection(settings, domain, "pvwa", "", ConnectMode.Psm, "PSM-RDP", "SRV03");
+        SessionLibrary.AddConnection(settings, domain, "pvwa", "", ConnectMode.Psm, "PSM-RDP", "srv02");
+
+        Assert.Equal(["srv02", "srv01", "SRV03", "jump01"], SessionLibrary.KnownMachines(settings, domain, "pvwa"));
+
+        domain.RemoteMachinesAccess.AccessRestrictedToRemoteMachines = true;
+        Assert.Equal(["srv01", "jump01"], SessionLibrary.KnownMachines(settings, domain, "pvwa"));
+    }
+
+    /// <summary>
     /// Recherche dans « Mes serveurs » : seuls les serveurs qui répondent à tous les mots et leurs dossiers restent (pas les
     /// dossiers vides) ; le nom du dossier, le composant et la machine cible comptent.
     /// </summary>

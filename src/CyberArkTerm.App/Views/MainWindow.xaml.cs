@@ -850,7 +850,21 @@ public partial class MainWindow : Window
             return;
         }
 
-        showDialog |= AccountClassifier.NeedsRemoteMachine(account) && string.IsNullOrWhiteSpace(request.RemoteMachine);
+        // Compte de domaine sans serveur choisi : on demande lequel, avec l'option de le garder dans « Mes serveurs ».
+        string? keepFolder = null;
+        if (!showDialog && AccountClassifier.NeedsRemoteMachine(account) && string.IsNullOrWhiteSpace(request.RemoteMachine))
+        {
+            if (AskServer(account, adding: false) is not { } choice)
+            {
+                SetStatus("");
+                return;
+            }
+
+            request = request with { RemoteMachine = choice.Server.Length > 0 ? choice.Server : null };
+            keepFolder = choice.Keep ? choice.Folder : null;
+            showDialog = choice.Advanced;
+        }
+
         string? error = null;
         bool componentError = false;
         _connecting = true;
@@ -879,6 +893,13 @@ public partial class MainWindow : Window
                 try
                 {
                     await LaunchAsync(account, request, saved);
+                    if (keepFolder is not null && request.RemoteMachine is { } machine
+                        && SessionLibrary.FindSession(_settings, account, PvwaHost, machine) is null)
+                    {
+                        ShowAddedToCurrent(SessionLibrary.AddConnection(_settings, account, PvwaHost, keepFolder, request.Mode,
+                            request.Component, machine));
+                    }
+
                     return;
                 }
                 catch (PvwaException ex) when (ex.IsUnauthorized)
@@ -962,12 +983,12 @@ public partial class MainWindow : Window
             if (request.Mode == ConnectMode.Sftp)
             {
                 // Fichiers seuls : une session PSMP SFTP, sans terminal, toujours dans l'application.
-                await OpenPsmpFilesTabAsync(account, psmp, login, label, saved, duplicate);
+                await OpenPsmpFilesTabAsync(account, psmp, login, label, saved, duplicate, request);
                 AddRecent(account, label, RecentModes.Sftp, request.RemoteMachine);
             }
             else if (_settings.SshInApp)
             {
-                await OpenSshTabAsync(account, psmp, login, label, saved, duplicate);
+                await OpenSshTabAsync(account, psmp, login, label, saved, duplicate, request);
                 AddRecent(account, label, RecentModes.Ssh, request.RemoteMachine);
             }
             else

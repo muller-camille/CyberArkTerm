@@ -4289,4 +4289,58 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="PsmpNoRoute" xml:space="preserve">
     <value>No PSMP for {0}: its domain matches no configured PSMP. Add its PSMP or a default PSMP in Settings &gt; CyberArk.</value>
   </data>
+  <data name="ServerPromptTitle" xml:space="preserve">
+    <value>Choose the server</value>
+  </data>
+  <data name="ServerPromptQuestion" xml:space="preserve">
+    <value>Which server should the session open on?</value>
+  </data>
+  <data name="ServerPromptAddQuestion" xml:space="preserve">
+    <value>Which server for this account in “My servers”?</value>
+  </data>
+  <data name="ServerPromptHint" xml:space="preserve">
+    <value>This account is registered for the {0} domain, not for a server.</value>
+  </data>
+  <data name="ServerLabel" xml:space="preserve">
+    <value>_Server:</value>
+  </data>
+  <data name="ServerPromptKnown" xml:space="preserve">
+    <value>The list offers the servers already used with this account.</value>
+  </data>
+  <data name="ServerPromptRestricted" xml:space="preserve">
+    <value>This account may only open sessions on: {0}.</value>
+  </data>
+  <data name="ServerPromptOptional" xml:space="preserve">
+    <value>Empty: the server will be asked at each connection.</value>
+  </data>
+  <data name="ServerPromptKeep" xml:space="preserve">
+    <value>_Keep this server in “My servers”</value>
+  </data>
+  <data name="ServerPromptFolder" xml:space="preserve">
+    <value>_Folder:</value>
+  </data>
+  <data name="ServerPromptFolderTip" xml:space="preserve">
+    <value>Empty: at the root of “My servers”.</value>
+  </data>
+  <data name="ServerPromptAlreadySaved" xml:space="preserve">
+    <value>This server is already in “My servers” for this account.</value>
+  </data>
+  <data name="ServerPromptAdvanced" xml:space="preserve">
+    <value>_Advanced…</value>
+  </data>
+  <data name="ServerPromptAdvancedTip" xml:space="preserve">
+    <value>Opens the full connection window (type, PSM component, reason, ticket) with this server.</value>
+  </data>
+  <data name="ServerPromptAdd" xml:space="preserve">
+    <value>_Add</value>
+  </data>
+  <data name="ServerPromptRequired" xml:space="preserve">
+    <value>Enter the name of the server.</value>
+  </data>
+  <data name="ServerPromptInvalid" xml:space="preserve">
+    <value>Invalid server name: enter a host name or an IP address.</value>
+  </data>
+  <data name="ServerPromptNotAllowed" xml:space="preserve">
+    <value>{0} is not allowed for this account: choose one of the servers above.</value>
+  </data>
 </root>

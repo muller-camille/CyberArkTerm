@@ -12763,5 +12763,167 @@ namespace CyberArkTerm.App.Localization {
                 return ResourceManager.GetString("PsmpNoRoute", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose the server.
+        /// </summary>
+        public static string ServerPromptTitle {
+            get {
+                return ResourceManager.GetString("ServerPromptTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Which server should the session open on?.
+        /// </summary>
+        public static string ServerPromptQuestion {
+            get {
+                return ResourceManager.GetString("ServerPromptQuestion", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Which server for this account in “My servers”?.
+        /// </summary>
+        public static string ServerPromptAddQuestion {
+            get {
+                return ResourceManager.GetString("ServerPromptAddQuestion", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This account is registered for the {0} domain, not for a server..
+        /// </summary>
+        public static string ServerPromptHint {
+            get {
+                return ResourceManager.GetString("ServerPromptHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Server:.
+        /// </summary>
+        public static string ServerLabel {
+            get {
+                return ResourceManager.GetString("ServerLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The list offers the servers already used with this account..
+        /// </summary>
+        public static string ServerPromptKnown {
+            get {
+                return ResourceManager.GetString("ServerPromptKnown", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This account may only open sessions on: {0}..
+        /// </summary>
+        public static string ServerPromptRestricted {
+            get {
+                return ResourceManager.GetString("ServerPromptRestricted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Empty: the server will be asked at each connection..
+        /// </summary>
+        public static string ServerPromptOptional {
+            get {
+                return ResourceManager.GetString("ServerPromptOptional", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Keep this server in “My servers”.
+        /// </summary>
+        public static string ServerPromptKeep {
+            get {
+                return ResourceManager.GetString("ServerPromptKeep", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Folder:.
+        /// </summary>
+        public static string ServerPromptFolder {
+            get {
+                return ResourceManager.GetString("ServerPromptFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Empty: at the root of “My servers”..
+        /// </summary>
+        public static string ServerPromptFolderTip {
+            get {
+                return ResourceManager.GetString("ServerPromptFolderTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This server is already in “My servers” for this account..
+        /// </summary>
+        public static string ServerPromptAlreadySaved {
+            get {
+                return ResourceManager.GetString("ServerPromptAlreadySaved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Advanced….
+        /// </summary>
+        public static string ServerPromptAdvanced {
+            get {
+                return ResourceManager.GetString("ServerPromptAdvanced", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Opens the full connection window (type, PSM component, reason, ticket) with this server..
+        /// </summary>
+        public static string ServerPromptAdvancedTip {
+            get {
+                return ResourceManager.GetString("ServerPromptAdvancedTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Add.
+        /// </summary>
+        public static string ServerPromptAdd {
+            get {
+                return ResourceManager.GetString("ServerPromptAdd", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the name of the server..
+        /// </summary>
+        public static string ServerPromptRequired {
+            get {
+                return ResourceManager.GetString("ServerPromptRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid server name: enter a host name or an IP address..
+        /// </summary>
+        public static string ServerPromptInvalid {
+            get {
+                return ResourceManager.GetString("ServerPromptInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is not allowed for this account: choose one of the servers above..
+        /// </summary>
+        public static string ServerPromptNotAllowed {
+            get {
+                return ResourceManager.GetString("ServerPromptNotAllowed", resourceCulture);
+            }
+        }
     }
 }

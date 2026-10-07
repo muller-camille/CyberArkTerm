@@ -183,6 +183,52 @@ public static class SessionLibrary
         return session;
     }
 
+    /// <summary>
+    /// Serveur de « Mes serveurs » pour une connexion ouverte : son type, son composant PSM et sa machine cible ; avec une
+    /// machine, il est nommé « utilisateur@machine ».
+    /// </summary>
+    public static SavedSession AddConnection(AppSettings settings, PvwaAccount account, string pvwaHost, string folder,
+        ConnectMode mode, string? component, string? remoteMachine)
+    {
+        var session = AddSession(settings, account, pvwaHost, folder);
+        session.Mode = mode;
+        session.Component = mode == ConnectMode.Psm && !string.IsNullOrWhiteSpace(component) ? component.Trim() : null;
+        session.RemoteMachine = string.IsNullOrWhiteSpace(remoteMachine) ? null : remoteMachine.Trim();
+        if (session.RemoteMachine is { } machine)
+        {
+            session.Name = $"{account.UserName}@{machine}";
+        }
+
+        return session;
+    }
+
+    /// <summary>Serveur de « Mes serveurs » pour ce compte et cette machine cible (aucune : le compte seul).</summary>
+    public static SavedSession? FindSession(AppSettings settings, PvwaAccount account, string pvwaHost, string? remoteMachine) =>
+        settings.Sessions.FirstOrDefault(s => s.AccountId == account.Id && IsForHost(s, pvwaHost)
+                                              && string.Equals((s.RemoteMachine ?? "").Trim(), (remoteMachine ?? "").Trim(),
+                                                  StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// Serveurs à proposer pour un compte de domaine : ceux déjà utilisés avec lui (connexions récentes, la plus récente
+    /// d'abord, puis « Mes serveurs »), puis ses machines autorisées. Un compte limité à ses machines ne propose qu'elles.
+    /// </summary>
+    public static IReadOnlyList<string> KnownMachines(AppSettings settings, PvwaAccount account, string pvwaHost)
+    {
+        var allowed = AccountClassifier.RemoteMachineList(account);
+        var machines = settings.Recent
+            .Where(r => r.AccountId == account.Id && r.IsForHost(pvwaHost))
+            .OrderByDescending(r => r.When)
+            .Select(r => r.RemoteMachine)
+            .Concat(settings.Sessions.Where(s => s.AccountId == account.Id && IsForHost(s, pvwaHost)).Select(s => s.RemoteMachine))
+            .Concat(allowed)
+            .Where(m => !string.IsNullOrWhiteSpace(m))
+            .Select(m => m!.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase);
+        return AccountClassifier.IsRestrictedToRemoteMachines(account)
+            ? machines.Where(m => allowed.Contains(m, StringComparer.OrdinalIgnoreCase)).ToList()
+            : machines.ToList();
+    }
+
     /// <summary>Type de connexion d'une connexion récente (« SSH », « SFTP » ou le composant PSM).</summary>
     public static ConnectMode RecentMode(string mode) =>
         string.Equals(mode.Trim(), RecentSession.SshMode, StringComparison.OrdinalIgnoreCase) ? ConnectMode.Ssh
