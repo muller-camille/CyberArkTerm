@@ -138,7 +138,7 @@ public partial class TailWindow : Window
     // ===================== Fichiers suivis =====================
 
     /// <summary>Connexion de cette fenêtre à la session, à réutiliser pour un autre fichier du même serveur.</summary>
-    internal ITailLink? LinkFor(SshSession session) => _links.FirstOrDefault(l => ReferenceEquals(l.Session, session));
+    internal ITailLink? LinkFor(RemoteSession session) => _links.FirstOrDefault(l => ReferenceEquals(l.Session, session));
 
     /// <summary>Suit un fichier de plus dans cette fenêtre ; à partir de deux, les lignes sont préfixées par leur fichier.</summary>
     internal TailFeed AddFeed(ITailLink link, string path)
@@ -172,7 +172,7 @@ public partial class TailWindow : Window
     }
 
     /// <summary>La session se ferme : ses fichiers ne sont plus suivis (les lignes reçues restent affichées).</summary>
-    internal void EndSession(SshSession session)
+    internal void EndSession(RemoteSession session)
     {
         foreach (var feed in _feeds.Where(f => !f.Stopped && ReferenceEquals(f.Link.Session, session)).ToList())
         {

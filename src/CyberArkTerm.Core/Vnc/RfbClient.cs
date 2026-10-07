@@ -161,12 +161,13 @@ public sealed class RfbClient : IDisposable
             throw new RfbException(CoreStrings.VncNotRfb);
         }
 
-        if (major != 3)
+        if (major < 3)
         {
             throw new RfbException(string.Format(CultureInfo.CurrentCulture, CoreStrings.VncUnsupportedVersion, text.Trim()));
         }
 
-        int minor = serverMinor >= 8 ? 8 : serverMinor == 7 ? 7 : 3;
+        // Serveur plus récent (RealVNC annonce 4.x ou 5.x) : il accepte la 3.8, comme les autres clients la demandent.
+        int minor = major > 3 || serverMinor >= 8 ? 8 : serverMinor == 7 ? 7 : 3;
         await network.WriteAsync(Encoding.ASCII.GetBytes($"RFB 003.00{minor}\n"), ct).ConfigureAwait(false);
 
         // Méthodes d'authentification proposées.
@@ -192,7 +193,10 @@ public sealed class RfbClient : IDisposable
             offered = await ReadBytesAsync(reader, count, ct).ConfigureAwait(false);
         }
 
-        var security = ChooseSecurity(offered);
+        // Mot de passe lu seulement s'il sert : pour choisir entre les deux méthodes, ou pour le mot de passe VNC.
+        string? secret = null;
+        bool HasPassword() => !string.IsNullOrEmpty(secret ??= password());
+        var security = ChooseSecurity(offered, HasPassword);
         if (minor != 3)
         {
             await network.WriteAsync(new[] { security }, ct).ConfigureAwait(false);
@@ -201,7 +205,7 @@ public sealed class RfbClient : IDisposable
         if (security == SecurityVnc)
         {
             var challenge = await ReadBytesAsync(reader, 16, ct).ConfigureAwait(false);
-            var response = VncAuthResponse(challenge, password());
+            var response = VncAuthResponse(challenge, secret ?? password());
             await network.WriteAsync(response, ct).ConfigureAwait(false);
         }
 
@@ -269,10 +273,13 @@ public sealed class RfbClient : IDisposable
     private const byte SecurityNone = 1;
     private const byte SecurityVnc = 2;
 
-    /// <summary>Mot de passe VNC si le serveur le propose, sinon aucune authentification ; rien d'autre n'est pris en charge.</summary>
-    internal static byte ChooseSecurity(IReadOnlyCollection<byte> offered)
+    /// <summary>
+    /// Mot de passe VNC si le serveur le propose, sauf s'il propose aussi « aucune » et que l'entrée n'a pas de mot de
+    /// passe ; sinon « aucune ».
+    /// </summary>
+    internal static byte ChooseSecurity(IReadOnlyCollection<byte> offered, Func<bool> hasPassword)
     {
-        if (offered.Contains(SecurityVnc))
+        if (offered.Contains(SecurityVnc) && !(offered.Contains(SecurityNone) && !hasPassword()))
         {
             return SecurityVnc;
         }

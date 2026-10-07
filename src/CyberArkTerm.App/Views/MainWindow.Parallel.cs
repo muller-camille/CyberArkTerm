@@ -25,7 +25,7 @@ public partial class MainWindow
     /// <summary>Fenêtre de choix des sessions de la vue parallèle.</summary>
     private void ChooseParallelSessions(SshSession? preselect = null)
     {
-        var sessions = MainTabs.Items.OfType<TabItem>().Select(t => t.Tag).OfType<SshSession>().Where(s => s.HasTerminal).ToList();
+        var sessions = MainTabs.Items.OfType<TabItem>().Select(t => t.Tag).OfType<SshSession>().ToList();
         if (sessions.Count == 0)
         {
             MessageBox.Show(this, Strings.ParallelNoSession, Strings.ParallelTitle, MessageBoxButton.OK, MessageBoxImage.Information);

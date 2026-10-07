@@ -43,8 +43,6 @@ public sealed class RemoteFileBrowser : IRemoteFiles
 
     public TransferProtocol UploadProtocol => TransferProtocol.Sftp;
 
-    public bool SupportsPermissions => true;
-
     /// <summary>Liste un dossier (chemin absolu ou relatif au dossier courant) et en fait le dossier courant.</summary>
     public async Task<List<RemoteEntry>> ListAsync(string path, bool showHidden, CancellationToken ct)
     {

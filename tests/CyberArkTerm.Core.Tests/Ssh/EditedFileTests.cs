@@ -126,6 +126,20 @@ public sealed class EditedFileTests : IDisposable
     public void LooksBinary_UsesTheExtension(string name, bool binary) =>
         Assert.Equal(binary, EditedFile.LooksBinary(name));
 
+    /// <summary>Fichier sans extension parlante : un octet nul au début (ELF, core, données) le dit binaire.</summary>
+    [Fact]
+    public void LooksBinary_ReadsTheFirstBytes()
+    {
+        Assert.False(EditedFile.LooksBinary(System.Text.Encoding.UTF8.GetBytes("#!/bin/sh\necho « été »\n")));
+        Assert.False(EditedFile.LooksBinary([]));
+        Assert.True(EditedFile.LooksBinary([0x7F, (byte)'E', (byte)'L', (byte)'F', 2, 1, 1, 0]));
+        // Au-delà de la zone lue, un octet nul ne compte pas.
+        var late = new byte[EditedFile.SniffLength + 10];
+        Array.Fill(late, (byte)'a');
+        late[^1] = 0;
+        Assert.False(EditedFile.LooksBinary(late));
+    }
+
     private string Write(string name, string content)
     {
         var path = Path.Combine(_dir, name);

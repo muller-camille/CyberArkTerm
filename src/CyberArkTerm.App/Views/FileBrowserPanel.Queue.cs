@@ -42,11 +42,11 @@ public partial class FileBrowserPanel
     }
 
     /// <summary>Transferts en cours ou en attente d'une session, ou de toutes si <paramref name="session"/> est null.</summary>
-    public int ActiveTransfers(SshSession? session) =>
+    public int ActiveTransfers(RemoteSession? session) =>
         _queue.Items.Count(i => i.State is TransferState.Pending or TransferState.Running && (session is null || ReferenceEquals(i.Owner, session)));
 
     /// <summary>Vrai si l'on peut fermer : aucun transfert en cours ou en attente, ou l'utilisateur accepte de les annuler.</summary>
-    public bool ConfirmCancelTransfers(Window owner, SshSession? session)
+    public bool ConfirmCancelTransfers(Window owner, RemoteSession? session)
     {
         int count = ActiveTransfers(session);
         return count == 0 || MessageBox.Show(owner, Text.Format(Strings.QueueCloseConfirm, count), "CyberArkTerm",
@@ -57,7 +57,7 @@ public partial class FileBrowserPanel
     /// Annule les transferts d'une session (de toutes si null) et attend l'arrêt de celui en cours, pour que son fichier
     /// incomplet soit supprimé avant la fermeture de la connexion (au plus 5 s).
     /// </summary>
-    public async Task CancelTransfersAsync(SshSession? session)
+    public async Task CancelTransfersAsync(RemoteSession? session)
     {
         bool Matches(TransferItem item) => session is null || ReferenceEquals(item.Owner, session);
         if (ActiveTransfers(session) == 0)
@@ -90,7 +90,8 @@ public partial class FileBrowserPanel
         int archiveFiles = 0;
         string? gzip = null;
         // L'archive se décompresse par une commande tapée dans le terminal : pas de proposition sans terminal.
-        if (_settings.OfferArchive && session.HasTerminal)
+        var terminal = session as SshSession;
+        if (_settings.OfferArchive && terminal is not null)
         {
             var (files, bytes) = TarGzPacker.Measure(paths);
             if (files >= _settings.ArchiveThreshold && TarGzPacker.UstarProblem(paths) is { } tooLong)
@@ -140,9 +141,9 @@ public partial class FileBrowserPanel
         }
 
         var protocol = _settings.PreferredUploadProtocol;
-        if (archiveName is not null)
+        if (archiveName is not null && terminal is not null)
         {
-            EnqueueArchive(browser, session, paths, directory, archiveName, archiveFiles, names, gzip);
+            EnqueueArchive(browser, terminal, paths, directory, archiveName, archiveFiles, names, gzip);
             return;
         }
 
@@ -322,7 +323,7 @@ public partial class FileBrowserPanel
             {
                 Time = DateTime.UtcNow,
                 Upload = item.Upload,
-                Server = (item.Owner as SshSession)?.Label ?? "",
+                Server = (item.Owner as RemoteSession)?.Label ?? "",
                 Label = item.Label,
                 Destination = item.Destination,
                 Protocol = item.ProtocolUsed,
@@ -469,7 +470,7 @@ public partial class FileBrowserPanel
             return;
         }
 
-        if (session.State != SshSessionState.Connected)
+        if (session.State != RemoteSessionState.Connected)
         {
             SetStatus(NotConnectedText(session), error: true);
             return;
@@ -561,7 +562,7 @@ public partial class FileBrowserPanel
     /// La session se ferme : ses fichiers ne sont plus suivis (les fenêtres restent ouvertes, avec leurs lignes), et ses
     /// archives à extraire sont oubliées.
     /// </summary>
-    public void ReleaseTails(SshSession session)
+    public void ReleaseTails(RemoteSession session)
     {
         foreach (var window in _tails)
         {
@@ -611,7 +612,7 @@ public partial class FileBrowserPanel
             ? Text.Format(Strings.ArchiveToExtractOne, extracts[0].Directory, session.Label)
             : Text.Format(Strings.ArchiveToExtractMany, extracts.Count, session.Label);
         ExtractCommandBox.Text = ExtractLine(extracts);
-        InsertExtractButton.IsEnabled = session.State == SshSessionState.Connected;
+        InsertExtractButton.IsEnabled = session.State == RemoteSessionState.Connected;
     }
 
     private void OnCopyExtractCommand(object sender, RoutedEventArgs e)
@@ -631,7 +632,7 @@ public partial class FileBrowserPanel
     /// <summary>Écrit la commande à l'invite du terminal, sans l'exécuter, puis affiche ce terminal.</summary>
     private void OnInsertExtractCommand(object sender, RoutedEventArgs e)
     {
-        if (_session is not { } session)
+        if (_session is not SshSession session)
         {
             return;
         }

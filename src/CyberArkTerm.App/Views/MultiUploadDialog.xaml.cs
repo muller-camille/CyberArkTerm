@@ -14,13 +14,13 @@ namespace CyberArkTerm.App.Views;
 /// </summary>
 public partial class MultiUploadDialog : Window
 {
-    private readonly List<(SshSession Session, CheckBox Box)> _servers = [];
+    private readonly List<(RemoteSession Session, CheckBox Box)> _servers = [];
 
     /// <param name="sessions">Sessions SSH ouvertes ; seules les connectées peuvent être choisies.</param>
     /// <param name="selected">Sessions cochées au départ.</param>
     /// <param name="destination">Dossier proposé (celui affiché dans l'onglet Fichiers, ou « ~ »).</param>
     /// <param name="protocol">Protocole d'envoi des Paramètres (SCP ou SFTP), rappelé dans la fenêtre.</param>
-    public MultiUploadDialog(IReadOnlyList<SshSession> sessions, IReadOnlyCollection<SshSession> selected, string destination,
+    public MultiUploadDialog(IReadOnlyList<RemoteSession> sessions, IReadOnlyCollection<RemoteSession> selected, string destination,
         string protocol, IEnumerable<string>? paths = null)
     {
         InitializeComponent();
@@ -28,7 +28,7 @@ public partial class MultiUploadDialog : Window
         ProtocolText.Text = Text.Format(Strings.MultiUploadProtocol, protocol);
         foreach (var session in sessions)
         {
-            bool connected = session.State == SshSessionState.Connected;
+            bool connected = session.State == RemoteSessionState.Connected;
             var box = new CheckBox
             {
                 Content = new TextBlock
@@ -58,7 +58,7 @@ public partial class MultiUploadDialog : Window
     public string Destination => DestinationBox.Text.Trim();
 
     /// <summary>Sessions destinataires, dans l'ordre des onglets.</summary>
-    public IReadOnlyList<SshSession> Sessions => _servers.Where(s => s.Box.IsChecked == true).Select(s => s.Session).ToList();
+    public IReadOnlyList<RemoteSession> Sessions => _servers.Where(s => s.Box.IsChecked == true).Select(s => s.Session).ToList();
 
     internal void AddPath(string path)
     {

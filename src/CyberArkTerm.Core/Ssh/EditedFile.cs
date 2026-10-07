@@ -126,6 +126,15 @@ public sealed class EditedFile : IDisposable
     /// </summary>
     public static bool LooksBinary(string remoteName) => BinaryExtensions.Contains(Path.GetExtension(remoteName));
 
+    /// <summary>Début du fichier lu pour savoir s'il est du texte (<see cref="LooksBinary(ReadOnlySpan{byte})"/>).</summary>
+    public const int SniffLength = 8000;
+
+    /// <summary>
+    /// Vrai si le début du fichier contient un octet nul : exécutable ELF, bibliothèque, fichier core, données... (même
+    /// règle que git). Un fichier texte, en UTF-8 ou en Latin-1, n'en contient pas.
+    /// </summary>
+    public static bool LooksBinary(ReadOnlySpan<byte> head) => head[..Math.Min(head.Length, SniffLength)].Contains((byte)0);
+
     /// <summary>
     /// Nom de la copie locale : celui du fichier distant, limité aux caractères sûrs pour Windows et pour la
     /// ligne de commande de l'éditeur (lettres, chiffres, espace, « . », « - », « _ »).

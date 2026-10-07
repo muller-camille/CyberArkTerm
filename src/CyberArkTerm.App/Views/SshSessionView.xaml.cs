@@ -239,10 +239,10 @@ public partial class SshSessionView : UserControl
     {
         switch (Session.State)
         {
-            case SshSessionState.Connected:
+            case RemoteSessionState.Connected:
                 Overlay.Visibility = Visibility.Collapsed;
                 break;
-            case SshSessionState.Connecting:
+            case RemoteSessionState.Connecting:
                 Overlay.Visibility = Visibility.Visible;
                 OverlayText.Text = _connectingText;
                 OverlayDetail.Text = Target;
@@ -250,7 +250,7 @@ public partial class SshSessionView : UserControl
                 break;
             default:
                 Overlay.Visibility = Visibility.Visible;
-                OverlayText.Text = Session.State == SshSessionState.Failed ? Strings.ConnectionImpossible : Strings.SessionEnded;
+                OverlayText.Text = Session.State == RemoteSessionState.Failed ? Strings.ConnectionImpossible : Strings.SessionEnded;
                 OverlayDetail.Text = Session.Error ?? "";
                 ReconnectButton.Visibility = Visibility.Visible;
                 break;

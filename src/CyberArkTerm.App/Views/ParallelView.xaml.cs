@@ -73,7 +73,7 @@ public partial class ParallelView : UserControl
     internal Func<int, int, bool>? ConfirmPaste { get; set; }
 
     /// <summary>Session connectée, qui peut recevoir la saisie simultanée ; remplaçable (tests).</summary>
-    internal Func<SshSession, bool> IsConnected { get; set; } = session => session.State == SshSessionState.Connected;
+    internal Func<SshSession, bool> IsConnected { get; set; } = session => session.State == RemoteSessionState.Connected;
 
     /// <summary>Envoi d'une saisie à une session ; remplaçable (tests).</summary>
     internal Action<SshSessionView, TerminalInput> Deliver { get; set; } = (view, input) => view.Send(input);
@@ -380,14 +380,14 @@ public partial class ParallelView : UserControl
             var state = View.Session.State;
             _state.Fill = state switch
             {
-                SshSessionState.Connected => Connected,
-                SshSessionState.Connecting => Connecting,
+                RemoteSessionState.Connected => Connected,
+                RemoteSessionState.Connecting => Connecting,
                 _ => Closed,
             };
             _state.ToolTip = state switch
             {
-                SshSessionState.Connected => Strings.ParallelStateConnected,
-                SshSessionState.Connecting => Strings.ParallelStateConnecting,
+                RemoteSessionState.Connected => Strings.ParallelStateConnected,
+                RemoteSessionState.Connecting => Strings.ParallelStateConnecting,
                 _ => Strings.ParallelStateClosed,
             };
             if (Parent is not null)

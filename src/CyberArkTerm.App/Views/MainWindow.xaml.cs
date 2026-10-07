@@ -43,6 +43,9 @@ public partial class MainWindow : Window
     private SavedSession? _currentSaved;
     private bool _loading;
 
+    /// <summary>Dernier chargement des comptes en échec : les connexions récentes ne restent pas grisées.</summary>
+    private bool _loadFailed;
+
     // Comptes du PVWA chargés au moins une fois : avant, un compte absent n'est pas encore un compte disparu.
     private bool _accountsLoaded;
     private bool _connecting;
@@ -92,7 +95,7 @@ public partial class MainWindow : Window
         CompareWindow.CleanTemporaryFiles();
         CyberArkTerm.App.Terminal.TerminalAppearance.Apply(settings.TerminalTheme, settings.TerminalFontSize, settings.TerminalRightClickPastes);
         FilesPanel.Initialize(settings, SaveSettings);
-        FilesPanel.OpenSessions = () => MainTabs.Items.OfType<TabItem>().Select(t => t.Tag).OfType<SshSession>().ToList();
+        FilesPanel.OpenSessions = () => MainTabs.Items.OfType<TabItem>().Select(t => t.Tag).OfType<RemoteSession>().ToList();
         FilesPanel.ShowTerminalRequested += ShowTerminal;
         if (IsOffline)
         {
@@ -199,6 +202,8 @@ public partial class MainWindow : Window
         }
 
         _loading = true;
+        _loadFailed = false;
+        RefreshRecent();
         CommandManager.InvalidateRequerySuggested();
         LoadProgress.Value = 0;
         LoadProgress.IsIndeterminate = true;
@@ -250,6 +255,9 @@ public partial class MainWindow : Window
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             CountText.Text = Strings.LoadFailedShort;
+            // Un clic sur une connexion récente expliquera alors que les comptes n'ont pas pu être chargés.
+            _loadFailed = true;
+            RefreshRecent();
             MessageBox.Show(this, Text.Format(Strings.LoadFailed, ErrorText.Describe(ex)),
                 "CyberArkTerm", MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -292,17 +300,18 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Connexions récentes : grisées tant que les comptes du PVWA ne sont pas chargés (un clic ne pourrait que
-    /// répondre, à tort, que le compte n'existe plus).
+    /// Connexions récentes : grisées tant que les comptes du PVWA se chargent (un clic ne pourrait que répondre, à
+    /// tort, que le compte n'existe plus). Après un échec, elles redeviennent cliquables pour en donner la raison.
     /// </summary>
     private void RefreshRecent()
     {
+        bool usable = _accountsLoaded || _loadFailed;
         RecentList.ItemsSource = _settings.Recent.ToList();
         NoRecentText.Visibility = _settings.Recent.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         RecentList.Visibility = _settings.Recent.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
-        RecentList.IsEnabled = _accountsLoaded;
-        RecentList.Opacity = _accountsLoaded ? 1 : 0.45;
-        RecentLoadingText.Visibility = _accountsLoaded || _settings.Recent.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        RecentList.IsEnabled = usable;
+        RecentList.Opacity = usable ? 1 : 0.45;
+        RecentLoadingText.Visibility = usable || _settings.Recent.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
     }
 
     /// <summary>Compte introuvable : comptes pas encore chargés, chargement échoué, ou compte vraiment disparu.</summary>

@@ -217,6 +217,27 @@ public sealed class RfbClientTests
     }
 
     [Fact]
+    public async Task NewerServerIsAnsweredWithVersion38()
+    {
+        // RealVNC annonce 5.0 ; sans mot de passe dans l'entrée, « aucune » est préférée au mot de passe VNC.
+        using var server = new FakeServer(async s =>
+        {
+            s.Write("RFB 005.000\n"u8);
+            Assert.Equal("RFB 003.008\n", Encoding.ASCII.GetString(Read(s, 12)));
+            s.Write([2, 2, 1]);
+            Assert.Equal(1, Read(s, 1)[0]);
+            s.Write(U32(0));
+            Read(s, 1);
+            s.Write(ServerInit(8, 8, "récent"));
+            await Task.Delay(100);
+        });
+
+        using var client = await RfbClient.ConnectAsync("127.0.0.1", server.Port, () => null, CancellationToken.None);
+        Assert.Equal("récent", client.DesktopName);
+        await server.Run.WaitAsync(Timeout);
+    }
+
+    [Fact]
     public async Task ReportsRefusalsWithTheServerReason()
     {
         using (var server = new FakeServer(async s =>
@@ -395,9 +416,12 @@ public sealed class RfbClientTests
     [Fact]
     public void PrefersTheVncPasswordAndRefusesUnknownSecurity()
     {
-        Assert.Equal((byte)2, RfbClient.ChooseSecurity([1, 2]));
-        Assert.Equal((byte)1, RfbClient.ChooseSecurity([1, 16]));
-        Assert.Throws<RfbException>(() => RfbClient.ChooseSecurity([30]));
+        Assert.Equal((byte)2, RfbClient.ChooseSecurity([1, 2], () => true));
+        // Entrée sans mot de passe : « aucune » si le serveur la propose aussi.
+        Assert.Equal((byte)1, RfbClient.ChooseSecurity([1, 2], () => false));
+        Assert.Equal((byte)2, RfbClient.ChooseSecurity([2], () => false));
+        Assert.Equal((byte)1, RfbClient.ChooseSecurity([1, 16], () => throw new InvalidOperationException("mot de passe lu sans raison")));
+        Assert.Throws<RfbException>(() => RfbClient.ChooseSecurity([30], () => true));
         Assert.Equal(VncKeys.F1 + 11, VncKeys.Function(12));
     }
 }

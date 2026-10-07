@@ -1068,12 +1068,11 @@ public sealed class DialogTests
             UseDispatcherContext();
             var attempts = new Queue<TaskCompletionSource<IRemoteFiles>>([new(), new()]);
             var pending = attempts.ToArray();
-            var session = CyberArkTerm.App.Services.SshSession.ForFiles("ftp-test · KeePass", "FTPES", _ => attempts.Dequeue().Task,
+            var session = new CyberArkTerm.App.Services.FilesSession("ftp-test · KeePass", "FTPES", _ => attempts.Dequeue().Task,
                 System.Windows.Threading.Dispatcher.CurrentDispatcher);
             var view = new FilesSessionView(session, "alice@ftp.test:21");
             var panel = new FileBrowserPanel();
             panel.Attach(session);
-            Assert.False(session.HasTerminal);
             Assert.Equal(Visibility.Collapsed, panel.FollowBox.Visibility);
 
             var first = view.ConnectAsync();
@@ -1083,7 +1082,7 @@ public sealed class DialogTests
 
             pending[0].SetException(new IOException("certificat refusé"));
             Pump(first);
-            Assert.Equal(CyberArkTerm.App.Services.SshSessionState.Failed, session.State);
+            Assert.Equal(CyberArkTerm.App.Services.RemoteSessionState.Failed, session.State);
             Assert.Contains("certificat refusé", view.StateText.Text);
             Assert.Equal(Visibility.Visible, view.ReconnectButton.Visibility);
             Assert.Equal(Strings.FilesClosedBrowse, panel.MessageText.Text);
@@ -1096,7 +1095,7 @@ public sealed class DialogTests
             Assert.Equal(Text.Format(Strings.FilesConnectingBrowse, "FTPES"), panel.MessageText.Text);
             pending[1].SetResult(files);
             Pump(second);
-            Assert.Equal(CyberArkTerm.App.Services.SshSessionState.Connected, session.State);
+            Assert.Equal(CyberArkTerm.App.Services.RemoteSessionState.Connected, session.State);
             Assert.Equal(Strings.FilesSessionConnected, view.StateText.Text);
             Assert.True(view.ShowFilesButton.IsEnabled);
             Assert.Equal(Visibility.Collapsed, view.ReconnectButton.Visibility);
@@ -1118,7 +1117,6 @@ public sealed class DialogTests
         public bool IsConnected => !Disposed;
         public bool ChoosesUploadProtocol => false;
         public TransferProtocol UploadProtocol => TransferProtocol.Ftps;
-        public bool SupportsPermissions => false;
 
         public Task<List<RemoteEntry>> ListAsync(string path, bool showHidden, CancellationToken ct)
         {
@@ -1279,7 +1277,7 @@ public sealed class DialogTests
     }
 
     /// <summary>Connexion de suivi en mémoire : fichiers par chemin, coupure et reconnexion à la demande.</summary>
-    private sealed class MemoryLink(string server, CyberArkTerm.App.Services.SshSession? session = null) : ITailLink
+    private sealed class MemoryLink(string server, CyberArkTerm.App.Services.RemoteSession? session = null) : ITailLink
     {
         private readonly Dictionary<string, MemoryFile> _files = [];
 
@@ -1289,7 +1287,7 @@ public sealed class DialogTests
 
         public string Server => server;
 
-        public CyberArkTerm.App.Services.SshSession? Session => session;
+        public CyberArkTerm.App.Services.RemoteSession? Session => session;
 
         public bool Dedicated => false;
 

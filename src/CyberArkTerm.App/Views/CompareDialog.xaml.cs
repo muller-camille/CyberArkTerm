@@ -15,11 +15,11 @@ public partial class CompareDialog : Window
 {
     /// <param name="label">Fichier comparé, par ex. « root@srv01 : /etc/app.conf ».</param>
     /// <param name="sessions">Sessions SSH ouvertes ; la première autre que <paramref name="current"/> est proposée.</param>
-    public CompareDialog(string label, string path, IReadOnlyList<SshSession> sessions, SshSession current)
+    public CompareDialog(string label, string path, IReadOnlyList<RemoteSession> sessions, RemoteSession current)
     {
         InitializeComponent();
         IntroText.Text = Text.Format(Strings.CompareIntro, label);
-        var connected = sessions.Where(s => s.State == SshSessionState.Connected).ToList();
+        var connected = sessions.Where(s => s.State == RemoteSessionState.Connected).ToList();
         SessionBox.ItemsSource = connected;
         SessionBox.SelectedItem = connected.FirstOrDefault(s => !ReferenceEquals(s, current)) ?? current;
         RemotePathBox.Text = path;
@@ -27,7 +27,7 @@ public partial class CompareDialog : Window
     }
 
     /// <summary>Serveur choisi (null pour un fichier de ce poste).</summary>
-    public SshSession? Session => ServerRadio.IsChecked == true ? SessionBox.SelectedItem as SshSession : null;
+    public RemoteSession? Session => ServerRadio.IsChecked == true ? SessionBox.SelectedItem as RemoteSession : null;
 
     public string RemoteFile => RemotePathBox.Text.Trim();
 
@@ -39,7 +39,7 @@ public partial class CompareDialog : Window
     /// </summary>
     private async void OnBrowseServer(object sender, RoutedEventArgs e)
     {
-        if (SessionBox.SelectedItem is not SshSession session)
+        if (SessionBox.SelectedItem is not RemoteSession session)
         {
             ShowError(Strings.CompareNoServer);
             return;

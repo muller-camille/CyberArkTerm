@@ -66,6 +66,17 @@ public sealed class SshConnector
     public Task<ScpClient> ConnectScpAsync(CancellationToken ct) =>
         ConnectAsync(info => new ScpClient(info, RemotePathTransformation.ShellQuote), ct, "SCP");
 
+    /// <summary>
+    /// Explorateur de fichiers : connexion SFTP maintenue par un keep-alive (30 s), SCP ouvert à la demande pour les
+    /// envois qui le demandent.
+    /// </summary>
+    public async Task<IRemoteFiles> OpenFileBrowserAsync(CancellationToken ct)
+    {
+        var sftp = await ConnectSftpAsync(ct).ConfigureAwait(false);
+        sftp.KeepAliveInterval = TimeSpan.FromSeconds(30);
+        return new RemoteFileBrowser(sftp, ConnectScpAsync);
+    }
+
     /// <param name="purpose">Nom de la connexion dans le journal (par défaut, son type).</param>
     private async Task<T> ConnectAsync<T>(Func<ConnectionInfo, T> create, CancellationToken ct, string? purpose = null)
         where T : BaseClient

@@ -260,7 +260,8 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   être vides.
 - **Modifier un fichier** : **double-clic** sur le fichier (ou `Entrée`, `F4`, clic droit → « Modifier », bouton
   crayon). Le fichier s'ouvre dans l'éditeur de texte choisi dans les Paramètres (Bloc-notes par défaut). Au
-  double-clic, une archive, une image, un exécutable ou un document bureautique est téléchargé plutôt qu'ouvert. À chaque enregistrement, CyberArkTerm
+  double-clic, une archive, une image, un exécutable ou un document bureautique est téléchargé plutôt qu'ouvert, de
+  même qu'un fichier dont les premiers octets sont binaires. À chaque enregistrement, CyberArkTerm
   propose de le renvoyer sur le serveur : envoi en SFTP, droits du fichier conservés. Si le fichier a changé sur le
   serveur depuis son ouverture, une alerte demande confirmation avant de l'écraser.
 - **Suivre un fichier (tail -f)** : clic droit sur un ou plusieurs fichiers → « Suivre (tail -f) ». Une fenêtre
@@ -367,7 +368,10 @@ Trois boutons en haut de l'onglet, à gauche du bouton coffre KeePass :
     cible, qui a ajouté le serveur et quand.
   - **Machine cible** : un serveur partagé qui ouvre un compte de domaine sur une machine absente des machines
     autorisées du compte dans CyberArk demande confirmation à la première connexion (la liste peut être modifiée par
-    quiconque a le droit d'écrire sur le partage).
+    quiconque a le droit d'écrire sur le partage). « Copier dans Mes serveurs » nomme ces serveurs et demande avant
+    de les copier.
+  - **Liste d'un autre PVWA** : une liste créée pour un autre coffre s'affiche, mais ses serveurs ne s'ouvrent pas et
+    ne se copient pas, et rien ne peut y être ajouté : connectez-vous à ce PVWA pour l'utiliser.
   - **Historique** : clic droit → « Historique des modifications… ». L'onglet « Modifications » liste qui a ajouté,
     retiré ou restauré quoi, et quand ; l'onglet « Versions » garde une copie de la liste à chaque révision (les 100
     dernières, dans le dossier `nom.versions` à côté du fichier). « Restaurer cette version… » remet la liste dans cet
@@ -599,8 +603,9 @@ CyberArkTerm ont été vérifiés dans ces deux outils.
 
 ### Sessions VNC
 
-Client intégré (protocole RFB 3.3, 3.7 et 3.8, RFC 6143), sans logiciel à installer : authentification « aucune »
-ou « mot de passe VNC » (DES du protocole, implémenté dans CyberArkTerm car le mode FIPS de Windows peut interdire
+Client intégré (protocole RFB 3.3, 3.7 et 3.8, RFC 6143 ; un serveur plus récent, comme RealVNC 4 ou 5, reçoit une
+réponse en 3.8), sans logiciel à installer : authentification « aucune » ou « mot de passe VNC » (si le serveur
+propose les deux : le mot de passe si l'entrée en a un, sinon aucune) (DES du protocole, implémenté dans CyberArkTerm car le mode FIPS de Windows peut interdire
 DES), encodages Raw, CopyRect et Hextile, changement de taille d'écran, pixels 32 bits. Le clavier est transmis en
 « keysyms » X11 (les caractères AltGr sont envoyés comme caractères), la molette en boutons 4 et 5.
 
@@ -611,7 +616,9 @@ certificat vérifié par Windows, sinon épinglé (`ftps://serveur:port` parmi l
 Paramètres). FTP n'a
 pas de somme de contrôle standard : chaque envoi est relu depuis le serveur et comparé par SHA-256. Lecture partielle
 (`REST`) pour la comparaison et le suivi en direct. Après un transfert interrompu, la connexion est rouverte et le
-fichier incomplet supprimé.
+fichier incomplet supprimé. Un fichier remplacé est réécrit sur place : il garde ses droits. Liens symboliques : les
+40 premiers d'un dossier sont résolus (un aller-retour chacun) ; au-delà, un lien s'affiche comme un fichier, et
+l'ouvrir entre dans le dossier si c'en est un.
 
 ### Sessions Bureau à distance
 

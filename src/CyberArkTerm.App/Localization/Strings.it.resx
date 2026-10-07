@@ -3502,4 +3502,17 @@ Può essere un rinnovo, o un'intercettazione della connessione. Continua solo se
   <data name="SftpFilesOpening" xml:space="preserve">
     <value>Apertura dei file di {0} tramite {1}…</value>
   </data>
+  <data name="SharedCopyTargetsConfirm" xml:space="preserve">
+    <value>Questi server dell'elenco condiviso «{0}» aprono il loro account su una macchina di destinazione che CyberArk non consente per quell'account:
+
+{1}
+
+Queste macchine di destinazione vengono dall'elenco condiviso, che chiunque abbia il diritto di scrittura sulla condivisione può modificare, e non da CyberArk. Una volta copiate, non saranno più segnalate. Copiarle in I miei server?</value>
+  </data>
+  <data name="SharedOtherPvwaConnect" xml:space="preserve">
+    <value>«{0}» viene da un elenco condiviso creato per il PVWA {1}: i suoi account non sono quelli di {2}. Accedi a {1} per usarlo.</value>
+  </data>
+  <data name="SharedOtherPvwaChange" xml:space="preserve">
+    <value>L'elenco condiviso «{0}» è stato creato per il PVWA {1}: non vi si possono aggiungere server di {2}, né copiare i suoi server in I miei server.</value>
+  </data>
 </root>
