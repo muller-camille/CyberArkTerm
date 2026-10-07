@@ -211,7 +211,8 @@ public partial class MainWindow : Window
     /// <summary>Vrai si la fenêtre a été fermée pour revenir à l'écran de connexion.</summary>
     public bool LogoutRequested { get; private set; }
 
-    private bool HasPsmp => !string.IsNullOrWhiteSpace(_settings.PsmpAddress);
+    /// <summary>Un PSMP est configuré (par défaut ou pour un domaine) : SSH et SFTP sont proposés.</summary>
+    private bool HasPsmp => PsmpRouting.Any(_settings);
 
     // ===================== Chargement et filtre =====================
 
@@ -566,8 +567,9 @@ public partial class MainWindow : Window
         }
 
         UpdateCountVisibility();
-        // Un onglet de gauche choisi (Fichiers après une connexion, Ctrl+1/2/3…) se montre, même panneau replié.
-        if (IsLoaded && SidePanelCollapsed)
+        // Un onglet de gauche choisi (Ctrl+1/2/3, clic…) se montre, même panneau replié ; pas l'onglet Fichiers choisi à
+        // l'ouverture d'une session SSH (SelectSideTab sans expand).
+        if (IsLoaded && SidePanelCollapsed && !_quietSideSelection)
         {
             SetSidePanelCollapsed(false);
         }
@@ -848,7 +850,21 @@ public partial class MainWindow : Window
             return;
         }
 
-        showDialog |= AccountClassifier.NeedsRemoteMachine(account) && string.IsNullOrWhiteSpace(request.RemoteMachine);
+        // Compte de domaine sans serveur choisi : on demande lequel, avec l'option de le garder dans « Mes serveurs ».
+        string? keepFolder = null;
+        if (!showDialog && AccountClassifier.NeedsRemoteMachine(account) && string.IsNullOrWhiteSpace(request.RemoteMachine))
+        {
+            if (AskServer(account, adding: false) is not { } choice)
+            {
+                SetStatus("");
+                return;
+            }
+
+            request = request with { RemoteMachine = choice.Server.Length > 0 ? choice.Server : null };
+            keepFolder = choice.Keep ? choice.Folder : null;
+            showDialog = choice.Advanced;
+        }
+
         string? error = null;
         bool componentError = false;
         _connecting = true;
@@ -877,6 +893,13 @@ public partial class MainWindow : Window
                 try
                 {
                     await LaunchAsync(account, request, saved);
+                    if (keepFolder is not null && request.RemoteMachine is { } machine
+                        && SessionLibrary.FindSession(_settings, account, PvwaHost, machine) is null)
+                    {
+                        ShowAddedToCurrent(SessionLibrary.AddConnection(_settings, account, PvwaHost, keepFolder, request.Mode,
+                            request.Component, machine));
+                    }
+
                     return;
                 }
                 catch (PvwaException ex) when (ex.IsUnauthorized)
@@ -944,25 +967,36 @@ public partial class MainWindow : Window
             SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
             AddRecent(account, label, request.Component, request.RemoteMachine);
         }
-        else if (request.Mode == ConnectMode.Sftp)
-        {
-            // Fichiers seuls : une session PSMP SFTP, sans terminal, toujours dans l'application.
-            var login = PsmpTarget.BuildLogin(_vaultUser, account, request.RemoteMachine);
-            await OpenPsmpFilesTabAsync(account, login, label, saved, () => ConnectAsync(account, request, saved: saved));
-            AddRecent(account, label, RecentModes.Sftp, request.RemoteMachine);
-        }
-        else if (_settings.SshInApp)
-        {
-            var login = PsmpTarget.BuildLogin(_vaultUser, account, request.RemoteMachine);
-            await OpenSshTabAsync(account, login, label, saved, () => ConnectAsync(account, request, saved: saved));
-            AddRecent(account, label, RecentModes.Ssh, request.RemoteMachine);
-        }
         else
         {
+            // SSH et SFTP : PSMP du domaine du serveur, sinon PSMP par défaut.
+            var psmp = PsmpRouting.Resolve(_settings, target);
+            if (psmp is null)
+            {
+                SetStatus(Text.Format(Strings.PsmpNoRoute, target), isError: true);
+                return;
+            }
+
+            DebugLog.Write("ssh", $"{label} : PSMP {psmp.Host}:{psmp.Port} ({(psmp.Domain is null ? "repli" : $"domaine {psmp.Domain}")})");
             var login = PsmpTarget.BuildLogin(_vaultUser, account, request.RemoteMachine);
-            _launcher.LaunchSsh(login, _settings.PsmpAddress, _settings.PsmpPort, label);
-            SetStatus(Text.Format(Strings.SshStarted, label, _settings.PsmpAddress));
-            AddRecent(account, label, RecentModes.Ssh, request.RemoteMachine);
+            Func<Task> duplicate = () => ConnectAsync(account, request, saved: saved);
+            if (request.Mode == ConnectMode.Sftp)
+            {
+                // Fichiers seuls : une session PSMP SFTP, sans terminal, toujours dans l'application.
+                await OpenPsmpFilesTabAsync(account, psmp, login, label, saved, duplicate, request);
+                AddRecent(account, label, RecentModes.Sftp, request.RemoteMachine);
+            }
+            else if (_settings.SshInApp)
+            {
+                await OpenSshTabAsync(account, psmp, login, label, saved, duplicate, request);
+                AddRecent(account, label, RecentModes.Ssh, request.RemoteMachine);
+            }
+            else
+            {
+                _launcher.LaunchSsh(login, psmp.Host, psmp.Port, label);
+                SetStatus(Text.Format(Strings.SshStarted, label, psmp.Host));
+                AddRecent(account, label, RecentModes.Ssh, request.RemoteMachine);
+            }
         }
     }
 

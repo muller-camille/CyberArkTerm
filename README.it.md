@@ -36,8 +36,8 @@ e apre le sessioni con un doppio clic: desktop remoto tramite **PSM**, oppure un
 | **Accesso CyberArk** | Autenticazione CyberArk, LDAP, RADIUS (challenge / OTP compresi) o Windows (sessione corrente). |
 | **Disponibili** | Tutti gli account visibili nel vault CyberArk, raggruppati per safe, piattaforma o tipo di destinazione, con ricerca istantanea; password (CPM, copia), membri di un safe, aggiunta, modifica e importazione di account. |
 | **I miei server** | I tuoi server di lavoro, organizzati in cartelle e sottocartelle, ognuno con le proprie impostazioni; esportazione, importazione ed **elenchi condivisi** su una condivisione di rete (ognuno aggiunge o rimuove, cronologia delle modifiche e delle versioni). |
-| **Sessioni PSM** | Desktop remoto tramite il PSM (come il pulsante «Connect» del PVWA), in Connessione Desktop remoto di Windows: componente, macchina di destinazione, motivo, ticket. |
-| **Sessioni SSH (PSMP)** | Terminale integrato in una scheda (compatibile xterm: colori, vim, less, top…), MFA, menu del clic destro, ricerca, finestre separate, «Riconnetti» alla fine della sessione. Solo file (SFTP, senza terminale) per le piattaforme «SFTP» o su richiesta. |
+| **Sessioni PSM** | Desktop remoto tramite il PSM (come il pulsante «Connect» del PVWA), in Connessione Desktop remoto di Windows: componente, macchina di destinazione (chiesta per un account di dominio, e mantenuta in «I miei server» se lo desideri), motivo, ticket. |
+| **Sessioni SSH (PSMP)** | Terminale integrato in una scheda (compatibile xterm: colori, vim, less, top…), MFA, menu del clic destro, ricerca, finestre separate, «Riconnetti» alla fine della sessione, un PSMP per dominio dei server. Solo file (SFTP, senza terminale) per le piattaforme «SFTP» o su richiesta. |
 | **Scheda File** | Browser SFTP del server: invio (SFTP, o SCP, con l'altro che subentra se il server rifiuta) e download con il trascinamento, verifica SHA-256 di ogni file, coda (risultati conservati) e cronologia dei trasferimenti, ordinamento per colonna, rinomina, modifica nel tuo editor di testo, permessi, monitoraggio in tempo reale (`tail -f`), confronto, invio a più server. |
 | **Vista parallela** | Fino a 8 sessioni SSH affiancate (una cartella di «I miei server» si apre con un clic), digitazione simultanea opzionale. |
 | **Accesso di emergenza (KeePass)** | Senza CyberArk: database KeePass (.kdbx) in «I miei server», connessioni SSH, desktop remoto e VNC dirette, file in SFTP, FTP o FTPS nella scheda File, registro locale. |
@@ -107,8 +107,9 @@ massimo una volta al giorno e mostra un link nella barra di stato.
 2. **Trovare un account** nella scheda «Disponibili»: la ricerca riguarda tutti i campi (`prd sql`). Clic destro su un
    account per la sua password (verifica, cambia, riconcilia, copia), i membri del suo safe, o per aggiungere,
    modificare e importare account.
-3. **Connettersi** con un doppio clic: un account Windows apre una sessione PSM in Connessione Desktop remoto; un
-   account Unix apre un terminale SSH in una scheda, tramite il PSMP impostato nelle **Impostazioni**. Clic destro nel
+3. **Connettersi** con un doppio clic: un account Windows apre una sessione PSM in Connessione Desktop remoto (un
+   account di dominio chiede prima il server); un account Unix apre un terminale SSH in una scheda, tramite il PSMP
+   del suo dominio impostato nelle **Impostazioni**. Clic destro nel
    terminale per copiare, incollare, cercare e le azioni della scheda.
 4. **Scheda File** (accanto a una sessione SSH): sfoglia il server, trascina i file da Esplora file per inviarli, verso
    Esplora file per scaricarli. Ogni file viene verificato (SHA-256); il pulsante **Trasferimenti** della barra degli

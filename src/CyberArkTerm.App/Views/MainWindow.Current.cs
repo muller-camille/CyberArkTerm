@@ -325,8 +325,55 @@ public partial class MainWindow
         _ => null,
     };
 
-    private void AddToCurrent(PvwaAccount account, string folder) =>
+    /// <summary>
+    /// Compte ajouté à « Mes serveurs ». Pour un compte de domaine, le serveur est demandé (facultatif : sans serveur, il
+    /// le sera à chaque connexion).
+    /// </summary>
+    private void AddToCurrent(PvwaAccount account, string folder)
+    {
+        if (AccountClassifier.NeedsRemoteMachine(account))
+        {
+            if (AskServer(account, adding: true) is not { } choice)
+            {
+                return;
+            }
+
+            if (choice.Server.Length > 0)
+            {
+                // Composant non figé : celui retenu pour la plateforme au moment de la connexion, comme sans serveur.
+                ShowAddedToCurrent(SessionLibrary.AddConnection(_settings, account, PvwaHost, folder,
+                    AccountClassifier.DefaultMode(account, HasPsmp), null, choice.Server));
+                return;
+            }
+        }
+
         ShowAddedToCurrent(SessionLibrary.AddSession(_settings, account, PvwaHost, folder, HasPsmp));
+    }
+
+    /// <summary>
+    /// Fenêtre « Choisir le serveur » d'un compte de domaine ; null si elle est annulée. À la connexion, le choix « Garder
+    /// dans « Mes serveurs » » et le dossier sont mémorisés.
+    /// </summary>
+    private ServerPromptDialog? AskServer(PvwaAccount account, bool adding)
+    {
+        var dialog = new ServerPromptDialog(account, SessionLibrary.KnownMachines(_settings, account, PvwaHost),
+            _settings.SessionFolderList.OrderBy(f => f, StringComparer.OrdinalIgnoreCase),
+            server => SessionLibrary.FindSession(_settings, account, PvwaHost, server) is not null,
+            _settings.KeepChosenServer, _settings.KeepChosenServerFolder, adding) { Owner = this };
+        if (dialog.ShowDialog() != true)
+        {
+            return null;
+        }
+
+        if (!adding && (dialog.KeepChoice != _settings.KeepChosenServer || (dialog.Keep && dialog.Folder != _settings.KeepChosenServerFolder)))
+        {
+            _settings.KeepChosenServer = dialog.KeepChoice;
+            _settings.KeepChosenServerFolder = dialog.Keep ? dialog.Folder : _settings.KeepChosenServerFolder;
+            SaveSettings();
+        }
+
+        return dialog;
+    }
 
     /// <summary>Connexion récente ajoutée à « Mes serveurs » avec son mode, son composant et sa machine cible.</summary>
     private void AddToCurrent(PvwaAccount account, RecentSession recent, string folder) =>

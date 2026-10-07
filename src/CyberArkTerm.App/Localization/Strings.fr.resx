@@ -483,10 +483,10 @@
     <value>SSH via PSM for SSH (PSMP)</value>
   </data>
   <data name="SettingsSshHelp" xml:space="preserve">
-    <value>Les comptes Unix s'ouvrent alors en SSH par défaut (le PSM reste disponible dans « Connexion avancée »). Laisser vide pour désactiver le SSH.</value>
+    <value>Les comptes Unix s'ouvrent alors en SSH par défaut (le PSM reste disponible dans « Connexion avancée »). Sans aucun PSMP, le SSH est désactivé.</value>
   </data>
   <data name="PsmpAddressLabel" xml:space="preserve">
-    <value>_Adresse PSMP :</value>
+    <value>PSMP p_ar défaut :</value>
   </data>
   <data name="PortLabel" xml:space="preserve">
     <value>_Port :</value>
@@ -4228,5 +4228,119 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   </data>
   <data name="ParallelBroadcastOn" xml:space="preserve">
     <value>ACTIVE ({0})</value>
+  </data>
+  <data name="PsmpDefaultHelp" xml:space="preserve">
+    <value>Pour les serveurs de son domaine et ceux qu'aucun PSMP ci-dessous ne couvre. Vide : le seul PSMP de la liste, s'il n'y en a qu'un.</value>
+  </data>
+  <data name="PsmpListSection" xml:space="preserve">
+    <value>PSMP par domaine</value>
+  </data>
+  <data name="PsmpListHelp" xml:space="preserve">
+    <value>Chaque serveur passe par le PSMP du domaine le plus proche du sien : srv01.zzz.xxx.corp.com par psmp.zzz.xxx.corp.com s'il est dans la liste, sinon par psmp.xxx.corp.com. Le domaine est celui de l'adresse ; changez-le si le PSMP sert un autre domaine.</value>
+  </data>
+  <data name="PsmpColumnAddress" xml:space="preserve">
+    <value>Adresse du PSMP</value>
+  </data>
+  <data name="PsmpColumnPort" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="PsmpColumnDomain" xml:space="preserve">
+    <value>Serveurs du domaine</value>
+  </data>
+  <data name="PsmpAdd" xml:space="preserve">
+    <value>A_jouter un PSMP</value>
+  </data>
+  <data name="PsmpRemove" xml:space="preserve">
+    <value>E_nlever</value>
+  </data>
+  <data name="PsmpTestLabel" xml:space="preserve">
+    <value>_Quel PSMP pour le serveur :</value>
+  </data>
+  <data name="PsmpTestPrompt" xml:space="preserve">
+    <value>Saisissez un nom de serveur pour voir par quel PSMP il passe.</value>
+  </data>
+  <data name="PsmpTestMatch" xml:space="preserve">
+    <value>→ {0}:{1} (serveurs de {2})</value>
+  </data>
+  <data name="PsmpTestFallback" xml:space="preserve">
+    <value>→ {0}:{1} (aucun PSMP pour son domaine : PSMP de repli)</value>
+  </data>
+  <data name="PsmpTestNone" xml:space="preserve">
+    <value>Aucun PSMP pour ce serveur : SSH et SFTP impossibles. Ajoutez son PSMP ou un PSMP par défaut.</value>
+  </data>
+  <data name="PsmpSecurityEffect" xml:space="preserve">
+    <value>⚠ Effet : un PSMP reçoit votre mot de passe CyberArk. N'indiquez que les PSMP de votre organisation ; la première connexion à chacun demande de vérifier sa clé.</value>
+  </data>
+  <data name="InvalidPsmpRowAddress" xml:space="preserve">
+    <value>Adresse de PSMP invalide (ligne {0}) : saisissez un nom d'hôte ou une adresse IP.</value>
+  </data>
+  <data name="InvalidPsmpRowPort" xml:space="preserve">
+    <value>Port invalide (ligne {0}) : de 1 à 65535.</value>
+  </data>
+  <data name="InvalidPsmpRowDomain" xml:space="preserve">
+    <value>Domaine invalide (ligne {0}) : saisissez un domaine comme corp.com.</value>
+  </data>
+  <data name="PsmpRowDomainMissing" xml:space="preserve">
+    <value>Ligne {0} : indiquez le domaine des serveurs de ce PSMP (son adresse n'en contient pas).</value>
+  </data>
+  <data name="PsmpDuplicateDomain" xml:space="preserve">
+    <value>Deux PSMP pour les serveurs de {0} : seul le premier servirait.</value>
+  </data>
+  <data name="PsmpNoRoute" xml:space="preserve">
+    <value>Aucun PSMP pour {0} : son domaine ne correspond à aucun PSMP configuré. Ajoutez son PSMP ou un PSMP par défaut dans Paramètres &gt; CyberArk.</value>
+  </data>
+  <data name="ServerPromptTitle" xml:space="preserve">
+    <value>Choisir le serveur</value>
+  </data>
+  <data name="ServerPromptQuestion" xml:space="preserve">
+    <value>Sur quel serveur ouvrir la session ?</value>
+  </data>
+  <data name="ServerPromptAddQuestion" xml:space="preserve">
+    <value>Quel serveur pour ce compte dans « Mes serveurs » ?</value>
+  </data>
+  <data name="ServerPromptHint" xml:space="preserve">
+    <value>Ce compte est enregistré pour le domaine {0}, pas pour un serveur.</value>
+  </data>
+  <data name="ServerLabel" xml:space="preserve">
+    <value>Se_rveur :</value>
+  </data>
+  <data name="ServerPromptKnown" xml:space="preserve">
+    <value>La liste propose les serveurs déjà utilisés avec ce compte.</value>
+  </data>
+  <data name="ServerPromptRestricted" xml:space="preserve">
+    <value>Ce compte ne peut ouvrir de session que sur : {0}.</value>
+  </data>
+  <data name="ServerPromptOptional" xml:space="preserve">
+    <value>Vide : le serveur sera demandé à chaque connexion.</value>
+  </data>
+  <data name="ServerPromptKeep" xml:space="preserve">
+    <value>_Garder ce serveur dans « Mes serveurs »</value>
+  </data>
+  <data name="ServerPromptFolder" xml:space="preserve">
+    <value>_Dossier :</value>
+  </data>
+  <data name="ServerPromptFolderTip" xml:space="preserve">
+    <value>Vide : à la racine de « Mes serveurs ».</value>
+  </data>
+  <data name="ServerPromptAlreadySaved" xml:space="preserve">
+    <value>Ce serveur est déjà dans « Mes serveurs » pour ce compte.</value>
+  </data>
+  <data name="ServerPromptAdvanced" xml:space="preserve">
+    <value>_Avancée…</value>
+  </data>
+  <data name="ServerPromptAdvancedTip" xml:space="preserve">
+    <value>Ouvre la fenêtre de connexion complète (type, composant PSM, motif, ticket) avec ce serveur.</value>
+  </data>
+  <data name="ServerPromptAdd" xml:space="preserve">
+    <value>A_jouter</value>
+  </data>
+  <data name="ServerPromptRequired" xml:space="preserve">
+    <value>Saisissez le nom du serveur.</value>
+  </data>
+  <data name="ServerPromptInvalid" xml:space="preserve">
+    <value>Nom de serveur invalide : saisissez un nom d'hôte ou une adresse IP.</value>
+  </data>
+  <data name="ServerPromptNotAllowed" xml:space="preserve">
+    <value>{0} n'est pas autorisé pour ce compte : choisissez l'un des serveurs ci-dessus.</value>
   </data>
 </root>

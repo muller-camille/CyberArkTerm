@@ -66,6 +66,36 @@ public class ConnectionPlanningTests
         Assert.Equal(["jump01", "jump02", "jump03"], AccountClassifier.RemoteMachineList(Account("X", remoteMachines: " jump01; jump02 ,jump03;")));
     }
 
+    /// <summary>
+    /// Compte Windows enregistré pour son domaine (adresse = le domaine de connexion) : il faut choisir le serveur, quel
+    /// que soit le nom de la plateforme. Un compte local, ou un compte enregistré pour un serveur, s'ouvre directement.
+    /// </summary>
+    [Theory]
+    [InlineData("WIN-ADMINS-T1", "corp.local", "CORP", true)]
+    [InlineData("WIN-ADMINS-T1", "corp.local", "corp.local", true)]
+    [InlineData("WIN-ADMINS-T1", "CORP", "CORP", true)]
+    [InlineData("WIN-ADMINS-T1", "srv01.corp.local", "CORP", false)]
+    [InlineData("WIN-ADMINS-T1", "corp.local", null, false)]
+    [InlineData("WinServerLocal", "srv01", "SRV01", false)]
+    [InlineData("WinServerLocal", "srv01.local", "SRV01", false)]
+    [InlineData("UnixSSH", "corp.local", "CORP", false)]
+    public void WindowsAccountRegisteredForItsDomainNeedsRemoteMachine(string platform, string address, string? domain, bool expected) =>
+        Assert.Equal(expected, AccountClassifier.NeedsRemoteMachine(Account(platform, address: address, domain: domain)));
+
+    [Fact]
+    public void RestrictedOnlyWithAllowedMachines()
+    {
+        var account = Account("WinDomain", remoteMachines: "jump01;jump02");
+        Assert.False(AccountClassifier.IsRestrictedToRemoteMachines(account));
+        account.RemoteMachinesAccess!.AccessRestrictedToRemoteMachines = true;
+        Assert.True(AccountClassifier.IsRestrictedToRemoteMachines(account));
+
+        // Restreint sans machine listée : rien à proposer, le choix reste libre.
+        var none = Account("WinDomain", remoteMachines: " ; ");
+        none.RemoteMachinesAccess!.AccessRestrictedToRemoteMachines = true;
+        Assert.False(AccountClassifier.IsRestrictedToRemoteMachines(none));
+    }
+
     [Fact]
     public void PsmpLogin_UsesVaultUserTargetUserAndAddress()
     {

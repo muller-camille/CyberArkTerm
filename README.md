@@ -36,8 +36,8 @@ and opens your sessions with a double-click: remote desktop through **PSM**, or 
 | **CyberArk sign-in** | CyberArk, LDAP, RADIUS (challenge / OTP included) or Windows (current session) authentication. |
 | **Available** | Every account visible in the CyberArk Vault, grouped by safe, platform or target type, with instant search; password actions (CPM, copy), safe members, adding, editing and importing accounts. |
 | **My servers** | Your working servers, organized in folders and subfolders, each with its own settings; export, import and **shared lists** on a network share (everyone adds or removes, history of changes and versions). |
-| **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in Windows Remote Desktop Connection: component, target machine, reason, ticket. |
-| **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colours, vim, less, top…), MFA, right-click menu, search, separate windows, "Reconnect" at the end of a session. Files only (SFTP, without a terminal) for "SFTP" platforms or on request. |
+| **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in Windows Remote Desktop Connection: component, target machine (asked for a domain account, and kept in "My servers" if you wish), reason, ticket. |
+| **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colours, vim, less, top…), MFA, right-click menu, search, separate windows, "Reconnect" at the end of a session, one PSMP per server domain. Files only (SFTP, without a terminal) for "SFTP" platforms or on request. |
 | **Files tab** | SFTP browser of the server: drag-and-drop upload (SFTP, or SCP, the other one taking over if the server refuses) and download, SHA-256 check of every file, transfer queue (results kept) and history, sortable columns, renaming, editing in your text editor, permissions, live following (`tail -f`), comparison, sending to several servers. |
 | **Parallel view** | Up to 8 SSH sessions side by side (a "My servers" folder opens in one click), optional simultaneous typing. |
 | **Emergency access (KeePass)** | Without CyberArk: KeePass databases (.kdbx) in "My servers", direct SSH, remote desktop and VNC connections, files over SFTP, FTP or FTPS in the Files tab, local log. |
@@ -105,8 +105,9 @@ default) does this check at most once a day and shows a link in the status bar.
 2. **Find an account** in the "Available" tab: the search box filters on every field (`prd sql`). Right-click an
    account for its password (verify, change, reconcile, copy), the members of its safe, or to add, edit and import
    accounts.
-3. **Connect** with a double-click: a Windows account opens a PSM session in Remote Desktop Connection; a Unix account
-   opens an SSH terminal in a tab, through the PSMP set in **Settings**. Right-click in the terminal for copy, paste,
+3. **Connect** with a double-click: a Windows account opens a PSM session in Remote Desktop Connection (a domain
+   account first asks which server); a Unix account opens an SSH terminal in a tab, through the PSMP of its domain set
+   in **Settings**. Right-click in the terminal for copy, paste,
    search and the tab actions.
 4. **Files tab** (next to an SSH session): browse the server, drag files from Explorer to upload them, drag them to
    Explorer to download them. Each file is checked (SHA-256); the **Transfers** button of the toolbar keeps every

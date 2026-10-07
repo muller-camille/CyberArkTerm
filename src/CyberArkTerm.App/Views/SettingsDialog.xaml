@@ -74,7 +74,7 @@
                         <TextBlock Text="{x:Static loc:Strings.SettingsSshSection}" Style="{StaticResource SectionTitle}" />
                         <TextBlock Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10"
                                    Text="{x:Static loc:Strings.SettingsSshHelp}" />
-                        <Grid Margin="0,0,0,16">
+                        <Grid Margin="0,0,0,4">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" MinWidth="140" />
                                 <ColumnDefinition Width="*" />
@@ -82,10 +82,45 @@
                                 <ColumnDefinition Width="70" />
                             </Grid.ColumnDefinitions>
                             <Label Content="{x:Static loc:Strings.PsmpAddressLabel}" Target="{Binding ElementName=PsmpBox}" />
-                            <TextBox Grid.Column="1" x:Name="PsmpBox" VerticalContentAlignment="Center" />
+                            <TextBox Grid.Column="1" x:Name="PsmpBox" VerticalContentAlignment="Center" TextChanged="OnPsmpChanged" />
                             <Label Grid.Column="2" Content="{x:Static loc:Strings.PortLabel}" Target="{Binding ElementName=PortBox}" Margin="8,0,0,0" />
-                            <TextBox Grid.Column="3" x:Name="PortBox" VerticalContentAlignment="Center" />
+                            <TextBox Grid.Column="3" x:Name="PortBox" VerticalContentAlignment="Center" TextChanged="OnPsmpChanged" />
                         </Grid>
+                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,12" Text="{x:Static loc:Strings.PsmpDefaultHelp}" />
+
+                        <!-- Autres PSMP : chaque serveur passe par celui de son domaine le plus proche (voir PsmpRouting). -->
+                        <TextBlock Text="{x:Static loc:Strings.PsmpListSection}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,6" Text="{x:Static loc:Strings.PsmpListHelp}" />
+                        <DataGrid x:Name="PsmpGrid" AutoGenerateColumns="False" HeadersVisibility="Column" CanUserAddRows="False"
+                                  CanUserDeleteRows="False" CanUserReorderColumns="False" SelectionMode="Single" SelectionUnit="FullRow"
+                                  GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{DynamicResource GridLineBrush}"
+                                  MinHeight="80" MaxHeight="180" SelectionChanged="OnPsmpSelected"
+                                  AutomationProperties.Name="{x:Static loc:Strings.PsmpListSection}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="{x:Static loc:Strings.PsmpColumnAddress}" Width="2*"
+                                                    Binding="{Binding Address, UpdateSourceTrigger=PropertyChanged}" />
+                                <DataGridTextColumn Header="{x:Static loc:Strings.PsmpColumnPort}" Width="60"
+                                                    Binding="{Binding Port, UpdateSourceTrigger=PropertyChanged}" />
+                                <DataGridTextColumn Header="{x:Static loc:Strings.PsmpColumnDomain}" Width="2*"
+                                                    Binding="{Binding Domain, UpdateSourceTrigger=PropertyChanged}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,10">
+                            <Button Content="{x:Static loc:Strings.PsmpAdd}" Click="OnAddPsmp" />
+                            <Button x:Name="RemovePsmpButton" Content="{x:Static loc:Strings.PsmpRemove}" Click="OnRemovePsmp"
+                                    IsEnabled="False" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" MinWidth="140" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Content="{x:Static loc:Strings.PsmpTestLabel}" Target="{Binding ElementName=PsmpTestBox}" />
+                            <TextBox Grid.Column="1" x:Name="PsmpTestBox" VerticalContentAlignment="Center" TextChanged="OnPsmpChanged" />
+                        </Grid>
+                        <TextBlock x:Name="PsmpTestText" Style="{StaticResource OptionHelp}" Margin="0,0,0,8"
+                                   AutomationProperties.LiveSetting="Polite" />
+                        <TextBlock Style="{StaticResource OptionEffect}" Margin="0,0,0,16" Text="{x:Static loc:Strings.PsmpSecurityEffect}" />
 
                         <TextBlock Text="{x:Static loc:Strings.ComponentsSection}" Style="{StaticResource SectionTitle}" />
                         <DockPanel Margin="0,0,0,8">

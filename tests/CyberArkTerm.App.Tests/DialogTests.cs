@@ -805,6 +805,109 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>
+    /// Paramètres, page CyberArk : PSMP par domaine. Le domaine suit l'adresse tant qu'il n'a pas été changé, l'essai
+    /// d'un serveur montre le PSMP choisi, deux PSMP pour le même domaine sont refusés.
+    /// </summary>
+    [Fact]
+    public void SettingsListPsmpByDomain()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var settings = new AppSettings { PsmpAddress = "psmp.corp.com" };
+            settings.PsmpServers.Add(new PsmpServer { Address = "psmp.xxx.ss.com" });
+            settings.PsmpServers.Add(new PsmpServer { Address = "psmp01.infra.corp.com", Port = 2022, Domain = "dmz.corp.com" });
+            var dialog = new SettingsDialog(settings);
+            Assert.Equal(["xxx.ss.com", "dmz.corp.com"], dialog.PsmpRows.Select(r => r.Domain));
+
+            dialog.PsmpTestBox.Text = "blabla.zzz.xxx.ss.com";
+            Assert.Equal(Text.Format(Strings.PsmpTestMatch, "psmp.xxx.ss.com", 22, "xxx.ss.com"), dialog.PsmpTestText.Text);
+            dialog.PsmpTestBox.Text = "web.dmz.corp.com";
+            Assert.Equal(Text.Format(Strings.PsmpTestMatch, "psmp01.infra.corp.com", 2022, "dmz.corp.com"), dialog.PsmpTestText.Text);
+            dialog.PsmpTestBox.Text = "srv.other.org";
+            Assert.Equal(Text.Format(Strings.PsmpTestFallback, "psmp.corp.com", 22), dialog.PsmpTestText.Text);
+
+            var row = dialog.PsmpRows[0];
+            row.Address = "psmp.zzz.xxx.ss.com";
+            Assert.Equal("zzz.xxx.ss.com", row.Domain);
+            dialog.PsmpRows[1].Address = "psmp02.infra.corp.com";
+            Assert.Equal("dmz.corp.com", dialog.PsmpRows[1].Domain);
+
+            var saved = dialog.ReadPsmpServers("psmp.corp.com");
+            Assert.NotNull(saved);
+            Assert.Equal(("psmp.zzz.xxx.ss.com", 22, ""), (saved[0].Address, saved[0].Port, saved[0].Domain));
+            Assert.Equal(("psmp02.infra.corp.com", 2022, "dmz.corp.com"), (saved[1].Address, saved[1].Port, saved[1].Domain));
+
+            // Même domaine que le PSMP par défaut : celui de la liste ne servirait jamais.
+            row.Domain = "corp.com";
+            Assert.Null(dialog.ReadPsmpServers("psmp.corp.com"));
+            Assert.Equal(Text.Format(Strings.PsmpDuplicateDomain, "corp.com"), dialog.ErrorText.Text);
+            dialog.Close();
+        });
+    }
+
+    /// <summary>
+    /// Compte de domaine : la fenêtre « Choisir le serveur » propose les serveurs déjà utilisés, cache « Garder dans Mes
+    /// serveurs » pour un serveur déjà gardé, refuse un serveur hors des machines autorisées ; à l'ajout, le serveur est
+    /// facultatif.
+    /// </summary>
+    [Fact]
+    public void ServerPromptOffersKnownServersAndKeepsTheChoice()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var account = new PvwaAccount
+            {
+                Id = "5_1", UserName = "adm-t1", Address = "corp.local", PlatformId = "WinDomain", SafeName = "T1-ADMINS",
+                RemoteMachinesAccess = new RemoteMachinesAccess { RemoteMachines = "srv01.corp.local;srv02.corp.local" },
+            };
+            var dialog = new ServerPromptDialog(account, ["srv02.corp.local", "srv01.corp.local"], ["Prod", "Prod/Web"],
+                server => server.Equals("srv02.corp.local", StringComparison.OrdinalIgnoreCase), keep: true, folder: "Prod");
+            Assert.Equal("srv02.corp.local", dialog.Server);
+            Assert.Equal(Strings.ServerPromptKnown, dialog.ServerHint.Text);
+            Assert.Equal(Visibility.Collapsed, dialog.KeepPanel.Visibility);
+            Assert.Equal(Visibility.Visible, dialog.AlreadySavedText.Visibility);
+            Assert.False(dialog.Keep);
+
+            dialog.ServerBox.Text = "srv03.corp.local";
+            Assert.Equal(Visibility.Visible, dialog.KeepPanel.Visibility);
+            Assert.True(dialog.Keep);
+            Assert.Equal("Prod", dialog.Folder);
+            Assert.True(dialog.Validate(required: true));
+
+            dialog.ServerBox.Text = "srv 03";
+            Assert.False(dialog.Validate(required: true));
+            Assert.Equal(Strings.ServerPromptInvalid, dialog.ErrorText.Text);
+            dialog.ServerBox.Text = "";
+            Assert.False(dialog.Validate(required: true));
+            Assert.True(dialog.Validate(required: false));
+            dialog.Close();
+
+            // Compte limité à ses machines : un autre serveur est refusé.
+            account.RemoteMachinesAccess.AccessRestrictedToRemoteMachines = true;
+            var restricted = new ServerPromptDialog(account, ["srv01.corp.local"], [], _ => false, keep: false, folder: "", adding: true);
+            Assert.Equal(Visibility.Collapsed, restricted.KeepPanel.Visibility);
+            Assert.Equal(Strings.ServerPromptAdd, restricted.OkButton.Content);
+            restricted.ServerBox.Text = "srv09.corp.local";
+            Assert.False(restricted.Validate(required: false));
+            Assert.Equal(Text.Format(Strings.ServerPromptRestricted, "srv01.corp.local, srv02.corp.local"), restricted.ServerHint.Text);
+            Assert.Equal(Text.Format(Strings.ServerPromptNotAllowed, "srv09.corp.local"), restricted.ErrorText.Text);
+            restricted.ServerBox.Text = "SRV02.corp.local";
+            Assert.True(restricted.Validate(required: false));
+            restricted.Close();
+        });
+    }
+
     /// <summary>Onglet détaché : le terminal passe dans la fenêtre séparée, puis en ressort pour revenir dans l'onglet.</summary>
     [Fact]
     public void DetachedWindowHoldsTheTerminal()

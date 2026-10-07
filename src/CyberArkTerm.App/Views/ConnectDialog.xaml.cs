@@ -36,7 +36,7 @@ public partial class ConnectDialog : Window
         // Composant refusé : celui saisi à la place sera retenu pour la plateforme (décochable).
         RememberBox.IsChecked = initial.RememberComponent || componentError;
 
-        bool sshAvailable = !string.IsNullOrWhiteSpace(settings.PsmpAddress);
+        bool sshAvailable = PsmpRouting.Any(settings);
         SshRadio.IsEnabled = sshAvailable;
         SshRadio.ToolTip = sshAvailable ? null : Strings.SetPsmpAddress;
         SftpRadio.IsEnabled = sshAvailable;
@@ -123,7 +123,15 @@ public partial class ConnectDialog : Window
         try
         {
             var login = PsmpTarget.BuildLogin(_vaultUser, _account, MachineBox.Text);
-            var target = $"{login}@{_settings.PsmpAddress}";
+            // Le PSMP dépend du serveur visé (règle de son domaine, sinon PSMP par défaut).
+            var server = string.IsNullOrWhiteSpace(MachineBox.Text) ? _account.Address : MachineBox.Text.Trim();
+            if (PsmpRouting.Resolve(_settings, server) is not { } psmp)
+            {
+                SshHint.Text = Text.Format(Strings.PsmpNoRoute, server);
+                return;
+            }
+
+            var target = $"{login}@{psmp.Host}";
             SshHint.Text = Text.Format(SftpRadio.IsChecked == true ? Strings.SftpCommandHint : Strings.SshCommandHint,
                 target.Contains(' ') ? $"\"{target}\"" : target);
         }

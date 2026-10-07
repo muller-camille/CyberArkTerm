@@ -28,10 +28,22 @@ public sealed class AppSettings
 
     public int PsmpPort { get; set; } = 22;
 
+    /// <summary>
+    /// Autres PSMP : chaque serveur passe par celui de son domaine le plus proche, sinon par <see cref="PsmpAddress"/>.
+    /// Voir <see cref="PsmpRouting"/>.
+    /// </summary>
+    public List<PsmpServer> PsmpServers { get; set; } = [];
+
     public GroupBy GroupBy { get; set; } = GroupBy.Safe;
 
     /// <summary>Anciens favoris (remplacés par « Mes serveurs », migrés au chargement des comptes).</summary>
     public List<string> Favorites { get; set; } = [];
+
+    /// <summary>Fenêtre « Sur quel serveur ? » (compte de domaine) : dernier choix de « Garder dans « Mes serveurs » ».</summary>
+    public bool KeepChosenServer { get; set; }
+
+    /// <summary>Dossier de « Mes serveurs » choisi la dernière fois dans la fenêtre « Sur quel serveur ? ».</summary>
+    public string KeepChosenServerFolder { get; set; } = "";
 
     /// <summary>Dossiers de « Mes serveurs » (« Prod/Web »...), y compris les dossiers vides.</summary>
     public List<string> SessionFolderList { get; set; } = [];
@@ -324,6 +336,15 @@ public sealed class AppSettings
         settings.PvwaUrl ??= "";
         settings.UserName ??= "";
         settings.PsmpAddress ??= "";
+        settings.KeepChosenServerFolder ??= "";
+        settings.PsmpServers ??= [];
+        settings.PsmpServers.RemoveAll(p => p is null);
+        foreach (var psmp in settings.PsmpServers)
+        {
+            psmp.Address ??= "";
+            psmp.Domain ??= "";
+        }
+
         settings.TextEditor ??= "";
         settings.TailHighlights ??= "";
         settings.TailAlerts ??= "";

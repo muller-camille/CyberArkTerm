@@ -36,8 +36,8 @@ avez accès et ouvre vos sessions en un double-clic : bureau à distance via **P
 | **Connexion CyberArk** | Authentification CyberArk, LDAP, RADIUS (challenge / OTP compris) ou Windows (session courante). |
 | **Disponibles** | Tous les comptes visibles dans le coffre CyberArk, groupés par safe, plateforme ou type de cible, avec recherche instantanée ; mot de passe (CPM, copie), membres d'un safe, ajout, modification et import de comptes. |
 | **Mes serveurs** | Vos serveurs de travail, rangés en dossiers et sous-dossiers, chacun avec sa propre configuration ; export, import et **listes partagées** sur un partage réseau (chacun ajoute ou retire, historique des modifications et des versions). |
-| **Sessions PSM** | Bureau à distance via le PSM (comme le bouton « Connect » du PVWA), dans la Connexion Bureau à distance de Windows : composant, machine cible, motif, ticket. |
-| **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), MFA, menu du clic droit, recherche, fenêtres séparées, « Reconnecter » en fin de session. Fichiers seuls (SFTP, sans terminal) pour les plateformes « SFTP » ou à la demande. |
+| **Sessions PSM** | Bureau à distance via le PSM (comme le bouton « Connect » du PVWA), dans la Connexion Bureau à distance de Windows : composant, machine cible (demandée pour un compte de domaine, et gardée dans « Mes serveurs » si vous le souhaitez), motif, ticket. |
+| **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), MFA, menu du clic droit, recherche, fenêtres séparées, « Reconnecter » en fin de session, un PSMP par domaine de serveurs. Fichiers seuls (SFTP, sans terminal) pour les plateformes « SFTP » ou à la demande. |
 | **Onglet Fichiers** | Navigateur SFTP du serveur : dépôt (SFTP, ou SCP, l'autre prenant le relais si le serveur refuse) et téléchargement par glisser-déposer, vérification SHA-256 de chaque fichier, file d'attente (résultats gardés) et historique des transferts, tri par colonne, renommage, modification dans votre éditeur de texte, droits, suivi en direct (`tail -f`), comparaison, envoi vers plusieurs serveurs. |
 | **Vue parallèle** | Jusqu'à 8 sessions SSH côte à côte (un dossier de « Mes serveurs » s'ouvre d'un clic), saisie simultanée en option. |
 | **Accès d'urgence (KeePass)** | Sans CyberArk : bases KeePass (.kdbx) dans « Mes serveurs », connexions SSH, bureau à distance et VNC directes, fichiers en SFTP, FTP ou FTPS dans l'onglet Fichiers, journal local. |
@@ -107,8 +107,9 @@ fait cette recherche au plus une fois par jour et affiche un lien dans la barre 
 2. **Trouver un compte** dans l'onglet « Disponibles » : la recherche porte sur tous les champs (`prd sql`). Clic droit
    sur un compte pour son mot de passe (vérifier, changer, réconcilier, copier), les membres de son safe, ou pour
    ajouter, modifier et importer des comptes.
-3. **Se connecter** d'un double-clic : un compte Windows ouvre une session PSM dans la Connexion Bureau à distance ; un
-   compte Unix ouvre un terminal SSH en onglet, via le PSMP réglé dans les **Paramètres**. Clic droit dans le terminal
+3. **Se connecter** d'un double-clic : un compte Windows ouvre une session PSM dans la Connexion Bureau à distance (un
+   compte de domaine demande d'abord le serveur) ; un compte Unix ouvre un terminal SSH en onglet, via le PSMP de son
+   domaine réglé dans les **Paramètres**. Clic droit dans le terminal
    pour copier, coller, rechercher et les actions de l'onglet.
 4. **Onglet Fichiers** (à côté d'une session SSH) : parcourez le serveur, glissez des fichiers depuis l'Explorateur
    pour les déposer, vers l'Explorateur pour les télécharger. Chaque fichier est vérifié (SHA-256) ; le bouton

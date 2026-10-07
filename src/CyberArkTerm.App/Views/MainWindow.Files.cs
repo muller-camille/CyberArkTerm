@@ -21,13 +21,18 @@ public partial class MainWindow
     /// Fichiers d'un compte CyberArk sans terminal : une session PSMP SFTP (enregistrée par CyberArk comme les autres),
     /// rouverte à la reconnexion ; les envois peuvent aussi passer par SCP si la plateforme l'autorise.
     /// </summary>
-    private async Task OpenPsmpFilesTabAsync(PvwaAccount account, string login, string label, SavedSession? saved, Func<Task>? duplicate)
+    private async Task OpenPsmpFilesTabAsync(PvwaAccount account, PsmpEndpoint psmp, string login, string label, SavedSession? saved,
+        Func<Task>? duplicate, ConnectRequest request)
     {
-        SetStatus(Text.Format(Strings.SftpFilesOpening, label, _settings.PsmpAddress));
+        SetStatus(Text.Format(Strings.SftpFilesOpening, label, psmp.Host));
         var key = await GetPsmpKeyAsync();
-        var connector = new SshConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi.For(label), key);
-        var session = new FilesSession(label, "SFTP", connector.OpenFileBrowserAsync, Dispatcher, account, saved);
-        ShowFilesTab(session, $"{login}@{_settings.PsmpAddress}", duplicate);
+        var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), key);
+        var session = new FilesSession(label, "SFTP", connector.OpenFileBrowserAsync, Dispatcher, account, saved)
+        {
+            Psmp = psmp.Host,
+            Request = request,
+        };
+        ShowFilesTab(session, $"{login}@{psmp.Host}", duplicate);
     }
 
     /// <summary>Ouvre la session de fichiers d'une entrée KeePass ; le mot de passe est lu à chaque connexion.</summary>

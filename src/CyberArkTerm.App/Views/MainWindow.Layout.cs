@@ -155,6 +155,22 @@ public partial class MainWindow
 
     private void ToggleSidePanel() => SetSidePanelCollapsed(!SidePanelCollapsed);
 
+    /// <summary>Onglet de gauche choisi par l'application ; <paramref name="expand"/> faux : un panneau replié le reste.</summary>
+    private bool _quietSideSelection;
+
+    private void SelectSideTab(TabItem tab, bool expand)
+    {
+        _quietSideSelection = !expand;
+        try
+        {
+            SideTabs.SelectedItem = tab;
+        }
+        finally
+        {
+            _quietSideSelection = false;
+        }
+    }
+
     private void OnSideSplitterDragged(object sender, DragCompletedEventArgs e)
     {
         _settings.SidePanelWidth = Math.Round(SideColumn.ActualWidth);
