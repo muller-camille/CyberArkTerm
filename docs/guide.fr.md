@@ -486,7 +486,7 @@ incorrecte est signalée dans la fenêtre. Un serveur dont le compte n'est plus 
 
 ### Exporter, importer, partager
 
-Trois boutons en haut de l'onglet, à gauche du bouton coffre-fort (bases KeePass) :
+Quatre boutons en haut de l'onglet, à gauche du bouton coffre-fort (bases KeePass) :
 
 - **Exporter** enregistre « Mes serveurs » dans un fichier `.json` : dossiers (même vides), nom, compte CyberArk
   (ID), type de connexion, composant, machine cible, motif par défaut, dossier SFTP de départ. Aucun mot de passe ni
@@ -495,6 +495,8 @@ Trois boutons en haut de l'onglet, à gauche du bouton coffre-fort (bases KeePas
   déjà présents (même compte, type, composant, machine cible et dossier : ignorés), dossiers créés, serveurs ouverts
   sur une machine cible (à vérifier : la machine vient du fichier). Rien n'est retiré ni modifié dans « Mes
   serveurs ». Un fichier créé pour un autre PVWA est refusé : ses ID de comptes y désignent d'autres comptes.
+- **Importer les sessions d'un autre logiciel** (icône terminal et bouclier) : voir
+  [ci-dessous](#reprendre-les-sessions-dun-autre-logiciel).
 - **Listes partagées** (icône deux personnes) : une liste de serveurs dans un fichier sur un partage réseau, que
   toute l'équipe ouvre et complète.
   - « Créer une liste partagée… » : choisissez l'emplacement (partage réseau) et le nom affiché à tous ; « Ouvrir une
@@ -523,6 +525,57 @@ Trois boutons en haut de l'onglet, à gauche du bouton coffre-fort (bases KeePas
     même temps attend son tour), et la liste affichée se met à jour quand un collègue la modifie (`F5` la relit
     aussi). « Fermer la liste » la retire de votre onglet sans toucher au fichier.
   - Droits : ceux du partage réseau. En lecture seule, la liste reste utilisable mais ne peut pas être modifiée.
+
+### Reprendre les sessions d'un autre logiciel
+
+Pour passer à ZillaTerm sans retaper vos serveurs, et ne plus vous y connecter en direct : bouton « Importer les
+sessions d'un autre logiciel » en haut de l'onglet (icône terminal et bouclier), ou menu **Paramètres** › « Importer
+les sessions d'un autre logiciel… ». Les comptes du PVWA doivent être chargés.
+
+<img src="captures/fr/session-import.png" alt="Import des sessions d'un autre logiciel : aperçu avant l'import" width="820">
+
+1. **Source** : choisissez le logiciel, puis « Lire… ».
+
+   | Source | Lue dans |
+   | --- | --- |
+   | PuTTY, KiTTY, WinSCP | votre registre Windows, directement |
+   | Export du registre (`.reg`) | les sessions PuTTY et KiTTY et les sites WinSCP qu'il contient (export d'un autre poste par exemple) |
+   | KiTTY portable | le dossier de KiTTY (sous-dossier `Sessions`, un fichier par session) |
+   | WinSCP | le fichier `WinSCP.ini` (version portable) |
+   | Fichier `.mxtsessions` ou `.ini` | ses sections de sessions, avec leurs dossiers |
+   | mRemoteNG | `confCons.xml` ; un fichier chiffré en entier est refusé : exportez les connexions sans ce chiffrement |
+   | Remote Desktop Connection Manager | le fichier `.rdg` (groupes, identifiants hérités ou profils d'identifiants) |
+   | SecureCRT | le dossier de configuration (`Config\Sessions`) ou l'export XML des réglages |
+   | OpenSSH | le fichier `config` (`%USERPROFILE%\.ssh\config`) : chaque `Host` sans joker, réglages pris comme le fait `ssh` |
+   | Fichiers Bureau à distance | un dossier de fichiers `.rdp` et ses sous-dossiers |
+
+2. **Rapprochement** : chaque session est associée à un compte du PVWA.
+   - Compte du serveur lui-même : même nom, ou nom court et nom complet (`srv01` et `srv01.corp.local`) ; avec le même
+     utilisateur s'il est indiqué. Aucune résolution DNS : seuls les noms comptent.
+   - D'un type adapté : Windows pour le bureau à distance, Unix ou réseau pour SSH ; un autre type seulement s'il n'y
+     en a pas ; jamais un compte de base de données.
+   - À défaut, compte de domaine du même utilisateur (`CORP\admin`, `admin@corp.local`), autorisé sur ce serveur : le
+     serveur devient sa machine cible. `CORP\admin` ne désigne jamais le compte local `admin` du serveur.
+   - Une session qui passait déjà par le PSMP (`coffre@cible@serveur@psmp`) ou par PSM (programme de démarrage
+     `psm /u compte /a serveur /c composant` d'un fichier `.rdp`) est décodée : ce sont le compte et le serveur cibles
+     qui comptent, et le composant PSM est gardé.
+   - Plusieurs comptes possibles : le plus probable est choisi (« à vérifier ») ; la liste de la colonne « Compte
+     PVWA » permet d'en prendre un autre.
+3. **Connexion enregistrée**, jamais directe : bureau à distance par PSM ; SSH et fichiers (SFTP, SCP) via le PSMP
+   s'il y en a un pour ce serveur (fichiers seuls pour une plateforme « SFTP »), sinon par PSM (`PSM-WinSCP` pour les
+   fichiers) ; Telnet par `PSM-Telnet`.
+4. **Dossier dans Mes serveurs** : l'arborescence de l'autre logiciel est recréée sous ce dossier (« Importés » par
+   défaut ; vide : à la racine), chaque serveur gardant son nom.
+5. **Importer** ajoute les sessions cochées et prêtes. Le tableau montre ensuite le résultat de chaque serveur :
+   « Importé », ou « Non importé » avec la raison (aucun compte dans le PVWA, type de connexion non pris en charge
+   comme VNC, FTP ou port série, décoché). Un serveur déjà dans le même dossier avec le même compte n'est pas ajouté
+   une seconde fois. « Seulement les problèmes » filtre le tableau.
+6. **Exporter le résultat…** enregistre ce tableau en CSV (séparateur de la région Windows) : c'est la liste des
+   serveurs sans compte, à faire ajouter dans CyberArk.
+
+Aucun mot de passe n'est lu, ni dans le registre ni dans les fichiers : seuls le serveur, le port, le protocole,
+l'utilisateur et le dossier le sont. Les mots de passe gardés par l'autre logiciel restent où ils sont : une fois la
+migration faite, supprimez-les de cet outil pour ne plus contourner CyberArk.
 
 ## 7. Accès d'urgence hors CyberArk : bases KeePass
 
@@ -730,6 +783,10 @@ renommé) : téléchargez-la une fois depuis la page des versions.
   presse-papiers ouvert), ainsi qu'à la déconnexion, à la fermeture et au verrouillage de Windows. Il n'est jamais
   affiché ni écrit dans le journal de débogage. Une réponse qui n'est pas le mot de passe (page HTML de maintenance,
   redirection vers une page de connexion SSO, réponse vide) est refusée au lieu d'être copiée.
+- **Import des sessions d'un autre logiciel** : seuls le serveur, le port, le protocole, l'utilisateur et le dossier
+  sont lus, jamais un mot de passe ; fichiers XML lus sans DTD ni ressource externe, taille limitée. Chaque serveur
+  importé s'ouvre via PSM ou le PSMP avec un compte du PVWA, jamais en direct ; un serveur sans compte n'est pas
+  importé.
 - **Ajout d'un compte** : le mot de passe saisi est lu dans le champ masqué sans passer par une chaîne, envoyé une
   seule fois au PVWA en HTTPS, puis effacé de la mémoire ; il n'est ni enregistré ni écrit dans le journal de
   débogage.

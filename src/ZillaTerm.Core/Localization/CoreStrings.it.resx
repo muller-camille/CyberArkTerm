@@ -381,4 +381,64 @@
   <data name="RenameTargetExists" xml:space="preserve">
     <value>«{0}» esiste già: scegli un altro nome (nulla è stato sostituito).</value>
   </data>
+  <data name="MigrationFileTooLarge" xml:space="preserve">
+    <value>Il file {0} è troppo grande per un elenco di sessioni ({1} MB al massimo).</value>
+  </data>
+  <data name="MigrationUnreadable" xml:space="preserve">
+    <value>Impossibile leggere questo file: {0}</value>
+  </data>
+  <data name="MigrationFolderMissing" xml:space="preserve">
+    <value>Cartella non trovata: {0}</value>
+  </data>
+  <data name="MigrationNotRegFile" xml:space="preserve">
+    <value>Questo file non è un'esportazione del registro (.reg).</value>
+  </data>
+  <data name="MigrationWrongFile" xml:space="preserve">
+    <value>Questo file non è un file {0}.</value>
+  </data>
+  <data name="MigrationEncryptedFile" xml:space="preserve">
+    <value>Questo file è interamente cifrato. Esporta di nuovo le connessioni senza la cifratura completa del file, poi importa quella copia.</value>
+  </data>
+  <data name="MigrationReady" xml:space="preserve">
+    <value>Pronto</value>
+  </data>
+  <data name="MigrationCheck" xml:space="preserve">
+    <value>{0} account possibili: verifica quello scelto</value>
+  </data>
+  <data name="MigrationNoAccount" xml:space="preserve">
+    <value>Non importato: nessun account nel PVWA per {0}</value>
+  </data>
+  <data name="MigrationUnsupported" xml:space="preserve">
+    <value>Non importato: connessione {0} non supportata</value>
+  </data>
+  <data name="MigrationAlreadyPresent" xml:space="preserve">
+    <value>Già in I miei server, cartella {0}</value>
+  </data>
+  <data name="MigrationAlreadyPresentRoot" xml:space="preserve">
+    <value>Già in I miei server</value>
+  </data>
+  <data name="MigrationExcluded" xml:space="preserve">
+    <value>Non importato: deselezionato</value>
+  </data>
+  <data name="MigrationImported" xml:space="preserve">
+    <value>Importato</value>
+  </data>
+  <data name="MigrationColFolder" xml:space="preserve">
+    <value>Cartella</value>
+  </data>
+  <data name="MigrationColProtocol" xml:space="preserve">
+    <value>Protocollo</value>
+  </data>
+  <data name="MigrationColAccount" xml:space="preserve">
+    <value>Account PVWA</value>
+  </data>
+  <data name="MigrationColConnection" xml:space="preserve">
+    <value>Connessione</value>
+  </data>
+  <data name="MigrationColTarget" xml:space="preserve">
+    <value>Cartella in I miei server</value>
+  </data>
+  <data name="MigrationColResult" xml:space="preserve">
+    <value>Risultato</value>
+  </data>
 </root>

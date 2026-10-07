@@ -39,6 +39,7 @@ avez accès et ouvre vos sessions en un double-clic : bureau à distance via **P
 | **Connexion CyberArk** | Authentification CyberArk, LDAP, RADIUS (challenge / OTP compris) ou Windows (session courante). |
 | **Disponibles** | Tous les comptes visibles dans le coffre CyberArk, groupés par safe, plateforme ou type de cible, avec recherche instantanée ; mot de passe (CPM, copie), membres d'un safe, ajout, modification et import de comptes. |
 | **Mes serveurs** | Vos serveurs de travail, rangés en dossiers et sous-dossiers, chacun avec sa propre configuration ; export, import et **listes partagées** sur un partage réseau (chacun ajoute ou retire, historique des modifications et des versions). |
+| **Reprise d'un autre logiciel** | Les sessions de PuTTY, KiTTY, WinSCP, mRemoteNG, RDCMan, SecureCRT, OpenSSH, de fichiers `.rdp` ou `.mxtsessions` reprises dans « Mes serveurs » avec les mêmes dossiers, chacune associée à son compte du PVWA (sessions déjà via PSM ou le PSMP décodées) et ouverte via PSM ou le PSMP, jamais en direct ; résultat par serveur exportable en CSV, aucun mot de passe lu. |
 | **Environnement partagé** | La configuration de l'équipe (PVWA, PSMP par domaine, composants PSM, listes partagées, clés des PSMP) dans un fichier `ZillaTerm.env.json` : à côté de l'exécutable, importé, ou central sur un partage ; chaque changement est montré et confirmé, rien de personnel ni aucun mot de passe. |
 | **Sessions PSM** | Bureau à distance via le PSM (comme le bouton « Connect » du PVWA), dans la Connexion Bureau à distance de Windows : composant, machine cible (demandée pour un compte de domaine, et gardée dans « Mes serveurs » si vous le souhaitez), motif, ticket. |
 | **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), MFA, menu du clic droit, recherche, fenêtres séparées, « Reconnecter » en fin de session, un PSMP par domaine de serveurs. Fichiers seuls (SFTP, sans terminal) pour les plateformes « SFTP » ou à la demande. |
@@ -126,7 +127,8 @@ peut pas le télécharger lui-même) ; vos réglages sont repris au premier dém
    **Transferts** de la barre d'outils garde chaque transfert et ses sommes de contrôle. Un clic sur l'en-tête d'une
    colonne trie la liste.
 5. **Mes serveurs** : rangez vos serveurs de travail en dossiers, chacun avec sa configuration (PSM ou SSH, composant,
-   machine cible, dossier de départ) ; ouvrez tout un dossier dans la **vue parallèle**.
+   machine cible, dossier de départ) ; ouvrez tout un dossier dans la **vue parallèle**. Vos sessions PuTTY, WinSCP,
+   mRemoteNG… s'y importent d'un clic, chacune avec son compte du PVWA.
 6. **Accès d'urgence** : quand CyberArk est indisponible, « Accès d'urgence (KeePass) » dans la fenêtre de connexion
    ouvre vos bases KeePass et se connecte directement en SSH, en bureau à distance ou en VNC, ou aux fichiers en
    SFTP, FTP ou FTPS (sans enregistrement par le PSM, noté dans un journal sur ce poste).
@@ -153,6 +155,8 @@ Le **[guide d'utilisation](docs/guide.fr.md)** décrit chaque onglet en détail,
 - **Bases KeePass** : le mot de passe maître n'est jamais enregistré, sauf dans le coffre local si vous le demandez
   (Argon2id, AES-256-GCM, protégé par votre compte Windows) ; chaque ouverture et connexion est notée dans un journal
   local.
+- **Import d'un autre logiciel** : seuls le serveur, le port, le protocole, l'utilisateur et le dossier sont lus, jamais
+  un mot de passe ; chaque serveur importé passe par PSM ou le PSMP avec un compte du PVWA.
 - **Aucune requête vers Internet** sans votre action ou l'option de mise à jour (désactivée par défaut) ; une mise à jour
   téléchargée n'est gardée que si sa somme SHA-256 correspond à `SHA256SUMS.txt`, et rien n'est installé
   automatiquement.

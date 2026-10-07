@@ -113,7 +113,7 @@ public partial class MainWindow : Window
             QuickPanel.Visibility = HomeLists.Visibility = NewFolderButton.Visibility = Visibility.Collapsed;
             // Boutons propres à CyberArk masqués plutôt que grisés : ils ne serviraient jamais dans ce mode.
             SshButton.Visibility = AdvancedButton.Visibility = AddCurrentButton.Visibility = RefreshButton.Visibility = Visibility.Collapsed;
-            ImportServersButton.Visibility = ExportServersButton.Visibility = Visibility.Collapsed;
+            ImportServersButton.Visibility = ExportServersButton.Visibility = ImportSessionsButton.Visibility = Visibility.Collapsed;
             SharedListsButton.Visibility = SharedSeparator.Visibility = Visibility.Collapsed;
             SideTabs.SelectedItem = CurrentTab;
             CountText.Text = "";
@@ -1497,6 +1497,12 @@ public partial class MainWindow : Window
         foreach (var item in ((ContextMenu)sender).Items.OfType<MenuItem>().Where(i => i.Tag as string == "debuglog"))
         {
             item.IsChecked = _settings.DebugLogEnabled;
+        }
+
+        // Accès d'urgence : pas de compte du PVWA auquel rattacher des sessions importées.
+        foreach (var item in ((ContextMenu)sender).Items.OfType<MenuItem>().Where(i => i.Tag as string == "sessionimport"))
+        {
+            item.Visibility = IsOffline ? Visibility.Collapsed : Visibility.Visible;
         }
     }
 

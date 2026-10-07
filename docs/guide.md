@@ -460,7 +460,7 @@ is reported in the window. A server whose account is no longer visible in CyberA
 
 ### Export, import, share
 
-Three buttons at the top of the tab, left of the safe button (KeePass databases):
+Four buttons at the top of the tab, left of the safe button (KeePass databases):
 
 - **Export** saves "My servers" to a `.json` file: folders (even empty ones), name, CyberArk account (ID), connection
   type, component, target machine, default reason, SFTP start folder. No password and no followed file. Handy to move
@@ -469,6 +469,7 @@ Three buttons at the top of the tab, left of the safe button (KeePass databases)
   there (same account, type, component, target machine and folder: skipped), folders created, servers opened on a
   target machine (check them: the machine comes from the file). Nothing is removed or changed in "My servers". A file
   created for another PVWA is refused: its account IDs designate other accounts there.
+- **Import sessions from another tool** (terminal and shield icon): see [below](#bring-in-the-sessions-of-another-tool).
 - **Shared lists** (two-people icon): a list of servers in a file on a network share, which the whole team opens and
   completes.
   - "Create a shared list…": choose the location (network share) and the name shown to everyone; "Open a shared
@@ -495,6 +496,57 @@ Three buttons at the top of the tab, left of the safe button (KeePass databases)
     for its turn), and the list shown updates when a colleague changes it (`F5` re-reads it too). "Close the list"
     removes it from your tab without touching the file.
   - Rights: those of the network share. Read-only, the list can still be used but not changed.
+
+### Bring in the sessions of another tool
+
+To move to ZillaTerm without typing your servers again, and stop connecting to them directly: "Import sessions from
+another tool" button at the top of the tab (terminal and shield icon), or **Settings** menu › "Import sessions from
+another tool…". The PVWA accounts must be loaded.
+
+<img src="captures/en/session-import.png" alt="Importing the sessions of another tool: preview before the import" width="820">
+
+1. **Source**: choose the tool, then "Read…".
+
+   | Source | Read from |
+   | --- | --- |
+   | PuTTY, KiTTY, WinSCP | your Windows registry, directly |
+   | Registry export (`.reg`) | the PuTTY and KiTTY sessions and WinSCP sites it holds (exported from another computer, for instance) |
+   | KiTTY portable | the KiTTY folder (`Sessions` subfolder, one file per session) |
+   | WinSCP | the `WinSCP.ini` file (portable version) |
+   | `.mxtsessions` or `.ini` file | its session sections, with their folders |
+   | mRemoteNG | `confCons.xml`; a fully encrypted file is refused: export the connections without that encryption |
+   | Remote Desktop Connection Manager | the `.rdg` file (groups, inherited credentials or credential profiles) |
+   | SecureCRT | the configuration folder (`Config\Sessions`) or the XML export of the settings |
+   | OpenSSH | the `config` file (`%USERPROFILE%\.ssh\config`): each `Host` without wildcard, settings taken the way `ssh` does |
+   | Remote Desktop files | a folder of `.rdp` files and its subfolders |
+
+2. **Matching**: each session is matched with a PVWA account.
+   - Account of the server itself: same name, or short and full name (`srv01` and `srv01.corp.local`); with the same
+     user when one is given. No DNS lookup: only names count.
+   - Of a suitable type: Windows for Remote Desktop, Unix or network for SSH; another type only when there is none;
+     never a database account.
+   - Otherwise, a domain account of the same user (`CORP\admin`, `admin@corp.local`) allowed on that server: the
+     server becomes its target machine. `CORP\admin` never means the local `admin` account of the server.
+   - A session that already went through the PSMP (`vault@target@server@psmp`) or through PSM (start program
+     `psm /u account /a server /c component` of an `.rdp` file) is decoded: the target account and server are what
+     count, and the PSM component is kept.
+   - Several possible accounts: the most likely one is chosen ("to check"); the list in the "PVWA account" column lets
+     you pick another one.
+3. **Saved connection**, never direct: Remote Desktop through PSM; SSH and files (SFTP, SCP) through the PSMP when
+   there is one for that server (files only for an "SFTP" platform), otherwise through PSM (`PSM-WinSCP` for files);
+   Telnet through `PSM-Telnet`.
+4. **Folder in My servers**: the folders of the other tool are recreated under this folder ("Imported" by default;
+   empty: at the root), each server keeping its name.
+5. **Import** adds the checked, ready sessions. The table then shows the result for each server: "Imported", or "Not
+   imported" with the reason (no account in the PVWA, connection type not handled such as VNC, FTP or serial port,
+   unchecked). A server already in the same folder with the same account is not added twice. "Only problems" filters
+   the table.
+6. **Export the result…** saves this table as CSV (Windows regional separator): the list of servers without an
+   account, to have added to CyberArk.
+
+No password is read, neither in the registry nor in the files: only the server, port, protocol, user and folder are.
+The passwords kept by the other tool stay where they are: once the migration is done, delete them from that tool so
+CyberArk is no longer bypassed.
 
 ## 7. Emergency access outside CyberArk: KeePass databases
 
@@ -687,6 +739,9 @@ first ZillaTerm version but cannot download it itself (renamed repository): down
   again every second if another application keeps the clipboard open), and on sign-out, exit and Windows lock. It is
   never shown nor written to the debug log. A response that is not the password (HTML maintenance page, redirect to
   an SSO sign-in page, empty response) is refused instead of being copied.
+- **Importing the sessions of another tool**: only the server, port, protocol, user and folder are read, never a
+  password; XML files are read without DTD or external resource, size limited. Each imported server opens through PSM
+  or the PSMP with a PVWA account, never directly; a server without an account is not imported.
 - **Adding an account**: the password is read from the masked box without going through a string, sent once to the
   PVWA over HTTPS, then wiped from memory; it is neither saved nor written to the debug log.
 - **Temporary folder**: `%TEMP%\ZillaTerm`, reserved for your Windows account (permissions limited to you alone);

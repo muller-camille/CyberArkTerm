@@ -4526,4 +4526,133 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="ComponentDuplicatePlatform" xml:space="preserve">
     <value>Two components for platform {0}: keep only one line.</value>
   </data>
+  <data name="SessionImportTitle" xml:space="preserve">
+    <value>Import sessions from another tool</value>
+  </data>
+  <data name="SessionImportIntro" xml:space="preserve">
+    <value>Bring the sessions of PuTTY, KiTTY, WinSCP, mRemoteNG, RDCMan, SecureCRT, OpenSSH, .rdp files or .mxtsessions files into My servers, with the same folders. Each server is matched with its account in the PVWA and always opens through PSM or the PSMP: no more direct connections.</value>
+  </data>
+  <data name="SessionImportSecurity" xml:space="preserve">
+    <value>Passwords are never read: those kept by the other tool stay where they are, and the connection uses the account stored in CyberArk. A server without an account in the PVWA is not imported: ask for its account to be added to CyberArk.</value>
+  </data>
+  <data name="SessionImportSource" xml:space="preserve">
+    <value>_Source:</value>
+  </data>
+  <data name="SessionImportRead" xml:space="preserve">
+    <value>_Read…</value>
+  </data>
+  <data name="SessionImportFolder" xml:space="preserve">
+    <value>_Folder in My servers:</value>
+  </data>
+  <data name="SessionImportFolderTip" xml:space="preserve">
+    <value>The folders of the other tool are recreated under this folder. Empty: at the root of My servers.</value>
+  </data>
+  <data name="SessionImportDefaultFolder" xml:space="preserve">
+    <value>Imported</value>
+  </data>
+  <data name="SessionImportNothingRead" xml:space="preserve">
+    <value>Choose the source, then Read.</value>
+  </data>
+  <data name="SessionImportReading" xml:space="preserve">
+    <value>Reading the sessions…</value>
+  </data>
+  <data name="SessionImportReadFrom" xml:space="preserve">
+    <value>{0} sessions read from {1}</value>
+  </data>
+  <data name="SessionImportNone" xml:space="preserve">
+    <value>No session found in {0}.</value>
+  </data>
+  <data name="SessionImportReadFailed" xml:space="preserve">
+    <value>Cannot read {0}: {1}</value>
+  </data>
+  <data name="SessionImportSummary" xml:space="preserve">
+    <value>{0} ready · {1} to check · {2} without an account in the PVWA · {3} not handled · {4} already in My servers</value>
+  </data>
+  <data name="SessionImportResult" xml:space="preserve">
+    <value>{0} imported · {1} not imported</value>
+  </data>
+  <data name="SessionImportButton" xml:space="preserve">
+    <value>_Import</value>
+  </data>
+  <data name="SessionImportExport" xml:space="preserve">
+    <value>E_xport the result…</value>
+  </data>
+  <data name="SessionImportExported" xml:space="preserve">
+    <value>Result saved to {0}</value>
+  </data>
+  <data name="SessionImportExportHint" xml:space="preserve">
+    <value>Import done: export the result to keep the list of servers to add to CyberArk.</value>
+  </data>
+  <data name="SessionImportFileName" xml:space="preserve">
+    <value>sessions-import</value>
+  </data>
+  <data name="SessionImportOnlyProblems" xml:space="preserve">
+    <value>Only _problems</value>
+  </data>
+  <data name="SessionImportAllTip" xml:space="preserve">
+    <value>Check or uncheck all the servers</value>
+  </data>
+  <data name="SessionImportChooseTip" xml:space="preserve">
+    <value>Several PVWA accounts match: the most likely one is chosen, pick another one if needed.</value>
+  </data>
+  <data name="SessionImportAllFiles" xml:space="preserve">
+    <value>All files</value>
+  </data>
+  <data name="SessionImportHintRegistry" xml:space="preserve">
+    <value>Read from your Windows registry.</value>
+  </data>
+  <data name="SessionImportHintFolder" xml:space="preserve">
+    <value>Choose the folder.</value>
+  </data>
+  <data name="SessionImportHintFile" xml:space="preserve">
+    <value>Choose the file.</value>
+  </data>
+  <data name="SessionImportTip" xml:space="preserve">
+    <value>Import the sessions of another tool (PuTTY, WinSCP, mRemoteNG, RDCMan…) to open them through CyberArk</value>
+  </data>
+  <data name="MenuSessionImport" xml:space="preserve">
+    <value>Import sessions from another _tool…</value>
+  </data>
+  <data name="SessionImportDone" xml:space="preserve">
+    <value>{0} servers imported into My servers</value>
+  </data>
+  <data name="SourcePuttyRegistry" xml:space="preserve">
+    <value>PuTTY (Windows registry)</value>
+  </data>
+  <data name="SourceKittyRegistry" xml:space="preserve">
+    <value>KiTTY (Windows registry)</value>
+  </data>
+  <data name="SourceKittyFolder" xml:space="preserve">
+    <value>KiTTY portable (folder)</value>
+  </data>
+  <data name="SourceWinScpRegistry" xml:space="preserve">
+    <value>WinSCP (Windows registry)</value>
+  </data>
+  <data name="SourceWinScpIni" xml:space="preserve">
+    <value>WinSCP (WinSCP.ini file)</value>
+  </data>
+  <data name="SourceRegFile" xml:space="preserve">
+    <value>Registry export (.reg): PuTTY, KiTTY, WinSCP</value>
+  </data>
+  <data name="SourceMxtSessions" xml:space="preserve">
+    <value>.mxtsessions or .ini file</value>
+  </data>
+  <data name="SourceMRemoteNg" xml:space="preserve">
+    <value>mRemoteNG (confCons.xml)</value>
+  </data>
+  <data name="SourceRdcMan" xml:space="preserve">
+    <value>Remote Desktop Connection Manager (.rdg)</value>
+  </data>
+  <data name="SourceSecureCrtFolder" xml:space="preserve">
+    <value>SecureCRT (configuration folder)</value>
+  </data>
+  <data name="SourceSecureCrtXml" xml:space="preserve">
+    <value>SecureCRT (XML export)</value>
+  </data>
+  <data name="SourceOpenSsh" xml:space="preserve">
+    <value>OpenSSH (config file)</value>
+  </data>
+  <data name="SourceRdpFolder" xml:space="preserve">
+    <value>Remote Desktop files (folder of .rdp files)</value>
+  </data>
 </root>
