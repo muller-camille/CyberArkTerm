@@ -349,7 +349,8 @@ public sealed class DialogTests
             Assert.Equal(Strings.QueueStateWaiting, TransferStatusConverter.StateText(waiting));
 
             panel.Queue.Cancel(waiting);
-            byte[] hash = [1, 2, 3];
+            // Somme SHA-256 réelle (32 octets) : le bilan en affiche les 12 premiers caractères.
+            var hash = System.Security.Cryptography.SHA256.HashData("app.conf"u8);
             running.Checks.Add(new TransferCheck("app.conf", @"C:\Temp\app.conf", "/opt/app/app.conf", 3, hash, 3, [.. hash]));
             release.SetResult();
 
