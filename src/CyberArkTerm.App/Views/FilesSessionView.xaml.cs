@@ -1,6 +1,5 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services;
 using CyberArkTerm.Core.Ftp;
@@ -58,7 +57,7 @@ public partial class FilesSessionView : UserControl
         var state = Session.State;
         ReconnectButton.Visibility = state is RemoteSessionState.Failed or RemoteSessionState.Closed ? Visibility.Visible : Visibility.Collapsed;
         ShowFilesButton.IsEnabled = state == RemoteSessionState.Connected;
-        StateText.Foreground = state is RemoteSessionState.Failed or RemoteSessionState.Closed ? Brushes.Firebrick : (Brush)FindResource("MutedBrush");
+        StateText.SetResourceReference(TextBlock.ForegroundProperty, state is RemoteSessionState.Failed or RemoteSessionState.Closed ? "ErrorBrush" : "MutedBrush");
         var browser = Session.OpenedBrowser;
         CleartextBanner.Visibility = state == RemoteSessionState.Connected && browser is FtpFileBrowser { IsEncrypted: false }
             ? Visibility.Visible

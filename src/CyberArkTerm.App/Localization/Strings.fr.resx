@@ -121,7 +121,7 @@
     <value>Copier domaine\utilisateur</value>
   </data>
   <data name="MenuProperties" xml:space="preserve">
-    <value>_Propriétés…</value>
+    <value>Propr_iétés…</value>
   </data>
   <data name="MenuRename" xml:space="preserve">
     <value>_Renommer…</value>
@@ -578,10 +578,10 @@
     <value>Vide : composant déduit de la plateforme</value>
   </data>
   <data name="DefaultReasonLabel" xml:space="preserve">
-    <value>_Motif par défaut :</value>
+    <value>M_otif par défaut :</value>
   </data>
   <data name="StartDirLabel" xml:space="preserve">
-    <value>Dossier SFTP de _départ :</value>
+    <value>Dossier _SFTP de départ :</value>
   </data>
   <data name="StartDirTip" xml:space="preserve">
     <value>Dossier ouvert par le panneau Fichiers (ex. /opt/appli/logs). Vide : dossier personnel.</value>
@@ -874,7 +874,7 @@
     <value>Chaque fenêtre de suivi ouvre sa propre connexion SFTP au lieu de partager celle de l'onglet Fichiers : elle n'attend pas les transferts, mais c'est une session PSMP de plus (enregistrée séparément, et une validation MFA peut être demandée).</value>
   </data>
   <data name="SettingsArchiveOffer" xml:space="preserve">
-    <value>Proposer une archive ._tar.gz à partir de</value>
+    <value>Proposer une archi_ve .tar.gz à partir de</value>
   </data>
   <data name="SettingsArchiveFiles" xml:space="preserve">
     <value>fichiers déposés d'un coup</value>
@@ -954,7 +954,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>Commande d'extraction copiée : collez-la dans le terminal de la session, puis appuyez sur Entrée (elle supprime l'archive une fois extraite).</value>
   </data>
   <data name="FileTail" xml:space="preserve">
-    <value>_Suivre (tail -f)</value>
+    <value>S_uivre (tail -f)</value>
   </data>
   <data name="FileTailAdd" xml:space="preserve">
     <value>Ajouter à une _fenêtre de suivi</value>
@@ -975,13 +975,13 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>tail -f — {0} fichiers</value>
   </data>
   <data name="TailPause" xml:space="preserve">
-    <value>_Pause</value>
+    <value>Pa_use</value>
   </data>
   <data name="TailResume" xml:space="preserve">
     <value>_Reprendre</value>
   </data>
   <data name="TailFollowEnd" xml:space="preserve">
-    <value>Suivre la _fin</value>
+    <value>Sui_vre la fin</value>
   </data>
   <data name="TailWrap" xml:space="preserve">
     <value>_Retour à la ligne</value>
@@ -1056,7 +1056,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>Masquer les lignes contenant ce texte, comme grep -v</value>
   </data>
   <data name="TailRegex" xml:space="preserve">
-    <value>Expressions ré_gulières</value>
+    <value>Express_ions régulières</value>
   </data>
   <data name="TailRegexTip" xml:space="preserve">
     <value>Le filtre et l'exclusion sont des expressions régulières (syntaxe .NET, sans tenir compte de la casse), par ex. user=\w+ (denied|refused)</value>
@@ -1092,7 +1092,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>Mots qui déclenchent une alerte quand une nouvelle ligne les contient, séparés par des virgules (par ex. ERROR, OutOfMemory, Connection refused) : la ligne est marquée, le compteur augmente et le bouton de la barre des tâches clignote</value>
   </data>
   <data name="TailNotify" xml:space="preserve">
-    <value>_Notification Windows</value>
+    <value>Notification _Windows</value>
   </data>
   <data name="TailNotifyTip" xml:space="preserve">
     <value>Afficher aussi une notification Windows quand la fenêtre n'est pas au premier plan (au plus une toutes les 30 secondes). Elle donne le nombre de lignes et le nom du fichier, jamais le contenu des lignes.</value>
@@ -1116,10 +1116,10 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>{0} nouvelle(s) ligne(s) d'alerte dans {1}</value>
   </data>
   <data name="TailSearch" xml:space="preserve">
-    <value>Rec_hercher :</value>
+    <value>Rechercher :</value>
   </data>
   <data name="TailSearchRegex" xml:space="preserve">
-    <value>Expression ré_gulière</value>
+    <value>Expression régu_lière</value>
   </data>
   <data name="TailSearchPreviousTip" xml:space="preserve">
     <value>Précédent (Maj+Entrée, Maj+F3)</value>
@@ -1233,7 +1233,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>Fermer la vue parallèle : les sessions retrouvent leur onglet, elles ne sont pas fermées</value>
   </data>
   <data name="ParallelBroadcast" xml:space="preserve">
-    <value>Saisie _simultanée</value>
+    <value>S_aisie simultanée</value>
   </data>
   <data name="ParallelBroadcastTip" xml:space="preserve">
     <value>Ce que vous tapez dans une session cochée est aussi envoyé aux autres sessions cochées et connectées. La molette n'est pas recopiée ; coller plusieurs lignes demande confirmation.</value>
@@ -1275,7 +1275,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>_Afficher la vue parallèle</value>
   </data>
   <data name="MenuOpenInParallel" xml:space="preserve">
-    <value>Ouvrir en vue _parallèle</value>
+    <value>_Ouvrir en vue parallèle</value>
   </data>
   <data name="MenuOpenManyInParallel" xml:space="preserve">
     <value>Ouvrir les {0} serveurs en vue _parallèle</value>
@@ -1284,7 +1284,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>Se connecter aux {0} serveurs (un onglet chacun)</value>
   </data>
   <data name="MenuOpenFolderInParallel" xml:space="preserve">
-    <value>Ouvrir en vue _parallèle ({0} serveurs SSH)</value>
+    <value>_Ouvrir en vue parallèle ({0} serveurs SSH)</value>
   </data>
   <data name="SavedMarkedStatus" xml:space="preserve">
     <value>{0} serveur(s) sélectionné(s) : clic droit sur l'un d'eux pour les ouvrir ensemble (Échap pour annuler).</value>
@@ -1326,7 +1326,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>Ajouter à la _vue parallèle</value>
   </data>
   <data name="MenuTabRemoveParallel" xml:space="preserve">
-    <value>Retirer de la _vue parallèle</value>
+    <value>Ret_irer de la vue parallèle</value>
   </data>
   <data name="MultiUploadTitle" xml:space="preserve">
     <value>Envoyer vers plusieurs serveurs</value>
@@ -1353,7 +1353,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>_Retirer</value>
   </data>
   <data name="MultiUploadDestination" xml:space="preserve">
-    <value>_Dossier de destination sur chaque serveur</value>
+    <value>Dossier de destination sur _chaque serveur</value>
   </data>
   <data name="MultiUploadDestinationTip" xml:space="preserve">
     <value>Chemin absolu, ou ~ pour le dossier personnel du compte sur chaque serveur (par ex. ~/deploy)</value>
@@ -1402,7 +1402,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>Envoyer les mêmes fichiers aux sessions de la vue (vérifiés par SHA-256 sur chaque serveur)</value>
   </data>
   <data name="FileCompareWith" xml:space="preserve">
-    <value>Co_mparer avec…</value>
+    <value>Compa_rer avec…</value>
   </data>
   <data name="FileCompareTwo" xml:space="preserve">
     <value>Co_mparer les 2 fichiers</value>
@@ -1420,7 +1420,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>Ser_veur :</value>
   </data>
   <data name="ComparePath" xml:space="preserve">
-    <value>_Chemin :</value>
+    <value>C_hemin :</value>
   </data>
   <data name="ComparePathTip" xml:space="preserve">
     <value>Même chemin par défaut ; ~ est le dossier personnel du compte</value>
@@ -1504,7 +1504,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>Ignorer les _espaces</value>
   </data>
   <data name="CompareOnlyDifferences" xml:space="preserve">
-    <value>_Seulement les différences</value>
+    <value>Se_ulement les différences</value>
   </data>
   <data name="CompareSave" xml:space="preserve">
     <value>Enregistrer le _diff…</value>
@@ -1567,7 +1567,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
   {4} · SHA-256 {5}</value>
   </data>
   <data name="CompareToolLabel" xml:space="preserve">
-    <value>Outil de _comparaison :</value>
+    <value>O_util de comparaison :</value>
   </data>
   <data name="CompareArgumentsLabel" xml:space="preserve">
     <value>Ar_guments :</value>
@@ -1660,10 +1660,10 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>Le clic droit dans le terminal colle le presse-papiers (Maj+clic droit ouvre alors le menu)</value>
   </data>
   <data name="TerminalThemeLabel" xml:space="preserve">
-    <value>_Couleurs du terminal :</value>
+    <value>Couleurs du ter_minal :</value>
   </data>
   <data name="TerminalFontLabel" xml:space="preserve">
-    <value>_Police :</value>
+    <value>Pol_ice :</value>
   </data>
   <data name="TerminalFontTip" xml:space="preserve">
     <value>Taille de police des terminaux (8 à 32). Ctrl+molette la change pour un terminal, Ctrl+0 la rétablit.</value>
@@ -1672,7 +1672,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>La taille de police doit être comprise entre {0} et {1}.</value>
   </data>
   <data name="MenuAbout" xml:space="preserve">
-    <value>À _propos de CyberArkTerm…</value>
+    <value>À propos de _CyberArkTerm…</value>
   </data>
   <data name="AboutTitle" xml:space="preserve">
     <value>À propos de CyberArkTerm</value>
@@ -2150,7 +2150,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>_Mot de passe maître :</value>
   </data>
   <data name="KeePassRemember" xml:space="preserve">
-    <value>Mé_moriser le mot de passe maître dans le coffre local</value>
+    <value>Mémoriser le mot de _passe maître dans le coffre local</value>
   </data>
   <data name="KeePassRememberHint" xml:space="preserve">
     <value>Chiffré avec le mot de passe du coffre local et votre compte Windows.</value>
@@ -2174,7 +2174,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>_Dossier :</value>
   </data>
   <data name="KeePassUrlLabel" xml:space="preserve">
-    <value>_Adresse :</value>
+    <value>Ad_resse :</value>
   </data>
   <data name="KeePassUrlHint" xml:space="preserve">
     <value>ssh://serveur:22 ou rdp://serveur (ou serveur:port)</value>
@@ -2264,7 +2264,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>_Modifier…</value>
   </data>
   <data name="MenuKeePassDeleteEntry" xml:space="preserve">
-    <value>_Supprimer</value>
+    <value>S_upprimer</value>
   </data>
   <data name="ToolKeePassTip" xml:space="preserve">
     <value>Ajouter un coffre KeePass (accès d'urgence hors CyberArk)</value>
@@ -2359,7 +2359,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>Coffre local déverrouillé : {0} mot(s) de passe mémorisé(s).</value>
   </data>
   <data name="LocalStoreCreate" xml:space="preserve">
-    <value>C_réer…</value>
+    <value>Créer le co_ffre…</value>
   </data>
   <data name="LocalStoreUnlockMenu" xml:space="preserve">
     <value>_Déverrouiller…</value>
@@ -2368,10 +2368,10 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>C_hanger le mot de passe…</value>
   </data>
   <data name="LocalStoreDelete" xml:space="preserve">
-    <value>Su_pprimer</value>
+    <value>_Supprimer</value>
   </data>
   <data name="LoginEmergency" xml:space="preserve">
-    <value>Accès d'_urgence (KeePass)</value>
+    <value>Accès d'urgence (_KeePass)</value>
   </data>
   <data name="LoginEmergencyTip" xml:space="preserve">
     <value>Sans CyberArk : ouvrez vos coffres KeePass pour vous connecter directement aux serveurs (SSH, bureau à distance).</value>
@@ -2441,7 +2441,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour renvoyer
     <value> (groupe)</value>
   </data>
   <data name="SafeMembersOnlyAdd" xml:space="preserve">
-    <value>Seulement ceux qui peuvent _ajouter des comptes</value>
+    <value>_Seulement ceux qui peuvent ajouter des comptes</value>
   </data>
   <data name="SafeMembersHint" xml:space="preserve">
     <value>Les membres d'un groupe ont les droits du groupe. Ctrl+A puis Ctrl+C copie le tableau.</value>
@@ -2594,16 +2594,16 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour renvoyer
     <value>Vide : le compte est créé sans mot de passe (le CPM peut en définir un). Envoyé une seule fois en HTTPS, jamais enregistré.</value>
   </data>
   <data name="AddAccountMachines" xml:space="preserve">
-    <value>_Machines autorisées :</value>
+    <value>Mac_hines autorisées :</value>
   </data>
   <data name="AddAccountMachinesTip" xml:space="preserve">
     <value>Serveurs sur lesquels ce compte peut ouvrir une session PSM, séparés par « ; ». Vide : sans restriction.</value>
   </data>
   <data name="AddAccountCpm" xml:space="preserve">
-    <value>Mot de passe géré _automatiquement par le CPM</value>
+    <value>Mot de passe _géré automatiquement par le CPM</value>
   </data>
   <data name="AddAccountReason" xml:space="preserve">
-    <value>_Motif de la gestion manuelle :</value>
+    <value>Mo_tif de la gestion manuelle :</value>
   </data>
   <data name="AddAccountCreate" xml:space="preserve">
     <value>_Créer</value>
@@ -2645,7 +2645,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour renvoyer
     <value>_Modifier le compte…</value>
   </data>
   <data name="MenuDeleteAccount" xml:space="preserve">
-    <value>Supprimer le _compte…</value>
+    <value>S_upprimer le compte…</value>
   </data>
   <data name="CpmManagedAuto" xml:space="preserve">
     <value>CPM : géré automatiquement</value>
@@ -3056,7 +3056,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour renvoyer
     <value>Restauration de la révision {0}</value>
   </data>
   <data name="MenuShareInList" xml:space="preserve">
-    <value>_Partager dans une liste</value>
+    <value>Partager dans une _liste</value>
   </data>
   <data name="MenuShareFolderInList" xml:space="preserve">
     <value>_Partager le dossier dans une liste</value>
@@ -3951,5 +3951,47 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   </data>
   <data name="PromptHintMfa" xml:space="preserve">
     <value>Sans doute le code de votre authentification forte (MFA) : il est redemandé à chaque connexion.</value>
+  </data>
+  <data name="A11yCpmFailed" xml:space="preserve">
+    <value>dernière opération du CPM en échec</value>
+  </data>
+  <data name="A11yMarked" xml:space="preserve">
+    <value>choisi</value>
+  </data>
+  <data name="A11yUnavailable" xml:space="preserve">
+    <value>compte plus visible dans CyberArk</value>
+  </data>
+  <data name="A11yToolbar" xml:space="preserve">
+    <value>Barre d'outils</value>
+  </data>
+  <data name="ShortcutTabsKey" xml:space="preserve">
+    <value>Ctrl+Tab</value>
+  </data>
+  <data name="ShortcutTabs" xml:space="preserve">
+    <value> : onglet suivant (Ctrl+Maj+Tab : précédent), Ctrl+F4 : le fermer</value>
+  </data>
+  <data name="ShortcutQuickKey" xml:space="preserve">
+    <value>Ctrl+K</value>
+  </data>
+  <data name="ShortcutQuick" xml:space="preserve">
+    <value> : connexion rapide (Ctrl+1, 2, 3 : onglets de gauche ; F6 : du panneau à la session et retour)</value>
+  </data>
+  <data name="ShortcutTabClose" xml:space="preserve">
+    <value>Ctrl+F4</value>
+  </data>
+  <data name="LoginLanguageName" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="LoginQuit" xml:space="preserve">
+    <value>Quitter</value>
+  </data>
+  <data name="CapsLockOn" xml:space="preserve">
+    <value>Verr. Maj est activé.</value>
+  </data>
+  <data name="A11yTerminalSearch" xml:space="preserve">
+    <value>Rechercher dans le terminal</value>
+  </data>
+  <data name="A11yArchiveThreshold" xml:space="preserve">
+    <value>Nombre de fichiers à partir duquel une archive est proposée</value>
   </data>
 </root>

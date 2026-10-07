@@ -65,7 +65,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Check now.
+        ///   Looks up a localized string similar to Check _now.
         /// </summary>
         public static string AboutCheck {
             get {
@@ -398,7 +398,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Password managed _automatically by the CPM.
+        ///   Looks up a localized string similar to Password mana_ged automatically by the CPM.
         /// </summary>
         public static string AddAccountCpm {
             get {
@@ -920,7 +920,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Copy for sha256sum -c.
+        ///   Looks up a localized string similar to Copy for _sha256sum -c.
         /// </summary>
         public static string ChecksCopy {
             get {
@@ -1262,7 +1262,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to A file on this _computer.
+        ///   Looks up a localized string similar to A _file on this computer.
         /// </summary>
         public static string CompareLocal {
             get {
@@ -1523,7 +1523,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to PSM _component:.
+        ///   Looks up a localized string similar to _PSM component:.
         /// </summary>
         public static string ComponentLabel {
             get {
@@ -2387,7 +2387,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Delete (rm).
+        ///   Looks up a localized string similar to De_lete (rm).
         /// </summary>
         public static string FileDelete {
             get {
@@ -2657,7 +2657,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Forget.
+        ///   Looks up a localized string similar to F_orget.
         /// </summary>
         public static string Forget {
             get {
@@ -2738,7 +2738,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Checksums….
+        ///   Looks up a localized string similar to C_hecksums….
         /// </summary>
         public static string HistoryChecks {
             get {
@@ -3143,7 +3143,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Save the result….
+        ///   Looks up a localized string similar to Save the _result….
         /// </summary>
         public static string ImportSaveResult {
             get {
@@ -3683,7 +3683,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Show.
+        ///   Looks up a localized string similar to S_how.
         /// </summary>
         public static string KeePassShowPassword {
             get {
@@ -3890,7 +3890,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Interface _language:.
+        ///   Looks up a localized string similar to I_nterface language:.
         /// </summary>
         public static string LanguageLabel {
             get {
@@ -4421,7 +4421,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Export the displayed accounts (CSV)….
+        ///   Looks up a localized string similar to Export the _displayed accounts (CSV)….
         /// </summary>
         public static string MenuExportAccounts {
             get {
@@ -4574,7 +4574,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Remove from the list.
+        ///   Looks up a localized string similar to R_emove from the list.
         /// </summary>
         public static string MenuKeePassRemove {
             get {
@@ -4646,7 +4646,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Open in the _parallel view.
+        ///   Looks up a localized string similar to _Open in the parallel view.
         /// </summary>
         public static string MenuOpenInParallel {
             get {
@@ -4682,7 +4682,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Properties….
+        ///   Looks up a localized string similar to Prop_erties….
         /// </summary>
         public static string MenuProperties {
             get {
@@ -4907,7 +4907,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Take out of the para_llel view.
+        ///   Looks up a localized string similar to Ta_ke out of the parallel view.
         /// </summary>
         public static string MenuTabRemoveParallel {
             get {
@@ -6824,7 +6824,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Search in:.
+        ///   Looks up a localized string similar to S_earch in:.
         /// </summary>
         public static string SafeMemberSearchIn {
             get {
@@ -7013,7 +7013,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Only members who can _add accounts.
+        ///   Looks up a localized string similar to _Only members who can add accounts.
         /// </summary>
         public static string SafeMembersOnlyAdd {
             get {
@@ -7463,7 +7463,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Offer a single ._tar.gz archive from.
+        ///   Looks up a localized string similar to Offer a s_ingle .tar.gz archive from.
         /// </summary>
         public static string SettingsArchiveOffer {
             get {
@@ -8264,7 +8264,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to SFTP _start folder:.
+        ///   Looks up a localized string similar to SF_TP start folder:.
         /// </summary>
         public static string StartDirLabel {
             get {
@@ -8426,7 +8426,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Clear.
+        ///   Looks up a localized string similar to Clear _display.
         /// </summary>
         public static string TailClear {
             get {
@@ -8579,7 +8579,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Highlight:.
+        ///   Looks up a localized string similar to H_ighlight:.
         /// </summary>
         public static string TailHighlight {
             get {
@@ -8759,7 +8759,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Regular e_xpressions.
+        ///   Looks up a localized string similar to _Regular expressions.
         /// </summary>
         public static string TailRegex {
             get {
@@ -8885,7 +8885,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Searc_h:.
+        ///   Looks up a localized string similar to Search:.
         /// </summary>
         public static string TailSearch {
             get {
@@ -8948,7 +8948,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Regular e_xpression.
+        ///   Looks up a localized string similar to Re_gular expression.
         /// </summary>
         public static string TailSearchRegex {
             get {
@@ -11683,7 +11683,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Retrieve and copy.
+        ///   Looks up a localized string similar to Retrieve and _copy.
         /// </summary>
         public static string RetrieveAndCopy {
             get {
@@ -11742,6 +11742,132 @@ namespace CyberArkTerm.App.Localization {
         public static string PromptHintMfa {
             get {
                 return ResourceManager.GetString("PromptHintMfa", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to last CPM operation failed.
+        /// </summary>
+        public static string A11yCpmFailed {
+            get {
+                return ResourceManager.GetString("A11yCpmFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to selected.
+        /// </summary>
+        public static string A11yMarked {
+            get {
+                return ResourceManager.GetString("A11yMarked", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to account no longer visible in CyberArk.
+        /// </summary>
+        public static string A11yUnavailable {
+            get {
+                return ResourceManager.GetString("A11yUnavailable", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Toolbar.
+        /// </summary>
+        public static string A11yToolbar {
+            get {
+                return ResourceManager.GetString("A11yToolbar", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+Tab.
+        /// </summary>
+        public static string ShortcutTabsKey {
+            get {
+                return ResourceManager.GetString("ShortcutTabsKey", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to : next tab (Ctrl+Shift+Tab: previous), Ctrl+F4: close it.
+        /// </summary>
+        public static string ShortcutTabs {
+            get {
+                return ResourceManager.GetString("ShortcutTabs", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+K.
+        /// </summary>
+        public static string ShortcutQuickKey {
+            get {
+                return ResourceManager.GetString("ShortcutQuickKey", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to : quick connect (Ctrl+1, 2, 3: side tabs; F6: from the side panel to the session and back).
+        /// </summary>
+        public static string ShortcutQuick {
+            get {
+                return ResourceManager.GetString("ShortcutQuick", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+F4.
+        /// </summary>
+        public static string ShortcutTabClose {
+            get {
+                return ResourceManager.GetString("ShortcutTabClose", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Language.
+        /// </summary>
+        public static string LoginLanguageName {
+            get {
+                return ResourceManager.GetString("LoginLanguageName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Quit.
+        /// </summary>
+        public static string LoginQuit {
+            get {
+                return ResourceManager.GetString("LoginQuit", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Caps Lock is on..
+        /// </summary>
+        public static string CapsLockOn {
+            get {
+                return ResourceManager.GetString("CapsLockOn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Search the terminal.
+        /// </summary>
+        public static string A11yTerminalSearch {
+            get {
+                return ResourceManager.GetString("A11yTerminalSearch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Number of files from which an archive is offered.
+        /// </summary>
+        public static string A11yArchiveThreshold {
+            get {
+                return ResourceManager.GetString("A11yArchiveThreshold", resourceCulture);
             }
         }
     }

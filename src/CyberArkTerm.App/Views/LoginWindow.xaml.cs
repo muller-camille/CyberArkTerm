@@ -19,6 +19,7 @@ public partial class LoginWindow : Window
     public LoginWindow(AppSettings settings)
     {
         InitializeComponent();
+        CapsLockWarning.Attach(CapsLockText, PasswordBox, ChallengeBox);
         _settings = settings;
 
         MethodBox.ItemsSource = Enum.GetValues<AuthMethod>();
@@ -210,6 +211,11 @@ public partial class LoginWindow : Window
     {
         StatusText.Text = message;
         StatusText.Visibility = Visibility.Visible;
+        // Annoncée par les lecteurs d'écran.
+        if (System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(StatusText) is { } peer)
+        {
+            peer.RaiseAutomationEvent(System.Windows.Automation.Peers.AutomationEvents.LiveRegionChanged);
+        }
     }
 
     private void SetBusy(bool busy)

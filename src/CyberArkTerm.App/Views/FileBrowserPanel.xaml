@@ -16,13 +16,13 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="Arrow" Text="⬆" Foreground="#1565C0" Margin="0,0,6,0" VerticalAlignment="Top" />
+                <TextBlock x:Name="Arrow" Text="⬆" Foreground="{DynamicResource AccentBrush}" Margin="0,0,6,0" VerticalAlignment="Top" />
                 <StackPanel Grid.Column="1">
                     <!-- Le serveur est nommé : la file peut mêler les transferts de plusieurs onglets. -->
                     <TextBlock TextTrimming="CharacterEllipsis" ToolTip="{Binding Route, Mode=OneWay}">
                         <Run Text="{Binding Label, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" → " /><Run Text="{Binding Target, Mode=OneWay}" />
                     </TextBlock>
-                    <TextBlock x:Name="StateText" FontSize="11" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis">
+                    <TextBlock x:Name="StateText" FontSize="11" Foreground="{DynamicResource MutedBrush}" TextTrimming="CharacterEllipsis">
                         <TextBlock.Text>
                             <MultiBinding Converter="{StaticResource TransferStatus}">
                                 <Binding />
@@ -122,7 +122,7 @@
         </ContextMenu>
     </UserControl.Resources>
 
-    <DockPanel Background="{StaticResource SidePanelBrush}">
+    <DockPanel Background="{DynamicResource SidePanelBrush}">
         <StackPanel DockPanel.Dock="Top" Margin="8,8,8,4">
             <DockPanel>
                 <!-- Fichiers déjà suivis sur ce serveur « Courants » : les suivre à nouveau d'un clic. -->
@@ -183,10 +183,10 @@
             </DockPanel>
         </StackPanel>
 
-        <Border DockPanel.Dock="Bottom" BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="0,1,0,0" Padding="8,4">
+        <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="0,1,0,0" Padding="8,4">
             <StackPanel>
                 <!-- Archive .tar.gz envoyée : il reste à l'extraire sur le serveur. Encadré visible jusqu'à ce qu'on le ferme. -->
-                <Border x:Name="ExtractPanel" Visibility="Collapsed" Background="#FFF4D6" BorderBrush="#F59E0B" BorderThickness="1"
+                <Border x:Name="ExtractPanel" Visibility="Collapsed" Background="{DynamicResource WarningBackgroundBrush}" BorderBrush="{DynamicResource WarningBorderBrush}" BorderThickness="1"
                         CornerRadius="3" Padding="8,6" Margin="0,0,0,6">
                     <StackPanel>
                         <DockPanel>
@@ -194,11 +194,11 @@
                                     ToolTip="{x:Static loc:Strings.ArchiveDismissTip}">
                                 <Image Source="{StaticResource IconClose}" Style="{StaticResource SmallIcon}" />
                             </Button>
-                            <TextBlock x:Name="ExtractTitle" FontWeight="SemiBold" Foreground="#7A4A00" TextWrapping="Wrap" />
+                            <TextBlock x:Name="ExtractTitle" FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" />
                         </DockPanel>
                         <TextBlock Text="{x:Static loc:Strings.ArchiveExtractHelp}" TextWrapping="Wrap" Margin="0,4,0,4" />
                         <TextBox x:Name="ExtractCommandBox" IsReadOnly="True" FontFamily="Consolas, Courier New" TextWrapping="Wrap"
-                                 Padding="4" Background="White" />
+                                 Padding="4" Background="{DynamicResource ContentBrush}" />
                         <WrapPanel Margin="0,6,0,0">
                             <Button Padding="10,3" Margin="0,0,6,0" FontWeight="SemiBold" Click="OnCopyExtractCommand"
                                     Content="{x:Static loc:Strings.ArchiveCopyCommand}" />
@@ -209,7 +209,7 @@
                     </StackPanel>
                 </Border>
                 <!-- File d'attente des transferts : visible tant qu'une série est en cours. -->
-                <Border x:Name="QueuePanel" Visibility="Collapsed" BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="0,0,0,1"
+                <Border x:Name="QueuePanel" Visibility="Collapsed" BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="0,0,0,1"
                         Padding="0,0,0,6" Margin="0,0,0,4">
                     <DockPanel>
                         <DockPanel DockPanel.Dock="Top">
@@ -228,13 +228,13 @@
                     <Button x:Name="StopChmodButton" DockPanel.Dock="Right" Content="{x:Static loc:Strings.PermissionsStop}" Padding="8,0"
                             MinWidth="0" Margin="6,0,0,0" Visibility="Collapsed" Click="OnStopChmod"
                             ToolTip="{x:Static loc:Strings.PermissionsStopTip}" />
-                    <TextBlock x:Name="StatusText" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock x:Name="StatusText" Foreground="{DynamicResource MutedBrush}" TextTrimming="CharacterEllipsis" />
                 </DockPanel>
             </StackPanel>
         </Border>
 
         <Grid>
-            <ListView x:Name="FileList" BorderThickness="0" Background="White" SelectionMode="Extended" AllowDrop="True"
+            <ListView x:Name="FileList" BorderThickness="0" Background="{DynamicResource ContentBrush}" SelectionMode="Extended" AllowDrop="True"
                       ContextMenu="{StaticResource FileMenu}" KeyDown="OnListKeyDown"
                       DragEnter="OnDragEnter" DragOver="OnDragEnter" DragLeave="OnDragLeave" Drop="OnDrop"
                       PreviewMouseLeftButtonDown="OnListPreviewMouseDown" PreviewMouseMove="OnListPreviewMouseMove"
@@ -279,19 +279,19 @@
 
             <!-- Indication pendant le glisser-déposer de fichiers -->
             <Border x:Name="DropHint" Visibility="Collapsed" IsHitTestVisible="False" Margin="6"
-                    Background="#E8E3EEFB" BorderBrush="{StaticResource AccentBrush}" BorderThickness="2" CornerRadius="6">
+                    Background="{DynamicResource DropHintBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="2" CornerRadius="6">
                 <StackPanel VerticalAlignment="Center" Margin="12">
                     <Image Source="{StaticResource IconUpload}" Width="40" Height="40" />
                     <TextBlock x:Name="DropHintText" TextAlignment="Center" TextWrapping="Wrap" FontWeight="SemiBold"
-                               Foreground="{StaticResource AccentBrush}" Margin="0,8,0,0" />
+                               Foreground="{DynamicResource AccentBrush}" Margin="0,8,0,0" />
                 </StackPanel>
             </Border>
 
             <!-- Message : aucune session, connexion en cours, erreur -->
-            <Border x:Name="MessagePanel" Background="{StaticResource SidePanelBrush}" Visibility="Collapsed">
+            <Border x:Name="MessagePanel" Background="{DynamicResource SidePanelBrush}" Visibility="Collapsed">
                 <StackPanel VerticalAlignment="Center" Margin="20">
                     <Image Source="{StaticResource IconFiles}" Width="44" Height="44" Opacity="0.7" />
-                    <TextBlock x:Name="MessageText" TextAlignment="Center" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}"
+                    <TextBlock x:Name="MessageText" TextAlignment="Center" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}"
                                Margin="0,10,0,0" />
                     <Button x:Name="RetryButton" Content="{x:Static loc:Strings.Retry}" Click="OnRetry" Visibility="Collapsed"
                             HorizontalAlignment="Center" Margin="0,12,0,0" />

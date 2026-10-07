@@ -20,6 +20,9 @@ public sealed class SharedListNode(SharedServerList list, ServerListFile? conten
     public string StateText => content is not null ? $" ({content.Servers.Count})"
         : "  " + (List.Error is null ? Strings.SharedListLoadingSuffix : Strings.SharedListUnreadable);
 
+    /// <summary>Nom lu par les lecteurs d'écran.</summary>
+    public override string ToString() => Name + StateText;
+
     public double Opacity => List.Error is null ? 1 : 0.7;
 
     public string Details
@@ -58,6 +61,8 @@ public sealed class SharedFolderNode(SharedServerList list, string path, List<ob
 
     public string Name => SessionFolders.Name(Path);
 
+    public override string ToString() => Name;
+
     public List<object> Children { get; } = children;
 
     public int Count { get; init; }
@@ -82,6 +87,8 @@ public sealed class SharedServerNode(SharedServerList list, ServerEntry entry, S
     public string Title => Session.Name;
 
     public string ModeText => Session.Mode == ConnectMode.Psm ? Session.Component ?? "PSM" : SessionLibrary.ModeName(Session.Mode);
+
+    public override string ToString() => $"{Title}, {ModeText}";
 
     public double Opacity => Account is null ? 0.5 : 1;
 

@@ -9,7 +9,7 @@
         <Style x:Key="ResultText" TargetType="TextBlock">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Outcome}" Value="Created">
-                    <Setter Property="Foreground" Value="#1E7B45" />
+                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Outcome}" Value="Refused">
                     <Setter Property="Foreground" Value="Firebrick" />
@@ -18,7 +18,7 @@
                     <Setter Property="Foreground" Value="Firebrick" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Outcome}" Value="NotSent">
-                    <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Outcome}" Value="Sending">
                     <Setter Property="FontWeight" Value="SemiBold" />
@@ -41,6 +41,6 @@
 
         <DataGrid x:Name="RowsGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False"
                   SelectionMode="Extended" SelectionUnit="FullRow" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                  HorizontalGridLinesBrush="#E5E9EE" AlternatingRowBackground="#F7F9FC" ClipboardCopyMode="IncludeHeader" />
+                  HorizontalGridLinesBrush="{DynamicResource GridLineBrush}" AlternatingRowBackground="{DynamicResource AlternateRowBrush}" ClipboardCopyMode="IncludeHeader" />
     </DockPanel>
 </Window>

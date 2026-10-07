@@ -177,7 +177,7 @@ public partial class MainWindow
                 ToggleParallel(session);
             }
         };
-        var close = new MenuItem { Header = Strings.MenuTabClose, Icon = MenuIcon(FindResource("IconClose")) };
+        var close = new MenuItem { Header = Strings.MenuTabClose, Icon = MenuIcon(FindResource("IconClose")), InputGestureText = Strings.ShortcutTabClose };
         close.Click += (_, _) => CloseSessionTab(tab, owner());
         return new SessionActions(reconnect, copy, detach, parallel, close, () =>
         {

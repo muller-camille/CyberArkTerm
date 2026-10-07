@@ -715,7 +715,7 @@ public sealed class DialogTests
 
         RunWithTheme(() =>
         {
-            var feed = new TailFeed(new MemoryLink("root@srv01"), "/var/log/app.log", TailBrushes.Sources[0]);
+            var feed = new TailFeed(new MemoryLink("root@srv01"), "/var/log/app.log", TailBrushes.Source(0));
             var style = new TailStyle(["db01"], null, Colors: true, Prefixes: true, Wrap: false);
             var block = new System.Windows.Controls.TextBlock();
             TailRowText.SetRow(block, new TailRow(new TailLine("12:00 ERROR db01 down", feed, TailLevel.Error, false), TailShownKind.Line, style));

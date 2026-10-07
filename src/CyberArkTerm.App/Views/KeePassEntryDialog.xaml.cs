@@ -65,6 +65,8 @@ public partial class KeePassEntryDialog : Window
         {
             PasswordText.Text = PasswordBox.Password;
             PasswordText.Visibility = Visibility.Visible;
+            // La touche d'accès du libellé vise le champ affiché.
+            PasswordLabel.Target = PasswordText;
             PasswordBox.Visibility = Visibility.Collapsed;
         }
         else
@@ -73,6 +75,7 @@ public partial class KeePassEntryDialog : Window
             PasswordText.Text = "";
             PasswordBox.Visibility = Visibility.Visible;
             PasswordText.Visibility = Visibility.Collapsed;
+            PasswordLabel.Target = PasswordBox;
         }
 
         _syncing = false;

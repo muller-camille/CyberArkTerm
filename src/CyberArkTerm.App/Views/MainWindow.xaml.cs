@@ -897,9 +897,171 @@ public partial class MainWindow : Window
     private void SetStatus(string message, bool isError = false)
     {
         StatusText.Text = message;
-        StatusText.Foreground = isError
-            ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFF, 0xB4, 0xA9))
-            : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x9F, 0xD3, 0x9F));
+        StatusText.SetResourceReference(TextBlock.ForegroundProperty, isError ? "StatusErrorForeground" : "StatusOkForeground");
+        // Annoncé par les lecteurs d'écran (zone « polie » de la barre d'état).
+        if (message.Length > 0 && System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(StatusText) is { } peer)
+        {
+            peer.RaiseAutomationEvent(System.Windows.Automation.Peers.AutomationEvents.LiveRegionChanged);
+        }
+    }
+
+    // ===================== Clavier =====================
+
+    /// <summary>
+    /// Raccourcis réservés à l'application, interceptés avant le terminal (qui enverrait sinon Tab au serveur) :
+    /// Ctrl+Tab et Ctrl+Maj+Tab changent d'onglet, Ctrl+F4 et Ctrl+Maj+W ferment l'onglet de session, Ctrl+1/2/3 mènent
+    /// aux onglets de gauche (depuis une session aussi : F6 reste aux applications du serveur). La touche Menu (ou Maj+F10)
+    /// sur un onglet ouvre son menu.
+    /// </summary>
+    protected override void OnPreviewKeyDown(KeyEventArgs e)
+    {
+        base.OnPreviewKeyDown(e);
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        var mods = Keyboard.Modifiers;
+        bool ctrl = mods.HasFlag(ModifierKeys.Control), shift = mods.HasFlag(ModifierKeys.Shift), alt = mods.HasFlag(ModifierKeys.Alt);
+        if (ctrl && !alt && key == Key.Tab)
+        {
+            SelectAdjacentTab(shift ? -1 : 1);
+            e.Handled = true;
+        }
+        else if (ctrl && !alt && ((key == Key.F4 && !shift) || (key == Key.W && shift)))
+        {
+            if (MainTabs.SelectedItem is TabItem { Tag: not null } tab)
+            {
+                CloseSessionTab(tab);
+            }
+
+            e.Handled = true;
+        }
+        else if (mods == ModifierKeys.Control && key is Key.D1 or Key.NumPad1 or Key.D2 or Key.NumPad2 or Key.D3 or Key.NumPad3)
+        {
+            if (key is Key.D1 or Key.NumPad1 && IsOffline)
+            {
+                return;
+            }
+
+            ShowSideTab(key is Key.D1 or Key.NumPad1 ? AvailableTab : key is Key.D2 or Key.NumPad2 ? CurrentTab : FilesTab);
+            e.Handled = true;
+        }
+        else if ((key == Key.Apps || (shift && key == Key.F10)) && Keyboard.FocusedElement is TabItem { Header: FrameworkElement { ContextMenu: { } menu } header })
+        {
+            menu.PlacementTarget = header;
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            menu.IsOpen = true;
+            e.Handled = true;
+        }
+    }
+
+    /// <summary>
+    /// Raccourcis de la fenêtre, quand le terminal ne les a pas pris : Ctrl+K connexion rapide, Ctrl+virgule Paramètres,
+    /// F6 bascule entre le panneau de gauche et la session.
+    /// </summary>
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        if (e.Handled)
+        {
+            return;
+        }
+
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        var mods = Keyboard.Modifiers;
+        if (mods == ModifierKeys.Control)
+        {
+            switch (key)
+            {
+                case Key.K:
+                    FocusQuickConnect();
+                    e.Handled = true;
+                    break;
+                case Key.OemComma:
+                    OnSettings(this, e);
+                    e.Handled = true;
+                    break;
+            }
+        }
+        else if (mods == ModifierKeys.None && key == Key.F6)
+        {
+            ToggleFocusArea();
+            e.Handled = true;
+        }
+    }
+
+    /// <summary>Onglet de la zone principale suivant (<paramref name="step"/> = 1) ou précédent (-1), en boucle.</summary>
+    private void SelectAdjacentTab(int step)
+    {
+        var tabs = MainTabs.Items.OfType<TabItem>().Where(t => t.Visibility == Visibility.Visible).ToList();
+        if (tabs.Count < 2)
+        {
+            return;
+        }
+
+        int index = MainTabs.SelectedItem is TabItem current ? tabs.IndexOf(current) : -1;
+        MainTabs.SelectedItem = tabs[((index + step) % tabs.Count + tabs.Count) % tabs.Count];
+    }
+
+    private void FocusQuickConnect()
+    {
+        if (IsOffline)
+        {
+            ShowSideTab(CurrentTab);
+            return;
+        }
+
+        MainTabs.SelectedItem = HomeTab;
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, () =>
+        {
+            QuickBox.Focus();
+            QuickBox.SelectAll();
+        });
+    }
+
+    /// <summary>Affiche un onglet de gauche et place le curseur dans son champ principal.</summary>
+    private void ShowSideTab(TabItem tab)
+    {
+        SideTabs.SelectedItem = tab;
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, () =>
+        {
+            if (tab == AvailableTab)
+            {
+                SearchBox.Focus();
+            }
+            else if (tab == CurrentTab)
+            {
+                SavedSearchBox.Focus();
+            }
+            else
+            {
+                FilesPanel.FocusList();
+            }
+        });
+    }
+
+    /// <summary>F6 : du panneau de gauche à la session affichée, et retour.</summary>
+    private void ToggleFocusArea()
+    {
+        if (SideTabs.IsKeyboardFocusWithin)
+        {
+            switch (MainTabs.SelectedItem)
+            {
+                case TabItem { Content: SshSessionView view }:
+                    view.FocusTerminal();
+                    break;
+                case TabItem { Content: ParallelView parallel }:
+                    parallel.FocusActive();
+                    break;
+                case TabItem tab when tab == HomeTab && !IsOffline:
+                    QuickBox.Focus();
+                    break;
+                case TabItem tab:
+                    tab.Focus();
+                    break;
+            }
+        }
+        else
+        {
+            ShowSideTab((TabItem)SideTabs.SelectedItem);
+        }
     }
 
     // ===================== Menu contextuel, favoris, copie =====================

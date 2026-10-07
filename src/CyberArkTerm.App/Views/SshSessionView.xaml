@@ -7,14 +7,19 @@
         <term:TerminalView x:Name="Terminal" />
         <!-- Recherche dans le terminal (Ctrl+Maj+F), historique compris. -->
         <Border x:Name="SearchBar" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,22,0" Padding="6,4"
-                Background="#F2F4F7" BorderBrush="#9AA5B1" BorderThickness="1" CornerRadius="3" Visibility="Collapsed" Panel.ZIndex="1">
+                Background="{DynamicResource CodeBrush}" BorderBrush="{DynamicResource MainTabBorderBrush}" BorderThickness="1" CornerRadius="3" Visibility="Collapsed" Panel.ZIndex="1">
             <StackPanel Orientation="Horizontal">
                 <TextBox x:Name="SearchBox" Width="200" VerticalAlignment="Center" KeyDown="OnSearchKeyDown" TextChanged="OnSearchChanged"
-                         ToolTip="{x:Static loc:Strings.TerminalSearchTip}" />
-                <Button Content="↑" Width="26" Margin="6,0,0,0" Click="OnSearchOlder" ToolTip="{x:Static loc:Strings.TerminalSearchOlderTip}" Focusable="False" />
-                <Button Content="↓" Width="26" Margin="4,0,0,0" Click="OnSearchNewer" ToolTip="{x:Static loc:Strings.TerminalSearchNewerTip}" Focusable="False" />
-                <TextBlock x:Name="SearchCount" Margin="8,0,0,0" MinWidth="64" VerticalAlignment="Center" Foreground="#3E4A57" />
-                <Button Content="✕" Width="24" Margin="4,0,0,0" Click="OnSearchClose" ToolTip="{x:Static loc:Strings.TerminalSearchCloseTip}" Focusable="False" />
+                         ToolTip="{x:Static loc:Strings.TerminalSearchTip}" AutomationProperties.Name="{x:Static loc:Strings.A11yTerminalSearch}" />
+                <!-- Boutons atteignables au clavier, nommés par leur infobulle. -->
+                <Button Content="↑" Width="26" MinWidth="0" Padding="0" Margin="6,0,0,0" Click="OnSearchOlder" ToolTip="{x:Static loc:Strings.TerminalSearchOlderTip}"
+                        AutomationProperties.Name="{x:Static loc:Strings.TerminalSearchOlderTip}" />
+                <Button Content="↓" Width="26" MinWidth="0" Padding="0" Margin="4,0,0,0" Click="OnSearchNewer" ToolTip="{x:Static loc:Strings.TerminalSearchNewerTip}"
+                        AutomationProperties.Name="{x:Static loc:Strings.TerminalSearchNewerTip}" />
+                <TextBlock x:Name="SearchCount" Margin="8,0,0,0" MinWidth="64" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"
+                           AutomationProperties.LiveSetting="Polite" />
+                <Button Content="✕" Width="24" MinWidth="0" Padding="0" Margin="4,0,0,0" Click="OnSearchClose" ToolTip="{x:Static loc:Strings.TerminalSearchCloseTip}"
+                        AutomationProperties.Name="{x:Static loc:Strings.TerminalSearchCloseTip}" />
             </StackPanel>
         </Border>
         <Border x:Name="Overlay" Background="#D80C0C0C" Visibility="Collapsed">

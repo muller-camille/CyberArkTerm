@@ -70,7 +70,7 @@ public partial class CompareWindow : Window
             BinaryText.Text = Text.Format(same ? Strings.CompareBinarySame : Strings.CompareBinaryDifferent,
                 _left.Name, RemotePath.FormatSize(_left.Length), _left.Sha256, _right.Name, RemotePath.FormatSize(_right.Length), _right.Sha256);
             SummaryText.Text = same ? Strings.CompareIdentical : Strings.CompareDifferent;
-            SummaryText.Foreground = same ? System.Windows.Media.Brushes.ForestGreen : System.Windows.Media.Brushes.Firebrick;
+            SummaryText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, same ? "SuccessBrush" : "ErrorBrush");
             WhitespaceBox.IsEnabled = false;
             OnlyDiffBox.IsEnabled = false;
             SaveButton.IsEnabled = false;
@@ -82,12 +82,12 @@ public partial class CompareWindow : Window
         if (_result.Identical)
         {
             SummaryText.Text = _left.Sha256 == _right.Sha256 ? Strings.CompareIdentical : Strings.CompareIdenticalApart;
-            SummaryText.Foreground = System.Windows.Media.Brushes.ForestGreen;
+            SummaryText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "SuccessBrush");
         }
         else
         {
             SummaryText.Text = Text.Format(Strings.CompareSummary, _result.Blocks, _result.Removed, _result.Added);
-            SummaryText.Foreground = System.Windows.Media.Brushes.Firebrick;
+            SummaryText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "ErrorBrush");
         }
 
         var notes = new List<string>();

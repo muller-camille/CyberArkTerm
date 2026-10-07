@@ -18,6 +18,9 @@ public sealed class FolderNode(string name, IReadOnlyList<AccountNode> children,
     public int Count => Children.Count;
 
     public bool IsExpanded { get; set; } = isExpanded;
+
+    /// <summary>Nom lu par les lecteurs d'écran (les éléments d'arbre liés à des objets utilisent ToString).</summary>
+    public override string ToString() => $"{Name} ({Count})";
 }
 
 /// <summary>Compte affiché dans l'arbre des sessions.</summary>
@@ -29,6 +32,10 @@ public sealed class AccountNode(PvwaAccount account)
 
     /// <summary>La dernière opération du CPM (changement, vérification, réconciliation) a échoué.</summary>
     public bool CpmFailed => Account.SecretManagement?.Failed == true;
+
+    /// <summary>Nom lu par les lecteurs d'écran : compte, plateforme, safe, et l'échec du CPM (signalé à l'écran par un triangle).</summary>
+    public override string ToString() =>
+        $"{Title}, {Account.PlatformId}, {Account.SafeName}" + (CpmFailed ? ", " + Strings.A11yCpmFailed : "");
 
     public string Details
     {
@@ -143,6 +150,8 @@ public sealed class SavedFolderNode(string path, List<object> children, bool isE
     public int Count { get; init; }
 
     public bool IsExpanded { get; set; } = isExpanded;
+
+    public override string ToString() => $"{Name} ({Count})";
 }
 
 /// <summary>Serveur de l'onglet « Courants » ; <see cref="Account"/> est null si le compte n'est plus visible dans CyberArk.</summary>
@@ -177,6 +186,9 @@ public sealed class SavedSessionNode(SavedSession session, PvwaAccount? account)
     public double Opacity => Account is null ? 0.5 : 1;
 
     public bool IsExpanded { get; set; }
+
+    public override string ToString() =>
+        $"{Title}, {ModeText}" + (IsMarked ? ", " + Strings.A11yMarked : "") + (Account is null ? ", " + Strings.A11yUnavailable : "");
 
     public string Details
     {

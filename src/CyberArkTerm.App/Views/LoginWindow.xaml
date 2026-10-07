@@ -18,7 +18,7 @@
         <StackPanel Grid.Row="0" Margin="0,0,0,16">
             <TextBlock Text="{x:Static loc:Strings.LoginHeading}" FontSize="18" FontWeight="SemiBold" />
             <TextBlock Text="{x:Static loc:Strings.LoginSubtitle}"
-                       Foreground="Gray" Margin="0,4,0,0" TextWrapping="Wrap" />
+                       Foreground="{DynamicResource MutedBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>
 
         <!-- Saisie des identifiants -->
@@ -52,24 +52,33 @@
         <!-- Challenge RADIUS (MFA) : affiché seulement si le PVWA le demande -->
         <StackPanel Grid.Row="1" x:Name="ChallengePanel" Visibility="Collapsed">
             <TextBlock x:Name="ChallengeText" TextWrapping="Wrap" Margin="0,0,0,8" />
-            <PasswordBox x:Name="ChallengeBox" Margin="0,0,0,8" />
+            <!-- Nom accessible du champ : la question du PVWA. -->
+            <PasswordBox x:Name="ChallengeBox" Margin="0,0,0,8"
+                         AutomationProperties.LabeledBy="{Binding ElementName=ChallengeText}" />
         </StackPanel>
 
-        <TextBlock Grid.Row="2" x:Name="StatusText" TextWrapping="Wrap" Margin="0,4,0,8"
-                   Foreground="Firebrick" Visibility="Collapsed" />
+        <StackPanel Grid.Row="2">
+            <!-- Avertissement Verr. Maj, pendant la saisie du mot de passe. -->
+            <TextBlock x:Name="CapsLockText" Text="{x:Static loc:Strings.CapsLockOn}" Foreground="{DynamicResource WarningBrush}" Margin="0,0,0,6"
+                       Visibility="Collapsed" AutomationProperties.LiveSetting="Polite" />
+            <TextBlock x:Name="StatusText" TextWrapping="Wrap" Margin="0,4,0,8"
+                       Foreground="Firebrick" Visibility="Collapsed" AutomationProperties.LiveSetting="Assertive" />
+        </StackPanel>
 
         <DockPanel Grid.Row="3" LastChildFill="False" Margin="0,8,0,0">
             <ComboBox x:Name="LanguageBox" DockPanel.Dock="Left" Padding="6,2" VerticalAlignment="Center"
-                      ToolTip="{x:Static loc:Strings.LoginLanguageTip}" SelectionChanged="OnLanguageChanged" />
+                      ToolTip="{x:Static loc:Strings.LoginLanguageTip}" SelectionChanged="OnLanguageChanged"
+                      AutomationProperties.Name="{x:Static loc:Strings.LoginLanguageName}" />
             <ProgressBar x:Name="Busy" DockPanel.Dock="Left" Width="70" Height="6" Margin="10,0,0,0"
                          IsIndeterminate="True" Visibility="Hidden" VerticalAlignment="Center" />
-            <Button DockPanel.Dock="Right" Content="{x:Static loc:Strings.Cancel}" IsCancel="True" Margin="8,0,0,0" />
+            <!-- Sans connexion, l'application se ferme : le bouton le dit. -->
+            <Button DockPanel.Dock="Right" Content="{x:Static loc:Strings.LoginQuit}" IsCancel="True" Margin="8,0,0,0" />
             <Button DockPanel.Dock="Right" x:Name="LoginButton" Content="{x:Static loc:Strings.LoginButton}" IsDefault="True"
                     Click="OnLoginClick" />
         </DockPanel>
 
         <!-- Accès d'urgence : coffres KeePass, sans passer par CyberArk. -->
-        <Border Grid.Row="4" BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,10,0,0">
+        <Border Grid.Row="4" BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,10,0,0">
             <Button x:Name="EmergencyButton" Style="{StaticResource ToolButton}" HorizontalAlignment="Left" Focusable="True"
                     ToolTip="{x:Static loc:Strings.LoginEmergencyTip}" Click="OnEmergencyClick">
                 <StackPanel Orientation="Horizontal">

@@ -6,7 +6,7 @@
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <StackPanel Margin="16">
         <TextBlock x:Name="HeadingText" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" />
-        <TextBlock Text="{x:Static loc:Strings.SafeMemberIntro}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,2,0,10" />
+        <TextBlock Text="{x:Static loc:Strings.SafeMemberIntro}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,2,0,10" />
 
         <Grid x:Name="IdentityGrid" Margin="0,0,0,6">
             <Grid.ColumnDefinitions>
@@ -50,13 +50,13 @@
         <TextBlock x:Name="ErrorMessage" Foreground="Firebrick" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,8,0,0" />
         <DockPanel Margin="0,12,0,0">
             <!-- Modification d'un membre : droits ajoutés et retirés par rapport à ses droits actuels. -->
-            <TextBlock x:Name="ChangesText" DockPanel.Dock="Left" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}"
+            <TextBlock x:Name="ChangesText" DockPanel.Dock="Left" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"
                        Visibility="Collapsed" />
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                 <Button x:Name="SaveButton" Content="{x:Static loc:Strings.Save}" IsDefault="True" Click="OnSave" />
                 <Button x:Name="CancelButton" Content="{x:Static loc:Strings.Cancel}" IsCancel="True" Margin="8,0,0,0" />
             </StackPanel>
-            <TextBlock x:Name="StatusText" Text="{x:Static loc:Strings.SafeMemberSaving}" Foreground="{StaticResource MutedBrush}"
+            <TextBlock x:Name="StatusText" Text="{x:Static loc:Strings.SafeMemberSaving}" Foreground="{DynamicResource MutedBrush}"
                        HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" />
         </DockPanel>
     </StackPanel>

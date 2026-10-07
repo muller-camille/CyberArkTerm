@@ -321,8 +321,9 @@ public partial class ParallelView : UserControl
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(8, 0, 4, 0),
                 ToolTip = Strings.ParallelIncludeTip,
-                Focusable = false,
             };
+            // Atteignables au clavier ; nommés pour les lecteurs d'écran avec la session qu'ils concernent.
+            System.Windows.Automation.AutomationProperties.SetName(IncludeBox, $"{Strings.ParallelInclude} {view.Session.Label}");
             IncludeBox.Click += (_, _) =>
             {
                 owner.UpdateLayoutAndState();
@@ -334,8 +335,8 @@ public partial class ParallelView : UserControl
                 Padding = new Thickness(6, 0, 6, 0),
                 Margin = new Thickness(4, 0, 0, 0),
                 ToolTip = Strings.ParallelZoomTip,
-                Focusable = false,
             };
+            System.Windows.Automation.AutomationProperties.SetName(_zoom, $"{Strings.ParallelZoomTip} {view.Session.Label}");
             _zoom.Click += (_, _) => owner.ToggleZoom(View.Session);
             var remove = new Button
             {
@@ -343,8 +344,8 @@ public partial class ParallelView : UserControl
                 Padding = new Thickness(6, 0, 6, 0),
                 Margin = new Thickness(4, 0, 0, 0),
                 ToolTip = Strings.ParallelRemoveTip,
-                Focusable = false,
             };
+            System.Windows.Automation.AutomationProperties.SetName(remove, $"{Strings.ParallelRemoveTip} {view.Session.Label}");
             remove.Click += (_, _) => owner.RemoveRequested?.Invoke(View.Session);
 
             var title = new TextBlock

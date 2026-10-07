@@ -37,7 +37,7 @@
     <value>SSH tramite PSMP</value>
   </data>
   <data name="ComponentLabel" xml:space="preserve">
-    <value>_Componente PSM:</value>
+    <value>C_omponente PSM:</value>
   </data>
   <data name="TargetMachineLabel" xml:space="preserve">
     <value>_Macchina di destinazione:</value>
@@ -121,7 +121,7 @@
     <value>Copia dominio\utente</value>
   </data>
   <data name="MenuProperties" xml:space="preserve">
-    <value>_Proprietà…</value>
+    <value>Pr_oprietà…</value>
   </data>
   <data name="MenuRename" xml:space="preserve">
     <value>_Rinomina…</value>
@@ -479,7 +479,7 @@
     <value>Lingua</value>
   </data>
   <data name="LanguageLabel" xml:space="preserve">
-    <value>_Lingua dell'interfaccia:</value>
+    <value>Li_ngua dell'interfaccia:</value>
   </data>
   <data name="LanguageHelp" xml:space="preserve">
     <value>Applicata dopo la disconnessione o al prossimo avvio.</value>
@@ -509,7 +509,7 @@
     <value>Protocollo provato per primo per gli invii. Se il server lo rifiuta per un file (regola del PSMP, SFTP in sola lettura…), l'altro subentra subito, senza domande; il riepilogo riporta la risposta del server, la Cronologia lo indica.</value>
   </data>
   <data name="ForgetKeys" xml:space="preserve">
-    <value>Dimentica le _chiavi</value>
+    <value>Di_mentica le chiavi</value>
   </data>
   <data name="ComponentsSection" xml:space="preserve">
     <value>Componenti PSM memorizzati</value>
@@ -566,7 +566,7 @@
     <value>_Nome:</value>
   </data>
   <data name="FolderLabel" xml:space="preserve">
-    <value>_Cartella:</value>
+    <value>C_artella:</value>
   </data>
   <data name="FolderTip" xml:space="preserve">
     <value>Cartella della scheda «I miei server»; «/» per le sottocartelle (es. Prod/Web)</value>
@@ -838,7 +838,7 @@
     <value>⚠ Non verificato: {0}</value>
   </data>
   <data name="ChecksCopy" xml:space="preserve">
-    <value>_Copia per sha256sum -c</value>
+    <value>Copia per _sha256sum -c</value>
   </data>
   <data name="ChecksCopyTip" xml:space="preserve">
     <value>Copia una riga per file (checksum dell'originale e percorso sul server), per riverificare sul server con sha256sum -c.</value>
@@ -954,10 +954,10 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Comando di estrazione copiato: incollalo nel terminale della sessione, poi premi Invio (elimina l'archivio dopo l'estrazione).</value>
   </data>
   <data name="FileTail" xml:space="preserve">
-    <value>_Segui (tail -f)</value>
+    <value>Segui (_tail -f)</value>
   </data>
   <data name="FileTailAdd" xml:space="preserve">
-    <value>Aggiungi a una _finestra di monitoraggio</value>
+    <value>Aggi_ungi a una finestra di monitoraggio</value>
   </data>
   <data name="TailFilesTip" xml:space="preserve">
     <value>File già seguiti su questo server: seguili di nuovo</value>
@@ -981,10 +981,10 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>_Riprendi</value>
   </data>
   <data name="TailFollowEnd" xml:space="preserve">
-    <value>Segui la _fine</value>
+    <value>Seg_ui la fine</value>
   </data>
   <data name="TailWrap" xml:space="preserve">
-    <value>_A capo</value>
+    <value>A capo auto_matico</value>
   </data>
   <data name="TailClear" xml:space="preserve">
     <value>_Cancella</value>
@@ -1038,7 +1038,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Registrazione interrotta: {0}</value>
   </data>
   <data name="TailReconnect" xml:space="preserve">
-    <value>Ri_connetti</value>
+    <value>_Riconnetti</value>
   </data>
   <data name="TailReconnectTip" xml:space="preserve">
     <value>Riapri la connessione del monitoraggio (la scheda SSH deve essere connessa)</value>
@@ -1050,7 +1050,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Mostra solo le righe che contengono questo testo (senza distinzione tra maiuscole e minuscole), come grep</value>
   </data>
   <data name="TailExclude" xml:space="preserve">
-    <value>E_scludi:</value>
+    <value>_Escludi:</value>
   </data>
   <data name="TailExcludeTip" xml:space="preserve">
     <value>Nascondi le righe che contengono questo testo, come grep -v</value>
@@ -1080,7 +1080,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Errori (ERROR, FATAL, CRITICAL…) in rosso, avvisi (WARN, WARNING) in arancione</value>
   </data>
   <data name="TailHighlight" xml:space="preserve">
-    <value>E_videnzia:</value>
+    <value>Evi_denzia:</value>
   </data>
   <data name="TailHighlightTip" xml:space="preserve">
     <value>Parole evidenziate in giallo, separate da virgole (conservate per le prossime finestre)</value>
@@ -1116,10 +1116,10 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>{0} nuova/e riga/e di avviso in {1}</value>
   </data>
   <data name="TailSearch" xml:space="preserve">
-    <value>Cerc_a:</value>
+    <value>Cerca:</value>
   </data>
   <data name="TailSearchRegex" xml:space="preserve">
-    <value>Espressione re_golare</value>
+    <value>Rege_x</value>
   </data>
   <data name="TailSearchPreviousTip" xml:space="preserve">
     <value>Precedente (Maiusc+Invio, Maiusc+F3)</value>
@@ -1224,7 +1224,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>La vista parallela mostra già 8 sessioni: rimuovine prima una.</value>
   </data>
   <data name="ParallelChoose" xml:space="preserve">
-    <value>_Scegli le sessioni…</value>
+    <value>S_cegli le sessioni…</value>
   </data>
   <data name="ParallelClose" xml:space="preserve">
     <value>Chiudi la vista</value>
@@ -1233,7 +1233,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Chiudi la vista parallela: le sessioni tornano nella loro scheda, non vengono chiuse</value>
   </data>
   <data name="ParallelBroadcast" xml:space="preserve">
-    <value>Digitazione _simultanea</value>
+    <value>_Digitazione simultanea</value>
   </data>
   <data name="ParallelBroadcastTip" xml:space="preserve">
     <value>Ciò che digiti in una sessione selezionata viene inviato anche alle altre sessioni selezionate e connesse. La rotellina non viene copiata; incollare più righe chiede conferma.</value>
@@ -1275,7 +1275,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>_Mostra la vista parallela</value>
   </data>
   <data name="MenuOpenInParallel" xml:space="preserve">
-    <value>Apri nella vista _parallela</value>
+    <value>Apr_i nella vista parallela</value>
   </data>
   <data name="MenuOpenManyInParallel" xml:space="preserve">
     <value>Apri i {0} server nella vista _parallela</value>
@@ -1323,7 +1323,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>La vista parallela è in una finestra separata.</value>
   </data>
   <data name="MenuTabAddParallel" xml:space="preserve">
-    <value>Aggiungi alla vista _parallela</value>
+    <value>Aggiungi alla _vista parallela</value>
   </data>
   <data name="MenuTabRemoveParallel" xml:space="preserve">
     <value>Togli dalla vista _parallela</value>
@@ -1335,7 +1335,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Invia gli stessi file a più server (verificati con SHA-256 su ciascuno)</value>
   </data>
   <data name="FileUploadMany" xml:space="preserve">
-    <value>Invia a _più server…</value>
+    <value>In_via a più server…</value>
   </data>
   <data name="MultiUploadIntro" xml:space="preserve">
     <value>Gli stessi file vengono inviati a ogni server selezionato, un server dopo l'altro, nella coda dei trasferimenti. Ogni file viene verificato con SHA-256 su ogni server; alla fine viene dato un solo riepilogo.</value>
@@ -1459,7 +1459,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Impossibile leggere {0}: {1}</value>
   </data>
   <data name="CompareLocal" xml:space="preserve">
-    <value>Un file di questo _computer</value>
+    <value>Un fi_le di questo computer</value>
   </data>
   <data name="CompareNote" xml:space="preserve">
     <value>I file vengono letti in memoria (50 MB al massimo ciascuno), senza copia su questo computer. Nulla viene eseguito sui server.</value>
@@ -1501,10 +1501,10 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Differenza successiva (F7)</value>
   </data>
   <data name="CompareIgnoreWhitespace" xml:space="preserve">
-    <value>Ignora gli _spazi</value>
+    <value>_Ignora gli spazi</value>
   </data>
   <data name="CompareOnlyDifferences" xml:space="preserve">
-    <value>_Solo le differenze</value>
+    <value>S_olo le differenze</value>
   </data>
   <data name="CompareSave" xml:space="preserve">
     <value>Salva il _diff…</value>
@@ -1567,7 +1567,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
   {4} · SHA-256 {5}</value>
   </data>
   <data name="CompareToolLabel" xml:space="preserve">
-    <value>Strumento di _confronto:</value>
+    <value>Str_umento di confronto:</value>
   </data>
   <data name="CompareArgumentsLabel" xml:space="preserve">
     <value>Ar_gomenti:</value>
@@ -1660,7 +1660,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Il clic destro nel terminale incolla gli appunti (Maiusc+clic destro apre allora il menu)</value>
   </data>
   <data name="TerminalThemeLabel" xml:space="preserve">
-    <value>_Colori del terminale:</value>
+    <value>C_olori del terminale:</value>
   </data>
   <data name="TerminalFontLabel" xml:space="preserve">
     <value>_Carattere:</value>
@@ -1672,7 +1672,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>La dimensione del carattere deve essere compresa tra {0} e {1}.</value>
   </data>
   <data name="MenuAbout" xml:space="preserve">
-    <value>_Informazioni su CyberArkTerm…</value>
+    <value>Informazioni su _CyberArkTerm…</value>
   </data>
   <data name="AboutTitle" xml:space="preserve">
     <value>Informazioni su CyberArkTerm</value>
@@ -1705,7 +1705,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Nuova versione</value>
   </data>
   <data name="AboutCheck" xml:space="preserve">
-    <value>_Cerca ora</value>
+    <value>Cerca _ora</value>
   </data>
   <data name="AboutChecking" xml:space="preserve">
     <value>Ricerca dell'ultima versione su GitHub…</value>
@@ -1792,7 +1792,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>✓ riuscito · {0} identico/i</value>
   </data>
   <data name="HistoryChecks" xml:space="preserve">
-    <value>_Checksum…</value>
+    <value>C_hecksum…</value>
   </data>
   <data name="HistoryOpenFolder" xml:space="preserve">
     <value>_Apri la cartella</value>
@@ -2120,7 +2120,7 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>Accesso di emergenza fuori da CyberArk: le connessioni fatte con questo archivio non passano dal PSM (nessuna registrazione, nessuna regola CyberArk). Sono annotate nel registro locale (urgence.log).</value>
   </data>
   <data name="KeePassFileLabel" xml:space="preserve">
-    <value>_File dell'archivio:</value>
+    <value>File _dell'archivio:</value>
   </data>
   <data name="KeePassKeyFileLabel" xml:space="preserve">
     <value>File _chiave:</value>
@@ -2249,7 +2249,7 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>_Proprietà…</value>
   </data>
   <data name="MenuKeePassRemove" xml:space="preserve">
-    <value>_Rimuovi dall'elenco</value>
+    <value>Rimuovi _dall'elenco</value>
   </data>
   <data name="MenuKeePassConnect" xml:space="preserve">
     <value>_Connetti</value>
@@ -2362,7 +2362,7 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>C_rea…</value>
   </data>
   <data name="LocalStoreUnlockMenu" xml:space="preserve">
-    <value>_Sblocca…</value>
+    <value>S_blocca…</value>
   </data>
   <data name="LocalStoreChange" xml:space="preserve">
     <value>C_ambia password…</value>
@@ -2441,7 +2441,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value> (gruppo)</value>
   </data>
   <data name="SafeMembersOnlyAdd" xml:space="preserve">
-    <value>Solo chi può _aggiungere account</value>
+    <value>_Solo chi può aggiungere account</value>
   </data>
   <data name="SafeMembersHint" xml:space="preserve">
     <value>I membri di un gruppo hanno i diritti del gruppo. Ctrl+A e poi Ctrl+C copia la tabella.</value>
@@ -2561,7 +2561,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>_Safe:</value>
   </data>
   <data name="AddAccountPlatform" xml:space="preserve">
-    <value>_Piattaforma:</value>
+    <value>Pia_ttaforma:</value>
   </data>
   <data name="AddAccountPlatformTip" xml:space="preserve">
     <value>ID della piattaforma, come nel PVWA (ad esempio WinDomain, UnixSSH). L'elenco propone le piattaforme degli account che vedi.</value>
@@ -2603,7 +2603,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>Password gestita _automaticamente dal CPM</value>
   </data>
   <data name="AddAccountReason" xml:space="preserve">
-    <value>_Motivo della gestione manuale:</value>
+    <value>Motivo della _gestione manuale:</value>
   </data>
   <data name="AddAccountCreate" xml:space="preserve">
     <value>_Crea</value>
@@ -2642,7 +2642,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>_Riconcilia (CPM)…</value>
   </data>
   <data name="MenuEditAccount" xml:space="preserve">
-    <value>_Modifica l'account…</value>
+    <value>M_odifica l'account…</value>
   </data>
   <data name="MenuDeleteAccount" xml:space="preserve">
     <value>_Elimina l'account…</value>
@@ -2756,7 +2756,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>File CSV (*.csv;*.txt)|*.csv;*.txt|Tutti i file (*.*)|*.*</value>
   </data>
   <data name="ImportDefaultSafe" xml:space="preserve">
-    <value>_Safe predefinito:</value>
+    <value>S_afe predefinito:</value>
   </data>
   <data name="ImportDefaultPlatform" xml:space="preserve">
     <value>_Piattaforma predefinita:</value>
@@ -2903,7 +2903,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>Il PVWA non ha rimosso il membro: {0}</value>
   </data>
   <data name="MenuExportAccounts" xml:space="preserve">
-    <value>_Esporta gli account visualizzati (CSV)…</value>
+    <value>Esporta gli account _visualizzati (CSV)…</value>
   </data>
   <data name="ImportServersTip" xml:space="preserve">
     <value>Importa un elenco di server (file esportato da I miei server, o elenco condiviso)</value>
@@ -3056,7 +3056,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>Ripristino della revisione {0}</value>
   </data>
   <data name="MenuShareInList" xml:space="preserve">
-    <value>_Condividi in un elenco</value>
+    <value>Condividi in un _elenco</value>
   </data>
   <data name="MenuShareFolderInList" xml:space="preserve">
     <value>_Condividi la cartella in un elenco</value>
@@ -3077,16 +3077,16 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>Già in I miei server ({0} server).</value>
   </data>
   <data name="MenuSharedHistory" xml:space="preserve">
-    <value>_Cronologia delle modifiche…</value>
+    <value>Cr_onologia delle modifiche…</value>
   </data>
   <data name="MenuSharedRefresh" xml:space="preserve">
     <value>_Rileggi l'elenco</value>
   </data>
   <data name="MenuSharedCopyAll" xml:space="preserve">
-    <value>_Copia tutto in I miei server</value>
+    <value>Copia tutto in I miei _server</value>
   </data>
   <data name="MenuSharedCopyFolder" xml:space="preserve">
-    <value>_Copia la cartella in I miei server</value>
+    <value>Copia la cartella in I _miei server</value>
   </data>
   <data name="MenuSharedCopyServer" xml:space="preserve">
     <value>Cop_ia in I miei server</value>
@@ -3951,5 +3951,47 @@ Due istanze sovrascriverebbero a vicenda impostazioni, archivio locale e file in
   </data>
   <data name="PromptHintMfa" xml:space="preserve">
     <value>Probabilmente il codice dell'autenticazione forte (MFA): viene richiesto a ogni connessione.</value>
+  </data>
+  <data name="A11yCpmFailed" xml:space="preserve">
+    <value>ultima operazione del CPM non riuscita</value>
+  </data>
+  <data name="A11yMarked" xml:space="preserve">
+    <value>scelto</value>
+  </data>
+  <data name="A11yUnavailable" xml:space="preserve">
+    <value>account non più visibile in CyberArk</value>
+  </data>
+  <data name="A11yToolbar" xml:space="preserve">
+    <value>Barra degli strumenti</value>
+  </data>
+  <data name="ShortcutTabsKey" xml:space="preserve">
+    <value>Ctrl+Tab</value>
+  </data>
+  <data name="ShortcutTabs" xml:space="preserve">
+    <value>: scheda successiva (Ctrl+Maiusc+Tab: precedente), Ctrl+F4: chiuderla</value>
+  </data>
+  <data name="ShortcutQuickKey" xml:space="preserve">
+    <value>Ctrl+K</value>
+  </data>
+  <data name="ShortcutQuick" xml:space="preserve">
+    <value>: connessione rapida (Ctrl+1, 2, 3: schede laterali; F6: dal pannello alla sessione e ritorno)</value>
+  </data>
+  <data name="ShortcutTabClose" xml:space="preserve">
+    <value>Ctrl+F4</value>
+  </data>
+  <data name="LoginLanguageName" xml:space="preserve">
+    <value>Lingua</value>
+  </data>
+  <data name="LoginQuit" xml:space="preserve">
+    <value>Esci</value>
+  </data>
+  <data name="CapsLockOn" xml:space="preserve">
+    <value>Bloc Maiusc è attivo.</value>
+  </data>
+  <data name="A11yTerminalSearch" xml:space="preserve">
+    <value>Cerca nel terminale</value>
+  </data>
+  <data name="A11yArchiveThreshold" xml:space="preserve">
+    <value>Numero di file da cui viene proposto un archivio</value>
   </data>
 </root>

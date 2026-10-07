@@ -25,6 +25,7 @@ public partial class KeePassUnlockDialog : Window
     internal KeePassUnlockDialog(KeePassFolder folder, KeePassManager manager, Func<bool> ensureLocalStore, string? message = null)
     {
         InitializeComponent();
+        CapsLockWarning.Attach(CapsLockText, PasswordBox);
         _folder = folder;
         _manager = manager;
         _ensureLocalStore = ensureLocalStore;
@@ -171,7 +172,7 @@ public partial class KeePassUnlockDialog : Window
     private void ShowMessage(string text, bool error)
     {
         MessageText.Text = text;
-        MessageText.Foreground = error ? System.Windows.Media.Brushes.Firebrick : (System.Windows.Media.Brush)FindResource("MutedBrush");
+        MessageText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, error ? "ErrorBrush" : "MutedBrush");
         MessageText.Visibility = Visibility.Visible;
     }
 }

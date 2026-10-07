@@ -5,7 +5,7 @@
         Title="{x:Static loc:Strings.KeePassFolderTitle}" Width="560" SizeToContent="Height" ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <DockPanel>
-        <Border DockPanel.Dock="Top" Background="{StaticResource ToolbarBrush}" BorderBrush="{StaticResource ToolbarBorderBrush}"
+        <Border DockPanel.Dock="Top" Background="{DynamicResource ToolbarBrush}" BorderBrush="{DynamicResource ToolbarBorderBrush}"
                 BorderThickness="0,0,0,1" Padding="16,12">
             <DockPanel>
                 <Image Source="{StaticResource IconKeePass}" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Top" />
@@ -44,7 +44,7 @@
             <TextBox Grid.Row="3" Grid.Column="1" x:Name="KeyFileBox" VerticalContentAlignment="Center" />
             <Button Grid.Row="3" Grid.Column="2" Content="{x:Static loc:Strings.Browse}" Click="OnBrowseKeyFile" Margin="8,0,0,0" />
             <TextBlock Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Text="{x:Static loc:Strings.KeePassKeyFileHint}"
-                       Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,4,0,8" />
+                       Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,4,0,8" />
             <TextBlock Grid.Row="5" Grid.ColumnSpan="3" x:Name="ErrorText" Foreground="Firebrick" TextWrapping="Wrap" Visibility="Collapsed" />
         </Grid>
     </DockPanel>

@@ -26,6 +26,7 @@ public partial class LocalStoreDialog : Window
     public LocalStoreDialog(LocalSecretStore store, Mode mode, IEnumerable<string>? remembered = null)
     {
         InitializeComponent();
+        CapsLockWarning.Attach(CapsLockText, PasswordBox, ConfirmBox);
         _store = store;
         _mode = mode;
         _remembered = remembered;

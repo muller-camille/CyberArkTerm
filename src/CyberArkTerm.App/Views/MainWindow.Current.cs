@@ -470,6 +470,31 @@ public partial class MainWindow
 
     private void OnDeleteSelectedSaved(object sender, RoutedEventArgs e) => DeleteSelectedSaved();
 
+    /// <summary>
+    /// Menu de chaque élément de « Mes serveurs », posé sur l'élément de l'arbre lui-même : le clic droit, Maj+F10 et
+    /// la touche Menu ouvrent le même menu.
+    /// </summary>
+    private void OnSavedItemLoaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is TreeViewItem item && SavedMenuKey(item.DataContext) is { } key)
+        {
+            item.ContextMenu = (ContextMenu)FindResource(key);
+        }
+    }
+
+    private static string? SavedMenuKey(object? node) => node switch
+    {
+        KeePassFolderNode or KeePassHintNode => "KeePassFolderMenu",
+        KeePassGroupNode => "KeePassGroupMenu",
+        KeePassEntryNode => "KeePassEntryMenu",
+        SharedListNode => "SharedListMenu",
+        SharedFolderNode => "SharedFolderMenu",
+        SharedServerNode => "SharedServerMenu",
+        SavedFolderNode => "SavedFolderMenu",
+        SavedSessionNode => "SavedSessionMenu",
+        _ => null,
+    };
+
     private void DeleteSelectedSaved()
     {
         switch (SavedTree.SelectedItem)

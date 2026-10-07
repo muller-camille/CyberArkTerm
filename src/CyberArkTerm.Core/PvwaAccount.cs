@@ -58,6 +58,9 @@ public sealed class PvwaAccount
 
         return "";
     }
+
+    /// <summary>Nom lu par les lecteurs d'écran (listes de comptes : connexion rapide).</summary>
+    public override string ToString() => $"{UserName}@{Address}, {PlatformId}, {SafeName}";
 }
 
 public sealed class RemoteMachinesAccess

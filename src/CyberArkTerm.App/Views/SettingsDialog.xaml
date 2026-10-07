@@ -29,7 +29,7 @@
             </Grid.RowDefinitions>
             <Label Content="{x:Static loc:Strings.LanguageLabel}" Target="{Binding ElementName=LanguageBox}" />
             <ComboBox Grid.Column="1" x:Name="LanguageBox" VerticalAlignment="Center" />
-            <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Static loc:Strings.LanguageHelp}" Foreground="{StaticResource MutedBrush}"
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Static loc:Strings.LanguageHelp}" Foreground="{DynamicResource MutedBrush}"
                        TextWrapping="Wrap" Margin="0,4,0,0" />
         </Grid>
 
@@ -42,7 +42,7 @@
         </CheckBox>
 
         <TextBlock Text="{x:Static loc:Strings.SettingsSshSection}" Style="{StaticResource SectionTitle}" />
-        <TextBlock Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10"
+        <TextBlock Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10"
                    Text="{x:Static loc:Strings.SettingsSshHelp}" />
         <Grid Margin="0,0,0,8">
             <Grid.ColumnDefinitions>
@@ -85,22 +85,24 @@
             <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.FollowSetting}" />
         </CheckBox>
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8" ToolTip="{x:Static loc:Strings.UploadProtocolTip}">
-            <TextBlock Text="{x:Static loc:Strings.UploadLabel}" VerticalAlignment="Center" Margin="0,0,12,0" />
-            <RadioButton x:Name="SftpRadio" Content="SFTP" GroupName="Upload" Margin="0,0,16,0" VerticalAlignment="Center" />
-            <RadioButton x:Name="ScpRadio" Content="SCP" GroupName="Upload" VerticalAlignment="Center" />
+            <TextBlock x:Name="UploadLabelText" Text="{x:Static loc:Strings.UploadLabel}" VerticalAlignment="Center" Margin="0,0,12,0" />
+            <RadioButton x:Name="SftpRadio" Content="SFTP" GroupName="Upload" Margin="0,0,16,0" VerticalAlignment="Center"
+                         AutomationProperties.HelpText="{Binding Text, ElementName=UploadLabelText}" />
+            <RadioButton x:Name="ScpRadio" Content="SCP" GroupName="Upload" VerticalAlignment="Center"
+                         AutomationProperties.HelpText="{Binding Text, ElementName=UploadLabelText}" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8" ToolTip="{x:Static loc:Strings.SettingsArchiveTip}">
             <CheckBox x:Name="ArchiveBox" VerticalAlignment="Center">
                 <AccessText Text="{x:Static loc:Strings.SettingsArchiveOffer}" />
             </CheckBox>
             <TextBox x:Name="ArchiveThresholdBox" Width="60" Margin="6,0,6,0" VerticalAlignment="Center"
-                     IsEnabled="{Binding IsChecked, ElementName=ArchiveBox}" />
+                     IsEnabled="{Binding IsChecked, ElementName=ArchiveBox}" AutomationProperties.Name="{x:Static loc:Strings.A11yArchiveThreshold}" />
             <TextBlock Text="{x:Static loc:Strings.SettingsArchiveFiles}" VerticalAlignment="Center" />
         </StackPanel>
         <CheckBox x:Name="TailSessionBox" Margin="0,0,0,2">
             <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SettingsTailSession}" />
         </CheckBox>
-        <TextBlock Text="{x:Static loc:Strings.SettingsTailSessionHelp}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="20,0,0,8" />
+        <TextBlock Text="{x:Static loc:Strings.SettingsTailSessionHelp}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="20,0,0,8" />
         <Grid Margin="0,0,0,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="140" />
@@ -117,7 +119,7 @@
                        Text="notepad.exe" Margin="6,0,0,0" />
             <Button Grid.Column="2" Content="{x:Static loc:Strings.Browse}" Click="OnBrowseEditor" Margin="8,0,0,0" />
             <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{x:Static loc:Strings.TextEditorHelp}"
-                       Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                       Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
         </Grid>
         <!-- Outil de comparaison externe (facultatif) : la comparaison intégrée suffit sinon. -->
         <Grid Margin="0,0,0,8">
@@ -138,11 +140,11 @@
             <TextBox Grid.Row="1" Grid.Column="1" x:Name="CompareArgsBox" VerticalContentAlignment="Center" Margin="0,4,0,0"
                      FontFamily="Consolas, Courier New" />
             <TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="{x:Static loc:Strings.CompareToolHelp}"
-                       Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                       Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
         </Grid>
         <DockPanel Margin="0,0,0,16">
             <Button DockPanel.Dock="Right" Content="{x:Static loc:Strings.ForgetKeys}" Click="OnForgetHostKeys" VerticalAlignment="Center" />
-            <TextBlock x:Name="HostKeysText" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0" />
+            <TextBlock x:Name="HostKeysText" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0" />
         </DockPanel>
 
         <TextBlock Text="{x:Static loc:Strings.LocalStoreSection}" Style="{StaticResource SectionTitle}" />
@@ -153,13 +155,13 @@
                 <Button x:Name="StoreChangeButton" Content="{x:Static loc:Strings.LocalStoreChange}" Click="OnStoreChange" Margin="8,0,0,0" />
                 <Button x:Name="StoreDeleteButton" Content="{x:Static loc:Strings.LocalStoreDelete}" Click="OnStoreDelete" Margin="8,0,0,0" />
             </StackPanel>
-            <TextBlock x:Name="StoreText" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
+            <TextBlock x:Name="StoreText" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
         </DockPanel>
 
         <TextBlock Text="{x:Static loc:Strings.ComponentsSection}" Style="{StaticResource SectionTitle}" />
         <DockPanel Margin="0,0,0,16">
             <Button DockPanel.Dock="Right" Content="{x:Static loc:Strings.Forget}" Click="OnForgetComponents" VerticalAlignment="Center" />
-            <TextBlock x:Name="ComponentsText" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"
+            <TextBlock x:Name="ComponentsText" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap"
                        VerticalAlignment="Center" Margin="0,0,12,0" />
         </DockPanel>
     </StackPanel>

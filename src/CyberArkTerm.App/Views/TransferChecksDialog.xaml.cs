@@ -20,9 +20,9 @@ public partial class TransferChecksDialog : Window
         InitializeComponent();
         _checks = checks;
         HeadingText.Text = Heading(checks);
-        HeadingText.Foreground = new SolidColorBrush(checks.Any(c => c.Failed || (c.Verified && !c.Matches)) ? Colors.Firebrick
-            : checks.Any(c => !c.Verified && !c.Interrupted) ? Color.FromRgb(0xB2, 0x6A, 0x00)
-            : Color.FromRgb(0x1E, 0x7B, 0x45));
+        HeadingText.SetResourceReference(TextBlock.ForegroundProperty, checks.Any(c => c.Failed || (c.Verified && !c.Matches)) ? "ErrorBrush"
+            : checks.Any(c => !c.Verified && !c.Interrupted) ? "WarningBrush"
+            : "SuccessBrush");
         // Comment les sommes ont été obtenues, selon les sens présents.
         IntroText.Text = string.Join(Environment.NewLine, new[]
         {

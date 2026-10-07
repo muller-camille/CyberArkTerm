@@ -5,13 +5,13 @@
         Title="{x:Static loc:Strings.AddAccountTitle}" Width="560" SizeToContent="Height" ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <DockPanel>
-        <Border DockPanel.Dock="Top" Background="{StaticResource ToolbarBrush}" BorderBrush="{StaticResource ToolbarBorderBrush}"
+        <Border DockPanel.Dock="Top" Background="{DynamicResource ToolbarBrush}" BorderBrush="{DynamicResource ToolbarBorderBrush}"
                 BorderThickness="0,0,0,1" Padding="16,12">
             <DockPanel>
                 <Image Source="{StaticResource IconPermissions}" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center" />
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock x:Name="HeadingText" Text="{x:Static loc:Strings.AddAccountTitle}" FontSize="16" FontWeight="SemiBold" />
-                    <TextBlock x:Name="IntroText" Text="{x:Static loc:Strings.AddAccountIntro}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                    <TextBlock x:Name="IntroText" Text="{x:Static loc:Strings.AddAccountIntro}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,2,0,0" />
                 </StackPanel>
             </DockPanel>
         </Border>
@@ -21,7 +21,7 @@
                 <Button x:Name="CreateButton" Content="{x:Static loc:Strings.AddAccountCreate}" IsDefault="True" Click="OnCreate" />
                 <Button x:Name="CancelButton" Content="{x:Static loc:Strings.Cancel}" IsCancel="True" Margin="8,0,0,0" />
             </StackPanel>
-            <TextBlock x:Name="StatusText" Text="{x:Static loc:Strings.AddAccountCreating}" Foreground="{StaticResource MutedBrush}"
+            <TextBlock x:Name="StatusText" Text="{x:Static loc:Strings.AddAccountCreating}" Foreground="{DynamicResource MutedBrush}"
                        VerticalAlignment="Center" Visibility="Collapsed" />
         </DockPanel>
 

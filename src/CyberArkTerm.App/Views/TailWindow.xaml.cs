@@ -157,7 +157,7 @@ public partial class TailWindow : Window
             _links.Add(link);
         }
 
-        var feed = new TailFeed(link, path, TailBrushes.Sources[_colors++ % TailBrushes.Sources.Length]);
+        var feed = new TailFeed(link, path, TailBrushes.Source(_colors++));
         feed.SetStatus(Strings.TailConnecting, error: false);
         _feeds.Add(feed);
         UpdateTitle();
@@ -585,7 +585,7 @@ public partial class TailWindow : Window
         }
         else
         {
-            box.BorderBrush = TailBrushes.Error;
+            box.SetResourceReference(BorderBrushProperty, "ErrorBrush");
             box.ToolTip = Text.Format(Strings.TailRegexInvalid, error);
         }
     }
@@ -1046,6 +1046,6 @@ public partial class TailWindow : Window
         }
 
         StatusText.Text = string.Join(" · ", parts);
-        StatusText.Foreground = error ? TailBrushes.Error : TailBrushes.Muted;
+        StatusText.SetResourceReference(TextBlock.ForegroundProperty, error ? "ErrorBrush" : "MutedBrush");
     }
 }

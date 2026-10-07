@@ -5,13 +5,13 @@
         Title="{x:Static loc:Strings.KeePassUnlockTitle}" Width="520" SizeToContent="Height" ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <DockPanel>
-        <Border DockPanel.Dock="Top" Background="{StaticResource ToolbarBrush}" BorderBrush="{StaticResource ToolbarBorderBrush}"
+        <Border DockPanel.Dock="Top" Background="{DynamicResource ToolbarBrush}" BorderBrush="{DynamicResource ToolbarBorderBrush}"
                 BorderThickness="0,0,0,1" Padding="16,12">
             <DockPanel>
                 <Image Source="{StaticResource IconKeePass}" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center" />
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock x:Name="NameText" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                    <TextBlock x:Name="PathText" Foreground="{StaticResource MutedBrush}" Margin="0,2,0,0" TextTrimming="CharacterEllipsis" />
+                    <TextBlock x:Name="PathText" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0" TextTrimming="CharacterEllipsis" />
                 </StackPanel>
             </DockPanel>
         </Border>
@@ -34,6 +34,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Label x:Name="PasswordLabel" Content="{x:Static loc:Strings.KeePassMasterPasswordLabel}" Target="{Binding ElementName=PasswordBox}" />
             <PasswordBox Grid.Column="1" Grid.ColumnSpan="2" x:Name="PasswordBox" Margin="0,0,0,8" VerticalContentAlignment="Center" />
@@ -44,9 +45,12 @@
                 <AccessText Text="{x:Static loc:Strings.KeePassRemember}" TextWrapping="Wrap" />
             </CheckBox>
             <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" x:Name="RememberHint" Text="{x:Static loc:Strings.KeePassRememberHint}"
-                       Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="20,2,0,8" />
+                       Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="20,2,0,8" />
             <ProgressBar Grid.Row="4" Grid.ColumnSpan="3" x:Name="Progress" Height="6" IsIndeterminate="True" Margin="0,4,0,4" Visibility="Collapsed" />
-            <TextBlock Grid.Row="5" Grid.ColumnSpan="3" x:Name="MessageText" TextWrapping="Wrap" Visibility="Collapsed" />
+            <TextBlock Grid.Row="5" Grid.ColumnSpan="3" x:Name="MessageText" TextWrapping="Wrap" Visibility="Collapsed"
+                       AutomationProperties.LiveSetting="Assertive" />
+            <TextBlock Grid.Row="6" Grid.ColumnSpan="3" x:Name="CapsLockText" Text="{x:Static loc:Strings.CapsLockOn}" Foreground="{DynamicResource WarningBrush}"
+                       Margin="0,4,0,0" Visibility="Collapsed" />
         </Grid>
     </DockPanel>
 </Window>

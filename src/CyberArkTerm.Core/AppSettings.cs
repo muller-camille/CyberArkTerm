@@ -382,4 +382,7 @@ public sealed class RecentSession
     public string? RemoteMachine { get; set; }
 
     public DateTime When { get; set; }
+
+    /// <summary>Nom lu par les lecteurs d'écran dans la liste des connexions récentes.</summary>
+    public override string ToString() => $"{Label}, {Mode}";
 }

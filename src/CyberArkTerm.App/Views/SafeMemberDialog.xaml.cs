@@ -90,7 +90,9 @@ public partial class SafeMemberDialog : Window
                 if (SafeProfiles.Sensitive.Contains(name))
                 {
                     // Droit sensible : marqué, avec son explication.
-                    box.Content = new TextBlock { Inlines = { new System.Windows.Documents.Run("⚠ ") { Foreground = WarningBrush }, new System.Windows.Documents.Run(SafePermissionText.Label(name)) } };
+                    var mark = new System.Windows.Documents.Run("⚠ ");
+                    mark.SetResourceReference(System.Windows.Documents.TextElement.ForegroundProperty, "WarningBrush");
+                    box.Content = new TextBlock { Inlines = { mark, new System.Windows.Documents.Run(SafePermissionText.Label(name)) } };
                     box.ToolTip = Strings.SafeMemberSensitiveTip;
                     System.Windows.Automation.AutomationProperties.SetName(box, SafePermissionText.Label(name));
                     System.Windows.Automation.AutomationProperties.SetHelpText(box, Strings.SafeMemberSensitiveTip);
@@ -108,15 +110,6 @@ public partial class SafeMemberDialog : Window
 
         Closed += (_, _) => _closing.Cancel();
         ShowChanges();
-    }
-
-    private static readonly System.Windows.Media.Brush WarningBrush = Frozen(System.Windows.Media.Color.FromRgb(0x9A, 0x67, 0x00));
-
-    private static System.Windows.Media.Brush Frozen(System.Windows.Media.Color color)
-    {
-        var brush = new System.Windows.Media.SolidColorBrush(color);
-        brush.Freeze();
-        return brush;
     }
 
     private static SafePermissions ProfilePermissions(SafeProfile profile)

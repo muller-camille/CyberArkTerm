@@ -10,10 +10,10 @@
         </Style>
         <!-- Vert si identique, rouge si différent, orange si non vérifié. -->
         <Style x:Key="ResultText" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#B26A00" />
+            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Matches}" Value="True">
-                    <Setter Property="Foreground" Value="#1E7B45" />
+                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
                 </DataTrigger>
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
@@ -28,18 +28,18 @@
     </Window.Resources>
     <DockPanel Margin="16">
         <TextBlock x:Name="HeadingText" DockPanel.Dock="Top" FontWeight="SemiBold" FontSize="14" TextWrapping="Wrap" Margin="0,0,0,4" />
-        <TextBlock x:Name="IntroText" DockPanel.Dock="Top" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <TextBlock x:Name="IntroText" DockPanel.Dock="Top" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10" />
 
         <DockPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                 <Button Content="{x:Static loc:Strings.ChecksCopy}" ToolTip="{x:Static loc:Strings.ChecksCopyTip}" Click="OnCopy" />
                 <Button Content="{x:Static loc:Strings.CloseButton}" IsCancel="True" IsDefault="True" Margin="8,0,0,0" />
             </StackPanel>
-            <TextBlock x:Name="CopiedText" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,12,0" />
+            <TextBlock x:Name="CopiedText" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,12,0" />
         </DockPanel>
 
         <DataGrid x:Name="ChecksGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False"
                   SelectionMode="Extended" SelectionUnit="FullRow" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                  HorizontalGridLinesBrush="#E5E9EE" AlternatingRowBackground="#F7F9FC" ClipboardCopyMode="IncludeHeader" />
+                  HorizontalGridLinesBrush="{DynamicResource GridLineBrush}" AlternatingRowBackground="{DynamicResource AlternateRowBrush}" ClipboardCopyMode="IncludeHeader" />
     </DockPanel>
 </Window>

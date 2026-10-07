@@ -38,7 +38,7 @@
             <TextBox x:Name="LocalPathBox" VerticalContentAlignment="Center" />
         </DockPanel>
 
-        <TextBlock Text="{x:Static loc:Strings.CompareNote}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <TextBlock Text="{x:Static loc:Strings.CompareNote}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10" />
         <TextBlock x:Name="ErrorText" Foreground="Firebrick" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,0,0,8" />
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="{x:Static loc:Strings.CompareButton}" IsDefault="True" Click="OnCompare" />

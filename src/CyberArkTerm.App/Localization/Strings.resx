@@ -37,7 +37,7 @@
     <value>SSH via PSMP</value>
   </data>
   <data name="ComponentLabel" xml:space="preserve">
-    <value>PSM _component:</value>
+    <value>_PSM component:</value>
   </data>
   <data name="TargetMachineLabel" xml:space="preserve">
     <value>Target _machine:</value>
@@ -121,7 +121,7 @@
     <value>Copy domain\user</value>
   </data>
   <data name="MenuProperties" xml:space="preserve">
-    <value>_Properties…</value>
+    <value>Prop_erties…</value>
   </data>
   <data name="MenuRename" xml:space="preserve">
     <value>_Rename…</value>
@@ -479,7 +479,7 @@
     <value>Language</value>
   </data>
   <data name="LanguageLabel" xml:space="preserve">
-    <value>Interface _language:</value>
+    <value>I_nterface language:</value>
   </data>
   <data name="LanguageHelp" xml:space="preserve">
     <value>Applied after signing out or at the next start.</value>
@@ -515,7 +515,7 @@
     <value>Remembered PSM components</value>
   </data>
   <data name="Forget" xml:space="preserve">
-    <value>_Forget</value>
+    <value>F_orget</value>
   </data>
   <data name="NoHostKeys" xml:space="preserve">
     <value>No PSMP key remembered.</value>
@@ -581,7 +581,7 @@
     <value>Default _reason:</value>
   </data>
   <data name="StartDirLabel" xml:space="preserve">
-    <value>SFTP _start folder:</value>
+    <value>SF_TP start folder:</value>
   </data>
   <data name="StartDirTip" xml:space="preserve">
     <value>Folder opened by the Files panel (e.g. /opt/app/logs). Empty: home folder.</value>
@@ -602,7 +602,7 @@
     <value>_Upload files here…</value>
   </data>
   <data name="FileDelete" xml:space="preserve">
-    <value>_Delete (rm)</value>
+    <value>De_lete (rm)</value>
   </data>
   <data name="FileCopyPath" xml:space="preserve">
     <value>_Copy path</value>
@@ -838,7 +838,7 @@
     <value>⚠ Not checked: {0}</value>
   </data>
   <data name="ChecksCopy" xml:space="preserve">
-    <value>_Copy for sha256sum -c</value>
+    <value>Copy for _sha256sum -c</value>
   </data>
   <data name="ChecksCopyTip" xml:space="preserve">
     <value>Copies one line per file (checksum of the original and path on the server), to check again on the server with sha256sum -c.</value>
@@ -874,7 +874,7 @@
     <value>Each follow window opens its own SFTP connection instead of sharing the one of the Files tab: it does not wait for transfers, but it is one more PSMP session (recorded separately, and an MFA validation may be asked).</value>
   </data>
   <data name="SettingsArchiveOffer" xml:space="preserve">
-    <value>Offer a single ._tar.gz archive from</value>
+    <value>Offer a s_ingle .tar.gz archive from</value>
   </data>
   <data name="SettingsArchiveFiles" xml:space="preserve">
     <value>files dropped at once</value>
@@ -987,7 +987,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>_Wrap lines</value>
   </data>
   <data name="TailClear" xml:space="preserve">
-    <value>_Clear</value>
+    <value>Clear _display</value>
   </data>
   <data name="TailMarker" xml:space="preserve">
     <value>_Marker</value>
@@ -1056,7 +1056,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>Hide the lines containing this text, like grep -v</value>
   </data>
   <data name="TailRegex" xml:space="preserve">
-    <value>Regular e_xpressions</value>
+    <value>_Regular expressions</value>
   </data>
   <data name="TailRegexTip" xml:space="preserve">
     <value>Filter and exclusion are regular expressions (.NET syntax, case-insensitive), e.g. user=\w+ (denied|refused)</value>
@@ -1080,7 +1080,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>Errors (ERROR, FATAL, CRITICAL…) in red, warnings (WARN, WARNING) in orange</value>
   </data>
   <data name="TailHighlight" xml:space="preserve">
-    <value>_Highlight:</value>
+    <value>H_ighlight:</value>
   </data>
   <data name="TailHighlightTip" xml:space="preserve">
     <value>Words highlighted in yellow, separated by commas (kept for the next windows)</value>
@@ -1116,10 +1116,10 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>{0} new alert line(s) in {1}</value>
   </data>
   <data name="TailSearch" xml:space="preserve">
-    <value>Searc_h:</value>
+    <value>Search:</value>
   </data>
   <data name="TailSearchRegex" xml:space="preserve">
-    <value>Regular e_xpression</value>
+    <value>Re_gular expression</value>
   </data>
   <data name="TailSearchPreviousTip" xml:space="preserve">
     <value>Previous (Shift+Enter, Shift+F3)</value>
@@ -1275,7 +1275,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>_Show the parallel view</value>
   </data>
   <data name="MenuOpenInParallel" xml:space="preserve">
-    <value>Open in the _parallel view</value>
+    <value>_Open in the parallel view</value>
   </data>
   <data name="MenuOpenManyInParallel" xml:space="preserve">
     <value>Open the {0} servers in the _parallel view</value>
@@ -1326,7 +1326,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>Add to the para_llel view</value>
   </data>
   <data name="MenuTabRemoveParallel" xml:space="preserve">
-    <value>Take out of the para_llel view</value>
+    <value>Ta_ke out of the parallel view</value>
   </data>
   <data name="MultiUploadTitle" xml:space="preserve">
     <value>Send to several servers</value>
@@ -1459,7 +1459,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>Cannot read {0}: {1}</value>
   </data>
   <data name="CompareLocal" xml:space="preserve">
-    <value>A file on this _computer</value>
+    <value>A _file on this computer</value>
   </data>
   <data name="CompareNote" xml:space="preserve">
     <value>The files are read into memory (50 MB at most each), without a copy on this computer. Nothing runs on the servers.</value>
@@ -1705,7 +1705,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>New version</value>
   </data>
   <data name="AboutCheck" xml:space="preserve">
-    <value>_Check now</value>
+    <value>Check _now</value>
   </data>
   <data name="AboutChecking" xml:space="preserve">
     <value>Asking GitHub for the latest version…</value>
@@ -1792,7 +1792,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>✓ done · {0} identical</value>
   </data>
   <data name="HistoryChecks" xml:space="preserve">
-    <value>_Checksums…</value>
+    <value>C_hecksums…</value>
   </data>
   <data name="HistoryOpenFolder" xml:space="preserve">
     <value>_Open the folder</value>
@@ -2189,7 +2189,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>Leave empty to keep the current password</value>
   </data>
   <data name="KeePassShowPassword" xml:space="preserve">
-    <value>_Show</value>
+    <value>S_how</value>
   </data>
   <data name="KeePassNotesLabel" xml:space="preserve">
     <value>_Notes:</value>
@@ -2249,7 +2249,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>_Properties…</value>
   </data>
   <data name="MenuKeePassRemove" xml:space="preserve">
-    <value>_Remove from the list</value>
+    <value>R_emove from the list</value>
   </data>
   <data name="MenuKeePassConnect" xml:space="preserve">
     <value>_Connect</value>
@@ -2441,7 +2441,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value> (group)</value>
   </data>
   <data name="SafeMembersOnlyAdd" xml:space="preserve">
-    <value>Only members who can _add accounts</value>
+    <value>_Only members who can add accounts</value>
   </data>
   <data name="SafeMembersHint" xml:space="preserve">
     <value>The members of a group have the rights of the group. Ctrl+A then Ctrl+C copies the table.</value>
@@ -2600,7 +2600,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>Servers this account can open PSM sessions on, separated by “;”. Empty: no restriction.</value>
   </data>
   <data name="AddAccountCpm" xml:space="preserve">
-    <value>Password managed _automatically by the CPM</value>
+    <value>Password mana_ged automatically by the CPM</value>
   </data>
   <data name="AddAccountReason" xml:space="preserve">
     <value>_Reason for manual management:</value>
@@ -2825,7 +2825,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>The PVWA session has expired: import stopped, {0} created, {1} refused; the other lines were not sent.</value>
   </data>
   <data name="ImportSaveResult" xml:space="preserve">
-    <value>_Save the result…</value>
+    <value>Save the _result…</value>
   </data>
   <data name="ImportResultFileName" xml:space="preserve">
     <value>import-result</value>
@@ -2861,7 +2861,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>_Type:</value>
   </data>
   <data name="SafeMemberSearchIn" xml:space="preserve">
-    <value>_Search in:</value>
+    <value>S_earch in:</value>
   </data>
   <data name="SafeMemberSearchInTip" xml:space="preserve">
     <value>“Vault” for a vault user or group, otherwise the name of the LDAP directory (for example corp.example).</value>
@@ -2903,7 +2903,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>The PVWA did not remove the member: {0}</value>
   </data>
   <data name="MenuExportAccounts" xml:space="preserve">
-    <value>_Export the displayed accounts (CSV)…</value>
+    <value>Export the _displayed accounts (CSV)…</value>
   </data>
   <data name="ImportServersTip" xml:space="preserve">
     <value>Import a list of servers (file exported from My servers, or shared list)</value>
@@ -3932,7 +3932,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Optional, unless the platform requires a reason or a ticket.</value>
   </data>
   <data name="RetrieveAndCopy" xml:space="preserve">
-    <value>_Retrieve and copy</value>
+    <value>Retrieve and _copy</value>
   </data>
   <data name="PromptSession" xml:space="preserve">
     <value>Session: {0}</value>
@@ -3951,5 +3951,47 @@ Two instances would overwrite each other's settings, local vault and files being
   </data>
   <data name="PromptHintMfa" xml:space="preserve">
     <value>Probably the code of your strong authentication (MFA): it is asked again at each connection.</value>
+  </data>
+  <data name="A11yCpmFailed" xml:space="preserve">
+    <value>last CPM operation failed</value>
+  </data>
+  <data name="A11yMarked" xml:space="preserve">
+    <value>selected</value>
+  </data>
+  <data name="A11yUnavailable" xml:space="preserve">
+    <value>account no longer visible in CyberArk</value>
+  </data>
+  <data name="A11yToolbar" xml:space="preserve">
+    <value>Toolbar</value>
+  </data>
+  <data name="ShortcutTabsKey" xml:space="preserve">
+    <value>Ctrl+Tab</value>
+  </data>
+  <data name="ShortcutTabs" xml:space="preserve">
+    <value>: next tab (Ctrl+Shift+Tab: previous), Ctrl+F4: close it</value>
+  </data>
+  <data name="ShortcutQuickKey" xml:space="preserve">
+    <value>Ctrl+K</value>
+  </data>
+  <data name="ShortcutQuick" xml:space="preserve">
+    <value>: quick connect (Ctrl+1, 2, 3: side tabs; F6: from the side panel to the session and back)</value>
+  </data>
+  <data name="ShortcutTabClose" xml:space="preserve">
+    <value>Ctrl+F4</value>
+  </data>
+  <data name="LoginLanguageName" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="LoginQuit" xml:space="preserve">
+    <value>Quit</value>
+  </data>
+  <data name="CapsLockOn" xml:space="preserve">
+    <value>Caps Lock is on.</value>
+  </data>
+  <data name="A11yTerminalSearch" xml:space="preserve">
+    <value>Search the terminal</value>
+  </data>
+  <data name="A11yArchiveThreshold" xml:space="preserve">
+    <value>Number of files from which an archive is offered</value>
   </data>
 </root>

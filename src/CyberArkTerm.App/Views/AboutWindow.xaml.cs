@@ -83,7 +83,7 @@ public partial class AboutWindow : Window
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             UpdateText.Text = Text.Format(Strings.AboutCheckFailed, ErrorText.Describe(ex));
-            UpdateText.Foreground = System.Windows.Media.Brushes.Firebrick;
+            UpdateText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "ErrorBrush");
         }
         finally
         {
@@ -96,7 +96,7 @@ public partial class AboutWindow : Window
         UpdateText.Text = info.Published is { } date
             ? Text.Format(Strings.AboutNewVersionDated, info.Version, date.LocalDateTime.ToString("d"))
             : Text.Format(Strings.AboutNewVersion, info.Version);
-        UpdateText.Foreground = System.Windows.Media.Brushes.ForestGreen;
+        UpdateText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "SuccessBrush");
         UpdatePanel.Visibility = Visibility.Visible;
         DownloadButton.IsEnabled = info.PackageUrl is not null && info.SumsUrl is not null;
     }
@@ -121,7 +121,7 @@ public partial class AboutWindow : Window
             _downloaded = await UpdateChecker.DownloadAsync(UpdateService.Http, info, DownloadsFolder,
                 new Progress<double>(value => DownloadProgress.Value = value), _download.Token);
             UpdateText.Text = Text.Format(Strings.AboutDownloaded, _downloaded);
-            UpdateText.Foreground = System.Windows.Media.Brushes.ForestGreen;
+            UpdateText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "SuccessBrush");
             ShowFileButton.Visibility = Visibility.Visible;
         }
         catch (OperationCanceledException) when (_download.IsCancellationRequested)
@@ -131,7 +131,7 @@ public partial class AboutWindow : Window
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             UpdateText.Text = Text.Format(Strings.AboutDownloadFailed, ErrorText.Describe(ex));
-            UpdateText.Foreground = System.Windows.Media.Brushes.Firebrick;
+            UpdateText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "ErrorBrush");
             DownloadButton.IsEnabled = true;
         }
         finally

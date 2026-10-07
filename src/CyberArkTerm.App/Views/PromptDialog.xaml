@@ -9,7 +9,7 @@
             <Image Source="{StaticResource IconSsh}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Top" />
             <StackPanel>
                 <!-- Session qui pose la question : plusieurs peuvent s'ouvrir ensemble (vue parallèle, multi-sélection). -->
-                <TextBlock x:Name="SessionText" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,4"
+                <TextBlock x:Name="SessionText" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,4"
                            Visibility="Collapsed" />
                 <TextBlock x:Name="InstructionText" TextWrapping="Wrap" FontWeight="SemiBold" />
                 <TextBlock x:Name="PromptText" TextWrapping="Wrap" Margin="0,4,0,0" />
@@ -17,7 +17,7 @@
         </DockPanel>
         <PasswordBox x:Name="SecretBox" Margin="0,0,0,6" />
         <TextBox x:Name="TextBox" Margin="0,0,0,6" Visibility="Collapsed" />
-        <TextBlock x:Name="HintText" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,6" Visibility="Collapsed" />
+        <TextBlock x:Name="HintText" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,6" Visibility="Collapsed" />
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,0,0">
             <Button Content="{x:Static loc:Strings.PromptSend}" IsDefault="True" Click="OnOk" />
             <Button Content="{x:Static loc:Strings.Cancel}" IsCancel="True" Margin="8,0,0,0" />

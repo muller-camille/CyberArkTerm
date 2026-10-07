@@ -32,7 +32,7 @@
             </CheckBox>
         </DockPanel>
         <TextBlock x:Name="StatusText" DockPanel.Dock="Bottom" TextWrapping="Wrap" Margin="0,6,0,0"
-                   Foreground="{StaticResource MutedBrush}" />
+                   Foreground="{DynamicResource MutedBrush}" />
 
         <ListView x:Name="FileList" SelectionMode="Single" PreviewKeyDown="OnListKeyDown" SelectionChanged="OnSelectionChanged">
             <ListView.ItemContainerStyle>

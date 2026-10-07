@@ -9,7 +9,7 @@
             <Image x:Name="LogoImage" DockPanel.Dock="Left" Width="56" Height="56" Margin="0,0,14,0" VerticalAlignment="Top" />
             <StackPanel>
                 <TextBlock Text="CyberArkTerm" FontSize="20" FontWeight="SemiBold" />
-                <TextBlock x:Name="VersionText" Foreground="{StaticResource MutedBrush}" Margin="0,2,0,6" />
+                <TextBlock x:Name="VersionText" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,6" />
                 <TextBlock Text="{x:Static loc:Strings.AboutDescription}" TextWrapping="Wrap" />
             </StackPanel>
         </DockPanel>
@@ -19,14 +19,14 @@
             <Run Text="   " />
             <Hyperlink Click="OnReleases"><Run Text="{x:Static loc:Strings.AboutReleases}" /></Hyperlink>
         </TextBlock>
-        <TextBlock x:Name="LicenseText" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <TextBlock x:Name="LicenseText" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10" />
 
-        <Border BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="0,1,0,1" Padding="0,8" Margin="0,0,0,10">
+        <Border BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="0,1,0,1" Padding="0,8" Margin="0,0,0,10">
             <StackPanel>
-                <TextBlock x:Name="SystemText" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" />
+                <TextBlock x:Name="SystemText" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" />
                 <DockPanel Margin="0,6,0,0">
                     <Button DockPanel.Dock="Right" Content="{x:Static loc:Strings.AboutOpenFolder}" Click="OnOpenSettingsFolder" Margin="8,0,0,0" />
-                    <TextBlock x:Name="FolderText" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                    <TextBlock x:Name="FolderText" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
                 </DockPanel>
             </StackPanel>
         </Border>
@@ -46,7 +46,7 @@
         <CheckBox x:Name="AutoCheckBox" Margin="0,4,0,4" Click="OnAutoCheck">
             <TextBlock Text="{x:Static loc:Strings.AboutAutoCheck}" TextWrapping="Wrap" />
         </CheckBox>
-        <TextBlock Text="{x:Static loc:Strings.AboutUpdateNote}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,12" />
+        <TextBlock Text="{x:Static loc:Strings.AboutUpdateNote}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,12" />
 
         <Button Content="{x:Static loc:Strings.CloseButton}" IsCancel="True" IsDefault="True" HorizontalAlignment="Right" MinWidth="80" />
     </StackPanel>

@@ -5,13 +5,13 @@
         Title="{x:Static loc:Strings.PropertiesTitle}" Width="540" SizeToContent="Height" ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <DockPanel>
-        <Border DockPanel.Dock="Top" Background="{StaticResource ToolbarBrush}" BorderBrush="{StaticResource ToolbarBorderBrush}"
+        <Border DockPanel.Dock="Top" Background="{DynamicResource ToolbarBrush}" BorderBrush="{DynamicResource ToolbarBorderBrush}"
                 BorderThickness="0,0,0,1" Padding="16,12">
             <DockPanel>
                 <Image x:Name="KindIcon" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center" />
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock x:Name="AccountText" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                    <TextBlock x:Name="DetailsText" Foreground="{StaticResource MutedBrush}" Margin="0,2,0,0" />
+                    <TextBlock x:Name="DetailsText" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0" />
                 </StackPanel>
             </DockPanel>
         </Border>

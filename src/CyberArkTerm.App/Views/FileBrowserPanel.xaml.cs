@@ -782,6 +782,32 @@ public partial class FileBrowserPanel : UserControl
 
     private void OnStopChmod(object sender, RoutedEventArgs e) => _chmodCancel?.Cancel();
 
+    /// <summary>Curseur dans la liste des fichiers (Ctrl+3, F6) : sur l'élément choisi, sinon le premier.</summary>
+    public void FocusList()
+    {
+        if (FileList.Items.Count == 0)
+        {
+            FileList.Focus();
+            return;
+        }
+
+        if (FileList.SelectedIndex < 0)
+        {
+            FileList.SelectedIndex = 0;
+        }
+
+        FileList.ScrollIntoView(FileList.SelectedItem);
+        FileList.UpdateLayout();
+        if (FileList.ItemContainerGenerator.ContainerFromIndex(FileList.SelectedIndex) is ListViewItem item)
+        {
+            item.Focus();
+        }
+        else
+        {
+            FileList.Focus();
+        }
+    }
+
     private async Task DeleteAsync()
     {
         var browser = _browser;
@@ -1010,7 +1036,7 @@ public partial class FileBrowserPanel : UserControl
     private void SetStatus(string text, bool error = false)
     {
         StatusText.Text = text;
-        StatusText.Foreground = error ? System.Windows.Media.Brushes.Firebrick : (System.Windows.Media.Brush)FindResource("MutedBrush");
+        StatusText.SetResourceReference(TextBlock.ForegroundProperty, error ? "ErrorBrush" : "MutedBrush");
     }
 
     private void ShowMessage(string text, bool retry)

@@ -5,13 +5,13 @@
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <DockPanel>
         <!-- Bandeau d'alerte (clé changée…). -->
-        <Border x:Name="Banner" DockPanel.Dock="Top" Background="#FDECEA" BorderBrush="#B3261E" BorderThickness="0,0,0,2"
+        <Border x:Name="Banner" DockPanel.Dock="Top" Background="{DynamicResource ErrorBackgroundBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="0,0,0,2"
                 Padding="16,8" Visibility="Collapsed">
-            <TextBlock x:Name="BannerText" Foreground="#7A1712" FontWeight="SemiBold" TextWrapping="Wrap"
+            <TextBlock x:Name="BannerText" Foreground="{DynamicResource ErrorBrush}" FontWeight="SemiBold" TextWrapping="Wrap"
                        AutomationProperties.LiveSetting="Assertive" />
         </Border>
 
-        <Border DockPanel.Dock="Bottom" Background="{StaticResource SidePanelBrush}" BorderBrush="{StaticResource ToolbarBorderBrush}"
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource SidePanelBrush}" BorderBrush="{DynamicResource ToolbarBorderBrush}"
                 BorderThickness="0,1,0,0" Padding="16,10,16,12">
             <!-- Cases sur leur propre ligne : un texte long ne recouvre jamais les boutons. -->
             <StackPanel>
@@ -29,7 +29,7 @@
                 <Image x:Name="KindImage" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Top" />
                 <StackPanel>
                     <TextBlock x:Name="HeadingText" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" />
-                    <TextBlock x:Name="SubjectText" Margin="0,3,0,0" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"
+                    <TextBlock x:Name="SubjectText" Margin="0,3,0,0" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap"
                                Visibility="Collapsed" />
                 </StackPanel>
             </DockPanel>
@@ -45,7 +45,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
             <!-- Éléments concernés (fichiers, serveurs) : la liste défile au-delà de quelques lignes. -->
-            <Border x:Name="ItemsPanel" Margin="44,8,0,0" BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="1"
+            <Border x:Name="ItemsPanel" Margin="44,8,0,0" BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1"
                     Visibility="Collapsed">
                 <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
                     <ItemsControl x:Name="ItemsList" Margin="6,4" Focusable="False">
