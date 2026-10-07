@@ -67,20 +67,45 @@ public class ConnectionPlanningTests
     }
 
     /// <summary>
-    /// Compte Windows enregistré pour son domaine (adresse = le domaine de connexion) : il faut choisir le serveur, quel
-    /// que soit le nom de la plateforme. Un compte local, ou un compte enregistré pour un serveur, s'ouvre directement.
+    /// Compte enregistré pour son domaine (adresse = le domaine de connexion) : il faut choisir le serveur, quel que soit
+    /// le nom de la plateforme. Un compte local, ou un compte enregistré pour un serveur, s'ouvre directement.
     /// </summary>
     [Theory]
     [InlineData("WIN-ADMINS-T1", "corp.local", "CORP", true)]
+    [InlineData("WIN-ADMINS-T1", "corp.example.com", "CORP", true)]
     [InlineData("WIN-ADMINS-T1", "corp.local", "corp.local", true)]
     [InlineData("WIN-ADMINS-T1", "CORP", "CORP", true)]
+    [InlineData("AD-Admins-T1", "corp.example.com", "CORP", true)]
+    [InlineData("UnixSSH", "corp.local", "CORP", true)]
     [InlineData("WIN-ADMINS-T1", "srv01.corp.local", "CORP", false)]
     [InlineData("WIN-ADMINS-T1", "corp.local", null, false)]
+    [InlineData("WIN-ADMINS-T1", "10.0.0.1", "CORP", false)]
     [InlineData("WinServerLocal", "srv01", "SRV01", false)]
-    [InlineData("WinServerLocal", "srv01.local", "SRV01", false)]
-    [InlineData("UnixSSH", "corp.local", "CORP", false)]
-    public void WindowsAccountRegisteredForItsDomainNeedsRemoteMachine(string platform, string address, string? domain, bool expected) =>
+    [InlineData("WinServerLocal", "srv01.corp.local", "SRV01", false)]
+    [InlineData("UnixSSH", "corp.local", null, false)]
+    public void AccountRegisteredForItsDomainNeedsRemoteMachine(string platform, string address, string? domain, bool expected) =>
         Assert.Equal(expected, AccountClassifier.NeedsRemoteMachine(Account(platform, address: address, domain: domain)));
+
+    /// <summary>
+    /// Sans domaine de connexion renseigné : une adresse sous laquelle il y a des serveurs, ou le domaine du PVWA ou du
+    /// poste, est un domaine. Un compte Unix ou base de données garde son adresse (il vise un serveur).
+    /// </summary>
+    [Fact]
+    public void AddressWithServersBelowIsADomain()
+    {
+        var domains = KnownDomains.From(["srv01.paris.corp.example.com", "db01.corp.example.com", "10.1.2.3", "pvwa.vault.example.org"], ["LAB", "lab.example.net"]);
+
+        Assert.True(AccountClassifier.NeedsRemoteMachine(Account("AD-Admins-T1", address: "corp.example.com"), domains));
+        Assert.True(AccountClassifier.NeedsRemoteMachine(Account("Windows-Admins", address: "Paris.Corp.Example.com."), domains));
+        Assert.True(AccountClassifier.NeedsRemoteMachine(Account("Windows-Admins", address: "vault.example.org"), domains));
+        Assert.True(AccountClassifier.NeedsRemoteMachine(Account("Windows-Admins", address: "lab"), domains));
+        Assert.True(AccountClassifier.NeedsRemoteMachine(Account("Windows-Admins", address: "lab.example.net"), domains));
+        Assert.False(AccountClassifier.NeedsRemoteMachine(Account("Windows-Admins", address: "srv01.paris.corp.example.com"), domains));
+        Assert.False(AccountClassifier.NeedsRemoteMachine(Account("Windows-Admins", address: "com"), domains));
+        Assert.False(AccountClassifier.NeedsRemoteMachine(Account("UnixSSH", address: "corp.example.com"), domains));
+        Assert.False(AccountClassifier.NeedsRemoteMachine(Account("Oracle", address: "corp.example.com"), domains));
+        Assert.False(AccountClassifier.NeedsRemoteMachine(Account("WinServerLocal", address: "corp.example.com"), domains));
+    }
 
     [Fact]
     public void RestrictedOnlyWithAllowedMachines()

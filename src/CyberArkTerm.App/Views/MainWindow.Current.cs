@@ -331,7 +331,7 @@ public partial class MainWindow
     /// </summary>
     private void AddToCurrent(PvwaAccount account, string folder)
     {
-        if (AccountClassifier.NeedsRemoteMachine(account))
+        if (AccountClassifier.NeedsRemoteMachine(account, _domains))
         {
             if (AskServer(account, adding: true) is not { } choice)
             {
@@ -359,7 +359,10 @@ public partial class MainWindow
         var dialog = new ServerPromptDialog(account, SessionLibrary.KnownMachines(_settings, account, PvwaHost),
             _settings.SessionFolderList.OrderBy(f => f, StringComparer.OrdinalIgnoreCase),
             server => SessionLibrary.FindSession(_settings, account, PvwaHost, server) is not null,
-            _settings.KeepChosenServer, _settings.KeepChosenServerFolder, adding) { Owner = this };
+            _settings.KeepChosenServer, _settings.KeepChosenServerFolder, adding, AccountClassifier.IsDomainAccount(account, _domains))
+        {
+            Owner = this,
+        };
         if (dialog.ShowDialog() != true)
         {
             return null;

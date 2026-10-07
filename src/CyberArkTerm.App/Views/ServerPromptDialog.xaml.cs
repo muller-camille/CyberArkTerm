@@ -20,8 +20,9 @@ public partial class ServerPromptDialog : Window
     /// <param name="isSaved">Ce serveur est déjà dans « Mes serveurs » pour ce compte.</param>
     /// <param name="keep">Dernier choix de « Garder dans « Mes serveurs » ».</param>
     /// <param name="adding">Ajout à « Mes serveurs » plutôt que connexion.</param>
+    /// <param name="domainAccount">Compte de domaine (sinon : compte limité à ses machines, sans phrase sur le domaine).</param>
     public ServerPromptDialog(PvwaAccount account, IReadOnlyList<string> known, IEnumerable<string> folders, Func<string, bool> isSaved,
-        bool keep, string folder, bool adding = false)
+        bool keep, string folder, bool adding = false, bool domainAccount = true)
     {
         InitializeComponent();
         _adding = adding;
@@ -35,6 +36,7 @@ public partial class ServerPromptDialog : Window
         QuestionText.Text = adding ? Strings.ServerPromptAddQuestion : Strings.ServerPromptQuestion;
         var domain = string.IsNullOrWhiteSpace(account.LogonDomain) ? account.Address : account.LogonDomain;
         HintText.Text = Text.Format(Strings.ServerPromptHint, domain);
+        HintText.Visibility = domainAccount ? Visibility.Visible : Visibility.Collapsed;
 
         ServerBox.ItemsSource = known;
         ServerBox.Text = known.FirstOrDefault() ?? "";

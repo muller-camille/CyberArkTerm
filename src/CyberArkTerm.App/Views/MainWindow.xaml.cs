@@ -40,6 +40,9 @@ public partial class MainWindow : Window
     /// <summary>Comptes qui répondent à la recherche de « Disponibles » (affichés, comptés, exportés).</summary>
     private List<PvwaAccount> _shown = [];
     private Dictionary<string, PvwaAccount> _byId = [];
+
+    /// <summary>Domaines connus (au-dessus des serveurs des comptes, du PVWA, du poste) : reconnaît les comptes de domaine.</summary>
+    private KnownDomains _domains = KnownDomains.From([], WorkstationDomains());
     private string _query = "";
     private PvwaAccount? _current;
     private SavedSession? _currentSaved;
@@ -211,6 +214,26 @@ public partial class MainWindow : Window
     /// <summary>Vrai si la fenêtre a été fermée pour revenir à l'écran de connexion.</summary>
     public bool LogoutRequested { get; private set; }
 
+    /// <summary>
+    /// Domaines du poste de travail : nom DNS de l'utilisateur et de la machine, nom NetBIOS du domaine (sauf sur un poste
+    /// hors domaine, où c'est le nom de la machine).
+    /// </summary>
+    private static IEnumerable<string?> WorkstationDomains()
+    {
+        string? machineDomain = null;
+        try
+        {
+            machineDomain = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName;
+        }
+        catch (System.Net.NetworkInformation.NetworkInformationException)
+        {
+        }
+
+        var netbios = Environment.UserDomainName;
+        return [Environment.GetEnvironmentVariable("USERDNSDOMAIN"), machineDomain,
+            string.Equals(netbios, Environment.MachineName, StringComparison.OrdinalIgnoreCase) ? null : netbios];
+    }
+
     /// <summary>Un PSMP est configuré (par défaut ou pour un domaine) : SSH et SFTP sont proposés.</summary>
     private bool HasPsmp => PsmpRouting.Any(_settings);
 
@@ -251,6 +274,7 @@ public partial class MainWindow : Window
                 return c != 0 ? c : StringComparer.OrdinalIgnoreCase.Compare(a.UserName, b.UserName);
             });
             _accounts = accounts;
+            _domains = KnownDomains.From(accounts.Select(a => a.Address).Append(PvwaHost), WorkstationDomains());
             _byId = [];
             foreach (var a in accounts)
             {
@@ -852,7 +876,8 @@ public partial class MainWindow : Window
 
         // Compte de domaine sans serveur choisi : on demande lequel, avec l'option de le garder dans « Mes serveurs ».
         string? keepFolder = null;
-        if (!showDialog && AccountClassifier.NeedsRemoteMachine(account) && string.IsNullOrWhiteSpace(request.RemoteMachine))
+        bool needsMachine = AccountClassifier.NeedsRemoteMachine(account, _domains);
+        if (!showDialog && needsMachine && string.IsNullOrWhiteSpace(request.RemoteMachine))
         {
             if (AskServer(account, adding: false) is not { } choice)
             {
@@ -875,7 +900,10 @@ public partial class MainWindow : Window
             {
                 if (showDialog)
                 {
-                    var dialog = new ConnectDialog(account, request, _settings, _vaultUser, error, componentError) { Owner = this };
+                    var dialog = new ConnectDialog(account, request, _settings, _vaultUser, error, componentError, needsMachine)
+                    {
+                        Owner = this,
+                    };
                     if (dialog.ShowDialog() != true || dialog.Result is null)
                     {
                         SetStatus("");

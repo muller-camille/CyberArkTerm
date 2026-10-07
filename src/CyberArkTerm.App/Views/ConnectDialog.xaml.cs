@@ -10,15 +10,20 @@ public partial class ConnectDialog : Window
     private readonly PvwaAccount _account;
     private readonly AppSettings _settings;
     private readonly string _vaultUser;
+    private readonly bool _requireMachine;
 
     /// <param name="componentError">Le PVWA ne connaît pas le composant demandé pour ce compte (EPVWA093E).</param>
+    /// <param name="requireMachine">
+    /// Compte de domaine ou limité à des machines : la machine cible est obligatoire (jamais de session vers le domaine).
+    /// </param>
     public ConnectDialog(PvwaAccount account, ConnectRequest initial, AppSettings settings, string vaultUser, string? error,
-        bool componentError = false)
+        bool componentError = false, bool requireMachine = false)
     {
         InitializeComponent();
         _account = account;
         _settings = settings;
         _vaultUser = vaultUser;
+        _requireMachine = requireMachine || AccountClassifier.NeedsRemoteMachine(account);
 
         KindIcon.Source = (System.Windows.Media.ImageSource?)new KindIconConverter().Convert(account, typeof(object), null, System.Globalization.CultureInfo.CurrentCulture);
         TitleText.Text = $"{account.UserName}@{account.Address}";
@@ -71,7 +76,7 @@ public partial class ConnectDialog : Window
             {
                 ReasonBox.Focus();
             }
-            else if (AccountClassifier.NeedsRemoteMachine(account))
+            else if (_requireMachine)
             {
                 MachineBox.Focus();
             }
@@ -143,6 +148,15 @@ public partial class ConnectDialog : Window
 
     private void OnConnect(object sender, RoutedEventArgs e)
     {
+        if (Accept())
+        {
+            DialogResult = true;
+        }
+    }
+
+    /// <summary>Vérifie les champs et prépare <see cref="Result"/> ; faux après avoir affiché l'erreur.</summary>
+    internal bool Accept()
+    {
         bool psm = PsmRadio.IsChecked == true;
         string component = ComponentBox.Text.Trim();
         if (psm && component.Length == 0)
@@ -150,7 +164,15 @@ public partial class ConnectDialog : Window
             ErrorText.Text = Strings.ComponentRequired;
             ErrorPanel.Visibility = Visibility.Visible;
             ComponentBox.Focus();
-            return;
+            return false;
+        }
+
+        if (_requireMachine && string.IsNullOrWhiteSpace(MachineBox.Text))
+        {
+            ErrorText.Text = Strings.ServerPromptRequired;
+            ErrorPanel.Visibility = Visibility.Visible;
+            MachineBox.Focus();
+            return false;
         }
 
         Result = new ConnectRequest(
@@ -161,7 +183,7 @@ public partial class ConnectDialog : Window
             NullIfEmpty(TicketSystemBox.Text),
             NullIfEmpty(TicketIdBox.Text),
             psm && RememberBox.IsChecked == true);
-        DialogResult = true;
+        return true;
     }
 
     private static string? NullIfEmpty(string text) => string.IsNullOrWhiteSpace(text) ? null : text.Trim();

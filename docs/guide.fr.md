@@ -139,8 +139,10 @@ application distante (RemoteApp) ouvre ses fenêtres sur le bureau du poste.
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Cochez « Mémoriser ce composant » pour le conserver pour toute la
   plateforme. Votre PVWA peut nommer ses composants autrement (par exemple `WIN-PSM`) : saisissez le nom que propose
   son bouton « Connect » ; la liste propose ensuite les composants déjà utilisés, celui de la plateforme en premier.
-- **Comptes de domaine** : un compte enregistré pour son domaine (adresse `corp.local`, plateforme de domaine ou
-  machines autorisées) n'a pas de serveur. La fenêtre « Choisir le serveur » demande sur lequel ouvrir la session :
+- **Comptes de domaine** : un compte enregistré pour son domaine n'a pas de serveur. Il est reconnu par sa plateforme
+  de domaine, ses machines autorisées, ou son adresse : son domaine de connexion, un domaine sous lequel se trouvent
+  d'autres serveurs (`corp.local` quand un compte vise `srv01.corp.local`), ou le domaine du PVWA ou du poste. Jamais
+  de session vers le domaine lui-même : le serveur est toujours demandé, « Connexion avancée » compris. La fenêtre « Choisir le serveur » demande sur lequel ouvrir la session :
   la liste propose les serveurs déjà utilisés avec ce compte (sessions récentes, « Mes serveurs ») puis ses machines
   autorisées ; un compte limité à ses machines refuse les autres. « Garder ce serveur dans « Mes serveurs » », avec
   le dossier voulu, l'y ajoute après une connexion réussie, nommé `compte@serveur` (choix mémorisé pour la fois
