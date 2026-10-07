@@ -163,7 +163,6 @@ Piste : une sélection multiple dans « Disponibles » (Ctrl+clic, comme dans «
 
 ## Distribution et projet
 
-- **Captures d'écran** à refaire avec le nom ZillaTerm (titres des fenêtres).
 - **Exécutable signé** : sans signature, SmartScreen, l'antivirus ou AppLocker peuvent bloquer l'application. Il
   faut un certificat de signature de code ; la signature se brancherait dans le workflow de release.
 - **Installateur MSI** : déploiement sur les postes par les outils de l'entreprise.

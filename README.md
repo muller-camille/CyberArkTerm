@@ -83,6 +83,9 @@ of the same version (kept only when identical). Nothing is installed automatical
 the executable; your settings are kept. The option "Look for a new version at startup" (Settings › General, off by
 default) does this check at most once a day and shows a link in the status bar.
 
+**From CyberArkTerm**: download ZillaTerm once from the releases page (CyberArkTerm reports it but cannot download it
+itself); your settings are carried over on first start, then you can delete `CyberArkTerm.exe`.
+
 ### Requirements
 
 **Workstation**
@@ -105,7 +108,8 @@ default) does this check at most once a day and shows a link in the status bar.
 ## Getting started
 
 1. **Sign in**: PVWA address (`pvwa.mydomain.local` is enough), authentication method, user name and password. The
-   address, method and user name are remembered; the password never is.
+   address, method and user name are remembered; the password never is. To get your team's configuration: "Import an
+   environment…" on the same screen, or a `ZillaTerm.env.json` file next to the executable.
 2. **Find an account** in the "Available" tab: the search box filters on every field (`prd sql`). Right-click an
    account for its password (verify, change, reconcile, copy), the members of its safe, or to add, edit and import
    accounts.
@@ -212,8 +216,8 @@ zip and `SHA256SUMS.txt`. Release notes are read from `docs/releases/vX.Y.Z.md` 
 **Current limitations**
 
 - **Privilege Cloud** (sign-in through CyberArk Identity) and **SAML** are not supported.
-- The Accounts API does not say which PSM components a platform offers: the component is deduced, then can be
-  remembered.
+- The Accounts API does not say which PSM components a platform offers: the component is deduced from the platform,
+  then can be set per platform in Settings.
 - KeePass databases: Twofish encryption and YubiKey keys are not supported; no database creation (create it with
   KeePass or KeePassXC); attachments are kept but not shown.
 - Following the terminal folder requires bash, zsh or tcsh on the server.
