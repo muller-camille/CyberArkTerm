@@ -2666,15 +2666,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Forget _keys.
-        /// </summary>
-        public static string ForgetKeys {
-            get {
-                return ResourceManager.GetString("ForgetKeys", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to FTPS server certificate.
         /// </summary>
         public static string FtpCertificateTitle {
@@ -2927,15 +2918,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Accepted server keys (SSH, FTPS certificates): {0}.
-        /// </summary>
-        public static string HostKeys {
-            get {
-                return ResourceManager.GetString("HostKeys", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Will be forgotten when you save: the fingerprint will be asked again at the next connection..
         /// </summary>
         public static string HostKeysForgotten {
@@ -3058,24 +3040,6 @@ namespace CyberArkTerm.App.Localization {
         public static string ImportIntro {
             get {
                 return ResourceManager.GetString("ImportIntro", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Line {0}: {1}.
-        /// </summary>
-        public static string ImportLineError {
-            get {
-                return ResourceManager.GetString("ImportLineError", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to … and {0} more line(s) with an error..
-        /// </summary>
-        public static string ImportMoreErrors {
-            get {
-                return ResourceManager.GetString("ImportMoreErrors", resourceCulture);
             }
         }
 
@@ -3982,7 +3946,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The local vault keeps the KeePass master passwords you choose to remember. It is encrypted with the password below (Argon2id, AES-256) and your Windows account (DPAPI). This password is asked when you unlock a KeePass database whose password is remembered; it can't be recovered..
+        ///   Looks up a localized string similar to This password protects the KeePass master passwords you choose to remember. It cannot be recovered: if you forget it, you will have to delete the local vault and type each master password again. The local vault is encrypted with this password (Argon2id, AES-256) and your Windows account (DPAPI)..
         /// </summary>
         public static string LocalStoreCreateIntro {
             get {
@@ -3991,7 +3955,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to De_lete.
+        ///   Looks up a localized string similar to De_lete now….
         /// </summary>
         public static string LocalStoreDelete {
             get {
@@ -5296,7 +5260,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to No PSMP key remembered..
+        ///   Looks up a localized string similar to No server key remembered..
         /// </summary>
         public static string NoHostKeys {
             get {
@@ -7015,7 +6979,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Remove….
+        ///   Looks up a localized string similar to Re_move….
         /// </summary>
         public static string SafeMembersRemove {
             get {
@@ -9984,7 +9948,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Key fingerprint ({0}).
+        ///   Looks up a localized string similar to Fingerprint (SHA-256).
         /// </summary>
         public static string HostKeyFingerprint {
             get {
@@ -12005,6 +11969,366 @@ namespace CyberArkTerm.App.Localization {
         public static string RecentYesterday {
             get {
                 return ResourceManager.GetString("RecentYesterday", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to General.
+        /// </summary>
+        public static string SettingsPageGeneral {
+            get {
+                return ResourceManager.GetString("SettingsPageGeneral", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CyberArk.
+        /// </summary>
+        public static string SettingsPageCyberArk {
+            get {
+                return ResourceManager.GetString("SettingsPageCyberArk", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Terminal.
+        /// </summary>
+        public static string SettingsPageTerminal {
+            get {
+                return ResourceManager.GetString("SettingsPageTerminal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Files.
+        /// </summary>
+        public static string SettingsPageFiles {
+            get {
+                return ResourceManager.GetString("SettingsPageFiles", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Security.
+        /// </summary>
+        public static string SettingsPageSecurity {
+            get {
+                return ResourceManager.GetString("SettingsPageSecurity", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Updates.
+        /// </summary>
+        public static string SettingsUpdatesSection {
+            get {
+                return ResourceManager.GetString("SettingsUpdatesSection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠ Effect: the PVWA session no longer closes by itself after inactivity while CyberArkTerm runs..
+        /// </summary>
+        public static string SettingsKeepAliveEffect {
+            get {
+                return ResourceManager.GetString("SettingsKeepAliveEffect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠ Effect: a stray right-click sends the clipboard to the shell, root shells included..
+        /// </summary>
+        public static string SettingsRightClickEffect {
+            get {
+                return ResourceManager.GetString("SettingsRightClickEffect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠ Effect: a command is added to PROMPT_COMMAND in the remote shell when the session opens..
+        /// </summary>
+        public static string SettingsFollowEffect {
+            get {
+                return ResourceManager.GetString("SettingsFollowEffect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to These actions apply at once, without “Save”..
+        /// </summary>
+        public static string LocalStoreImmediate {
+            get {
+                return ResourceManager.GetString("LocalStoreImmediate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Accepted server keys.
+        /// </summary>
+        public static string HostKeysSection {
+            get {
+                return ResourceManager.GetString("HostKeysSection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fingerprints checked and accepted (PSMP, direct SSH, FTPS certificates). A forgotten key is asked again at the next connection..
+        /// </summary>
+        public static string HostKeysHelp {
+            get {
+                return ResourceManager.GetString("HostKeysHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Server.
+        /// </summary>
+        public static string HostKeyServer {
+            get {
+                return ResourceManager.GetString("HostKeyServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Type.
+        /// </summary>
+        public static string HostKeyType {
+            get {
+                return ResourceManager.GetString("HostKeyType", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Forget the selected _keys.
+        /// </summary>
+        public static string ForgetSelectedKeys {
+            get {
+                return ResourceManager.GetString("ForgetSelectedKeys", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Updates are checked at start-up (Settings &gt; General)..
+        /// </summary>
+        public static string AboutAutoCheckOn {
+            get {
+                return ResourceManager.GetString("AboutAutoCheckOn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Automatic update check is off (Settings &gt; General)..
+        /// </summary>
+        public static string AboutAutoCheckOff {
+            get {
+                return ResourceManager.GetString("AboutAutoCheckOff", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Used only for a PSM connection (not for SSH or SFTP through the PSMP)..
+        /// </summary>
+        public static string PsmOnlyField {
+            get {
+                return ResourceManager.GetString("PsmOnlyField", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose the PSM component to use (for example PSM-RDP)..
+        /// </summary>
+        public static string ComponentRequired {
+            get {
+                return ResourceManager.GetString("ComponentRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fill in the server address (for example ssh://srv01 or rdp://srv02)..
+        /// </summary>
+        public static string KeePassAddressRequired {
+            get {
+                return ResourceManager.GetString("KeePassAddressRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to At least {0} characters..
+        /// </summary>
+        public static string LocalStoreMinLength {
+            get {
+                return ResourceManager.GetString("LocalStoreMinLength", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to KeePass database {0} opened, but its master password was not remembered (local vault not opened)..
+        /// </summary>
+        public static string KeePassNotRemembered {
+            get {
+                return ResourceManager.GetString("KeePassNotRemembered", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add a KeePass database.
+        /// </summary>
+        public static string KeePassAddHeading {
+            get {
+                return ResourceManager.GetString("KeePassAddHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to KeePass database location.
+        /// </summary>
+        public static string KeePassEditHeading {
+            get {
+                return ResourceManager.GetString("KeePassEditHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose the KeePass database (.kdbx).
+        /// </summary>
+        public static string KeePassChooseFile {
+            get {
+                return ResourceManager.GetString("KeePassChooseFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose the key file.
+        /// </summary>
+        public static string KeePassChooseKeyFile {
+            get {
+                return ResourceManager.GetString("KeePassChooseKeyFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Errors only.
+        /// </summary>
+        public static string ImportOnlyErrors {
+            get {
+                return ResourceManager.GetString("ImportOnlyErrors", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Rows of the file.
+        /// </summary>
+        public static string ImportPreview {
+            get {
+                return ResourceManager.GetString("ImportPreview", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Status.
+        /// </summary>
+        public static string ImportColStatus {
+            get {
+                return ResourceManager.GetString("ImportColStatus", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Safe.
+        /// </summary>
+        public static string ImportColSafe {
+            get {
+                return ResourceManager.GetString("ImportColSafe", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Platform.
+        /// </summary>
+        public static string ImportColPlatform {
+            get {
+                return ResourceManager.GetString("ImportColPlatform", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account.
+        /// </summary>
+        public static string ImportColAccount {
+            get {
+                return ResourceManager.GetString("ImportColAccount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ready.
+        /// </summary>
+        public static string ImportReady {
+            get {
+                return ResourceManager.GetString("ImportReady", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Safes: {0}..
+        /// </summary>
+        public static string ImportSafesCount {
+            get {
+                return ResourceManager.GetString("ImportSafesCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Create {0} accounts.
+        /// </summary>
+        public static string ImportCreateAccounts {
+            get {
+                return ResourceManager.GetString("ImportCreateAccounts", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Stop the import?.
+        /// </summary>
+        public static string ImportStopHeading {
+            get {
+                return ResourceManager.GetString("ImportStopHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The account being created is finished; the next rows are not sent..
+        /// </summary>
+        public static string ImportStopCurrent {
+            get {
+                return ResourceManager.GetString("ImportStopCurrent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Accounts already created stay in the CyberArk Vault..
+        /// </summary>
+        public static string ImportStopCreated {
+            get {
+                return ResourceManager.GetString("ImportStopCreated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Stop the import.
+        /// </summary>
+        public static string ImportStopAction {
+            get {
+                return ResourceManager.GetString("ImportStopAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Continue.
+        /// </summary>
+        public static string ImportContinue {
+            get {
+                return ResourceManager.GetString("ImportContinue", resourceCulture);
             }
         }
     }

@@ -39,7 +39,7 @@ public partial class AboutWindow : Window
         SystemText.Text = Text.Format(Strings.AboutSystem, RuntimeInformation.FrameworkDescription, RuntimeInformation.OSDescription,
             RuntimeInformation.ProcessArchitecture);
         FolderText.Text = Text.Format(Strings.AboutSettingsFolder, SettingsFolder);
-        AutoCheckBox.IsChecked = settings.CheckForUpdates;
+        AutoCheckText.Text = settings.CheckForUpdates ? Strings.AboutAutoCheckOn : Strings.AboutAutoCheckOff;
         if (UpdateService.Available is { } known)
         {
             ShowUpdate(known);
@@ -147,12 +147,6 @@ public partial class AboutWindow : Window
         {
             Start("explorer.exe", $"/select,\"{_downloaded}\"");
         }
-    }
-
-    private void OnAutoCheck(object sender, RoutedEventArgs e)
-    {
-        _settings.CheckForUpdates = AutoCheckBox.IsChecked == true;
-        _saveSettings();
     }
 
     private void OnProject(object sender, RoutedEventArgs e) => OpenUrl(UpdateChecker.ProjectUrl);

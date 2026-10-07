@@ -118,6 +118,9 @@ public partial class KeePassUnlockDialog : Window
         }
     }
 
+    /// <summary>« Mémoriser » était coché mais le coffre local n'a pas été ouvert : le mot de passe n'est pas gardé.</summary>
+    public bool NotRemembered { get; private set; }
+
     /// <summary>Garde ou oublie le mot de passe maître dans le coffre local, selon la case.</summary>
     private void SaveRemembered(byte[] password, bool remember)
     {
@@ -126,6 +129,11 @@ public partial class KeePassUnlockDialog : Window
         {
             store.Set(_folder.Id, password);
             _folder.RememberPassword = true;
+        }
+        else if (remember && password.Length > 0)
+        {
+            // Coffre local refusé (création ou déverrouillage annulé) : la base est ouverte, mais rien n'est mémorisé.
+            NotRemembered = true;
         }
         else if (!remember)
         {

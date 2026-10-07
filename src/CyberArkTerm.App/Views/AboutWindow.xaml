@@ -43,11 +43,10 @@
             <Button x:Name="ShowFileButton" Content="{x:Static loc:Strings.AboutShowFile}" Click="OnShowFile" Margin="8,0,0,0" Visibility="Collapsed" />
         </StackPanel>
         <ProgressBar x:Name="DownloadProgress" Height="8" Maximum="1" Visibility="Collapsed" Margin="0,0,0,6" />
-        <CheckBox x:Name="AutoCheckBox" Margin="0,4,0,4" Click="OnAutoCheck">
-            <TextBlock Text="{x:Static loc:Strings.AboutAutoCheck}" TextWrapping="Wrap" />
-        </CheckBox>
+        <!-- Réglage de la recherche automatique : dans les Paramètres seulement (page Général). -->
+        <TextBlock x:Name="AutoCheckText" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,4,0,4" />
         <TextBlock Text="{x:Static loc:Strings.AboutUpdateNote}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,12" />
 
-        <Button Content="{x:Static loc:Strings.CloseButton}" IsCancel="True" IsDefault="True" HorizontalAlignment="Right" MinWidth="80" />
+        <Button Content="{x:Static loc:Strings.CloseButton}" IsCancel="True" IsDefault="True" HorizontalAlignment="Right" />
     </StackPanel>
 </Window>

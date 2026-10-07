@@ -15,7 +15,7 @@
         </DockPanel>
 
         <DockPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
-            <Button DockPanel.Dock="Right" Content="{x:Static loc:Strings.CloseButton}" IsCancel="True" MinWidth="80" Margin="8,0,0,0" />
+            <Button DockPanel.Dock="Right" Content="{x:Static loc:Strings.CloseButton}" IsCancel="True" Margin="8,0,0,0" />
             <StackPanel Orientation="Horizontal">
                 <Button x:Name="ChecksButton" Content="{x:Static loc:Strings.HistoryChecks}" Click="OnChecks" IsEnabled="False" />
                 <Button x:Name="OpenFolderButton" Content="{x:Static loc:Strings.HistoryOpenFolder}" Click="OnOpenFolder" IsEnabled="False" Margin="8,0,0,0" />

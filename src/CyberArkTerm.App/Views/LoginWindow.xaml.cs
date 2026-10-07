@@ -209,13 +209,9 @@ public partial class LoginWindow : Window
 
     private void ShowError(string message)
     {
+        // ErrorLine : annoncée par les lecteurs d'écran.
         StatusText.Text = message;
         StatusText.Visibility = Visibility.Visible;
-        // Annoncée par les lecteurs d'écran.
-        if (System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(StatusText) is { } peer)
-        {
-            peer.RaiseAutomationEvent(System.Windows.Automation.Peers.AutomationEvents.LiveRegionChanged);
-        }
     }
 
     private void SetBusy(bool busy)

@@ -734,6 +734,39 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>
+    /// Paramètres, page Sécurité : clés acceptées en tableau (serveur, type, empreinte) ; seules les clés choisies sont
+    /// oubliées, et seulement à l'enregistrement.
+    /// </summary>
+    [Fact]
+    public void SettingsForgetOnlyTheChosenHostKeys()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var settings = new AppSettings();
+            CyberArkTerm.Core.Ssh.KnownHosts.Remember(settings.KnownHosts, "psmp.corp.local", 22, "ssh-ed25519", "AAAA");
+            CyberArkTerm.Core.Ssh.KnownHosts.Remember(settings.KnownHosts, "ftp.corp.local", 990, "X.509", "BBBB");
+            var dialog = new SettingsDialog(settings);
+            Assert.Equal(2, dialog.HostKeyRows.Count);
+            Assert.Contains(new SettingsDialog.HostKeyRow("psmp.corp.local:22", "ssh-ed25519", "SHA256:AAAA"), dialog.HostKeyRows);
+            Assert.False(dialog.ForgetKeysButton.IsEnabled);
+
+            dialog.HostKeysGrid.SelectedItems.Add(dialog.HostKeyRows.Single(r => r.Server == "ftp.corp.local:990"));
+            dialog.ForgetSelectedKeys();
+            Assert.Equal(["psmp.corp.local:22"], dialog.HostKeyRows.Select(r => r.Server));
+            Assert.Equal(2, settings.KnownHosts.Count);
+
+            dialog.ApplyForgottenKeys();
+            Assert.Equal(["psmp.corp.local:22"], settings.KnownHosts.Keys);
+            dialog.Close();
+        });
+    }
+
     /// <summary>Onglet détaché : le terminal passe dans la fenêtre séparée, puis en ressort pour revenir dans l'onglet.</summary>
     [Fact]
     public void DetachedWindowHoldsTheTerminal()

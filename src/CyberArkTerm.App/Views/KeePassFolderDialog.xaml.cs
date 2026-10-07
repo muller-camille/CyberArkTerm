@@ -19,20 +19,27 @@ public partial class KeePassFolderDialog : Window
         NameBox.Text = folder.Name;
         KeyFileBox.Text = folder.KeyFilePath ?? "";
         UsesPasswordBox.IsChecked = folder.UsesPassword;
+        HeadingText.Text = folder.FilePath.Length == 0 ? Strings.KeePassAddHeading : Strings.KeePassEditHeading;
+        // La fenêtre et son avertissement s'affichent d'abord ; le choix du fichier vient du bouton « Parcourir ».
         Loaded += (_, _) =>
         {
             if (folder.FilePath.Length == 0)
             {
-                OnBrowseFile(this, new RoutedEventArgs());
+                BrowseFileButton.Focus();
             }
-
-            NameBox.Focus();
+            else
+            {
+                NameBox.Focus();
+            }
         };
     }
 
     private void OnBrowseFile(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog { Filter = Strings.KeePassFilesFilter, CheckFileExists = true, FileName = FileBox.Text };
+        var dialog = new OpenFileDialog
+        {
+            Title = Strings.KeePassChooseFile, Filter = Strings.KeePassFilesFilter, CheckFileExists = true, FileName = FileBox.Text,
+        };
         if (dialog.ShowDialog(this) == true)
         {
             FileBox.Text = dialog.FileName;
@@ -45,7 +52,7 @@ public partial class KeePassFolderDialog : Window
 
     private void OnBrowseKeyFile(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFileDialog { Filter = Strings.AllFilesFilter, CheckFileExists = true, FileName = KeyFileBox.Text };
+        var dialog = new OpenFileDialog { Title = Strings.KeePassChooseKeyFile, Filter = Strings.AllFilesFilter, CheckFileExists = true, FileName = KeyFileBox.Text };
         if (dialog.ShowDialog(this) == true)
         {
             KeyFileBox.Text = dialog.FileName;

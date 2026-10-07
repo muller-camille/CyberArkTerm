@@ -11,8 +11,7 @@
                        AutomationProperties.LiveSetting="Assertive" />
         </Border>
 
-        <Border DockPanel.Dock="Bottom" Background="{DynamicResource SidePanelBrush}" BorderBrush="{DynamicResource ToolbarBorderBrush}"
-                BorderThickness="0,1,0,0" Padding="16,10,16,12">
+        <Border DockPanel.Dock="Bottom" Style="{StaticResource DialogFooter}">
             <!-- Cases sur leur propre ligne : un texte long ne recouvre jamais les boutons. -->
             <StackPanel>
                 <CheckBox x:Name="AcknowledgeBox" Visibility="Collapsed" Margin="0,0,0,10"

@@ -59,7 +59,7 @@
                 </DataTrigger>
                 <DataTrigger Binding="{Binding State}" Value="Failed">
                     <Setter TargetName="ItemButton" Property="Visibility" Value="Collapsed" />
-                    <Setter TargetName="StateText" Property="Foreground" Value="Firebrick" />
+                    <Setter TargetName="StateText" Property="Foreground" Value="{DynamicResource ErrorBrush}" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding State}" Value="Cancelled">
                     <Setter TargetName="ItemButton" Property="Visibility" Value="Collapsed" />

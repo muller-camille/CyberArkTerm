@@ -126,7 +126,7 @@ public class SessionLibraryTests
     }
 
     /// <summary>
-    /// Connexion récente ajoutée aux « Mes serveurs » : même mode, même composant PSM, même machine cible, même nom que dans
+    /// Connexion récente ajoutée à « Mes serveurs » : même mode, même composant PSM, même machine cible, même nom que dans
     /// la liste des connexions récentes.
     /// </summary>
     [Fact]

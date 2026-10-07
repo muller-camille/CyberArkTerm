@@ -328,7 +328,7 @@ public partial class MainWindow
     private void AddToCurrent(PvwaAccount account, string folder) =>
         ShowAddedToCurrent(SessionLibrary.AddSession(_settings, account, PvwaHost, folder, HasPsmp));
 
-    /// <summary>Connexion récente ajoutée aux « Mes serveurs » avec son mode, son composant et sa machine cible.</summary>
+    /// <summary>Connexion récente ajoutée à « Mes serveurs » avec son mode, son composant et sa machine cible.</summary>
     private void AddToCurrent(PvwaAccount account, RecentSession recent, string folder) =>
         ShowAddedToCurrent(SessionLibrary.AddFromRecent(_settings, account, recent, PvwaHost, folder));
 

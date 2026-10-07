@@ -503,9 +503,6 @@
   <data name="UploadProtocolTip" xml:space="preserve">
     <value>Protocol tried first for uploads. If the server refuses it for a file (rule of the PSMP, read-only SFTP…), the other one takes over at once, without any question; the summary gives the server's answer, the History shows it.</value>
   </data>
-  <data name="ForgetKeys" xml:space="preserve">
-    <value>Forget _keys</value>
-  </data>
   <data name="ComponentsSection" xml:space="preserve">
     <value>Remembered PSM components</value>
   </data>
@@ -513,10 +510,7 @@
     <value>F_orget</value>
   </data>
   <data name="NoHostKeys" xml:space="preserve">
-    <value>No PSMP key remembered.</value>
-  </data>
-  <data name="HostKeys" xml:space="preserve">
-    <value>Accepted server keys (SSH, FTPS certificates): {0}</value>
+    <value>No server key remembered.</value>
   </data>
   <data name="NoComponents" xml:space="preserve">
     <value>None: the component is deduced from the platform (PSM-RDP for Windows, PSM-SSH for Unix...).</value>
@@ -2318,7 +2312,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>Local vault</value>
   </data>
   <data name="LocalStoreCreateIntro" xml:space="preserve">
-    <value>The local vault keeps the KeePass master passwords you choose to remember. It is encrypted with the password below (Argon2id, AES-256) and your Windows account (DPAPI). This password is asked when you unlock a KeePass database whose password is remembered; it can't be recovered.</value>
+    <value>This password protects the KeePass master passwords you choose to remember. It cannot be recovered: if you forget it, you will have to delete the local vault and type each master password again. The local vault is encrypted with this password (Argon2id, AES-256) and your Windows account (DPAPI).</value>
   </data>
   <data name="LocalStoreUnlockIntro" xml:space="preserve">
     <value>Unlock the local vault to use the remembered KeePass master passwords.</value>
@@ -2363,7 +2357,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>C_hange password…</value>
   </data>
   <data name="LocalStoreDelete" xml:space="preserve">
-    <value>De_lete</value>
+    <value>De_lete now…</value>
   </data>
   <data name="LoginEmergency" xml:space="preserve">
     <value>_Emergency access (KeePass)</value>
@@ -2804,12 +2798,6 @@ Your changes stay in the editor: save again to send the whole file once the conn
   <data name="AccountsImported" xml:space="preserve">
     <value>{0} account(s) imported</value>
   </data>
-  <data name="ImportLineError" xml:space="preserve">
-    <value>Line {0}: {1}</value>
-  </data>
-  <data name="ImportMoreErrors" xml:space="preserve">
-    <value>… and {0} more line(s) with an error.</value>
-  </data>
   <data name="ImportConfirmHint" xml:space="preserve">
     <value>Nothing is sent before you click Import; the next window then shows the result of each line.</value>
   </data>
@@ -2835,7 +2823,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>_Edit the rights…</value>
   </data>
   <data name="SafeMembersRemove" xml:space="preserve">
-    <value>_Remove…</value>
+    <value>Re_move…</value>
   </data>
   <data name="SafeMemberAddTitle" xml:space="preserve">
     <value>Add a member to the safe {0}</value>
@@ -3363,7 +3351,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>The fingerprint is remembered on this computer: you will only be asked again if it changes.</value>
   </data>
   <data name="HostKeyFingerprint" xml:space="preserve">
-    <value>Key fingerprint ({0})</value>
+    <value>Fingerprint (SHA-256)</value>
   </data>
   <data name="HostKeyTrust" xml:space="preserve">
     <value>Trust and connect</value>
@@ -4036,5 +4024,125 @@ Two instances would overwrite each other's settings, local vault and files being
   </data>
   <data name="RecentYesterday" xml:space="preserve">
     <value>Yesterday {0}</value>
+  </data>
+  <data name="SettingsPageGeneral" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="SettingsPageCyberArk" xml:space="preserve">
+    <value>CyberArk</value>
+  </data>
+  <data name="SettingsPageTerminal" xml:space="preserve">
+    <value>Terminal</value>
+  </data>
+  <data name="SettingsPageFiles" xml:space="preserve">
+    <value>Files</value>
+  </data>
+  <data name="SettingsPageSecurity" xml:space="preserve">
+    <value>Security</value>
+  </data>
+  <data name="SettingsUpdatesSection" xml:space="preserve">
+    <value>Updates</value>
+  </data>
+  <data name="SettingsKeepAliveEffect" xml:space="preserve">
+    <value>⚠ Effect: the PVWA session no longer closes by itself after inactivity while CyberArkTerm runs.</value>
+  </data>
+  <data name="SettingsRightClickEffect" xml:space="preserve">
+    <value>⚠ Effect: a stray right-click sends the clipboard to the shell, root shells included.</value>
+  </data>
+  <data name="SettingsFollowEffect" xml:space="preserve">
+    <value>⚠ Effect: a command is added to PROMPT_COMMAND in the remote shell when the session opens.</value>
+  </data>
+  <data name="LocalStoreImmediate" xml:space="preserve">
+    <value>These actions apply at once, without “Save”.</value>
+  </data>
+  <data name="HostKeysSection" xml:space="preserve">
+    <value>Accepted server keys</value>
+  </data>
+  <data name="HostKeysHelp" xml:space="preserve">
+    <value>Fingerprints checked and accepted (PSMP, direct SSH, FTPS certificates). A forgotten key is asked again at the next connection.</value>
+  </data>
+  <data name="HostKeyServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="HostKeyType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="ForgetSelectedKeys" xml:space="preserve">
+    <value>Forget the selected _keys</value>
+  </data>
+  <data name="AboutAutoCheckOn" xml:space="preserve">
+    <value>Updates are checked at start-up (Settings &gt; General).</value>
+  </data>
+  <data name="AboutAutoCheckOff" xml:space="preserve">
+    <value>Automatic update check is off (Settings &gt; General).</value>
+  </data>
+  <data name="PsmOnlyField" xml:space="preserve">
+    <value>Used only for a PSM connection (not for SSH or SFTP through the PSMP).</value>
+  </data>
+  <data name="ComponentRequired" xml:space="preserve">
+    <value>Choose the PSM component to use (for example PSM-RDP).</value>
+  </data>
+  <data name="KeePassAddressRequired" xml:space="preserve">
+    <value>Fill in the server address (for example ssh://srv01 or rdp://srv02).</value>
+  </data>
+  <data name="LocalStoreMinLength" xml:space="preserve">
+    <value>At least {0} characters.</value>
+  </data>
+  <data name="KeePassNotRemembered" xml:space="preserve">
+    <value>KeePass database {0} opened, but its master password was not remembered (local vault not opened).</value>
+  </data>
+  <data name="KeePassAddHeading" xml:space="preserve">
+    <value>Add a KeePass database</value>
+  </data>
+  <data name="KeePassEditHeading" xml:space="preserve">
+    <value>KeePass database location</value>
+  </data>
+  <data name="KeePassChooseFile" xml:space="preserve">
+    <value>Choose the KeePass database (.kdbx)</value>
+  </data>
+  <data name="KeePassChooseKeyFile" xml:space="preserve">
+    <value>Choose the key file</value>
+  </data>
+  <data name="ImportOnlyErrors" xml:space="preserve">
+    <value>_Errors only</value>
+  </data>
+  <data name="ImportPreview" xml:space="preserve">
+    <value>Rows of the file</value>
+  </data>
+  <data name="ImportColStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="ImportColSafe" xml:space="preserve">
+    <value>Safe</value>
+  </data>
+  <data name="ImportColPlatform" xml:space="preserve">
+    <value>Platform</value>
+  </data>
+  <data name="ImportColAccount" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="ImportReady" xml:space="preserve">
+    <value>Ready</value>
+  </data>
+  <data name="ImportSafesCount" xml:space="preserve">
+    <value>Safes: {0}.</value>
+  </data>
+  <data name="ImportCreateAccounts" xml:space="preserve">
+    <value>_Create {0} accounts</value>
+  </data>
+  <data name="ImportStopHeading" xml:space="preserve">
+    <value>Stop the import?</value>
+  </data>
+  <data name="ImportStopCurrent" xml:space="preserve">
+    <value>The account being created is finished; the next rows are not sent.</value>
+  </data>
+  <data name="ImportStopCreated" xml:space="preserve">
+    <value>Accounts already created stay in the CyberArk Vault.</value>
+  </data>
+  <data name="ImportStopAction" xml:space="preserve">
+    <value>_Stop the import</value>
+  </data>
+  <data name="ImportContinue" xml:space="preserve">
+    <value>Continue</value>
   </data>
 </root>

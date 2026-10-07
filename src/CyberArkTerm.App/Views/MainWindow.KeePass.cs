@@ -205,6 +205,11 @@ public partial class MainWindow
 
         SaveSettings();
         OnKeePassUnlocked(folder);
+        if (dialog.NotRemembered)
+        {
+            SetStatus(Text.Format(Strings.KeePassNotRemembered, folder.DisplayName), isError: true);
+        }
+
         return true;
     }
 

@@ -75,14 +75,22 @@ public partial class ConnectDialog : Window
             {
                 MachineBox.Focus();
             }
-            else
+            else if (ComponentBox.IsEnabled)
             {
                 ComponentBox.Focus();
+            }
+            else
+            {
+                // SSH ou SFTP : les champs du PSM sont grisés, le curseur va sur le mode choisi.
+                (SftpRadio.IsChecked == true ? SftpRadio : SshRadio).Focus();
             }
         };
     }
 
     public ConnectRequest? Result { get; private set; }
+
+    // Infobulles d'origine des champs du PSM, remplacées par la raison quand ils sont grisés.
+    private readonly Dictionary<System.Windows.Controls.Control, object?> _psmTips = [];
 
     private void OnModeChanged(object sender, RoutedEventArgs e)
     {
@@ -92,11 +100,15 @@ public partial class ConnectDialog : Window
         }
 
         bool psm = PsmRadio.IsChecked == true;
-        ComponentBox.IsEnabled = psm;
-        ReasonBox.IsEnabled = psm;
-        TicketSystemBox.IsEnabled = psm;
-        TicketIdBox.IsEnabled = psm;
-        RememberBox.IsEnabled = psm;
+        // Champs propres au PSM : grisés en SSH/SFTP, avec la raison en infobulle.
+        foreach (var field in new System.Windows.Controls.Control[] { ComponentBox, ReasonBox, TicketSystemBox, TicketIdBox, RememberBox })
+        {
+            _psmTips.TryAdd(field, field.ToolTip);
+            field.IsEnabled = psm;
+            System.Windows.Controls.ToolTipService.SetShowOnDisabled(field, true);
+            field.ToolTip = psm ? _psmTips[field] : Strings.PsmOnlyField;
+        }
+
         UpdateSshHint();
     }
 
@@ -127,6 +139,8 @@ public partial class ConnectDialog : Window
         string component = ComponentBox.Text.Trim();
         if (psm && component.Length == 0)
         {
+            ErrorText.Text = Strings.ComponentRequired;
+            ErrorPanel.Visibility = Visibility.Visible;
             ComponentBox.Focus();
             return;
         }

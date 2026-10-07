@@ -932,6 +932,47 @@
         </Setter>
     </Style>
 
+    <!-- ===== Kit des dialogues ===== -->
+    <!-- Bandeau d'erreur (réponse du PVWA, échec de connexion) : le texte est une ErrorLine, annoncée. -->
+    <Style x:Key="ErrorBanner" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource ErrorBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ErrorBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="Padding" Value="10,8" />
+    </Style>
+
+    <!-- Bandeau d'avertissement (FTP en clair, accès d'urgence…). -->
+    <Style x:Key="WarningBanner" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource WarningBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource WarningBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="Padding" Value="10,6" />
+    </Style>
+
+    <!-- Pied des dialogues : fond du panneau, filet en haut, boutons à droite (principal puis Annuler/Fermer). -->
+    <Style x:Key="DialogFooter" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SidePanelBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ToolbarBorderBrush}" />
+        <Setter Property="BorderThickness" Value="0,1,0,0" />
+        <Setter Property="Padding" Value="16,10,16,12" />
+    </Style>
+
+    <!-- Conséquence d'une option sensible, sous sa case (« ⚠ Effet : … »). -->
+    <Style x:Key="OptionEffect" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Margin" Value="20,0,0,8" />
+    </Style>
+
+    <!-- Aide sous un réglage. -->
+    <Style x:Key="OptionHelp" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Margin" Value="20,0,0,8" />
+    </Style>
+
     <!-- Bloc de texte à espacement fixe (empreintes, chemins) : sélectionnable, sans bordure. -->
     <Style x:Key="CodeBox" TargetType="TextBox">
         <Setter Property="FontFamily" Value="Consolas, Courier New" />

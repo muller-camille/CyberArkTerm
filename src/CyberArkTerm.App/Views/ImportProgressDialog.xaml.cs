@@ -46,6 +46,15 @@ public partial class ImportProgressDialog : Window
             DefaultAction = 0,
             CancelLabel = Strings.DontSave,
         });
+        ConfirmStop = () => ConfirmDialog.Confirm(this, new ConfirmRequest
+        {
+            Title = Strings.ImportTitle,
+            Heading = Strings.ImportStopHeading,
+            Bullets = [Strings.ImportStopCurrent, Strings.ImportStopCreated],
+            Kind = ConfirmKind.Warning,
+            Actions = [Strings.ImportStopAction],
+            CancelLabel = Strings.ImportContinue,
+        });
         BuildColumns();
         RowsGrid.ItemsSource = _rows;
         HeadingText.Text = Text.Format(Strings.ImportRunning, import.Ready);
@@ -69,13 +78,19 @@ public partial class ImportProgressDialog : Window
 
     internal IReadOnlyList<ImportRowView> Rows => _rows;
 
+    /// <summary>Fermeture demandée pendant l'import (Fermer, Échap, croix) : arrêter ? Non par défaut, l'import continue.</summary>
+    internal Func<bool> ConfirmStop { get; set; }
+
     protected override void OnClosing(CancelEventArgs e)
     {
-        // Pendant l'import : arrêt après la ligne en cours, puis fermeture.
+        // Pendant l'import : arrêt (après la ligne en cours) seulement si l'utilisateur le confirme, puis fermeture.
         if (_running)
         {
-            _stopRequested = _closeWhenStopped = true;
             e.Cancel = true;
+            if (!_closeWhenStopped && ConfirmStop())
+            {
+                _stopRequested = _closeWhenStopped = true;
+            }
         }
 
         base.OnClosing(e);
