@@ -1514,29 +1514,11 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0}: {1}.
-        /// </summary>
-        public static string ComponentEntry {
-            get {
-                return ResourceManager.GetString("ComponentEntry", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to _PSM component:.
         /// </summary>
         public static string ComponentLabel {
             get {
                 return ResourceManager.GetString("ComponentLabel", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Will be forgotten when you save..
-        /// </summary>
-        public static string ComponentsForgotten {
-            get {
-                return ResourceManager.GetString("ComponentsForgotten", resourceCulture);
             }
         }
 
@@ -2653,15 +2635,6 @@ namespace CyberArkTerm.App.Localization {
         public static string FollowTip {
             get {
                 return ResourceManager.GetString("FollowTip", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to F_orget.
-        /// </summary>
-        public static string Forget {
-            get {
-                return ResourceManager.GetString("Forget", resourceCulture);
             }
         }
 
@@ -5238,15 +5211,6 @@ namespace CyberArkTerm.App.Localization {
         public static string NewRemoteFolderPrompt {
             get {
                 return ResourceManager.GetString("NewRemoteFolderPrompt", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to None: the component is deduced from the platform (the Windows accounts one above, PSM-SSH for Unix...)..
-        /// </summary>
-        public static string NoComponents {
-            get {
-                return ResourceManager.GetString("NoComponents", resourceCulture);
             }
         }
 
@@ -12945,15 +12909,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Remembered per platform:.
-        /// </summary>
-        public static string RememberedComponentsLabel {
-            get {
-                return ResourceManager.GetString("RememberedComponentsLabel", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Invalid PSM component: letters, digits, “-”, “_” and “.” only (for example WIN-PSM)..
         /// </summary>
         public static string InvalidComponentName {
@@ -13436,6 +13391,87 @@ namespace CyberArkTerm.App.Localization {
         public static string EnvLineChange {
             get {
                 return ResourceManager.GetString("EnvLineChange", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Component per platform.
+        /// </summary>
+        public static string PlatformComponentsSection {
+            get {
+                return ResourceManager.GetString("PlatformComponentsSection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to For the accounts of a platform (platform ID in the PVWA, for example WinDomain or UnixSSH); takes precedence over the Windows accounts component above. A line is also added by “Remember this component for platform…” in the connection window..
+        /// </summary>
+        public static string PlatformComponentsHelp {
+            get {
+                return ResourceManager.GetString("PlatformComponentsHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Platform (ID).
+        /// </summary>
+        public static string ComponentColumnPlatform {
+            get {
+                return ResourceManager.GetString("ComponentColumnPlatform", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PSM component.
+        /// </summary>
+        public static string ComponentColumnComponent {
+            get {
+                return ResourceManager.GetString("ComponentColumnComponent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add a component.
+        /// </summary>
+        public static string ComponentAdd {
+            get {
+                return ResourceManager.GetString("ComponentAdd", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove the line.
+        /// </summary>
+        public static string ComponentRemove {
+            get {
+                return ResourceManager.GetString("ComponentRemove", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Line {0} of the components: enter the platform ID..
+        /// </summary>
+        public static string ComponentRowPlatformMissing {
+            get {
+                return ResourceManager.GetString("ComponentRowPlatformMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid PSM component (line {0}): letters, digits, “-”, “_” and “.” only..
+        /// </summary>
+        public static string InvalidComponentRow {
+            get {
+                return ResourceManager.GetString("InvalidComponentRow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Two components for platform {0}: keep only one line..
+        /// </summary>
+        public static string ComponentDuplicatePlatform {
+            get {
+                return ResourceManager.GetString("ComponentDuplicatePlatform", resourceCulture);
             }
         }
     }

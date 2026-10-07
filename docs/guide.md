@@ -134,7 +134,8 @@ PVWA "Connect" button: the PVWA's RDP file is handed over as is. A component tha
   PVWA may name its components differently (for example `WIN-PSM`): enter the name its "Connect" button offers; the
   list then offers the components already used, the platform's first. For all your Windows accounts, set the
   component once in **Settings › CyberArk** ("Windows accounts", for example `WIN-PSM`); a component remembered for a
-  platform still comes first.
+  platform still comes first. Per-platform components are shown and edited in the same place ("Component per
+  platform").
 - **Domain accounts**: an account registered for its domain has no server. It is recognized by its domain platform,
   its allowed machines, or its address: its logon domain, a domain with other servers below it (`corp.local` when an
   account targets `srv01.corp.local`), or the domain of the PVWA or of the workstation. Never a session to the domain
@@ -616,7 +617,7 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 | CyberArk | Default PSMP, port | PSM for SSH server; when set (or a PSMP by domain), Unix accounts open over SSH by default (as files only for an "SFTP" platform); without any PSMP, SSH and SFTP are disabled | empty, 22 |
 | CyberArk | PSMP by domain | Other PSMPs (address, port, domain served); each server goes through the one of the domain closest to its own (see [PSMP by domain](#psmp-by-domain)); "Which PSMP for the server" to check | none |
 | CyberArk | Windows accounts component | PSM component of Windows accounts (domain or local) without a component remembered for their platform, for example `WIN-PSM` | empty = `PSM-RDP` |
-| CyberArk | Remembered PSM components | PSM component chosen per platform ("Forget" button) | — |
+| CyberArk | Component per platform | Platform (PVWA ID, for example `WinDomain`) / PSM component table: "Add a component", "Remove the line", editable cells; takes precedence over the Windows accounts component. "Remember this component for platform" (connection window) adds a line to it | empty |
 | Terminal | SSH in CyberArkTerm | Built-in terminal and Files tab; otherwise Windows Terminal | yes |
 | Terminal | Terminal colours, font | Palette (Campbell, One Half, Solarized…) and font size of the SSH terminals | Campbell, 14 |
 | Terminal | Warn before pasting several lines | Preview and confirmation when the shell would run the lines one by one | yes |

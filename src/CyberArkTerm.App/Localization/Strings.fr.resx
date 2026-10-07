@@ -506,20 +506,8 @@
   <data name="ComponentsSection" xml:space="preserve">
     <value>Composants PSM</value>
   </data>
-  <data name="Forget" xml:space="preserve">
-    <value>_Oublier</value>
-  </data>
   <data name="NoHostKeys" xml:space="preserve">
     <value>Aucune clé de serveur mémorisée.</value>
-  </data>
-  <data name="NoComponents" xml:space="preserve">
-    <value>Aucun : le composant est déduit de la plateforme (celui des comptes Windows ci-dessus, PSM-SSH pour Unix...).</value>
-  </data>
-  <data name="ComponentEntry" xml:space="preserve">
-    <value>{0} : {1}</value>
-  </data>
-  <data name="ComponentsForgotten" xml:space="preserve">
-    <value>Seront oubliés à l'enregistrement.</value>
   </data>
   <data name="HostKeysForgotten" xml:space="preserve">
     <value>Seront oubliées à l'enregistrement : l'empreinte sera redemandée à la prochaine connexion.</value>
@@ -4349,9 +4337,6 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   <data name="WindowsComponentHelp" xml:space="preserve">
     <value>Pour les comptes Windows (domaine ou locaux) sans composant mémorisé pour leur plateforme, par exemple WIN-PSM. Vide : PSM-RDP.</value>
   </data>
-  <data name="RememberedComponentsLabel" xml:space="preserve">
-    <value>Mémorisés par plateforme :</value>
-  </data>
   <data name="InvalidComponentName" xml:space="preserve">
     <value>Composant PSM invalide : lettres, chiffres, « - », « _ » et « . » seulement (par exemple WIN-PSM).</value>
   </data>
@@ -4513,5 +4498,32 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   </data>
   <data name="EnvLineChange" xml:space="preserve">
     <value>{0} : {1} → {2}</value>
+  </data>
+  <data name="PlatformComponentsSection" xml:space="preserve">
+    <value>Composant par plateforme</value>
+  </data>
+  <data name="PlatformComponentsHelp" xml:space="preserve">
+    <value>Pour les comptes d'une plateforme (ID de la plateforme dans le PVWA, par exemple WinDomain ou UnixSSH) ; passe avant le composant des comptes Windows ci-dessus. Une ligne s'ajoute aussi par « Mémoriser ce composant pour la plateforme… » dans la fenêtre de connexion.</value>
+  </data>
+  <data name="ComponentColumnPlatform" xml:space="preserve">
+    <value>Plateforme (ID)</value>
+  </data>
+  <data name="ComponentColumnComponent" xml:space="preserve">
+    <value>Composant PSM</value>
+  </data>
+  <data name="ComponentAdd" xml:space="preserve">
+    <value>Ajouter un composant</value>
+  </data>
+  <data name="ComponentRemove" xml:space="preserve">
+    <value>Enlever la ligne</value>
+  </data>
+  <data name="ComponentRowPlatformMissing" xml:space="preserve">
+    <value>Ligne {0} des composants : saisissez l'ID de la plateforme.</value>
+  </data>
+  <data name="InvalidComponentRow" xml:space="preserve">
+    <value>Composant PSM invalide (ligne {0}) : lettres, chiffres, « - », « _ » et « . » seulement.</value>
+  </data>
+  <data name="ComponentDuplicatePlatform" xml:space="preserve">
+    <value>Deux composants pour la plateforme {0} : gardez une seule ligne.</value>
   </data>
 </root>
