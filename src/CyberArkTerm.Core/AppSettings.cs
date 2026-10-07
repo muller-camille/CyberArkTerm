@@ -28,6 +28,12 @@ public sealed class AppSettings
 
     public int PsmpPort { get; set; } = 22;
 
+    /// <summary>
+    /// Autres PSMP : chaque serveur passe par celui de son domaine le plus proche, sinon par <see cref="PsmpAddress"/>.
+    /// Voir <see cref="PsmpRouting"/>.
+    /// </summary>
+    public List<PsmpServer> PsmpServers { get; set; } = [];
+
     public GroupBy GroupBy { get; set; } = GroupBy.Safe;
 
     /// <summary>Anciens favoris (remplacés par « Mes serveurs », migrés au chargement des comptes).</summary>
@@ -324,6 +330,14 @@ public sealed class AppSettings
         settings.PvwaUrl ??= "";
         settings.UserName ??= "";
         settings.PsmpAddress ??= "";
+        settings.PsmpServers ??= [];
+        settings.PsmpServers.RemoveAll(p => p is null);
+        foreach (var psmp in settings.PsmpServers)
+        {
+            psmp.Address ??= "";
+            psmp.Domain ??= "";
+        }
+
         settings.TextEditor ??= "";
         settings.TailHighlights ??= "";
         settings.TailAlerts ??= "";

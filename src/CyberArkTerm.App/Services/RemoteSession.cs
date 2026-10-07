@@ -42,6 +42,9 @@ public abstract class RemoteSession : IDisposable
 
     public string Label { get; }
 
+    /// <summary>PSMP par lequel passe la session ; null pour une connexion directe.</summary>
+    public string? Psmp { get; init; }
+
     public RemoteSessionState State { get; private set; } = RemoteSessionState.Connecting;
 
     public string? Error { get; private set; }

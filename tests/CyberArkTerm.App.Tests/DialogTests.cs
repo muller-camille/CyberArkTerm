@@ -805,6 +805,52 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>
+    /// Paramètres, page CyberArk : PSMP par domaine. Le domaine suit l'adresse tant qu'il n'a pas été changé, l'essai
+    /// d'un serveur montre le PSMP choisi, deux PSMP pour le même domaine sont refusés.
+    /// </summary>
+    [Fact]
+    public void SettingsListPsmpByDomain()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var settings = new AppSettings { PsmpAddress = "psmp.corp.com" };
+            settings.PsmpServers.Add(new PsmpServer { Address = "psmp.xxx.ss.com" });
+            settings.PsmpServers.Add(new PsmpServer { Address = "psmp01.infra.corp.com", Port = 2022, Domain = "dmz.corp.com" });
+            var dialog = new SettingsDialog(settings);
+            Assert.Equal(["xxx.ss.com", "dmz.corp.com"], dialog.PsmpRows.Select(r => r.Domain));
+
+            dialog.PsmpTestBox.Text = "blabla.zzz.xxx.ss.com";
+            Assert.Equal(Text.Format(Strings.PsmpTestMatch, "psmp.xxx.ss.com", 22, "xxx.ss.com"), dialog.PsmpTestText.Text);
+            dialog.PsmpTestBox.Text = "web.dmz.corp.com";
+            Assert.Equal(Text.Format(Strings.PsmpTestMatch, "psmp01.infra.corp.com", 2022, "dmz.corp.com"), dialog.PsmpTestText.Text);
+            dialog.PsmpTestBox.Text = "srv.other.org";
+            Assert.Equal(Text.Format(Strings.PsmpTestFallback, "psmp.corp.com", 22), dialog.PsmpTestText.Text);
+
+            var row = dialog.PsmpRows[0];
+            row.Address = "psmp.zzz.xxx.ss.com";
+            Assert.Equal("zzz.xxx.ss.com", row.Domain);
+            dialog.PsmpRows[1].Address = "psmp02.infra.corp.com";
+            Assert.Equal("dmz.corp.com", dialog.PsmpRows[1].Domain);
+
+            var saved = dialog.ReadPsmpServers("psmp.corp.com");
+            Assert.NotNull(saved);
+            Assert.Equal(("psmp.zzz.xxx.ss.com", 22, ""), (saved[0].Address, saved[0].Port, saved[0].Domain));
+            Assert.Equal(("psmp02.infra.corp.com", 2022, "dmz.corp.com"), (saved[1].Address, saved[1].Port, saved[1].Domain));
+
+            // Même domaine que le PSMP par défaut : celui de la liste ne servirait jamais.
+            row.Domain = "corp.com";
+            Assert.Null(dialog.ReadPsmpServers("psmp.corp.com"));
+            Assert.Equal(Text.Format(Strings.PsmpDuplicateDomain, "corp.com"), dialog.ErrorText.Text);
+            dialog.Close();
+        });
+    }
+
     /// <summary>Onglet détaché : le terminal passe dans la fenêtre séparée, puis en ressort pour revenir dans l'onglet.</summary>
     [Fact]
     public void DetachedWindowHoldsTheTerminal()

@@ -23,14 +23,15 @@ public partial class MainWindow
     private MfaSshKey? _mfaKey;
     private DateTime _mfaRetryAfter;
 
-    private async Task OpenSshTabAsync(PvwaAccount account, string login, string label, SavedSession? saved, Func<Task>? duplicate)
+    private async Task OpenSshTabAsync(PvwaAccount account, PsmpEndpoint psmp, string login, string label, SavedSession? saved,
+        Func<Task>? duplicate)
     {
-        SetStatus(Text.Format(Strings.SshOpening, label, _settings.PsmpAddress));
+        SetStatus(Text.Format(Strings.SshOpening, label, psmp.Host));
         var key = await GetPsmpKeyAsync();
-        var connector = new SshConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi.For(label), key);
-        var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved);
-        ShowSshTab(session, $"{login}@{_settings.PsmpAddress}", Strings.ConnectingViaPsmp, "IconSsh",
-            Text.Format(Strings.SshOpened, label, _settings.PsmpAddress), duplicate);
+        var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), key);
+        var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved) { Psmp = psmp.Host };
+        ShowSshTab(session, $"{login}@{psmp.Host}", Strings.ConnectingViaPsmp, "IconSsh",
+            Text.Format(Strings.SshOpened, label, psmp.Host), duplicate);
     }
 
     /// <summary>Onglet terminal + panneau « Fichiers » pour une session SSH (via le PSMP ou directe).</summary>
@@ -62,6 +63,8 @@ public partial class MainWindow
         _remoteSessions.Add(session);
         MainTabs.Items.Add(tab);
         MainTabs.SelectedItem = tab;
+        // Les fichiers du serveur à côté du terminal ; un panneau de gauche replié le reste.
+        SelectSideTab(FilesTab, expand: false);
         // La connexion (et ses éventuelles questions : clé d'hôte, mot de passe, MFA) se poursuit dans l'onglet.
         _ = view.ConnectAsync();
     }
@@ -79,7 +82,7 @@ public partial class MainWindow
             ToolTip = Strings.CloseSessionTip,
         };
         closeButton.Click += (_, _) => CloseSessionTab(tab);
-        var mode = tab.Tag is RemoteSession { Account: not null } ? Text.Format(Strings.TabModePsmp, _settings.PsmpAddress) : Strings.TabModeDirect;
+        var mode = tab.Tag is RemoteSession { Psmp: { } psmp } ? Text.Format(Strings.TabModePsmp, psmp) : Strings.TabModeDirect;
         var shown = SessionTabHeader.UniqueLabel(label, SessionTabs().Select(t => t.Header).OfType<SessionTabHeader>().Select(h => h.Label));
         var header = new SessionTabHeader(shown, (System.Windows.Media.ImageSource)FindResource(icon), closeButton, mode,
             tab.Tag is SshSession ? Strings.TabDetachTip : null);

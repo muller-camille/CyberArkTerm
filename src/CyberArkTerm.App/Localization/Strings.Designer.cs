@@ -6034,7 +6034,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to PSMP _address:.
+        ///   Looks up a localized string similar to _Default PSMP:.
         /// </summary>
         public static string PsmpAddressLabel {
             get {
@@ -7456,7 +7456,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Unix accounts then open over SSH by default (PSM stays available in “Advanced connection”). Leave[rest of string was truncated].
+        ///   Looks up a localized string similar to Unix accounts then open over SSH by default (PSM stays available in “Advanced connection”). Without any PSMP, SSH is disabled..
         /// </summary>
         public static string SettingsSshHelp {
             get {
@@ -12581,6 +12581,186 @@ namespace CyberArkTerm.App.Localization {
         public static string ParallelBroadcastOn {
             get {
                 return ResourceManager.GetString("ParallelBroadcastOn", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to For the servers of its domain and those no PSMP below covers. Empty: the only PSMP of the list, if there is just one..
+        /// </summary>
+        public static string PsmpDefaultHelp {
+            get {
+                return ResourceManager.GetString("PsmpDefaultHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PSMP by domain.
+        /// </summary>
+        public static string PsmpListSection {
+            get {
+                return ResourceManager.GetString("PsmpListSection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Each server goes through the PSMP of the closest domain: srv01.zzz.xxx.corp.com through psmp.zzz.xxx.corp.com if it is listed, otherwise through psmp.xxx.corp.com. The domain comes from the address; change it if the PSMP serves another domain..
+        /// </summary>
+        public static string PsmpListHelp {
+            get {
+                return ResourceManager.GetString("PsmpListHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PSMP address.
+        /// </summary>
+        public static string PsmpColumnAddress {
+            get {
+                return ResourceManager.GetString("PsmpColumnAddress", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Port.
+        /// </summary>
+        public static string PsmpColumnPort {
+            get {
+                return ResourceManager.GetString("PsmpColumnPort", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Servers of the domain.
+        /// </summary>
+        public static string PsmpColumnDomain {
+            get {
+                return ResourceManager.GetString("PsmpColumnDomain", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Add a PSMP.
+        /// </summary>
+        public static string PsmpAdd {
+            get {
+                return ResourceManager.GetString("PsmpAdd", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remo_ve.
+        /// </summary>
+        public static string PsmpRemove {
+            get {
+                return ResourceManager.GetString("PsmpRemove", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Which PSMP for the server:.
+        /// </summary>
+        public static string PsmpTestLabel {
+            get {
+                return ResourceManager.GetString("PsmpTestLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Type a server name to see which PSMP it goes through..
+        /// </summary>
+        public static string PsmpTestPrompt {
+            get {
+                return ResourceManager.GetString("PsmpTestPrompt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to → {0}:{1} (servers of {2}).
+        /// </summary>
+        public static string PsmpTestMatch {
+            get {
+                return ResourceManager.GetString("PsmpTestMatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to → {0}:{1} (no PSMP for its domain: fallback PSMP).
+        /// </summary>
+        public static string PsmpTestFallback {
+            get {
+                return ResourceManager.GetString("PsmpTestFallback", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No PSMP for this server: SSH and SFTP are impossible. Add its PSMP or a default PSMP..
+        /// </summary>
+        public static string PsmpTestNone {
+            get {
+                return ResourceManager.GetString("PsmpTestNone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠ Effect: a PSMP receives your CyberArk password. Only list your organization's PSMPs; the first connection to each one asks you to check its key..
+        /// </summary>
+        public static string PsmpSecurityEffect {
+            get {
+                return ResourceManager.GetString("PsmpSecurityEffect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid PSMP address (line {0}): enter a host name or an IP address..
+        /// </summary>
+        public static string InvalidPsmpRowAddress {
+            get {
+                return ResourceManager.GetString("InvalidPsmpRowAddress", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid port (line {0}): from 1 to 65535..
+        /// </summary>
+        public static string InvalidPsmpRowPort {
+            get {
+                return ResourceManager.GetString("InvalidPsmpRowPort", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid domain (line {0}): enter a domain such as corp.com..
+        /// </summary>
+        public static string InvalidPsmpRowDomain {
+            get {
+                return ResourceManager.GetString("InvalidPsmpRowDomain", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Line {0}: enter the domain of the servers of this PSMP (its address has none)..
+        /// </summary>
+        public static string PsmpRowDomainMissing {
+            get {
+                return ResourceManager.GetString("PsmpRowDomainMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Two PSMPs for the servers of {0}: only the first would be used..
+        /// </summary>
+        public static string PsmpDuplicateDomain {
+            get {
+                return ResourceManager.GetString("PsmpDuplicateDomain", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No PSMP for {0}: its domain matches no configured PSMP. Add its PSMP or a default PSMP in Settings &gt; CyberArk..
+        /// </summary>
+        public static string PsmpNoRoute {
+            get {
+                return ResourceManager.GetString("PsmpNoRoute", resourceCulture);
             }
         }
     }

@@ -483,10 +483,10 @@
     <value>SSH via PSM for SSH (PSMP)</value>
   </data>
   <data name="SettingsSshHelp" xml:space="preserve">
-    <value>Unix accounts then open over SSH by default (PSM stays available in “Advanced connection”). Leave empty to disable SSH.</value>
+    <value>Unix accounts then open over SSH by default (PSM stays available in “Advanced connection”). Without any PSMP, SSH is disabled.</value>
   </data>
   <data name="PsmpAddressLabel" xml:space="preserve">
-    <value>PSMP _address:</value>
+    <value>_Default PSMP:</value>
   </data>
   <data name="PortLabel" xml:space="preserve">
     <value>_Port:</value>
@@ -4228,5 +4228,65 @@ Two instances would overwrite each other's settings, local vault and files being
   </data>
   <data name="ParallelBroadcastOn" xml:space="preserve">
     <value>ON ({0})</value>
+  </data>
+  <data name="PsmpDefaultHelp" xml:space="preserve">
+    <value>For the servers of its domain and those no PSMP below covers. Empty: the only PSMP of the list, if there is just one.</value>
+  </data>
+  <data name="PsmpListSection" xml:space="preserve">
+    <value>PSMP by domain</value>
+  </data>
+  <data name="PsmpListHelp" xml:space="preserve">
+    <value>Each server goes through the PSMP of the closest domain: srv01.zzz.xxx.corp.com through psmp.zzz.xxx.corp.com if it is listed, otherwise through psmp.xxx.corp.com. The domain comes from the address; change it if the PSMP serves another domain.</value>
+  </data>
+  <data name="PsmpColumnAddress" xml:space="preserve">
+    <value>PSMP address</value>
+  </data>
+  <data name="PsmpColumnPort" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="PsmpColumnDomain" xml:space="preserve">
+    <value>Servers of the domain</value>
+  </data>
+  <data name="PsmpAdd" xml:space="preserve">
+    <value>_Add a PSMP</value>
+  </data>
+  <data name="PsmpRemove" xml:space="preserve">
+    <value>Remo_ve</value>
+  </data>
+  <data name="PsmpTestLabel" xml:space="preserve">
+    <value>_Which PSMP for the server:</value>
+  </data>
+  <data name="PsmpTestPrompt" xml:space="preserve">
+    <value>Type a server name to see which PSMP it goes through.</value>
+  </data>
+  <data name="PsmpTestMatch" xml:space="preserve">
+    <value>→ {0}:{1} (servers of {2})</value>
+  </data>
+  <data name="PsmpTestFallback" xml:space="preserve">
+    <value>→ {0}:{1} (no PSMP for its domain: fallback PSMP)</value>
+  </data>
+  <data name="PsmpTestNone" xml:space="preserve">
+    <value>No PSMP for this server: SSH and SFTP are impossible. Add its PSMP or a default PSMP.</value>
+  </data>
+  <data name="PsmpSecurityEffect" xml:space="preserve">
+    <value>⚠ Effect: a PSMP receives your CyberArk password. Only list your organization's PSMPs; the first connection to each one asks you to check its key.</value>
+  </data>
+  <data name="InvalidPsmpRowAddress" xml:space="preserve">
+    <value>Invalid PSMP address (line {0}): enter a host name or an IP address.</value>
+  </data>
+  <data name="InvalidPsmpRowPort" xml:space="preserve">
+    <value>Invalid port (line {0}): from 1 to 65535.</value>
+  </data>
+  <data name="InvalidPsmpRowDomain" xml:space="preserve">
+    <value>Invalid domain (line {0}): enter a domain such as corp.com.</value>
+  </data>
+  <data name="PsmpRowDomainMissing" xml:space="preserve">
+    <value>Line {0}: enter the domain of the servers of this PSMP (its address has none).</value>
+  </data>
+  <data name="PsmpDuplicateDomain" xml:space="preserve">
+    <value>Two PSMPs for the servers of {0}: only the first would be used.</value>
+  </data>
+  <data name="PsmpNoRoute" xml:space="preserve">
+    <value>No PSMP for {0}: its domain matches no configured PSMP. Add its PSMP or a default PSMP in Settings &gt; CyberArk.</value>
   </data>
 </root>

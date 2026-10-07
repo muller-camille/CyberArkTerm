@@ -1,5 +1,8 @@
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Terminal;
 using CyberArkTerm.Core;
@@ -15,6 +18,7 @@ public partial class SettingsDialog : Window
     private readonly AppSettings _settings;
     private readonly LocalSecretStore? _store;
     private readonly HashSet<string> _forgottenKeys = new(StringComparer.Ordinal);
+    private readonly ObservableCollection<PsmpRow> _psmpRows = [];
     private bool _forgetComponents;
 
     /// <param name="store">Coffre local des mots de passe maîtres KeePass, géré depuis cette fenêtre.</param>
@@ -35,6 +39,13 @@ public partial class SettingsDialog : Window
         LanguageBox.SelectedValue = UiLanguage.Normalize(settings.Language);
         PsmpBox.Text = settings.PsmpAddress;
         PortBox.Text = settings.PsmpPort.ToString(CultureInfo.InvariantCulture);
+        foreach (var psmp in settings.PsmpServers)
+        {
+            AddPsmpRow(PsmpRow.From(psmp));
+        }
+
+        PsmpGrid.ItemsSource = _psmpRows;
+        UpdatePsmpTest();
         SshInAppBox.IsChecked = settings.SshInApp;
         FollowBox.IsChecked = settings.FollowTerminalFolder;
         EditorBox.Text = settings.TextEditor;
@@ -132,6 +143,7 @@ public partial class SettingsDialog : Window
 
     private void OnSave(object sender, RoutedEventArgs e)
     {
+        PsmpGrid.CommitEdit(DataGridEditingUnit.Row, true);
         var host = PsmpBox.Text.Trim();
         if (host.Length > 0 && Uri.CheckHostName(host) == UriHostNameType.Unknown)
         {
@@ -139,9 +151,14 @@ public partial class SettingsDialog : Window
             return;
         }
 
-        if (!int.TryParse(PortBox.Text.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var port) || port is < 1 or > 65535)
+        if (ParsePort(PortBox.Text) is not { } port)
         {
             ShowError(Strings.InvalidPort, PortBox);
+            return;
+        }
+
+        if (ReadPsmpServers(host) is not { } psmpServers)
+        {
             return;
         }
 
@@ -174,6 +191,7 @@ public partial class SettingsDialog : Window
         _settings.Language = LanguageBox.SelectedValue as string ?? "";
         _settings.PsmpAddress = host;
         _settings.PsmpPort = port;
+        _settings.PsmpServers = psmpServers;
         _settings.SshInApp = SshInAppBox.IsChecked == true;
         _settings.FollowTerminalFolder = FollowBox.IsChecked == true;
         _settings.KeepPvwaSessionAlive = KeepAliveBox.IsChecked == true;
@@ -232,6 +250,203 @@ public partial class SettingsDialog : Window
     }
 
     /// <summary>Erreur en pied de fenêtre ; la page du champ en cause s'affiche et le champ prend le focus.</summary>
+    // ===================== PSMP par domaine =====================
+
+    /// <summary>
+    /// Ligne du tableau des PSMP. Le domaine suit l'adresse (psmp.paris.corp.com → paris.corp.com) tant qu'il n'a pas été
+    /// changé à la main.
+    /// </summary>
+    internal sealed class PsmpRow : INotifyPropertyChanged
+    {
+        private string _address = "";
+        private string _port = "22";
+        private string _domain = "";
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public string Address
+        {
+            get => _address;
+            set
+            {
+                bool follow = _domain.Length == 0 || _domain == PsmpRouting.DomainOf(_address);
+                _address = value ?? "";
+                Changed(nameof(Address));
+                if (follow)
+                {
+                    _domain = PsmpRouting.DomainOf(_address);
+                    Changed(nameof(Domain));
+                }
+            }
+        }
+
+        public string Port
+        {
+            get => _port;
+            set
+            {
+                _port = value ?? "";
+                Changed(nameof(Port));
+            }
+        }
+
+        public string Domain
+        {
+            get => _domain;
+            set
+            {
+                _domain = value ?? "";
+                Changed(nameof(Domain));
+            }
+        }
+
+        public static PsmpRow From(PsmpServer psmp)
+        {
+            var row = new PsmpRow { Address = psmp.Address, Port = psmp.Port.ToString(CultureInfo.InvariantCulture) };
+            if (psmp.Domain.Length > 0)
+            {
+                row.Domain = psmp.Domain;
+            }
+
+            return row;
+        }
+
+        private void Changed(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
+    internal IList<PsmpRow> PsmpRows => _psmpRows;
+
+    private void AddPsmpRow(PsmpRow row)
+    {
+        row.PropertyChanged += (_, _) => UpdatePsmpTest();
+        _psmpRows.Add(row);
+    }
+
+    /// <summary>Nouvelle ligne, prête à la saisie de l'adresse.</summary>
+    private void OnAddPsmp(object sender, RoutedEventArgs e)
+    {
+        PsmpGrid.CommitEdit(DataGridEditingUnit.Row, true);
+        var row = new PsmpRow();
+        AddPsmpRow(row);
+        PsmpGrid.SelectedItem = row;
+        PsmpGrid.ScrollIntoView(row);
+        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Input, () =>
+        {
+            PsmpGrid.CurrentCell = new DataGridCellInfo(row, PsmpGrid.Columns[0]);
+            PsmpGrid.Focus();
+            PsmpGrid.BeginEdit();
+        });
+    }
+
+    private void OnRemovePsmp(object sender, RoutedEventArgs e)
+    {
+        if (PsmpGrid.SelectedItem is PsmpRow row)
+        {
+            PsmpGrid.CancelEdit(DataGridEditingUnit.Row);
+            _psmpRows.Remove(row);
+            UpdatePsmpTest();
+        }
+    }
+
+    private void OnPsmpSelected(object sender, SelectionChangedEventArgs e) => RemovePsmpButton.IsEnabled = PsmpGrid.SelectedItem is PsmpRow;
+
+    private void OnPsmpChanged(object sender, TextChangedEventArgs e) => UpdatePsmpTest();
+
+    /// <summary>PSMP qu'utiliserait le serveur saisi, d'après les valeurs affichées (pas encore enregistrées).</summary>
+    private void UpdatePsmpTest()
+    {
+        var server = PsmpTestBox.Text.Trim();
+        if (server.Length == 0)
+        {
+            PsmpTestText.Text = Strings.PsmpTestPrompt;
+            return;
+        }
+
+        var preview = new AppSettings
+        {
+            PsmpAddress = PsmpBox.Text.Trim(),
+            PsmpPort = ParsePort(PortBox.Text) ?? 22,
+            PsmpServers = _psmpRows.Select(r => new PsmpServer { Address = r.Address, Port = ParsePort(r.Port) ?? 22, Domain = r.Domain }).ToList(),
+        };
+        PsmpTestText.Text = PsmpRouting.Resolve(preview, server) switch
+        {
+            null => Strings.PsmpTestNone,
+            { Domain: { } domain } psmp => Text.Format(Strings.PsmpTestMatch, psmp.Host, psmp.Port, domain),
+            var psmp => Text.Format(Strings.PsmpTestFallback, psmp.Host, psmp.Port),
+        };
+    }
+
+    private static int? ParsePort(string text) =>
+        int.TryParse(text.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var port) && port is >= 1 and <= 65535 ? port : null;
+
+    /// <summary>
+    /// PSMP du tableau, vérifiés (lignes vides ignorées) ; null après avoir montré la première erreur. Deux PSMP pour le
+    /// même domaine sont refusés : le second ne servirait jamais.
+    /// </summary>
+    internal List<PsmpServer>? ReadPsmpServers(string defaultHost)
+    {
+        var servers = new List<PsmpServer>();
+        var domains = new HashSet<string>(StringComparer.Ordinal);
+        if (PsmpRouting.DomainOf(defaultHost) is { Length: > 0 } defaultDomain)
+        {
+            domains.Add(defaultDomain);
+        }
+
+        for (int i = 0; i < _psmpRows.Count; i++)
+        {
+            var row = _psmpRows[i];
+            var address = row.Address.Trim();
+            var domain = PsmpRouting.NormalizeDomain(row.Domain);
+            if (address.Length == 0 && domain.Length == 0)
+            {
+                continue;
+            }
+
+            int line = i + 1;
+            string? error = null;
+            var port = ParsePort(row.Port);
+            var deduced = PsmpRouting.DomainOf(address);
+            if (domain.Length == 0)
+            {
+                domain = deduced;
+            }
+
+            if (Uri.CheckHostName(address) == UriHostNameType.Unknown)
+            {
+                error = Text.Format(Strings.InvalidPsmpRowAddress, line);
+            }
+            else if (port is null)
+            {
+                error = Text.Format(Strings.InvalidPsmpRowPort, line);
+            }
+            else if (domain.Length == 0)
+            {
+                error = Text.Format(Strings.PsmpRowDomainMissing, line);
+            }
+            else if (!PsmpRouting.IsValidDomain(domain))
+            {
+                error = Text.Format(Strings.InvalidPsmpRowDomain, line);
+            }
+            else if (!domains.Add(domain))
+            {
+                error = Text.Format(Strings.PsmpDuplicateDomain, domain);
+            }
+
+            if (error is not null)
+            {
+                PsmpGrid.SelectedItem = row;
+                PsmpGrid.ScrollIntoView(row);
+                ShowError(error, PsmpGrid);
+                return null;
+            }
+
+            // Domaine de l'adresse : non enregistré, il suivra l'adresse si on la modifie dans le fichier.
+            servers.Add(new PsmpServer { Address = address, Port = port!.Value, Domain = domain == deduced ? "" : domain });
+        }
+
+        return servers;
+    }
+
     private void ShowError(string message, System.Windows.Controls.Control field)
     {
         ErrorText.Text = message;
