@@ -366,15 +366,16 @@ public sealed class DialogTests
             panel.Queue.ClearFinished();
             Assert.Equal(Visibility.Collapsed, panel.QueuePanel.Visibility);
 
-            // Un échec est signalé (pastille de l'onglet Fichiers) jusqu'à ce que l'onglet soit affiché.
-            panel.Queue.Enqueue(new TransferItem(true, "fail/", "/opt/app", (_, _) => throw new IOException("disque plein")));
-            Assert.Equal(1, panel.UnseenProblems);
-            panel.MarkTransfersSeen();
-            Assert.Equal(0, panel.UnseenProblems);
-
             // Historique : l'envoi terminé y figure ; l'élément retiré avant d'avoir commencé, non.
             var record = Assert.Single(panel.History.Records);
             Assert.Equal(("deploy/", true, TransferState.Done, "SCP"), (record.Label, record.Upload, record.State, record.Protocol));
+
+            // Un échec est signalé (pastille de l'onglet Fichiers) jusqu'à ce que l'onglet soit affiché.
+            panel.Queue.Enqueue(new TransferItem(true, "fail/", "/opt/app", (_, _) => throw new IOException("disque plein")));
+            Assert.Equal(1, panel.UnseenProblems);
+            Assert.Equal("Error", TransferStatusConverter.Outcome(panel.Queue.Items[^1]));
+            panel.MarkTransfersSeen();
+            Assert.Equal(0, panel.UnseenProblems);
         });
     }
 
