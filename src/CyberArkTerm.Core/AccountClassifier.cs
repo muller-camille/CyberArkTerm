@@ -82,30 +82,39 @@ public static class AccountClassifier
     }
 
     /// <summary>
-    /// Vrai pour un compte de domaine ou un compte limité à des machines : PSM a besoin de savoir
-    /// sur quelle machine ouvrir la session (paramètre <c>PSMRemoteMachine</c>).
+    /// Vrai pour un compte de domaine ou un compte limité à des machines : PSM a besoin de savoir sur quelle machine
+    /// ouvrir la session (paramètre <c>PSMRemoteMachine</c>). Une connexion vers l'adresse d'un compte de domaine
+    /// viserait le domaine lui-même : le serveur est toujours demandé.
     /// </summary>
-    public static bool NeedsRemoteMachine(PvwaAccount account) =>
-        !string.IsNullOrWhiteSpace(account.RemoteMachines) || ContainsAny(account.PlatformId ?? "", "Domain")
-        || IsRegisteredForDomain(account);
+    /// <param name="domains">Domaines connus (voir <see cref="KnownDomains"/>) ; null : seulement d'après le compte.</param>
+    public static bool NeedsRemoteMachine(PvwaAccount account, KnownDomains? domains = null) =>
+        !string.IsNullOrWhiteSpace(account.RemoteMachines) || IsDomainAccount(account, domains);
 
     /// <summary>
-    /// Compte Windows enregistré pour son domaine et non pour un serveur : son adresse est le domaine de connexion
-    /// (« corp.local » ou « CORP », domaine CORP). Jamais un compte local, dont le domaine est souvent le serveur lui-même.
+    /// Compte de domaine : plateforme de domaine, ou adresse qui est un domaine et non un serveur. Elle l'est si c'est le
+    /// domaine de connexion du compte (« corp.local » ou « CORP » pour le domaine CORP, « corp.example.com » dont la
+    /// première partie est CORP) ou un domaine connu (des serveurs sont dessous, domaine du PVWA ou du poste). Jamais un
+    /// compte local, ni un compte Unix, base de données ou réseau sans domaine de connexion : ils visent un serveur.
     /// </summary>
-    private static bool IsRegisteredForDomain(PvwaAccount account)
+    public static bool IsDomainAccount(PvwaAccount account, KnownDomains? domains = null)
     {
-        var domain = account.LogonDomain.Trim().TrimEnd('.');
-        var address = (account.Address ?? "").Trim().TrimEnd('.');
-        if (Classify(account) != AccountKind.Windows || ContainsAny(account.PlatformId ?? "", "Local")
-            || domain.Length == 0 || address.Length == 0)
+        var platform = account.PlatformId ?? "";
+        if (ContainsAny(platform, "Domain"))
+        {
+            return true;
+        }
+
+        var address = PsmpRouting.NormalizeHost(account.Address);
+        var logonDomain = PsmpRouting.NormalizeHost(account.LogonDomain);
+        if (address.Length == 0 || System.Net.IPAddress.TryParse(address, out _) || ContainsAny(platform, "Local")
+            || (Classify(account) is not (AccountKind.Windows or AccountKind.Other) && logonDomain.Length == 0))
         {
             return false;
         }
 
-        var labels = address.Split('.');
-        return address.Equals(domain, StringComparison.OrdinalIgnoreCase)
-               || (labels.Length == 2 && labels[0].Equals(domain, StringComparison.OrdinalIgnoreCase));
+        return address == logonDomain
+               || domains?.Contains(address) == true
+               || (logonDomain.Length > 0 && address.Split('.')[0] == logonDomain && address.Contains('.'));
     }
 
     public static IReadOnlyList<string> RemoteMachineList(PvwaAccount account) =>

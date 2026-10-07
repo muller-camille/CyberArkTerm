@@ -908,6 +908,42 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>
+    /// « Connexion avancée » d'un compte de domaine : sans serveur, la connexion est refusée (elle viserait le domaine) ;
+    /// avec un serveur, il est la machine cible.
+    /// </summary>
+    [Fact]
+    public void AdvancedConnectionRequiresTheServerOfADomainAccount()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var account = new PvwaAccount { Id = "5_2", UserName = "adm-t1", Address = "corp.example.com", PlatformId = "AD-Admins-T1", SafeName = "T1" };
+            var dialog = new ConnectDialog(account, new ConnectRequest(ConnectMode.Psm, "PSM-RDP"), new AppSettings(), "jdupont", null,
+                requireMachine: true);
+            Assert.Equal("", dialog.MachineBox.Text);
+            Assert.False(dialog.Accept());
+            Assert.Equal(Strings.ServerPromptRequired, dialog.ErrorText.Text);
+            Assert.Null(dialog.Result);
+
+            dialog.MachineBox.Text = "srv01.corp.example.com";
+            Assert.True(dialog.Accept());
+            Assert.Equal("srv01.corp.example.com", dialog.Result?.RemoteMachine);
+            dialog.Close();
+
+            // Compte d'un serveur : la machine cible reste facultative.
+            var server = new PvwaAccount { Id = "5_3", UserName = "admin", Address = "srv02.corp.example.com", PlatformId = "WinServerLocal" };
+            var direct = new ConnectDialog(server, new ConnectRequest(ConnectMode.Psm, "PSM-RDP"), new AppSettings(), "jdupont", null);
+            Assert.True(direct.Accept());
+            Assert.Null(direct.Result?.RemoteMachine);
+            direct.Close();
+        });
+    }
+
     /// <summary>Onglet détaché : le terminal passe dans la fenêtre séparée, puis en ressort pour revenir dans l'onglet.</summary>
     [Fact]
     public void DetachedWindowHoldsTheTerminal()

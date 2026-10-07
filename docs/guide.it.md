@@ -139,8 +139,10 @@ componente che apre un'applicazione remota (RemoteApp) apre le sue finestre sul 
   piattaforma. Il tuo PVWA può chiamare i suoi componenti in un altro modo (ad esempio `WIN-PSM`): inserisci il nome
   proposto dal suo pulsante «Connect»; l'elenco propone poi i componenti già usati, quello della piattaforma per
   primo.
-- **Account di dominio**: un account registrato per il suo dominio (indirizzo `corp.local`, piattaforma di dominio o
-  macchine autorizzate) non ha un server. La finestra «Scegli il server» chiede su quale aprire la sessione:
+- **Account di dominio**: un account registrato per il suo dominio non ha un server. Viene riconosciuto dalla
+  piattaforma di dominio, dalle macchine autorizzate o dall'indirizzo: il dominio di accesso, un dominio sotto cui si
+  trovano altri server (`corp.local` quando un account punta a `srv01.corp.local`), o il dominio del PVWA o della
+  postazione. Mai una sessione verso il dominio stesso: il server viene sempre chiesto, «Connessione avanzata» compresa. La finestra «Scegli il server» chiede su quale aprire la sessione:
   l'elenco propone i server già usati con questo account (sessioni recenti, «I miei server»), poi le sue macchine
   autorizzate; un account limitato alle sue macchine rifiuta le altre. «Mantieni questo server in «I miei server»»,
   con la cartella desiderata, lo aggiunge dopo una connessione riuscita, con il nome `account@server` (la scelta

@@ -133,8 +133,10 @@ PVWA "Connect" button: the PVWA's RDP file is handed over as is. A component tha
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Tick "Remember this component" to keep it for the whole platform. Your
   PVWA may name its components differently (for example `WIN-PSM`): enter the name its "Connect" button offers; the
   list then offers the components already used, the platform's first.
-- **Domain accounts**: an account registered for its domain (address `corp.local`, domain platform or allowed
-  machines) has no server. The "Choose the server" window asks which one to open the session on: the list offers
+- **Domain accounts**: an account registered for its domain has no server. It is recognized by its domain platform,
+  its allowed machines, or its address: its logon domain, a domain with other servers below it (`corp.local` when an
+  account targets `srv01.corp.local`), or the domain of the PVWA or of the workstation. Never a session to the domain
+  itself: the server is always asked, "Advanced connection" included. The "Choose the server" window asks which one to open the session on: the list offers
   the servers already used with this account (recent sessions, "My servers"), then its allowed machines; an account
   restricted to its machines refuses the others. "Keep this server in “My servers”", with the folder you want, adds
   it after a successful connection, named `account@server` (the choice is remembered for next time; the box
