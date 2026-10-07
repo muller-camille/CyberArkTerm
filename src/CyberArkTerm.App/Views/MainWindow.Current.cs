@@ -7,7 +7,7 @@ using CyberArkTerm.Core;
 
 namespace CyberArkTerm.App.Views;
 
-/// <summary>Onglet « Courants » : serveurs de travail de l'utilisateur, rangés en dossiers, chacun avec sa configuration.</summary>
+/// <summary>Onglet « Mes serveurs » : serveurs de travail de l'utilisateur, rangés en dossiers, chacun avec sa configuration.</summary>
 public partial class MainWindow
 {
     private const string SavedDragFormat = "CyberArkTerm.SavedItem";
@@ -167,6 +167,8 @@ public partial class MainWindow
 
     private void OnSavedSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
     {
+        // Modifier et Supprimer (en-tête) n'agissent que sur un serveur ou un dossier de « Mes serveurs ».
+        EditSavedButton.IsEnabled = DeleteSavedButton.IsEnabled = e.NewValue is SavedSessionNode or SavedFolderNode;
         // Arbre reconstruit en arrière-plan (liste partagée modifiée par un collègue, Paramètres, verrouillage de
         // Windows) : sa sélection disparaît, mais la cible choisie dans une autre liste reste.
         if (e.NewValue is not null || SavedTree.IsKeyboardFocusWithin)
@@ -326,7 +328,7 @@ public partial class MainWindow
     private void AddToCurrent(PvwaAccount account, string folder) =>
         ShowAddedToCurrent(SessionLibrary.AddSession(_settings, account, PvwaHost, folder, HasPsmp));
 
-    /// <summary>Connexion récente ajoutée aux « Courants » avec son mode, son composant et sa machine cible.</summary>
+    /// <summary>Connexion récente ajoutée aux « Mes serveurs » avec son mode, son composant et sa machine cible.</summary>
     private void AddToCurrent(PvwaAccount account, RecentSession recent, string folder) =>
         ShowAddedToCurrent(SessionLibrary.AddFromRecent(_settings, account, recent, PvwaHost, folder));
 
@@ -576,7 +578,7 @@ public partial class MainWindow
             || Math.Abs(delta.Y) > SystemParameters.MinimumVerticalDragDistance;
     }
 
-    /// <summary>Un compte glissé depuis « Disponibles » sur l'onglet « Courants » ouvre cet onglet.</summary>
+    /// <summary>Un compte glissé depuis « Disponibles » sur « Mes serveurs » ouvre cet onglet.</summary>
     private void OnCurrentTabDragEnter(object sender, DragEventArgs e)
     {
         if (e.Data.GetDataPresent(AccountDragFormat))

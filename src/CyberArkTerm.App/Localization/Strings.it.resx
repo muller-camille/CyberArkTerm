@@ -166,7 +166,7 @@
     <value>Aggiungi</value>
   </data>
   <data name="ToolAddToMyServersTip" xml:space="preserve">
-    <value>Aggiungi l'account selezionato ai tuoi server</value>
+    <value>Aggiungi l'account selezionato ai miei server</value>
   </data>
   <data name="ToolRefresh" xml:space="preserve">
     <value>Aggiorna</value>
@@ -175,7 +175,7 @@
     <value>Ricarica gli account dal PVWA (F5)</value>
   </data>
   <data name="ToolHistory" xml:space="preserve">
-    <value>Cronologia</value>
+    <value>Trasferimenti</value>
   </data>
   <data name="ToolSettings" xml:space="preserve">
     <value>Impostazioni</value>
@@ -220,7 +220,7 @@
     <value>Cerca un server…</value>
   </data>
   <data name="SavedSearchTip" xml:space="preserve">
-    <value>Filtra i miei server per nome, server, utente, cartella, componente… e le voci degli archivi KeePass sbloccati (Ctrl+F)</value>
+    <value>Filtra i miei server per nome, server, utente, cartella, componente… e le voci dei database KeePass sbloccati (Ctrl+F)</value>
   </data>
   <data name="SavedSearchNoMatch" xml:space="preserve">
     <value>Nessun server corrisponde a «{0}».</value>
@@ -281,11 +281,6 @@
   </data>
   <data name="LoadFailedShort" xml:space="preserve">
     <value>Caricamento non riuscito.</value>
-  </data>
-  <data name="LoadFailed" xml:space="preserve">
-    <value>Impossibile caricare gli account:
-
-{0}</value>
   </data>
   <data name="AccountCount" xml:space="preserve">
     <value>Account: {0:N0}</value>
@@ -569,7 +564,7 @@
     <value>C_artella:</value>
   </data>
   <data name="FolderTip" xml:space="preserve">
-    <value>Cartella della scheda «I miei server»; «/» per le sottocartelle (es. Prod/Web)</value>
+    <value>Cartella dei «I miei server»; «/» per le sottocartelle (es. Prod/Web)</value>
   </data>
   <data name="ConnectionSection" xml:space="preserve">
     <value>Connessione</value>
@@ -2114,25 +2109,25 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>Ancora nessun registro di debug: attivalo, poi riproduci il problema.</value>
   </data>
   <data name="KeePassFolderTitle" xml:space="preserve">
-    <value>Archivio KeePass</value>
+    <value>Database KeePass</value>
   </data>
   <data name="KeePassEmergencyWarning" xml:space="preserve">
-    <value>Accesso di emergenza fuori da CyberArk: le connessioni fatte con questo archivio non passano dal PSM (nessuna registrazione, nessuna regola CyberArk). Sono annotate nel registro locale (urgence.log).</value>
+    <value>Accesso di emergenza fuori da CyberArk: le connessioni fatte con questo database non passano dal PSM (nessuna registrazione, nessuna regola CyberArk). Sono annotate nel registro locale (urgence.log).</value>
   </data>
   <data name="KeePassFileLabel" xml:space="preserve">
-    <value>File _dell'archivio:</value>
+    <value>File _del database:</value>
   </data>
   <data name="KeePassKeyFileLabel" xml:space="preserve">
     <value>File _chiave:</value>
   </data>
   <data name="KeePassKeyFileHint" xml:space="preserve">
-    <value>Facoltativo. Lascia vuoto se l'archivio usa solo una password principale.</value>
+    <value>Facoltativo. Lascia vuoto se il database usa solo una password principale.</value>
   </data>
   <data name="KeePassUsesPassword" xml:space="preserve">
-    <value>L'archivio ha una _password principale</value>
+    <value>Il database ha una _password principale</value>
   </data>
   <data name="KeePassFilesFilter" xml:space="preserve">
-    <value>Archivi KeePass (*.kdbx)|*.kdbx|Tutti i file (*.*)|*.*</value>
+    <value>Database KeePass (*.kdbx)|*.kdbx|Tutti i file (*.*)|*.*</value>
   </data>
   <data name="AllFilesFilter" xml:space="preserve">
     <value>Tutti i file (*.*)|*.*</value>
@@ -2144,7 +2139,7 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>Serve una password principale, un file chiave, o entrambi.</value>
   </data>
   <data name="KeePassUnlockTitle" xml:space="preserve">
-    <value>Sblocca l'archivio KeePass</value>
+    <value>Sblocca il database KeePass</value>
   </data>
   <data name="KeePassMasterPasswordLabel" xml:space="preserve">
     <value>_Password principale:</value>
@@ -2216,7 +2211,7 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>(bloccato)</value>
   </data>
   <data name="KeePassFolderTip" xml:space="preserve">
-    <value>Archivio KeePass — accesso di emergenza fuori da CyberArk</value>
+    <value>Database KeePass — accesso di emergenza fuori da CyberArk</value>
   </data>
   <data name="KeePassKeyFileInfo" xml:space="preserve">
     <value>File chiave: {0}</value>
@@ -2225,13 +2220,13 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>Nessun indirizzo di server</value>
   </data>
   <data name="KeePassEntryOrigin" xml:space="preserve">
-    <value>Archivio KeePass {0} — fuori da CyberArk</value>
+    <value>Database KeePass {0} — fuori da CyberArk</value>
   </data>
   <data name="KeePassUnlockHint" xml:space="preserve">
     <value>Fai doppio clic per sbloccare</value>
   </data>
   <data name="MenuKeePassAdd" xml:space="preserve">
-    <value>Aggiungi un archivio _KeePass…</value>
+    <value>Aggiungi un database _KeePass…</value>
   </data>
   <data name="MenuKeePassUnlock" xml:space="preserve">
     <value>_Sblocca…</value>
@@ -2267,30 +2262,30 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>_Elimina</value>
   </data>
   <data name="ToolKeePassTip" xml:space="preserve">
-    <value>Aggiungi un archivio KeePass (accesso di emergenza fuori da CyberArk)</value>
+    <value>Aggiungi un database KeePass (accesso di emergenza fuori da CyberArk)</value>
   </data>
   <data name="KeePassUnlocked" xml:space="preserve">
-    <value>Archivio KeePass {0} sbloccato ({1} voci)</value>
+    <value>Database KeePass {0} sbloccato ({1} voci)</value>
   </data>
   <data name="KeePassLockedStatus" xml:space="preserve">
-    <value>Archivio KeePass {0} bloccato</value>
+    <value>Database KeePass {0} bloccato</value>
   </data>
   <data name="KeePassAllLocked" xml:space="preserve">
-    <value>Archivi KeePass bloccati (sessione Windows bloccata)</value>
+    <value>Database KeePass bloccati (sessione Windows bloccata)</value>
   </data>
   <data name="KeePassSaving" xml:space="preserve">
-    <value>Salvataggio dell'archivio KeePass {0}…</value>
+    <value>Salvataggio del database KeePass {0}…</value>
   </data>
   <data name="KeePassSaved" xml:space="preserve">
-    <value>Archivio KeePass {0} salvato (versione precedente conservata in {1})</value>
+    <value>Database KeePass {0} salvato (versione precedente conservata in {1})</value>
   </data>
   <data name="KeePassSaveFailed" xml:space="preserve">
-    <value>L'archivio KeePass {0} non è stato salvato:
+    <value>Il database KeePass {0} non è stato salvato:
 
 {1}</value>
   </data>
   <data name="KeePassReloaded" xml:space="preserve">
-    <value>Archivio KeePass {0} ricaricato</value>
+    <value>Database KeePass {0} ricaricato</value>
   </data>
   <data name="KeePassNoHostError" xml:space="preserve">
     <value>La voce «{0}» non ha un indirizzo di server: compila il suo indirizzo (ssh://… o rdp://…).</value>
@@ -2308,7 +2303,7 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>{0} · KeePass</value>
   </data>
   <data name="KeePassRdpNoControl" xml:space="preserve">
-    <value>{0}: controllo Desktop remoto non disponibile, Connessione Desktop remoto aperta senza la password (prendila dall'archivio KeePass).</value>
+    <value>{0}: controllo Desktop remoto non disponibile, Connessione Desktop remoto aperta senza la password (prendila dal database KeePass).</value>
   </data>
   <data name="ConnectingDirect" xml:space="preserve">
     <value>Connessione diretta (accesso di emergenza, fuori da CyberArk)…</value>
@@ -2323,7 +2318,7 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>Vault locale</value>
   </data>
   <data name="LocalStoreCreateIntro" xml:space="preserve">
-    <value>Il vault locale conserva le password principali KeePass che scegli di memorizzare. È cifrato con la password qui sotto (Argon2id, AES-256) e il tuo account Windows (DPAPI). Questa password viene chiesta quando sblocchi un archivio KeePass la cui password è memorizzata; non può essere recuperata.</value>
+    <value>Il vault locale conserva le password principali KeePass che scegli di memorizzare. È cifrato con la password qui sotto (Argon2id, AES-256) e il tuo account Windows (DPAPI). Questa password viene chiesta quando sblocchi un database KeePass la cui password è memorizzata; non può essere recuperata.</value>
   </data>
   <data name="LocalStoreUnlockIntro" xml:space="preserve">
     <value>Sblocca il vault locale per usare le password principali KeePass memorizzate.</value>
@@ -2374,7 +2369,7 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>Accesso di _emergenza (KeePass)</value>
   </data>
   <data name="LoginEmergencyTip" xml:space="preserve">
-    <value>Senza CyberArk: apri i tuoi archivi KeePass per connetterti direttamente ai server (SSH, desktop remoto).</value>
+    <value>Senza CyberArk: apri i tuoi database KeePass per connetterti direttamente ai server (SSH, desktop remoto).</value>
   </data>
   <data name="EmergencyTitle" xml:space="preserve">
     <value>CyberArkTerm — Accesso di emergenza (senza CyberArk)</value>
@@ -2383,7 +2378,7 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>Accesso di emergenza — senza CyberArk</value>
   </data>
   <data name="EmergencyWelcome" xml:space="preserve">
-    <value>Accesso di emergenza senza CyberArk: apri un archivio KeePass in «I miei server», a sinistra. Le connessioni sono annotate nel registro locale (urgence.log).</value>
+    <value>Accesso di emergenza senza CyberArk: apri un database KeePass in «I miei server», a sinistra. Le connessioni sono annotate nel registro locale (urgence.log).</value>
   </data>
   <data name="PvwaSessionSection" xml:space="preserve">
     <value>Sessione CyberArk</value>
@@ -2395,7 +2390,7 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>La sessione CyberArk è scaduta: accedi di nuovo per raggiungere gli account CyberArk.</value>
   </data>
   <data name="NoKeePassHelp" xml:space="preserve">
-    <value>Aggiungi un archivio KeePass con il pulsante cassaforte qui sopra (o clic destro qui).</value>
+    <value>Aggiungi un database KeePass con il pulsante cassaforte qui sopra (o clic destro qui).</value>
   </data>
   <data name="EditWriteInterrupted" xml:space="preserve">
     <value>L'invio di {0} è stato interrotto: il file sul server potrebbe essere incompleto.
@@ -2408,7 +2403,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>Impossibile leggere i permessi della destinazione del collegamento {0}.</value>
   </data>
   <data name="KeePassSavedNoLog" xml:space="preserve">
-    <value>Archivio KeePass {0} salvato, ma non è stato possibile scrivere il registro di emergenza (urgence.log)</value>
+    <value>Database KeePass {0} salvato, ma non è stato possibile scrivere il registro di emergenza (urgence.log)</value>
   </data>
   <data name="KeePassTargetInvalid" xml:space="preserve">
     <value>L'host o il nome utente di questa voce contiene un a capo o un carattere di controllo.</value>
@@ -2582,7 +2577,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>_Nome dell'account:</value>
   </data>
   <data name="AddAccountNameTip" xml:space="preserve">
-    <value>Nome dell'account nel vault. Vuoto: scelto dal PVWA.</value>
+    <value>Nome dell'account nel vault CyberArk. Vuoto: scelto dal PVWA.</value>
   </data>
   <data name="AddAccountPassword" xml:space="preserve">
     <value>_Password:</value>
@@ -2855,7 +2850,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>_Membro:</value>
   </data>
   <data name="SafeMemberNameTip" xml:space="preserve">
-    <value>Nome dell'utente o del gruppo, come nel vault o nella directory LDAP.</value>
+    <value>Nome dell'utente o del gruppo, come nel vault CyberArk o nella directory LDAP.</value>
   </data>
   <data name="SafeMemberTypeLabel" xml:space="preserve">
     <value>_Tipo:</value>
@@ -2864,7 +2859,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>_Cerca in:</value>
   </data>
   <data name="SafeMemberSearchInTip" xml:space="preserve">
-    <value>«Vault» per un utente o un gruppo del vault, altrimenti il nome della directory LDAP (ad esempio corp.example).</value>
+    <value>«Vault» per un utente o un gruppo del vault CyberArk, altrimenti il nome della directory LDAP (ad esempio corp.example).</value>
   </data>
   <data name="SafeMemberUntil" xml:space="preserve">
     <value>Membro _fino al:</value>
@@ -3318,12 +3313,12 @@ Le impostazioni precedenti sono state riprese dal loro backup.</value>
     <value>Il file delle impostazioni era illeggibile (scrittura interrotta, disco pieno…). È stato conservato così com'è come:
 {0}
 
-Nessun backup leggibile: CyberArkTerm parte con le impostazioni predefinite. I tuoi server e archivi sono ancora nel file conservato.</value>
+Nessun backup leggibile: CyberArkTerm parte con le impostazioni predefinite. I tuoi server e database KeePass sono ancora nel file conservato.</value>
   </data>
   <data name="AlreadyRunning" xml:space="preserve">
     <value>CyberArkTerm è già aperto in questa sessione di Windows: usa la finestra aperta (barra delle applicazioni).
 
-Due istanze sovrascriverebbero a vicenda impostazioni, archivio locale e file in modifica.</value>
+Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in modifica.</value>
   </data>
   <data name="KeePassConnectNoLog" xml:space="preserve">
     <value>Il registro degli accessi di emergenza non può essere scritto ({0}): la connessione non viene aperta.</value>
@@ -3974,7 +3969,7 @@ Due istanze sovrascriverebbero a vicenda impostazioni, archivio locale e file in
     <value>Ctrl+K</value>
   </data>
   <data name="ShortcutQuick" xml:space="preserve">
-    <value>: connessione rapida (Ctrl+1, 2, 3: schede laterali; F6: dal pannello alla sessione e ritorno)</value>
+    <value>: connessione rapida (Ctrl+1, 2, 3: schede laterali; F6: dal pannello alla sessione e ritorno; Ctrl+B: chiudi il pannello)</value>
   </data>
   <data name="ShortcutTabClose" xml:space="preserve">
     <value>Ctrl+F4</value>
@@ -3993,5 +3988,53 @@ Due istanze sovrascriverebbero a vicenda impostazioni, archivio locale e file in
   </data>
   <data name="A11yArchiveThreshold" xml:space="preserve">
     <value>Numero di file da cui viene proposto un archivio</value>
+  </data>
+  <data name="TabStateConnecting" xml:space="preserve">
+    <value>Connessione in corso</value>
+  </data>
+  <data name="TabStateConnected" xml:space="preserve">
+    <value>Connessa</value>
+  </data>
+  <data name="TabStateEnded" xml:space="preserve">
+    <value>Terminata</value>
+  </data>
+  <data name="TabStateFailed" xml:space="preserve">
+    <value>Connessione non riuscita</value>
+  </data>
+  <data name="TabModePsmp" xml:space="preserve">
+    <value>Tramite il PSMP {0}: sessione gestita da CyberArk</value>
+  </data>
+  <data name="TabModeDirect" xml:space="preserve">
+    <value>Accesso diretto di emergenza (KeePass): fuori da CyberArk, annotato in urgence.log</value>
+  </data>
+  <data name="TabListTip" xml:space="preserve">
+    <value>Tutte le schede</value>
+  </data>
+  <data name="SideSplitterTip" xml:space="preserve">
+    <value>Trascina per ridimensionare; doppio clic o Ctrl+B: chiudi il pannello</value>
+  </data>
+  <data name="AvailableLoadFailed" xml:space="preserve">
+    <value>Non è stato possibile caricare gli account: {0}</value>
+  </data>
+  <data name="AvailableNone" xml:space="preserve">
+    <value>Nessun account è disponibile per il tuo utente CyberArk (safe e autorizzazioni sono assegnati dal tuo team CyberArk).</value>
+  </data>
+  <data name="AvailableNoMatch" xml:space="preserve">
+    <value>Nessun account corrisponde a «{0}».</value>
+  </data>
+  <data name="ClearFilter" xml:space="preserve">
+    <value>_Cancella il filtro</value>
+  </data>
+  <data name="QuickFirstResults" xml:space="preserve">
+    <value>Primi {0} account su {1}: precisa la ricerca.</value>
+  </data>
+  <data name="MenuRemoveRecent" xml:space="preserve">
+    <value>_Rimuovi dall'elenco</value>
+  </data>
+  <data name="RecentToday" xml:space="preserve">
+    <value>Oggi {0}</value>
+  </data>
+  <data name="RecentYesterday" xml:space="preserve">
+    <value>Ieri {0}</value>
   </data>
 </root>

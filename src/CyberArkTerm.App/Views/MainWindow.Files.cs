@@ -85,7 +85,7 @@ public partial class MainWindow
                 return true;
             },
         };
-        view.ShowFilesRequested += () => SideTabs.SelectedItem = FilesTab;
+        view.ShowFilesRequested += () => ShowSideTab(FilesTab);
         var tab = new TabItem { Content = view, Tag = session };
         tab.Header = TabHeader(tab, session.Label, "IconFiles", duplicate);
         session.StateChanged += () =>

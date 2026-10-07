@@ -522,7 +522,7 @@ public partial class FileBrowserPanel
 
     /// <summary>
     /// Suit des fichiers du serveur de la session active, dans une nouvelle fenêtre ou dans <paramref name="into"/>
-    /// (vue combinée, éventuellement avec d'autres serveurs). Sur un serveur « Courants », les fichiers sont mémorisés
+    /// (vue combinée, éventuellement avec d'autres serveurs). Sur un serveur « Mes serveurs », les fichiers sont mémorisés
     /// pour être suivis à nouveau d'un clic.
     /// </summary>
     private void Follow(IReadOnlyList<string> paths, TailWindow? into)
@@ -585,7 +585,7 @@ public partial class FileBrowserPanel
         return window;
     }
 
-    /// <summary>Bouton des fichiers déjà suivis sur ce serveur « Courants ».</summary>
+    /// <summary>Bouton des fichiers déjà suivis sur ce serveur « Mes serveurs ».</summary>
     private void UpdateTailFilesButton() =>
         TailFilesButton.Visibility = _session?.Saved?.TailFiles is { Count: > 0 } ? Visibility.Visible : Visibility.Collapsed;
 

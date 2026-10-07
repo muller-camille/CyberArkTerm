@@ -375,4 +375,7 @@
   <data name="PermissionsUnknown" xml:space="preserve">
     <value>droits actuels inconnus : seuls des droits complets (toutes les cases rwx cochées ou décochées) peuvent être appliqués</value>
   </data>
+  <data name="HostKeyRefused" xml:space="preserve">
+    <value>Connexion annulée : la clé du serveur n'a pas été acceptée.</value>
+  </data>
 </root>

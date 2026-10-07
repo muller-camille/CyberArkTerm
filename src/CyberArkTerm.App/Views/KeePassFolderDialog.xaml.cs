@@ -6,7 +6,7 @@ using Microsoft.Win32;
 
 namespace CyberArkTerm.App.Views;
 
-/// <summary>Ajout d'un coffre KeePass dans l'onglet « Courants », ou modification de son emplacement.</summary>
+/// <summary>Ajout d'un coffre KeePass dans « Mes serveurs », ou modification de son emplacement.</summary>
 public partial class KeePassFolderDialog : Window
 {
     private readonly KeePassFolder _folder;

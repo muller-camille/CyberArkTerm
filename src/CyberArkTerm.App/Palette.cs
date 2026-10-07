@@ -39,6 +39,9 @@ internal static class Palette
         ("StatusOkForeground", Role.Text), ("StatusErrorForeground", Role.Text), ("StatusWarningForeground", Role.Text),
         ("ErrorBrush", Role.Text), ("WarningBrush", Role.Text), ("SuccessBrush", Role.Text), ("DiffRemovedForeground", Role.Text),
         ("DiffAddedForeground", Role.Text), ("LineNumberBrush", Role.Text),
+        // Pastilles d'état : la forme (pleine ou anneau) et l'infobulle portent l'état.
+        ("StateConnectedBrush", Role.Text), ("StateConnectingBrush", Role.Text), ("StateEndedBrush", Role.Text),
+        ("StateFailedBrush", Role.Text),
 
         // Bordures et séparateurs.
         ("ToolbarBorderBrush", Role.Border), ("MainTabBorderBrush", Role.Border), ("ErrorBorderBrush", Role.Border),

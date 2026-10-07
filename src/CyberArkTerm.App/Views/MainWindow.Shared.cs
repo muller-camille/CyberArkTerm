@@ -13,7 +13,7 @@ using Microsoft.Win32;
 namespace CyberArkTerm.App.Views;
 
 /// <summary>
-/// Onglet « Courants » : export et import de la liste, et listes partagées (fichiers JSON sur un partage réseau, que
+/// Onglet « Mes serveurs » : export et import de la liste, et listes partagées (fichiers JSON sur un partage réseau, que
 /// chacun complète ou élague ; chaque modification est historisée avec son auteur et une copie de la version précédente).
 /// </summary>
 public partial class MainWindow

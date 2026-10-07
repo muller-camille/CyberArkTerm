@@ -13,7 +13,7 @@ public enum ConnectMode
 }
 
 /// <summary>
-/// Serveur de l'onglet « Courants » : un compte CyberArk que l'utilisateur utilise régulièrement,
+/// Serveur de « Mes serveurs » : un compte CyberArk que l'utilisateur utilise régulièrement,
 /// rangé dans un dossier, avec sa propre configuration de connexion.
 /// </summary>
 public sealed class SavedSession
@@ -91,7 +91,7 @@ public sealed class SavedSession
     };
 }
 
-/// <summary>Chemins de dossiers « A/B/C » de l'onglet « Courants ».</summary>
+/// <summary>Chemins de dossiers « A/B/C » de « Mes serveurs ».</summary>
 public static class SessionFolders
 {
     public static string Normalize(string? path) =>
@@ -132,7 +132,7 @@ public static class SessionFolders
     }
 }
 
-/// <summary>Dossier de l'arbre « Courants ».</summary>
+/// <summary>Dossier de l'arbre « Mes serveurs ».</summary>
 public sealed class SessionFolderNode(string path)
 {
     public string Path { get; } = path;

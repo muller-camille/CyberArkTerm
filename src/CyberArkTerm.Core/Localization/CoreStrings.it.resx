@@ -375,4 +375,7 @@
   <data name="PermissionsUnknown" xml:space="preserve">
     <value>permessi attuali sconosciuti: si possono applicare solo permessi completi (tutte le caselle rwx selezionate o deselezionate)</value>
   </data>
+  <data name="HostKeyRefused" xml:space="preserve">
+    <value>Connessione annullata: la chiave del server non è stata accettata.</value>
+  </data>
 </root>

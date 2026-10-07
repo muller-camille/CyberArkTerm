@@ -149,9 +149,11 @@ public sealed class SshConnector
             }
 
             var client = create(info);
+            bool keyRefused = false;
             client.HostKeyReceived += (_, e) =>
             {
                 e.CanTrust = _ui.CheckHostKey(Host, Port, e.HostKeyName, e.FingerPrintSHA256);
+                keyRefused = !e.CanTrust;
                 DebugLog.Write("ssh", $"{Host}:{Port} : clé d'hôte {e.HostKeyName} SHA256:{e.FingerPrintSHA256}, acceptée {e.CanTrust}");
             };
             DebugLog.Write("ssh", $"{Host}:{Port} : connexion {purpose}, essai {attempt + 1}, méthodes {string.Join(", ", methods.Select(m => m.Name))}");
@@ -176,6 +178,12 @@ public sealed class SshConnector
             {
                 DebugLog.Write("ssh", $"{Host}:{Port} : échec de la connexion {purpose}", ex);
                 client.Dispose();
+                if (keyRefused)
+                {
+                    // Refus de l'utilisateur (ou clé changée non confirmée) : pas une panne, une annulation.
+                    throw new HostKeyRefusedException(CoreStrings.HostKeyRefused);
+                }
+
                 if (cancelled)
                 {
                     throw new OperationCanceledException(CoreStrings.AuthenticationCancelled);
@@ -240,3 +248,6 @@ public sealed class SshConnector
         request.Contains("password", StringComparison.OrdinalIgnoreCase)
         || request.Contains("mot de passe", StringComparison.OrdinalIgnoreCase);
 }
+
+/// <summary>La clé d'hôte présentée n'a pas été acceptée : la connexion est annulée avant toute authentification.</summary>
+public sealed class HostKeyRefusedException(string message) : OperationCanceledException(message);

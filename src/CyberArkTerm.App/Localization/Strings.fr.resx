@@ -49,7 +49,7 @@
     <value>_Nouveau dossier…</value>
   </data>
   <data name="MyServers" xml:space="preserve">
-    <value>Serveurs courants</value>
+    <value>Mes serveurs</value>
   </data>
   <data name="LoginTitle" xml:space="preserve">
     <value>CyberArkTerm — Connexion</value>
@@ -109,7 +109,7 @@
     <value>Connexion _avancée…</value>
   </data>
   <data name="MenuAddToMyServers" xml:space="preserve">
-    <value>Ajouter aux serveurs _courants</value>
+    <value>A_jouter à Mes serveurs</value>
   </data>
   <data name="MenuCopyServer" xml:space="preserve">
     <value>Copier le serveur</value>
@@ -127,7 +127,7 @@
     <value>_Renommer…</value>
   </data>
   <data name="MenuRemoveFromMyServers" xml:space="preserve">
-    <value>Re_tirer des serveurs courants</value>
+    <value>Re_tirer de Mes serveurs</value>
   </data>
   <data name="MenuNewSubfolder" xml:space="preserve">
     <value>_Nouveau sous-dossier…</value>
@@ -163,10 +163,10 @@
     <value>Choisir le composant, la machine cible, le motif ou le ticket</value>
   </data>
   <data name="ToolAddToMyServers" xml:space="preserve">
-    <value>Courant</value>
+    <value>Ajouter</value>
   </data>
   <data name="ToolAddToMyServersTip" xml:space="preserve">
-    <value>Ajouter le compte sélectionné à vos serveurs courants</value>
+    <value>Ajouter le compte sélectionné à Mes serveurs</value>
   </data>
   <data name="ToolRefresh" xml:space="preserve">
     <value>Actualiser</value>
@@ -175,7 +175,7 @@
     <value>Recharger les comptes depuis le PVWA (F5)</value>
   </data>
   <data name="ToolHistory" xml:space="preserve">
-    <value>Historique</value>
+    <value>Transferts</value>
   </data>
   <data name="ToolSettings" xml:space="preserve">
     <value>Paramètres</value>
@@ -202,7 +202,7 @@
     <value>Type de cible</value>
   </data>
   <data name="TabMyServers" xml:space="preserve">
-    <value>Courants</value>
+    <value>Mes serveurs</value>
   </data>
   <data name="TabMyServersTip" xml:space="preserve">
     <value>Vos serveurs de travail, rangés en dossiers, avec leur configuration</value>
@@ -220,13 +220,13 @@
     <value>Rechercher un serveur…</value>
   </data>
   <data name="SavedSearchTip" xml:space="preserve">
-    <value>Filtrer les serveurs courants par nom, serveur, utilisateur, dossier, composant… et les entrées des coffres KeePass déverrouillés (Ctrl+F)</value>
+    <value>Filtrer Mes serveurs par nom, serveur, utilisateur, dossier, composant… et les entrées des bases KeePass déverrouillées (Ctrl+F)</value>
   </data>
   <data name="SavedSearchNoMatch" xml:space="preserve">
     <value>Aucun serveur ne correspond à « {0} ».</value>
   </data>
   <data name="NoSavedHelp" xml:space="preserve">
-    <value>Ajoutez ici les serveurs que vous utilisez : clic droit sur un compte de l'onglet « Disponibles » puis « Ajouter aux serveurs courants », ou glissez-le sur l'onglet « Courants ». Clic droit ici pour créer des dossiers.</value>
+    <value>Ajoutez ici les serveurs que vous utilisez : clic droit sur un compte de l'onglet « Disponibles » puis « Ajouter à Mes serveurs », ou glissez-le sur l'onglet « Mes serveurs ». Clic droit ici pour créer des dossiers.</value>
   </data>
   <data name="TabFiles" xml:space="preserve">
     <value>Fichiers</value>
@@ -259,7 +259,7 @@
     <value>Clic droit</value>
   </data>
   <data name="ShortcutMenu" xml:space="preserve">
-    <value> : PSM, SSH, fichiers (SFTP), connexion avancée, serveurs courants</value>
+    <value> : PSM, SSH, fichiers (SFTP), connexion avancée, Mes serveurs</value>
   </data>
   <data name="ShortcutSshKey" xml:space="preserve">
     <value>Session SSH</value>
@@ -281,11 +281,6 @@
   </data>
   <data name="LoadFailedShort" xml:space="preserve">
     <value>Échec du chargement.</value>
-  </data>
-  <data name="LoadFailed" xml:space="preserve">
-    <value>Impossible de charger les comptes :
-
-{0}</value>
   </data>
   <data name="AccountCount" xml:space="preserve">
     <value>Comptes : {0:N0}</value>
@@ -386,10 +381,10 @@
     <value>{0} : compte introuvable dans CyberArk (supprimé ou droits retirés).</value>
   </data>
   <data name="AddedToMyServersFolder" xml:space="preserve">
-    <value>{0} ajouté aux serveurs courants (dossier {1})</value>
+    <value>{0} ajouté à Mes serveurs (dossier {1})</value>
   </data>
   <data name="AddedToMyServers" xml:space="preserve">
-    <value>{0} ajouté aux serveurs courants</value>
+    <value>{0} ajouté à Mes serveurs</value>
   </data>
   <data name="RootFolder" xml:space="preserve">
     <value>(racine)</value>
@@ -569,7 +564,7 @@
     <value>_Dossier :</value>
   </data>
   <data name="FolderTip" xml:space="preserve">
-    <value>Dossier de l'onglet « Courants » ; « / » pour les sous-dossiers (ex. Prod/Web)</value>
+    <value>Dossier de « Mes serveurs » ; « / » pour les sous-dossiers (ex. Prod/Web)</value>
   </data>
   <data name="ConnectionSection" xml:space="preserve">
     <value>Connexion</value>
@@ -2114,25 +2109,25 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>Pas encore de journal de débogage : activez-le, puis reproduisez le problème.</value>
   </data>
   <data name="KeePassFolderTitle" xml:space="preserve">
-    <value>Coffre KeePass</value>
+    <value>Base KeePass</value>
   </data>
   <data name="KeePassEmergencyWarning" xml:space="preserve">
-    <value>Accès d'urgence hors CyberArk : les connexions faites avec ce coffre ne passent pas par le PSM (ni enregistrement, ni règles CyberArk). Elles sont notées dans le journal local (urgence.log).</value>
+    <value>Accès d'urgence hors CyberArk : les connexions faites avec cette base ne passent pas par le PSM (ni enregistrement, ni règles CyberArk). Elles sont notées dans le journal local (urgence.log).</value>
   </data>
   <data name="KeePassFileLabel" xml:space="preserve">
-    <value>_Fichier du coffre :</value>
+    <value>_Fichier de la base :</value>
   </data>
   <data name="KeePassKeyFileLabel" xml:space="preserve">
     <value>Fichier _clé :</value>
   </data>
   <data name="KeePassKeyFileHint" xml:space="preserve">
-    <value>Facultatif. Laissez vide si le coffre n'utilise qu'un mot de passe maître.</value>
+    <value>Facultatif. Laissez vide si la base n'utilise qu'un mot de passe maître.</value>
   </data>
   <data name="KeePassUsesPassword" xml:space="preserve">
-    <value>Le coffre a un _mot de passe maître</value>
+    <value>La base a un _mot de passe maître</value>
   </data>
   <data name="KeePassFilesFilter" xml:space="preserve">
-    <value>Coffres KeePass (*.kdbx)|*.kdbx|Tous les fichiers (*.*)|*.*</value>
+    <value>Bases KeePass (*.kdbx)|*.kdbx|Tous les fichiers (*.*)|*.*</value>
   </data>
   <data name="AllFilesFilter" xml:space="preserve">
     <value>Tous les fichiers (*.*)|*.*</value>
@@ -2144,7 +2139,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>Il faut un mot de passe maître, un fichier clé, ou les deux.</value>
   </data>
   <data name="KeePassUnlockTitle" xml:space="preserve">
-    <value>Déverrouiller le coffre KeePass</value>
+    <value>Déverrouiller la base KeePass</value>
   </data>
   <data name="KeePassMasterPasswordLabel" xml:space="preserve">
     <value>_Mot de passe maître :</value>
@@ -2216,7 +2211,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>(verrouillé)</value>
   </data>
   <data name="KeePassFolderTip" xml:space="preserve">
-    <value>Coffre KeePass — accès d'urgence hors CyberArk</value>
+    <value>Base KeePass — accès d'urgence hors CyberArk</value>
   </data>
   <data name="KeePassKeyFileInfo" xml:space="preserve">
     <value>Fichier clé : {0}</value>
@@ -2225,13 +2220,13 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>Pas d'adresse de serveur</value>
   </data>
   <data name="KeePassEntryOrigin" xml:space="preserve">
-    <value>Coffre KeePass {0} — hors CyberArk</value>
+    <value>Base KeePass {0} — hors CyberArk</value>
   </data>
   <data name="KeePassUnlockHint" xml:space="preserve">
     <value>Double-cliquez pour déverrouiller</value>
   </data>
   <data name="MenuKeePassAdd" xml:space="preserve">
-    <value>Ajouter un coffre _KeePass…</value>
+    <value>Ajouter une base _KeePass…</value>
   </data>
   <data name="MenuKeePassUnlock" xml:space="preserve">
     <value>_Déverrouiller…</value>
@@ -2267,30 +2262,30 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>S_upprimer</value>
   </data>
   <data name="ToolKeePassTip" xml:space="preserve">
-    <value>Ajouter un coffre KeePass (accès d'urgence hors CyberArk)</value>
+    <value>Ajouter une base KeePass (accès d'urgence hors CyberArk)</value>
   </data>
   <data name="KeePassUnlocked" xml:space="preserve">
-    <value>Coffre KeePass {0} déverrouillé ({1} entrées)</value>
+    <value>Base KeePass {0} déverrouillée ({1} entrées)</value>
   </data>
   <data name="KeePassLockedStatus" xml:space="preserve">
-    <value>Coffre KeePass {0} verrouillé</value>
+    <value>Base KeePass {0} verrouillée</value>
   </data>
   <data name="KeePassAllLocked" xml:space="preserve">
-    <value>Coffres KeePass verrouillés (session Windows verrouillée)</value>
+    <value>Bases KeePass verrouillées (session Windows verrouillée)</value>
   </data>
   <data name="KeePassSaving" xml:space="preserve">
-    <value>Enregistrement du coffre KeePass {0}…</value>
+    <value>Enregistrement de la base KeePass {0}…</value>
   </data>
   <data name="KeePassSaved" xml:space="preserve">
-    <value>Coffre KeePass {0} enregistré (version précédente gardée dans {1})</value>
+    <value>Base KeePass {0} enregistrée (version précédente gardée dans {1})</value>
   </data>
   <data name="KeePassSaveFailed" xml:space="preserve">
-    <value>Le coffre KeePass {0} n'a pas été enregistré :
+    <value>La base KeePass {0} n'a pas été enregistrée :
 
 {1}</value>
   </data>
   <data name="KeePassReloaded" xml:space="preserve">
-    <value>Coffre KeePass {0} actualisé</value>
+    <value>Base KeePass {0} actualisée</value>
   </data>
   <data name="KeePassNoHostError" xml:space="preserve">
     <value>L'entrée « {0} » n'a pas d'adresse de serveur : renseignez son adresse (ssh://… ou rdp://…).</value>
@@ -2308,7 +2303,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>{0} · KeePass</value>
   </data>
   <data name="KeePassRdpNoControl" xml:space="preserve">
-    <value>{0} : contrôle Bureau à distance indisponible, Connexion Bureau à distance ouverte sans le mot de passe (prenez-le dans le coffre KeePass).</value>
+    <value>{0} : contrôle Bureau à distance indisponible, Connexion Bureau à distance ouverte sans le mot de passe (prenez-le dans la base KeePass).</value>
   </data>
   <data name="ConnectingDirect" xml:space="preserve">
     <value>Connexion directe (accès d'urgence, hors CyberArk)…</value>
@@ -2323,7 +2318,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>Coffre local</value>
   </data>
   <data name="LocalStoreCreateIntro" xml:space="preserve">
-    <value>Le coffre local garde les mots de passe maîtres KeePass que vous choisissez de mémoriser. Il est chiffré avec le mot de passe ci-dessous (Argon2id, AES-256) et votre compte Windows (DPAPI). Ce mot de passe est demandé quand vous déverrouillez un coffre KeePass dont le mot de passe est mémorisé ; il ne peut pas être récupéré.</value>
+    <value>Le coffre local garde les mots de passe maîtres KeePass que vous choisissez de mémoriser. Il est chiffré avec le mot de passe ci-dessous (Argon2id, AES-256) et votre compte Windows (DPAPI). Ce mot de passe est demandé quand vous déverrouillez une base KeePass dont le mot de passe est mémorisé ; il ne peut pas être récupéré.</value>
   </data>
   <data name="LocalStoreUnlockIntro" xml:space="preserve">
     <value>Déverrouillez le coffre local pour utiliser les mots de passe maîtres KeePass mémorisés.</value>
@@ -2374,7 +2369,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>Accès d'urgence (_KeePass)</value>
   </data>
   <data name="LoginEmergencyTip" xml:space="preserve">
-    <value>Sans CyberArk : ouvrez vos coffres KeePass pour vous connecter directement aux serveurs (SSH, bureau à distance).</value>
+    <value>Sans CyberArk : ouvrez vos bases KeePass pour vous connecter directement aux serveurs (SSH, bureau à distance).</value>
   </data>
   <data name="EmergencyTitle" xml:space="preserve">
     <value>CyberArkTerm — Accès d'urgence (sans CyberArk)</value>
@@ -2383,7 +2378,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>Accès d'urgence — sans CyberArk</value>
   </data>
   <data name="EmergencyWelcome" xml:space="preserve">
-    <value>Accès d'urgence sans CyberArk : ouvrez un coffre KeePass dans « Serveurs courants », à gauche. Les connexions sont notées dans le journal local (urgence.log).</value>
+    <value>Accès d'urgence sans CyberArk : ouvrez une base KeePass dans « Mes serveurs », à gauche. Les connexions sont notées dans le journal local (urgence.log).</value>
   </data>
   <data name="PvwaSessionSection" xml:space="preserve">
     <value>Session CyberArk</value>
@@ -2395,7 +2390,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>La session CyberArk a expiré : reconnectez-vous pour accéder aux comptes CyberArk.</value>
   </data>
   <data name="NoKeePassHelp" xml:space="preserve">
-    <value>Ajoutez un coffre KeePass avec le bouton coffre-fort ci-dessus (ou clic droit ici).</value>
+    <value>Ajoutez une base KeePass avec le bouton coffre-fort ci-dessus (ou clic droit ici).</value>
   </data>
   <data name="EditWriteInterrupted" xml:space="preserve">
     <value>L'envoi de {0} a été interrompu : le fichier sur le serveur est peut-être incomplet.
@@ -2408,7 +2403,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour renvoyer
     <value>Impossible de lire les droits de la cible du lien {0}.</value>
   </data>
   <data name="KeePassSavedNoLog" xml:space="preserve">
-    <value>Coffre KeePass {0} enregistré, mais le journal d'urgence (urgence.log) n'a pas pu être écrit</value>
+    <value>Base KeePass {0} enregistrée, mais le journal d'urgence (urgence.log) n'a pas pu être écrit</value>
   </data>
   <data name="KeePassTargetInvalid" xml:space="preserve">
     <value>L'hôte ou le nom d'utilisateur de cette entrée contient un retour à la ligne ou un caractère de contrôle.</value>
@@ -2582,7 +2577,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour renvoyer
     <value>_Nom du compte :</value>
   </data>
   <data name="AddAccountNameTip" xml:space="preserve">
-    <value>Nom du compte dans le coffre. Vide : choisi par le PVWA.</value>
+    <value>Nom du compte dans le coffre CyberArk. Vide : choisi par le PVWA.</value>
   </data>
   <data name="AddAccountPassword" xml:space="preserve">
     <value>_Mot de passe :</value>
@@ -2855,7 +2850,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour renvoyer
     <value>_Membre :</value>
   </data>
   <data name="SafeMemberNameTip" xml:space="preserve">
-    <value>Nom de l'utilisateur ou du groupe, comme dans le coffre ou l'annuaire LDAP.</value>
+    <value>Nom de l'utilisateur ou du groupe, comme dans le coffre CyberArk ou l'annuaire LDAP.</value>
   </data>
   <data name="SafeMemberTypeLabel" xml:space="preserve">
     <value>_Type :</value>
@@ -2864,7 +2859,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour renvoyer
     <value>_Chercher dans :</value>
   </data>
   <data name="SafeMemberSearchInTip" xml:space="preserve">
-    <value>« Vault » pour un utilisateur ou un groupe du coffre, sinon le nom de l'annuaire LDAP (par exemple corp.example).</value>
+    <value>« Vault » pour un utilisateur ou un groupe du coffre CyberArk, sinon le nom de l'annuaire LDAP (par exemple corp.example).</value>
   </data>
   <data name="SafeMemberUntil" xml:space="preserve">
     <value>Membre _jusqu'au :</value>
@@ -3318,7 +3313,7 @@ Les réglages précédents ont été repris de leur sauvegarde.</value>
     <value>Votre fichier de réglages était illisible (écriture interrompue, disque plein…). Il a été gardé tel quel sous :
 {0}
 
-Aucune sauvegarde n'a pu être lue : CyberArkTerm démarre avec les réglages par défaut. Vos serveurs et vos coffres sont toujours dans le fichier gardé.</value>
+Aucune sauvegarde n'a pu être lue : CyberArkTerm démarre avec les réglages par défaut. Vos serveurs et vos bases KeePass sont toujours dans le fichier gardé.</value>
   </data>
   <data name="AlreadyRunning" xml:space="preserve">
     <value>CyberArkTerm est déjà ouvert dans cette session Windows : utilisez la fenêtre ouverte (barre des tâches).
@@ -3974,7 +3969,7 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
     <value>Ctrl+K</value>
   </data>
   <data name="ShortcutQuick" xml:space="preserve">
-    <value> : connexion rapide (Ctrl+1, 2, 3 : onglets de gauche ; F6 : du panneau à la session et retour)</value>
+    <value> : connexion rapide (Ctrl+1, 2, 3 : onglets de gauche ; F6 : du panneau à la session et retour ; Ctrl+B : replier le panneau)</value>
   </data>
   <data name="ShortcutTabClose" xml:space="preserve">
     <value>Ctrl+F4</value>
@@ -3993,5 +3988,53 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   </data>
   <data name="A11yArchiveThreshold" xml:space="preserve">
     <value>Nombre de fichiers à partir duquel une archive est proposée</value>
+  </data>
+  <data name="TabStateConnecting" xml:space="preserve">
+    <value>Connexion en cours</value>
+  </data>
+  <data name="TabStateConnected" xml:space="preserve">
+    <value>Connectée</value>
+  </data>
+  <data name="TabStateEnded" xml:space="preserve">
+    <value>Terminée</value>
+  </data>
+  <data name="TabStateFailed" xml:space="preserve">
+    <value>Échec de la connexion</value>
+  </data>
+  <data name="TabModePsmp" xml:space="preserve">
+    <value>Via le PSMP {0} : session gérée par CyberArk</value>
+  </data>
+  <data name="TabModeDirect" xml:space="preserve">
+    <value>Accès direct d'urgence (KeePass) : hors CyberArk, noté dans urgence.log</value>
+  </data>
+  <data name="TabListTip" xml:space="preserve">
+    <value>Tous les onglets</value>
+  </data>
+  <data name="SideSplitterTip" xml:space="preserve">
+    <value>Glisser pour changer la largeur ; double-clic ou Ctrl+B : replier le panneau</value>
+  </data>
+  <data name="AvailableLoadFailed" xml:space="preserve">
+    <value>Les comptes n'ont pas pu être chargés : {0}</value>
+  </data>
+  <data name="AvailableNone" xml:space="preserve">
+    <value>Aucun compte n'est accessible à votre utilisateur CyberArk (les safes et les droits sont attribués par votre équipe CyberArk).</value>
+  </data>
+  <data name="AvailableNoMatch" xml:space="preserve">
+    <value>Aucun compte ne correspond à « {0} ».</value>
+  </data>
+  <data name="ClearFilter" xml:space="preserve">
+    <value>_Effacer le filtre</value>
+  </data>
+  <data name="QuickFirstResults" xml:space="preserve">
+    <value>{0} premiers comptes sur {1} : précisez la recherche.</value>
+  </data>
+  <data name="MenuRemoveRecent" xml:space="preserve">
+    <value>_Retirer de la liste</value>
+  </data>
+  <data name="RecentToday" xml:space="preserve">
+    <value>Aujourd'hui {0}</value>
+  </data>
+  <data name="RecentYesterday" xml:space="preserve">
+    <value>Hier {0}</value>
   </data>
 </root>

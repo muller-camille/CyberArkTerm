@@ -15,7 +15,7 @@ using Microsoft.Win32;
 namespace CyberArkTerm.App.Views;
 
 /// <summary>
-/// Coffres KeePass dans l'onglet « Courants » : accès d'urgence aux serveurs hors CyberArk (SSH et bureau à distance
+/// Coffres KeePass dans « Mes serveurs » : accès d'urgence aux serveurs hors CyberArk (SSH et bureau à distance
 /// directs), avec lecture et écriture des entrées. Chaque ouverture, connexion et modification est journalisée.
 /// </summary>
 public partial class MainWindow
@@ -28,7 +28,7 @@ public partial class MainWindow
     // ===================== Arbre =====================
 
     /// <summary>
-    /// Coffres de l'onglet « Courants ». Avec une recherche (<paramref name="filter"/>), seuls les coffres déverrouillés
+    /// Coffres de « Mes serveurs ». Avec une recherche (<paramref name="filter"/>), seuls les coffres déverrouillés
     /// qui ont des entrées correspondantes restent, dépliés sur ces entrées.
     /// </summary>
     private List<object> KeePassNodes(string? filter = null)

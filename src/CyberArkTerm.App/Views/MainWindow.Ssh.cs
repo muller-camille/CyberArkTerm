@@ -66,8 +66,11 @@ public partial class MainWindow
         _ = view.ConnectAsync();
     }
 
-    /// <summary>En-tête d'un onglet de session : icône, nom, bouton de fermeture, menu (clic droit).</summary>
-    private object TabHeader(TabItem tab, string label, string icon, Func<Task>? duplicate)
+    /// <summary>
+    /// En-tête d'un onglet de session : pastille d'état, icône, nom (numéroté si un autre onglet porte le même), bouton
+    /// de fermeture, menu (clic droit) ; l'infobulle dit l'état et par où passe la session.
+    /// </summary>
+    private SessionTabHeader TabHeader(TabItem tab, string label, string icon, Func<Task>? duplicate)
     {
         var closeButton = new Button
         {
@@ -76,10 +79,10 @@ public partial class MainWindow
             ToolTip = Strings.CloseSessionTip,
         };
         closeButton.Click += (_, _) => CloseSessionTab(tab);
-        var header = new StackPanel { Orientation = Orientation.Horizontal, Background = System.Windows.Media.Brushes.Transparent };
-        header.Children.Add(new Image { Source = (System.Windows.Media.ImageSource)FindResource(icon), Width = 16, Height = 16, Margin = new Thickness(0, 0, 6, 0) });
-        header.Children.Add(new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center });
-        header.Children.Add(closeButton);
+        var mode = tab.Tag is RemoteSession { Account: not null } ? Text.Format(Strings.TabModePsmp, _settings.PsmpAddress) : Strings.TabModeDirect;
+        var shown = SessionTabHeader.UniqueLabel(label, SessionTabs().Select(t => t.Header).OfType<SessionTabHeader>().Select(h => h.Label));
+        var header = new SessionTabHeader(shown, (System.Windows.Media.ImageSource)FindResource(icon), closeButton, mode,
+            tab.Tag is SshSession ? Strings.TabDetachTip : null);
         // Clic molette sur l'onglet : fermeture.
         header.MouseDown += (_, e) =>
         {
@@ -89,13 +92,49 @@ public partial class MainWindow
             }
         };
         header.ContextMenu = TabMenu(tab, duplicate);
+        FollowState(tab, header);
         if (tab.Tag is SshSession)
         {
-            header.ToolTip = Strings.TabDetachTip;
             EnableDragToDetach(tab, header);
         }
 
         return header;
+    }
+
+    /// <summary>La pastille de l'onglet suit l'état de sa session.</summary>
+    private void FollowState(TabItem tab, SessionTabHeader header)
+    {
+        switch (tab.Tag)
+        {
+            case RemoteSession session:
+                session.StateChanged += () => header.SetState(session.State switch
+                {
+                    RemoteSessionState.Connected => SessionTabState.Connected,
+                    RemoteSessionState.Closed => SessionTabState.Ended,
+                    RemoteSessionState.Failed => SessionTabState.Failed,
+                    _ => SessionTabState.Connecting,
+                });
+                break;
+            case RdpSession rdp:
+                rdp.StateChanged += () => header.SetState(rdp.State switch
+                {
+                    RdpSessionState.Connected => SessionTabState.Connected,
+                    RdpSessionState.Ended => SessionTabState.Ended,
+                    RdpSessionState.Failed => SessionTabState.Failed,
+                    _ => SessionTabState.Connecting,
+                });
+                break;
+            case VncSession vnc:
+                // Événement levé hors du fil de l'interface.
+                vnc.StateChanged += () => Dispatcher.BeginInvoke(() => header.SetState(vnc.State switch
+                {
+                    VncSessionState.Connected => SessionTabState.Connected,
+                    VncSessionState.Closed => SessionTabState.Ended,
+                    VncSessionState.Failed => SessionTabState.Failed,
+                    _ => SessionTabState.Connecting,
+                }));
+                break;
+        }
     }
 
     /// <summary>Menu de l'en-tête d'un onglet de session : reconnecter, dupliquer, fermer, fermer les autres.</summary>
@@ -508,6 +547,7 @@ public partial class MainWindow
         }
 
         var tab = MainTabs.SelectedItem as TabItem;
+        BringTabIntoView(tab);
         // Vue parallèle : l'onglet Fichiers suit la session où l'on travaille.
         FilesPanel.Attach(tab?.Tag as RemoteSession ?? (tab?.Tag as ParallelView)?.ActiveSession);
         ShowRdpView(tab);

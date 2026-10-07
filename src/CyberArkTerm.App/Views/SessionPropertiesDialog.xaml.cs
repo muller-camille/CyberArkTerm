@@ -5,7 +5,7 @@ using CyberArkTerm.Core;
 
 namespace CyberArkTerm.App.Views;
 
-/// <summary>Configuration propre à un serveur de l'onglet « Courants ».</summary>
+/// <summary>Configuration propre à un serveur de « Mes serveurs ».</summary>
 public partial class SessionPropertiesDialog : Window
 {
     private readonly SavedSession _session;

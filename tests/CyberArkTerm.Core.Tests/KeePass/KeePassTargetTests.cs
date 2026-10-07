@@ -87,7 +87,7 @@ public class KeePassTargetTests
         Assert.Equal("srv", new KeePassTarget(RemoteProtocol.Rdp, "srv", 3389, "u").Address);
     }
 
-    /// <summary>Recherche dans « Courants » : titre, serveur, utilisateur, dossier, étiquettes, protocole ; pas les notes.</summary>
+    /// <summary>Recherche dans « Mes serveurs » : titre, serveur, utilisateur, dossier, étiquettes, protocole ; pas les notes.</summary>
     [Fact]
     public void SearchMatchesTheVisibleFields()
     {

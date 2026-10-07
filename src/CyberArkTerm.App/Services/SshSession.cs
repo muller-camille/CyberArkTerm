@@ -151,7 +151,7 @@ public sealed class SshSession : RemoteSession
                 return;
             }
 
-            SetState(RemoteSessionState.Failed, ex is OperationCanceledException ? Strings.ConnectionCancelled : ex.Message);
+            SetState(RemoteSessionState.Failed, ex is HostKeyRefusedException ? ex.Message : ex is OperationCanceledException ? Strings.ConnectionCancelled : ex.Message);
             throw;
         }
     }

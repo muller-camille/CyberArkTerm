@@ -7,7 +7,7 @@ using CyberArkTerm.Core.Terminal;
 namespace CyberArkTerm.App.Views;
 
 /// <summary>
-/// Choix d'au plus <c>max</c> éléments à afficher dans la vue parallèle : sessions SSH ouvertes, ou serveurs « Courants »
+/// Choix d'au plus <c>max</c> éléments à afficher dans la vue parallèle : sessions SSH ouvertes, ou serveurs « Mes serveurs »
 /// à ouvrir quand un dossier ou une sélection en compte plus que la vue ne peut en recevoir.
 /// </summary>
 public partial class ParallelDialog : Window

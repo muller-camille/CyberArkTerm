@@ -3,7 +3,7 @@ using CyberArkTerm.Core.KeePass;
 
 namespace CyberArkTerm.App;
 
-/// <summary>Coffre KeePass dans l'onglet « Courants » (accès d'urgence hors CyberArk).</summary>
+/// <summary>Coffre KeePass dans « Mes serveurs » (accès d'urgence hors CyberArk).</summary>
 public sealed class KeePassFolderNode(KeePassFolder folder, KeePassDatabase? database, List<object> children, bool isExpanded)
 {
     public KeePassFolder Folder { get; } = folder;

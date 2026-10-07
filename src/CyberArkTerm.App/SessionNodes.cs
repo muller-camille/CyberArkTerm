@@ -138,7 +138,7 @@ internal static class RecentModes
     public const string Sftp = RecentSession.SftpMode;
 }
 
-/// <summary>Dossier de l'onglet « Courants ».</summary>
+/// <summary>Dossier de « Mes serveurs ».</summary>
 public sealed class SavedFolderNode(string path, List<object> children, bool isExpanded)
 {
     public string Path { get; } = path;
@@ -154,7 +154,7 @@ public sealed class SavedFolderNode(string path, List<object> children, bool isE
     public override string ToString() => $"{Name} ({Count})";
 }
 
-/// <summary>Serveur de l'onglet « Courants » ; <see cref="Account"/> est null si le compte n'est plus visible dans CyberArk.</summary>
+/// <summary>Serveur de « Mes serveurs » ; <see cref="Account"/> est null si le compte n'est plus visible dans CyberArk.</summary>
 public sealed class SavedSessionNode(SavedSession session, PvwaAccount? account) : System.ComponentModel.INotifyPropertyChanged
 {
     private bool _isMarked;
@@ -233,4 +233,28 @@ public sealed class FileIconConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotSupportedException();
+}
+
+/// <summary>
+/// Date d'une connexion récente : « Aujourd'hui 09:28 », « Hier 18:02 », sinon la date courte et l'heure (format des
+/// réglages régionaux de Windows, comme le reste de l'application).
+/// </summary>
+public sealed class RecentDateConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is DateTime when ? Describe(when, DateTime.Now) : "";
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+
+    internal static string Describe(DateTime when, DateTime now)
+    {
+        var time = when.ToString("t", CultureInfo.CurrentCulture);
+        return (now.Date - when.Date).Days switch
+        {
+            0 => Text.Format(Strings.RecentToday, time),
+            1 => Text.Format(Strings.RecentYesterday, time),
+            _ => $"{when.ToString("d", CultureInfo.CurrentCulture)} {time}",
+        };
+    }
 }

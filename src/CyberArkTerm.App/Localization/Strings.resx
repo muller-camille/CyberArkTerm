@@ -55,7 +55,7 @@
     <value>CyberArkTerm — Sign in</value>
   </data>
   <data name="LoginHeading" xml:space="preserve">
-    <value>Sign in to the CyberArk vault</value>
+    <value>Sign in to the CyberArk Vault</value>
   </data>
   <data name="LoginSubtitle" xml:space="preserve">
     <value>Sign in to list the accounts you can reach through PSM.</value>
@@ -109,7 +109,7 @@
     <value>_Advanced connection…</value>
   </data>
   <data name="MenuAddToMyServers" xml:space="preserve">
-    <value>Add to _my servers</value>
+    <value>Add to _My servers</value>
   </data>
   <data name="MenuCopyServer" xml:space="preserve">
     <value>Copy server</value>
@@ -127,7 +127,7 @@
     <value>_Rename…</value>
   </data>
   <data name="MenuRemoveFromMyServers" xml:space="preserve">
-    <value>Remo_ve from my servers</value>
+    <value>Remo_ve from My servers</value>
   </data>
   <data name="MenuNewSubfolder" xml:space="preserve">
     <value>_New subfolder…</value>
@@ -166,7 +166,7 @@
     <value>Add</value>
   </data>
   <data name="ToolAddToMyServersTip" xml:space="preserve">
-    <value>Add the selected account to your servers</value>
+    <value>Add the selected account to My servers</value>
   </data>
   <data name="ToolRefresh" xml:space="preserve">
     <value>Refresh</value>
@@ -175,7 +175,7 @@
     <value>Reload the accounts from the PVWA (F5)</value>
   </data>
   <data name="ToolHistory" xml:space="preserve">
-    <value>History</value>
+    <value>Transfers</value>
   </data>
   <data name="ToolSettings" xml:space="preserve">
     <value>Settings</value>
@@ -220,13 +220,13 @@
     <value>Search servers…</value>
   </data>
   <data name="SavedSearchTip" xml:space="preserve">
-    <value>Filter my servers by name, server, user, folder, component… and the entries of unlocked KeePass vaults (Ctrl+F)</value>
+    <value>Filter My servers by name, server, user, folder, component… and the entries of unlocked KeePass databases (Ctrl+F)</value>
   </data>
   <data name="SavedSearchNoMatch" xml:space="preserve">
     <value>No server matches “{0}”.</value>
   </data>
   <data name="NoSavedHelp" xml:space="preserve">
-    <value>Add the servers you use here: right-click an account in the “Available” tab and choose “Add to my servers”, or drag it onto the “My servers” tab. Right-click here to create folders.</value>
+    <value>Add the servers you use here: right-click an account in the “Available” tab and choose “Add to My servers”, or drag it onto the “My servers” tab. Right-click here to create folders.</value>
   </data>
   <data name="TabFiles" xml:space="preserve">
     <value>Files</value>
@@ -259,7 +259,7 @@
     <value>Right-click</value>
   </data>
   <data name="ShortcutMenu" xml:space="preserve">
-    <value>: PSM, SSH, files (SFTP), advanced connection, my servers</value>
+    <value>: PSM, SSH, files (SFTP), advanced connection, My servers</value>
   </data>
   <data name="ShortcutSshKey" xml:space="preserve">
     <value>SSH session</value>
@@ -281,11 +281,6 @@
   </data>
   <data name="LoadFailedShort" xml:space="preserve">
     <value>Loading failed.</value>
-  </data>
-  <data name="LoadFailed" xml:space="preserve">
-    <value>Cannot load the accounts:
-
-{0}</value>
   </data>
   <data name="AccountCount" xml:space="preserve">
     <value>Accounts: {0:N0}</value>
@@ -386,10 +381,10 @@
     <value>{0}: account not found in CyberArk (deleted or access removed).</value>
   </data>
   <data name="AddedToMyServersFolder" xml:space="preserve">
-    <value>{0} added to my servers (folder {1})</value>
+    <value>{0} added to My servers (folder {1})</value>
   </data>
   <data name="AddedToMyServers" xml:space="preserve">
-    <value>{0} added to my servers</value>
+    <value>{0} added to My servers</value>
   </data>
   <data name="RootFolder" xml:space="preserve">
     <value>(root)</value>
@@ -569,7 +564,7 @@
     <value>_Folder:</value>
   </data>
   <data name="FolderTip" xml:space="preserve">
-    <value>Folder in the “My servers” tab; “/” for subfolders (e.g. Prod/Web)</value>
+    <value>Folder in “My servers”; “/” for subfolders (e.g. Prod/Web)</value>
   </data>
   <data name="ConnectionSection" xml:space="preserve">
     <value>Connection</value>
@@ -2114,25 +2109,25 @@ Your changes stay in the editor: save again to retry.</value>
     <value>No debug log yet: turn it on, then reproduce the problem.</value>
   </data>
   <data name="KeePassFolderTitle" xml:space="preserve">
-    <value>KeePass vault</value>
+    <value>KeePass database</value>
   </data>
   <data name="KeePassEmergencyWarning" xml:space="preserve">
-    <value>Emergency access outside CyberArk: connections made with this vault do not go through the PSM (no recording, no CyberArk rules). They are written to the local log (urgence.log).</value>
+    <value>Emergency access outside CyberArk: connections made with this database do not go through the PSM (no recording, no CyberArk rules). They are written to the local log (urgence.log).</value>
   </data>
   <data name="KeePassFileLabel" xml:space="preserve">
-    <value>_Vault file:</value>
+    <value>_Database file:</value>
   </data>
   <data name="KeePassKeyFileLabel" xml:space="preserve">
     <value>_Key file:</value>
   </data>
   <data name="KeePassKeyFileHint" xml:space="preserve">
-    <value>Optional. Leave empty if the vault only uses a master password.</value>
+    <value>Optional. Leave empty if the database only uses a master password.</value>
   </data>
   <data name="KeePassUsesPassword" xml:space="preserve">
-    <value>The vault has a _master password</value>
+    <value>The database has a _master password</value>
   </data>
   <data name="KeePassFilesFilter" xml:space="preserve">
-    <value>KeePass vaults (*.kdbx)|*.kdbx|All files (*.*)|*.*</value>
+    <value>KeePass databases (*.kdbx)|*.kdbx|All files (*.*)|*.*</value>
   </data>
   <data name="AllFilesFilter" xml:space="preserve">
     <value>All files (*.*)|*.*</value>
@@ -2144,7 +2139,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>A master password, a key file, or both are needed.</value>
   </data>
   <data name="KeePassUnlockTitle" xml:space="preserve">
-    <value>Unlock the KeePass vault</value>
+    <value>Unlock the KeePass database</value>
   </data>
   <data name="KeePassMasterPasswordLabel" xml:space="preserve">
     <value>_Master password:</value>
@@ -2216,7 +2211,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>(locked)</value>
   </data>
   <data name="KeePassFolderTip" xml:space="preserve">
-    <value>KeePass vault — emergency access outside CyberArk</value>
+    <value>KeePass database — emergency access outside CyberArk</value>
   </data>
   <data name="KeePassKeyFileInfo" xml:space="preserve">
     <value>Key file: {0}</value>
@@ -2225,13 +2220,13 @@ Your changes stay in the editor: save again to retry.</value>
     <value>No server address</value>
   </data>
   <data name="KeePassEntryOrigin" xml:space="preserve">
-    <value>KeePass vault {0} — outside CyberArk</value>
+    <value>KeePass database {0} — outside CyberArk</value>
   </data>
   <data name="KeePassUnlockHint" xml:space="preserve">
     <value>Double-click to unlock</value>
   </data>
   <data name="MenuKeePassAdd" xml:space="preserve">
-    <value>Add a _KeePass vault…</value>
+    <value>Add a _KeePass database…</value>
   </data>
   <data name="MenuKeePassUnlock" xml:space="preserve">
     <value>_Unlock…</value>
@@ -2267,30 +2262,30 @@ Your changes stay in the editor: save again to retry.</value>
     <value>_Delete</value>
   </data>
   <data name="ToolKeePassTip" xml:space="preserve">
-    <value>Add a KeePass vault (emergency access outside CyberArk)</value>
+    <value>Add a KeePass database (emergency access outside CyberArk)</value>
   </data>
   <data name="KeePassUnlocked" xml:space="preserve">
-    <value>KeePass vault {0} unlocked ({1} entries)</value>
+    <value>KeePass database {0} unlocked ({1} entries)</value>
   </data>
   <data name="KeePassLockedStatus" xml:space="preserve">
-    <value>KeePass vault {0} locked</value>
+    <value>KeePass database {0} locked</value>
   </data>
   <data name="KeePassAllLocked" xml:space="preserve">
-    <value>KeePass vaults locked (Windows session locked)</value>
+    <value>KeePass databases locked (Windows session locked)</value>
   </data>
   <data name="KeePassSaving" xml:space="preserve">
-    <value>Saving the KeePass vault {0}…</value>
+    <value>Saving the KeePass database {0}…</value>
   </data>
   <data name="KeePassSaved" xml:space="preserve">
-    <value>KeePass vault {0} saved (previous version kept in {1})</value>
+    <value>KeePass database {0} saved (previous version kept in {1})</value>
   </data>
   <data name="KeePassSaveFailed" xml:space="preserve">
-    <value>The KeePass vault {0} was not saved:
+    <value>The KeePass database {0} was not saved:
 
 {1}</value>
   </data>
   <data name="KeePassReloaded" xml:space="preserve">
-    <value>KeePass vault {0} reloaded</value>
+    <value>KeePass database {0} reloaded</value>
   </data>
   <data name="KeePassNoHostError" xml:space="preserve">
     <value>The entry “{0}” has no server address: fill in its address (ssh://… or rdp://…).</value>
@@ -2308,7 +2303,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>{0} · KeePass</value>
   </data>
   <data name="KeePassRdpNoControl" xml:space="preserve">
-    <value>{0}: Remote Desktop control unavailable, Remote Desktop Connection opened without the password (take it from the KeePass vault).</value>
+    <value>{0}: Remote Desktop control unavailable, Remote Desktop Connection opened without the password (take it from the KeePass database).</value>
   </data>
   <data name="ConnectingDirect" xml:space="preserve">
     <value>Direct connection (emergency access, outside CyberArk)…</value>
@@ -2323,7 +2318,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>Local vault</value>
   </data>
   <data name="LocalStoreCreateIntro" xml:space="preserve">
-    <value>The local vault keeps the KeePass master passwords you choose to remember. It is encrypted with the password below (Argon2id, AES-256) and your Windows account (DPAPI). This password is asked when you unlock a KeePass vault whose password is remembered; it can't be recovered.</value>
+    <value>The local vault keeps the KeePass master passwords you choose to remember. It is encrypted with the password below (Argon2id, AES-256) and your Windows account (DPAPI). This password is asked when you unlock a KeePass database whose password is remembered; it can't be recovered.</value>
   </data>
   <data name="LocalStoreUnlockIntro" xml:space="preserve">
     <value>Unlock the local vault to use the remembered KeePass master passwords.</value>
@@ -2374,7 +2369,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>_Emergency access (KeePass)</value>
   </data>
   <data name="LoginEmergencyTip" xml:space="preserve">
-    <value>Without CyberArk: open your KeePass vaults to connect directly to servers (SSH, remote desktop).</value>
+    <value>Without CyberArk: open your KeePass databases to connect directly to servers (SSH, remote desktop).</value>
   </data>
   <data name="EmergencyTitle" xml:space="preserve">
     <value>CyberArkTerm — Emergency access (without CyberArk)</value>
@@ -2383,7 +2378,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>Emergency access — without CyberArk</value>
   </data>
   <data name="EmergencyWelcome" xml:space="preserve">
-    <value>Emergency access without CyberArk: open a KeePass vault in “My servers” on the left. Connections are written to the local log (urgence.log).</value>
+    <value>Emergency access without CyberArk: open a KeePass database in “My servers” on the left. Connections are written to the local log (urgence.log).</value>
   </data>
   <data name="PvwaSessionSection" xml:space="preserve">
     <value>CyberArk session</value>
@@ -2395,7 +2390,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>The CyberArk session has expired: log in again to reach the CyberArk accounts.</value>
   </data>
   <data name="NoKeePassHelp" xml:space="preserve">
-    <value>Add a KeePass vault with the vault button above (or right-click here).</value>
+    <value>Add a KeePass database with the safe button above (or right-click here).</value>
   </data>
   <data name="EditWriteInterrupted" xml:space="preserve">
     <value>Sending {0} was interrupted: the file on the server may be incomplete.
@@ -2408,7 +2403,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>Cannot read the permissions of the target of the link {0}.</value>
   </data>
   <data name="KeePassSavedNoLog" xml:space="preserve">
-    <value>KeePass vault {0} saved, but the emergency log (urgence.log) could not be written</value>
+    <value>KeePass database {0} saved, but the emergency log (urgence.log) could not be written</value>
   </data>
   <data name="KeePassTargetInvalid" xml:space="preserve">
     <value>The host or user name of this entry contains a line break or a control character.</value>
@@ -2582,7 +2577,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>Account _name:</value>
   </data>
   <data name="AddAccountNameTip" xml:space="preserve">
-    <value>Name of the account in the vault. Empty: chosen by the PVWA.</value>
+    <value>Name of the account in the CyberArk Vault. Empty: chosen by the PVWA.</value>
   </data>
   <data name="AddAccountPassword" xml:space="preserve">
     <value>Pass_word:</value>
@@ -2855,7 +2850,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>_Member:</value>
   </data>
   <data name="SafeMemberNameTip" xml:space="preserve">
-    <value>User or group name, as in the vault or the LDAP directory.</value>
+    <value>User or group name, as in the CyberArk Vault or the LDAP directory.</value>
   </data>
   <data name="SafeMemberTypeLabel" xml:space="preserve">
     <value>_Type:</value>
@@ -2864,7 +2859,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>S_earch in:</value>
   </data>
   <data name="SafeMemberSearchInTip" xml:space="preserve">
-    <value>“Vault” for a vault user or group, otherwise the name of the LDAP directory (for example corp.example).</value>
+    <value>“Vault” for a user or group of the CyberArk Vault, otherwise the name of the LDAP directory (for example corp.example).</value>
   </data>
   <data name="SafeMemberUntil" xml:space="preserve">
     <value>Member _until:</value>
@@ -3318,7 +3313,7 @@ The previous settings were restored from their backup.</value>
     <value>Your settings file could not be read (interrupted write, full disk…). It was kept, untouched, as:
 {0}
 
-No backup could be read: CyberArkTerm starts with default settings. Your servers and vaults are still in the kept file.</value>
+No backup could be read: CyberArkTerm starts with default settings. Your servers and KeePass databases are still in the kept file.</value>
   </data>
   <data name="AlreadyRunning" xml:space="preserve">
     <value>CyberArkTerm is already open in this Windows session: use the window that is open (taskbar).
@@ -3974,7 +3969,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Ctrl+K</value>
   </data>
   <data name="ShortcutQuick" xml:space="preserve">
-    <value>: quick connect (Ctrl+1, 2, 3: side tabs; F6: from the side panel to the session and back)</value>
+    <value>: quick connect (Ctrl+1, 2, 3: side tabs; F6: from the side panel to the session and back; Ctrl+B: collapse the side panel)</value>
   </data>
   <data name="ShortcutTabClose" xml:space="preserve">
     <value>Ctrl+F4</value>
@@ -3993,5 +3988,53 @@ Two instances would overwrite each other's settings, local vault and files being
   </data>
   <data name="A11yArchiveThreshold" xml:space="preserve">
     <value>Number of files from which an archive is offered</value>
+  </data>
+  <data name="TabStateConnecting" xml:space="preserve">
+    <value>Connecting</value>
+  </data>
+  <data name="TabStateConnected" xml:space="preserve">
+    <value>Connected</value>
+  </data>
+  <data name="TabStateEnded" xml:space="preserve">
+    <value>Ended</value>
+  </data>
+  <data name="TabStateFailed" xml:space="preserve">
+    <value>Connection failed</value>
+  </data>
+  <data name="TabModePsmp" xml:space="preserve">
+    <value>Through the PSMP {0}: session managed by CyberArk</value>
+  </data>
+  <data name="TabModeDirect" xml:space="preserve">
+    <value>Direct emergency access (KeePass): outside CyberArk, written to urgence.log</value>
+  </data>
+  <data name="TabListTip" xml:space="preserve">
+    <value>All tabs</value>
+  </data>
+  <data name="SideSplitterTip" xml:space="preserve">
+    <value>Drag to resize; double-click or Ctrl+B: collapse the side panel</value>
+  </data>
+  <data name="AvailableLoadFailed" xml:space="preserve">
+    <value>The accounts could not be loaded: {0}</value>
+  </data>
+  <data name="AvailableNone" xml:space="preserve">
+    <value>No account is available to your CyberArk user (safes and permissions are set by your CyberArk team).</value>
+  </data>
+  <data name="AvailableNoMatch" xml:space="preserve">
+    <value>No account matches “{0}”.</value>
+  </data>
+  <data name="ClearFilter" xml:space="preserve">
+    <value>_Clear the filter</value>
+  </data>
+  <data name="QuickFirstResults" xml:space="preserve">
+    <value>First {0} of {1} accounts: type more to narrow the search.</value>
+  </data>
+  <data name="MenuRemoveRecent" xml:space="preserve">
+    <value>_Remove from the list</value>
+  </data>
+  <data name="RecentToday" xml:space="preserve">
+    <value>Today {0}</value>
+  </data>
+  <data name="RecentYesterday" xml:space="preserve">
+    <value>Yesterday {0}</value>
   </data>
 </root>

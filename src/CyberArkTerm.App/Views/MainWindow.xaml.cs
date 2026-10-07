@@ -32,6 +32,8 @@ public partial class MainWindow : Window
     private readonly string _vaultUser;
     private readonly SessionLauncher _launcher = new();
     private readonly DispatcherTimer _searchDebounce;
+    // Dernière erreur de chargement des comptes, montrée dans la liste avec « Réessayer » ; null après un chargement réussi.
+    private string? _loadError;
     private readonly CancellationTokenSource _lifetime = new();
     private List<PvwaAccount> _accounts = [];
 
@@ -102,7 +104,7 @@ public partial class MainWindow : Window
         FilesPanel.ShowTerminalRequested += ShowTerminal;
         if (IsOffline)
         {
-            // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de l'onglet « Courants ».
+            // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de « Mes serveurs ».
             AvailableTab.Visibility = Visibility.Collapsed;
             QuickPanel.Visibility = HomeLists.Visibility = NewFolderButton.Visibility = Visibility.Collapsed;
             // Boutons propres à CyberArk masqués plutôt que grisés : ils ne serviraient jamais dans ce mode.
@@ -124,8 +126,10 @@ public partial class MainWindow : Window
         // « Parallèle » n'est actif qu'avec au moins une session SSH ouverte.
         ((System.Collections.Specialized.INotifyCollectionChanged)MainTabs.Items).CollectionChanged += (_, _) => UpdateActions();
         StartKeepAlive();
+        RestoreLayout();
         Loaded += async (_, _) =>
         {
+            SetUpTabStrip();
             // Prêt à taper : la connexion rapide (ou, en accès d'urgence, la liste des coffres KeePass).
             if (IsOffline)
             {
@@ -225,6 +229,8 @@ public partial class MainWindow : Window
         LoadProgress.IsIndeterminate = true;
         LoadProgress.Visibility = Visibility.Visible;
         CountText.Text = Strings.LoadingAccounts;
+        _loadError = null;
+        UpdateAvailableState();
 
         var progress = new Progress<(int Loaded, int Total)>(p =>
         {
@@ -274,14 +280,17 @@ public partial class MainWindow : Window
             // Un clic sur une connexion récente expliquera alors que les comptes n'ont pas pu être chargés.
             _loadFailed = true;
             RefreshRecent();
-            MessageBox.Show(this, Text.Format(Strings.LoadFailed, ErrorText.Describe(ex)),
-                "CyberArkTerm", MessageBoxButton.OK, MessageBoxImage.Error);
+            // Dit sur place, dans la liste, avec « Réessayer » ; et dans la barre d'état si l'on est ailleurs.
+            _loadError = ErrorText.Describe(ex);
+            SetStatus(Text.Format(Strings.AvailableLoadFailed, _loadError), isError: true);
         }
         finally
         {
             _loading = false;
             LoadProgress.Visibility = Visibility.Collapsed;
             CommandManager.InvalidateRequerySuggested();
+            UpdateAvailableState();
+            UpdateCountVisibility();
         }
     }
 
@@ -291,6 +300,7 @@ public partial class MainWindow : Window
         _shown = _accounts.Where(a => AccountFilter.Matches(a, _query)).ToList();
         RebuildTree();
         UpdateCount();
+        UpdateAvailableState();
     }
 
     private void RebuildTree()
@@ -309,6 +319,53 @@ public partial class MainWindow : Window
             ? Text.Format(Strings.AccountCount, _accounts.Count)
             : Text.Format(Strings.AccountCountFiltered, shown, _accounts.Count);
     }
+
+    /// <summary>Message à la place de la liste vide : chargement, échec, aucun compte, aucun résultat pour le filtre.</summary>
+    private void UpdateAvailableState()
+    {
+        string? text = null;
+        string? action = null;
+        if (_loading && _accounts.Count == 0)
+        {
+            text = Strings.LoadingAccounts;
+        }
+        else if (_loadError is not null && _accounts.Count == 0)
+        {
+            text = Text.Format(Strings.AvailableLoadFailed, _loadError);
+            action = Strings.Retry;
+        }
+        else if (_accountsLoaded && _accounts.Count == 0)
+        {
+            text = Strings.AvailableNone;
+        }
+        else if (_shown.Count == 0 && _query.Trim().Length > 0)
+        {
+            text = Text.Format(Strings.AvailableNoMatch, _query.Trim());
+            action = Strings.ClearFilter;
+        }
+
+        AvailableState.Visibility = text is null ? Visibility.Collapsed : Visibility.Visible;
+        AvailableStateText.Text = text ?? "";
+        AvailableStateButton.Content = action;
+        AvailableStateButton.Visibility = action is null ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private async void OnAvailableStateAction(object sender, RoutedEventArgs e)
+    {
+        if (_loadError is not null && _accounts.Count == 0)
+        {
+            await LoadAccountsAsync();
+        }
+        else
+        {
+            SearchBox.Clear();
+            SearchBox.Focus();
+        }
+    }
+
+    /// <summary>Le nombre de comptes ne s'affiche qu'avec la liste des comptes (ou pendant leur chargement).</summary>
+    private void UpdateCountVisibility() =>
+        CountText.Visibility = AvailableTab.IsSelected || _loading ? Visibility.Visible : Visibility.Collapsed;
 
     private void UpdateWelcome()
     {
@@ -345,14 +402,23 @@ public partial class MainWindow : Window
             return;
         }
 
-        var results = _accounts.Where(a => AccountFilter.Matches(a, text)).Take(50).ToList();
+        var matches = _accounts.Where(a => AccountFilter.Matches(a, text)).ToList();
+        var results = matches.Take(QuickMaxResults).ToList();
         QuickResults.ItemsSource = results;
-        QuickResultsPanel.Visibility = results.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        QuickResults.Visibility = results.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        QuickInfo.Text = !_accountsLoaded && _accounts.Count == 0 ? (_loading ? Strings.LoadingAccounts : Strings.LoadFailedShort)
+            : results.Count == 0 ? Text.Format(Strings.AvailableNoMatch, text.Trim())
+            : matches.Count > results.Count ? Text.Format(Strings.QuickFirstResults, results.Count, matches.Count)
+            : "";
+        QuickInfo.Visibility = QuickInfo.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        QuickResultsPanel.Visibility = Visibility.Visible;
         if (results.Count > 0)
         {
             QuickResults.SelectedIndex = 0;
         }
     }
+
+    private const int QuickMaxResults = 50;
 
     private void OnSearchChanged(object sender, TextChangedEventArgs e)
     {
@@ -406,7 +472,7 @@ public partial class MainWindow : Window
 
     private void OnFind(object sender, ExecutedRoutedEventArgs e)
     {
-        // Dans « Courants », Ctrl+F cherche parmi les serveurs courants ; ailleurs, parmi tous les comptes.
+        // Dans « Mes serveurs », Ctrl+F cherche parmi les serveurs courants ; ailleurs, parmi tous les comptes.
         var box = SideTabs.SelectedItem == CurrentTab ? SavedSearchBox : SearchBox;
         if (box == SearchBox)
         {
@@ -485,12 +551,24 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>Une entrée KeePass n'est plus la cible une fois l'onglet Courants quitté : elle n'est plus visible.</summary>
+    /// <summary>Une entrée KeePass n'est plus la cible une fois « Mes serveurs » quitté : elle n'est plus visible.</summary>
     private void OnSideTabChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (ReferenceEquals(e.Source, SideTabs) && _currentKeePass is not null && !CurrentTab.IsSelected)
+        if (!ReferenceEquals(e.Source, SideTabs))
+        {
+            return;
+        }
+
+        if (_currentKeePass is not null && !CurrentTab.IsSelected)
         {
             SetCurrent(null);
+        }
+
+        UpdateCountVisibility();
+        // Un onglet de gauche choisi (Fichiers après une connexion, Ctrl+1/2/3…) se montre, même panneau replié.
+        if (IsLoaded && SidePanelCollapsed)
+        {
+            SetSidePanelCollapsed(false);
         }
     }
 
@@ -619,9 +697,24 @@ public partial class MainWindow : Window
             e.Handled = true;
             ConnectRecent();
         }
+        else if (e.Key == Key.Delete)
+        {
+            e.Handled = true;
+            OnRemoveRecent(sender, e);
+        }
     }
 
     private void OnConnectRecent(object sender, RoutedEventArgs e) => ConnectRecent();
+
+    /// <summary>Retire la connexion choisie de la liste des récentes (rien n'est fermé ni supprimé ailleurs).</summary>
+    private void OnRemoveRecent(object sender, RoutedEventArgs e)
+    {
+        if (RecentList.SelectedItem is RecentSession recent && _settings.Recent.Remove(recent))
+        {
+            SaveSettings();
+            RefreshRecent();
+        }
+    }
 
     private void OnRecentMenuOpening(object sender, ContextMenuEventArgs e)
     {
@@ -894,8 +987,19 @@ public partial class MainWindow : Window
         RefreshRecent();
     }
 
+    /// <summary>
+    /// Message de la barre d'état. Une erreur reste jusqu'au message suivant ; un message ordinaire s'efface après
+    /// <see cref="StatusLifetime"/> pour ne pas rester hors de propos (« Session ouverte » longtemps après).
+    /// </summary>
     private void SetStatus(string message, bool isError = false)
     {
+        _statusClear ??= CreateStatusClearTimer();
+        _statusClear.Stop();
+        if (!isError && message.Length > 0)
+        {
+            _statusClear.Start();
+        }
+
         StatusText.Text = message;
         StatusText.SetResourceReference(TextBlock.ForegroundProperty, isError ? "StatusErrorForeground" : "StatusOkForeground");
         // Annoncé par les lecteurs d'écran (zone « polie » de la barre d'état).
@@ -903,6 +1007,20 @@ public partial class MainWindow : Window
         {
             peer.RaiseAutomationEvent(System.Windows.Automation.Peers.AutomationEvents.LiveRegionChanged);
         }
+    }
+
+    private static readonly TimeSpan StatusLifetime = TimeSpan.FromSeconds(10);
+    private DispatcherTimer? _statusClear;
+
+    private DispatcherTimer CreateStatusClearTimer()
+    {
+        var timer = new DispatcherTimer { Interval = StatusLifetime };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            StatusText.Text = "";
+        };
+        return timer;
     }
 
     // ===================== Clavier =====================
@@ -954,7 +1072,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// Raccourcis de la fenêtre, quand le terminal ne les a pas pris : Ctrl+K connexion rapide, Ctrl+virgule Paramètres,
-    /// F6 bascule entre le panneau de gauche et la session.
+    /// Ctrl+B replie ou déplie le panneau de gauche, F6 bascule entre le panneau de gauche et la session.
     /// </summary>
     protected override void OnKeyDown(KeyEventArgs e)
     {
@@ -976,6 +1094,10 @@ public partial class MainWindow : Window
                     break;
                 case Key.OemComma:
                     OnSettings(this, e);
+                    e.Handled = true;
+                    break;
+                case Key.B:
+                    ToggleSidePanel();
                     e.Handled = true;
                     break;
             }
@@ -1019,6 +1141,7 @@ public partial class MainWindow : Window
     /// <summary>Affiche un onglet de gauche et place le curseur dans son champ principal.</summary>
     private void ShowSideTab(TabItem tab)
     {
+        SetSidePanelCollapsed(false);
         SideTabs.SelectedItem = tab;
         Dispatcher.BeginInvoke(DispatcherPriority.Input, () =>
         {
@@ -1042,21 +1165,7 @@ public partial class MainWindow : Window
     {
         if (SideTabs.IsKeyboardFocusWithin)
         {
-            switch (MainTabs.SelectedItem)
-            {
-                case TabItem { Content: SshSessionView view }:
-                    view.FocusTerminal();
-                    break;
-                case TabItem { Content: ParallelView parallel }:
-                    parallel.FocusActive();
-                    break;
-                case TabItem tab when tab == HomeTab && !IsOffline:
-                    QuickBox.Focus();
-                    break;
-                case TabItem tab:
-                    tab.Focus();
-                    break;
-            }
+            FocusCurrentSession();
         }
         else
         {
@@ -1219,7 +1328,7 @@ public partial class MainWindow : Window
     {
         var language = _settings.Language;
         var accepted = new SettingsDialog(_settings, _keePass.Store) { Owner = this }.ShowDialog() == true;
-        // Coffre local supprimé ou créé depuis les paramètres : l'arbre « Courants » peut changer.
+        // Coffre local supprimé ou créé depuis les paramètres : l'arbre « Mes serveurs » peut changer.
         RefreshSaved();
         if (accepted)
         {
@@ -1366,6 +1475,8 @@ public partial class MainWindow : Window
             return;
         }
 
+        RememberLayout();
+        SaveSettings();
         // Fermeture de la session PVWA avant de quitter (au plus 5 s d'attente).
         e.Cancel = true;
         _loggedOff = true;

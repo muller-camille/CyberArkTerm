@@ -1,0 +1,147 @@
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using CyberArkTerm.Core;
+
+namespace CyberArkTerm.App.Views;
+
+/// <summary>
+/// Disposition mémorisée : position, taille et état de la fenêtre, largeur du panneau de gauche, panneau replié
+/// (Ctrl+B ou double-clic sur le séparateur, pour laisser toute la place à la session). Replié, le panneau garde sa
+/// bande d'onglets verticaux : un clic sur l'un d'eux le rouvre.
+/// </summary>
+public partial class MainWindow
+{
+    private const double MinSideWidth = 260;
+    private bool _sideCollapsed;
+    // Largeur du panneau déplié, gardée pendant qu'il est replié.
+    private GridLength _sideWidth = new(400);
+
+    /// <summary>Remet la fenêtre et le panneau comme à la dernière fermeture (avant l'affichage de la fenêtre).</summary>
+    private void RestoreLayout()
+    {
+        var screen = (SystemParameters.VirtualScreenLeft, SystemParameters.VirtualScreenTop,
+            SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight);
+        if (_settings.MainWindowPlacement?.FitIn(screen, MinWidth, MinHeight) is { } placement)
+        {
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            Left = placement.Left;
+            Top = placement.Top;
+            Width = placement.Width;
+            Height = placement.Height;
+            if (placement.Maximized)
+            {
+                WindowState = WindowState.Maximized;
+            }
+        }
+
+        if (_settings.SidePanelWidth >= MinSideWidth)
+        {
+            SideColumn.Width = new GridLength(_settings.SidePanelWidth);
+        }
+
+        // Replié : appliqué une fois la bande d'onglets mesurée.
+        if (_settings.SidePanelCollapsed)
+        {
+            Loaded += (_, _) => SetSidePanelCollapsed(true, save: false);
+        }
+
+        SideTabs.PreviewMouseLeftButtonDown += (_, e) =>
+        {
+            if (_sideCollapsed && ItemUnder<TabItem>(e.OriginalSource) is not null)
+            {
+                SetSidePanelCollapsed(false);
+            }
+        };
+    }
+
+    /// <summary>Retient la disposition de la fenêtre (à la fermeture).</summary>
+    private void RememberLayout()
+    {
+        var bounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
+        if (!bounds.IsEmpty)
+        {
+            _settings.MainWindowPlacement = new WindowPlacement(bounds.Left, bounds.Top, bounds.Width, bounds.Height,
+                WindowState == WindowState.Maximized);
+        }
+    }
+
+    private bool SidePanelCollapsed => _sideCollapsed;
+
+    /// <summary>Replie le panneau de gauche (toute la largeur pour la session) ou le déplie à sa largeur précédente.</summary>
+    private void SetSidePanelCollapsed(bool collapsed, bool save = true)
+    {
+        if (collapsed && !_sideCollapsed)
+        {
+            _sideWidth = SideColumn.Width;
+        }
+
+        _sideCollapsed = collapsed;
+        // Replié : seul le contenu disparaît, la bande d'onglets verticaux reste (la colonne prend sa largeur).
+        if (SideTabs.Template?.FindName("SidePanelContent", SideTabs) is FrameworkElement content)
+        {
+            content.Visibility = collapsed ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        if (collapsed)
+        {
+            SideColumn.MinWidth = 0;
+            SideColumn.Width = GridLength.Auto;
+            SplitterColumn.Width = new GridLength(0);
+            SideSplitter.Visibility = Visibility.Collapsed;
+            if (SideTabs.IsKeyboardFocusWithin)
+            {
+                // Le curseur ne reste pas dans un panneau invisible.
+                FocusCurrentSession();
+            }
+        }
+        else
+        {
+            SideColumn.Width = _sideWidth;
+            SideColumn.MinWidth = MinSideWidth;
+            SplitterColumn.Width = new GridLength(5);
+            SideSplitter.Visibility = Visibility.Visible;
+        }
+
+        if (save && _settings.SidePanelCollapsed != collapsed)
+        {
+            _settings.SidePanelCollapsed = collapsed;
+            SaveSettings();
+        }
+    }
+
+    private void ToggleSidePanel() => SetSidePanelCollapsed(!SidePanelCollapsed);
+
+    private void OnSideSplitterDragged(object sender, DragCompletedEventArgs e)
+    {
+        _settings.SidePanelWidth = Math.Round(SideColumn.ActualWidth);
+        SaveSettings();
+    }
+
+    private void OnSideSplitterDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        ToggleSidePanel();
+        e.Handled = true;
+    }
+
+    /// <summary>Curseur dans la session de l'onglet affiché (terminal, vue parallèle), sinon sur l'onglet.</summary>
+    private void FocusCurrentSession()
+    {
+        switch (MainTabs.SelectedItem)
+        {
+            case TabItem { Content: SshSessionView view }:
+                view.FocusTerminal();
+                break;
+            case TabItem { Content: ParallelView parallel }:
+                parallel.FocusActive();
+                break;
+            case TabItem tab when tab == HomeTab && !IsOffline:
+                QuickBox.Focus();
+                break;
+            case TabItem tab:
+                tab.Focus();
+                break;
+        }
+    }
+}

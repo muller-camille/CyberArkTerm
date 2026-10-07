@@ -506,7 +506,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Name of the account in the vault. Empty: chosen by the PVWA..
+        ///   Looks up a localized string similar to Name of the account in the CyberArk Vault. Empty: chosen by the PVWA..
         /// </summary>
         public static string AddAccountNameTip {
             get {
@@ -596,7 +596,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} added to my servers.
+        ///   Looks up a localized string similar to {0} added to My servers.
         /// </summary>
         public static string AddedToMyServers {
             get {
@@ -605,7 +605,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} added to my servers (folder {1}).
+        ///   Looks up a localized string similar to {0} added to My servers (folder {1}).
         /// </summary>
         public static string AddedToMyServersFolder {
             get {
@@ -2234,7 +2234,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Emergency access without CyberArk: open a KeePass vault in “My servers” on the left. Connections [rest of string was truncated].
+        ///   Looks up a localized string similar to Emergency access without CyberArk: open a KeePass database in “My servers” on the left. Connections are written to the local log (urgence.log)..
         /// </summary>
         public static string EmergencyWelcome {
             get {
@@ -2612,7 +2612,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Folder in the “My servers” tab; “/” for subfolders (e.g. Prod/Web).
+        ///   Looks up a localized string similar to Folder in “My servers”; “/” for subfolders (e.g. Prod/Web).
         /// </summary>
         public static string FolderTip {
             get {
@@ -3386,7 +3386,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to KeePass vaults locked (Windows session locked).
+        ///   Looks up a localized string similar to KeePass databases locked (Windows session locked).
         /// </summary>
         public static string KeePassAllLocked {
             get {
@@ -3413,7 +3413,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Emergency access outside CyberArk: connections made with this vault do not go through the PSM (no[rest of string was truncated].
+        ///   Looks up a localized string similar to Emergency access outside CyberArk: connections made with this database do not go through the PSM (no recording, no CyberArk rules). They are written to the local log (urgence.log)..
         /// </summary>
         public static string KeePassEmergencyWarning {
             get {
@@ -3422,7 +3422,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to KeePass vault {0} — outside CyberArk.
+        ///   Looks up a localized string similar to KeePass database {0} — outside CyberArk.
         /// </summary>
         public static string KeePassEntryOrigin {
             get {
@@ -3431,7 +3431,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Vault file:.
+        ///   Looks up a localized string similar to _Database file:.
         /// </summary>
         public static string KeePassFileLabel {
             get {
@@ -3449,7 +3449,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to KeePass vaults (*.kdbx)|*.kdbx|All files (*.*)|*.*.
+        ///   Looks up a localized string similar to KeePass databases (*.kdbx)|*.kdbx|All files (*.*)|*.*.
         /// </summary>
         public static string KeePassFilesFilter {
             get {
@@ -3458,7 +3458,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to KeePass vault — emergency access outside CyberArk.
+        ///   Looks up a localized string similar to KeePass database — emergency access outside CyberArk.
         /// </summary>
         public static string KeePassFolderTip {
             get {
@@ -3467,7 +3467,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to KeePass vault.
+        ///   Looks up a localized string similar to KeePass database.
         /// </summary>
         public static string KeePassFolderTitle {
             get {
@@ -3485,7 +3485,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Optional. Leave empty if the vault only uses a master password..
+        ///   Looks up a localized string similar to Optional. Leave empty if the database only uses a master password..
         /// </summary>
         public static string KeePassKeyFileHint {
             get {
@@ -3512,7 +3512,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to KeePass vault {0} locked.
+        ///   Looks up a localized string similar to KeePass database {0} locked.
         /// </summary>
         public static string KeePassLockedStatus {
             get {
@@ -3611,7 +3611,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0}: Remote Desktop control unavailable, Remote Desktop Connection opened without the password (t[rest of string was truncated].
+        ///   Looks up a localized string similar to {0}: Remote Desktop control unavailable, Remote Desktop Connection opened without the password (take it from the KeePass database)..
         /// </summary>
         public static string KeePassRdpNoControl {
             get {
@@ -3620,7 +3620,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to KeePass vault {0} reloaded.
+        ///   Looks up a localized string similar to KeePass database {0} reloaded.
         /// </summary>
         public static string KeePassReloaded {
             get {
@@ -3647,7 +3647,9 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The KeePass vault {0} was not saved:  {1}.
+        ///   Looks up a localized string similar to The KeePass database {0} was not saved:
+        ///
+        ///{1}.
         /// </summary>
         public static string KeePassSaveFailed {
             get {
@@ -3656,7 +3658,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to KeePass vault {0} saved (previous version kept in {1}).
+        ///   Looks up a localized string similar to KeePass database {0} saved (previous version kept in {1}).
         /// </summary>
         public static string KeePassSaved {
             get {
@@ -3665,7 +3667,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to KeePass vault {0} saved, but the emergency log (urgence.log) could not be written.
+        ///   Looks up a localized string similar to KeePass database {0} saved, but the emergency log (urgence.log) could not be written.
         /// </summary>
         public static string KeePassSavedNoLog {
             get {
@@ -3674,7 +3676,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Saving the KeePass vault {0}….
+        ///   Looks up a localized string similar to Saving the KeePass database {0}….
         /// </summary>
         public static string KeePassSaving {
             get {
@@ -3800,7 +3802,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Unlock the KeePass vault.
+        ///   Looks up a localized string similar to Unlock the KeePass database.
         /// </summary>
         public static string KeePassUnlockTitle {
             get {
@@ -3809,7 +3811,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to KeePass vault {0} unlocked ({1} entries).
+        ///   Looks up a localized string similar to KeePass database {0} unlocked ({1} entries).
         /// </summary>
         public static string KeePassUnlocked {
             get {
@@ -3854,7 +3856,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The vault has a _master password.
+        ///   Looks up a localized string similar to The database has a _master password.
         /// </summary>
         public static string KeePassUsesPassword {
             get {
@@ -3904,15 +3906,6 @@ namespace CyberArkTerm.App.Localization {
         public static string LanguageSection {
             get {
                 return ResourceManager.GetString("LanguageSection", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Cannot load the accounts:  {0}.
-        /// </summary>
-        public static string LoadFailed {
-            get {
-                return ResourceManager.GetString("LoadFailed", resourceCulture);
             }
         }
 
@@ -3989,7 +3982,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The local vault keeps the KeePass master passwords you choose to remember. It is encrypted with t[rest of string was truncated].
+        ///   Looks up a localized string similar to The local vault keeps the KeePass master passwords you choose to remember. It is encrypted with the password below (Argon2id, AES-256) and your Windows account (DPAPI). This password is asked when you unlock a KeePass database whose password is remembered; it can't be recovered..
         /// </summary>
         public static string LocalStoreCreateIntro {
             get {
@@ -4133,7 +4126,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Without CyberArk: open your KeePass vaults to connect directly to servers (SSH, remote desktop)..
+        ///   Looks up a localized string similar to Without CyberArk: open your KeePass databases to connect directly to servers (SSH, remote desktop)..
         /// </summary>
         public static string LoginEmergencyTip {
             get {
@@ -4142,7 +4135,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Sign in to the CyberArk vault.
+        ///   Looks up a localized string similar to Sign in to the CyberArk Vault.
         /// </summary>
         public static string LoginHeading {
             get {
@@ -4250,7 +4243,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Add to _my servers.
+        ///   Looks up a localized string similar to Add to _My servers.
         /// </summary>
         public static string MenuAddToMyServers {
             get {
@@ -4466,7 +4459,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Add a _KeePass vault….
+        ///   Looks up a localized string similar to Add a _KeePass database….
         /// </summary>
         public static string MenuKeePassAdd {
             get {
@@ -4691,7 +4684,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Remo_ve from my servers.
+        ///   Looks up a localized string similar to Remo_ve from My servers.
         /// </summary>
         public static string MenuRemoveFromMyServers {
             get {
@@ -5312,7 +5305,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Add a KeePass vault with the vault button above (or right-click here)..
+        ///   Looks up a localized string similar to Add a KeePass database with the safe button above (or right-click here)..
         /// </summary>
         public static string NoKeePassHelp {
             get {
@@ -5330,7 +5323,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Add the servers you use here: right-click an account in the “Available” tab and choose “Add to my[rest of string was truncated].
+        ///   Looks up a localized string similar to Add the servers you use here: right-click an account in the “Available” tab and choose “Add to My servers”, or drag it onto the “My servers” tab. Right-click here to create folders..
         /// </summary>
         public static string NoSavedHelp {
             get {
@@ -6797,7 +6790,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to User or group name, as in the vault or the LDAP directory..
+        ///   Looks up a localized string similar to User or group name, as in the CyberArk Vault or the LDAP directory..
         /// </summary>
         public static string SafeMemberNameTip {
             get {
@@ -6833,7 +6826,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to “Vault” for a vault user or group, otherwise the name of the LDAP directory (for example corp.exa[rest of string was truncated].
+        ///   Looks up a localized string similar to “Vault” for a user or group of the CyberArk Vault, otherwise the name of the LDAP directory (for example corp.example)..
         /// </summary>
         public static string SafeMemberSearchInTip {
             get {
@@ -7319,7 +7312,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Filter my servers by name, server, user, folder, component… and the entries of unlocked KeePass v[rest of string was truncated].
+        ///   Looks up a localized string similar to Filter My servers by name, server, user, folder, component… and the entries of unlocked KeePass databases (Ctrl+F).
         /// </summary>
         public static string SavedSearchTip {
             get {
@@ -8048,7 +8041,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to : PSM, SSH, files (SFTP), advanced connection, my servers.
+        ///   Looks up a localized string similar to : PSM, SSH, files (SFTP), advanced connection, My servers.
         /// </summary>
         public static string ShortcutMenu {
             get {
@@ -9245,7 +9238,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Add the selected account to your servers.
+        ///   Looks up a localized string similar to Add the selected account to My servers.
         /// </summary>
         public static string ToolAddToMyServersTip {
             get {
@@ -9308,7 +9301,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to History.
+        ///   Looks up a localized string similar to Transfers.
         /// </summary>
         public static string ToolHistory {
             get {
@@ -9317,7 +9310,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Add a KeePass vault (emergency access outside CyberArk).
+        ///   Looks up a localized string similar to Add a KeePass database (emergency access outside CyberArk).
         /// </summary>
         public static string ToolKeePassTip {
             get {
@@ -9845,7 +9838,7 @@ namespace CyberArkTerm.App.Localization {
         ///   Looks up a localized string similar to Your settings file could not be read (interrupted write, full disk…). It was kept, untouched, as:
         ///{0}
         ///
-        ///No backup could be read: CyberArkTerm starts with default settings. Your servers and vaults are still in the kept file..
+        ///No backup could be read: CyberArkTerm starts with default settings. Your servers and KeePass databases are still in the kept file..
         /// </summary>
         public static string SettingsSetAsideReset {
             get {
@@ -11809,7 +11802,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to : quick connect (Ctrl+1, 2, 3: side tabs; F6: from the side panel to the session and back).
+        ///   Looks up a localized string similar to : quick connect (Ctrl+1, 2, 3: side tabs; F6: from the side panel to the session and back; Ctrl+B: collapse the side panel).
         /// </summary>
         public static string ShortcutQuick {
             get {
@@ -11868,6 +11861,150 @@ namespace CyberArkTerm.App.Localization {
         public static string A11yArchiveThreshold {
             get {
                 return ResourceManager.GetString("A11yArchiveThreshold", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connecting.
+        /// </summary>
+        public static string TabStateConnecting {
+            get {
+                return ResourceManager.GetString("TabStateConnecting", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connected.
+        /// </summary>
+        public static string TabStateConnected {
+            get {
+                return ResourceManager.GetString("TabStateConnected", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ended.
+        /// </summary>
+        public static string TabStateEnded {
+            get {
+                return ResourceManager.GetString("TabStateEnded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connection failed.
+        /// </summary>
+        public static string TabStateFailed {
+            get {
+                return ResourceManager.GetString("TabStateFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Through the PSMP {0}: session managed by CyberArk.
+        /// </summary>
+        public static string TabModePsmp {
+            get {
+                return ResourceManager.GetString("TabModePsmp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Direct emergency access (KeePass): outside CyberArk, written to urgence.log.
+        /// </summary>
+        public static string TabModeDirect {
+            get {
+                return ResourceManager.GetString("TabModeDirect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to All tabs.
+        /// </summary>
+        public static string TabListTip {
+            get {
+                return ResourceManager.GetString("TabListTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Drag to resize; double-click or Ctrl+B: collapse the side panel.
+        /// </summary>
+        public static string SideSplitterTip {
+            get {
+                return ResourceManager.GetString("SideSplitterTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The accounts could not be loaded: {0}.
+        /// </summary>
+        public static string AvailableLoadFailed {
+            get {
+                return ResourceManager.GetString("AvailableLoadFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No account is available to your CyberArk user (safes and permissions are set by your CyberArk team)..
+        /// </summary>
+        public static string AvailableNone {
+            get {
+                return ResourceManager.GetString("AvailableNone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No account matches “{0}”..
+        /// </summary>
+        public static string AvailableNoMatch {
+            get {
+                return ResourceManager.GetString("AvailableNoMatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Clear the filter.
+        /// </summary>
+        public static string ClearFilter {
+            get {
+                return ResourceManager.GetString("ClearFilter", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to First {0} of {1} accounts: type more to narrow the search..
+        /// </summary>
+        public static string QuickFirstResults {
+            get {
+                return ResourceManager.GetString("QuickFirstResults", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Remove from the list.
+        /// </summary>
+        public static string MenuRemoveRecent {
+            get {
+                return ResourceManager.GetString("MenuRemoveRecent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Today {0}.
+        /// </summary>
+        public static string RecentToday {
+            get {
+                return ResourceManager.GetString("RecentToday", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Yesterday {0}.
+        /// </summary>
+        public static string RecentYesterday {
+            get {
+                return ResourceManager.GetString("RecentYesterday", resourceCulture);
             }
         }
     }

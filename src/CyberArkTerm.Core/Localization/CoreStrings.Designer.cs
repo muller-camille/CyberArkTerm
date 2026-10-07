@@ -1143,5 +1143,14 @@ namespace CyberArkTerm.Core.Localization {
                 return ResourceManager.GetString("PermissionsUnknown", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connection cancelled: the server key was not accepted..
+        /// </summary>
+        public static string HostKeyRefused {
+            get {
+                return ResourceManager.GetString("HostKeyRefused", resourceCulture);
+            }
+        }
     }
 }

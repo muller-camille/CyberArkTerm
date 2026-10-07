@@ -19,6 +19,7 @@
 
     <Window.Resources>
         <app:KindIconConverter x:Key="KindIcon" />
+        <app:RecentDateConverter x:Key="RecentDate" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
 
         <!-- Menu contextuel des comptes : arbre « Disponibles » et résultats de la connexion rapide de l'accueil. -->
@@ -102,9 +103,11 @@
                     <Image Source="{StaticResource IconBookmark}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <Separator />
+            <MenuItem Header="{x:Static loc:Strings.MenuRemoveRecent}" Click="OnRemoveRecent" />
         </ContextMenu>
 
-        <!-- Menus de l'onglet « Courants ». -->
+        <!-- Menus de « Mes serveurs ». -->
         <ContextMenu x:Key="SavedSessionMenu" x:Shared="False" Opened="OnSavedSessionMenuOpened">
             <MenuItem Tag="connect" Header="{x:Static loc:Strings.Connect}" Click="OnConnectSelectedSaved" FontWeight="SemiBold">
                 <MenuItem.Icon>
@@ -200,7 +203,7 @@
             </MenuItem>
         </ContextMenu>
 
-        <!-- Coffres KeePass de l'onglet « Courants » (accès d'urgence hors CyberArk). -->
+        <!-- Coffres KeePass de « Mes serveurs » (accès d'urgence hors CyberArk). -->
         <ContextMenu x:Key="KeePassFolderMenu" x:Shared="False" Opened="OnKeePassFolderMenuOpened">
             <MenuItem Tag="unlock" Header="{x:Static loc:Strings.MenuKeePassUnlock}" Click="OnKeePassUnlock" FontWeight="SemiBold">
                 <MenuItem.Icon>
@@ -272,7 +275,7 @@
             </MenuItem>
         </ContextMenu>
 
-        <!-- Listes partagées de l'onglet « Courants ». -->
+        <!-- Listes partagées de « Mes serveurs ». -->
         <ContextMenu x:Key="SharedListsMenu">
             <MenuItem Header="{x:Static loc:Strings.MenuOpenSharedList}" Click="OnOpenSharedList" FontWeight="SemiBold" />
             <MenuItem Header="{x:Static loc:Strings.MenuCreateSharedList}" Click="OnCreateSharedList">
@@ -514,8 +517,8 @@
 
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="360" MinWidth="220" />
-                <ColumnDefinition Width="4" />
+                <ColumnDefinition x:Name="SideColumn" Width="400" MinWidth="260" />
+                <ColumnDefinition x:Name="SplitterColumn" Width="5" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
@@ -549,6 +552,12 @@
                                        VerticalAlignment="Center" Margin="0,0,4,0" Padding="0" />
                                 <ComboBox x:Name="GroupByBox" SelectionChanged="OnGroupByChanged" Padding="6,2" />
                             </DockPanel>
+                        </StackPanel>
+                        <!-- État de la liste : chargement, échec (Réessayer), aucun compte, aucun résultat (Effacer le filtre). -->
+                        <StackPanel DockPanel.Dock="Top" x:Name="AvailableState" Margin="10,4,10,0" Visibility="Collapsed">
+                            <TextBlock x:Name="AvailableStateText" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}"
+                                       AutomationProperties.LiveSetting="Polite" />
+                            <Button x:Name="AvailableStateButton" HorizontalAlignment="Left" Margin="0,8,0,0" Click="OnAvailableStateAction" />
                         </StackPanel>
                         <TreeView x:Name="SessionTree" BorderThickness="0" Background="Transparent" Padding="2,0,0,0"
                                   VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
@@ -617,10 +626,12 @@
                                 <Button x:Name="NewFolderButton" Style="{StaticResource SmallToolButton}" Click="OnNewFolder" ToolTip="{x:Static loc:Strings.NewFolder}">
                                     <Image Source="{StaticResource IconNewFolder}" Style="{StaticResource SmallIcon}" />
                                 </Button>
-                                <Button Style="{StaticResource SmallToolButton}" Click="OnEditSelectedSaved" ToolTip="{x:Static loc:Strings.EditSavedTip}">
+                                <Button x:Name="EditSavedButton" Style="{StaticResource SmallToolButton}" Click="OnEditSelectedSaved" ToolTip="{x:Static loc:Strings.EditSavedTip}"
+                                        IsEnabled="False">
                                     <Image Source="{StaticResource IconEdit}" Style="{StaticResource SmallIcon}" />
                                 </Button>
-                                <Button Style="{StaticResource SmallToolButton}" Click="OnDeleteSelectedSaved" ToolTip="{x:Static loc:Strings.DeleteSavedTip}">
+                                <Button x:Name="DeleteSavedButton" Style="{StaticResource SmallToolButton}" Click="OnDeleteSelectedSaved" ToolTip="{x:Static loc:Strings.DeleteSavedTip}"
+                                        IsEnabled="False">
                                     <Image Source="{StaticResource IconDelete}" Style="{StaticResource SmallIcon}" />
                                 </Button>
                             </StackPanel>
@@ -752,7 +763,10 @@
                 </TabItem>
             </TabControl>
 
-            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="{DynamicResource TabStripBrush}" />
+            <!-- Largeur mémorisée ; double-clic (ou Ctrl+B) : replier ou déplier le panneau. -->
+            <GridSplitter Grid.Column="1" x:Name="SideSplitter" HorizontalAlignment="Stretch" Background="{DynamicResource TabStripBrush}"
+                          DragCompleted="OnSideSplitterDragged" MouseDoubleClick="OnSideSplitterDoubleClick"
+                          ToolTip="{x:Static loc:Strings.SideSplitterTip}" />
 
             <!-- ===== Zone principale : onglets ===== -->
             <TabControl Grid.Column="2" x:Name="MainTabs" Style="{StaticResource MainTabControl}" SelectionChanged="OnMainTabChanged">
@@ -795,10 +809,15 @@
                             </Border>
                             <Border Grid.Row="2" x:Name="QuickResultsPanel" BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1"
                                     CornerRadius="0,0,4,4" Visibility="Collapsed" Margin="0,0,0,8">
-                                <ListBox x:Name="QuickResults" BorderThickness="0" MaxHeight="320"
-                                         ItemTemplate="{StaticResource AccountRow}" ItemContainerStyle="{StaticResource AccountListItem}"
-                                         SelectionChanged="OnListSelectionChanged" KeyDown="OnListKeyDown"
-                                         IsKeyboardFocusWithinChanged="OnSelectorFocusChanged" />
+                                <DockPanel>
+                                    <!-- Aucun résultat, liste limitée, chargement en cours : dit plutôt que de masquer la liste. -->
+                                    <TextBlock DockPanel.Dock="Bottom" x:Name="QuickInfo" Margin="10,6" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource MutedBrush}" AutomationProperties.LiveSetting="Polite" />
+                                    <ListBox x:Name="QuickResults" BorderThickness="0" MaxHeight="320"
+                                             ItemTemplate="{StaticResource AccountRow}" ItemContainerStyle="{StaticResource AccountListItem}"
+                                             SelectionChanged="OnListSelectionChanged" KeyDown="OnListKeyDown"
+                                             IsKeyboardFocusWithinChanged="OnSelectorFocusChanged" />
+                                </DockPanel>
                             </Border>
 
                             <Grid Grid.Row="3" x:Name="HomeLists" Margin="0,18,0,0">
@@ -828,7 +847,7 @@
                                                     <DataTemplate DataType="{x:Type core:RecentSession}">
                                                         <DockPanel Margin="2,3">
                                                             <TextBlock DockPanel.Dock="Right" Foreground="{DynamicResource MutedBrush}" Margin="12,0,0,0"
-                                                                       Text="{Binding When, StringFormat='dd/MM HH:mm'}" VerticalAlignment="Center" />
+                                                                       Text="{Binding When, Converter={StaticResource RecentDate}}" VerticalAlignment="Center" />
                                                             <Image Source="{Binding Converter={StaticResource KindIcon}}" Width="18" Height="18" Margin="0,0,8,0" />
                                                             <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
                                                                 <Run Text="{Binding Label, Mode=OneWay}" FontWeight="SemiBold" />

@@ -37,6 +37,12 @@
     <SolidColorBrush x:Key="MainTabBorderBrush" Color="#BAC5D1" />
     <SolidColorBrush x:Key="MainTabHoverBrush" Color="#F6F8FA" />
 
+    <!-- Pastille d'état des onglets de session (éléments graphiques : 3:1 au moins sur l'onglet). -->
+    <SolidColorBrush x:Key="StateConnectedBrush" Color="#2E7D32" />
+    <SolidColorBrush x:Key="StateConnectingBrush" Color="#B26A00" />
+    <SolidColorBrush x:Key="StateEndedBrush" Color="#6B7785" />
+    <SolidColorBrush x:Key="StateFailedBrush" Color="#C62828" />
+
     <!-- Barre d'état (fond sombre). -->
     <SolidColorBrush x:Key="StatusForeground" Color="#FFFFFF" />
     <SolidColorBrush x:Key="StatusMutedForeground" Color="#C8D3DE" />
@@ -812,10 +818,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="TabControl">
                     <DockPanel>
-                        <Border DockPanel.Dock="Left" Background="{DynamicResource SideStripBrush}">
+                        <Border x:Name="SideStrip" DockPanel.Dock="Left" Background="{DynamicResource SideStripBrush}">
                             <StackPanel IsItemsHost="True" Margin="0,4,0,0" />
                         </Border>
-                        <Border Background="{DynamicResource SidePanelBrush}" BorderBrush="{DynamicResource ToolbarBorderBrush}"
+                        <Border x:Name="SidePanelContent" Background="{DynamicResource SidePanelBrush}" BorderBrush="{DynamicResource ToolbarBorderBrush}"
                                 BorderThickness="0,0,1,0">
                             <ContentPresenter ContentSource="SelectedContent" />
                         </Border>
@@ -864,7 +870,19 @@
                     <DockPanel>
                         <Border DockPanel.Dock="Top" Background="{DynamicResource TabStripBrush}" Padding="6,6,6,0"
                                 BorderBrush="{DynamicResource MainTabBorderBrush}" BorderThickness="0,0,0,1">
-                            <StackPanel IsItemsHost="True" Orientation="Horizontal" />
+                            <!-- Trop d'onglets : la bande défile (molette, onglet choisi toujours visible) et « ⌄ » les liste
+                                 tous (MainWindow.Tabs.cs). -->
+                            <DockPanel>
+                                <Button x:Name="TabListButton" DockPanel.Dock="Right" Style="{StaticResource SmallToolButton}"
+                                        Margin="4,0,0,3" VerticalAlignment="Center" Visibility="Collapsed">
+                                    <Path Data="M0,0 L5,5 L10,0" Stroke="{DynamicResource SidePanelForeground}" StrokeThickness="1.8"
+                                          Width="10" Height="6" Margin="3,4" />
+                                </Button>
+                                <ScrollViewer x:Name="TabScroll" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled"
+                                              Focusable="False" Margin="0,0,0,-1">
+                                    <StackPanel IsItemsHost="True" Orientation="Horizontal" />
+                                </ScrollViewer>
+                            </DockPanel>
                         </Border>
                         <Border Background="{DynamicResource ContentBrush}">
                             <Grid>

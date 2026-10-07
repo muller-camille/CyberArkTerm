@@ -125,7 +125,7 @@
     <DockPanel Background="{DynamicResource SidePanelBrush}">
         <StackPanel DockPanel.Dock="Top" Margin="8,8,8,4">
             <DockPanel>
-                <!-- Fichiers déjà suivis sur ce serveur « Courants » : les suivre à nouveau d'un clic. -->
+                <!-- Fichiers déjà suivis sur ce serveur « Mes serveurs » : les suivre à nouveau d'un clic. -->
                 <Button x:Name="TailFilesButton" DockPanel.Dock="Right" Style="{StaticResource SmallToolButton}" Click="OnTailFiles"
                         ToolTip="{x:Static loc:Strings.TailFilesTip}" Visibility="Collapsed">
                     <Image Source="{StaticResource IconTail}" Style="{StaticResource SmallIcon}" />

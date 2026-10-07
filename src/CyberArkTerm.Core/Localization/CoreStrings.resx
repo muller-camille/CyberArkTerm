@@ -375,4 +375,7 @@
   <data name="PermissionsUnknown" xml:space="preserve">
     <value>current permissions unknown: only a full mode (all rwx boxes set or cleared) can be applied</value>
   </data>
+  <data name="HostKeyRefused" xml:space="preserve">
+    <value>Connection cancelled: the server key was not accepted.</value>
+  </data>
 </root>

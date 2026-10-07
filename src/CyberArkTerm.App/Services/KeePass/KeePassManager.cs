@@ -6,7 +6,7 @@ using CyberArkTerm.Core.KeePass;
 namespace CyberArkTerm.App.Services.KeePass;
 
 /// <summary>
-/// Coffres KeePass ouverts (un par dossier de l'onglet « Courants »), coffre local des mots de passe maîtres et
+/// Coffres KeePass ouverts (un par dossier de « Mes serveurs »), coffre local des mots de passe maîtres et
 /// journal des accès d'urgence. Vit le temps de l'application ; tout est verrouillé à la fermeture de la fenêtre
 /// principale et au verrouillage de la session Windows.
 /// </summary>

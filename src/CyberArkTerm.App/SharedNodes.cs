@@ -4,7 +4,7 @@ using CyberArkTerm.Core;
 
 namespace CyberArkTerm.App;
 
-/// <summary>Liste de serveurs partagée, en tête de l'onglet « Courants » (après les coffres KeePass).</summary>
+/// <summary>Liste de serveurs partagée, en tête de « Mes serveurs » (après les coffres KeePass).</summary>
 public sealed class SharedListNode(SharedServerList list, ServerListFile? content, List<object> children, bool isExpanded, string pvwaHost)
 {
     public SharedServerList List { get; } = list;
