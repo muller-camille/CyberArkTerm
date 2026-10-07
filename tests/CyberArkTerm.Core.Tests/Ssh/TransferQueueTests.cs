@@ -95,6 +95,9 @@ public sealed class TransferQueueTests
         Assert.Equal(["a", "b", "d"], started);
         Assert.Equal([TransferState.Done, TransferState.Failed, TransferState.Cancelled, TransferState.Done], run!.Select(i => i.State));
         Assert.Equal("échec : disque plein", b.Error);
+        // Les résultats restent affichés jusqu'à ce qu'on les efface.
+        Assert.Equal([a, b, c, d], queue.Items);
+        queue.ClearFinished();
         Assert.Empty(queue.Items);
     }
 
@@ -131,6 +134,29 @@ public sealed class TransferQueueTests
         await queue.WaitIdleAsync(Wait);
         Assert.Equal(TransferState.Done, later.State);
         Assert.Equal(2, drained.Count);
+        // Le bilan de la deuxième série ne reprend pas la première, dont les éléments ont oublié leur session.
+        Assert.Equal([later], drained[1]);
+        Assert.Null(running.Owner);
+        Assert.Equal(4, queue.Items.Count);
+    }
+
+    /// <summary>Les éléments terminés gardés sont limités : les plus anciens partent les premiers.</summary>
+    [Fact]
+    public async Task KeepsOnlyTheLatestFinishedItems()
+    {
+        var queue = new TransferQueue(e => e.Message);
+        var items = Enumerable.Range(0, TransferQueue.KeptFinished + 5)
+            .Select(i => new TransferItem(true, $"f{i}", "/srv", (_, _) => Task.CompletedTask))
+            .ToList();
+        foreach (var item in items)
+        {
+            queue.Enqueue(item);
+            await queue.WaitIdleAsync(Wait);
+        }
+
+        Assert.Equal(TransferQueue.KeptFinished, queue.Items.Count);
+        Assert.Equal(items[^1], queue.Items[^1]);
+        Assert.DoesNotContain(items[0], queue.Items);
     }
 
     [Fact]

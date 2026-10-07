@@ -1391,7 +1391,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>Envoyer les mêmes fichiers aux sessions de la vue (vérifiés par SHA-256 sur chaque serveur)</value>
   </data>
   <data name="FileCompareWith" xml:space="preserve">
-    <value>Compa_rer avec…</value>
+    <value>Comparer a_vec…</value>
   </data>
   <data name="FileCompareTwo" xml:space="preserve">
     <value>Co_mparer les 2 fichiers</value>
@@ -1776,9 +1776,6 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
   </data>
   <data name="HistoryColProtocol" xml:space="preserve">
     <value>Protocole</value>
-  </data>
-  <data name="HistoryDone" xml:space="preserve">
-    <value>✓ réussi · {0} identique(s)</value>
   </data>
   <data name="HistoryChecks" xml:space="preserve">
     <value>_Sommes de contrôle…</value>
@@ -4144,5 +4141,92 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   </data>
   <data name="ImportContinue" xml:space="preserve">
     <value>Continuer</value>
+  </data>
+  <data name="SessionEndedWith" xml:space="preserve">
+    <value>{0} : {1}</value>
+  </data>
+  <data name="TerminalHistory" xml:space="preserve">
+    <value>Historique du terminal</value>
+  </data>
+  <data name="TerminalBackToBottom" xml:space="preserve">
+    <value>↓ Revenir à la fin</value>
+  </data>
+  <data name="FileRename" xml:space="preserve">
+    <value>_Renommer…</value>
+  </data>
+  <data name="RenameTip" xml:space="preserve">
+    <value>Renommer (F2)</value>
+  </data>
+  <data name="RenamePrompt" xml:space="preserve">
+    <value>Nouveau nom de « {0} » dans {1} :</value>
+  </data>
+  <data name="NameReserved" xml:space="preserve">
+    <value>« . » et « .. » ne sont pas des noms valides.</value>
+  </data>
+  <data name="NameNoControl" xml:space="preserve">
+    <value>Le nom ne doit pas contenir de caractère de contrôle (retour à la ligne, tabulation…).</value>
+  </data>
+  <data name="Renamed" xml:space="preserve">
+    <value>Renommé : {0} → {1}</value>
+  </data>
+  <data name="RenameFailed" xml:space="preserve">
+    <value>Renommage impossible : {0}</value>
+  </data>
+  <data name="DownloadFolderHint" xml:space="preserve">
+    <value>Pour télécharger un dossier, glissez-le vers l'Explorateur ou sur le bureau.</value>
+  </data>
+  <data name="FileNeedSelection" xml:space="preserve">
+    <value>Choisissez d'abord un fichier ou un dossier dans la liste.</value>
+  </data>
+  <data name="FileNeedOneFile" xml:space="preserve">
+    <value>Choisissez un seul fichier (pas un dossier).</value>
+  </data>
+  <data name="FileNeedOne" xml:space="preserve">
+    <value>Choisissez un seul fichier ou dossier.</value>
+  </data>
+  <data name="DropIntoFolder" xml:space="preserve">
+    <value>Déposer dans {0}</value>
+  </data>
+  <data name="QueueClearFinished" xml:space="preserve">
+    <value>Effacer les _terminés</value>
+  </data>
+  <data name="QueueClearFinishedTip" xml:space="preserve">
+    <value>Retirer de cette liste les transferts terminés, en échec ou annulés (l'historique des transferts les garde)</value>
+  </data>
+  <data name="QueueDetails" xml:space="preserve">
+    <value>Détails</value>
+  </data>
+  <data name="QueueDetailsTip" xml:space="preserve">
+    <value>Somme SHA-256 de chaque fichier de ce transfert</value>
+  </data>
+  <data name="QueueStateVerified" xml:space="preserve">
+    <value>✓ terminé · SHA-256 vérifié ({0}/{1})</value>
+  </data>
+  <data name="QueueStateUnverified" xml:space="preserve">
+    <value>⚠ terminé · non vérifié : {0} sur {1}</value>
+  </data>
+  <data name="FilesBadgeActive" xml:space="preserve">
+    <value>{0} transfert(s) en cours ou en attente</value>
+  </data>
+  <data name="FilesBadgeProblem" xml:space="preserve">
+    <value>{0} transfert(s) en échec ou différent(s) : voir l'onglet Fichiers</value>
+  </data>
+  <data name="TailFilterActive" xml:space="preserve">
+    <value>Filtre : {0} / {1} lignes affichées</value>
+  </data>
+  <data name="TailClearFieldTip" xml:space="preserve">
+    <value>Vider ce champ</value>
+  </data>
+  <data name="CompareSameFile" xml:space="preserve">
+    <value>C'est le même fichier sur le même serveur : choisissez un autre serveur, un autre chemin ou un fichier de ce poste.</value>
+  </data>
+  <data name="ParallelTypingHere" xml:space="preserve">
+    <value>⌨ Saisie ici</value>
+  </data>
+  <data name="ParallelExcluded" xml:space="preserve">
+    <value>exclue</value>
+  </data>
+  <data name="ParallelBroadcastOn" xml:space="preserve">
+    <value>ACTIVE ({0})</value>
   </data>
 </root>

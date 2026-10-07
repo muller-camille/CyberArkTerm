@@ -225,7 +225,7 @@ public sealed class FileIconConverter : IValueConverter
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         Application.Current.TryFindResource(value switch
         {
-            RemoteEntry { IsParentLink: true } => "IconUp",
+            RemoteEntry { IsParentLink: true } => "IconParentFolder",
             RemoteEntry { IsDirectory: true } => "IconFolder",
             RemoteEntry { IsSymbolicLink: true } => "IconFileLink",
             _ => "IconFile",

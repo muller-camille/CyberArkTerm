@@ -2801,15 +2801,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ✓ done · {0} identical.
-        /// </summary>
-        public static string HistoryDone {
-            get {
-                return ResourceManager.GetString("HistoryDone", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to No transfer yet..
         /// </summary>
         public static string HistoryEmpty {
@@ -12329,6 +12320,267 @@ namespace CyberArkTerm.App.Localization {
         public static string ImportContinue {
             get {
                 return ResourceManager.GetString("ImportContinue", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: {1}.
+        /// </summary>
+        public static string SessionEndedWith {
+            get {
+                return ResourceManager.GetString("SessionEndedWith", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Terminal history.
+        /// </summary>
+        public static string TerminalHistory {
+            get {
+                return ResourceManager.GetString("TerminalHistory", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ↓ Back to the end.
+        /// </summary>
+        public static string TerminalBackToBottom {
+            get {
+                return ResourceManager.GetString("TerminalBackToBottom", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ren_ame….
+        /// </summary>
+        public static string FileRename {
+            get {
+                return ResourceManager.GetString("FileRename", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Rename (F2).
+        /// </summary>
+        public static string RenameTip {
+            get {
+                return ResourceManager.GetString("RenameTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to New name for “{0}” in {1}:.
+        /// </summary>
+        public static string RenamePrompt {
+            get {
+                return ResourceManager.GetString("RenamePrompt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to “.” and “..” are not valid names..
+        /// </summary>
+        public static string NameReserved {
+            get {
+                return ResourceManager.GetString("NameReserved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The name must not contain control characters (line break, tab…)..
+        /// </summary>
+        public static string NameNoControl {
+            get {
+                return ResourceManager.GetString("NameNoControl", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Renamed: {0} → {1}.
+        /// </summary>
+        public static string Renamed {
+            get {
+                return ResourceManager.GetString("Renamed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot rename: {0}.
+        /// </summary>
+        public static string RenameFailed {
+            get {
+                return ResourceManager.GetString("RenameFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to To download a folder, drag it to File Explorer or to the desktop..
+        /// </summary>
+        public static string DownloadFolderHint {
+            get {
+                return ResourceManager.GetString("DownloadFolderHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Select a file or folder in the list first..
+        /// </summary>
+        public static string FileNeedSelection {
+            get {
+                return ResourceManager.GetString("FileNeedSelection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Select a single file (not a folder)..
+        /// </summary>
+        public static string FileNeedOneFile {
+            get {
+                return ResourceManager.GetString("FileNeedOneFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Select a single file or folder..
+        /// </summary>
+        public static string FileNeedOne {
+            get {
+                return ResourceManager.GetString("FileNeedOne", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Drop into {0}.
+        /// </summary>
+        public static string DropIntoFolder {
+            get {
+                return ResourceManager.GetString("DropIntoFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Clear _finished.
+        /// </summary>
+        public static string QueueClearFinished {
+            get {
+                return ResourceManager.GetString("QueueClearFinished", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove finished, failed and cancelled transfers from this list (the transfer history keeps them).
+        /// </summary>
+        public static string QueueClearFinishedTip {
+            get {
+                return ResourceManager.GetString("QueueClearFinishedTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Details.
+        /// </summary>
+        public static string QueueDetails {
+            get {
+                return ResourceManager.GetString("QueueDetails", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SHA-256 checksum of each file of this transfer.
+        /// </summary>
+        public static string QueueDetailsTip {
+            get {
+                return ResourceManager.GetString("QueueDetailsTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✓ done · SHA-256 verified ({0}/{1}).
+        /// </summary>
+        public static string QueueStateVerified {
+            get {
+                return ResourceManager.GetString("QueueStateVerified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⚠ done · not verified: {0} of {1}.
+        /// </summary>
+        public static string QueueStateUnverified {
+            get {
+                return ResourceManager.GetString("QueueStateUnverified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} transfer(s) running or waiting.
+        /// </summary>
+        public static string FilesBadgeActive {
+            get {
+                return ResourceManager.GetString("FilesBadgeActive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} transfer(s) failed or differ: see the Files tab.
+        /// </summary>
+        public static string FilesBadgeProblem {
+            get {
+                return ResourceManager.GetString("FilesBadgeProblem", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Filter: {0} / {1} lines shown.
+        /// </summary>
+        public static string TailFilterActive {
+            get {
+                return ResourceManager.GetString("TailFilterActive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Empty this field.
+        /// </summary>
+        public static string TailClearFieldTip {
+            get {
+                return ResourceManager.GetString("TailClearFieldTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This is the same file on the same server: choose another server, another path or a file on this computer..
+        /// </summary>
+        public static string CompareSameFile {
+            get {
+                return ResourceManager.GetString("CompareSameFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ⌨ Typing here.
+        /// </summary>
+        public static string ParallelTypingHere {
+            get {
+                return ResourceManager.GetString("ParallelTypingHere", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to excluded.
+        /// </summary>
+        public static string ParallelExcluded {
+            get {
+                return ResourceManager.GetString("ParallelExcluded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ON ({0}).
+        /// </summary>
+        public static string ParallelBroadcastOn {
+            get {
+                return ResourceManager.GetString("ParallelBroadcastOn", resourceCulture);
             }
         }
     }

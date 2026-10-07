@@ -19,7 +19,8 @@
             <StackPanel Orientation="Horizontal">
                 <Button x:Name="ChecksButton" Content="{x:Static loc:Strings.HistoryChecks}" Click="OnChecks" IsEnabled="False" />
                 <Button x:Name="OpenFolderButton" Content="{x:Static loc:Strings.HistoryOpenFolder}" Click="OnOpenFolder" IsEnabled="False" Margin="8,0,0,0" />
-                <Button x:Name="ClearButton" Content="{x:Static loc:Strings.HistoryClear}" Click="OnClear" Margin="8,0,0,0" />
+                <!-- Action destructive à l'écart des autres. -->
+                <Button x:Name="ClearButton" Content="{x:Static loc:Strings.HistoryClear}" Click="OnClear" Margin="32,0,0,0" />
             </StackPanel>
         </DockPanel>
 

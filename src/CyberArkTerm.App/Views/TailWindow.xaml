@@ -39,9 +39,14 @@
         <!-- Filtre (grep, grep -v, grep -C) -->
         <WrapPanel DockPanel.Dock="Top">
             <Label Content="{x:Static loc:Strings.TailFilter}" Target="{Binding ElementName=FilterBox}" Padding="0,0,6,0" Margin="0,0,0,4" VerticalAlignment="Center" />
-            <TextBox x:Name="FilterBox" Width="200" Margin="0,0,14,4" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailFilterTip}" />
+            <!-- Champ rempli : fond ambre et ✕ pour le vider (un filtre oublié cache des lignes). -->
+            <TextBox x:Name="FilterBox" Width="200" Margin="0,0,2,4" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailFilterTip}" />
+            <Button x:Name="ClearFilterButton" Content="✕" Style="{StaticResource SmallToolButton}" Padding="4,0" Margin="0,0,12,4"
+                    Visibility="Hidden" Click="OnClearFilter" ToolTip="{x:Static loc:Strings.TailClearFieldTip}" />
             <Label Content="{x:Static loc:Strings.TailExclude}" Target="{Binding ElementName=ExcludeBox}" Padding="0,0,6,0" Margin="0,0,0,4" VerticalAlignment="Center" />
-            <TextBox x:Name="ExcludeBox" Width="160" Margin="0,0,14,4" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailExcludeTip}" />
+            <TextBox x:Name="ExcludeBox" Width="160" Margin="0,0,2,4" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailExcludeTip}" />
+            <Button x:Name="ClearExcludeButton" Content="✕" Style="{StaticResource SmallToolButton}" Padding="4,0" Margin="0,0,12,4"
+                    Visibility="Hidden" Click="OnClearExclude" ToolTip="{x:Static loc:Strings.TailClearFieldTip}" />
             <CheckBox x:Name="RegexBox" VerticalAlignment="Center" Margin="0,0,14,4" ToolTip="{x:Static loc:Strings.TailRegexTip}">
                 <AccessText Text="{x:Static loc:Strings.TailRegex}" />
             </CheckBox>

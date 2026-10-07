@@ -757,6 +757,12 @@
                                 </Image.LayoutTransform>
                             </Image>
                             <TextBlock Text="{x:Static loc:Strings.TabFiles}" FontWeight="SemiBold" />
+                            <!-- Pastille : transferts en cours (nombre), ou « ! » pour un échec pas encore vu. -->
+                            <Border x:Name="FilesBadge" Visibility="Collapsed" CornerRadius="7" MinWidth="16" Height="14" Padding="4,0"
+                                    Margin="6,0,0,0" VerticalAlignment="Center">
+                                <TextBlock x:Name="FilesBadgeText" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Border>
                         </StackPanel>
                     </TabItem.Header>
                     <views:FileBrowserPanel x:Name="FilesPanel" Foreground="{DynamicResource SidePanelForeground}" />

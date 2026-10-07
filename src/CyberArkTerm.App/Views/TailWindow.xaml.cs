@@ -47,6 +47,9 @@ public partial class TailWindow : Window
     private readonly CancellationTokenSource _closing = new();
     private ObservableCollection<TailRow> _rows = [];
     private TailFilter _filter = TailFilter.None;
+
+    /// <summary>Lignes retenues par le filtre (repères compris), pour « Filtre : n / N lignes ».</summary>
+    private int _matched;
     private TailFilterRun<TailLine> _run;
     private TailPattern?[] _filterPatterns = [];
     private TailPattern? _search;
@@ -453,6 +456,12 @@ public partial class TailWindow : Window
                 _rows.Add(new TailRow(item.Item, item.Kind, _style));
             }
 
+            _matched += shown.Count(s => s.Kind == TailShownKind.Line);
+            if (_filter.IsActive)
+            {
+                UpdateStatus();
+            }
+
             if (shown.Count > 0)
             {
                 ScrollIfFollowing();
@@ -480,6 +489,7 @@ public partial class TailWindow : Window
         }
 
         _rows = new ObservableCollection<TailRow>(shown.Select(s => new TailRow(s.Item, s.Kind, _style)));
+        _matched = shown.Count(s => s.Kind == TailShownKind.Line);
         LogList.ItemsSource = _rows;
         if (FollowBox.IsChecked == true)
         {
@@ -570,9 +580,39 @@ public partial class TailWindow : Window
         var exclude = TailPattern.Create(regex ? ExcludeBox.Text : ExcludeBox.Text.Trim(), regex, out var excludeError);
         MarkInvalid(FilterBox, includeError);
         MarkInvalid(ExcludeBox, excludeError);
+        MarkFilled(FilterBox, ClearFilterButton);
+        MarkFilled(ExcludeBox, ClearExcludeButton);
         _filterPatterns = [include, exclude];
         _filter = new TailFilter(include, exclude, ContextBox.SelectedItem is int context ? context : 0);
         Render();
+    }
+
+    /// <summary>Champ de filtre rempli : fond ambre et bouton ✕ pour le vider.</summary>
+    private static void MarkFilled(TextBox box, Button clear)
+    {
+        bool filled = box.Text.Length > 0;
+        if (filled)
+        {
+            box.SetResourceReference(BackgroundProperty, "WarningBackgroundBrush");
+        }
+        else
+        {
+            box.ClearValue(BackgroundProperty);
+        }
+
+        clear.Visibility = filled ? Visibility.Visible : Visibility.Hidden;
+    }
+
+    private void OnClearFilter(object sender, RoutedEventArgs e)
+    {
+        FilterBox.Clear();
+        FilterBox.Focus();
+    }
+
+    private void OnClearExclude(object sender, RoutedEventArgs e)
+    {
+        ExcludeBox.Clear();
+        ExcludeBox.Focus();
     }
 
     /// <summary>Expression régulière invalide : bordure rouge et message dans l'info-bulle.</summary>
@@ -1020,6 +1060,12 @@ public partial class TailWindow : Window
     {
         var parts = new List<string>();
         bool error = _notice is not null && _noticeError;
+        // Filtre actif en tête : on voit combien de lignes il cache.
+        if (_filter.IsActive)
+        {
+            parts.Add(Text.Format(Strings.TailFilterActive, _matched, _lines.Count));
+        }
+
         if (_paused)
         {
             parts.Add(Strings.TailPausedState);

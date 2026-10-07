@@ -8,6 +8,7 @@
     <UserControl.Resources>
         <app:FileIconConverter x:Key="FileIcon" />
         <views:TransferStatusConverter x:Key="TransferStatus" />
+        <views:TransferOutcomeConverter x:Key="TransferOutcome" />
         <!-- Transfert de la file : sens, élément → destination, état et avancement, bouton retirer / annuler. -->
         <DataTemplate x:Key="TransferTemplate">
             <Grid Margin="0,4,0,0">
@@ -22,7 +23,8 @@
                     <TextBlock TextTrimming="CharacterEllipsis" ToolTip="{Binding Route, Mode=OneWay}">
                         <Run Text="{Binding Label, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" → " /><Run Text="{Binding Target, Mode=OneWay}" />
                     </TextBlock>
-                    <TextBlock x:Name="StateText" FontSize="11" Foreground="{DynamicResource MutedBrush}" TextTrimming="CharacterEllipsis">
+                    <!-- Résultat gardé après la série : vérification SHA-256 ou erreur, en entier (texte replié). -->
+                    <TextBlock x:Name="StateText" FontSize="11" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap">
                         <TextBlock.Text>
                             <MultiBinding Converter="{StaticResource TransferStatus}">
                                 <Binding />
@@ -54,15 +56,52 @@
                 <DataTrigger Binding="{Binding CancelRequested}" Value="True">
                     <Setter TargetName="ItemButton" Property="IsEnabled" Value="False" />
                 </DataTrigger>
+                <!-- Terminé : « Détails » ouvre les sommes SHA-256 de chaque fichier. -->
                 <DataTrigger Binding="{Binding State}" Value="Done">
-                    <Setter TargetName="ItemButton" Property="Visibility" Value="Collapsed" />
+                    <Setter TargetName="ItemButton" Property="Content" Value="{x:Static loc:Strings.QueueDetails}" />
+                    <Setter TargetName="ItemButton" Property="ToolTip" Value="{x:Static loc:Strings.QueueDetailsTip}" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding State}" Value="Failed">
-                    <Setter TargetName="ItemButton" Property="Visibility" Value="Collapsed" />
-                    <Setter TargetName="StateText" Property="Foreground" Value="{DynamicResource ErrorBrush}" />
+                    <Setter TargetName="ItemButton" Property="Content" Value="{x:Static loc:Strings.QueueDetails}" />
+                    <Setter TargetName="ItemButton" Property="ToolTip" Value="{x:Static loc:Strings.QueueDetailsTip}" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding State}" Value="Cancelled">
+                    <Setter TargetName="ItemButton" Property="Content" Value="{x:Static loc:Strings.QueueDetails}" />
+                    <Setter TargetName="ItemButton" Property="ToolTip" Value="{x:Static loc:Strings.QueueDetailsTip}" />
+                </DataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsFinished}" Value="True" />
+                        <Condition Binding="{Binding HasChecks}" Value="False" />
+                    </MultiDataTrigger.Conditions>
                     <Setter TargetName="ItemButton" Property="Visibility" Value="Collapsed" />
+                </MultiDataTrigger>
+                <DataTrigger Value="Warning">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource TransferOutcome}">
+                            <Binding />
+                            <Binding Path="State" />
+                        </MultiBinding>
+                    </DataTrigger.Binding>
+                    <Setter TargetName="StateText" Property="Foreground" Value="{DynamicResource WarningBrush}" />
+                </DataTrigger>
+                <DataTrigger Value="Error">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource TransferOutcome}">
+                            <Binding />
+                            <Binding Path="State" />
+                        </MultiBinding>
+                    </DataTrigger.Binding>
+                    <Setter TargetName="StateText" Property="Foreground" Value="{DynamicResource ErrorBrush}" />
+                </DataTrigger>
+                <DataTrigger Value="Ok">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource TransferOutcome}">
+                            <Binding />
+                            <Binding Path="State" />
+                        </MultiBinding>
+                    </DataTrigger.Binding>
+                    <Setter TargetName="StateText" Property="Foreground" Value="{DynamicResource SuccessBrush}" />
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
@@ -106,6 +145,11 @@
                     <Image Source="{StaticResource IconNewFolder}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <MenuItem Tag="rename" Header="{x:Static loc:Strings.FileRename}" Click="OnRename" InputGestureText="F2">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconRename}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
             <MenuItem Tag="delete" Header="{x:Static loc:Strings.FileDelete}" Click="OnDelete">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
@@ -137,7 +181,7 @@
             <!-- Barre d'outils du navigateur -->
             <StackPanel x:Name="Toolbar" Orientation="Horizontal" Margin="-2,6,0,0">
                 <Button Style="{StaticResource SmallToolButton}" Click="OnParent" ToolTip="{x:Static loc:Strings.ParentTip}">
-                    <Image Source="{StaticResource IconUp}" Style="{StaticResource SmallIcon}" />
+                    <Image Source="{StaticResource IconParentFolder}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Button Style="{StaticResource SmallToolButton}" Click="OnHome" ToolTip="{x:Static loc:Strings.HomeTip}">
                     <Image Source="{StaticResource IconHome}" Style="{StaticResource SmallIcon}" />
@@ -152,19 +196,28 @@
                 <Button Style="{StaticResource SmallToolButton}" Click="OnMultiUpload" ToolTip="{x:Static loc:Strings.MultiUploadTip}">
                     <Image Source="{StaticResource IconUploadMany}" Style="{StaticResource SmallIcon}" />
                 </Button>
-                <Button Style="{StaticResource SmallToolButton}" Click="OnDownload" ToolTip="{x:Static loc:Strings.DownloadTip}">
+                <!-- Boutons de la sélection : grisés comme dans le menu, l'infobulle dit ce qui manque. -->
+                <Button x:Name="DownloadButton" Style="{StaticResource SmallToolButton}" Click="OnDownload" ToolTip="{x:Static loc:Strings.DownloadTip}"
+                        ToolTipService.ShowOnDisabled="True">
                     <Image Source="{StaticResource IconDownload}" Style="{StaticResource SmallIcon}" />
                 </Button>
-                <Button Style="{StaticResource SmallToolButton}" Click="OnEdit" ToolTip="{x:Static loc:Strings.EditTip}">
+                <Button x:Name="EditButton" Style="{StaticResource SmallToolButton}" Click="OnEdit" ToolTip="{x:Static loc:Strings.EditTip}"
+                        ToolTipService.ShowOnDisabled="True">
                     <Image Source="{StaticResource IconEdit}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Button Style="{StaticResource SmallToolButton}" Click="OnNewFolder" ToolTip="{x:Static loc:Strings.NewFolder}">
                     <Image Source="{StaticResource IconNewFolder}" Style="{StaticResource SmallIcon}" />
                 </Button>
-                <Button Style="{StaticResource SmallToolButton}" Click="OnPermissions" ToolTip="{x:Static loc:Strings.PermissionsTip}">
+                <Button x:Name="RenameButton" Style="{StaticResource SmallToolButton}" Click="OnRename" ToolTip="{x:Static loc:Strings.RenameTip}"
+                        ToolTipService.ShowOnDisabled="True">
+                    <Image Source="{StaticResource IconRename}" Style="{StaticResource SmallIcon}" />
+                </Button>
+                <Button x:Name="PermissionsButton" Style="{StaticResource SmallToolButton}" Click="OnPermissions" ToolTip="{x:Static loc:Strings.PermissionsTip}"
+                        ToolTipService.ShowOnDisabled="True">
                     <Image Source="{StaticResource IconPermissions}" Style="{StaticResource SmallIcon}" />
                 </Button>
-                <Button Style="{StaticResource SmallToolButton}" Click="OnDelete" ToolTip="{x:Static loc:Strings.DeleteTip}">
+                <Button x:Name="DeleteButton" Style="{StaticResource SmallToolButton}" Click="OnDelete" ToolTip="{x:Static loc:Strings.DeleteTip}"
+                        ToolTipService.ShowOnDisabled="True">
                     <Image Source="{StaticResource IconDelete}" Style="{StaticResource SmallIcon}" />
                 </Button>
             </StackPanel>
@@ -215,6 +268,8 @@
                         <DockPanel DockPanel.Dock="Top">
                             <Button x:Name="CancelAllButton" DockPanel.Dock="Right" Content="{x:Static loc:Strings.QueueCancelAll}" Padding="6,0"
                                     Click="OnCancelAllTransfers" />
+                            <Button x:Name="ClearFinishedButton" DockPanel.Dock="Right" Content="{x:Static loc:Strings.QueueClearFinished}" Padding="6,0"
+                                    Margin="0,0,6,0" Click="OnClearFinished" ToolTip="{x:Static loc:Strings.QueueClearFinishedTip}" />
                             <TextBlock Text="{x:Static loc:Strings.QueueTitle}" FontWeight="SemiBold" VerticalAlignment="Center" />
                         </DockPanel>
                         <ScrollViewer MaxHeight="170" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
@@ -228,7 +283,9 @@
                     <Button x:Name="StopChmodButton" DockPanel.Dock="Right" Content="{x:Static loc:Strings.PermissionsStop}" Padding="8,0"
                             MinWidth="0" Margin="6,0,0,0" Visibility="Collapsed" Click="OnStopChmod"
                             ToolTip="{x:Static loc:Strings.PermissionsStopTip}" />
-                    <TextBlock x:Name="StatusText" Foreground="{DynamicResource MutedBrush}" TextTrimming="CharacterEllipsis" />
+                    <!-- Bilan sur trois lignes au plus ; en entier dans l'infobulle. -->
+                    <TextBlock x:Name="StatusText" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
+                               MaxHeight="48" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
                 </DockPanel>
             </StackPanel>
         </Border>
@@ -244,6 +301,12 @@
                     <Style TargetType="ListViewItem">
                         <Setter Property="Padding" Value="2,1" />
                         <EventSetter Event="MouseDoubleClick" Handler="OnItemDoubleClick" />
+                        <!-- Dossier survolé pendant un dépôt de fichiers : il recevra les fichiers. -->
+                        <Style.Triggers>
+                            <Trigger Property="Tag" Value="drop">
+                                <Setter Property="Background" Value="{DynamicResource AccentLightBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
                     </Style>
                 </ListView.ItemContainerStyle>
                 <ListView.View>

@@ -30,19 +30,38 @@ public partial class TransferHistoryDialog : Window
         ShowRecords();
     }
 
-    /// <summary>Texte de la colonne « Résultat ».</summary>
+    /// <summary>Texte de la colonne « Résultat » (le même que dans la file des transferts).</summary>
     public static string Result(TransferRecord record) => record.State switch
     {
         TransferState.Done when record.Different > 0 => Text.Format(Strings.QueueStateDifferent, record.Different),
-        TransferState.Done => Text.Format(Strings.HistoryDone, record.Identical),
+        TransferState.Done when record.Files.Count(f => !f.Verified && !f.Failed && !f.Interrupted) is > 0 and var unverified =>
+            Text.Format(Strings.QueueStateUnverified, unverified, record.Files.Count),
+        TransferState.Done when record.Files.Count > 0 => Text.Format(Strings.QueueStateVerified, record.Identical, record.Files.Count),
+        TransferState.Done => Strings.QueueStateDone,
         TransferState.Failed => "✗ " + record.Error,
         _ => Strings.QueueStateCancelled,
     };
 
+    /// <summary>Transfert en échec ou fichier différent de l'original : ligne en rouge.</summary>
+    public static bool HasProblem(TransferRecord record) => record.State == TransferState.Failed || record.Different > 0;
+
     private void BuildColumns()
     {
-        void Add(string header, Binding binding, double width = 1, DataGridLengthUnitType unit = DataGridLengthUnitType.Star) =>
-            RecordsGrid.Columns.Add(new DataGridTextColumn { Header = header, Binding = binding, Width = new DataGridLength(width, unit) });
+        // Texte tronqué (« … ») et complet dans l'infobulle : serveur, élément et destination peuvent être longs.
+        void Add(string header, Binding binding, double width = 1, DataGridLengthUnitType unit = DataGridLengthUnitType.Star)
+        {
+            var cell = new Style(typeof(TextBlock));
+            cell.Setters.Add(new Setter(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis));
+            cell.Setters.Add(new Setter(ToolTipProperty, new Binding(nameof(TextBlock.Text)) { RelativeSource = RelativeSource.Self }));
+            RecordsGrid.Columns.Add(new DataGridTextColumn { Header = header, Binding = binding, Width = new DataGridLength(width, unit), ElementStyle = cell });
+        }
+
+        var row = new Style(typeof(DataGridRow));
+        var problem = new DataTrigger { Binding = new Binding(".") { Converter = new ProblemConverter() }, Value = true };
+        problem.Setters.Add(new Setter(ForegroundProperty, new DynamicResourceExtension("ErrorBrush")));
+        problem.Setters.Add(new Setter(FontWeightProperty, FontWeights.SemiBold));
+        row.Triggers.Add(problem);
+        RecordsGrid.RowStyle = row;
 
         Add(Strings.HistoryColTime, new Binding(nameof(TransferRecord.Time)) { Converter = new LocalTimeConverter() }, 1, DataGridLengthUnitType.Auto);
         Add(Strings.ChecksColDirection, new Binding(nameof(TransferRecord.Upload)) { Converter = new DirectionConverter() }, 1, DataGridLengthUnitType.Auto);
@@ -136,6 +155,15 @@ public partial class TransferHistoryDialog : Window
     {
         public object Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) =>
             value is true ? Strings.ChecksUploaded : Strings.ChecksDownloaded;
+
+        public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) =>
+            throw new NotSupportedException();
+    }
+
+    private sealed class ProblemConverter : IValueConverter
+    {
+        public object Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) =>
+            value is TransferRecord record && HasProblem(record);
 
         public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) =>
             throw new NotSupportedException();

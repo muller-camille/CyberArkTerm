@@ -162,6 +162,27 @@ public sealed class TerminalView : FrameworkElement
 
     // ===================== Rendu =====================
 
+    /// <summary>Position dans l'historique : lignes au-dessus de l'écran, lignes remontées (0 = en bas), lignes affichées.</summary>
+    public (int Scrollback, int Offset, int Rows) ScrollState =>
+        _emulator is null ? (0, 0, 0) : (_emulator.ScrollbackCount, _scrollOffset, _emulator.Rows);
+
+    /// <summary>La position dans l'historique ou sa taille a changé (barre de défilement, « Revenir en bas »).</summary>
+    public event Action? ScrollStateChanged;
+
+    private (int, int, int) _lastScrollState;
+
+    /// <summary>Affiche l'historique à <paramref name="offset"/> lignes du bas (0 = la fin, comme à la saisie).</summary>
+    public void ScrollTo(int offset)
+    {
+        if (_emulator is null)
+        {
+            return;
+        }
+
+        _scrollOffset = Math.Clamp(offset, 0, _emulator.ScrollbackCount);
+        InvalidateVisual();
+    }
+
     protected override void OnRender(DrawingContext dc)
     {
         dc.DrawRectangle(Brush(_theme.Background), null, new Rect(RenderSize));
@@ -169,6 +190,13 @@ public sealed class TerminalView : FrameworkElement
         if (emulator is null)
         {
             return;
+        }
+
+        // Chaque changement (sortie, défilement, taille) passe par un rendu : la barre de défilement suit.
+        if (ScrollState != _lastScrollState)
+        {
+            _lastScrollState = ScrollState;
+            Dispatcher.BeginInvoke(() => ScrollStateChanged?.Invoke());
         }
 
         int top = -_scrollOffset;

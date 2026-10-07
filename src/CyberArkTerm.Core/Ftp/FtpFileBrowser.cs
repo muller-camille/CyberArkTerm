@@ -316,6 +316,19 @@ public sealed class FtpFileBrowser : IRemoteFiles
         return await ExistsCoreAsync(path, ct).ConfigureAwait(false);
     }
 
+    public async Task RenameAsync(string path, string newPath, CancellationToken ct)
+    {
+        using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
+        // Jamais d'écrasement : RNTO remplace la cible sur la plupart des serveurs FTP.
+        if (await ExistsCoreAsync(newPath, ct).ConfigureAwait(false))
+        {
+            throw new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.RenameTargetExists, newPath));
+        }
+
+        await CommandAsync("RNFR " + Checked(path), ct).ConfigureAwait(false);
+        await CommandAsync("RNTO " + Checked(newPath), ct).ConfigureAwait(false);
+    }
+
     private async Task<bool> ExistsCoreAsync(string path, CancellationToken ct) =>
         await _client.FileExists(Checked(path), ct).ConfigureAwait(false) || await IsDirectoryAsync(path, ct).ConfigureAwait(false);
 

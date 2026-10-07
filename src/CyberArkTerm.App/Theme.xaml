@@ -466,13 +466,37 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <DrawingImage x:Key="IconUp">
+    <!-- Dossier parent : dossier et flèche coudée vers le haut (distincte de la flèche verte « Envoyer »). -->
+    <DrawingImage x:Key="IconParentFolder">
         <DrawingImage.Drawing>
-            <GeometryDrawing Geometry="M12,20 V5 M6,11 L12,5 L18,11">
-                <GeometryDrawing.Pen>
-                    <Pen Brush="#1565C0" Thickness="2.4" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
-                </GeometryDrawing.Pen>
-            </GeometryDrawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#E0A82E" Geometry="M7,9 H12 L14,11 H22 V21 H7 Z" />
+                <GeometryDrawing Brush="#F5C94E" Geometry="M7,13 H22 V21 H7 Z" />
+                <GeometryDrawing Geometry="M16,17 V6 H4.5 M8,2.5 L4.5,6 L8,9.5">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#1565C0" Thickness="2.4" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <!-- Renommer : champ de saisie au texte sélectionné, curseur de texte. -->
+    <DrawingImage x:Key="IconRename">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="White" Geometry="M2,7 H22 V17 H2 Z">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#5A6573" Thickness="1.6" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#1565C0" Geometry="M5,10 H13.5 V14 H5 Z" />
+                <GeometryDrawing Geometry="M17,4 V20 M15,4 H19 M15,20 H19">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#263238" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 

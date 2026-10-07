@@ -139,6 +139,18 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         return await _sftp.ExistsAsync(path, ct).ConfigureAwait(false);
     }
 
+    public async Task RenameAsync(string path, string newPath, CancellationToken ct)
+    {
+        using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
+        // Jamais d'écrasement : certains serveurs remplaceraient la cible sans rien dire.
+        if (await _sftp.ExistsAsync(newPath, ct).ConfigureAwait(false))
+        {
+            throw new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.RenameTargetExists, newPath));
+        }
+
+        await _sftp.RenameFileAsync(path, newPath, ct).ConfigureAwait(false);
+    }
+
     /// <summary>
     /// Envoie un fichier ou un dossier local (récursivement) dans <paramref name="remoteDirectory"/>, un fichier à la
     /// fois : chaque fichier est envoyé (SCP ou SFTP), puis relu par SFTP pour comparer sa somme SHA-256 à celle du

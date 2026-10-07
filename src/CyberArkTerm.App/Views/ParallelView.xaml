@@ -23,12 +23,16 @@
                 <StackPanel Orientation="Horizontal">
                     <Image Source="{StaticResource IconParallel}" Width="18" Height="18" Margin="0,0,6,0" VerticalAlignment="Center" />
                     <TextBlock x:Name="TitleText" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <ToggleButton x:Name="BroadcastToggle" Margin="16,0,0,0" Padding="8,2" Click="OnBroadcast"
+                    <!-- Active : fond ambre et « ACTIVE (n) », comme le bandeau. -->
+                    <ToggleButton x:Name="BroadcastToggle" Margin="16,0,0,0" Padding="0" Click="OnBroadcast"
                                   ToolTip="{x:Static loc:Strings.ParallelBroadcastTip}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⌨" Margin="0,0,6,0" />
-                            <AccessText Text="{x:Static loc:Strings.ParallelBroadcast}" />
-                        </StackPanel>
+                        <Border x:Name="BroadcastFace" Padding="8,2">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="⌨" Margin="0,0,6,0" />
+                                <AccessText Text="{x:Static loc:Strings.ParallelBroadcast}" />
+                                <TextBlock x:Name="BroadcastState" Margin="6,0,0,0" FontWeight="Bold" Visibility="Collapsed" />
+                            </StackPanel>
+                        </Border>
                     </ToggleButton>
                 </StackPanel>
             </DockPanel>

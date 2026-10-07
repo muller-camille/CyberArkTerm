@@ -14,7 +14,7 @@
         <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
             <Button x:Name="UpButton" DockPanel.Dock="Left" ToolTip="{x:Static loc:Strings.RemotePickUp}" Click="OnUp"
                     Padding="4,2" Margin="0,0,6,0">
-                <Image Source="{StaticResource IconUp}" Width="16" Height="16" />
+                <Image Source="{StaticResource IconParentFolder}" Width="16" Height="16" />
             </Button>
             <Button DockPanel.Dock="Right" Content="{x:Static loc:Strings.RemotePickGo}" Click="OnGo" Margin="6,0,0,0" />
             <TextBox x:Name="PathBox" FontFamily="Consolas, Courier New" VerticalContentAlignment="Center"

@@ -81,8 +81,11 @@ public partial class FileBrowserPanel
     /// <summary>Emplacement de gzip sur le serveur de chaque connexion (null : absent), cherché une seule fois.</summary>
     private readonly ConditionalWeakTable<IRemoteFiles, Task<string?>> _gzip = [];
 
-    /// <summary>Met en file l'envoi de fichiers ou de dossiers locaux vers le dossier affiché.</summary>
-    private async Task EnqueueUploadAsync(IReadOnlyList<string> paths)
+    /// <summary>
+    /// Met en file l'envoi de fichiers ou de dossiers locaux vers le dossier affiché, ou vers <paramref name="target"/>
+    /// (dossier de la liste sur lequel on les a déposés).
+    /// </summary>
+    private async Task EnqueueUploadAsync(IReadOnlyList<string> paths, string? target = null)
     {
         var browser = _browser;
         var session = _session;
@@ -91,7 +94,7 @@ public partial class FileBrowserPanel
             return;
         }
 
-        var directory = browser.CurrentDirectory;
+        var directory = target ?? browser.CurrentDirectory;
         var names = paths.Select(p => Path.GetFileName(p.TrimEnd('\\', '/'))).ToList();
 
         // Beaucoup de fichiers d'un coup : proposer une seule archive .tar.gz (option des Paramètres).
@@ -315,20 +318,46 @@ public partial class FileBrowserPanel
         }
     }
 
+    /// <summary>Bouton d'une ligne : retirer (en attente), annuler (en cours), ou le détail SHA-256 (terminé).</summary>
     private void OnCancelTransfer(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is TransferItem item)
+        if ((sender as FrameworkElement)?.DataContext is not TransferItem item)
         {
-            _queue.Cancel(item);
+            return;
         }
+
+        if (item.IsFinished)
+        {
+            if (item.HasChecks)
+            {
+                new TransferChecksDialog(item.Checks) { Owner = Window.GetWindow(this) }.ShowDialog();
+            }
+
+            return;
+        }
+
+        _queue.Cancel(item);
     }
 
     private void OnCancelAllTransfers(object sender, RoutedEventArgs e) => _queue.CancelAll();
 
+    private void OnClearFinished(object sender, RoutedEventArgs e) => _queue.ClearFinished();
+
+    /// <summary>Transferts en échec ou différents depuis le dernier passage sur l'onglet Fichiers (pastille de l'onglet).</summary>
+    public int UnseenProblems { get; private set; }
+
+    /// <summary>La file a changé, ou un problème est à signaler : pastille de l'onglet Fichiers.</summary>
+    public event Action? TransfersChanged;
+
+    /// <summary>L'onglet Fichiers est affiché : les problèmes signalés sont vus.</summary>
+    public void MarkTransfersSeen() => UnseenProblems = 0;
+
     private void OnQueueChanged()
     {
         QueuePanel.Visibility = _queue.Items.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-        CancelAllButton.IsEnabled = _queue.ActiveCount > 0;
+        CancelAllButton.Visibility = _queue.ActiveCount > 0 ? Visibility.Visible : Visibility.Collapsed;
+        ClearFinishedButton.Visibility = _queue.Items.Any(i => i.IsFinished) ? Visibility.Visible : Visibility.Collapsed;
+        TransfersChanged?.Invoke();
         if (!ReferenceEquals(_watched, _queue.Current))
         {
             if (_watched is not null)
@@ -377,6 +406,11 @@ public partial class FileBrowserPanel
 
     private void OnTransferFinished(TransferItem item)
     {
+        if (TransferStatusConverter.Outcome(item) == "Error")
+        {
+            UnseenProblems++;
+        }
+
         // Élément retiré avant d'avoir commencé : rien n'a été transféré, rien à garder.
         if (item.State != TransferState.Cancelled || item.Checks.Count > 0)
         {
@@ -768,8 +802,32 @@ public sealed class TransferStatusConverter : IMultiValueConverter
         TransferState.Running => Text.Format(Strings.QueueStateRunning, Math.Round(item.Percent), FileNumber(item), FileTotal(item)),
         TransferState.Done when item.Checks.Count(c => c.Verified && !c.Matches) is > 0 and var different =>
             Text.Format(Strings.QueueStateDifferent, different),
+        // Fichiers transférés mais non relus (droits, vérification annulée) : « terminé » seul les cacherait.
+        TransferState.Done when item.Checks.Count(c => !c.Verified && !c.Failed && !c.Interrupted) is > 0 and var unverified =>
+            Text.Format(Strings.QueueStateUnverified, unverified, item.Checks.Count),
+        TransferState.Done when item.Checks.Count > 0 => Text.Format(Strings.QueueStateVerified, item.Checks.Count(c => c.Matches), item.Checks.Count),
         TransferState.Done => Strings.QueueStateDone,
         TransferState.Failed => "✗ " + item.Error,
         _ => Strings.QueueStateCancelled,
     };
+
+    /// <summary>Couleur du résultat : « Ok » (tout vérifié), « Warning » (non vérifié), « Error » (échec, différent), sinon « None ».</summary>
+    public static string Outcome(TransferItem item) => item.State switch
+    {
+        TransferState.Failed => "Error",
+        TransferState.Done when item.Checks.Any(c => c.Verified && !c.Matches) => "Error",
+        TransferState.Done when item.Checks.Any(c => !c.Verified && !c.Failed && !c.Interrupted) => "Warning",
+        TransferState.Done when item.Checks.Count > 0 => "Ok",
+        _ => "None",
+    };
+}
+
+/// <summary>Couleur du résultat d'un transfert de la file (voir <see cref="TransferStatusConverter.Outcome"/>).</summary>
+public sealed class TransferOutcomeConverter : IMultiValueConverter
+{
+    // L'état ne sert qu'à déclencher la mise à jour.
+    public object Convert(object[] values, Type targetType, object? parameter, CultureInfo culture) =>
+        values.Length > 0 && values[0] is TransferItem item ? TransferStatusConverter.Outcome(item) : "None";
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object? parameter, CultureInfo culture) => throw new NotSupportedException();
 }

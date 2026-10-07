@@ -1777,9 +1777,6 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
   <data name="HistoryColProtocol" xml:space="preserve">
     <value>Protocol</value>
   </data>
-  <data name="HistoryDone" xml:space="preserve">
-    <value>✓ done · {0} identical</value>
-  </data>
   <data name="HistoryChecks" xml:space="preserve">
     <value>C_hecksums…</value>
   </data>
@@ -4144,5 +4141,92 @@ Two instances would overwrite each other's settings, local vault and files being
   </data>
   <data name="ImportContinue" xml:space="preserve">
     <value>Continue</value>
+  </data>
+  <data name="SessionEndedWith" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="TerminalHistory" xml:space="preserve">
+    <value>Terminal history</value>
+  </data>
+  <data name="TerminalBackToBottom" xml:space="preserve">
+    <value>↓ Back to the end</value>
+  </data>
+  <data name="FileRename" xml:space="preserve">
+    <value>Ren_ame…</value>
+  </data>
+  <data name="RenameTip" xml:space="preserve">
+    <value>Rename (F2)</value>
+  </data>
+  <data name="RenamePrompt" xml:space="preserve">
+    <value>New name for “{0}” in {1}:</value>
+  </data>
+  <data name="NameReserved" xml:space="preserve">
+    <value>“.” and “..” are not valid names.</value>
+  </data>
+  <data name="NameNoControl" xml:space="preserve">
+    <value>The name must not contain control characters (line break, tab…).</value>
+  </data>
+  <data name="Renamed" xml:space="preserve">
+    <value>Renamed: {0} → {1}</value>
+  </data>
+  <data name="RenameFailed" xml:space="preserve">
+    <value>Cannot rename: {0}</value>
+  </data>
+  <data name="DownloadFolderHint" xml:space="preserve">
+    <value>To download a folder, drag it to File Explorer or to the desktop.</value>
+  </data>
+  <data name="FileNeedSelection" xml:space="preserve">
+    <value>Select a file or folder in the list first.</value>
+  </data>
+  <data name="FileNeedOneFile" xml:space="preserve">
+    <value>Select a single file (not a folder).</value>
+  </data>
+  <data name="FileNeedOne" xml:space="preserve">
+    <value>Select a single file or folder.</value>
+  </data>
+  <data name="DropIntoFolder" xml:space="preserve">
+    <value>Drop into {0}</value>
+  </data>
+  <data name="QueueClearFinished" xml:space="preserve">
+    <value>Clear _finished</value>
+  </data>
+  <data name="QueueClearFinishedTip" xml:space="preserve">
+    <value>Remove finished, failed and cancelled transfers from this list (the transfer history keeps them)</value>
+  </data>
+  <data name="QueueDetails" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="QueueDetailsTip" xml:space="preserve">
+    <value>SHA-256 checksum of each file of this transfer</value>
+  </data>
+  <data name="QueueStateVerified" xml:space="preserve">
+    <value>✓ done · SHA-256 verified ({0}/{1})</value>
+  </data>
+  <data name="QueueStateUnverified" xml:space="preserve">
+    <value>⚠ done · not verified: {0} of {1}</value>
+  </data>
+  <data name="FilesBadgeActive" xml:space="preserve">
+    <value>{0} transfer(s) running or waiting</value>
+  </data>
+  <data name="FilesBadgeProblem" xml:space="preserve">
+    <value>{0} transfer(s) failed or differ: see the Files tab</value>
+  </data>
+  <data name="TailFilterActive" xml:space="preserve">
+    <value>Filter: {0} / {1} lines shown</value>
+  </data>
+  <data name="TailClearFieldTip" xml:space="preserve">
+    <value>Empty this field</value>
+  </data>
+  <data name="CompareSameFile" xml:space="preserve">
+    <value>This is the same file on the same server: choose another server, another path or a file on this computer.</value>
+  </data>
+  <data name="ParallelTypingHere" xml:space="preserve">
+    <value>⌨ Typing here</value>
+  </data>
+  <data name="ParallelExcluded" xml:space="preserve">
+    <value>excluded</value>
+  </data>
+  <data name="ParallelBroadcastOn" xml:space="preserve">
+    <value>ON ({0})</value>
   </data>
 </root>

@@ -102,6 +102,7 @@ public partial class MainWindow : Window
         FilesPanel.Initialize(settings, SaveSettings);
         FilesPanel.OpenSessions = () => MainTabs.Items.OfType<TabItem>().Select(t => t.Tag).OfType<RemoteSession>().ToList();
         FilesPanel.ShowTerminalRequested += ShowTerminal;
+        FilesPanel.TransfersChanged += UpdateFilesBadge;
         if (IsOffline)
         {
             // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de « Mes serveurs ».
@@ -570,6 +571,8 @@ public partial class MainWindow : Window
         {
             SetSidePanelCollapsed(false);
         }
+
+        UpdateFilesBadge();
     }
 
     private void UpdateActions()

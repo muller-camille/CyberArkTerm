@@ -378,4 +378,7 @@
   <data name="HostKeyRefused" xml:space="preserve">
     <value>Connexion annulée : la clé du serveur n'a pas été acceptée.</value>
   </data>
+  <data name="RenameTargetExists" xml:space="preserve">
+    <value>« {0} » existe déjà : choisissez un autre nom (rien n'a été remplacé).</value>
+  </data>
 </root>

@@ -1152,5 +1152,14 @@ namespace CyberArkTerm.Core.Localization {
                 return ResourceManager.GetString("HostKeyRefused", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to “{0}” already exists: choose another name (nothing was replaced)..
+        /// </summary>
+        public static string RenameTargetExists {
+            get {
+                return ResourceManager.GetString("RenameTargetExists", resourceCulture);
+            }
+        }
     }
 }

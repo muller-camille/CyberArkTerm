@@ -349,17 +349,49 @@ public sealed class DialogTests
             Assert.Equal(Strings.QueueStateWaiting, TransferStatusConverter.StateText(waiting));
 
             panel.Queue.Cancel(waiting);
+            byte[] hash = [1, 2, 3];
+            running.Checks.Add(new TransferCheck("app.conf", @"C:\Temp\app.conf", "/opt/app/app.conf", 3, hash, 3, [.. hash]));
             release.SetResult();
 
             Assert.Equal((TransferState.Done, TransferState.Cancelled), (running.State, waiting.State));
-            Assert.Equal(Visibility.Collapsed, panel.QueuePanel.Visibility);
             Assert.Equal(0, panel.ActiveTransfers(null));
             Assert.Contains(Text.Format(Strings.QueueSummaryCancelled, 1), panel.StatusText.Text);
+            // Les résultats restent dans la file (vérification SHA-256 par ligne) jusqu'à « Effacer les terminés ».
+            Assert.Equal(Visibility.Visible, panel.QueuePanel.Visibility);
+            Assert.Equal(Text.Format(Strings.QueueStateVerified, 1, 1), TransferStatusConverter.StateText(running));
+            Assert.Equal("Ok", TransferStatusConverter.Outcome(running));
+            Assert.Equal((Visibility.Collapsed, Visibility.Visible), (panel.CancelAllButton.Visibility, panel.ClearFinishedButton.Visibility));
+            Assert.Equal(0, panel.UnseenProblems);
+            panel.Queue.ClearFinished();
+            Assert.Equal(Visibility.Collapsed, panel.QueuePanel.Visibility);
+
+            // Un échec est signalé (pastille de l'onglet Fichiers) jusqu'à ce que l'onglet soit affiché.
+            panel.Queue.Enqueue(new TransferItem(true, "fail/", "/opt/app", (_, _) => throw new IOException("disque plein")));
+            Assert.Equal(1, panel.UnseenProblems);
+            panel.MarkTransfersSeen();
+            Assert.Equal(0, panel.UnseenProblems);
 
             // Historique : l'envoi terminé y figure ; l'élément retiré avant d'avoir commencé, non.
             var record = Assert.Single(panel.History.Records);
             Assert.Equal(("deploy/", true, TransferState.Done, "SCP"), (record.Label, record.Upload, record.State, record.Protocol));
         });
+    }
+
+    /// <summary>Nouveau nom (renommer, nouveau dossier) : ni « / », ni caractère de contrôle, ni « . » ou « .. ».</summary>
+    [Fact]
+    public void RemoteNamesAreChecked()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        Assert.Null(FileBrowserPanel.ValidateName("app.conf"));
+        Assert.Null(FileBrowserPanel.ValidateName(".bashrc"));
+        Assert.Equal(Strings.NameNoSlash, FileBrowserPanel.ValidateName("../etc/passwd"));
+        Assert.Equal(Strings.NameNoControl, FileBrowserPanel.ValidateName("a\r\nDELE b"));
+        Assert.Equal(Strings.NameReserved, FileBrowserPanel.ValidateName(".."));
+        Assert.Equal(Strings.NameReserved, FileBrowserPanel.ValidateName("."));
     }
 
     /// <summary>Onglet Fichiers : tri par colonne (« .. » et dossiers en tête), flèche dans l'en-tête, réglage enregistré.</summary>
@@ -481,8 +513,12 @@ public sealed class DialogTests
             dialog.RecordsGrid.SelectedItem = download;
             Assert.True(dialog.ChecksButton.IsEnabled);
             Assert.True(dialog.OpenFolderButton.IsEnabled);
-            Assert.Equal(Text.Format(Strings.HistoryDone, 1), TransferHistoryDialog.Result(download));
+            Assert.Equal(Text.Format(Strings.QueueStateVerified, 1, 1), TransferHistoryDialog.Result(download));
             Assert.Equal("✗ permission refusée", TransferHistoryDialog.Result(history.Records[0]));
+            // Échec en rouge, réussite normale.
+            Assert.True(TransferHistoryDialog.HasProblem(history.Records[0]));
+            Assert.False(TransferHistoryDialog.HasProblem(download));
+            Assert.NotNull(dialog.RecordsGrid.RowStyle);
             Assert.Equal(0, saved);
             dialog.Close();
         });
@@ -1000,6 +1036,9 @@ public sealed class DialogTests
 
             var compare = new CompareDialog("root@srv01 : /etc/app.conf", "/etc/app.conf", [s1, s2], s1);
             Assert.Equal("/etc/app.conf", compare.RemoteFile);
+            // Aucun autre serveur connecté : un fichier de ce poste est proposé (le même chemin donnerait le même fichier).
+            Assert.True(compare.LocalRadio.IsChecked);
+            compare.ServerRadio.IsChecked = true;
             Assert.True(compare.BrowseServerButton.IsEnabled);
             compare.Close();
 
@@ -1257,6 +1296,7 @@ public sealed class DialogTests
         public Task<List<RemoteEntry>> BrowseAsync(string directory, bool showHidden, CancellationToken ct) => Task.FromResult(entries.ToList());
         public Task DeleteAsync(RemoteEntry entry, CancellationToken ct) => throw new NotSupportedException();
         public Task CreateDirectoryAsync(string path, CancellationToken ct) => throw new NotSupportedException();
+        public Task RenameAsync(string path, string newPath, CancellationToken ct) => throw new NotSupportedException();
         public Task<bool> ExistsAsync(string path, CancellationToken ct) => Task.FromResult(true);
         public Task UploadAsync(string localPath, string remoteDirectory, TransferProtocol protocol, ICollection<TransferCheck> checks,
             IProgress<TransferProgress>? progress, bool background, CancellationToken ct) => throw new NotSupportedException();

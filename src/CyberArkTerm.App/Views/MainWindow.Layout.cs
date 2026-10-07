@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
 
 namespace CyberArkTerm.App.Views;
@@ -109,6 +110,47 @@ public partial class MainWindow
             _settings.SidePanelCollapsed = collapsed;
             SaveSettings();
         }
+
+        UpdateFilesBadge();
+    }
+
+    /// <summary>
+    /// Pastille de l'onglet « Fichiers » (et barre des tâches) : nombre de transferts en cours ou en attente, sinon « ! »
+    /// pour un transfert en échec ou différent que l'on n'a pas encore vu (l'onglet Fichiers affiché le marque vu).
+    /// </summary>
+    private void UpdateFilesBadge()
+    {
+        if (FilesTab.IsSelected && !SidePanelCollapsed)
+        {
+            FilesPanel.MarkTransfersSeen();
+        }
+
+        int active = FilesPanel.ActiveTransfers(null);
+        int problems = FilesPanel.UnseenProblems;
+        string? tip = null;
+        if (active > 0)
+        {
+            FilesBadgeText.Text = active.ToString(System.Globalization.CultureInfo.CurrentCulture);
+            FilesBadge.SetResourceReference(Border.BackgroundProperty, "SideStripMarkerBrush");
+            FilesBadgeText.SetResourceReference(TextBlock.ForegroundProperty, "SideStripBrush");
+            tip = Text.Format(Strings.FilesBadgeActive, active);
+        }
+        else if (problems > 0)
+        {
+            FilesBadgeText.Text = "!";
+            FilesBadge.SetResourceReference(Border.BackgroundProperty, "StateFailedBrush");
+            FilesBadgeText.SetResourceReference(TextBlock.ForegroundProperty, "DangerForeground");
+            tip = Text.Format(Strings.FilesBadgeProblem, problems);
+        }
+
+        FilesBadge.Visibility = tip is null ? Visibility.Collapsed : Visibility.Visible;
+        FilesTab.ToolTip = tip is null ? Strings.TabFilesTip : Strings.TabFilesTip + "\n" + tip;
+        System.Windows.Automation.AutomationProperties.SetHelpText(FilesTab, tip ?? "");
+        TaskbarItemInfo ??= new System.Windows.Shell.TaskbarItemInfo();
+        TaskbarItemInfo.ProgressState = active > 0 ? System.Windows.Shell.TaskbarItemProgressState.Indeterminate
+            : problems > 0 ? System.Windows.Shell.TaskbarItemProgressState.Error
+            : System.Windows.Shell.TaskbarItemProgressState.None;
+        TaskbarItemInfo.ProgressValue = problems > 0 && active == 0 ? 1 : 0;
     }
 
     private void ToggleSidePanel() => SetSidePanelCollapsed(!SidePanelCollapsed);

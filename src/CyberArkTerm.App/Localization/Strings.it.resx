@@ -1777,9 +1777,6 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
   <data name="HistoryColProtocol" xml:space="preserve">
     <value>Protocollo</value>
   </data>
-  <data name="HistoryDone" xml:space="preserve">
-    <value>✓ riuscito · {0} identico/i</value>
-  </data>
   <data name="HistoryChecks" xml:space="preserve">
     <value>C_hecksum…</value>
   </data>
@@ -4144,5 +4141,92 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   </data>
   <data name="ImportContinue" xml:space="preserve">
     <value>Continua</value>
+  </data>
+  <data name="SessionEndedWith" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="TerminalHistory" xml:space="preserve">
+    <value>Cronologia del terminale</value>
+  </data>
+  <data name="TerminalBackToBottom" xml:space="preserve">
+    <value>↓ Torna alla fine</value>
+  </data>
+  <data name="FileRename" xml:space="preserve">
+    <value>_Rinomina…</value>
+  </data>
+  <data name="RenameTip" xml:space="preserve">
+    <value>Rinomina (F2)</value>
+  </data>
+  <data name="RenamePrompt" xml:space="preserve">
+    <value>Nuovo nome per «{0}» in {1}:</value>
+  </data>
+  <data name="NameReserved" xml:space="preserve">
+    <value>«.» e «..» non sono nomi validi.</value>
+  </data>
+  <data name="NameNoControl" xml:space="preserve">
+    <value>Il nome non deve contenere caratteri di controllo (a capo, tabulazione…).</value>
+  </data>
+  <data name="Renamed" xml:space="preserve">
+    <value>Rinominato: {0} → {1}</value>
+  </data>
+  <data name="RenameFailed" xml:space="preserve">
+    <value>Impossibile rinominare: {0}</value>
+  </data>
+  <data name="DownloadFolderHint" xml:space="preserve">
+    <value>Per scaricare una cartella, trascinala in Esplora file o sul desktop.</value>
+  </data>
+  <data name="FileNeedSelection" xml:space="preserve">
+    <value>Seleziona prima un file o una cartella nell'elenco.</value>
+  </data>
+  <data name="FileNeedOneFile" xml:space="preserve">
+    <value>Seleziona un solo file (non una cartella).</value>
+  </data>
+  <data name="FileNeedOne" xml:space="preserve">
+    <value>Seleziona un solo file o cartella.</value>
+  </data>
+  <data name="DropIntoFolder" xml:space="preserve">
+    <value>Rilascia in {0}</value>
+  </data>
+  <data name="QueueClearFinished" xml:space="preserve">
+    <value>Cancella i _completati</value>
+  </data>
+  <data name="QueueClearFinishedTip" xml:space="preserve">
+    <value>Rimuovi da questo elenco i trasferimenti completati, non riusciti o annullati (la cronologia dei trasferimenti li conserva)</value>
+  </data>
+  <data name="QueueDetails" xml:space="preserve">
+    <value>Dettagli</value>
+  </data>
+  <data name="QueueDetailsTip" xml:space="preserve">
+    <value>Somma SHA-256 di ogni file di questo trasferimento</value>
+  </data>
+  <data name="QueueStateVerified" xml:space="preserve">
+    <value>✓ completato · SHA-256 verificato ({0}/{1})</value>
+  </data>
+  <data name="QueueStateUnverified" xml:space="preserve">
+    <value>⚠ completato · non verificato: {0} su {1}</value>
+  </data>
+  <data name="FilesBadgeActive" xml:space="preserve">
+    <value>{0} trasferimento/i in corso o in attesa</value>
+  </data>
+  <data name="FilesBadgeProblem" xml:space="preserve">
+    <value>{0} trasferimento/i non riuscito/i o diverso/i: vedi la scheda File</value>
+  </data>
+  <data name="TailFilterActive" xml:space="preserve">
+    <value>Filtro: {0} / {1} righe visualizzate</value>
+  </data>
+  <data name="TailClearFieldTip" xml:space="preserve">
+    <value>Svuota questo campo</value>
+  </data>
+  <data name="CompareSameFile" xml:space="preserve">
+    <value>È lo stesso file sullo stesso server: scegli un altro server, un altro percorso o un file di questo computer.</value>
+  </data>
+  <data name="ParallelTypingHere" xml:space="preserve">
+    <value>⌨ Digitazione qui</value>
+  </data>
+  <data name="ParallelExcluded" xml:space="preserve">
+    <value>esclusa</value>
+  </data>
+  <data name="ParallelBroadcastOn" xml:space="preserve">
+    <value>ATTIVA ({0})</value>
   </data>
 </root>

@@ -4,9 +4,33 @@
              xmlns:loc="clr-namespace:CyberArkTerm.App.Localization"
              xmlns:term="clr-namespace:CyberArkTerm.App.Terminal">
     <Grid x:Name="RootGrid" Background="#0C0C0C">
-        <term:TerminalView x:Name="Terminal" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <!-- Fin de session : bandeau au-dessus du terminal, qui reste lisible, sélectionnable et copiable. -->
+        <Border x:Name="EndBanner" Grid.ColumnSpan="2" Background="{DynamicResource StatusBrush}" Padding="10,6" Visibility="Collapsed">
+            <DockPanel>
+                <Button x:Name="BannerReconnectButton" DockPanel.Dock="Right" Content="{x:Static loc:Strings.Reconnect}" Click="OnReconnect"
+                        VerticalAlignment="Center" Margin="12,0,0,0" />
+                <TextBlock x:Name="EndText" Foreground="{DynamicResource StatusForeground}" TextWrapping="Wrap" VerticalAlignment="Center"
+                           AutomationProperties.LiveSetting="Assertive" />
+            </DockPanel>
+        </Border>
+        <term:TerminalView Grid.Row="1" x:Name="Terminal" />
+        <!-- Historique : la barre montre où l'on est et permet d'y aller ; masquée sans historique. -->
+        <ScrollBar Grid.Row="1" Grid.Column="1" x:Name="HistoryBar" Orientation="Vertical" Width="14" Visibility="Collapsed"
+                   SmallChange="1" Scroll="OnHistoryScroll" AutomationProperties.Name="{x:Static loc:Strings.TerminalHistory}" />
+        <!-- Remonté dans l'historique : le dire, et y revenir d'un clic (ou en tapant). -->
+        <Button Grid.Row="1" x:Name="BottomButton" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,12,10"
+                Content="{x:Static loc:Strings.TerminalBackToBottom}" Click="OnBackToBottom" Visibility="Collapsed" Focusable="False"
+                Panel.ZIndex="1" />
         <!-- Recherche dans le terminal (Ctrl+Maj+F), historique compris. -->
-        <Border x:Name="SearchBar" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,22,0" Padding="6,4"
+        <Border x:Name="SearchBar" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,22,0" Padding="6,4"
                 Background="{DynamicResource CodeBrush}" BorderBrush="{DynamicResource MainTabBorderBrush}" BorderThickness="1" CornerRadius="3" Visibility="Collapsed" Panel.ZIndex="1">
             <StackPanel Orientation="Horizontal">
                 <TextBox x:Name="SearchBox" Width="200" VerticalAlignment="Center" KeyDown="OnSearchKeyDown" TextChanged="OnSearchChanged"
@@ -22,7 +46,8 @@
                         AutomationProperties.Name="{x:Static loc:Strings.TerminalSearchCloseTip}" />
             </StackPanel>
         </Border>
-        <Border x:Name="Overlay" Background="#D80C0C0C" Visibility="Collapsed">
+        <!-- Pendant la connexion, ou si la session n'a jamais pu s'ouvrir : voile plein (rien à lire dessous). -->
+        <Border x:Name="Overlay" Grid.RowSpan="2" Grid.ColumnSpan="2" Background="#D80C0C0C" Visibility="Collapsed">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="560">
                 <Image Source="{StaticResource IconSsh}" Width="44" Height="44" Margin="0,0,0,12" />
                 <TextBlock x:Name="OverlayText" Foreground="White" FontSize="15" TextAlignment="Center" TextWrapping="Wrap" />

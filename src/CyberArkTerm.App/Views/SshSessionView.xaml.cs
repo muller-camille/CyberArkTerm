@@ -25,6 +25,7 @@ public partial class SshSessionView : UserControl
         session.ScreenUpdated += Terminal.Refresh;
         session.StateChanged += UpdateOverlay;
         UpdateOverlay();
+        Terminal.ScrollStateChanged += UpdateHistoryBar;
         Terminal.SearchRequested += ShowSearch;
         Terminal.SaveRequested += SaveContent;
         Terminal.ScrollbackCleared += () =>
@@ -249,27 +250,71 @@ public partial class SshSessionView : UserControl
         }
     }
 
+    // La session a été ouverte au moins une fois : à sa fin, le terminal garde son contenu, lisible sous un bandeau.
+    private bool _wasConnected;
+
     private void UpdateOverlay()
     {
         switch (Session.State)
         {
             case RemoteSessionState.Connected:
-                Overlay.Visibility = Visibility.Collapsed;
+                _wasConnected = true;
+                Overlay.Visibility = EndBanner.Visibility = Visibility.Collapsed;
                 break;
             case RemoteSessionState.Connecting:
+                EndBanner.Visibility = Visibility.Collapsed;
                 Overlay.Visibility = Visibility.Visible;
                 OverlayText.Text = _connectingText;
                 OverlayDetail.Text = Target;
                 ReconnectButton.Visibility = Visibility.Collapsed;
                 break;
             default:
-                Overlay.Visibility = Visibility.Visible;
-                OverlayText.Text = Session.State == RemoteSessionState.Failed ? Strings.ConnectionImpossible : Strings.SessionEnded;
-                OverlayDetail.Text = Session.Error ?? "";
-                ReconnectButton.Visibility = Visibility.Visible;
+                var title = Session.State == RemoteSessionState.Failed ? Strings.ConnectionImpossible : Strings.SessionEnded;
+                if (_wasConnected)
+                {
+                    // Non bloquant : les dernières lignes (message d'erreur du serveur…) restent lisibles et copiables.
+                    Overlay.Visibility = Visibility.Collapsed;
+                    EndBanner.Visibility = Visibility.Visible;
+                    EndText.Text = string.IsNullOrEmpty(Session.Error) ? title : Text.Format(Strings.SessionEndedWith, title, Session.Error);
+                }
+                else
+                {
+                    Overlay.Visibility = Visibility.Visible;
+                    OverlayText.Text = title;
+                    OverlayDetail.Text = Session.Error ?? "";
+                    ReconnectButton.Visibility = Visibility.Visible;
+                }
+
                 break;
         }
     }
 
     private async void OnReconnect(object sender, RoutedEventArgs e) => await ConnectAsync();
+
+    /// <summary>
+    /// Barre de l'historique : du plus ancien (en haut) à la fin (en bas), la partie visible à la taille de l'écran ;
+    /// « Revenir en bas » quand on lit l'historique pendant que la sortie continue.
+    /// </summary>
+    private void UpdateHistoryBar()
+    {
+        var (scrollback, offset, rows) = Terminal.ScrollState;
+        HistoryBar.Visibility = scrollback > 0 ? Visibility.Visible : Visibility.Collapsed;
+        HistoryBar.Maximum = scrollback;
+        HistoryBar.ViewportSize = Math.Max(1, rows);
+        HistoryBar.LargeChange = Math.Max(1, rows - 1);
+        HistoryBar.Value = scrollback - offset;
+        BottomButton.Visibility = offset > 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void OnHistoryScroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
+    {
+        var (scrollback, _, _) = Terminal.ScrollState;
+        Terminal.ScrollTo(scrollback - (int)Math.Round(HistoryBar.Value));
+    }
+
+    private void OnBackToBottom(object sender, RoutedEventArgs e)
+    {
+        Terminal.ScrollTo(0);
+        FocusTerminal();
+    }
 }

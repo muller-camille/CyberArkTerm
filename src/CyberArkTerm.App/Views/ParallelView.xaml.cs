@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -283,6 +284,19 @@ public partial class ParallelView : UserControl
         TitleText.Text = Text.Format(Strings.ParallelHeading, _panes.Count, ParallelLayout.MaxSessions);
         var receiving = _panes.Where(p => p.Included && IsConnected(p.View.Session)).ToList();
         BroadcastBanner.Visibility = Broadcast ? Visibility.Visible : Visibility.Collapsed;
+        BroadcastState.Visibility = Broadcast ? Visibility.Visible : Visibility.Collapsed;
+        BroadcastState.Text = Text.Format(Strings.ParallelBroadcastOn, receiving.Count);
+        if (Broadcast)
+        {
+            BroadcastFace.SetResourceReference(Border.BackgroundProperty, "BroadcastBrush");
+            BroadcastFace.SetResourceReference(TextElement.ForegroundProperty, "BroadcastForeground");
+        }
+        else
+        {
+            BroadcastFace.ClearValue(Border.BackgroundProperty);
+            BroadcastFace.ClearValue(TextElement.ForegroundProperty);
+        }
+
         BroadcastText.Text = Text.Format(Strings.ParallelBroadcastBanner, receiving.Count,
             string.Join(", ", receiving.Select(p => p.View.Session.Label)));
         if (_zoomed is not null && receiving.Count(p => !ReferenceEquals(p, _zoomed)) is var hidden and > 0)
@@ -305,7 +319,11 @@ public partial class ParallelView : UserControl
         private readonly ParallelView _owner;
         private readonly DockPanel _dock = new();
         private readonly Border _header = new() { Padding = new Thickness(6, 2, 2, 2) };
-        private readonly Ellipse _state = new() { Width = 8, Height = 8, Margin = new Thickness(0, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center };
+        private readonly Ellipse _state = new() { Width = 8, Height = 8, StrokeThickness = 1.5, Margin = new Thickness(0, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center };
+
+        /// <summary>« Saisie ici » sur la session où l'on tape, « exclue » sur celles qui ne reçoivent pas la saisie simultanée.</summary>
+        private readonly TextBlock _mark = new() { FontSize = 11, Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+        private readonly TextBlock _title;
         private readonly ToggleButton _zoom;
 
         public Pane(ParallelView owner, SshSessionView view)
@@ -348,7 +366,7 @@ public partial class ParallelView : UserControl
             System.Windows.Automation.AutomationProperties.SetName(remove, $"{Strings.ParallelRemoveTip} {view.Session.Label}");
             remove.Click += (_, _) => owner.RemoveRequested?.Invoke(View.Session);
 
-            var title = new TextBlock
+            var title = _title = new TextBlock
             {
                 Text = view.Session.Label,
                 Foreground = Brushes.White,
@@ -358,8 +376,9 @@ public partial class ParallelView : UserControl
             };
             var buttons = new StackPanel { Orientation = Orientation.Horizontal, Children = { IncludeBox, _zoom, remove } };
             DockPanel.SetDock(buttons, Dock.Right);
-            _header.Child = new DockPanel { Children = { buttons, _state, title } };
+            _header.Child = new DockPanel { Children = { buttons, _state, _mark, title } };
             DockPanel.SetDock(_state, Dock.Left);
+            DockPanel.SetDock(_mark, Dock.Right);
             DockPanel.SetDock(_header, Dock.Top);
             _header.MouseLeftButtonDown += (_, e) =>
             {
@@ -394,12 +413,14 @@ public partial class ParallelView : UserControl
         public void OnStateChanged()
         {
             var state = View.Session.State;
-            _state.Fill = state switch
+            // La forme porte aussi l'état : anneau pendant la connexion, pastille pleine ensuite.
+            _state.Stroke = state switch
             {
                 RemoteSessionState.Connected => Connected,
                 RemoteSessionState.Connecting => Connecting,
                 _ => Closed,
             };
+            _state.Fill = state == RemoteSessionState.Connecting ? Brushes.Transparent : _state.Stroke;
             _state.ToolTip = state switch
             {
                 RemoteSessionState.Connected => Strings.ParallelStateConnected,
@@ -416,8 +437,28 @@ public partial class ParallelView : UserControl
         {
             IncludeBox.Visibility = broadcast ? Visibility.Visible : Visibility.Collapsed;
             _zoom.IsChecked = zoomed;
+            bool excluded = broadcast && !Included;
             BorderBrush = broadcast && Included ? IncludedBorder : active ? ActiveBorder : IdleBorder;
+            // Session où l'on tape : cadre plus épais (la place occupée ne change pas) et « Saisie ici ».
+            BorderThickness = new Thickness(active ? 4 : 2);
+            Margin = new Thickness(active ? 0 : 2);
             _header.Background = active ? ActiveHeader : IdleHeader;
+            // Exclue de la saisie simultanée : en-tête atténué, et dit.
+            _title.Opacity = _state.Opacity = excluded ? 0.6 : 1;
+            var marks = new List<string>(2);
+            if (active)
+            {
+                marks.Add(Strings.ParallelTypingHere);
+            }
+
+            if (excluded)
+            {
+                marks.Add(Strings.ParallelExcluded);
+            }
+
+            _mark.Text = string.Join(" · ", marks);
+            _mark.Foreground = active && broadcast && Included ? IncludedBorder : excluded && !active ? Brushes.Silver : Brushes.White;
+            _mark.Visibility = marks.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
         protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e)

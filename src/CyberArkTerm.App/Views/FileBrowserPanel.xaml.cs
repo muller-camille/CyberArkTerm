@@ -28,6 +28,8 @@ public partial class FileBrowserPanel : UserControl
     {
         InitializeComponent();
         InitializeQueue();
+        FileList.SelectionChanged += (_, _) => UpdateSelectionButtons();
+        FileList.SizeChanged += (_, _) => FitNameColumn();
         ShowMessage(Strings.NoSshSessionHelp, retry: false);
         HeaderText.Text = Strings.NoSshSession;
         UpdateToolbar();
@@ -316,6 +318,33 @@ public partial class FileBrowserPanel : UserControl
         }
     }
 
+    /// <summary>Largeur de la colonne « Droits » quand elle est affichée.</summary>
+    private double _permissionsWidth = 84;
+
+    /// <summary>
+    /// Colonne « Nom » élastique : elle prend la largeur laissée par les autres colonnes (panneau élargi ou rétréci).
+    /// Panneau trop étroit : la colonne « Droits » est masquée (elle revient en élargissant) plutôt que coupée.
+    /// </summary>
+    private void FitNameColumn()
+    {
+        const double MinName = 130;
+        if (PermissionsColumn.ActualWidth > 0)
+        {
+            _permissionsWidth = PermissionsColumn.ActualWidth;
+        }
+
+        double available = FileList.ActualWidth - SystemParameters.VerticalScrollBarWidth - 8;
+        double fixedWidth = SizeColumn.ActualWidth + ModifiedColumn.ActualWidth;
+        if (available <= 0)
+        {
+            return;
+        }
+
+        bool permissions = available - fixedWidth - _permissionsWidth >= MinName;
+        PermissionsColumn.Width = permissions ? _permissionsWidth : 0;
+        NameColumn.Width = Math.Max(MinName, available - fixedWidth - (permissions ? _permissionsWidth : 0));
+    }
+
     // ===================== Tri (clic sur un en-tête de colonne) =====================
 
     /// <summary>
@@ -506,6 +535,10 @@ public partial class FileBrowserPanel : UserControl
                 OnEdit(sender, e);
                 e.Handled = true;
                 break;
+            case Key.F2:
+                _ = RenameAsync();
+                e.Handled = true;
+                break;
             case Key.Back:
                 OnParent(sender, e);
                 e.Handled = true;
@@ -540,8 +573,8 @@ public partial class FileBrowserPanel : UserControl
                 "open" => selected.Count == 1,
                 "edit" => selected is [{ IsDirectory: false }],
                 "tail" => files,
-                "download" => selected.Count > 0 && selected.All(s => !s.IsDirectory),
-                "delete" or "copy" or "chmod" => selected.Count > 0,
+                "rename" => selected.Count == 1,
+                "download" or "delete" or "copy" or "chmod" => selected.Count > 0,
                 _ => _browser is not null,
             };
         }
@@ -578,7 +611,7 @@ public partial class FileBrowserPanel : UserControl
         }
 
         var dialog = new InputDialog(Strings.NewFolder, Text.Format(Strings.NewRemoteFolderPrompt, browser.CurrentDirectory),
-            validate: v => v.Contains('/') ? Strings.NameNoSlash : null) { Owner = Window.GetWindow(this) };
+            validate: ValidateName) { Owner = Window.GetWindow(this) };
         if (dialog.ShowDialog() != true)
         {
             return;
@@ -602,6 +635,69 @@ public partial class FileBrowserPanel : UserControl
     }
 
     private void OnDelete(object sender, RoutedEventArgs e) => _ = DeleteAsync();
+
+    private void OnRename(object sender, RoutedEventArgs e) => _ = RenameAsync();
+
+    /// <summary>
+    /// Renomme l'élément choisi dans son dossier (F2). Le nouveau nom ne remplace jamais un élément existant : le
+    /// serveur n'est pas interrogé si le nom est pris.
+    /// </summary>
+    private async Task RenameAsync()
+    {
+        var browser = _browser;
+        int generation = _generation;
+        if (browser is null || _busy > 0 || SelectedEntries() is not [var entry])
+        {
+            return;
+        }
+
+        var directory = RemotePath.Parent(entry.FullPath);
+        var dialog = new InputDialog(Strings.RenameTitle,
+            Text.Format(Strings.RenamePrompt, entry.Name, Text.Format(Strings.ServerPath, _session?.Label ?? "", directory)),
+            entry.Name, ValidateName) { Owner = Window.GetWindow(this) };
+        if (dialog.ShowDialog() != true || dialog.Value == entry.Name || !StillShowing(browser, generation))
+        {
+            return;
+        }
+
+        var target = RemotePath.Combine(directory, dialog.Value);
+        Interlocked.Increment(ref _busy);
+        try
+        {
+            await browser.RenameAsync(entry.FullPath, target, CancellationToken.None);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            if (StillShowing(browser, generation))
+            {
+                SetStatus(Text.Format(Strings.RenameFailed, Describe(ex)), error: true);
+            }
+
+            return;
+        }
+        finally
+        {
+            Interlocked.Decrement(ref _busy);
+        }
+
+        if (StillShowing(browser, generation) && await NavigateAsync(browser.CurrentDirectory))
+        {
+            if (FileList.ItemsSource is IEnumerable<RemoteEntry> shown && shown.FirstOrDefault(e => e.FullPath == target) is { } renamed)
+            {
+                FileList.SelectedItem = renamed;
+                FileList.ScrollIntoView(renamed);
+            }
+
+            SetStatus(Text.Format(Strings.Renamed, entry.Name, dialog.Value));
+        }
+    }
+
+    /// <summary>Nom d'un élément dans un dossier du serveur : ni « / », ni caractère de contrôle, ni « . » ou « .. ».</summary>
+    internal static string? ValidateName(string name) =>
+        name.Contains('/') ? Strings.NameNoSlash
+        : name.Any(char.IsControl) ? Strings.NameNoControl
+        : name is "." or ".." ? Strings.NameReserved
+        : null;
 
     /// <summary>Le contenu d'un dossier du serveur a changé (fichier renvoyé depuis l'éditeur) : actualisation s'il est affiché.</summary>
     public void OnRemoteChanged(RemoteSession session, string directory)
@@ -876,11 +972,22 @@ public partial class FileBrowserPanel : UserControl
 
     // ===================== Envoi (glisser-déposer) et téléchargement =====================
 
+    /// <summary>Ligne de dossier survolée pendant un dépôt : les fichiers iront dans ce dossier.</summary>
+    private ListViewItem? _dropRow;
+
     private void OnDragEnter(object sender, DragEventArgs e)
     {
         bool ok = _browser is not null && e.Data.GetDataPresent(DataFormats.FileDrop);
         e.Effects = ok ? DragDropEffects.Copy : DragDropEffects.None;
-        if (ok)
+        var row = ok ? FolderRowAt(e) : null;
+        SetDropRow(row);
+        if (ok && row?.DataContext is RemoteEntry folder)
+        {
+            // Sur un dossier : la ligne en surbrillance, la destination dans la barre d'état (le voile cacherait la ligne).
+            DropHint.Visibility = Visibility.Collapsed;
+            SetStatus(Text.Format(Strings.DropIntoFolder, Text.Format(Strings.ServerPath, _session?.Label ?? "", folder.FullPath)));
+        }
+        else if (ok)
         {
             DropHintText.Text = Text.Format(_queue.ActiveCount > 0 ? Strings.DropHintQueued : Strings.DropHint, Protocol,
                 Text.Format(Strings.ServerPath, _session?.Label ?? "", _browser!.CurrentDirectory));
@@ -890,15 +997,47 @@ public partial class FileBrowserPanel : UserControl
         e.Handled = true;
     }
 
-    private void OnDragLeave(object sender, DragEventArgs e) => DropHint.Visibility = Visibility.Collapsed;
+    private void OnDragLeave(object sender, DragEventArgs e)
+    {
+        DropHint.Visibility = Visibility.Collapsed;
+        SetDropRow(null);
+    }
 
     private void OnDrop(object sender, DragEventArgs e)
     {
         DropHint.Visibility = Visibility.Collapsed;
+        var target = (FolderRowAt(e)?.DataContext as RemoteEntry)?.FullPath;
+        SetDropRow(null);
         if (e.Data.GetData(DataFormats.FileDrop) is string[] paths && paths.Length > 0)
         {
-            _ = EnqueueUploadAsync(paths);
+            _ = EnqueueUploadAsync(paths, target);
         }
+    }
+
+    /// <summary>Ligne de dossier sous le pointeur (dossier parent compris), ou null.</summary>
+    private ListViewItem? FolderRowAt(DragEventArgs e)
+    {
+        DependencyObject? node = FileList.InputHitTest(e.GetPosition(FileList)) as DependencyObject;
+        while (node is not null and not ListViewItem && !ReferenceEquals(node, FileList))
+        {
+            node = node is System.Windows.Media.Visual or System.Windows.Media.Media3D.Visual3D
+                ? System.Windows.Media.VisualTreeHelper.GetParent(node)
+                : LogicalTreeHelper.GetParent(node);
+        }
+
+        return node is ListViewItem { DataContext: RemoteEntry { IsDirectory: true } } row ? row : null;
+    }
+
+    private void SetDropRow(ListViewItem? row)
+    {
+        if (ReferenceEquals(row, _dropRow))
+        {
+            return;
+        }
+
+        _dropRow?.ClearValue(TagProperty);
+        _dropRow = row;
+        row?.SetValue(TagProperty, "drop");
     }
 
     private void OnUploadDialog(object sender, RoutedEventArgs e)
@@ -921,8 +1060,17 @@ public partial class FileBrowserPanel : UserControl
     private string ProtocolOf(IRemoteFiles? browser) =>
         browser is { ChoosesUploadProtocol: false } ? browser.UploadProtocol.Label() : _settings.PreferredUploadProtocol.Label();
 
-    private void OnDownload(object sender, RoutedEventArgs e) =>
-        RequestDownload(SelectedEntries().Where(s => !s.IsDirectory).ToList());
+    /// <summary>Télécharge les fichiers choisis ; un dossier se télécharge en le glissant vers l'Explorateur (c'est dit).</summary>
+    private void OnDownload(object sender, RoutedEventArgs e)
+    {
+        var selected = SelectedEntries();
+        if (selected.Any(s => s.IsDirectory))
+        {
+            SetStatus(Strings.DownloadFolderHint);
+        }
+
+        RequestDownload(selected.Where(s => !s.IsDirectory).ToList());
+    }
 
     /// <summary>Demande où enregistrer, puis met le téléchargement en file.</summary>
     private void RequestDownload(IReadOnlyList<RemoteEntry> files)
@@ -1054,5 +1202,24 @@ public partial class FileBrowserPanel : UserControl
         Toolbar.IsEnabled = ready;
         PathBox.IsEnabled = ready;
         HiddenBox.IsEnabled = ready;
+        UpdateSelectionButtons();
+    }
+
+    /// <summary>Boutons qui agissent sur la sélection : grisés comme dans le menu, l'infobulle dit ce qu'il faut choisir.</summary>
+    private void UpdateSelectionButtons()
+    {
+        var selected = SelectedEntries();
+        string? any = selected.Count > 0 ? null : Strings.FileNeedSelection;
+        Enable(DownloadButton, Strings.DownloadTip, any);
+        Enable(EditButton, Strings.EditTip, selected is [{ IsDirectory: false }] ? null : Strings.FileNeedOneFile);
+        Enable(RenameButton, Strings.RenameTip, selected.Count == 1 ? null : selected.Count == 0 ? Strings.FileNeedSelection : Strings.FileNeedOne);
+        Enable(PermissionsButton, Strings.PermissionsTip, any);
+        Enable(DeleteButton, Strings.DeleteTip, any);
+
+        static void Enable(Button button, string tip, string? missing)
+        {
+            button.IsEnabled = missing is null;
+            button.ToolTip = missing is null ? tip : tip + "\n" + missing;
+        }
     }
 }
