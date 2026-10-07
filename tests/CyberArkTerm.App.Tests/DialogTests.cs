@@ -856,6 +856,51 @@ public sealed class DialogTests
     }
 
     /// <summary>
+    /// Composant par plateforme : modifiable dans les Paramètres (modifier, ajouter, enlever) ; lignes vides ignorées,
+    /// composant invalide et plateforme en double refusés.
+    /// </summary>
+    [Fact]
+    public void SettingsEditComponentPerPlatform()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var settings = new AppSettings();
+            settings.RememberComponent("WinDomain", "PSM-RDP");
+            settings.RememberComponent("UnixSSH", "PSM-SSH");
+            var dialog = new SettingsDialog(settings);
+            Assert.Equal(["UnixSSH", "WinDomain"], dialog.ComponentRows.Select(r => r.Platform));
+
+            dialog.ComponentRows[1].Component = "WIN-PSM";
+            dialog.ComponentRows.RemoveAt(0);
+            dialog.ComponentRows.Add(new SettingsDialog.ComponentRow { Platform = " WinServerLocal ", Component = "WIN-PSM-T1" });
+            dialog.ComponentRows.Add(new SettingsDialog.ComponentRow());
+            var saved = dialog.ReadComponents();
+            Assert.NotNull(saved);
+            Assert.Equal(new Dictionary<string, string> { ["WinDomain"] = "WIN-PSM", ["WinServerLocal"] = "WIN-PSM-T1" }, saved);
+
+            dialog.ComponentRows[1].Component = "WIN PSM";
+            Assert.Null(dialog.ReadComponents());
+            Assert.Equal(Text.Format(Strings.InvalidComponentRow, 2), dialog.ErrorText.Text);
+
+            dialog.ComponentRows[1].Component = "WIN-PSM-T1";
+            dialog.ComponentRows[1].Platform = "windomain";
+            Assert.Null(dialog.ReadComponents());
+            Assert.Equal(Text.Format(Strings.ComponentDuplicatePlatform, "windomain"), dialog.ErrorText.Text);
+
+            dialog.ComponentRows[2].Component = "PSM-SSH";
+            dialog.ComponentRows[1].Platform = "UnixSSH";
+            Assert.Null(dialog.ReadComponents());
+            Assert.Equal(Text.Format(Strings.ComponentRowPlatformMissing, 3), dialog.ErrorText.Text);
+            dialog.Close();
+        });
+    }
+
+    /// <summary>
     /// Compte de domaine : la fenêtre « Choisir le serveur » propose les serveurs déjà utilisés, cache « Garder dans Mes
     /// serveurs » pour un serveur déjà gardé, refuse un serveur hors des machines autorisées ; à l'ajout, le serveur est
     /// facultatif.

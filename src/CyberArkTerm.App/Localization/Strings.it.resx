@@ -506,20 +506,8 @@
   <data name="ComponentsSection" xml:space="preserve">
     <value>Componenti PSM</value>
   </data>
-  <data name="Forget" xml:space="preserve">
-    <value>_Dimentica</value>
-  </data>
   <data name="NoHostKeys" xml:space="preserve">
     <value>Nessuna chiave di server memorizzata.</value>
-  </data>
-  <data name="NoComponents" xml:space="preserve">
-    <value>Nessuno: il componente è dedotto dalla piattaforma (quello degli account Windows qui sopra, PSM-SSH per Unix...).</value>
-  </data>
-  <data name="ComponentEntry" xml:space="preserve">
-    <value>{0}: {1}</value>
-  </data>
-  <data name="ComponentsForgotten" xml:space="preserve">
-    <value>Verranno dimenticati al salvataggio.</value>
   </data>
   <data name="HostKeysForgotten" xml:space="preserve">
     <value>Verranno dimenticate al salvataggio: l'impronta sarà richiesta di nuovo alla prossima connessione.</value>
@@ -4349,9 +4337,6 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   <data name="WindowsComponentHelp" xml:space="preserve">
     <value>Per gli account Windows (di dominio o locali) senza componente memorizzato per la loro piattaforma, ad esempio WIN-PSM. Vuoto: PSM-RDP.</value>
   </data>
-  <data name="RememberedComponentsLabel" xml:space="preserve">
-    <value>Memorizzati per piattaforma:</value>
-  </data>
   <data name="InvalidComponentName" xml:space="preserve">
     <value>Componente PSM non valido: solo lettere, cifre, «-», «_» e «.» (ad esempio WIN-PSM).</value>
   </data>
@@ -4513,5 +4498,32 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   </data>
   <data name="EnvLineChange" xml:space="preserve">
     <value>{0}: {1} → {2}</value>
+  </data>
+  <data name="PlatformComponentsSection" xml:space="preserve">
+    <value>Componente per piattaforma</value>
+  </data>
+  <data name="PlatformComponentsHelp" xml:space="preserve">
+    <value>Per gli account di una piattaforma (ID della piattaforma nel PVWA, ad esempio WinDomain o UnixSSH); ha la precedenza sul componente degli account Windows qui sopra. Una riga si aggiunge anche con «Memorizza questo componente per la piattaforma…» nella finestra di connessione.</value>
+  </data>
+  <data name="ComponentColumnPlatform" xml:space="preserve">
+    <value>Piattaforma (ID)</value>
+  </data>
+  <data name="ComponentColumnComponent" xml:space="preserve">
+    <value>Componente PSM</value>
+  </data>
+  <data name="ComponentAdd" xml:space="preserve">
+    <value>Aggiungi un componente</value>
+  </data>
+  <data name="ComponentRemove" xml:space="preserve">
+    <value>Rimuovi la riga</value>
+  </data>
+  <data name="ComponentRowPlatformMissing" xml:space="preserve">
+    <value>Riga {0} dei componenti: inserisci l'ID della piattaforma.</value>
+  </data>
+  <data name="InvalidComponentRow" xml:space="preserve">
+    <value>Componente PSM non valido (riga {0}): solo lettere, cifre, «-», «_» e «.».</value>
+  </data>
+  <data name="ComponentDuplicatePlatform" xml:space="preserve">
+    <value>Due componenti per la piattaforma {0}: tieni una sola riga.</value>
   </data>
 </root>

@@ -506,20 +506,8 @@
   <data name="ComponentsSection" xml:space="preserve">
     <value>PSM components</value>
   </data>
-  <data name="Forget" xml:space="preserve">
-    <value>F_orget</value>
-  </data>
   <data name="NoHostKeys" xml:space="preserve">
     <value>No server key remembered.</value>
-  </data>
-  <data name="NoComponents" xml:space="preserve">
-    <value>None: the component is deduced from the platform (the Windows accounts one above, PSM-SSH for Unix...).</value>
-  </data>
-  <data name="ComponentEntry" xml:space="preserve">
-    <value>{0}: {1}</value>
-  </data>
-  <data name="ComponentsForgotten" xml:space="preserve">
-    <value>Will be forgotten when you save.</value>
   </data>
   <data name="HostKeysForgotten" xml:space="preserve">
     <value>Will be forgotten when you save: the fingerprint will be asked again at the next connection.</value>
@@ -4349,9 +4337,6 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="WindowsComponentHelp" xml:space="preserve">
     <value>For Windows accounts (domain or local) when no component is remembered for their platform, for example WIN-PSM. Empty: PSM-RDP.</value>
   </data>
-  <data name="RememberedComponentsLabel" xml:space="preserve">
-    <value>Remembered per platform:</value>
-  </data>
   <data name="InvalidComponentName" xml:space="preserve">
     <value>Invalid PSM component: letters, digits, “-”, “_” and “.” only (for example WIN-PSM).</value>
   </data>
@@ -4513,5 +4498,32 @@ Two instances would overwrite each other's settings, local vault and files being
   </data>
   <data name="EnvLineChange" xml:space="preserve">
     <value>{0}: {1} → {2}</value>
+  </data>
+  <data name="PlatformComponentsSection" xml:space="preserve">
+    <value>Component per platform</value>
+  </data>
+  <data name="PlatformComponentsHelp" xml:space="preserve">
+    <value>For the accounts of a platform (platform ID in the PVWA, for example WinDomain or UnixSSH); takes precedence over the Windows accounts component above. A line is also added by “Remember this component for platform…” in the connection window.</value>
+  </data>
+  <data name="ComponentColumnPlatform" xml:space="preserve">
+    <value>Platform (ID)</value>
+  </data>
+  <data name="ComponentColumnComponent" xml:space="preserve">
+    <value>PSM component</value>
+  </data>
+  <data name="ComponentAdd" xml:space="preserve">
+    <value>Add a component</value>
+  </data>
+  <data name="ComponentRemove" xml:space="preserve">
+    <value>Remove the line</value>
+  </data>
+  <data name="ComponentRowPlatformMissing" xml:space="preserve">
+    <value>Line {0} of the components: enter the platform ID.</value>
+  </data>
+  <data name="InvalidComponentRow" xml:space="preserve">
+    <value>Invalid PSM component (line {0}): letters, digits, “-”, “_” and “.” only.</value>
+  </data>
+  <data name="ComponentDuplicatePlatform" xml:space="preserve">
+    <value>Two components for platform {0}: keep only one line.</value>
   </data>
 </root>

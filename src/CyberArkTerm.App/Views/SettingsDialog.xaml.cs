@@ -19,7 +19,7 @@ public partial class SettingsDialog : Window
     private readonly LocalSecretStore? _store;
     private readonly HashSet<string> _forgottenKeys = new(StringComparer.Ordinal);
     private readonly ObservableCollection<PsmpRow> _psmpRows = [];
-    private bool _forgetComponents;
+    private readonly ObservableCollection<ComponentRow> _componentRows = [];
 
     /// <param name="store">Coffre local des mots de passe maîtres KeePass, géré depuis cette fenêtre.</param>
     public SettingsDialog(AppSettings settings, LocalSecretStore? store = null)
@@ -65,10 +65,12 @@ public partial class SettingsDialog : Window
         ShowHostKeys();
         WindowsComponentBox.ItemsSource = AccountClassifier.CommonComponents;
         WindowsComponentBox.Text = settings.WindowsComponent;
-        ComponentsText.Text = settings.ComponentByPlatform.Count == 0
-            ? Strings.NoComponents
-            : string.Join(", ", settings.ComponentByPlatform.Select(kv => Text.Format(Strings.ComponentEntry, kv.Key, kv.Value)));
-        ForgetComponentsButton.IsEnabled = settings.ComponentByPlatform.Count > 0;
+        foreach (var (platform, component) in settings.ComponentByPlatform.OrderBy(kv => kv.Key, StringComparer.OrdinalIgnoreCase))
+        {
+            _componentRows.Add(new ComponentRow { Platform = platform, Component = component });
+        }
+
+        ComponentGrid.ItemsSource = _componentRows;
         Loaded += (_, _) => LanguageBox.Focus();
     }
 
@@ -115,13 +117,6 @@ public partial class SettingsDialog : Window
         MaxHeight = target.TransformFromDevice.Transform(new Point(0, area.Height)).Y;
     }
 
-    private void OnForgetComponents(object sender, RoutedEventArgs e)
-    {
-        _forgetComponents = true;
-        ComponentsText.Text = Strings.ComponentsForgotten;
-        ForgetComponentsButton.IsEnabled = false;
-    }
-
     /// <summary>Clés choisies retirées de la liste ; elles sont oubliées à l'enregistrement (« Annuler » les garde).</summary>
     private void OnForgetHostKeys(object sender, RoutedEventArgs e) => ForgetSelectedKeys();
 
@@ -147,6 +142,7 @@ public partial class SettingsDialog : Window
     private void OnSave(object sender, RoutedEventArgs e)
     {
         PsmpGrid.CommitEdit(DataGridEditingUnit.Row, true);
+        ComponentGrid.CommitEdit(DataGridEditingUnit.Row, true);
         var host = PsmpBox.Text.Trim();
         if (host.Length > 0 && Uri.CheckHostName(host) == UriHostNameType.Unknown)
         {
@@ -176,6 +172,11 @@ public partial class SettingsDialog : Window
         if (windowsComponent.Length > 0 && !AppSettings.IsValidComponentName(windowsComponent))
         {
             ShowError(Strings.InvalidComponentName, WindowsComponentBox);
+            return;
+        }
+
+        if (ReadComponents() is not { } componentByPlatform)
+        {
             return;
         }
 
@@ -228,10 +229,7 @@ public partial class SettingsDialog : Window
         _settings.ConfirmCloseSession = ConfirmCloseBox.IsChecked == true;
         _settings.CompareToolArguments = compareArgs;
         ApplyForgottenKeys();
-        if (_forgetComponents)
-        {
-            _settings.ComponentByPlatform.Clear();
-        }
+        _settings.ComponentByPlatform = componentByPlatform;
 
         DialogResult = true;
     }
@@ -473,6 +471,90 @@ public partial class SettingsDialog : Window
         }
 
         return servers;
+    }
+
+    // ===================== Composant par plateforme =====================
+
+    /// <summary>Ligne du tableau des composants : ID de plateforme du PVWA (WinDomain, UnixSSH…) et composant PSM.</summary>
+    internal sealed class ComponentRow
+    {
+        public string Platform { get; set; } = "";
+
+        public string Component { get; set; } = "";
+    }
+
+    internal IList<ComponentRow> ComponentRows => _componentRows;
+
+    /// <summary>Nouvelle ligne, prête à la saisie de la plateforme.</summary>
+    private void OnAddComponent(object sender, RoutedEventArgs e)
+    {
+        ComponentGrid.CommitEdit(DataGridEditingUnit.Row, true);
+        var row = new ComponentRow();
+        _componentRows.Add(row);
+        ComponentGrid.SelectedItem = row;
+        ComponentGrid.ScrollIntoView(row);
+        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Input, () =>
+        {
+            ComponentGrid.CurrentCell = new DataGridCellInfo(row, ComponentGrid.Columns[0]);
+            ComponentGrid.Focus();
+            ComponentGrid.BeginEdit();
+        });
+    }
+
+    private void OnRemoveComponent(object sender, RoutedEventArgs e)
+    {
+        if (ComponentGrid.SelectedItem is ComponentRow row)
+        {
+            ComponentGrid.CancelEdit(DataGridEditingUnit.Row);
+            _componentRows.Remove(row);
+        }
+    }
+
+    private void OnComponentSelected(object sender, SelectionChangedEventArgs e) =>
+        RemoveComponentButton.IsEnabled = ComponentGrid.SelectedItem is ComponentRow;
+
+    /// <summary>
+    /// Composants du tableau, vérifiés (lignes vides ignorées) ; null après avoir montré la première erreur. Une plateforme
+    /// en double est refusée : une seule ligne servirait.
+    /// </summary>
+    internal Dictionary<string, string>? ReadComponents()
+    {
+        var components = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < _componentRows.Count; i++)
+        {
+            var row = _componentRows[i];
+            var platform = (row.Platform ?? "").Trim();
+            var component = (row.Component ?? "").Trim();
+            if (platform.Length == 0 && component.Length == 0)
+            {
+                continue;
+            }
+
+            int line = i + 1;
+            string? error = null;
+            if (platform.Length is 0 or > 100 || platform.Any(char.IsControl))
+            {
+                error = Text.Format(Strings.ComponentRowPlatformMissing, line);
+            }
+            else if (!AppSettings.IsValidComponentName(component))
+            {
+                error = Text.Format(Strings.InvalidComponentRow, line);
+            }
+            else if (!components.TryAdd(platform, component))
+            {
+                error = Text.Format(Strings.ComponentDuplicatePlatform, platform);
+            }
+
+            if (error is not null)
+            {
+                ComponentGrid.SelectedItem = row;
+                ComponentGrid.ScrollIntoView(row);
+                ShowError(error, ComponentGrid);
+                return null;
+            }
+        }
+
+        return new Dictionary<string, string>(components, StringComparer.Ordinal);
     }
 
     private void ShowError(string message, System.Windows.Controls.Control field)

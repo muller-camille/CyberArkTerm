@@ -139,7 +139,8 @@ componente che apre un'applicazione remota (RemoteApp) apre le sue finestre sul 
   piattaforma. Il tuo PVWA può chiamare i suoi componenti in un altro modo (ad esempio `WIN-PSM`): inserisci il nome
   proposto dal suo pulsante «Connect»; l'elenco propone poi i componenti già usati, quello della piattaforma per
   primo. Per tutti i tuoi account Windows, imposta una volta il componente in **Impostazioni › CyberArk** («Account
-  Windows», ad esempio `WIN-PSM`); un componente memorizzato per una piattaforma resta prioritario.
+  Windows», ad esempio `WIN-PSM`); un componente memorizzato per una piattaforma resta prioritario. I componenti per
+  piattaforma si vedono e si modificano nello stesso punto («Componente per piattaforma»).
 - **Account di dominio**: un account registrato per il suo dominio non ha un server. Viene riconosciuto dalla
   piattaforma di dominio, dalle macchine autorizzate o dall'indirizzo: il dominio di accesso, un dominio sotto cui si
   trovano altri server (`corp.local` quando un account punta a `srv01.corp.local`), o il dominio del PVWA o della
@@ -654,7 +655,7 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 | CyberArk | PSMP predefinito, porta | Server PSM for SSH; se impostato (o un PSMP per dominio), gli account Unix si aprono in SSH per impostazione predefinita (in soli file per una piattaforma «SFTP»); senza alcun PSMP, SSH e SFTP sono disattivati | vuoto, 22 |
 | CyberArk | PSMP per dominio | Altri PSMP (indirizzo, porta, dominio servito); ogni server passa da quello del dominio più vicino al suo (vedi [PSMP per dominio](#psmp-per-dominio)); «Quale PSMP per il server» per verificare | nessuno |
 | CyberArk | Componente degli account Windows | Componente PSM degli account Windows (di dominio o locali) senza componente memorizzato per la loro piattaforma, ad esempio `WIN-PSM` | vuoto = `PSM-RDP` |
-| CyberArk | Componenti PSM memorizzati | Componente PSM scelto per piattaforma (pulsante «Dimentica») | — |
+| CyberArk | Componente per piattaforma | Tabella Piattaforma (ID del PVWA, ad esempio `WinDomain`) / Componente PSM: «Aggiungi un componente», «Rimuovi la riga», celle modificabili; ha la precedenza sul componente degli account Windows. «Memorizza questo componente per la piattaforma» (finestra di connessione) vi aggiunge una riga | vuoto |
 | Terminale | SSH in CyberArkTerm | Terminale e scheda File integrati; altrimenti Windows Terminal | sì |
 | Terminale | Colori del terminale, carattere | Tavolozza (Campbell, One Half, Solarized…) e dimensione del carattere dei terminali SSH | Campbell, 14 |
 | Terminale | Avvisa prima di incollare più righe | Anteprima e conferma quando la shell eseguirebbe le righe una alla volta | sì |

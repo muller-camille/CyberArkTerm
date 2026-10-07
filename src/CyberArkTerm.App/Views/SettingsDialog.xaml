@@ -147,13 +147,26 @@
                                       MinWidth="220" VerticalAlignment="Center" />
                         </Grid>
                         <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,10" Text="{x:Static loc:Strings.WindowsComponentHelp}" />
-                        <TextBlock Text="{x:Static loc:Strings.RememberedComponentsLabel}" Margin="0,0,0,4" />
-                        <DockPanel Margin="0,0,0,8">
-                            <Button x:Name="ForgetComponentsButton" DockPanel.Dock="Right" Content="{x:Static loc:Strings.Forget}"
-                                    Click="OnForgetComponents" VerticalAlignment="Top" />
-                            <TextBlock x:Name="ComponentsText" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap"
-                                       VerticalAlignment="Center" Margin="0,0,12,0" />
-                        </DockPanel>
+                        <!-- Composant par plateforme : prioritaire sur celui des comptes Windows (voir AppSettings.ResolveComponent). -->
+                        <TextBlock Text="{x:Static loc:Strings.PlatformComponentsSection}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,6" Text="{x:Static loc:Strings.PlatformComponentsHelp}" />
+                        <DataGrid x:Name="ComponentGrid" AutoGenerateColumns="False" HeadersVisibility="Column" CanUserAddRows="False"
+                                  CanUserDeleteRows="False" CanUserReorderColumns="False" SelectionMode="Single" SelectionUnit="FullRow"
+                                  GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{DynamicResource GridLineBrush}"
+                                  MinHeight="60" MaxHeight="180" SelectionChanged="OnComponentSelected"
+                                  AutomationProperties.Name="{x:Static loc:Strings.PlatformComponentsSection}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="{x:Static loc:Strings.ComponentColumnPlatform}" Width="*"
+                                                    Binding="{Binding Platform, UpdateSourceTrigger=PropertyChanged}" />
+                                <DataGridTextColumn Header="{x:Static loc:Strings.ComponentColumnComponent}" Width="*"
+                                                    Binding="{Binding Component, UpdateSourceTrigger=PropertyChanged}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,8">
+                            <Button Content="{x:Static loc:Strings.ComponentAdd}" Click="OnAddComponent" />
+                            <Button x:Name="RemoveComponentButton" Content="{x:Static loc:Strings.ComponentRemove}" Click="OnRemoveComponent"
+                                    IsEnabled="False" Margin="8,0,0,0" />
+                        </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
