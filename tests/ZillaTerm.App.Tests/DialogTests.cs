@@ -6,6 +6,7 @@ using System.Windows;
 using ZillaTerm.App.Localization;
 using ZillaTerm.App.Views;
 using ZillaTerm.Core;
+using ZillaTerm.Core.Migration;
 using ZillaTerm.Core.Ssh;
 using ZillaTerm.Core.Terminal;
 
@@ -278,6 +279,72 @@ public sealed class DialogTests
             Assert.Contains("id-adm1", result);
             Assert.Contains("Account already exists", result);
             Assert.DoesNotContain("Secret-", result);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    /// <summary>
+    /// Import des sessions d'un autre logiciel : aperçu (prêt, à vérifier, sans compte, non pris en charge), choix d'un autre
+    /// compte, import sous le dossier choisi, résultat de chaque session et export CSV.
+    /// </summary>
+    [Fact]
+    public void SessionImportWindowShowsTheResult()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var path = Path.Combine(Path.GetTempPath(), $"zt-sessions-{Guid.NewGuid():N}.csv");
+        try
+        {
+            RunWithTheme(() =>
+            {
+                var settings = new AppSettings();
+                PvwaAccount[] accounts =
+                [
+                    new() { Id = "1", UserName = "root", Address = "web01.corp.local", PlatformId = "UnixSSH" },
+                    new() { Id = "2", UserName = "deploy", Address = "web01.corp.local", PlatformId = "UnixSSH" },
+                ];
+                SessionImport? done = null;
+                var window = new SessionImportWindow(settings, "pvwa.corp.local", accounts, KnownDomains.From([], []), i => done = i);
+                Assert.Equal(SessionImportWindow.Sources.Count, window.SourceBox.Items.Count);
+                Assert.Equal(9, window.RowsGrid.Columns.Count);
+                Assert.False(window.ImportButton.IsEnabled);
+
+                window.Load(
+                [
+                    ImportedSession.Terminal("Prod", "web", ImportProtocol.Ssh, "web01.corp.local", null, "root"),
+                    ImportedSession.Terminal("Prod", "any", ImportProtocol.Ssh, "web01.corp.local", null, null),
+                    ImportedSession.Terminal("", "gone", ImportProtocol.Ssh, "old01", null, "root"),
+                    ImportedSession.Unsupported("", "vnc", "VNC", "vnc01"),
+                ], "test");
+                Assert.Equal([ImportState.Ready, ImportState.Check, ImportState.NoAccount, ImportState.Unsupported], window.Rows.Select(r => r.State));
+                Assert.True(window.ImportButton.IsEnabled);
+                Assert.True(window.Rows[1].CanChoose);
+                Assert.False(window.Rows[2].CanInclude);
+
+                // Même compte que la première session, dans le même dossier : ajouté une seule fois.
+                window.Rows[1].Chosen = window.Rows[1].Candidates.Single(c => c.Account.Id == "1");
+                window.FolderBox.Text = "Migration";
+                window.OnImport(window, new RoutedEventArgs());
+
+                Assert.NotNull(done);
+                Assert.Equal([ImportState.Imported, ImportState.AlreadyPresent, ImportState.NoAccount, ImportState.Unsupported],
+                    window.Rows.Select(r => r.State));
+                var saved = Assert.Single(settings.Sessions);
+                Assert.Equal(("Migration/Prod", "web", "1"), (saved.Folder, saved.Name, saved.AccountId));
+                Assert.False(window.ImportButton.IsEnabled);
+                Assert.False(window.FolderBox.IsEnabled);
+                Assert.True(window.ExportButton.IsEnabled);
+                window.WriteResult(path);
+                window.Close();
+            });
+
+            Assert.Equal(5, File.ReadAllLines(path).Length);
         }
         finally
         {

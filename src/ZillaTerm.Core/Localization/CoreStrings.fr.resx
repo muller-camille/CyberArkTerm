@@ -381,4 +381,64 @@
   <data name="RenameTargetExists" xml:space="preserve">
     <value>« {0} » existe déjà : choisissez un autre nom (rien n'a été remplacé).</value>
   </data>
+  <data name="MigrationFileTooLarge" xml:space="preserve">
+    <value>Le fichier {0} est trop gros pour une liste de sessions ({1} Mo au plus).</value>
+  </data>
+  <data name="MigrationUnreadable" xml:space="preserve">
+    <value>Ce fichier n'est pas lisible : {0}</value>
+  </data>
+  <data name="MigrationFolderMissing" xml:space="preserve">
+    <value>Dossier introuvable : {0}</value>
+  </data>
+  <data name="MigrationNotRegFile" xml:space="preserve">
+    <value>Ce fichier n'est pas un export du registre (.reg).</value>
+  </data>
+  <data name="MigrationWrongFile" xml:space="preserve">
+    <value>Ce fichier n'est pas un fichier {0}.</value>
+  </data>
+  <data name="MigrationEncryptedFile" xml:space="preserve">
+    <value>Ce fichier est entièrement chiffré. Exportez de nouveau les connexions sans le chiffrement complet du fichier, puis importez cette copie.</value>
+  </data>
+  <data name="MigrationReady" xml:space="preserve">
+    <value>Prêt</value>
+  </data>
+  <data name="MigrationCheck" xml:space="preserve">
+    <value>{0} comptes possibles : vérifiez celui choisi</value>
+  </data>
+  <data name="MigrationNoAccount" xml:space="preserve">
+    <value>Non importé : aucun compte dans le PVWA pour {0}</value>
+  </data>
+  <data name="MigrationUnsupported" xml:space="preserve">
+    <value>Non importé : connexion {0} non prise en charge</value>
+  </data>
+  <data name="MigrationAlreadyPresent" xml:space="preserve">
+    <value>Déjà dans Mes serveurs, dossier {0}</value>
+  </data>
+  <data name="MigrationAlreadyPresentRoot" xml:space="preserve">
+    <value>Déjà dans Mes serveurs</value>
+  </data>
+  <data name="MigrationExcluded" xml:space="preserve">
+    <value>Non importé : décoché</value>
+  </data>
+  <data name="MigrationImported" xml:space="preserve">
+    <value>Importé</value>
+  </data>
+  <data name="MigrationColFolder" xml:space="preserve">
+    <value>Dossier</value>
+  </data>
+  <data name="MigrationColProtocol" xml:space="preserve">
+    <value>Protocole</value>
+  </data>
+  <data name="MigrationColAccount" xml:space="preserve">
+    <value>Compte PVWA</value>
+  </data>
+  <data name="MigrationColConnection" xml:space="preserve">
+    <value>Connexion</value>
+  </data>
+  <data name="MigrationColTarget" xml:space="preserve">
+    <value>Dossier dans Mes serveurs</value>
+  </data>
+  <data name="MigrationColResult" xml:space="preserve">
+    <value>Résultat</value>
+  </data>
 </root>

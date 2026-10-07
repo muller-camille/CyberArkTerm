@@ -1161,5 +1161,185 @@ namespace ZillaTerm.Core.Localization {
                 return ResourceManager.GetString("RenameTargetExists", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file {0} is too large for a list of sessions ({1} MB at most)..
+        /// </summary>
+        public static string MigrationFileTooLarge {
+            get {
+                return ResourceManager.GetString("MigrationFileTooLarge", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This file cannot be read: {0}.
+        /// </summary>
+        public static string MigrationUnreadable {
+            get {
+                return ResourceManager.GetString("MigrationUnreadable", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Folder not found: {0}.
+        /// </summary>
+        public static string MigrationFolderMissing {
+            get {
+                return ResourceManager.GetString("MigrationFolderMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This file is not a registry export (.reg)..
+        /// </summary>
+        public static string MigrationNotRegFile {
+            get {
+                return ResourceManager.GetString("MigrationNotRegFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This file is not a {0} file..
+        /// </summary>
+        public static string MigrationWrongFile {
+            get {
+                return ResourceManager.GetString("MigrationWrongFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This file is fully encrypted. Export the connections again without full-file encryption, then import that copy..
+        /// </summary>
+        public static string MigrationEncryptedFile {
+            get {
+                return ResourceManager.GetString("MigrationEncryptedFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ready.
+        /// </summary>
+        public static string MigrationReady {
+            get {
+                return ResourceManager.GetString("MigrationReady", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} possible accounts: check the one chosen.
+        /// </summary>
+        public static string MigrationCheck {
+            get {
+                return ResourceManager.GetString("MigrationCheck", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Not imported: no account in the PVWA for {0}.
+        /// </summary>
+        public static string MigrationNoAccount {
+            get {
+                return ResourceManager.GetString("MigrationNoAccount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Not imported: {0} connections are not handled.
+        /// </summary>
+        public static string MigrationUnsupported {
+            get {
+                return ResourceManager.GetString("MigrationUnsupported", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Already in My servers, folder {0}.
+        /// </summary>
+        public static string MigrationAlreadyPresent {
+            get {
+                return ResourceManager.GetString("MigrationAlreadyPresent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Already in My servers.
+        /// </summary>
+        public static string MigrationAlreadyPresentRoot {
+            get {
+                return ResourceManager.GetString("MigrationAlreadyPresentRoot", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Not imported: unchecked.
+        /// </summary>
+        public static string MigrationExcluded {
+            get {
+                return ResourceManager.GetString("MigrationExcluded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Imported.
+        /// </summary>
+        public static string MigrationImported {
+            get {
+                return ResourceManager.GetString("MigrationImported", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Folder.
+        /// </summary>
+        public static string MigrationColFolder {
+            get {
+                return ResourceManager.GetString("MigrationColFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Protocol.
+        /// </summary>
+        public static string MigrationColProtocol {
+            get {
+                return ResourceManager.GetString("MigrationColProtocol", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PVWA account.
+        /// </summary>
+        public static string MigrationColAccount {
+            get {
+                return ResourceManager.GetString("MigrationColAccount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connection.
+        /// </summary>
+        public static string MigrationColConnection {
+            get {
+                return ResourceManager.GetString("MigrationColConnection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Folder in My servers.
+        /// </summary>
+        public static string MigrationColTarget {
+            get {
+                return ResourceManager.GetString("MigrationColTarget", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Result.
+        /// </summary>
+        public static string MigrationColResult {
+            get {
+                return ResourceManager.GetString("MigrationColResult", resourceCulture);
+            }
+        }
     }
 }

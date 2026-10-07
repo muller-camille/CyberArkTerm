@@ -389,6 +389,12 @@
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuEnvImport}" Click="OnImportEnvironment" ToolTip="{x:Static loc:Strings.MenuEnvImportTip}" />
             <MenuItem Header="{x:Static loc:Strings.MenuEnvExport}" Click="OnExportEnvironment" ToolTip="{x:Static loc:Strings.MenuEnvExportTip}" />
+            <MenuItem Tag="sessionimport" Header="{x:Static loc:Strings.MenuSessionImport}" Click="OnImportSessions"
+                      ToolTip="{x:Static loc:Strings.SessionImportTip}">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconMigrate}" Width="16" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuAbout}" Click="OnAbout" />
         </ContextMenu>
@@ -617,6 +623,10 @@
                                 <Button x:Name="ExportServersButton" Style="{StaticResource SmallToolButton}" Click="OnExportMyServers"
                                         ToolTip="{x:Static loc:Strings.ExportServersTip}">
                                     <Image Source="{StaticResource IconExport}" Style="{StaticResource SmallIcon}" />
+                                </Button>
+                                <Button x:Name="ImportSessionsButton" Style="{StaticResource SmallToolButton}" Click="OnImportSessions"
+                                        ToolTip="{x:Static loc:Strings.SessionImportTip}" AutomationProperties.Name="{x:Static loc:Strings.SessionImportTitle}">
+                                    <Image Source="{StaticResource IconMigrate}" Style="{StaticResource SmallIcon}" />
                                 </Button>
                                 <Button x:Name="SharedListsButton" Style="{StaticResource SmallToolButton}" Click="OnSharedListsMenu"
                                         ToolTip="{x:Static loc:Strings.SharedListsTip}">

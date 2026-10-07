@@ -8,6 +8,7 @@ using ZillaTerm.App.Localization;
 using ZillaTerm.Core;
 using ZillaTerm.Core.Diagnostics;
 using ZillaTerm.Core.Localization;
+using ZillaTerm.Core.Migration;
 using Microsoft.Win32;
 
 namespace ZillaTerm.App.Views;
@@ -126,6 +127,45 @@ public partial class MainWindow
 
         SaveAndRefreshSaved();
         SetStatus(Text.Format(Strings.ServersImported, added, plan.Duplicates));
+    }
+
+    /// <summary>
+    /// Sessions d'un autre logiciel (PuTTY, WinSCP, mRemoteNG...) reprises dans « Mes serveurs » avec le compte du PVWA de
+    /// chaque serveur : il faut la liste des comptes.
+    /// </summary>
+    private void OnImportSessions(object sender, RoutedEventArgs e)
+    {
+        if (IsOffline)
+        {
+            return;
+        }
+
+        if (!_accountsLoaded)
+        {
+            MessageBox.Show(this, _loading ? Strings.AccountsStillLoading : Strings.AccountsNotLoaded, Strings.SessionImportTitle,
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var window = new SessionImportWindow(_settings, PvwaHost, _accounts, _domains, import =>
+        {
+            foreach (var created in import.Items.Select(i => i.Created).OfType<SavedSession>())
+            {
+                Expand(created.Folder);
+            }
+
+            SaveAndRefreshSaved();
+            int added = import.Count(ImportState.Imported);
+            SetStatus(Text.Format(Strings.SessionImportDone, added));
+            if (added > 0)
+            {
+                SideTabs.SelectedItem = CurrentTab;
+            }
+        })
+        {
+            Owner = this,
+        };
+        window.ShowDialog();
     }
 
     /// <summary>Détail avant import : serveurs ignorés, dossiers créés, machines cibles.</summary>

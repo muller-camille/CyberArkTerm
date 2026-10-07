@@ -4526,4 +4526,133 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   <data name="ComponentDuplicatePlatform" xml:space="preserve">
     <value>Deux composants pour la plateforme {0} : gardez une seule ligne.</value>
   </data>
+  <data name="SessionImportTitle" xml:space="preserve">
+    <value>Importer les sessions d'un autre logiciel</value>
+  </data>
+  <data name="SessionImportIntro" xml:space="preserve">
+    <value>Reprenez dans Mes serveurs, avec les mêmes dossiers, les sessions de PuTTY, KiTTY, WinSCP, mRemoteNG, RDCMan, SecureCRT, OpenSSH, de fichiers .rdp ou de fichiers .mxtsessions. Chaque serveur est associé à son compte du PVWA et s'ouvre toujours via PSM ou le PSMP : plus de connexion directe.</value>
+  </data>
+  <data name="SessionImportSecurity" xml:space="preserve">
+    <value>Les mots de passe ne sont jamais lus : ceux gardés par l'autre logiciel restent où ils sont, la connexion utilise le compte rangé dans CyberArk. Un serveur sans compte dans le PVWA n'est pas importé : demandez l'ajout de son compte dans CyberArk.</value>
+  </data>
+  <data name="SessionImportSource" xml:space="preserve">
+    <value>_Source :</value>
+  </data>
+  <data name="SessionImportRead" xml:space="preserve">
+    <value>_Lire…</value>
+  </data>
+  <data name="SessionImportFolder" xml:space="preserve">
+    <value>_Dossier dans Mes serveurs :</value>
+  </data>
+  <data name="SessionImportFolderTip" xml:space="preserve">
+    <value>Les dossiers de l'autre logiciel sont recréés sous ce dossier. Vide : à la racine de Mes serveurs.</value>
+  </data>
+  <data name="SessionImportDefaultFolder" xml:space="preserve">
+    <value>Importés</value>
+  </data>
+  <data name="SessionImportNothingRead" xml:space="preserve">
+    <value>Choisissez la source, puis Lire.</value>
+  </data>
+  <data name="SessionImportReading" xml:space="preserve">
+    <value>Lecture des sessions…</value>
+  </data>
+  <data name="SessionImportReadFrom" xml:space="preserve">
+    <value>{0} sessions lues dans {1}</value>
+  </data>
+  <data name="SessionImportNone" xml:space="preserve">
+    <value>Aucune session trouvée dans {0}.</value>
+  </data>
+  <data name="SessionImportReadFailed" xml:space="preserve">
+    <value>Lecture de {0} impossible : {1}</value>
+  </data>
+  <data name="SessionImportSummary" xml:space="preserve">
+    <value>{0} prêts · {1} à vérifier · {2} sans compte dans le PVWA · {3} non pris en charge · {4} déjà dans Mes serveurs</value>
+  </data>
+  <data name="SessionImportResult" xml:space="preserve">
+    <value>{0} importés · {1} non importés</value>
+  </data>
+  <data name="SessionImportButton" xml:space="preserve">
+    <value>_Importer</value>
+  </data>
+  <data name="SessionImportExport" xml:space="preserve">
+    <value>E_xporter le résultat…</value>
+  </data>
+  <data name="SessionImportExported" xml:space="preserve">
+    <value>Résultat enregistré dans {0}</value>
+  </data>
+  <data name="SessionImportExportHint" xml:space="preserve">
+    <value>Import terminé : exportez le résultat pour garder la liste des serveurs à ajouter dans CyberArk.</value>
+  </data>
+  <data name="SessionImportFileName" xml:space="preserve">
+    <value>import-sessions</value>
+  </data>
+  <data name="SessionImportOnlyProblems" xml:space="preserve">
+    <value>Seulement les _problèmes</value>
+  </data>
+  <data name="SessionImportAllTip" xml:space="preserve">
+    <value>Cocher ou décocher tous les serveurs</value>
+  </data>
+  <data name="SessionImportChooseTip" xml:space="preserve">
+    <value>Plusieurs comptes du PVWA correspondent : le plus probable est choisi, choisissez-en un autre si besoin.</value>
+  </data>
+  <data name="SessionImportAllFiles" xml:space="preserve">
+    <value>Tous les fichiers</value>
+  </data>
+  <data name="SessionImportHintRegistry" xml:space="preserve">
+    <value>Lu dans votre registre Windows.</value>
+  </data>
+  <data name="SessionImportHintFolder" xml:space="preserve">
+    <value>Choisissez le dossier.</value>
+  </data>
+  <data name="SessionImportHintFile" xml:space="preserve">
+    <value>Choisissez le fichier.</value>
+  </data>
+  <data name="SessionImportTip" xml:space="preserve">
+    <value>Importer les sessions d'un autre logiciel (PuTTY, WinSCP, mRemoteNG, RDCMan…) pour les ouvrir via CyberArk</value>
+  </data>
+  <data name="MenuSessionImport" xml:space="preserve">
+    <value>Importer les sessions d'un autre _logiciel…</value>
+  </data>
+  <data name="SessionImportDone" xml:space="preserve">
+    <value>{0} serveurs importés dans Mes serveurs</value>
+  </data>
+  <data name="SourcePuttyRegistry" xml:space="preserve">
+    <value>PuTTY (registre Windows)</value>
+  </data>
+  <data name="SourceKittyRegistry" xml:space="preserve">
+    <value>KiTTY (registre Windows)</value>
+  </data>
+  <data name="SourceKittyFolder" xml:space="preserve">
+    <value>KiTTY portable (dossier)</value>
+  </data>
+  <data name="SourceWinScpRegistry" xml:space="preserve">
+    <value>WinSCP (registre Windows)</value>
+  </data>
+  <data name="SourceWinScpIni" xml:space="preserve">
+    <value>WinSCP (fichier WinSCP.ini)</value>
+  </data>
+  <data name="SourceRegFile" xml:space="preserve">
+    <value>Export du registre (.reg) : PuTTY, KiTTY, WinSCP</value>
+  </data>
+  <data name="SourceMxtSessions" xml:space="preserve">
+    <value>Fichier .mxtsessions ou .ini</value>
+  </data>
+  <data name="SourceMRemoteNg" xml:space="preserve">
+    <value>mRemoteNG (confCons.xml)</value>
+  </data>
+  <data name="SourceRdcMan" xml:space="preserve">
+    <value>Remote Desktop Connection Manager (.rdg)</value>
+  </data>
+  <data name="SourceSecureCrtFolder" xml:space="preserve">
+    <value>SecureCRT (dossier de configuration)</value>
+  </data>
+  <data name="SourceSecureCrtXml" xml:space="preserve">
+    <value>SecureCRT (export XML)</value>
+  </data>
+  <data name="SourceOpenSsh" xml:space="preserve">
+    <value>OpenSSH (fichier config)</value>
+  </data>
+  <data name="SourceRdpFolder" xml:space="preserve">
+    <value>Fichiers Bureau à distance (dossier de fichiers .rdp)</value>
+  </data>
 </root>

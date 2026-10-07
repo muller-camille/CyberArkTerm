@@ -13474,5 +13474,392 @@ namespace ZillaTerm.App.Localization {
                 return ResourceManager.GetString("ComponentDuplicatePlatform", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import sessions from another tool.
+        /// </summary>
+        public static string SessionImportTitle {
+            get {
+                return ResourceManager.GetString("SessionImportTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Bring the sessions of PuTTY, KiTTY, WinSCP, mRemoteNG, RDCMan, SecureCRT, OpenSSH, .rdp files or .mxtsessions files into My servers, with the same folders. Each server is matched with its account in the PVWA and always opens through PSM or the PSMP: no more direct connections..
+        /// </summary>
+        public static string SessionImportIntro {
+            get {
+                return ResourceManager.GetString("SessionImportIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Passwords are never read: those kept by the other tool stay where they are, and the connection uses the account stored in CyberArk. A server without an account in the PVWA is not imported: ask for its account to be added to CyberArk..
+        /// </summary>
+        public static string SessionImportSecurity {
+            get {
+                return ResourceManager.GetString("SessionImportSecurity", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Source:.
+        /// </summary>
+        public static string SessionImportSource {
+            get {
+                return ResourceManager.GetString("SessionImportSource", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Read….
+        /// </summary>
+        public static string SessionImportRead {
+            get {
+                return ResourceManager.GetString("SessionImportRead", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Folder in My servers:.
+        /// </summary>
+        public static string SessionImportFolder {
+            get {
+                return ResourceManager.GetString("SessionImportFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The folders of the other tool are recreated under this folder. Empty: at the root of My servers..
+        /// </summary>
+        public static string SessionImportFolderTip {
+            get {
+                return ResourceManager.GetString("SessionImportFolderTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Imported.
+        /// </summary>
+        public static string SessionImportDefaultFolder {
+            get {
+                return ResourceManager.GetString("SessionImportDefaultFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose the source, then Read..
+        /// </summary>
+        public static string SessionImportNothingRead {
+            get {
+                return ResourceManager.GetString("SessionImportNothingRead", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reading the sessions….
+        /// </summary>
+        public static string SessionImportReading {
+            get {
+                return ResourceManager.GetString("SessionImportReading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} sessions read from {1}.
+        /// </summary>
+        public static string SessionImportReadFrom {
+            get {
+                return ResourceManager.GetString("SessionImportReadFrom", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No session found in {0}..
+        /// </summary>
+        public static string SessionImportNone {
+            get {
+                return ResourceManager.GetString("SessionImportNone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot read {0}: {1}.
+        /// </summary>
+        public static string SessionImportReadFailed {
+            get {
+                return ResourceManager.GetString("SessionImportReadFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ready · {1} to check · {2} without an account in the PVWA · {3} not handled · {4} already in My servers.
+        /// </summary>
+        public static string SessionImportSummary {
+            get {
+                return ResourceManager.GetString("SessionImportSummary", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} imported · {1} not imported.
+        /// </summary>
+        public static string SessionImportResult {
+            get {
+                return ResourceManager.GetString("SessionImportResult", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Import.
+        /// </summary>
+        public static string SessionImportButton {
+            get {
+                return ResourceManager.GetString("SessionImportButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to E_xport the result….
+        /// </summary>
+        public static string SessionImportExport {
+            get {
+                return ResourceManager.GetString("SessionImportExport", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Result saved to {0}.
+        /// </summary>
+        public static string SessionImportExported {
+            get {
+                return ResourceManager.GetString("SessionImportExported", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import done: export the result to keep the list of servers to add to CyberArk..
+        /// </summary>
+        public static string SessionImportExportHint {
+            get {
+                return ResourceManager.GetString("SessionImportExportHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to sessions-import.
+        /// </summary>
+        public static string SessionImportFileName {
+            get {
+                return ResourceManager.GetString("SessionImportFileName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Only _problems.
+        /// </summary>
+        public static string SessionImportOnlyProblems {
+            get {
+                return ResourceManager.GetString("SessionImportOnlyProblems", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Check or uncheck all the servers.
+        /// </summary>
+        public static string SessionImportAllTip {
+            get {
+                return ResourceManager.GetString("SessionImportAllTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Several PVWA accounts match: the most likely one is chosen, pick another one if needed..
+        /// </summary>
+        public static string SessionImportChooseTip {
+            get {
+                return ResourceManager.GetString("SessionImportChooseTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to All files.
+        /// </summary>
+        public static string SessionImportAllFiles {
+            get {
+                return ResourceManager.GetString("SessionImportAllFiles", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Read from your Windows registry..
+        /// </summary>
+        public static string SessionImportHintRegistry {
+            get {
+                return ResourceManager.GetString("SessionImportHintRegistry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose the folder..
+        /// </summary>
+        public static string SessionImportHintFolder {
+            get {
+                return ResourceManager.GetString("SessionImportHintFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Choose the file..
+        /// </summary>
+        public static string SessionImportHintFile {
+            get {
+                return ResourceManager.GetString("SessionImportHintFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import the sessions of another tool (PuTTY, WinSCP, mRemoteNG, RDCMan…) to open them through CyberArk.
+        /// </summary>
+        public static string SessionImportTip {
+            get {
+                return ResourceManager.GetString("SessionImportTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import sessions from another _tool….
+        /// </summary>
+        public static string MenuSessionImport {
+            get {
+                return ResourceManager.GetString("MenuSessionImport", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} servers imported into My servers.
+        /// </summary>
+        public static string SessionImportDone {
+            get {
+                return ResourceManager.GetString("SessionImportDone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PuTTY (Windows registry).
+        /// </summary>
+        public static string SourcePuttyRegistry {
+            get {
+                return ResourceManager.GetString("SourcePuttyRegistry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to KiTTY (Windows registry).
+        /// </summary>
+        public static string SourceKittyRegistry {
+            get {
+                return ResourceManager.GetString("SourceKittyRegistry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to KiTTY portable (folder).
+        /// </summary>
+        public static string SourceKittyFolder {
+            get {
+                return ResourceManager.GetString("SourceKittyFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to WinSCP (Windows registry).
+        /// </summary>
+        public static string SourceWinScpRegistry {
+            get {
+                return ResourceManager.GetString("SourceWinScpRegistry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to WinSCP (WinSCP.ini file).
+        /// </summary>
+        public static string SourceWinScpIni {
+            get {
+                return ResourceManager.GetString("SourceWinScpIni", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Registry export (.reg): PuTTY, KiTTY, WinSCP.
+        /// </summary>
+        public static string SourceRegFile {
+            get {
+                return ResourceManager.GetString("SourceRegFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to .mxtsessions or .ini file.
+        /// </summary>
+        public static string SourceMxtSessions {
+            get {
+                return ResourceManager.GetString("SourceMxtSessions", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to mRemoteNG (confCons.xml).
+        /// </summary>
+        public static string SourceMRemoteNg {
+            get {
+                return ResourceManager.GetString("SourceMRemoteNg", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote Desktop Connection Manager (.rdg).
+        /// </summary>
+        public static string SourceRdcMan {
+            get {
+                return ResourceManager.GetString("SourceRdcMan", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SecureCRT (configuration folder).
+        /// </summary>
+        public static string SourceSecureCrtFolder {
+            get {
+                return ResourceManager.GetString("SourceSecureCrtFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SecureCRT (XML export).
+        /// </summary>
+        public static string SourceSecureCrtXml {
+            get {
+                return ResourceManager.GetString("SourceSecureCrtXml", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to OpenSSH (config file).
+        /// </summary>
+        public static string SourceOpenSsh {
+            get {
+                return ResourceManager.GetString("SourceOpenSsh", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote Desktop files (folder of .rdp files).
+        /// </summary>
+        public static string SourceRdpFolder {
+            get {
+                return ResourceManager.GetString("SourceRdpFolder", resourceCulture);
+            }
+        }
     }
 }
