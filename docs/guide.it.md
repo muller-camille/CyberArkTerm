@@ -139,8 +139,13 @@ componente che apre un'applicazione remota (RemoteApp) apre le sue finestre sul 
   piattaforma. Il tuo PVWA può chiamare i suoi componenti in un altro modo (ad esempio `WIN-PSM`): inserisci il nome
   proposto dal suo pulsante «Connect»; l'elenco propone poi i componenti già usati, quello della piattaforma per
   primo.
-- **Account di dominio**: la finestra chiede la macchina di destinazione, precompilata con le macchine autorizzate
-  dell'account.
+- **Account di dominio**: un account registrato per il suo dominio (indirizzo `corp.local`, piattaforma di dominio o
+  macchine autorizzate) non ha un server. La finestra «Scegli il server» chiede su quale aprire la sessione:
+  l'elenco propone i server già usati con questo account (sessioni recenti, «I miei server»), poi le sue macchine
+  autorizzate; un account limitato alle sue macchine rifiuta le altre. «Mantieni questo server in «I miei server»»,
+  con la cartella desiderata, lo aggiunge dopo una connessione riuscita, con il nome `account@server` (la scelta
+  viene ricordata per la volta successiva; la casella scompare se il server è già presente). «Avanzata…» apre la
+  finestra completa con questo server.
 - **Motivo e ticket**: se il PVWA rifiuta la richiesta (motivo obbligatorio, componente non configurato…), il suo
   messaggio viene mostrato e puoi correggere e riprovare.
 - Il pulsante «Avanzata…» della barra degli strumenti (o clic destro → «Connessione avanzata…») apre questa
@@ -150,8 +155,8 @@ componente che apre un'applicazione remota (RemoteApp) apre le sue finestre sul 
 
 ## 4. Aprire una sessione SSH tramite il PSMP
 
-Imposta una volta l'indirizzo del PSMP nelle **Impostazioni**. Il doppio clic (o Invio) sceglie allora in base al
-nome della piattaforma dell'account:
+Imposta una volta il PSMP in **Impostazioni › CyberArk** (vedi [PSMP per dominio](#psmp-per-dominio) se ne hai
+diversi). Il doppio clic (o Invio) sceglie allora in base al nome della piattaforma dell'account:
 
 | Nome della piattaforma | Apertura predefinita |
 | --- | --- |
@@ -170,7 +175,26 @@ ogni sessione PSMP, è registrata e verificata da CyberArk.
 
 La sessione si apre **in una scheda di CyberArkTerm**, con l'identificativo PSMP standard `<tu>@<account di
 destinazione>[#dominio]@<server di destinazione>`. I nomi utente che contengono spazi (`Mario Rossi`, `Admin
-Locale`) sono accettati.
+Locale`) sono accettati. Il pannello laterale passa alla scheda «File» del server (se è ridotto, resta ridotto).
+
+### PSMP per dominio
+
+Con un PSMP per dominio, dichiarali in **Impostazioni › CyberArk**: un **PSMP predefinito** e l'elenco **PSMP per
+dominio** («Aggiungi un PSMP», indirizzo, porta; il dominio servito è quello dell'indirizzo, modificabile). Ogni
+server passa dal PSMP del dominio **più vicino al suo**:
+
+| PSMP configurati | Server | PSMP usato |
+| --- | --- | --- |
+| `psmp.xxx.corp.com`, `psmp.zzz.corp.com` | `srv01.xxx.corp.com` | `psmp.xxx.corp.com` |
+| idem | `srv02.zzz.corp.com` | `psmp.zzz.corp.com` |
+| solo `psmp.xxx.corp.com` | `srv03.zzz.xxx.corp.com` | `psmp.xxx.corp.com` (nessun PSMP per `zzz.xxx.corp.com`) |
+| idem | `srv04.altro.org`, un indirizzo IP | il PSMP predefinito; senza, l'unico PSMP dell'elenco se ce n'è uno solo |
+
+Senza PSMP per un server (diversi PSMP, nessuno predefinito, dominio non coperto), la connessione viene rifiutata e
+la barra di stato lo dice. «Quale PSMP per il server» dà la risposta prima di salvare; due PSMP per lo stesso dominio
+vengono rifiutati. Solo i PSMP dell'elenco ricevono la tua password CyberArk, mai un indirizzo dedotto dal nome di un
+server; la chiave di ogni PSMP viene verificata alla sua prima connessione. Il tooltip della scheda indica il PSMP
+usato.
 
 <img src="captures/it/psmp-authentication.png" alt="Domanda di autenticazione posta dal PSMP" width="49%"> <img src="captures/it/terminal-menu.png" alt="Menu del clic destro nel terminale SSH" width="49%">
 
@@ -193,9 +217,9 @@ Locale`) sono accettati.
   restano leggibili, selezionabili e copiabili.
 - **Clic destro nel terminale** (o tasto Menu della tastiera): copia, incolla, seleziona tutto, cerca, salva il
   contenuto, cancella la cronologia (solo su questo computer, nulla viene inviato al server), dimensione del
-  carattere, e le azioni della scheda (riconnetti, duplica, stacca, vista parallela, chiudi). Per incollare con un
-  semplice clic destro, spunta «Il clic destro nel terminale incolla gli appunti» nelle Impostazioni; Maiusc+clic
-  destro apre allora il menu.
+  carattere, e le azioni della scheda (riconnetti, duplica, stacca, vista parallela, aggiungi a «I miei server»,
+  chiudi). Per incollare con un semplice clic destro, spunta «Il clic destro nel terminale incolla gli appunti» nelle
+  Impostazioni; Maiusc+clic destro apre allora il menu.
 - **Incollare più righe**: quando la shell eseguirebbe le righe una alla volta (senza incolla protetto, «bracketed
   paste»), una finestra mostra le righe e chiede conferma («Incolla», «Annulla» predefinito), con la casella «Non
   avvisare più prima di incollare più righe» (impostazione «Avvisa prima di incollare più righe quando la shell le
@@ -240,8 +264,8 @@ Locale`) sono accettati.
 
 ## 5. Sfogliare e inviare file: scheda «File»
 
-La scheda **File** del pannello laterale (`Ctrl+3`) segue la scheda SSH attiva; aprire una sessione SSH non la porta
-in primo piano da sola. Serve anche alle sessioni di soli file, che la mostrano alla loro apertura: account CyberArk
+La scheda **File** del pannello laterale (`Ctrl+3`) segue la scheda SSH attiva e passa in primo piano all'apertura di
+una sessione SSH. Serve anche alle sessioni di soli file, che la mostrano alla loro apertura: account CyberArk
 in SFTP tramite il PSMP ([sezione 4](#4-aprire-una-sessione-ssh-tramite-il-psmp))
 e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyberark-database-keepass)).
 
@@ -423,6 +447,10 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
 
 - **Aggiungere** un account: clic destro in «Disponibili» → «Aggiungi ai miei server» e poi la cartella desiderata,
   oppure trascina l'account sulla scheda «I miei server», oppure il pulsante «Aggiungi» della barra degli strumenti.
+  Per un account di dominio viene chiesto il server (facoltativo: senza server, verrà chiesto a ogni connessione).
+- **Aggiungere una sessione aperta**: clic destro sulla scheda della sessione (o nel suo terminale) → «Aggiungi ai
+  miei server» e poi la cartella desiderata. Il server mantiene il tipo di connessione e la macchina di destinazione;
+  la voce è disattivata se è già presente.
 - **Aggiungere una connessione recente**: clic destro nelle sessioni recenti della home → «Aggiungi ai miei server»
   e poi la cartella desiderata. Il server mantiene il tipo di connessione (PSM, SSH o solo file), il componente PSM e la
   macchina di destinazione usati.
@@ -451,7 +479,7 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
 
 <img src="captures/it/server-properties.png" alt="Proprietà di un server in «I miei server»" width="540">
 
-Senza indirizzo PSMP nelle Impostazioni, i tipi SSH e solo file sono disattivati, come altrove; un valore errato
+Senza PSMP nelle Impostazioni, i tipi SSH e solo file sono disattivati, come altrove; un valore errato
 viene segnalato nella finestra. Un server il cui account non è più visibile in CyberArk appare in grigio.
 
 ### Esportare, importare, condividere
@@ -619,7 +647,8 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 | Generale | Lingua dell'interfaccia | Français, English, Italiano o lingua del sistema; applicata dopo la disconnessione o al prossimo avvio | lingua di Windows (inglese se non è tradotta) |
 | Generale | Cercare una nuova versione all'avvio | Una richiesta a GitHub al massimo una volta al giorno; un link nella barra di stato se esiste una versione più recente (la finestra «Informazioni» ricorda questa impostazione) | no |
 | CyberArk | Mantenere aperta la sessione PVWA | Richiesta leggera ogni 4 minuti; sospesa quando Windows è bloccato; ⚠ la sessione PVWA non si chiude più da sola dopo l'inattività | sì |
-| CyberArk | Indirizzo e porta PSMP | Server PSM for SSH; se impostato, gli account Unix si aprono in SSH per impostazione predefinita (in soli file per una piattaforma «SFTP»); vuoto = SSH e SFTP disattivati | vuoto, 22 |
+| CyberArk | PSMP predefinito, porta | Server PSM for SSH; se impostato (o un PSMP per dominio), gli account Unix si aprono in SSH per impostazione predefinita (in soli file per una piattaforma «SFTP»); senza alcun PSMP, SSH e SFTP sono disattivati | vuoto, 22 |
+| CyberArk | PSMP per dominio | Altri PSMP (indirizzo, porta, dominio servito); ogni server passa da quello del dominio più vicino al suo (vedi [PSMP per dominio](#psmp-per-dominio)); «Quale PSMP per il server» per verificare | nessuno |
 | CyberArk | Componenti PSM memorizzati | Componente PSM scelto per piattaforma (pulsante «Dimentica») | — |
 | Terminale | SSH in CyberArkTerm | Terminale e scheda File integrati; altrimenti Windows Terminal | sì |
 | Terminale | Colori del terminale, carattere | Tavolozza (Campbell, One Half, Solarized…) e dimensione del carattere dei terminali SSH | Campbell, 14 |

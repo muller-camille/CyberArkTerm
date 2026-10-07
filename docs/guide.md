@@ -133,7 +133,12 @@ PVWA "Connect" button: the PVWA's RDP file is handed over as is. A component tha
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Tick "Remember this component" to keep it for the whole platform. Your
   PVWA may name its components differently (for example `WIN-PSM`): enter the name its "Connect" button offers; the
   list then offers the components already used, the platform's first.
-- **Domain accounts**: the window asks for the target machine, prefilled with the account's allowed machines.
+- **Domain accounts**: an account registered for its domain (address `corp.local`, domain platform or allowed
+  machines) has no server. The "Choose the server" window asks which one to open the session on: the list offers
+  the servers already used with this account (recent sessions, "My servers"), then its allowed machines; an account
+  restricted to its machines refuses the others. "Keep this server in “My servers”", with the folder you want, adds
+  it after a successful connection, named `account@server` (the choice is remembered for next time; the box
+  disappears when the server is already there). "Advanced…" opens the full window with this server.
 - **Reason and ticket**: if the PVWA refuses the request (reason required, component not configured…), its message
   is shown and you can fix it and try again.
 - The "Advanced…" toolbar button (or right-click → "Advanced connection…") opens this window on demand. The cursor
@@ -142,8 +147,8 @@ PVWA "Connect" button: the PVWA's RDP file is handed over as is. A component tha
 
 ## 4. Open an SSH session through the PSMP
 
-Set the PSMP address once in **Settings**. Double-click (or Enter) then chooses from the name of the account's
-platform:
+Set the PSMP once in **Settings › CyberArk** (see [PSMP by domain](#psmp-by-domain) if you have several).
+Double-click (or Enter) then chooses from the name of the account's platform:
 
 | Platform name | Opened by default |
 | --- | --- |
@@ -161,7 +166,26 @@ when the platform allows PSMP-SFTP but not the shell. Like every PSMP session, i
 CyberArk.
 
 The session opens **in a CyberArkTerm tab**, with the standard PSMP login `<you>@<target account>[#domain]@<target
-server>`. User names containing spaces (`John Smith`, `Local Admin`) are accepted.
+server>`. User names containing spaces (`John Smith`, `Local Admin`) are accepted. The side panel switches to the
+server's "Files" tab (a collapsed panel stays collapsed).
+
+### PSMP by domain
+
+With one PSMP per domain, declare them in **Settings › CyberArk**: a **default PSMP** and the **PSMP by domain** list
+("Add a PSMP", address, port; the domain served is the one of the address, and can be changed). Each server goes
+through the PSMP of the domain **closest to its own**:
+
+| Configured PSMPs | Server | PSMP used |
+| --- | --- | --- |
+| `psmp.xxx.corp.com`, `psmp.zzz.corp.com` | `srv01.xxx.corp.com` | `psmp.xxx.corp.com` |
+| same | `srv02.zzz.corp.com` | `psmp.zzz.corp.com` |
+| `psmp.xxx.corp.com` only | `srv03.zzz.xxx.corp.com` | `psmp.xxx.corp.com` (no PSMP for `zzz.xxx.corp.com`) |
+| same | `srv04.other.org`, an IP address | the default PSMP; without one, the only PSMP of the list if there is just one |
+
+Without a PSMP for a server (several PSMPs, no default, domain not covered), the connection is refused and the status
+bar says so. "Which PSMP for the server" gives the answer before saving; two PSMPs for the same domain are refused.
+Only the PSMPs of the list receive your CyberArk password, never an address deduced from a server name; the key of
+each PSMP is checked on its first connection. The tab tooltip names the PSMP used.
 
 <img src="captures/en/psmp-authentication.png" alt="Authentication question asked by the PSMP" width="49%"> <img src="captures/en/terminal-menu.png" alt="Right-click menu of the SSH terminal" width="49%">
 
@@ -182,8 +206,8 @@ server>`. User names containing spaces (`John Smith`, `Local Admin`) are accepte
   readable, selectable and copyable.
 - **Right-click in the terminal** (or the keyboard's Menu key): copy, paste, select all, search, save the content,
   clear the history (on this computer only, nothing is sent to the server), font size, and the tab's actions
-  (reconnect, duplicate, detach, parallel view, close). To paste with a plain right-click instead, tick "Right-click
-  in the terminal pastes the clipboard" in Settings; Shift+right-click then opens the menu.
+  (reconnect, duplicate, detach, parallel view, add to "My servers", close). To paste with a plain right-click
+  instead, tick "Right-click in the terminal pastes the clipboard" in Settings; Shift+right-click then opens the menu.
 - **Pasting several lines**: when the shell would run the lines one by one (no bracketed paste), a window shows the
   lines and asks for confirmation ("Paste", "Cancel" by default), with a "Don't warn again before pasting several
   lines" box (the "Warn before pasting several lines when the shell would run them one by one" setting, Settings ›
@@ -226,8 +250,8 @@ server>`. User names containing spaces (`John Smith`, `Local Admin`) are accepte
 
 ## 5. Browse and upload files: "Files" tab
 
-The **Files** tab of the side panel (`Ctrl+3`) follows the active SSH tab; opening an SSH session does not bring it to
-the front by itself. It also serves the files-only sessions, which show it when they open: CyberArk accounts over
+The **Files** tab of the side panel (`Ctrl+3`) follows the active SSH tab and comes to the front when an SSH session
+opens. It also serves the files-only sessions, which show it when they open: CyberArk accounts over
 SFTP through the PSMP ([section 4](#4-open-an-ssh-session-through-the-psmp))
 and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyberark-keepass-databases)).
 
@@ -393,7 +417,11 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
 ![My servers organized in folders](captures/en/my-servers.png)
 
 - **Add** an account: right-click in "Available" → "Add to My servers" then the folder you want, or drag the account
-  onto the "My servers" tab, or the "Add" toolbar button.
+  onto the "My servers" tab, or the "Add" toolbar button. For a domain account, the server is asked (optional:
+  without a server, it is asked at each connection).
+- **Add an open session**: right-click the session tab (or in its terminal) → "Add to My servers" then the folder
+  you want. The server keeps the connection type and the target machine; the entry is greyed out when it is already
+  there.
 - **Add a recent connection**: right-click in the recent sessions of the home page → "Add to My servers" then the
   folder you want. The server keeps the connection type (PSM, SSH or files only), the PSM component and the target machine
   used.
@@ -422,7 +450,7 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
 
 <img src="captures/en/server-properties.png" alt="Properties of a server in “My servers”" width="540">
 
-Without a PSMP address in the Settings, the SSH and files-only types are greyed out, as elsewhere; an incorrect value
+Without a PSMP in the Settings, the SSH and files-only types are greyed out, as elsewhere; an incorrect value
 is reported in the window. A server whose account is no longer visible in CyberArk is greyed out.
 
 ### Export, import, share
@@ -580,7 +608,8 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 | General | Interface language | Français, English, Italiano or system language; applied after signing out or at the next start | Windows language (English if it is not translated) |
 | General | Look for a new version at startup | One request to GitHub at most once a day; a link in the status bar when a newer version exists (the "About" window recalls this setting) | no |
 | CyberArk | Keep the PVWA session open | Light request every 4 minutes; paused while Windows is locked; ⚠ the PVWA session no longer closes by itself after inactivity | yes |
-| CyberArk | PSMP address and port | PSM for SSH server; when set, Unix accounts open over SSH by default (as files only for an "SFTP" platform); empty = SSH and SFTP disabled | empty, 22 |
+| CyberArk | Default PSMP, port | PSM for SSH server; when set (or a PSMP by domain), Unix accounts open over SSH by default (as files only for an "SFTP" platform); without any PSMP, SSH and SFTP are disabled | empty, 22 |
+| CyberArk | PSMP by domain | Other PSMPs (address, port, domain served); each server goes through the one of the domain closest to its own (see [PSMP by domain](#psmp-by-domain)); "Which PSMP for the server" to check | none |
 | CyberArk | Remembered PSM components | PSM component chosen per platform ("Forget" button) | — |
 | Terminal | SSH in CyberArkTerm | Built-in terminal and Files tab; otherwise Windows Terminal | yes |
 | Terminal | Terminal colours, font | Palette (Campbell, One Half, Solarized…) and font size of the SSH terminals | Campbell, 14 |
