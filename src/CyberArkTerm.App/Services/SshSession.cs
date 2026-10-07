@@ -11,38 +11,21 @@ using Renci.SshNet;
 
 namespace CyberArkTerm.App.Services;
 
-public enum SshSessionState
-{
-    Connecting,
-    Connected,
-    Closed,
-    Failed,
-}
-
 /// <summary>
-/// Session SSH intégrée (onglet) via le PSMP : shell interactif affiché dans un <see cref="TerminalEmulator"/>
-/// et navigateur de fichiers SFTP associé, ouvert à la demande. Ou session de fichiers seuls, sans terminal
-/// (<see cref="ForFiles"/> : SFTP, FTP, FTPS des entrées KeePass), montrée par l'onglet Fichiers.
+/// Session SSH intégrée (onglet) via le PSMP ou en direct : shell interactif affiché dans un
+/// <see cref="TerminalEmulator"/>, et navigateur de fichiers SFTP associé, ouvert à la demande.
 /// Les événements sont toujours déclenchés sur le thread de l'interface.
 /// </summary>
-public sealed class SshSession : IDisposable
+public sealed class SshSession : RemoteSession
 {
-    private readonly SshConnector? _connector;
-
-    // Session de fichiers seuls : ouverture d'une connexion (celle de l'onglet Fichiers, ou une dédiée au suivi).
-    private readonly Func<CancellationToken, Task<IRemoteFiles>>? _openFiles;
-    private readonly Dispatcher _dispatcher;
+    private readonly SshConnector _connector;
     private readonly bool _followTerminal;
     private readonly ConcurrentQueue<string> _pending = new();
     private readonly Decoder _decoder = Encoding.UTF8.GetDecoder();
-    private readonly CancellationTokenSource _lifetime = new();
     private readonly object _sendLock = new();
     private Task _sending = Task.CompletedTask;
     private SshClient? _client;
     private ShellStream? _shell;
-    private Task<IRemoteFiles>? _browser;
-    private readonly List<IRemoteFiles> _dedicated = [];
-    private bool _disposed;
     private int _drainScheduled;
     private DateTime _lastData;
     private bool _userTyped;
@@ -53,12 +36,9 @@ public sealed class SshSession : IDisposable
     /// <param name="account">Compte CyberArk ; null pour une connexion directe (accès d'urgence KeePass).</param>
     public SshSession(PvwaAccount? account, string label, SshConnector connector, Dispatcher dispatcher,
         bool followTerminal, SavedSession? saved)
+        : base(account, label, dispatcher, saved)
     {
-        Account = account;
-        Label = label;
-        Saved = saved;
         _connector = connector;
-        _dispatcher = dispatcher;
         _followTerminal = followTerminal;
         Emulator.Response += Send;
         Emulator.WorkingDirectoryChanged += dir =>
@@ -68,78 +48,31 @@ public sealed class SshSession : IDisposable
         };
     }
 
-    private SshSession(string label, string filesProtocol, Func<CancellationToken, Task<IRemoteFiles>> openFiles, Dispatcher dispatcher,
-        PvwaAccount? account, SavedSession? saved)
-    {
-        Account = account;
-        Saved = saved;
-        Label = label;
-        FilesProtocol = filesProtocol;
-        _openFiles = openFiles;
-        _dispatcher = dispatcher;
-    }
-
-    /// <summary>
-    /// Session de fichiers seuls (sans terminal), affichée par l'onglet Fichiers : SFTP via le PSMP pour un compte
-    /// CyberArk, ou SFTP, FTP, FTPS d'une entrée KeePass.
-    /// </summary>
-    /// <param name="protocol">« SFTP », « FTP », « FTPS »… pour l'affichage.</param>
-    public static SshSession ForFiles(string label, string protocol, Func<CancellationToken, Task<IRemoteFiles>> open, Dispatcher dispatcher,
-        PvwaAccount? account = null, SavedSession? saved = null) =>
-        new(label, protocol, open, dispatcher, account, saved);
-
-    /// <summary>Terminal SSH (faux : session de fichiers seuls).</summary>
-    public bool HasTerminal => _openFiles is null;
-
-    /// <summary>Protocole d'une session de fichiers seuls (« SFTP », « FTPS »…).</summary>
-    public string? FilesProtocol { get; }
-
     /// <summary>Écran du terminal mis à jour (données reçues).</summary>
     public event Action? ScreenUpdated;
-
-    public event Action? StateChanged;
 
     /// <summary>Dossier courant du shell (OSC 7), pour l'option « suivre le terminal ».</summary>
     public event Action<string>? TerminalDirectoryChanged;
 
-    public PvwaAccount? Account { get; }
-
-    public SavedSession? Saved { get; }
-
-    public string Label { get; }
-
     public TerminalEmulator Emulator { get; } = new(100, 30);
-
-    public SshSessionState State { get; private set; } = SshSessionState.Connecting;
-
-    public string? Error { get; private set; }
-
-    /// <summary>Fichiers de cette session ouverts dans l'éditeur de texte (créé par la fenêtre principale).</summary>
-    public RemoteEditor? Editor { get; set; }
 
     public string? TerminalDirectory { get; private set; }
 
     /// <summary>Le navigateur suit le dossier du terminal (case « Suivre le terminal » du panneau Fichiers).</summary>
     public bool FollowTerminal { get; set; } = true;
 
-    /// <summary>Dossier affiché par le panneau Fichiers pour cette session (conservé quand on change d'onglet).</summary>
-    public string? BrowserDirectory { get; set; }
+    public bool CanFollowTerminal => _followTerminal;
 
-    public bool CanFollowTerminal => _followTerminal && HasTerminal;
+    /// <summary>Connexion SFTP de l'explorateur : une session PSMP de plus pour un compte CyberArk.</summary>
+    protected override Task<IRemoteFiles> OpenFilesAsync(CancellationToken ct) => _connector.OpenFileBrowserAsync(ct);
 
     public async Task ConnectAsync(int columns, int rows)
     {
-        if (_openFiles is not null)
-        {
-            await ConnectFilesAsync(_openFiles);
-            return;
-        }
-
-        SetState(SshSessionState.Connecting, null);
+        SetState(RemoteSessionState.Connecting, null);
         Emulator.Resize(columns, rows);
         // Reconnexion : on libère la connexion précédente avant d'en ouvrir une nouvelle, et on oublie ce qu'elle a
         // reçu ou ce qui y a été tapé (sinon le suivi du dossier ne s'installerait pas, ou trop tôt).
-        DisposeInBackground(_shell, _client, null);
+        DisposeInBackground(_shell, _client);
         _shell = null;
         _client = null;
         int connection = ++_connection;
@@ -148,8 +81,8 @@ public sealed class SshSession : IDisposable
         try
         {
             DebugLog.Write("ssh", $"{Label} : connexion");
-            var connector = _connector!;
-            _client = await connector.ConnectShellAsync(_lifetime.Token);
+            var connector = _connector;
+            _client = await connector.ConnectShellAsync(Lifetime);
             DebugLog.Write("ssh", $"{Label} : connecté ({_client.ConnectionInfo.ServerVersion}, {_client.ConnectionInfo.CurrentServerEncryption}, bannière {!string.IsNullOrWhiteSpace(connector.Banner)})");
             _client.KeepAliveInterval = TimeSpan.FromSeconds(30);
             if (connection > 1 && Emulator.CursorColumn > 0)
@@ -169,14 +102,14 @@ public sealed class SshSession : IDisposable
             _shell.Closed += (_, _) =>
             {
                 DebugLog.Write("ssh", $"{Label} : session fermée par le serveur");
-                _dispatcher.BeginInvoke(() => SetState(SshSessionState.Closed, Strings.SessionClosedByServer));
+                Dispatcher.BeginInvoke(() => SetState(RemoteSessionState.Closed, Strings.SessionClosedByServer));
             };
             _shell.ErrorOccurred += (_, e) =>
             {
                 DebugLog.Write("ssh", $"{Label} : erreur de la session", e.Exception);
-                _dispatcher.BeginInvoke(() => SetState(SshSessionState.Failed, e.Exception.Message));
+                Dispatcher.BeginInvoke(() => SetState(RemoteSessionState.Failed, e.Exception.Message));
             };
-            SetState(SshSessionState.Connected, null);
+            SetState(RemoteSessionState.Connected, null);
             ScreenUpdated?.Invoke();
             if (_followTerminal || Saved?.StartDirectory is not null)
             {
@@ -186,32 +119,7 @@ public sealed class SshSession : IDisposable
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             DebugLog.Write("ssh", $"{Label} : échec de la connexion", ex);
-            SetState(SshSessionState.Failed, ex is OperationCanceledException ? Strings.ConnectionCancelled : ex.Message);
-            throw;
-        }
-    }
-
-    /// <summary>Session de fichiers seuls : ouvre (ou rouvre) la connexion de l'onglet Fichiers.</summary>
-    private async Task ConnectFilesAsync(Func<CancellationToken, Task<IRemoteFiles>> open)
-    {
-        SetState(SshSessionState.Connecting, null);
-        if (_browser is { IsCompletedSuccessfully: true } previous)
-        {
-            DisposeInBackground(null, null, previous.Result);
-        }
-
-        _browser = null;
-        try
-        {
-            DebugLog.Write("files", $"{Label} : connexion {FilesProtocol}");
-            var browser = await open(_lifetime.Token);
-            _browser = Task.FromResult(browser);
-            SetState(SshSessionState.Connected, null);
-        }
-        catch (Exception ex) when (ex is not OutOfMemoryException)
-        {
-            DebugLog.Write("files", $"{Label} : échec de la connexion", ex);
-            SetState(SshSessionState.Failed, ex is OperationCanceledException ? Strings.ConnectionCancelled : ErrorText.Describe(ex));
+            SetState(RemoteSessionState.Failed, ex is OperationCanceledException ? Strings.ConnectionCancelled : ex.Message);
             throw;
         }
     }
@@ -229,7 +137,7 @@ public sealed class SshSession : IDisposable
     /// </summary>
     public bool InstallFolderTracking()
     {
-        if (!_followTerminal || State != SshSessionState.Connected || !IsAtPrompt())
+        if (!_followTerminal || State != RemoteSessionState.Connected || !IsAtPrompt())
         {
             return false;
         }
@@ -244,7 +152,7 @@ public sealed class SshSession : IDisposable
     /// </summary>
     public bool TypeAtPrompt(string command)
     {
-        if (State != SshSessionState.Connected || !IsAtPrompt() || command.Any(char.IsControl))
+        if (State != RemoteSessionState.Connected || !IsAtPrompt() || command.Any(char.IsControl))
         {
             return false;
         }
@@ -255,7 +163,7 @@ public sealed class SshSession : IDisposable
 
     public void Send(string text)
     {
-        if (_shell is not { } shell || State != SshSessionState.Connected)
+        if (_shell is not { } shell || State != RemoteSessionState.Connected)
         {
             return;
         }
@@ -294,11 +202,11 @@ public sealed class SshSession : IDisposable
                     DebugLog.Write("ssh", $"{Label} : échec de l'envoi au serveur", ex);
                     if (closeOnError)
                     {
-                        _dispatcher.BeginInvoke(() =>
+                        Dispatcher.BeginInvoke(() =>
                         {
                             if (_shell == shell)
                             {
-                                SetState(SshSessionState.Closed, ex.Message);
+                                SetState(RemoteSessionState.Closed, ex.Message);
                             }
                         });
                     }
@@ -307,128 +215,11 @@ public sealed class SshSession : IDisposable
         }
     }
 
-    /// <summary>
-    /// Fermeture des connexions hors du thread de l'interface (la déconnexion attend le réseau). Une écriture en
-    /// attente échoue alors, sans conséquence.
-    /// </summary>
-    private void DisposeInBackground(ShellStream? shell, SshClient? client, IRemoteFiles? browser)
+    protected override void CloseConnections()
     {
-        if (shell is null && client is null && browser is null)
-        {
-            return;
-        }
-
-        var label = Label;
-        _ = Task.Run(() =>
-        {
-            try
-            {
-                shell?.Dispose();
-                client?.Dispose();
-                browser?.Dispose();
-            }
-            catch (Exception ex) when (ex is Renci.SshNet.Common.SshException or ObjectDisposedException or InvalidOperationException or IOException)
-            {
-                DebugLog.Write("ssh", $"{label} : erreur à la fermeture", ex);
-            }
-        });
-    }
-
-    /// <summary>Connexion SFTP (deuxième session PSMP), ouverte au premier usage du panneau Fichiers.</summary>
-    public Task<IRemoteFiles> GetBrowserAsync()
-    {
-        if (_browser is { IsFaulted: true } or { IsCanceled: true } || _browser is { IsCompletedSuccessfully: true, Result.IsConnected: false })
-        {
-            if (_browser.IsCompletedSuccessfully)
-            {
-                DisposeInBackground(null, null, _browser.Result);
-            }
-
-            _browser = null;
-        }
-
-        return _browser ??= OpenBrowserAsync();
-    }
-
-    private async Task<IRemoteFiles> OpenBrowserAsync()
-    {
-        if (_openFiles is not null)
-        {
-            return await _openFiles(_lifetime.Token);
-        }
-
-        var connector = _connector!;
-        var sftp = await connector.ConnectSftpAsync(_lifetime.Token);
-        sftp.KeepAliveInterval = TimeSpan.FromSeconds(30);
-        return new RemoteFileBrowser(sftp, connector.ConnectScpAsync);
-    }
-
-    /// <summary>Connexion SFTP du panneau Fichiers si elle est ouverte (sans en ouvrir une).</summary>
-    public IRemoteFiles? OpenedBrowser
-    {
-        get
-        {
-            try
-            {
-                return _browser is { IsCompletedSuccessfully: true } task && task.Result.IsConnected ? task.Result : null;
-            }
-            catch (ObjectDisposedException)
-            {
-                return null;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Connexion SFTP dédiée (une session PSMP de plus), pour un suivi de fichier indépendant de l'onglet Fichiers.
-    /// Elle est fermée par <see cref="CloseDedicatedBrowser"/>, ou avec la session.
-    /// </summary>
-    public async Task<IRemoteFiles> OpenDedicatedBrowserAsync()
-    {
-        ObjectDisposedException.ThrowIf(_disposed, this);
-        DebugLog.Write("ssh", $"{Label} : connexion dédiée au suivi d'un fichier");
-        var browser = await OpenBrowserAsync();
-        if (_disposed)
-        {
-            // Session fermée pendant la connexion : rien ne doit rester ouvert.
-            DisposeInBackground(null, null, browser);
-            throw new ObjectDisposedException(nameof(SshSession));
-        }
-
-        _dedicated.Add(browser);
-        return browser;
-    }
-
-    public void CloseDedicatedBrowser(IRemoteFiles browser)
-    {
-        if (_dedicated.Remove(browser))
-        {
-            DisposeInBackground(null, null, browser);
-        }
-    }
-
-    public bool IsDisposed => _disposed;
-
-    public void Dispose()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        _disposed = true;
-        Editor?.Dispose();
-        _lifetime.Cancel();
-        DisposeInBackground(_shell, _client, _browser is { IsCompletedSuccessfully: true } browser ? browser.Result : null);
-        foreach (var dedicated in _dedicated)
-        {
-            DisposeInBackground(null, null, dedicated);
-        }
-
-        _dedicated.Clear();
+        DisposeInBackground(_shell, _client);
         _shell = null;
         _client = null;
-        _lifetime.Dispose();
     }
 
     private void OnData(byte[] data)
@@ -440,7 +231,7 @@ public sealed class SshSession : IDisposable
         if (Interlocked.Exchange(ref _drainScheduled, 1) == 0)
         {
             // Un seul rafraîchissement pour plusieurs paquets reçus en rafale.
-            _dispatcher.BeginInvoke(DispatcherPriority.Background, Drain);
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, Drain);
         }
     }
 
@@ -469,7 +260,7 @@ public sealed class SshSession : IDisposable
     private async Task PrepareShellAsync(string? startDirectory, int connection)
     {
         var deadline = DateTime.UtcNow.AddSeconds(60);
-        while (DateTime.UtcNow < deadline && State == SshSessionState.Connected && connection == _connection)
+        while (DateTime.UtcNow < deadline && State == RemoteSessionState.Connected && connection == _connection)
         {
             await Task.Delay(250);
             if (_userTyped)
@@ -491,16 +282,4 @@ public sealed class SshSession : IDisposable
     private bool IsAtPrompt() =>
         !Emulator.IsAlternateScreen && Emulator.CursorColumn > 0
         && WorkingDirectory.LooksLikePrompt(Emulator.GetText(Emulator.CursorRow, 0, Emulator.CursorRow, Emulator.CursorColumn - 1));
-
-    private void SetState(SshSessionState state, string? error)
-    {
-        if (State == state && Error == error)
-        {
-            return;
-        }
-
-        State = state;
-        Error = error;
-        StateChanged?.Invoke();
-    }
 }

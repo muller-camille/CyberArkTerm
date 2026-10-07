@@ -21,7 +21,7 @@ public sealed class RemoteEditor : IDisposable
 
     private static readonly string Root = Path.Combine(Path.GetTempPath(), "CyberArkTerm", "edit");
 
-    private readonly SshSession _session;
+    private readonly RemoteSession _session;
     private readonly Window _owner;
     private readonly AppSettings _settings;
     private readonly Action<string, bool> _status;
@@ -34,7 +34,7 @@ public sealed class RemoteEditor : IDisposable
 
     /// <param name="status">Message pour la barre d'état (texte, erreur).</param>
     /// <param name="remoteChanged">Dossier du serveur dont le contenu vient de changer (pour l'actualiser).</param>
-    public RemoteEditor(SshSession session, Window owner, AppSettings settings, Action<string, bool> status, Action<string> remoteChanged)
+    public RemoteEditor(RemoteSession session, Window owner, AppSettings settings, Action<string, bool> status, Action<string> remoteChanged)
     {
         _session = session;
         _owner = owner;

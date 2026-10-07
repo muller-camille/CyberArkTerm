@@ -26,12 +26,7 @@ public partial class MainWindow
         SetStatus(Text.Format(Strings.SftpFilesOpening, label, _settings.PsmpAddress));
         var key = await GetPsmpKeyAsync();
         var connector = new SshConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi, key);
-        var session = SshSession.ForFiles(label, "SFTP", async ct =>
-        {
-            var sftp = await connector.ConnectSftpAsync(ct);
-            sftp.KeepAliveInterval = TimeSpan.FromSeconds(30);
-            return new RemoteFileBrowser(sftp, connector.ConnectScpAsync);
-        }, Dispatcher, account, saved);
+        var session = new FilesSession(label, "SFTP", connector.OpenFileBrowserAsync, Dispatcher, account, saved);
         ShowFilesTab(session, $"{login}@{_settings.PsmpAddress}", duplicate);
     }
 
@@ -43,12 +38,7 @@ public partial class MainWindow
         {
             var connector = new SshConnector(target.Host, target.Port, target.UserName, _directUi, password: password,
                 addressWhat: CoreStrings.ServerAddressWhat);
-            open = async ct =>
-            {
-                var sftp = await connector.ConnectSftpAsync(ct);
-                sftp.KeepAliveInterval = TimeSpan.FromSeconds(30);
-                return new RemoteFileBrowser(sftp, connector.ConnectScpAsync);
-            };
+            open = connector.OpenFileBrowserAsync;
         }
         else
         {
@@ -72,16 +62,29 @@ public partial class MainWindow
             open = async ct => await FtpFileBrowser.ConnectAsync(connection, ct);
         }
 
-        var session = SshSession.ForFiles(label, KeePassTarget.Name(target.Protocol), open, Dispatcher);
+        var session = new FilesSession(label, KeePassTarget.Name(target.Protocol), open, Dispatcher);
         var who = target.UserName.Length > 0 ? $"{target.UserName}@{target.Address}" : target.Address;
         ShowFilesTab(session, who, duplicate);
     }
 
-    private void ShowFilesTab(SshSession session, string target, Func<Task>? duplicate)
+    private void ShowFilesTab(FilesSession session, string target, Func<Task>? duplicate)
     {
         session.Editor = new RemoteEditor(session, this, _settings, (text, error) => SetStatus(text, error),
             directory => FilesPanel.OnRemoteChanged(session, directory));
-        var view = new FilesSessionView(session, target);
+        var view = new FilesSessionView(session, target)
+        {
+            // Reconnexion : la connexion actuelle sera fermée, ses transferts sont donc annulés d'abord (avec accord).
+            BeforeReconnect = async () =>
+            {
+                if (!FilesPanel.ConfirmCancelTransfers(this, session))
+                {
+                    return false;
+                }
+
+                await FilesPanel.CancelTransfersAsync(session);
+                return true;
+            },
+        };
         view.ShowFilesRequested += () => SideTabs.SelectedItem = FilesTab;
         var tab = new TabItem { Content = view, Tag = session };
         tab.Header = TabHeader(tab, session.Label, "IconFiles", duplicate);
@@ -89,16 +92,16 @@ public partial class MainWindow
         {
             switch (session.State)
             {
-                case SshSessionState.Connected:
-                    SetStatus(Text.Format(Strings.FilesOpened, session.Label, session.FilesProtocol));
+                case RemoteSessionState.Connected:
+                    SetStatus(Text.Format(Strings.FilesOpened, session.Label, session.Protocol));
                     break;
-                case SshSessionState.Failed:
+                case RemoteSessionState.Failed:
                     SetStatus(Text.Format(Strings.FilesSessionError, session.Label, session.Error), isError: true);
                     break;
             }
         };
 
-        _sshSessions.Add(session);
+        _remoteSessions.Add(session);
         MainTabs.Items.Add(tab);
         MainTabs.SelectedItem = tab;
         SideTabs.SelectedItem = FilesTab;

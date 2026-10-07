@@ -17,7 +17,8 @@ namespace CyberArkTerm.App.Views;
 public partial class MainWindow
 {
     private readonly SshInteraction _psmpUi;
-    private readonly List<SshSession> _sshSessions = [];
+    // Sessions des onglets terminal et fichiers seuls.
+    private readonly List<RemoteSession> _remoteSessions = [];
     private MfaSshKey? _mfaKey;
     private DateTime _mfaRetryAfter;
 
@@ -48,16 +49,16 @@ public partial class MainWindow
         {
             switch (session.State)
             {
-                case SshSessionState.Connected:
+                case RemoteSessionState.Connected:
                     SetStatus(openedMessage);
                     break;
-                case SshSessionState.Failed:
+                case RemoteSessionState.Failed:
                     SetStatus(Text.Format(Strings.SshSessionError, label, session.Error), isError: true);
                     break;
             }
         };
 
-        _sshSessions.Add(session);
+        _remoteSessions.Add(session);
         MainTabs.Items.Add(tab);
         MainTabs.SelectedItem = tab;
         SideTabs.SelectedItem = FilesTab;
@@ -88,7 +89,7 @@ public partial class MainWindow
             }
         };
         header.ContextMenu = TabMenu(tab, duplicate);
-        if (tab.Tag is SshSession { HasTerminal: true })
+        if (tab.Tag is SshSession)
         {
             header.ToolTip = Strings.TabDetachTip;
             EnableDragToDetach(tab, header);
@@ -101,7 +102,7 @@ public partial class MainWindow
     private ContextMenu TabMenu(TabItem tab, Func<Task>? duplicate)
     {
         var actions = CreateSessionActions(tab, duplicate, () => this);
-        var ssh = tab.Tag is SshSession { HasTerminal: true } ? Visibility.Visible : Visibility.Collapsed;
+        var ssh = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed;
         var search = new MenuItem { Header = Strings.MenuTerminalSearch, InputGestureText = Strings.ShortcutTerminalSearch, Visibility = ssh };
         search.Click += (_, _) => SshViewOf(tab)?.ShowSearch();
         var save = new MenuItem { Header = Strings.MenuTerminalSave, InputGestureText = Strings.ShortcutTerminalSave, Visibility = ssh, ToolTip = Strings.MenuTerminalSaveTip };
@@ -148,7 +149,7 @@ public partial class MainWindow
     {
         static Image MenuIcon(object source) => new() { Source = (System.Windows.Media.ImageSource)source, Width = 16, Height = 16 };
 
-        var ssh = tab.Tag is SshSession { HasTerminal: true } ? Visibility.Visible : Visibility.Collapsed;
+        var ssh = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed;
         var reconnect = new MenuItem { Header = Strings.MenuTabReconnect, Icon = MenuIcon(FindResource("IconRefresh")) };
         reconnect.Click += async (_, _) => await ReconnectTabAsync(tab, owner());
         var copy = new MenuItem
@@ -186,16 +187,16 @@ public partial class MainWindow
         });
     }
 
-    /// <summary>Onglets de session (SSH, Bureau à distance), dans l'ordre affiché.</summary>
-    private IEnumerable<TabItem> SessionTabs() => MainTabs.Items.OfType<TabItem>().Where(t => t.Tag is SshSession or RdpSession or VncSession);
+    /// <summary>Onglets de session (SSH, fichiers seuls, Bureau à distance, VNC), dans l'ordre affiché.</summary>
+    private IEnumerable<TabItem> SessionTabs() => MainTabs.Items.OfType<TabItem>().Where(t => t.Tag is RemoteSession or RdpSession or VncSession);
 
     /// <param name="owner">Fenêtre des questions (celle du terminal détaché) ; par défaut la fenêtre principale.</param>
     private void CloseSessionTab(TabItem tab, Window? owner = null)
     {
         switch (tab.Tag)
         {
-            case SshSession:
-                CloseSshTab(tab, owner);
+            case RemoteSession:
+                CloseRemoteTab(tab, owner);
                 break;
             case RdpSession:
                 _ = CloseRdpTabAsync(tab);
@@ -224,14 +225,14 @@ public partial class MainWindow
         switch (tab.Tag)
         {
             case SshSession ssh when SshViewOf(tab) is { } view:
-                if (ssh.State != SshSessionState.Connected || Confirm(ssh.Label))
+                if (ssh.State != RemoteSessionState.Connected || Confirm(ssh.Label))
                 {
                     await view.ConnectAsync();
                 }
 
                 break;
-            case SshSession files when tab.Content is FilesSessionView view:
-                if (files.State != SshSessionState.Connected || Confirm(files.Label))
+            case FilesSession files when tab.Content is FilesSessionView view:
+                if (files.State != RemoteSessionState.Connected || Confirm(files.Label))
                 {
                     await view.ConnectAsync();
                 }
@@ -271,9 +272,9 @@ public partial class MainWindow
         {
             switch (tab.Tag)
             {
-                case SshSession:
+                case RemoteSession:
                     // Seule question possible : des fichiers modifiés pas encore renvoyés.
-                    CloseSshTab(tab);
+                    CloseRemoteTab(tab);
                     break;
                 case RdpSession rdp:
                     closing.Add(RemoveRdpTabAsync(rdp));
@@ -288,9 +289,10 @@ public partial class MainWindow
         MainTabs.SelectedItem = keep;
     }
 
-    private void CloseSshTab(TabItem tab, Window? owner = null)
+    /// <summary>Ferme un onglet terminal ou fichiers seuls (fichiers modifiés et transferts en cours d'abord).</summary>
+    private void CloseRemoteTab(TabItem tab, Window? owner = null)
     {
-        if (tab.Tag is not SshSession session)
+        if (tab.Tag is not RemoteSession session)
         {
             return;
         }
@@ -306,18 +308,22 @@ public partial class MainWindow
             return;
         }
 
-        CloseDetachedWindow(session);
-        DropFromParallel(session);
+        if (session is SshSession ssh)
+        {
+            CloseDetachedWindow(ssh);
+            DropFromParallel(ssh);
+        }
+
         FilesPanel.ReleaseTails(session);
         MainTabs.Items.Remove(tab);
-        _sshSessions.Remove(session);
+        _remoteSessions.Remove(session);
         _ = DisposeAfterTransfersAsync(session);
         MainTabs.SelectedItem ??= HomeTab;
-        SetStatus(Text.Format(session.HasTerminal ? Strings.SshClosed : Strings.FilesClosed, session.Label));
+        SetStatus(Text.Format(session is SshSession ? Strings.SshClosed : Strings.FilesClosed, session.Label));
     }
 
     /// <summary>Annule les transferts de la session, laisse le fichier interrompu être supprimé, puis ferme ses connexions.</summary>
-    private async Task DisposeAfterTransfersAsync(SshSession session)
+    private async Task DisposeAfterTransfersAsync(RemoteSession session)
     {
         try
         {
@@ -331,19 +337,19 @@ public partial class MainWindow
 
     /// <summary>Vrai si l'on peut fermer : aucun fichier modifié non renvoyé, ou l'utilisateur accepte de les perdre.</summary>
     private bool ConfirmCloseEditedFiles() =>
-        RemoteEditor.ConfirmClose(this, _sshSessions.Select(s => s.Editor).OfType<RemoteEditor>());
+        RemoteEditor.ConfirmClose(this, _remoteSessions.Select(s => s.Editor).OfType<RemoteEditor>());
 
     private void CloseAllSshSessions()
     {
         CloseParallel();
         CloseAllDetachedWindows();
         FilesPanel.CloseTailWindows();
-        foreach (var session in _sshSessions)
+        foreach (var session in _remoteSessions)
         {
             session.Dispose();
         }
 
-        _sshSessions.Clear();
+        _remoteSessions.Clear();
     }
 
     private void OnMainTabChanged(object sender, SelectionChangedEventArgs e)
@@ -356,7 +362,7 @@ public partial class MainWindow
 
         var tab = MainTabs.SelectedItem as TabItem;
         // Vue parallèle : l'onglet Fichiers suit la session où l'on travaille.
-        FilesPanel.Attach(tab?.Tag as SshSession ?? (tab?.Tag as ParallelView)?.ActiveSession);
+        FilesPanel.Attach(tab?.Tag as RemoteSession ?? (tab?.Tag as ParallelView)?.ActiveSession);
         ShowRdpView(tab);
         if (tab?.Content is SshSessionView view)
         {

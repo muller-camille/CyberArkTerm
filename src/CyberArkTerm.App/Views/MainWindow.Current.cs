@@ -238,6 +238,13 @@ public partial class MainWindow
     /// <summary>Ouvre le serveur avec sa configuration (mode, composant, machine, motif, dossier SFTP).</summary>
     private void ConnectSaved(SavedSession saved, bool advanced)
     {
+        // Serveur d'une liste partagée créée pour un autre PVWA : son ID de compte ne vaut pas ici.
+        if (!SessionLibrary.IsForHost(saved, PvwaHost))
+        {
+            SetStatus(Text.Format(Strings.SharedOtherPvwaConnect, saved.Name, saved.PvwaHost, PvwaHost), isError: true);
+            return;
+        }
+
         if (!_byId.TryGetValue(saved.AccountId, out var account))
         {
             SetStatus(MissingAccountText(Text.Format(Strings.SavedAccountGone, saved.Name)), isError: true);

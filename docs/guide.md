@@ -243,7 +243,7 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
 - **Delete**: select, then Del (or right-click → "Delete (rm)"), with confirmation. Folders must be empty.
 - **Edit a file**: **double-click** the file (or `Enter`, `F4`, right-click → "Edit", the pencil button). The file
   opens in the text editor chosen in Settings (Notepad by default). On double-click, an archive, an image, an
-  executable or an office document is downloaded instead of opened. Every time you save, CyberArkTerm offers to send it back to the
+  executable or an office document is downloaded instead of opened, as is any file whose first bytes are binary. Every time you save, CyberArkTerm offers to send it back to the
   server: sent over SFTP, the file's permissions are kept. If the file changed on the server since you opened it, a
   warning asks before overwriting it.
 - **Follow a file (tail -f)**: right-click one or several files → "Follow (tail -f)". A window shows the end of the
@@ -346,7 +346,9 @@ Three buttons at the top of the tab, left of the KeePass vault button:
     and when.
   - **Target machine**: a shared server that opens a domain account on a machine not among the account's allowed
     machines in CyberArk asks for confirmation on the first connection (anyone with write access to the share can
-    change the list).
+    change the list). "Copy into My servers" names such servers and asks before copying them.
+  - **List of another PVWA**: a list created for another vault is shown, but its servers neither open nor get
+    copied, and nothing can be added to it: sign in to that PVWA to use it.
   - **History**: right-click → "History of changes…". The "Changes" tab lists who added, removed or restored what,
     and when; the "Versions" tab keeps a copy of the list at each revision (the last 100, in the `name.versions` folder
     next to the file). "Restore this version…" puts the list back in that state; the restore is itself recorded, so
@@ -567,8 +569,9 @@ KeePassXC and pykeepass, and files written by CyberArkTerm were checked in both 
 
 ### VNC sessions
 
-Built-in client (RFB protocol 3.3, 3.7 and 3.8, RFC 6143), nothing to install: "none" or "VNC password"
-authentication (the protocol's DES, implemented in CyberArkTerm because the Windows FIPS mode can forbid DES), Raw,
+Built-in client (RFB protocol 3.3, 3.7 and 3.8, RFC 6143; a newer server, such as RealVNC 4 or 5, is answered in
+3.8), nothing to install: "none" or "VNC password" authentication (when the server offers both, the password if the
+entry has one, otherwise none) (the protocol's DES, implemented in CyberArkTerm because the Windows FIPS mode can forbid DES), Raw,
 CopyRect and Hextile encodings, screen size changes, 32-bit pixels. The keyboard is sent as X11 "keysyms" (AltGr
 characters are sent as characters), the wheel as buttons 4 and 5.
 
@@ -578,6 +581,8 @@ FluentFTP library (MIT licence). Passive mode (`EPSV` / `PASV`), binary, `PBSZ 0
 checked by Windows, otherwise pinned (`ftps://server:port` among the accepted server keys, in the Settings). FTP has
 no standard checksum: each upload is read back from the server and compared by SHA-256. Partial reads (`REST`) for
 compare and live follow. After an interrupted transfer, the connection is reopened and the incomplete file deleted.
+Overwriting a file writes it in place: it keeps its permissions. Symbolic links: the first 40 of a folder are
+resolved (one round trip each); beyond that, a link shows as a file and opening it enters the folder if it is one.
 
 ### Remote desktop sessions
 

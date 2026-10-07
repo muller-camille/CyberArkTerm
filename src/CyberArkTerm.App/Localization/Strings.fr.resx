@@ -3502,4 +3502,17 @@ Ce peut être un renouvellement, ou une interception de la connexion. Ne continu
   <data name="SftpFilesOpening" xml:space="preserve">
     <value>Ouverture des fichiers de {0} via {1}…</value>
   </data>
+  <data name="SharedCopyTargetsConfirm" xml:space="preserve">
+    <value>Ces serveurs de la liste partagée « {0} » ouvrent leur compte sur une machine cible que CyberArk n'autorise pas pour ce compte :
+
+{1}
+
+Ces machines cibles viennent de la liste partagée, que peut modifier quiconque a le droit d'écrire sur le partage, et non de CyberArk. Une fois copiées, elles ne seront plus signalées. Les copier dans Mes serveurs ?</value>
+  </data>
+  <data name="SharedOtherPvwaConnect" xml:space="preserve">
+    <value>« {0} » vient d'une liste partagée créée pour le PVWA {1} : ses comptes ne sont pas ceux de {2}. Connectez-vous à {1} pour l'utiliser.</value>
+  </data>
+  <data name="SharedOtherPvwaChange" xml:space="preserve">
+    <value>La liste partagée « {0} » a été créée pour le PVWA {1} : on ne peut ni y ajouter des serveurs de {2}, ni copier ses serveurs dans Mes serveurs.</value>
+  </data>
 </root>

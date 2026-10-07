@@ -16,7 +16,7 @@ internal interface ITailLink : IDisposable
     string Server { get; }
 
     /// <summary>Session d'origine : le suivi s'arrête quand elle se ferme.</summary>
-    SshSession? Session { get; }
+    RemoteSession? Session { get; }
 
     /// <summary>Connexion SFTP propre au suivi (option « session indépendante »).</summary>
     bool Dedicated { get; }
@@ -50,15 +50,15 @@ internal interface ITailLink : IDisposable
 /// </summary>
 internal sealed class SessionTailLink : ITailLink
 {
-    private readonly SshSession _session;
+    private readonly RemoteSession _session;
     private IRemoteFiles? _browser;
     private Task? _connecting;
     private bool _wanted;
     private bool _disposed;
-    private SshSessionState _lastState;
+    private RemoteSessionState _lastState;
 
     /// <param name="shared">Connexion de l'onglet Fichiers, utilisée si le suivi n'est pas indépendant.</param>
-    public SessionTailLink(SshSession session, bool dedicated, IRemoteFiles? shared)
+    public SessionTailLink(RemoteSession session, bool dedicated, IRemoteFiles? shared)
     {
         _session = session;
         Dedicated = dedicated;
@@ -76,7 +76,7 @@ internal sealed class SessionTailLink : ITailLink
 
     public string Server => _session.Label;
 
-    public SshSession? Session => _session;
+    public RemoteSession? Session => _session;
 
     public bool Dedicated { get; }
 
@@ -87,7 +87,7 @@ internal sealed class SessionTailLink : ITailLink
     public bool IsConnecting => _connecting is { IsCompleted: false };
 
     public bool CanReconnect =>
-        _wanted && !_disposed && !_session.IsDisposed && _session.State == SshSessionState.Connected && !IsConnecting;
+        _wanted && !_disposed && !_session.IsDisposed && _session.State == RemoteSessionState.Connected && !IsConnecting;
 
     public bool CheckConnected()
     {
@@ -163,7 +163,7 @@ internal sealed class SessionTailLink : ITailLink
     private void OnStateChanged()
     {
         // L'onglet s'est reconnecté : les fichiers suivis reprennent, sur une nouvelle connexion si l'ancienne est perdue.
-        if (_session.State == SshSessionState.Connected && _lastState != SshSessionState.Connected)
+        if (_session.State == RemoteSessionState.Connected && _lastState != RemoteSessionState.Connected)
         {
             _wanted = true;
         }

@@ -422,10 +422,13 @@ public partial class MainWindow
             var children = new List<object>();
             if (content is not null)
             {
+                // Les ID de comptes ne valent que pour le PVWA de la liste : ceux d'une liste d'un autre PVWA ne sont pas
+                // cherchés dans les comptes de celui-ci.
+                var pvwa = content.Pvwa.Length > 0 ? content.Pvwa : PvwaHost;
                 var entries = new Dictionary<SavedSession, ServerEntry>(ReferenceEqualityComparer.Instance);
                 foreach (var entry in content.Servers)
                 {
-                    entries[entry.ToSession(PvwaHost, keepId: true)] = entry;
+                    entries[entry.ToSession(pvwa, keepId: true)] = entry;
                 }
 
                 var tree = SessionLibrary.BuildTree(content.AllFolders(), entries.Keys, filter);
@@ -459,7 +462,8 @@ public partial class MainWindow
 
         foreach (var session in node.Sessions)
         {
-            var server = new SharedServerNode(list, entries[session], session, _byId.GetValueOrDefault(session.AccountId));
+            var account = SessionLibrary.IsForHost(session, PvwaHost) ? _byId.GetValueOrDefault(session.AccountId) : null;
+            var server = new SharedServerNode(list, entries[session], session, account);
             _sharedSessions.AddOrUpdate(session, server);
             items.Add(server);
         }
@@ -543,7 +547,7 @@ public partial class MainWindow
     /// </summary>
     private async Task ShareAsync(SharedServerList list, IReadOnlyCollection<SavedSession> sessions, Func<SavedSession, string> folderOf)
     {
-        if (sessions.Count == 0)
+        if (sessions.Count == 0 || RefuseOtherPvwa(list))
         {
             return;
         }
@@ -668,7 +672,7 @@ public partial class MainWindow
 
     private void OnCopySharedToMyServers(object sender, RoutedEventArgs e)
     {
-        if (SavedTree.SelectedItem is not { } node || SharedServers(node) is not { Count: > 0 } servers)
+        if (SavedTree.SelectedItem is not { } node || SharedServers(node) is not { Count: > 0 } servers || RefuseOtherPvwa(servers[0].List))
         {
             return;
         }
@@ -678,6 +682,18 @@ public partial class MainWindow
         if (plan.Added.Count == 0)
         {
             SetStatus(Text.Format(Strings.CopiedToMyServersNone, plan.Duplicates));
+            return;
+        }
+
+        // Machine cible choisie dans la liste et non autorisée par CyberArk : confirmée avant la copie, car la copie ne la
+        // signalera plus à la connexion.
+        var targets = plan.Added
+            .Where(s => !string.IsNullOrWhiteSpace(s.RemoteMachine) && !IsAllowedTarget(s.AccountId, s.RemoteMachine!))
+            .Select(s => $"  {s.Name} — {s.RemoteMachine!.Trim()}")
+            .ToList();
+        if (targets.Count > 0 && MessageBox.Show(this, Text.Format(Strings.SharedCopyTargetsConfirm, servers[0].List.Name, Abridged(targets, 8, "\n")),
+                Strings.SharedListsTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+        {
             return;
         }
 
@@ -709,6 +725,26 @@ public partial class MainWindow
     }
 
     // ===================== Connexion =====================
+
+    /// <summary>
+    /// Liste créée pour un autre PVWA : ses ID de comptes ne désignent pas les mêmes comptes ici, on n'y ajoute rien et on
+    /// n'en copie rien (message dans la barre d'état).
+    /// </summary>
+    private bool RefuseOtherPvwa(SharedServerList list)
+    {
+        if (list.Content is not { Pvwa.Length: > 0 } content || string.Equals(content.Pvwa, PvwaHost, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        SetStatus(Text.Format(Strings.SharedOtherPvwaChange, list.Name, content.Pvwa, PvwaHost), isError: true);
+        return true;
+    }
+
+    /// <summary>Machine cible autorisée par CyberArk pour le compte (machines du compte).</summary>
+    private bool IsAllowedTarget(string accountId, string machine) =>
+        _byId.TryGetValue(accountId, out var account)
+        && AccountClassifier.RemoteMachineList(account).Contains(machine.Trim(), StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Une machine cible venue d'une liste partagée (et non de CyberArk) est confirmée avant la première connexion :

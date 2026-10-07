@@ -309,17 +309,23 @@ public partial class MainWindow
         int missing = 0;
         foreach (var saved in chosen)
         {
-            if (!_byId.TryGetValue(saved.AccountId, out var account))
+            if (!SessionLibrary.IsForHost(saved, PvwaHost) || !_byId.TryGetValue(saved.AccountId, out var account))
             {
                 missing++;
                 continue;
             }
 
-            int before = _sshSessions.Count;
-            await ConnectAsync(account, SavedRequest(saved, account), saved: saved);
-            if (_sshSessions.Count > before)
+            if (!ConfirmSharedTarget(saved, account))
             {
-                opened.Add(_sshSessions[^1]);
+                continue;
+            }
+
+            int before = _remoteSessions.Count;
+            await ConnectAsync(account, SavedRequest(saved, account), saved: saved);
+            // Vue parallèle : terminaux seulement (pas les sessions de fichiers seuls).
+            if (_remoteSessions.Count > before && _remoteSessions[^1] is SshSession session)
+            {
+                opened.Add(session);
             }
         }
 

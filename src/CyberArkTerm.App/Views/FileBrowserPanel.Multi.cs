@@ -16,12 +16,12 @@ public partial class FileBrowserPanel
     private const int MaxConflictChecks = 50;
 
     /// <summary>Sessions SSH ouvertes, dans l'ordre des onglets (fournies par la fenêtre principale).</summary>
-    public Func<IReadOnlyList<SshSession>> OpenSessions { get; set; } = () => [];
+    public Func<IReadOnlyList<RemoteSession>> OpenSessions { get; set; } = () => [];
 
     private void OnMultiUpload(object sender, RoutedEventArgs e) => ShowMultiUpload(_session is null ? [] : [_session]);
 
     /// <summary>Fenêtre d'envoi vers plusieurs serveurs (onglet Fichiers, vue parallèle).</summary>
-    public void ShowMultiUpload(IReadOnlyCollection<SshSession> preselected, IReadOnlyList<string>? paths = null)
+    public void ShowMultiUpload(IReadOnlyCollection<RemoteSession> preselected, IReadOnlyList<string>? paths = null)
     {
         var sessions = OpenSessions();
         var owner = Window.GetWindow(this);
@@ -43,10 +43,10 @@ public partial class FileBrowserPanel
     /// Vérifie sur chaque serveur que le dossier existe et ce qui serait remplacé (une seule question pour tous), puis
     /// met en file un envoi par serveur.
     /// </summary>
-    private async Task EnqueueMultiUploadAsync(IReadOnlyList<string> paths, string destination, IReadOnlyList<SshSession> sessions)
+    private async Task EnqueueMultiUploadAsync(IReadOnlyList<string> paths, string destination, IReadOnlyList<RemoteSession> sessions)
     {
         var names = paths.Select(p => Path.GetFileName(p.TrimEnd('\\', '/'))).ToList();
-        var targets = new List<(SshSession Session, IRemoteFiles Browser, string Directory)>();
+        var targets = new List<(RemoteSession Session, IRemoteFiles Browser, string Directory)>();
         var problems = new List<string>();
         var conflicts = new List<string>();
         SetStatus(Strings.MultiUploadChecking);

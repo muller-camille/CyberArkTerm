@@ -10206,5 +10206,36 @@ namespace CyberArkTerm.App.Localization {
                 return ResourceManager.GetString("SftpFilesOpening", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to These servers of the shared list "{0}" open their account on a target machine that CyberArk does not allow for that account:
+        ///
+        ///{1}
+        ///
+        ///These target machines come from the shared list, which anyone with write access to the share can change, not from CyberArk. Once copied, they will no longer be flagged. Copy them into My servers?.
+        /// </summary>
+        public static string SharedCopyTargetsConfirm {
+            get {
+                return ResourceManager.GetString("SharedCopyTargetsConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to "{0}" comes from a shared list created for the PVWA {1}: its accounts are not those of {2}. Sign in to {1} to use it..
+        /// </summary>
+        public static string SharedOtherPvwaConnect {
+            get {
+                return ResourceManager.GetString("SharedOtherPvwaConnect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The shared list "{0}" was created for the PVWA {1}: servers of {2} cannot be added to it, nor its servers copied into My servers..
+        /// </summary>
+        public static string SharedOtherPvwaChange {
+            get {
+                return ResourceManager.GetString("SharedOtherPvwaChange", resourceCulture);
+            }
+        }
     }
 }

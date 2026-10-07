@@ -20,9 +20,6 @@ public interface IRemoteFiles : IDisposable
     /// <summary>Protocole des envois quand il n'y a pas de choix (FTP, FTPS).</summary>
     TransferProtocol UploadProtocol { get; }
 
-    /// <summary>Droits Unix modifiables (chmod).</summary>
-    bool SupportsPermissions { get; }
-
     /// <summary>Liste un dossier (chemin absolu ou relatif au dossier courant) et en fait le dossier courant.</summary>
     Task<List<RemoteEntry>> ListAsync(string path, bool showHidden, CancellationToken ct);
 

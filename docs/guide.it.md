@@ -259,7 +259,7 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
 - **Modificare un file**: **doppio clic** sul file (o `Invio`, `F4`, clic destro → «Modifica», il pulsante matita).
   Il file si apre nell'editor di testo scelto nelle Impostazioni (Blocco note per impostazione predefinita). Con il
   doppio clic, un archivio, un'immagine, un eseguibile o un documento d'ufficio viene scaricato invece di essere
-  aperto. A ogni salvataggio,
+  aperto, come ogni file i cui primi byte sono binari. A ogni salvataggio,
   CyberArkTerm propone di rinviarlo al server: invio in SFTP, permessi del file conservati. Se il file è cambiato
   sul server dopo l'apertura, un avviso chiede conferma prima di sovrascriverlo.
 - **Seguire un file (tail -f)**: clic destro su uno o più file → «Segui (tail -f)». Una finestra mostra la fine del
@@ -365,7 +365,10 @@ Tre pulsanti in alto nella scheda, a sinistra del pulsante archivio KeePass:
     chi ha aggiunto il server e quando.
   - **Macchina di destinazione**: un server condiviso che apre un account di dominio su una macchina non presente tra
     le macchine consentite dell'account in CyberArk chiede conferma alla prima connessione (chiunque abbia diritto di
-    scrittura sulla condivisione può modificare l'elenco).
+    scrittura sulla condivisione può modificare l'elenco). «Copia in I miei server» elenca questi server e chiede
+    conferma prima di copiarli.
+  - **Elenco di un altro PVWA**: un elenco creato per un altro vault viene mostrato, ma i suoi server non si aprono e
+    non si copiano, e non vi si può aggiungere nulla: accedi a quel PVWA per usarlo.
   - **Cronologia**: clic destro → «Cronologia delle modifiche…». La scheda «Modifiche» elenca chi ha aggiunto,
     rimosso o ripristinato cosa, e quando; la scheda «Versioni» conserva una copia dell'elenco a ogni revisione (le
     ultime 100, nella cartella `nome.versions` accanto al file). «Ripristina questa versione…» riporta l'elenco in
@@ -598,8 +601,9 @@ CyberArkTerm sono stati verificati in entrambi gli strumenti.
 
 ### Sessioni VNC
 
-Client integrato (protocollo RFB 3.3, 3.7 e 3.8, RFC 6143), nulla da installare: autenticazione «nessuna» o
-«password VNC» (DES del protocollo, implementato in CyberArkTerm perché la modalità FIPS di Windows può vietare DES),
+Client integrato (protocollo RFB 3.3, 3.7 e 3.8, RFC 6143; a un server più recente, come RealVNC 4 o 5, si risponde
+in 3.8), nulla da installare: autenticazione «nessuna» o «password VNC» (se il server le propone entrambe: la password
+se la voce ne ha una, altrimenti nessuna) (DES del protocollo, implementato in CyberArkTerm perché la modalità FIPS di Windows può vietare DES),
 codifiche Raw, CopyRect e Hextile, cambio di dimensione dello schermo, pixel a 32 bit. La tastiera è inviata come
 «keysym» X11 (i caratteri AltGr sono inviati come caratteri), la rotellina come pulsanti 4 e 5.
 
@@ -609,7 +613,9 @@ Libreria FluentFTP (licenza MIT). Modalità passiva (`EPSV` / `PASV`), binaria, 
 certificato verificato da Windows, altrimenti fissato (`ftps://server:porta` tra le chiavi dei server accettate,
 nelle Impostazioni). FTP non ha una somma di controllo standard: ogni invio è riletto dal server e confrontato con
 SHA-256. Lettura parziale (`REST`) per il confronto e il monitoraggio in tempo reale. Dopo un trasferimento
-interrotto, la connessione è riaperta e il file incompleto eliminato.
+interrotto, la connessione è riaperta e il file incompleto eliminato. Un file sostituito viene riscritto sul posto:
+conserva i suoi permessi. Collegamenti simbolici: i primi 40 di una cartella vengono risolti (un'andata e ritorno
+ciascuno); oltre, un collegamento appare come un file, e aprirlo entra nella cartella se è una cartella.
 
 ### Sessioni Desktop remoto
 

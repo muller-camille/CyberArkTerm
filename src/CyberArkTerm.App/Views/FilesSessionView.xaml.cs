@@ -14,27 +14,38 @@ namespace CyberArkTerm.App.Views;
 public partial class FilesSessionView : UserControl
 {
     /// <param name="target">« utilisateur@serveur », affiché sous le titre.</param>
-    public FilesSessionView(SshSession session, string target)
+    public FilesSessionView(FilesSession session, string target)
     {
         InitializeComponent();
         Session = session;
         TitleText.Text = Text.Format(Strings.FilesSessionTitle, session.Label);
-        DetailText.Text = Text.Format(Strings.FilesSessionDetail, session.FilesProtocol, target);
+        DetailText.Text = Text.Format(Strings.FilesSessionDetail, session.Protocol, target);
         session.StateChanged += UpdateState;
         UpdateState();
     }
 
-    public SshSession Session { get; }
+    public FilesSession Session { get; }
 
     /// <summary>« Afficher les fichiers » : la fenêtre ouvre l'onglet Fichiers.</summary>
     public event Action? ShowFilesRequested;
 
+    /// <summary>
+    /// Avant une reconnexion : faux pour y renoncer (transferts en cours que l'utilisateur ne veut pas annuler). La fenêtre
+    /// y annule les transferts de la session, qui utilisent la connexion remplacée.
+    /// </summary>
+    public Func<Task<bool>>? BeforeReconnect { get; set; }
+
     /// <summary>Connexion (ou reconnexion) ; l'échec est affiché dans l'onglet.</summary>
     public async Task ConnectAsync()
     {
+        if (BeforeReconnect is { } before && !await before())
+        {
+            return;
+        }
+
         try
         {
-            await Session.ConnectAsync(0, 0);
+            await Session.ConnectAsync();
         }
         catch (Exception e) when (e is not OutOfMemoryException)
         {
@@ -45,17 +56,17 @@ public partial class FilesSessionView : UserControl
     private void UpdateState()
     {
         var state = Session.State;
-        ReconnectButton.Visibility = state is SshSessionState.Failed or SshSessionState.Closed ? Visibility.Visible : Visibility.Collapsed;
-        ShowFilesButton.IsEnabled = state == SshSessionState.Connected;
-        StateText.Foreground = state is SshSessionState.Failed or SshSessionState.Closed ? Brushes.Firebrick : (Brush)FindResource("MutedBrush");
+        ReconnectButton.Visibility = state is RemoteSessionState.Failed or RemoteSessionState.Closed ? Visibility.Visible : Visibility.Collapsed;
+        ShowFilesButton.IsEnabled = state == RemoteSessionState.Connected;
+        StateText.Foreground = state is RemoteSessionState.Failed or RemoteSessionState.Closed ? Brushes.Firebrick : (Brush)FindResource("MutedBrush");
         var browser = Session.OpenedBrowser;
-        CleartextBanner.Visibility = state == SshSessionState.Connected && browser is FtpFileBrowser { IsEncrypted: false }
+        CleartextBanner.Visibility = state == RemoteSessionState.Connected && browser is FtpFileBrowser { IsEncrypted: false }
             ? Visibility.Visible
             : Visibility.Collapsed;
         StateText.Text = state switch
         {
-            SshSessionState.Connecting => Strings.FilesSessionConnecting,
-            SshSessionState.Connected => browser is FtpFileBrowser { IsEncrypted: false }
+            RemoteSessionState.Connecting => Strings.FilesSessionConnecting,
+            RemoteSessionState.Connected => browser is FtpFileBrowser { IsEncrypted: false }
                 ? Strings.FilesSessionConnectedClear
                 : Strings.FilesSessionConnected,
             _ => Text.Format(Strings.FilesSessionFailed, Session.Error ?? Strings.SessionClosedByServer),

@@ -19,7 +19,7 @@ public partial class FileBrowserPanel : UserControl
 {
     private AppSettings _settings = new();
     private Action _saveSettings = () => { };
-    private SshSession? _session;
+    private RemoteSession? _session;
     private IRemoteFiles? _browser;
     private int _generation;
     private int _busy;
@@ -44,7 +44,7 @@ public partial class FileBrowserPanel : UserControl
     }
 
     /// <summary>Associe le panneau à la session de l'onglet actif (ou à aucune).</summary>
-    public void Attach(SshSession? session)
+    public void Attach(RemoteSession? session)
     {
         if (ReferenceEquals(_session, session))
         {
@@ -53,7 +53,11 @@ public partial class FileBrowserPanel : UserControl
 
         if (_session is not null)
         {
-            _session.TerminalDirectoryChanged -= OnTerminalDirectory;
+            if (_session is SshSession previous)
+            {
+                previous.TerminalDirectoryChanged -= OnTerminalDirectory;
+            }
+
             _session.StateChanged -= OnSessionStateChanged;
         }
 
@@ -76,13 +80,18 @@ public partial class FileBrowserPanel : UserControl
         HeaderText.Text = session.Label;
         UpdateTailFilesButton();
         // Session de fichiers seuls (SFTP, FTP) : pas de terminal à suivre.
-        FollowBox.Visibility = session.HasTerminal ? Visibility.Visible : Visibility.Collapsed;
-        FollowBox.IsEnabled = session.CanFollowTerminal;
-        FollowBox.IsChecked = session.CanFollowTerminal && session.FollowTerminal;
-        FollowBox.ToolTip = session.CanFollowTerminal
+        var ssh = session as SshSession;
+        FollowBox.Visibility = ssh is not null ? Visibility.Visible : Visibility.Collapsed;
+        FollowBox.IsEnabled = ssh?.CanFollowTerminal == true;
+        FollowBox.IsChecked = ssh is { CanFollowTerminal: true, FollowTerminal: true };
+        FollowBox.ToolTip = ssh?.CanFollowTerminal == true
             ? Strings.FollowTip
             : Strings.FollowDisabledTip;
-        session.TerminalDirectoryChanged += OnTerminalDirectory;
+        if (ssh is not null)
+        {
+            ssh.TerminalDirectoryChanged += OnTerminalDirectory;
+        }
+
         session.StateChanged += OnSessionStateChanged;
         _ = OpenAsync();
     }
@@ -98,10 +107,10 @@ public partial class FileBrowserPanel : UserControl
         }
 
         int generation = _generation;
-        if (session.State != SshSessionState.Connected)
+        if (session.State != RemoteSessionState.Connected)
         {
-            ShowMessage(session.State == SshSessionState.Connecting ? ConnectingText(session)
-                : session.HasTerminal ? Strings.SshClosedBrowse
+            ShowMessage(session.State == RemoteSessionState.Connecting ? ConnectingText(session)
+                : session is SshSession ? Strings.SshClosedBrowse
                 : Strings.FilesClosedBrowse, retry: false);
             UpdateToolbar();
             return;
@@ -120,7 +129,7 @@ public partial class FileBrowserPanel : UserControl
             HideMessage();
             var start = session.BrowserDirectory
                 ?? session.Saved?.StartDirectory
-                ?? (session.FollowTerminal ? session.TerminalDirectory : null)
+                ?? (session is SshSession { FollowTerminal: true } ssh ? ssh.TerminalDirectory : null)
                 ?? browser.HomeDirectory;
             await NavigateAsync(start);
         }
@@ -137,15 +146,17 @@ public partial class FileBrowserPanel : UserControl
         }
     }
 
+    /// <summary>Affiche le dossier ; faux s'il n'a pas pu être lu.</summary>
     /// <param name="quiet">
     /// Relecture après un transfert : la barre d'état garde le bilan des transferts (seule une erreur la remplace).
     /// </param>
-    private async Task NavigateAsync(string path, bool quiet = false)
+    /// <param name="silent">Pas de message d'erreur (l'appelant affiche le sien) ; une connexion perdue reste signalée.</param>
+    private async Task<bool> NavigateAsync(string path, bool quiet = false, bool silent = false)
     {
         var browser = _browser;
         if (browser is null)
         {
-            return;
+            return false;
         }
 
         int generation = _generation;
@@ -159,7 +170,7 @@ public partial class FileBrowserPanel : UserControl
             var entries = await browser.ListAsync(path, _settings.ShowHiddenFiles, CancellationToken.None);
             if (generation != _generation)
             {
-                return;
+                return false;
             }
 
             var directory = browser.CurrentDirectory;
@@ -182,12 +193,14 @@ public partial class FileBrowserPanel : UserControl
                 int folders = entries.Count(e => e.IsDirectory);
                 SetStatus(Text.Format(Strings.FolderSummary, folders, entries.Count - folders));
             }
+
+            return true;
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             if (generation != _generation)
             {
-                return;
+                return false;
             }
 
             PathBox.Text = browser.CurrentDirectory;
@@ -196,10 +209,12 @@ public partial class FileBrowserPanel : UserControl
                 _browser = null;
                 ShowMessage(Text.Format(Strings.SftpLost, ErrorText.Describe(ex)), retry: true);
             }
-            else
+            else if (!silent)
             {
                 SetStatus(Text.Format(Strings.CannotOpen, path, Describe(ex)), error: true);
             }
+
+            return false;
         }
     }
 
@@ -222,15 +237,21 @@ public partial class FileBrowserPanel : UserControl
 
         UpdateExtractPanel();
 
-        if (_session.State == SshSessionState.Connected && _browser is null)
+        // Session de fichiers seuls en reconnexion ou fermée : sa connexion est remplacée, le panneau attend la nouvelle.
+        if (_session is FilesSession && _session.State != RemoteSessionState.Connected && _browser is not null)
+        {
+            _browser = null;
+        }
+
+        if (_session.State == RemoteSessionState.Connected && _browser is null)
         {
             _ = OpenAsync();
         }
-        else if (_session.State is SshSessionState.Failed or SshSessionState.Closed && _browser is null)
+        else if (_session.State is RemoteSessionState.Failed or RemoteSessionState.Closed && _browser is null)
         {
             ShowMessage(NotConnectedText(_session), retry: false);
         }
-        else if (_session.State == SshSessionState.Connecting && _browser is null)
+        else if (_session.State == RemoteSessionState.Connecting && _browser is null)
         {
             ShowMessage(ConnectingText(_session), retry: false);
         }
@@ -238,11 +259,11 @@ public partial class FileBrowserPanel : UserControl
         UpdateToolbar();
     }
 
-    private static string NotConnectedText(SshSession session) =>
-        session.HasTerminal ? Strings.SshNotConnectedBrowse : Strings.FilesClosedBrowse;
+    private static string NotConnectedText(RemoteSession session) =>
+        session is SshSession ? Strings.SshNotConnectedBrowse : Strings.FilesClosedBrowse;
 
-    private static string ConnectingText(SshSession session) =>
-        session.HasTerminal ? Strings.SshConnecting : Text.Format(Strings.FilesConnectingBrowse, session.FilesProtocol);
+    private static string ConnectingText(RemoteSession session) =>
+        session is FilesSession files ? Text.Format(Strings.FilesConnectingBrowse, files.Protocol) : Strings.SshConnecting;
 
     // ===================== Actions =====================
 
@@ -277,18 +298,18 @@ public partial class FileBrowserPanel : UserControl
 
     private void OnFollowChanged(object sender, RoutedEventArgs e)
     {
-        if (_session is null)
+        if (_session is not SshSession session)
         {
             return;
         }
 
-        _session.FollowTerminal = FollowBox.IsChecked == true;
-        if (_session.FollowTerminal)
+        session.FollowTerminal = FollowBox.IsChecked == true;
+        if (session.FollowTerminal)
         {
             // (Ré)installe le suivi dans le shell courant : utile après « sudo -i » ou si l'installation automatique
             // n'a pas pu se faire (sans effet en double si le suivi est déjà actif).
-            _session.InstallFolderTracking();
-            if (_session.TerminalDirectory is { } dir)
+            session.InstallFolderTracking();
+            if (session.TerminalDirectory is { } dir)
             {
                 _ = NavigateAsync(dir);
             }
@@ -410,24 +431,55 @@ public partial class FileBrowserPanel : UserControl
         }
     }
 
+    private void Open(RemoteEntry entry) => _ = OpenEntryAsync(entry);
+
     /// <summary>
-    /// Double-clic, Entrée ou « Ouvrir » : un dossier s'affiche, un fichier s'ouvre dans l'éditeur (renvoyé au serveur à
-    /// l'enregistrement) ; une archive, une image ou un exécutable est téléchargé.
+    /// Double-clic, Entrée ou « Ouvrir » : un dossier s'affiche, un fichier texte s'ouvre dans l'éditeur (renvoyé au
+    /// serveur à l'enregistrement) ; une archive, une image, un exécutable (d'après son nom ou ses premiers octets) est
+    /// téléchargé.
     /// </summary>
-    private void Open(RemoteEntry entry)
+    private async Task OpenEntryAsync(RemoteEntry entry)
     {
         if (entry.IsDirectory)
         {
-            _ = NavigateAsync(entry.FullPath);
+            await NavigateAsync(entry.FullPath);
+            return;
         }
-        else if (_session?.Editor is { } editor && _browser is not null && !EditedFile.LooksBinary(entry.Name))
-        {
-            _ = editor.EditAsync(entry);
-        }
-        else
+
+        var browser = _browser;
+        if (_session?.Editor is not { } editor || browser is null || EditedFile.LooksBinary(entry.Name))
         {
             RequestDownload([entry]);
+            return;
         }
+
+        if (entry.Length > 0 || entry.IsSymbolicLink)
+        {
+            byte[] head;
+            try
+            {
+                head = await browser.ReadAsync(entry.FullPath, 0, EditedFile.SniffLength, CancellationToken.None);
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                // Lien vers un dossier que le serveur FTP n'a pas résolu (dossier aux nombreux liens) : on y entre.
+                if ((entry.IsSymbolicLink && await NavigateAsync(entry.FullPath, silent: true)) || _browser != browser)
+                {
+                    return;
+                }
+
+                SetStatus(Text.Format(Strings.CannotOpen, entry.Name, Describe(ex)), error: true);
+                return;
+            }
+
+            if (EditedFile.LooksBinary(head))
+            {
+                RequestDownload([entry]);
+                return;
+            }
+        }
+
+        await editor.EditAsync(entry);
     }
 
     private void OnListKeyDown(object sender, KeyEventArgs e)
@@ -531,7 +583,7 @@ public partial class FileBrowserPanel : UserControl
     private void OnDelete(object sender, RoutedEventArgs e) => _ = DeleteAsync();
 
     /// <summary>Le contenu d'un dossier du serveur a changé (fichier renvoyé depuis l'éditeur) : actualisation s'il est affiché.</summary>
-    public void OnRemoteChanged(SshSession session, string directory)
+    public void OnRemoteChanged(RemoteSession session, string directory)
     {
         if (ReferenceEquals(session, _session) && _browser is { } browser && browser.CurrentDirectory == directory && _busy == 0)
         {
