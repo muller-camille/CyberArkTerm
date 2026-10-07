@@ -39,6 +39,18 @@ public sealed class AppSettings
     /// <summary>Anciens favoris (remplacés par « Mes serveurs », migrés au chargement des comptes).</summary>
     public List<string> Favorites { get; set; } = [];
 
+    /// <summary>
+    /// Fichier d'environnement central (partage réseau) : relu à chaque démarrage, ses changements sont montrés avant
+    /// d'être appliqués. Voir <see cref="EnvironmentProfile"/>.
+    /// </summary>
+    public string EnvironmentFile { get; set; } = "";
+
+    /// <summary>
+    /// Empreinte SHA-256 de chaque fichier d'environnement déjà proposé (chemin en minuscules → empreinte) : un fichier
+    /// n'est reproposé que s'il a changé.
+    /// </summary>
+    public Dictionary<string, string> EnvironmentFileHashes { get; set; } = [];
+
     /// <summary>Fenêtre « Sur quel serveur ? » (compte de domaine) : dernier choix de « Garder dans « Mes serveurs » ».</summary>
     public bool KeepChosenServer { get; set; }
 
@@ -354,6 +366,8 @@ public sealed class AppSettings
         settings.PsmpAddress ??= "";
         settings.KeepChosenServerFolder ??= "";
         settings.WindowsComponent ??= "";
+        settings.EnvironmentFile ??= "";
+        settings.EnvironmentFileHashes ??= [];
         settings.PsmpServers ??= [];
         settings.PsmpServers.RemoveAll(p => p is null);
         foreach (var psmp in settings.PsmpServers)

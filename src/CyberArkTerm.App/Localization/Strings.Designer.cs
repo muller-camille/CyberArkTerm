@@ -12961,5 +12961,482 @@ namespace CyberArkTerm.App.Localization {
                 return ResourceManager.GetString("InvalidComponentName", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shared environment.
+        /// </summary>
+        public static string EnvTitle {
+            get {
+                return ResourceManager.GetString("EnvTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Apply this environment?.
+        /// </summary>
+        public static string EnvHeading {
+            get {
+                return ResourceManager.GetString("EnvHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Apply the “{0}” environment?.
+        /// </summary>
+        public static string EnvHeadingNamed {
+            get {
+                return ResourceManager.GetString("EnvHeadingNamed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to These settings will change (nothing personal: user name, “My servers” and recent sessions stay as they are):.
+        /// </summary>
+        public static string EnvMessage {
+            get {
+                return ResourceManager.GetString("EnvMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA and the PSMPs receive your CyberArk password, and a server key is trusted without asking: apply only a file that comes from your team..
+        /// </summary>
+        public static string EnvSensitiveBanner {
+            get {
+                return ResourceManager.GetString("EnvSensitiveBanner", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to I have checked the PVWA and PSMP addresses and the server keys.
+        /// </summary>
+        public static string EnvAcknowledge {
+            get {
+                return ResourceManager.GetString("EnvAcknowledge", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Apply.
+        /// </summary>
+        public static string EnvApply {
+            get {
+                return ResourceManager.GetString("EnvApply", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Do _not apply.
+        /// </summary>
+        public static string EnvSkip {
+            get {
+                return ResourceManager.GetString("EnvSkip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your settings already match this environment..
+        /// </summary>
+        public static string EnvNothingToChange {
+            get {
+                return ResourceManager.GetString("EnvNothingToChange", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Key of {0} not changed: it differs from the one already accepted on this computer. Check with the CyberArk team..
+        /// </summary>
+        public static string EnvHostKeyIgnored {
+            get {
+                return ResourceManager.GetString("EnvHostKeyIgnored", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Environment file refused.
+        /// </summary>
+        public static string EnvRefused {
+            get {
+                return ResourceManager.GetString("EnvRefused", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PVWA address.
+        /// </summary>
+        public static string EnvPvwa {
+            get {
+                return ResourceManager.GetString("EnvPvwa", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Sign-in method.
+        /// </summary>
+        public static string EnvAuthMethod {
+            get {
+                return ResourceManager.GetString("EnvAuthMethod", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Default PSMP.
+        /// </summary>
+        public static string EnvDefaultPsmp {
+            get {
+                return ResourceManager.GetString("EnvDefaultPsmp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PSMP by domain.
+        /// </summary>
+        public static string EnvPsmpServers {
+            get {
+                return ResourceManager.GetString("EnvPsmpServers", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Windows accounts component.
+        /// </summary>
+        public static string EnvWindowsComponent {
+            get {
+                return ResourceManager.GetString("EnvWindowsComponent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PSM component of {0}.
+        /// </summary>
+        public static string EnvPlatformComponent {
+            get {
+                return ResourceManager.GetString("EnvPlatformComponent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shared list added.
+        /// </summary>
+        public static string EnvSharedList {
+            get {
+                return ResourceManager.GetString("EnvSharedList", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Key of {0}.
+        /// </summary>
+        public static string EnvHostKey {
+            get {
+                return ResourceManager.GetString("EnvHostKey", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Central environment file.
+        /// </summary>
+        public static string EnvCentralFile {
+            get {
+                return ResourceManager.GetString("EnvCentralFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Keep the PVWA session open.
+        /// </summary>
+        public static string EnvKeepAlive {
+            get {
+                return ResourceManager.GetString("EnvKeepAlive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SSH in CyberArkTerm.
+        /// </summary>
+        public static string EnvSshInApp {
+            get {
+                return ResourceManager.GetString("EnvSshInApp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Look for a new version at start.
+        /// </summary>
+        public static string EnvCheckForUpdates {
+            get {
+                return ResourceManager.GetString("EnvCheckForUpdates", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Upload protocol.
+        /// </summary>
+        public static string EnvUploadProtocol {
+            get {
+                return ResourceManager.GetString("EnvUploadProtocol", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to (none).
+        /// </summary>
+        public static string EnvNone {
+            get {
+                return ResourceManager.GetString("EnvNone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to yes.
+        /// </summary>
+        public static string EnvYes {
+            get {
+                return ResourceManager.GetString("EnvYes", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to no.
+        /// </summary>
+        public static string EnvNo {
+            get {
+                return ResourceManager.GetString("EnvNo", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to File too large (1 MB at most): {0}.
+        /// </summary>
+        public static string EnvTooLarge {
+            get {
+                return ResourceManager.GetString("EnvTooLarge", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file is not valid JSON: {0}.
+        /// </summary>
+        public static string EnvInvalidJson {
+            get {
+                return ResourceManager.GetString("EnvInvalidJson", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Format {0} is not supported by this version of CyberArkTerm: update it..
+        /// </summary>
+        public static string EnvUnsupportedFormat {
+            get {
+                return ResourceManager.GetString("EnvUnsupportedFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid PVWA address, or without https: {0}.
+        /// </summary>
+        public static string EnvInvalidPvwa {
+            get {
+                return ResourceManager.GetString("EnvInvalidPvwa", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid PSMP address: {0}.
+        /// </summary>
+        public static string EnvInvalidPsmp {
+            get {
+                return ResourceManager.GetString("EnvInvalidPsmp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid port: {0}.
+        /// </summary>
+        public static string EnvInvalidPort {
+            get {
+                return ResourceManager.GetString("EnvInvalidPort", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Domain of the PSMP {0} invalid or missing..
+        /// </summary>
+        public static string EnvInvalidDomain {
+            get {
+                return ResourceManager.GetString("EnvInvalidDomain", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Two PSMPs for the servers of {0}..
+        /// </summary>
+        public static string EnvDuplicateDomain {
+            get {
+                return ResourceManager.GetString("EnvDuplicateDomain", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid PSM component: {0}.
+        /// </summary>
+        public static string EnvInvalidComponent {
+            get {
+                return ResourceManager.GetString("EnvInvalidComponent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid server key for {0} (expected “host:port” → “type SHA256:fingerprint”)..
+        /// </summary>
+        public static string EnvInvalidHostKey {
+            get {
+                return ResourceManager.GetString("EnvInvalidHostKey", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid path (a full path is expected): {0}.
+        /// </summary>
+        public static string EnvInvalidPath {
+            get {
+                return ResourceManager.GetString("EnvInvalidPath", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Central file:.
+        /// </summary>
+        public static string CentralFileLabel {
+            get {
+                return ResourceManager.GetString("CentralFileLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Environment file of your team on a network share (PVWA, PSMP, PSM components, shared lists, PSMP keys), read at each start: its changes are shown to you before being applied. To create it: Settings button › Export the environment..
+        /// </summary>
+        public static string CentralFileHelp {
+            get {
+                return ResourceManager.GetString("CentralFileHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid central file: enter a full path (\\server\share\… or C:\…)..
+        /// </summary>
+        public static string InvalidCentralFile {
+            get {
+                return ResourceManager.GetString("InvalidCentralFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Import an environment….
+        /// </summary>
+        public static string MenuEnvImport {
+            get {
+                return ResourceManager.GetString("MenuEnvImport", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Settings of your team (PVWA, PSMP, PSM components…) from a file: the changes are shown before being applied..
+        /// </summary>
+        public static string MenuEnvImportTip {
+            get {
+                return ResourceManager.GetString("MenuEnvImportTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Export the environment….
+        /// </summary>
+        public static string MenuEnvExport {
+            get {
+                return ResourceManager.GetString("MenuEnvExport", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to File to share with your team, or to put next to CyberArkTerm.exe (CyberArkTerm.env.json): no password, no personal data..
+        /// </summary>
+        public static string MenuEnvExportTip {
+            get {
+                return ResourceManager.GetString("MenuEnvExportTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Environment exported to {0} (no password, no personal data)..
+        /// </summary>
+        public static string EnvExported {
+            get {
+                return ResourceManager.GetString("EnvExported", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Environment not exported: {0}.
+        /// </summary>
+        public static string EnvExportFailed {
+            get {
+                return ResourceManager.GetString("EnvExportFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Environment applied..
+        /// </summary>
+        public static string EnvApplied {
+            get {
+                return ResourceManager.GetString("EnvApplied", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Environment applied; the new PVWA address is used at the next sign-in..
+        /// </summary>
+        public static string EnvAppliedNextLogin {
+            get {
+                return ResourceManager.GetString("EnvAppliedNextLogin", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Import an environment….
+        /// </summary>
+        public static string LoginEnvImport {
+            get {
+                return ResourceManager.GetString("LoginEnvImport", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Settings of your team (PVWA, PSMP, PSM components) from a file it gave you: the changes are shown before being applied..
+        /// </summary>
+        public static string LoginEnvImportTip {
+            get {
+                return ResourceManager.GetString("LoginEnvImportTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: {1}.
+        /// </summary>
+        public static string EnvLineNew {
+            get {
+                return ResourceManager.GetString("EnvLineNew", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: {1} → {2}.
+        /// </summary>
+        public static string EnvLineChange {
+            get {
+                return ResourceManager.GetString("EnvLineChange", resourceCulture);
+            }
+        }
     }
 }

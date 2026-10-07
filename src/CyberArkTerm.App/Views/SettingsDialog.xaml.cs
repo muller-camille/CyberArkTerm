@@ -30,6 +30,7 @@ public partial class SettingsDialog : Window
         _store = store;
         KeepAliveBox.IsChecked = settings.KeepPvwaSessionAlive;
         UpdateCheckBox.IsChecked = settings.CheckForUpdates;
+        CentralFileBox.Text = settings.EnvironmentFile;
         UpdateStore();
         LanguageBox.DisplayMemberPath = "Value";
         LanguageBox.SelectedValuePath = "Key";
@@ -164,6 +165,13 @@ public partial class SettingsDialog : Window
             return;
         }
 
+        var centralFile = CentralFileBox.Text.Trim().Trim('"');
+        if (centralFile.Length > 0 && !EnvironmentProfile.IsFullPath(centralFile))
+        {
+            ShowError(Strings.InvalidCentralFile, CentralFileBox);
+            return;
+        }
+
         var windowsComponent = WindowsComponentBox.Text.Trim();
         if (windowsComponent.Length > 0 && !AppSettings.IsValidComponentName(windowsComponent))
         {
@@ -202,6 +210,7 @@ public partial class SettingsDialog : Window
         _settings.PsmpPort = port;
         _settings.PsmpServers = psmpServers;
         _settings.WindowsComponent = windowsComponent;
+        _settings.EnvironmentFile = centralFile;
         _settings.SshInApp = SshInAppBox.IsChecked == true;
         _settings.FollowTerminalFolder = FollowBox.IsChecked == true;
         _settings.KeepPvwaSessionAlive = KeepAliveBox.IsChecked == true;
@@ -260,6 +269,15 @@ public partial class SettingsDialog : Window
     }
 
     /// <summary>Erreur en pied de fenêtre ; la page du champ en cause s'affiche et le champ prend le focus.</summary>
+    private void OnBrowseCentralFile(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = EnvironmentImport.FileFilter, CheckFileExists = true };
+        if (dialog.ShowDialog(this) == true)
+        {
+            CentralFileBox.Text = dialog.FileName;
+        }
+    }
+
     // ===================== PSMP par domaine =====================
 
     /// <summary>

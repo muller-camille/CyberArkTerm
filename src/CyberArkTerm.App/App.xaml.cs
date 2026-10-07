@@ -68,6 +68,8 @@ public partial class App : Application
                 "CyberArkTerm", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
+        // Environnement de l'équipe : fichier à côté de l'exécutable et fichier central, proposés s'ils ont changé.
+        EnvironmentImport.OfferAtStartup(_settings);
         StartSession();
     }
 

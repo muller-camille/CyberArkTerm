@@ -648,6 +648,7 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 | Pagina | Impostazione | Ruolo | Predefinito |
 | --- | --- | --- | --- |
 | Generale | Lingua dell'interfaccia | Français, English, Italiano o lingua del sistema; applicata dopo la disconnessione o al prossimo avvio | lingua di Windows (inglese se non è tradotta) |
+| Generale | File centrale | File di ambiente del team su una condivisione di rete, riletto a ogni avvio; le sue modifiche vengono mostrate prima di essere applicate (vedi [Ambiente condiviso](#ambiente-condiviso)) | vuoto |
 | Generale | Cercare una nuova versione all'avvio | Una richiesta a GitHub al massimo una volta al giorno; un link nella barra di stato se esiste una versione più recente (la finestra «Informazioni» ricorda questa impostazione) | no |
 | CyberArk | Mantenere aperta la sessione PVWA | Richiesta leggera ogni 4 minuti; sospesa quando Windows è bloccato; ⚠ la sessione PVWA non si chiude più da sola dopo l'inattività | sì |
 | CyberArk | PSMP predefinito, porta | Server PSM for SSH; se impostato (o un PSMP per dominio), gli account Unix si aprono in SSH per impostazione predefinita (in soli file per una piattaforma «SFTP»); senza alcun PSMP, SSH e SFTP sono disattivati | vuoto, 22 |
@@ -668,6 +669,31 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 | Sicurezza | Vault locale | Password principali KeePass memorizzate: «Crea…», «Sblocca…», «Cambia password…», «Elimina ora…»; queste azioni si applicano subito, senza «Salva» | — |
 | Sicurezza | Chiavi dei server accettate | Tabella delle impronte verificate e accettate (server, tipo, impronta): PSMP, SSH diretto e certificati FTPS delle voci KeePass. «Dimentica le chiavi scelte» rimuove le righe selezionate al salvataggio; la chiave verrà richiesta di nuovo alla prossima connessione | — |
 | Menu del pulsante Impostazioni | Registro di debug | Svolgimento delle connessioni in un file, senza segreti (vedi [Sicurezza](#sicurezza)); «Mostra il file del registro» lo apre in Esplora risorse | no |
+
+### Ambiente condiviso
+
+Per dare CyberArkTerm a un collega con la configurazione del team (indirizzo del PVWA, metodo di accesso, PSMP
+predefinito e per dominio, componente degli account Windows e componenti per piattaforma, elenchi condivisi, chiavi
+dei PSMP, alcune opzioni), senza niente di personale né alcuna password:
+
+1. **Esportare**: pulsante «Impostazioni» → «Esporta l'ambiente…» salva `CyberArkTerm.env.json`.
+2. **Accanto all'eseguibile**: metti questo file accanto a `CyberArkTerm.exe` (ad esempio nello stesso zip).
+   All'avvio, se è nuovo o è cambiato, CyberArkTerm lo propone prima della schermata di accesso.
+3. **Importare**: pulsante «Impostazioni» → «Importa un ambiente…», oppure «Importa un ambiente…» nella schermata di
+   accesso.
+4. **File centrale**: Impostazioni › Generale › «File centrale» (un file su una condivisione di rete, che si può anche
+   indicare nell'ambiente stesso). Viene riletto a ogni avvio: quando lo modifichi, ognuno vede le modifiche
+   all'avvio successivo.
+
+Ogni volta una finestra mostra cosa cambierà («valore precedente → nuovo valore») e l'impronta SHA-256 del file;
+«Non applicare» è la scelta predefinita. Il PVWA e i PSMP ricevono la tua password CyberArk: quando il file cambia
+il loro indirizzo o aggiunge una chiave di server, bisogna spuntare «Ho verificato…» prima di applicare. Una chiave di
+server già accettata sul computer non viene mai sostituita da un file (viene segnalata). Un file non valido
+(indirizzo in http, nome di componente errato…) viene rifiutato per intero. Un file già proposto viene riproposto solo
+se è cambiato. Un'impostazione vuota sul computer che esporta non viene esportata: non cancella nulla su quello che
+importa. I percorsi (elenchi condivisi, file centrale) sono completi: `C:\…` o `\\server\…`.
+Il tuo nome utente, «I miei server» e le tue sessioni recenti non vengono mai toccati; gli elenchi
+condivisi si aggiungono senza togliere i tuoi.
 
 Tutte le preferenze sono salvate in `%APPDATA%\CyberArkTerm\settings.json`: lingua, indirizzo del PVWA, metodo e
 nome utente di accesso, impostazioni qui sopra, «I miei server», le loro cartelle e i file seguiti su di essi
@@ -760,6 +786,10 @@ loro contenuto).
 - **Nessuna iniezione di comandi**: percorsi SCP e cartelle iniziali protetti tra apici per la shell remota;
   argomenti `ssh` / Windows Terminal convalidati e passati senza shell.
 - Esportazione CSV protetta contro l'iniezione di formule Excel.
+- **File di ambiente** (`CyberArkTerm.env.json`): nessuna password né dato personale, vengono letti solo i campi noti.
+  Un file non viene mai applicato senza il tuo consenso: modifiche e impronta SHA-256 mostrate, una casella da
+  spuntare quando cambia l'indirizzo del PVWA o di un PSMP o viene aggiunta una chiave di server. Non sostituisce mai
+  una chiave di server già accettata; indirizzo del PVWA in https obbligatorio; un file oltre 1 MB viene rifiutato.
 - **File di server ed elenchi condivisi**: nessuna password né token, solo nomi di server, account e safe, ID degli
   account e impostazioni di connessione (il motivo predefinito non viene mai condiviso). Non danno alcun accesso:
   ognuno si connette con i propri diritti CyberArk, e la descrizione comandi mostra l'account come lo descrive il

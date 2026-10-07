@@ -54,9 +54,23 @@
                         </Grid>
 
                         <TextBlock Text="{x:Static loc:Strings.SettingsUpdatesSection}" Style="{StaticResource SectionTitle}" />
-                        <CheckBox x:Name="UpdateCheckBox" Margin="0,0,0,4">
+                        <CheckBox x:Name="UpdateCheckBox" Margin="0,0,0,16">
                             <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.AboutAutoCheck}" />
                         </CheckBox>
+
+                        <!-- Environnement d'équipe : fichier central relu à chaque démarrage (voir EnvironmentImport). -->
+                        <TextBlock Text="{x:Static loc:Strings.EnvTitle}" Style="{StaticResource SectionTitle}" />
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" MinWidth="140" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Label Content="{x:Static loc:Strings.CentralFileLabel}" Target="{Binding ElementName=CentralFileBox}" />
+                            <TextBox Grid.Column="1" x:Name="CentralFileBox" VerticalContentAlignment="Center" />
+                            <Button Grid.Column="2" Content="{x:Static loc:Strings.Browse}" Click="OnBrowseCentralFile" Margin="8,0,0,0" />
+                        </Grid>
+                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,4" Text="{x:Static loc:Strings.CentralFileHelp}" />
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

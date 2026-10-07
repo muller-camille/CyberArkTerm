@@ -1392,6 +1392,7 @@ public partial class MainWindow : Window
     private void OnSettings(object sender, RoutedEventArgs e)
     {
         var language = _settings.Language;
+        var centralFile = _settings.EnvironmentFile;
         var accepted = new SettingsDialog(_settings, _keePass.Store) { Owner = this }.ShowDialog() == true;
         // Coffre local supprimé ou créé depuis les paramètres : l'arbre « Mes serveurs » peut changer.
         RefreshSaved();
@@ -1402,6 +1403,60 @@ public partial class MainWindow : Window
             UpdateActions();
             StartKeepAlive();
             SetStatus(_settings.Language == language ? Strings.SettingsSaved : Strings.SettingsSavedLanguage);
+            // Nouveau fichier central : proposé tout de suite plutôt qu'au prochain démarrage.
+            if (_settings.EnvironmentFile.Length > 0 && !string.Equals(_settings.EnvironmentFile, centralFile, StringComparison.OrdinalIgnoreCase))
+            {
+                OfferEnvironment(_settings.EnvironmentFile);
+            }
+        }
+    }
+
+    // ===================== Environnement partagé =====================
+
+    /// <summary>Importe un fichier d'environnement : changements montrés puis appliqués après confirmation.</summary>
+    private void OnImportEnvironment(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog { Filter = EnvironmentImport.FileFilter, CheckFileExists = true };
+        if (dialog.ShowDialog(this) == true)
+        {
+            OfferEnvironment(dialog.FileName);
+        }
+    }
+
+    private void OfferEnvironment(string path)
+    {
+        var pvwa = _settings.PvwaUrl;
+        if (!EnvironmentImport.Offer(this, _settings, path, automatic: false))
+        {
+            return;
+        }
+
+        UpdateActions();
+        StartKeepAlive();
+        RefreshSaved();
+        SetStatus(string.Equals(pvwa, _settings.PvwaUrl, StringComparison.Ordinal) ? Strings.EnvApplied : Strings.EnvAppliedNextLogin);
+    }
+
+    /// <summary>
+    /// Exporte l'environnement de l'équipe (PVWA, PSMP, composants, listes partagées, clés des PSMP) : jamais de mot de
+    /// passe ni de donnée personnelle.
+    /// </summary>
+    private void OnExportEnvironment(object sender, RoutedEventArgs e)
+    {
+        var dialog = new SaveFileDialog { FileName = EnvironmentProfile.FileName, Filter = EnvironmentImport.FileFilter, DefaultExt = ".json" };
+        if (dialog.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        try
+        {
+            EnvironmentProfile.FromSettings(_settings, PvwaHost).Save(dialog.FileName);
+            SetStatus(Text.Format(Strings.EnvExported, dialog.FileName));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            SetStatus(Text.Format(Strings.EnvExportFailed, ex.Message), isError: true);
         }
     }
 

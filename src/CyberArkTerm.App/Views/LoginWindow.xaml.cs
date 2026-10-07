@@ -75,6 +75,18 @@ public partial class LoginWindow : Window
     /// <summary>Vrai si l'utilisateur a choisi l'accès d'urgence (coffres KeePass, sans CyberArk).</summary>
     public bool EmergencyRequested { get; private set; }
 
+    /// <summary>Environnement fourni par l'équipe : changements montrés puis appliqués ; l'adresse du PVWA est reprise.</summary>
+    private void OnImportEnvironment(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = EnvironmentImport.FileFilter, CheckFileExists = true };
+        if (dialog.ShowDialog(this) == true && EnvironmentImport.Offer(this, _settings, dialog.FileName, automatic: false))
+        {
+            UrlBox.Text = _settings.PvwaUrl;
+            MethodBox.SelectedItem = _settings.AuthMethod;
+            FocusFirstField();
+        }
+    }
+
     private void OnEmergencyClick(object sender, RoutedEventArgs e)
     {
         EmergencyRequested = true;

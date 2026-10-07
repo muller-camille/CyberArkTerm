@@ -610,6 +610,7 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 | Page | Setting | Purpose | Default |
 | --- | --- | --- | --- |
 | General | Interface language | Français, English, Italiano or system language; applied after signing out or at the next start | Windows language (English if it is not translated) |
+| General | Central file | Team environment file on a network share, read at each start; its changes are shown before being applied (see [Shared environment](#shared-environment)) | empty |
 | General | Look for a new version at startup | One request to GitHub at most once a day; a link in the status bar when a newer version exists (the "About" window recalls this setting) | no |
 | CyberArk | Keep the PVWA session open | Light request every 4 minutes; paused while Windows is locked; ⚠ the PVWA session no longer closes by itself after inactivity | yes |
 | CyberArk | Default PSMP, port | PSM for SSH server; when set (or a PSMP by domain), Unix accounts open over SSH by default (as files only for an "SFTP" platform); without any PSMP, SSH and SFTP are disabled | empty, 22 |
@@ -630,6 +631,28 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 | Security | Local vault | Remembered KeePass master passwords: "Create…", "Unlock…", "Change password…", "Delete now…"; these actions apply at once, without "Save" | — |
 | Security | Accepted server keys | Table of the fingerprints checked and accepted (server, type, fingerprint): PSMP, direct SSH and FTPS certificates of KeePass entries. "Forget the selected keys" removes the selected rows on save; the key will be asked again at the next connection | — |
 | Settings button menu | Debug log | How connections unfold, in a file, without secrets (see [Security](#security)); "Show the debug log file" opens it in Explorer | no |
+
+### Shared environment
+
+To give CyberArkTerm to a colleague with the team's configuration (PVWA address, sign-in method, default and
+by-domain PSMPs, Windows accounts component and per-platform components, shared lists, PSMP keys, a few options),
+with nothing personal and no password:
+
+1. **Export**: "Settings" button → "Export the environment…" saves `CyberArkTerm.env.json`.
+2. **Next to the executable**: put this file next to `CyberArkTerm.exe` (for example in the same zip). At start, when
+   it is new or has changed, CyberArkTerm offers it before the sign-in screen.
+3. **Import**: "Settings" button → "Import an environment…", or "Import an environment…" on the sign-in screen.
+4. **Central file**: Settings › General › "Central file" (a file on a network share, which can also be set in the
+   environment itself). It is read at each start: when you change it, everyone sees the changes at their next start.
+
+Each time, a window shows what will change ("old value → new value") and the SHA-256 fingerprint of the file; "Do not
+apply" is the default. The PVWA and the PSMPs receive your CyberArk password: when the file changes their address or
+adds a server key, "I have checked…" must be ticked before applying. A server key already accepted on the computer is
+never replaced by a file (it is reported). An invalid file (http address, wrong component name…) is refused as a
+whole. A file already offered is offered again only when it has changed. A setting left empty on the exporting PC is
+not exported: it clears nothing on the importing one. Paths (shared lists, central file) are full: `C:\…` or
+`\\server\…`. Your user name, "My servers" and your
+recent sessions are never touched; shared lists are added without removing yours.
 
 All preferences are saved in `%APPDATA%\CyberArkTerm\settings.json`: language, PVWA address, sign-in method and user
 name, the settings above, "My servers", their folders and the files followed on them (paths), recent sessions,
@@ -714,6 +737,10 @@ instances would overwrite each other's settings. The transfer history of the Fil
 - **No command injection**: SCP paths and start folders are quoted for the remote shell; `ssh` / Windows Terminal
   arguments are validated and passed without a shell.
 - CSV export protected against Excel formula injection.
+- **Environment files** (`CyberArkTerm.env.json`): no password or personal data, only known fields are read. A file
+  is never applied without your consent: changes and SHA-256 fingerprint shown, a box to tick when the PVWA or a PSMP
+  address changes or a server key is added. It never replaces a server key already accepted; https PVWA address
+  required; a file over 1 MB is refused.
 - **Server files and shared lists**: no password or token, only server, account and safe names, account IDs and
   connection settings (the default reason is never shared). They grant no access: everyone connects with their
   own CyberArk rights, and the tooltip shows the account as the CyberArk Vault describes it. A target machine coming from a

@@ -387,6 +387,9 @@
                       ToolTip="{x:Static loc:Strings.MenuDebugLogTip}" />
             <MenuItem Header="{x:Static loc:Strings.MenuDebugLogShow}" Click="OnShowDebugLog" />
             <Separator />
+            <MenuItem Header="{x:Static loc:Strings.MenuEnvImport}" Click="OnImportEnvironment" ToolTip="{x:Static loc:Strings.MenuEnvImportTip}" />
+            <MenuItem Header="{x:Static loc:Strings.MenuEnvExport}" Click="OnExportEnvironment" ToolTip="{x:Static loc:Strings.MenuEnvExportTip}" />
+            <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuAbout}" Click="OnAbout" />
         </ContextMenu>
 
