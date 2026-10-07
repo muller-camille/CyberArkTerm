@@ -19,7 +19,7 @@ public sealed class RemoteEditor : IDisposable
     /// <summary>Au-delà, on demande confirmation avant d'ouvrir le fichier dans un éditeur de texte.</summary>
     private const long LargeFile = 20L * 1024 * 1024;
 
-    private static readonly string Root = Path.Combine(Path.GetTempPath(), "CyberArkTerm", "edit");
+    private static string Root => PrivateTemp.Combine("edit");
 
     private readonly RemoteSession _session;
     private readonly Window _owner;
@@ -28,6 +28,7 @@ public sealed class RemoteEditor : IDisposable
     private readonly Action<string> _remoteChanged;
     private readonly string _directory = Path.Combine(Root, Guid.NewGuid().ToString("N"));
     private readonly List<EditedFile> _files = [];
+    private readonly HashSet<string> _opening = new(StringComparer.Ordinal);
     private readonly HashSet<EditedFile> _busy = [];
     private readonly HashSet<EditedFile> _savedAgain = [];
     private bool _disposed;
@@ -56,6 +57,24 @@ public sealed class RemoteEditor : IDisposable
             return;
         }
 
+        // Double-clic puis Entrée (ou F4) pendant la copie : une seule copie locale, ouverte par la première demande.
+        if (!_opening.Add(entry.FullPath))
+        {
+            return;
+        }
+
+        try
+        {
+            await OpenNewAsync(entry);
+        }
+        finally
+        {
+            _opening.Remove(entry.FullPath);
+        }
+    }
+
+    private async Task OpenNewAsync(RemoteEntry entry)
+    {
         if (entry.Length > LargeFile && MessageBox.Show(_owner, Text.Format(Strings.EditLargeFile, entry.Name, entry.SizeText),
                 Strings.FileEdit.Replace("_", ""), MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
         {
@@ -64,19 +83,28 @@ public sealed class RemoteEditor : IDisposable
 
         _status(Text.Format(Strings.EditOpening, entry.Name), false);
         EditedFile file;
+        var folder = Path.Combine(_directory, Guid.NewGuid().ToString("N")[..8]);
         try
         {
             var browser = await _session.GetBrowserAsync();
-            var folder = Path.Combine(_directory, Guid.NewGuid().ToString("N")[..8]);
             Directory.CreateDirectory(folder);
             var local = Path.Combine(folder, EditedFile.LocalCopyName(entry.Name));
             // Date et taille relevées avant la copie : un changement sur le serveur pendant la copie sera signalé au renvoi.
             var (time, length) = await browser.GetStatAsync(entry.FullPath, CancellationToken.None);
-            await browser.DownloadAsync(entry, local, null, CancellationToken.None);
+            var check = await browser.DownloadAsync(entry, local, null, CancellationToken.None);
+            if (!check.Matches)
+            {
+                // Copie différente de l'original ou non vérifiée : jamais ouverte, son enregistrement remplacerait le
+                // fichier du serveur.
+                throw new IOException(check.Verified ? Text.Format(Strings.TransferMismatch, 1)
+                    : $"{Text.Format(Strings.TransferNotVerified, 1)} ({check.Error})");
+            }
+
             file = new EditedFile(entry.FullPath, local, time, length);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
+            TryDeleteFolder(folder);
             _status(Text.Format(Strings.CannotOpen, entry.Name, ErrorText.Describe(ex)), true);
             return;
         }
@@ -92,6 +120,41 @@ public sealed class RemoteEditor : IDisposable
         if (LaunchEditor(file.LocalPath))
         {
             _status(Text.Format(Strings.EditOpened, entry.Name), false);
+        }
+    }
+
+    /// <summary>Faux seulement si le fichier du serveur a encore la date et la taille relevées à l'ouverture (ou au dernier envoi).</summary>
+    private async Task<bool> MayHaveWrittenAsync(EditedFile file)
+    {
+        // Connexion perdue : pas de nouvelle connexion (ni question MFA) pour ce contrôle, on suppose le pire.
+        if (_session.OpenedBrowser is not { } browser)
+        {
+            return true;
+        }
+
+        try
+        {
+            var (time, length) = await browser.GetStatAsync(file.RemotePath, CancellationToken.None);
+            return time != file.RemoteWriteTime || length != file.RemoteLength;
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            return true;
+        }
+    }
+
+    private static void TryDeleteFolder(string folder)
+    {
+        try
+        {
+            if (Directory.Exists(folder))
+            {
+                Directory.Delete(folder, recursive: true);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Nettoyé au prochain démarrage.
         }
     }
 
@@ -154,7 +217,8 @@ public sealed class RemoteEditor : IDisposable
         var editor = _settings.TextEditor.Trim().Trim('"');
         if (editor.Length == 0)
         {
-            editor = "notepad.exe";
+            // Chemin complet, comme pour mstsc : pas un « notepad.exe » du dossier courant.
+            editor = Path.Combine(Environment.SystemDirectory, "notepad.exe");
         }
 
         try
@@ -256,6 +320,9 @@ public sealed class RemoteEditor : IDisposable
                 Renci.SshNet.Common.SftpPermissionDeniedException => Strings.PermissionDenied,
                 _ => ErrorText.Describe(ex),
             };
+            // Écriture refusée avant d'avoir commencé (droits, dossier absent) : le fichier du serveur n'a pas bougé, et le
+            // contrôle « modifié sur le serveur » reste actif pour le prochain envoi.
+            writing = writing && await MayHaveWrittenAsync(file);
             if (writing)
             {
                 file.MarkWriteInterrupted();

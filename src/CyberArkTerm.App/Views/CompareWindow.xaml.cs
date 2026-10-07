@@ -19,7 +19,7 @@ namespace CyberArkTerm.App.Views;
 /// </summary>
 public partial class CompareWindow : Window
 {
-    private static readonly string TemporaryRoot = Path.Combine(Path.GetTempPath(), "CyberArkTerm", "compare");
+    private static string TemporaryRoot => Services.PrivateTemp.Combine("compare");
 
     private readonly DiffSide _left;
     private readonly DiffSide _right;

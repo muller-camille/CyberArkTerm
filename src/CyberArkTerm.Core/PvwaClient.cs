@@ -311,6 +311,7 @@ public sealed class PvwaClient : IDisposable
 
         using var request = CreateAuthenticatedRequest(HttpMethod.Post, $"API/Accounts/{Uri.EscapeDataString(accountId)}/Password/Retrieve");
         request.Content = new StringContent(JsonSerializer.Serialize(options.ToRequestBody()), Encoding.UTF8, "application/json");
+        var requested = new Uri(BaseUri, request.RequestUri!);
         // En-têtes seulement : le corps est lu ensuite dans un tampon à nous, que l'on peut effacer.
         using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode)
@@ -318,15 +319,36 @@ public sealed class PvwaClient : IDisposable
             throw await CreateErrorAsync(response, ct).ConfigureAwait(false);
         }
 
+        bool json = EnsureSecretResponse(requested, response);
         var bytes = await ReadSecretBodyAsync(response.Content, ct).ConfigureAwait(false);
         try
         {
-            return DecodeSecret(bytes.Span);
+            return DecodeSecret(bytes.Span, json);
         }
         finally
         {
             CryptographicOperations.ZeroMemory(bytes.Span);
         }
+    }
+
+    /// <summary>
+    /// Vérifie que la réponse vient bien du PVWA pour cette demande : pas de redirection suivie (vers une page de
+    /// connexion SSO…), pas de réponse vide, et un type JSON ou texte (pas une page HTML de maintenance). Sans quoi la
+    /// page serait copiée à la place du mot de passe. Vrai si la réponse est du JSON.
+    /// </summary>
+    private static bool EnsureSecretResponse(Uri requested, HttpResponseMessage response)
+    {
+        var media = response.Content.Headers.ContentType?.MediaType;
+        bool json = string.Equals(media, "application/json", StringComparison.OrdinalIgnoreCase);
+        bool redirected = response.RequestMessage is { } final && (final.Method != HttpMethod.Post || final.RequestUri != requested);
+        if (redirected || response.StatusCode == HttpStatusCode.NoContent
+            || (media is not null && !json && !string.Equals(media, "text/plain", StringComparison.OrdinalIgnoreCase)))
+        {
+            var what = redirected ? response.RequestMessage!.RequestUri?.GetLeftPart(UriPartial.Path) : media ?? ((int)response.StatusCode).ToString(CultureInfo.InvariantCulture);
+            throw new PvwaException(response.StatusCode, null, string.Format(CultureInfo.CurrentCulture, CoreStrings.PvwaUnexpectedSecretResponse, what));
+        }
+
+        return json;
     }
 
     /// <summary>Taille maximale acceptée pour la réponse d'une récupération de mot de passe.</summary>
@@ -355,12 +377,24 @@ public sealed class PvwaClient : IDisposable
 
     /// <summary>
     /// Mot de passe renvoyé par le PVWA : une chaîne JSON (« "secret" », API v10 et ultérieures) ou, sur d'anciennes
-    /// versions, le texte brut. Décodé directement dans un tableau de caractères.
+    /// versions, le texte brut. Décodé directement dans un tableau de caractères. Réponse vide, ou JSON qui n'est pas
+    /// une chaîne (<paramref name="json"/>) : refusée.
     /// </summary>
-    internal static char[] DecodeSecret(ReadOnlySpan<byte> body)
+    internal static char[] DecodeSecret(ReadOnlySpan<byte> body, bool json = false)
     {
         body = body.Trim("\r\n\t "u8);
-        if (body.Length > 0 && body[0] == (byte)'"')
+        if (body.Length == 0)
+        {
+            throw new PvwaException(HttpStatusCode.OK, null, CoreStrings.PvwaEmptyResponse);
+        }
+
+        if (json && body[0] != (byte)'"')
+        {
+            throw new PvwaException(HttpStatusCode.OK, null,
+                string.Format(CultureInfo.CurrentCulture, CoreStrings.PvwaUnexpectedSecretResponse, "application/json"));
+        }
+
+        if (body[0] == (byte)'"')
         {
             var reader = new Utf8JsonReader(body);
             if (!reader.Read() || reader.TokenType != JsonTokenType.String)

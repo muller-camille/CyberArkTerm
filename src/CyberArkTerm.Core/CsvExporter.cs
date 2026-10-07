@@ -34,9 +34,15 @@ public static class CsvExporter
         }
     }
 
-    /// <summary>Séparateur de liste de la culture (celui qu'utilise Excel), « ; » s'il n'est pas d'un seul caractère.</summary>
+    /// <summary>
+    /// Séparateur de liste de la culture (celui qu'utilise Excel) ; « ; » s'il n'est pas d'un seul caractère, ou si c'est
+    /// une lettre, un chiffre, un espace, un guillemet ou un saut de ligne.
+    /// </summary>
     public static char DefaultSeparator(CultureInfo culture) =>
-        culture.TextInfo.ListSeparator is { Length: 1 } s && s[0] is not ('"' or '\r' or '\n') ? s[0] : ';';
+        culture.TextInfo.ListSeparator is { Length: 1 } s && IsUsableSeparator(s[0]) ? s[0] : ';';
+
+    private static bool IsUsableSeparator(char c) =>
+        c == '\t' || !(char.IsLetterOrDigit(c) || char.IsWhiteSpace(c) || char.IsControl(c) || c is '"' or '\'');
 
     internal static void WriteLine(TextWriter writer, char separator, IReadOnlyList<string> values)
     {
@@ -47,13 +53,13 @@ public static class CsvExporter
                 writer.Write(separator);
             }
 
-            writer.Write(Escape(values[i]));
+            writer.Write(Escape(values[i], separator));
         }
 
         writer.Write("\r\n");
     }
 
-    internal static string Escape(string value)
+    internal static string Escape(string value, char separator = ';')
     {
         // Empêche l'interprétation comme formule par Excel (injection CSV).
         if (value.Length > 0 && value[0] is '=' or '+' or '-' or '@' or '\t' or '\r')
@@ -61,8 +67,9 @@ public static class CsvExporter
             value = "'" + value;
         }
 
-        // Guillemets si la valeur contient un séparateur possible (« ; » ou « , »), un guillemet ou un saut de ligne.
-        if (value.IndexOfAny([';', ',', '"', '\r', '\n']) >= 0)
+        // Guillemets si la valeur contient le séparateur utilisé ou un séparateur courant (« ; », « , »), un guillemet ou
+        // un saut de ligne.
+        if (value.IndexOfAny([separator, ';', ',', '"', '\r', '\n']) >= 0)
         {
             return "\"" + value.Replace("\"", "\"\"") + "\"";
         }

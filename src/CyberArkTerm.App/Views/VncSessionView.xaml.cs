@@ -83,7 +83,13 @@ public partial class VncSessionView : UserControl
                 QueueRender(rect);
             }
         };
-        client.Resized += () => QueueRender(new VncRect(0, 0, int.MaxValue / 2, int.MaxValue / 2));
+        client.Resized += () =>
+        {
+            if (ReferenceEquals(client, _client))
+            {
+                QueueRender(new VncRect(0, 0, int.MaxValue / 2, int.MaxValue / 2));
+            }
+        };
         client.ClipboardReceived += text => Dispatcher.BeginInvoke(() =>
         {
             if (ReferenceEquals(client, _client))

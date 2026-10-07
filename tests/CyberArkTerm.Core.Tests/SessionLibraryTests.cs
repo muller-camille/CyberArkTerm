@@ -80,12 +80,30 @@ public class SessionLibraryTests
         SessionLibrary.AddSession(settings, Account("2"), "pvwa", "Prod");
         SessionLibrary.AddSession(settings, Account("3"), "pvwa", "Recette");
 
-        int removed = SessionLibrary.DeleteFolder(settings, "Prod");
+        Assert.Equal(2, SessionLibrary.CountInFolder(settings, "Prod", "pvwa"));
+        int removed = SessionLibrary.DeleteFolder(settings, "Prod", "pvwa");
 
         Assert.Equal(2, removed);
         Assert.Equal(["Recette"], settings.SessionFolderList);
         Assert.Single(settings.Sessions);
-        Assert.Throws<ArgumentException>(() => SessionLibrary.DeleteFolder(settings, ""));
+        Assert.Throws<ArgumentException>(() => SessionLibrary.DeleteFolder(settings, "", "pvwa"));
+    }
+
+    /// <summary>Les serveurs d'un autre PVWA, invisibles ici, ne sont ni comptés ni supprimés ; leur dossier reste.</summary>
+    [Fact]
+    public void DeleteFolderKeepsTheServersOfAnotherPvwa()
+    {
+        var settings = new AppSettings();
+        SessionLibrary.AddSession(settings, Account("1"), "preprod", "Linux");
+        SessionLibrary.AddSession(settings, Account("2"), "prod", "Linux/Web");
+        SessionLibrary.AddSession(settings, Account("3"), "prod", "Linux");
+        SessionLibrary.AddFolder(settings, "Linux/Vide");
+
+        Assert.Equal(1, SessionLibrary.CountInFolder(settings, "Linux", "preprod"));
+        Assert.Equal(1, SessionLibrary.DeleteFolder(settings, "Linux", "preprod"));
+
+        Assert.Equal(["2", "3"], settings.Sessions.Select(s => s.AccountId).Order());
+        Assert.Equal(["Linux", "Linux/Web"], settings.SessionFolderList.Order());
     }
 
     [Fact]
@@ -207,5 +225,16 @@ public class SessionLibraryTests
         {
             File.Delete(path);
         }
+    }
+
+    /// <summary>Sans PSMP renseigné, un compte Unix ajouté à « Mes serveurs » s'ouvre par PSM, comme dans la liste des comptes.</summary>
+    [Fact]
+    public void AddedServerUsesPsmWithoutAPsmp()
+    {
+        var settings = new AppSettings();
+        var unix = new PvwaAccount { Id = "9", Address = "lnx01", UserName = "root", PlatformId = "UnixSSH" };
+
+        Assert.Equal(ConnectMode.Ssh, SessionLibrary.AddSession(settings, unix, "pvwa", "").Mode);
+        Assert.Equal(ConnectMode.Psm, SessionLibrary.AddSession(settings, unix, "pvwa", "", hasPsmp: false).Mode);
     }
 }

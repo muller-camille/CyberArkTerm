@@ -134,19 +134,10 @@ public sealed class AppSettings
 
     public const int MaxRecent = 15;
 
-    public bool IsFavorite(string accountId) => Favorites.Contains(accountId, StringComparer.Ordinal);
-
-    public void ToggleFavorite(string accountId)
-    {
-        if (Favorites.RemoveAll(id => id == accountId) == 0)
-        {
-            Favorites.Add(accountId);
-        }
-    }
-
     public void AddRecent(RecentSession session)
     {
-        Recent.RemoveAll(r => r.AccountId == session.AccountId && r.Mode == session.Mode);
+        Recent.RemoveAll(r => r.AccountId == session.AccountId && r.Mode == session.Mode
+                              && string.Equals(r.PvwaHost, session.PvwaHost, StringComparison.OrdinalIgnoreCase));
         Recent.Insert(0, session);
         if (Recent.Count > MaxRecent)
         {
@@ -237,45 +228,122 @@ public sealed class AppSettings
         "CyberArkTerm",
         "settings.json");
 
+    /// <summary>
+    /// Fichier de réglages illisible (écriture interrompue, disque plein…) mis de côté au chargement : il n'est pas écrasé
+    /// par les valeurs par défaut, et l'application le signale. Null si le fichier a été lu.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string? SetAsideFile { get; private set; }
+
+    /// <summary>Réglages repris de la sauvegarde précédente (<c>settings.json.bak</c>) après un fichier illisible.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool RestoredFromBackup { get; private set; }
+
     public static AppSettings Load(string path)
     {
+        if (!File.Exists(path))
+        {
+            return new AppSettings();
+        }
+
         try
         {
-            if (File.Exists(path))
-            {
-                var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(path), JsonOptions) ?? new AppSettings();
-                settings.Favorites ??= [];
-                settings.Recent ??= [];
-                settings.ComponentByPlatform ??= [];
-                settings.SessionFolderList ??= [];
-                settings.Sessions ??= [];
-                settings.SharedLists ??= [];
-                settings.KnownHosts ??= [];
-                settings.TailHighlights ??= "";
-                settings.TailAlerts ??= "";
-                settings.CompareTool ??= "";
-                settings.TerminalTheme ??= "campbell";
-                settings.CompareToolArguments ??= DefaultCompareArguments;
-                foreach (var session in settings.Sessions.OfType<SavedSession>())
-                {
-                    session.TailFiles ??= [];
-                }
-
-                return settings;
-            }
+            return Read(path);
         }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException)
+        catch (JsonException)
         {
-            // Fichier illisible ou corrompu : on repart des valeurs par défaut.
-        }
+            // Fichier abîmé : mis de côté (jamais écrasé), puis la sauvegarde précédente si elle se lit.
+            var aside = $"{path}.illisible-{DateTime.Now:yyyyMMdd-HHmmss}";
+            try
+            {
+                File.Move(path, aside);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                aside = path;
+            }
 
-        return new AppSettings();
+            AppSettings settings;
+            bool restored = false;
+            try
+            {
+                settings = File.Exists(BackupPath(path)) ? Read(BackupPath(path)) : new AppSettings();
+                restored = File.Exists(BackupPath(path));
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException)
+            {
+                settings = new AppSettings();
+            }
+
+            settings.SetAsideFile = aside;
+            settings.RestoredFromBackup = restored;
+            return settings;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            // Fichier momentanément inaccessible (verrouillé, partage réseau absent) : valeurs par défaut pour cette fois.
+            return new AppSettings();
+        }
     }
 
+    private static AppSettings Read(string path)
+    {
+        var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(path), JsonOptions) ?? new AppSettings();
+        settings.Favorites ??= [];
+        settings.Recent ??= [];
+        // Connexions récentes des versions sans PVWA : leur ID de compte peut désigner un autre compte sur un autre PVWA,
+        // elles sont oubliées.
+        settings.Recent.RemoveAll(r => r is null || string.IsNullOrWhiteSpace(r.PvwaHost));
+        settings.ComponentByPlatform ??= [];
+        settings.SessionFolderList ??= [];
+        settings.Sessions ??= [];
+        settings.Sessions.RemoveAll(s => s is null);
+        settings.KeePassFolders ??= [];
+        settings.KeePassFolders.RemoveAll(f => f is null);
+        settings.SharedLists ??= [];
+        settings.KnownHosts ??= [];
+        settings.Language ??= "";
+        settings.PvwaUrl ??= "";
+        settings.UserName ??= "";
+        settings.PsmpAddress ??= "";
+        settings.TextEditor ??= "";
+        settings.TailHighlights ??= "";
+        settings.TailAlerts ??= "";
+        settings.CompareTool ??= "";
+        settings.TerminalTheme ??= "campbell";
+        settings.CompareToolArguments ??= DefaultCompareArguments;
+        foreach (var session in settings.Sessions)
+        {
+            session.TailFiles ??= [];
+        }
+
+        return settings;
+    }
+
+    private static string BackupPath(string path) => path + ".bak";
+
+    /// <summary>
+    /// Écrit dans un fichier temporaire puis le met à la place de l'ancien (gardé en <c>.bak</c>) : une écriture interrompue
+    /// ne laisse jamais un fichier de réglages à moitié écrit.
+    /// </summary>
     public void Save(string path)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        File.WriteAllText(path, JsonSerializer.Serialize(this, JsonOptions));
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
+        var temp = path + ".tmp";
+        using (var stream = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.None))
+        {
+            JsonSerializer.Serialize(stream, this, JsonOptions);
+            stream.Flush(flushToDisk: true);
+        }
+
+        if (File.Exists(path))
+        {
+            File.Replace(temp, path, BackupPath(path), ignoreMetadataErrors: true);
+        }
+        else
+        {
+            File.Move(temp, path);
+        }
     }
 }
 
@@ -283,6 +351,11 @@ public sealed class AppSettings
 public sealed class RecentSession
 {
     public string AccountId { get; set; } = "";
+
+    /// <summary>PVWA du compte : un même ID désigne d'autres comptes sur un autre PVWA.</summary>
+    public string PvwaHost { get; set; } = "";
+
+    public bool IsForHost(string pvwaHost) => string.Equals(PvwaHost, pvwaHost, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Libellé affiché, par ex. « adm-t0@srv01.corp.local ».</summary>
     public string Label { get; set; } = "";

@@ -3104,7 +3104,7 @@ Save the result to a CSV file (one line per line of the file, without the passwo
     <value>Servers opened on a target machine (check them, the machine comes from the file):</value>
   </data>
   <data name="ImportServersOtherPvwa" xml:space="preserve">
-    <value>This file comes from the PVWA {0}; you are connected to {1}: servers whose account does not exist here will appear greyed out.</value>
+    <value>This file was created for the PVWA {0}: its account IDs designate other accounts than on {1}. Sign in to {0} to import it.</value>
   </data>
   <data name="ServersImported" xml:space="preserve">
     <value>{0} server(s) imported ({1} already present)</value>
@@ -3514,5 +3514,31 @@ These target machines come from the shared list, which anyone with write access 
   </data>
   <data name="SharedOtherPvwaChange" xml:space="preserve">
     <value>The shared list "{0}" was created for the PVWA {1}: servers of {2} cannot be added to it, nor its servers copied into My servers.</value>
+  </data>
+  <data name="SettingsSetAsideRestored" xml:space="preserve">
+    <value>Your settings file could not be read (interrupted write, full disk…). It was kept, untouched, as:
+{0}
+
+The previous settings were restored from their backup.</value>
+  </data>
+  <data name="SettingsSetAsideReset" xml:space="preserve">
+    <value>Your settings file could not be read (interrupted write, full disk…). It was kept, untouched, as:
+{0}
+
+No backup could be read: CyberArkTerm starts with default settings. Your servers and vaults are still in the kept file.</value>
+  </data>
+  <data name="AlreadyRunning" xml:space="preserve">
+    <value>CyberArkTerm is already open in this Windows session: use the window that is open (taskbar).
+
+Two instances would overwrite each other's settings, local vault and files being edited.</value>
+  </data>
+  <data name="DownloadReplaceConfirm" xml:space="preserve">
+    <value>These files already exist in {0}:
+{1}
+
+Replace them? Each one is replaced only once its download is complete.</value>
+  </data>
+  <data name="KeePassConnectNoLog" xml:space="preserve">
+    <value>The emergency access log cannot be written ({0}): the connection is not opened.</value>
   </data>
 </root>

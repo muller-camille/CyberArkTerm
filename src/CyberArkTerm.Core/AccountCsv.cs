@@ -440,8 +440,42 @@ public static class AccountCsv
         return records;
     }
 
-    /// <summary>Séparateur le plus fréquent dans la première ligne, hors guillemets (« ; » à égalité).</summary>
-    private static char DetectSeparator(ReadOnlySpan<char> text)
+    /// <summary>
+    /// Séparateur le plus fréquent dans la première ligne, hors guillemets (« ; » à égalité) : « ; », « , », tabulation,
+    /// ou le séparateur de liste de la région Windows (celui des fichiers exportés et du modèle sur ce poste).
+    /// </summary>
+    internal static char DetectSeparator(ReadOnlySpan<char> text)
+    {
+        char regional = CsvExporter.DefaultSeparator(CultureInfo.CurrentCulture);
+        if (regional is not (';' or ',' or '\t'))
+        {
+            int count = 0;
+            bool inQuotes = false;
+            foreach (char c in text)
+            {
+                if (c == '"')
+                {
+                    inQuotes = !inQuotes;
+                }
+                else if (!inQuotes && c is '\r' or '\n')
+                {
+                    break;
+                }
+                else if (!inQuotes && c == regional)
+                {
+                    count++;
+                }
+            }
+
+            // Le séparateur régional l'emporte s'il revient plus souvent que les séparateurs courants.
+            char common = DetectCommonSeparator(text, out int best);
+            return count > best ? regional : common;
+        }
+
+        return DetectCommonSeparator(text, out _);
+    }
+
+    private static char DetectCommonSeparator(ReadOnlySpan<char> text, out int occurrences)
     {
         int semicolons = 0, commas = 0, tabs = 0;
         bool quoted = false;
@@ -463,6 +497,7 @@ public static class AccountCsv
             }
         }
 
+        occurrences = Math.Max(semicolons, Math.Max(commas, tabs));
         return tabs > semicolons && tabs > commas ? '\t' : commas > semicolons ? ',' : ';';
     }
 }

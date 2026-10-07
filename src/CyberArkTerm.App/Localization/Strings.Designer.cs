@@ -3368,7 +3368,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to This file comes from the PVWA {0}; you are connected to {1}: servers whose account does not exist[rest of string was truncated].
+        ///   Looks up a localized string similar to This file was created for the PVWA {0}: its account IDs designate other accounts than on {1}. Sign in to {0} to import it.
         /// </summary>
         public static string ImportServersOtherPvwa {
             get {
@@ -10235,6 +10235,62 @@ namespace CyberArkTerm.App.Localization {
         public static string SharedOtherPvwaChange {
             get {
                 return ResourceManager.GetString("SharedOtherPvwaChange", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your settings file could not be read (interrupted write, full disk…). It was kept, untouched, as:
+        ///{0}
+        ///
+        ///The previous settings were restored from their backup..
+        /// </summary>
+        public static string SettingsSetAsideRestored {
+            get {
+                return ResourceManager.GetString("SettingsSetAsideRestored", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your settings file could not be read (interrupted write, full disk…). It was kept, untouched, as:
+        ///{0}
+        ///
+        ///No backup could be read: CyberArkTerm starts with default settings. Your servers and vaults are still in the kept file..
+        /// </summary>
+        public static string SettingsSetAsideReset {
+            get {
+                return ResourceManager.GetString("SettingsSetAsideReset", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CyberArkTerm is already open in this Windows session: use the window that is open (taskbar).
+        ///
+        ///Two instances would overwrite each other's settings, local vault and files being edited..
+        /// </summary>
+        public static string AlreadyRunning {
+            get {
+                return ResourceManager.GetString("AlreadyRunning", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to These files already exist in {0}:
+        ///{1}
+        ///
+        ///Replace them? Each one is replaced only once its download is complete..
+        /// </summary>
+        public static string DownloadReplaceConfirm {
+            get {
+                return ResourceManager.GetString("DownloadReplaceConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The emergency access log cannot be written ({0}): the connection is not opened..
+        /// </summary>
+        public static string KeePassConnectNoLog {
+            get {
+                return ResourceManager.GetString("KeePassConnectNoLog", resourceCulture);
             }
         }
     }

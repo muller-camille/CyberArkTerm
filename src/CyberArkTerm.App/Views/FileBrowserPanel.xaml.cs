@@ -462,13 +462,21 @@ public partial class FileBrowserPanel : UserControl
             }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
-                // Lien vers un dossier que le serveur FTP n'a pas résolu (dossier aux nombreux liens) : on y entre.
-                if ((entry.IsSymbolicLink && await NavigateAsync(entry.FullPath, silent: true)) || _browser != browser)
+                // Autre session affichée entre-temps : rien à faire dans celle-ci. Lien vers un dossier que le serveur FTP
+                // n'a pas résolu (dossier aux nombreux liens) : on y entre.
+                if (_browser != browser || (entry.IsSymbolicLink && await NavigateAsync(entry.FullPath, silent: true)))
                 {
                     return;
                 }
 
                 SetStatus(Text.Format(Strings.CannotOpen, entry.Name, Describe(ex)), error: true);
+                return;
+            }
+
+            if (_browser != browser)
+            {
+                // Autre session (vue parallèle) ou autre connexion affichée pendant la lecture : le téléchargement
+                // prendrait le fichier du même nom sur l'autre serveur.
                 return;
             }
 
@@ -554,9 +562,16 @@ public partial class FileBrowserPanel : UserControl
         }
     }
 
+    /// <summary>
+    /// Vrai si <paramref name="browser"/> est toujours la connexion affichée : une opération longue qui se termine après
+    /// un changement de session n'actualise pas l'autre session et n'écrit pas dans sa barre d'état.
+    /// </summary>
+    private bool StillShowing(IRemoteFiles browser, int generation) => generation == _generation && ReferenceEquals(_browser, browser);
+
     private async void OnNewFolder(object sender, RoutedEventArgs e)
     {
         var browser = _browser;
+        int generation = _generation;
         if (browser is null)
         {
             return;
@@ -572,11 +587,17 @@ public partial class FileBrowserPanel : UserControl
         try
         {
             await browser.CreateDirectoryAsync(RemotePath.Combine(browser.CurrentDirectory, dialog.Value), CancellationToken.None);
-            await NavigateAsync(browser.CurrentDirectory);
+            if (StillShowing(browser, generation))
+            {
+                await NavigateAsync(browser.CurrentDirectory);
+            }
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            SetStatus(Text.Format(Strings.CreateFailed, Describe(ex)), error: true);
+            if (StillShowing(browser, generation))
+            {
+                SetStatus(Text.Format(Strings.CreateFailed, Describe(ex)), error: true);
+            }
         }
     }
 
@@ -604,6 +625,7 @@ public partial class FileBrowserPanel : UserControl
     private async Task ChangePermissionsAsync()
     {
         var browser = _browser;
+        int generation = _generation;
         var selected = SelectedEntries();
         if (browser is null || selected.Count == 0 || _busy > 0)
         {
@@ -653,9 +675,19 @@ public partial class FileBrowserPanel : UserControl
         {
             foreach (var entry in selected)
             {
-                SetStatus(Text.Format(Strings.PermissionsApplying, entry.Name));
+                if (StillShowing(browser, generation))
+                {
+                    SetStatus(Text.Format(Strings.PermissionsApplying, entry.Name));
+                }
+
                 int before = changed;
-                var progress = new Progress<int>(n => SetStatus(Text.Format(Strings.PermissionsProgress, before + n)));
+                var progress = new Progress<int>(n =>
+                {
+                    if (StillShowing(browser, generation))
+                    {
+                        SetStatus(Text.Format(Strings.PermissionsProgress, before + n));
+                    }
+                });
                 try
                 {
                     // Pas de propagation à travers un lien symbolique sélectionné (seule sa cible change de droits).
@@ -676,6 +708,11 @@ public partial class FileBrowserPanel : UserControl
             Interlocked.Decrement(ref _busy);
         }
 
+        if (!StillShowing(browser, generation))
+        {
+            return;
+        }
+
         await NavigateAsync(browser.CurrentDirectory);
         if (errors.Count > 0)
         {
@@ -692,6 +729,7 @@ public partial class FileBrowserPanel : UserControl
     private async Task DeleteAsync()
     {
         var browser = _browser;
+        int generation = _generation;
         var selected = SelectedEntries();
         if (browser is null || selected.Count == 0 || _busy > 0)
         {
@@ -718,7 +756,11 @@ public partial class FileBrowserPanel : UserControl
         {
             foreach (var entry in selected)
             {
-                SetStatus(Text.Format(Strings.Deleting, entry.Name));
+                if (StillShowing(browser, generation))
+                {
+                    SetStatus(Text.Format(Strings.Deleting, entry.Name));
+                }
+
                 try
                 {
                     await browser.DeleteAsync(entry, CancellationToken.None);
@@ -732,6 +774,11 @@ public partial class FileBrowserPanel : UserControl
         finally
         {
             Interlocked.Decrement(ref _busy);
+        }
+
+        if (!StillShowing(browser, generation))
+        {
+            return;
         }
 
         await NavigateAsync(browser.CurrentDirectory);
@@ -803,16 +850,17 @@ public partial class FileBrowserPanel : UserControl
         }
 
         string folder;
-        string? singleTarget = null;
+        IReadOnlyList<string> targets;
         if (files.Count == 1)
         {
+            // La fenêtre d'enregistrement demande elle-même avant de remplacer un fichier.
             var save = new SaveFileDialog { Title = Strings.DownloadTitle, FileName = WindowsFileName.Sanitize(files[0].Name) };
             if (save.ShowDialog(Window.GetWindow(this)) != true)
             {
                 return;
             }
 
-            singleTarget = save.FileName;
+            targets = [save.FileName];
             folder = Path.GetDirectoryName(save.FileName)!;
         }
         else
@@ -824,9 +872,20 @@ public partial class FileBrowserPanel : UserControl
             }
 
             folder = pick.FolderName;
+            // Noms Windows nettoyés et distincts sans tenir compte de la casse (« Report.txt » et « report.txt »), puis une
+            // seule question pour ceux qui existent déjà.
+            targets = VirtualFiles.AssignNames(files.Select(f => (IReadOnlyList<string>)[f.Name]).ToList())
+                .Select(name => Path.Combine(folder, name)).ToList();
+            var existing = targets.Where(File.Exists).Select(t => "  • " + Path.GetFileName(t)).ToList();
+            if (existing.Count > 0 && MessageBox.Show(Window.GetWindow(this),
+                    Text.Format(Strings.DownloadReplaceConfirm, folder, string.Join("\n", existing.Take(10)) + (existing.Count > 10 ? "\n  …" : "")),
+                    Strings.DownloadTitle, MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+            {
+                return;
+            }
         }
 
-        EnqueueDownload(files, folder, singleTarget);
+        EnqueueDownload(files, folder, targets);
     }
 
     // ===================== Vérification des transferts =====================

@@ -73,7 +73,8 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
   - «Copia la password…»: motivo e ticket se la piattaforma li richiede, poi la password viene copiata negli appunti
     per 20 secondi, **senza essere mostrata** (diritto «Recuperare gli account»; il recupero viene registrato
     nell'audit del vault).
-- Nella scheda Home, la **connessione rapida** trova un server mentre digiti: Invio per connetterti.
+- Nella scheda Home, la **connessione rapida** trova un server mentre digiti: Invio per connetterti. Le **sessioni
+  recenti** sono quelle del PVWA a cui sei connesso: su un altro PVWA lo stesso ID di account indica un altro account.
 
 ## 3. Aprire una sessione PSM (desktop remoto)
 
@@ -183,10 +184,13 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   restano in cima; l'ordinamento è mantenuto da una cartella e da una sessione all'altra.
 - **Inviare file**: trascinali da Esplora file sull'elenco (o il pulsante «Invia»). Invio in **SFTP** per
   impostazione predefinita (SCP a scelta nelle Impostazioni), cartelle comprese; conferma prima di sovrascrivere un
-  file esistente. Se il server rifiuta quel protocollo per un file prima di riceverlo (regola del PSMP, SFTP in sola
+  file esistente (file nascosti compresi, anche se non mostrati). Se il server rifiuta quel protocollo per un file prima di riceverlo (regola del PSMP, SFTP in sola
   lettura…), l'altro subentra subito, senza domande né attese: la barra di stato e il riepilogo lo indicano con la
   risposta del server, e così la Cronologia («SCP (SFTP rifiutato)»). In SCP, dopo un rifiuto all'annuncio di un
   file, i file grandi almeno altrettanto partono direttamente in SFTP fino alla chiusura della scheda.
+- **Scaricare**: pulsante «Scarica» o clic destro. Un file chiede dove salvarlo; più file vanno in una cartella
+  scelta, con una sola domanda per quelli già presenti. Un file locale viene sostituito solo a download completato: un
+  download interrotto o annullato lo lascia com'era.
 - **Scaricare trascinando**: trascina file o cartelle dall'elenco verso Esplora file o il desktop. Nulla viene
   scaricato durante il trascinamento: al rilascio, una finestra mostra l'avanzamento (Annulla lo interrompe), poi
   Esplora file copia i file dove li hai rilasciati. I nomi Unix vengono resi validi per Windows (`\`, `:`, `..`,
@@ -198,8 +202,8 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   Un pannello sopra la barra di stato mostra ogni elemento (in attesa, avanzamento e file n/N, verifica, risultato):
   ✕ rimuove un elemento in attesa, «Annulla» interrompe quello in corso, «Annulla tutto» svuota la coda. Un
   trasferimento interrotto elimina il file in corso, incompleto (sul server per un invio, sul computer per un
-  download); i file già trasferiti restano. Attenzione: se l'invio sostituiva un file esistente, il vecchio
-  contenuto è perso. In SCP, l'interruzione riguarda solo quel trasferimento: gli elementi successivi proseguono
+  download); i file già trasferiti restano. Attenzione: se l'invio sostituiva un file esistente e aveva iniziato a
+  scriverlo, il vecchio contenuto è perso; interrotto prima di qualsiasi contenuto, il file del server resta com'era. In SCP, l'interruzione riguarda solo quel trasferimento: gli elementi successivi proseguono
   sulla stessa connessione; un trasferimento che non avanza più (server che non legge più) si ferma 2 s dopo
   «Annulla» e i successivi partono su una nuova connessione. Un file inviato via SCP prende sul server la data dell'invio (come `scp` senza `-p`, e come in
   SFTP). Un errore viene mostrato nella coda e la coda prosegue; alla fine, un unico riepilogo. Navigazione,
@@ -256,6 +260,7 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   che non può essere riletto (permessi) è segnalato «non verificato». La rilettura di un invio raddoppia il volume
   scambiato con il server.
 - **Eliminare**: selezione poi Canc (o clic destro → «Elimina (rm)»), con conferma. Le cartelle devono essere vuote.
+  Un collegamento simbolico viene eliminato esso stesso, mai il file o la cartella a cui punta.
 - **Modificare un file**: **doppio clic** sul file (o `Invio`, `F4`, clic destro → «Modifica», il pulsante matita).
   Il file si apre nell'editor di testo scelto nelle Impostazioni (Blocco note per impostazione predefinita). Con il
   doppio clic, un archivio, un'immagine, un eseguibile o un documento d'ufficio viene scaricato invece di essere
@@ -316,7 +321,8 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   e poi la cartella desiderata. Il server mantiene il tipo di connessione (PSM, SSH o solo file), il componente PSM e la
   macchina di destinazione usati.
 - **Cartelle**: clic destro → nuova cartella o sottocartella, rinomina, elimina; trascina server e cartelle per
-  spostarli.
+  spostarli. Eliminare una cartella conta ed elimina tutti i suoi server di questo PVWA, anche quelli nascosti dalla
+  ricerca; quelli di un altro PVWA restano.
 - **Cercare**: campo in cima alla scheda (o `Ctrl+F` nella scheda). Filtra i server per nome, server, utente,
   cartella, componente, macchina di destinazione, e le voci degli archivi KeePass sbloccati; le cartelle dei
   risultati vengono espanse. `Invio` o `↓` seleziona il primo risultato, `Esc` cancella.
@@ -348,8 +354,9 @@ Tre pulsanti in alto nella scheda, a sinistra del pulsante archivio KeePass:
   file seguito. Utile per cambiare computer o passare il proprio elenco.
 - **Importa** legge un file esportato (o un elenco condiviso) e riassume prima di aggiungere: server aggiunti, server
   già presenti (stesso account, tipo, componente, macchina di destinazione e cartella: ignorati), cartelle create,
-  server aperti su una macchina di destinazione (da verificare: la macchina viene dal file) e PVWA di origine se
-  diverso. Niente viene rimosso o modificato in «I miei server».
+  server aperti su una macchina di destinazione (da verificare: la macchina viene dal file). Niente viene rimosso o
+  modificato in «I miei server». Un file creato per un altro PVWA viene rifiutato: i suoi ID di account vi indicano
+  altri account.
 - **Elenchi condivisi** (icona con due persone): un elenco di server in un file su una condivisione di rete, che tutto
   il team apre e completa.
   - «Crea un elenco condiviso…»: scegli la posizione (condivisione di rete) e il nome mostrato a tutti; «Apri un
@@ -426,7 +433,9 @@ contengono.
 **Vault locale**: le password principali che scegli di memorizzare sono conservate in
 `%APPDATA%\CyberArkTerm\coffre-local.dat`, cifrato con una tua password (chiesta quando sblocchi un archivio KeePass
 la cui password è memorizzata, «Più tardi» per digitare invece la password dell'archivio) e legato al tuo account
-Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia password, elimina.
+Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia password, elimina. Si blocca alla disconnessione
+(così «Accesso di emergenza» non riapre mai gli archivi memorizzati senza password), alla chiusura e al blocco di
+Windows.
 
 ## Scorciatoie
 
@@ -480,7 +489,11 @@ Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia password, elimin
 Tutte le preferenze sono salvate in `%APPDATA%\CyberArkTerm\settings.json`: lingua, indirizzo del PVWA, metodo e
 nome utente di accesso, impostazioni qui sopra, «I miei server», le loro cartelle e i file seguiti su di essi
 (percorsi), sessioni recenti, posizione degli archivi KeePass e dei loro file chiave, e degli elenchi condivisi aperti. Questo file **non contiene
-password, token né chiavi private**. Per ripartire da zero, chiudi l'applicazione ed eliminalo. La cronologia dei
+password, token né chiavi private**. Per ripartire da zero, chiudi l'applicazione ed eliminalo. Viene scritto
+prima in un file temporaneo e poi messo al suo posto, mantenendo il precedente come `settings.json.bak`: se il file
+diventa illeggibile, viene messo da parte (mai sovrascritto), si riprende il backup e un messaggio lo segnala.
+CyberArkTerm si apre una sola volta per sessione di Windows: due istanze si sovrascriverebbero a vicenda le
+impostazioni. La cronologia dei
 trasferimenti della scheda File è accanto, in `transfers.json` (nomi e percorsi dei file, checksum SHA-256, mai il
 loro contenuto).
 
@@ -493,18 +506,23 @@ loro contenuto).
 - **Copia di una password**: la risposta del PVWA viene letta in un buffer cancellato subito dopo e decodificata
   senza passare da una stringa; la password va direttamente negli appunti di Windows, contrassegnata per essere
   esclusa dalla cronologia (`Win+V`), dalla sincronizzazione tra dispositivi e dagli strumenti di monitoraggio degli
-  appunti, poi cancellata dopo 20 s se è ancora presente, oltre che alla disconnessione, alla chiusura e al blocco
-  di Windows. Non viene mai mostrata né scritta nel registro di debug.
+  appunti, poi cancellata dopo 20 s se è ancora presente (nuovo tentativo ogni secondo se un'altra applicazione
+  tiene aperti gli appunti), oltre che alla disconnessione, alla chiusura e al blocco di Windows. Non viene mai
+  mostrata né scritta nel registro di debug. Una risposta che non è la password (pagina HTML di manutenzione,
+  reindirizzamento verso una pagina di accesso SSO, risposta vuota) viene rifiutata invece di essere copiata.
 - **Aggiunta di un account**: la password viene letta dal campo mascherato senza passare da una stringa, inviata una
   sola volta al PVWA in HTTPS, poi cancellata dalla memoria; non viene né salvata né scritta nel registro di debug.
-- **Sessioni PSM**: il file RDP del PVWA (token PSM monouso) viene scritto in `%TEMP%\CyberArkTerm` per `mstsc`, che
+- **Cartella temporanea**: `%TEMP%\CyberArkTerm`, riservata al vostro account Windows (permessi limitati a voi
+  soli); se appartiene a un altro account (variabile TEMP che punta a una cartella condivisa), viene usata
+  `%LOCALAPPDATA%\CyberArkTerm\Temp`. I percorsi qui sotto sono relativi a questa cartella.
+- **Sessioni PSM**: il file RDP del PVWA (token PSM monouso) viene scritto nella cartella temporanea per `mstsc`, che
   ne verifica la firma, poi eliminato dopo 60 s o alla chiusura.
 - **Digitazione simultanea** (vista parallela): disattivata a ogni apertura della vista, segnalata da una fascia e
   una cornice arancioni che nominano le sessioni interessate; una sessione aggiunta non vi è inclusa d'ufficio, e
   incollare più righe in più sessioni chiede conferma. Ogni sessione resta una sessione PSMP distinta, registrata
   come di consueto.
 - **Confronto di file**: contenuti letti in memoria e cancellati alla chiusura della finestra; solo le copie date a
-  uno strumento esterno passano dal disco (`%TEMP%\CyberArkTerm\compare`), eliminate alla chiusura della finestra e
+  uno strumento esterno passano dal disco (cartella temporanea, `compare`), eliminate alla chiusura della finestra e
   all'avvio successivo.
 - **Nuova versione**: nessuna richiesta verso Internet senza una tua azione o l'opzione delle Impostazioni
   (disattivata per impostazione predefinita); vengono seguiti solo gli indirizzi del repository del progetto,
@@ -533,7 +551,9 @@ loro contenuto).
     fissata al primo consenso (come una chiave host SSH), un cambiamento è segnalato; rifiutato, la connessione si
     ferma prima dell'invio del nome utente;
   - nomi di file con caratteri di controllo rifiutati (nessuna iniezione di comandi FTP);
-  - `urgence.log`: data, account Windows, computer, azione, archivio, voce, destinazione; mai una password.
+  - `urgence.log`: data, account Windows, computer, azione, archivio, voce, destinazione; mai una password. Ogni
+    lettura della password di una voce vi è annotata, riconnessioni e connessioni SFTP / SCP della scheda File
+    comprese; se il registro non può essere scritto, la connessione non viene aperta.
 - **Registro di debug**, disattivato per impostazione predefinita (menu del pulsante Impostazioni):
   `%LOCALAPPDATA%\CyberArkTerm\debug.log`, al massimo 5 MB più una generazione `.1`. Registra lo svolgimento delle
   connessioni PVWA, PSM, desktop remoto e SSH: indirizzi e stati delle richieste, impostazioni del file .rdp, eventi
@@ -543,7 +563,7 @@ loro contenuto).
   sessione, richiesta di sessione PSM (`PSM@…` mascherata), firma, intestazione o corpo delle richieste, né il
   contenuto delle sessioni. La barra di stato lo segnala finché è attivo. Rileggilo prima di trasmetterlo, ed
   eliminalo una volta risolto il problema.
-- **File modificati**: la copia locale aperta nell'editor si trova in `%TEMP%\CyberArkTerm\edit` e viene eliminata
+- **File modificati**: la copia locale aperta nell'editor si trova nella cartella temporanea (`edit`) e viene eliminata
   alla chiusura della scheda SSH; un avviso segnala le modifiche non rinviate.
 - **Nessuna iniezione di comandi**: percorsi SCP e cartelle iniziali protetti tra apici per la shell remota;
   argomenti `ssh` / Windows Terminal convalidati e passati senza shell.
@@ -595,7 +615,8 @@ registro.
 Lettura e scrittura native (senza KeePass installato) dei formati **KDBX 3.1 e 4.x**: cifratura AES-256 o ChaCha20,
 derivazione della chiave AES-KDF (istruzioni AES del processore) o Argon2d / Argon2id, file chiave XML 1.0 / 2.0, 32
 byte, 64 caratteri esadecimali o file qualsiasi. Il file riscritto mantiene la versione, la cifratura e la
-derivazione della chiave originali, con nuovi semi a ogni salvataggio. Gli archivi di test
+derivazione della chiave originali, con nuovi semi a ogni salvataggio, compreso quello della derivazione della chiave
+(come KeePass: una chiave derivata catturata una volta non decifra le versioni successive). Gli archivi di test
 (`tests/CyberArkTerm.Core.Tests/KeePass/Vaults`) provengono da KeePassXC e pykeepass, e i file scritti da
 CyberArkTerm sono stati verificati in entrambi gli strumenti.
 
@@ -609,7 +630,9 @@ codifiche Raw, CopyRect e Hextile, cambio di dimensione dello schermo, pixel a 3
 
 ### Sessioni di file FTP / FTPS
 
-Libreria FluentFTP (licenza MIT). Modalità passiva (`EPSV` / `PASV`), binaria, `PBSZ 0` e `PROT P` con TLS;
+Libreria FluentFTP (licenza MIT). Modalità passiva: `PASV` in IPv4, con la connessione dati sempre verso il server
+stesso (l'indirizzo indicato nella risposta viene ignorato: un server non può farla puntare verso un'altra macchina),
+`EPSV` in IPv6; binaria, `PBSZ 0` e `PROT P` con TLS;
 certificato verificato da Windows, altrimenti fissato (`ftps://server:porta` tra le chiavi dei server accettate,
 nelle Impostazioni). FTP non ha una somma di controllo standard: ogni invio è riletto dal server e confrontato con
 SHA-256. Lettura parziale (`REST`) per il confronto e il monitoraggio in tempo reale. Dopo un trasferimento

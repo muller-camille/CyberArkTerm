@@ -19,19 +19,12 @@ public partial class MainWindow
 
     /// <summary>
     /// Ouvre un onglet Bureau à distance. <paramref name="prepare"/> fournit les réglages de chaque connexion
-    /// (y compris les reconnexions) ; <paramref name="first"/> sert pour la première si on l'a déjà.
+    /// (y compris les reconnexions).
     /// </summary>
     /// <param name="duplicate">Ouvre une autre session sur le même compte ou la même entrée (menu de l'onglet).</param>
-    private async Task<RdpSession> OpenRdpTabAsync(string label, Func<CancellationToken, Task<RdpConnectionRequest>> prepare,
-        RdpConnectionRequest? first = null, Func<Task>? duplicate = null)
+    private async Task OpenRdpTabAsync(string label, Func<CancellationToken, Task<RdpConnectionRequest>> prepare, Func<Task>? duplicate = null)
     {
-        var pending = first;
-        var session = new RdpSession(label, ct =>
-        {
-            var request = pending;
-            pending = null;
-            return request is not null ? Task.FromResult(request) : prepare(ct);
-        });
+        var session = new RdpSession(label, prepare);
         var view = new RdpSessionView(session) { Visibility = Visibility.Hidden };
         var tab = new TabItem { Tag = session };
         tab.Header = TabHeader(tab, label, "IconWindows", duplicate);
@@ -55,7 +48,6 @@ public partial class MainWindow
         // Laisse la mise en page se faire pour connaître la taille de l'onglet.
         await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Loaded);
         await session.ConnectAsync();
-        return session;
     }
 
     private async Task CloseRdpTabAsync(TabItem tab)

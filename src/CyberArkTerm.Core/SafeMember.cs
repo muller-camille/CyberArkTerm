@@ -30,8 +30,7 @@ public sealed class SafeMember
     [JsonIgnore]
     public DateTime? Expires => MembershipExpirationDate switch
     {
-        { ValueKind: JsonValueKind.Number } n when n.TryGetInt64(out var seconds) && seconds > 0 =>
-            DateTimeOffset.FromUnixTimeSeconds(seconds).LocalDateTime,
+        { ValueKind: JsonValueKind.Number } n when n.TryGetInt64(out var seconds) => UnixTime.ToLocal(seconds),
         { ValueKind: JsonValueKind.String } s when DateTime.TryParse(s.GetString(), CultureInfo.InvariantCulture,
             DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var date) => date.ToLocalTime(),
         _ => null,
@@ -165,7 +164,5 @@ public sealed class SafeMemberChange
     };
 
     /// <summary>Fin de la journée choisie (heure locale), en secondes Unix.</summary>
-    private long? ExpirationSeconds => Expires is { } date
-        ? new DateTimeOffset(date.Date.AddDays(1).AddSeconds(-1), TimeZoneInfo.Local.GetUtcOffset(date)).ToUnixTimeSeconds()
-        : null;
+    private long? ExpirationSeconds => Expires is { } date ? UnixTime.EndOfDay(date, TimeZoneInfo.Local) : null;
 }

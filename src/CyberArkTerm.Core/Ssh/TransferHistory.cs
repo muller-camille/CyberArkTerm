@@ -66,7 +66,10 @@ public sealed class TransferHistory
     };
 
     private readonly object _lock = new();
+    private readonly object _writeLock = new();
     private readonly string? _path;
+    private long _version;
+    private long _savedVersion;
 
     public TransferHistory(string? path = null) => _path = path;
 
@@ -121,6 +124,7 @@ public sealed class TransferHistory
         {
             Records.Insert(0, record);
             Trim();
+            _version++;
         }
     }
 
@@ -129,10 +133,14 @@ public sealed class TransferHistory
         lock (_lock)
         {
             Records.Clear();
+            _version++;
         }
     }
 
-    /// <summary>Enregistre l'historique (écriture dans un fichier temporaire, puis remplacement).</summary>
+    /// <summary>
+    /// Enregistre l'historique (écriture dans un fichier temporaire, puis remplacement). Plusieurs enregistrements
+    /// simultanés : un état plus ancien que celui déjà écrit n'est jamais réécrit par-dessus.
+    /// </summary>
     public void Save()
     {
         if (_path is null)
@@ -141,17 +149,25 @@ public sealed class TransferHistory
         }
 
         string json;
+        long version;
         lock (_lock)
         {
             json = JsonSerializer.Serialize(Records, JsonOptions);
+            version = _version;
         }
 
-        lock (JsonOptions)
+        lock (_writeLock)
         {
+            if (version < _savedVersion)
+            {
+                return;
+            }
+
             Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
             var temp = _path + ".tmp";
             File.WriteAllText(temp, json);
             File.Move(temp, _path, overwrite: true);
+            _savedVersion = version;
         }
     }
 

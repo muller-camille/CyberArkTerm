@@ -146,6 +146,77 @@ public sealed class LocalSecretStoreTests : IDisposable
 
     public void Dispose() => Directory.Delete(_directory, recursive: true);
 
+    [Fact]
+    public void EmptyPasswordIsAWrongPassword()
+    {
+        using (var setup = new LocalSecretStore(StorePath, null, Fast))
+        {
+            setup.Create("mot-de-passe-local");
+        }
+
+        using var store = new LocalSecretStore(StorePath, null, Fast);
+        var e = Assert.Throws<KeePassException>(() => store.Unlock(""));
+        Assert.Equal(KeePassError.InvalidKey, e.Kind);
+        Assert.False(store.IsUnlocked);
+    }
+
+    /// <summary>Session Windows verrouillée pendant le calcul de la clé : le coffre reste verrouillé, rien n'est écrit.</summary>
+    [Fact]
+    public void LockDuringUnlockKeepsTheStoreLocked()
+    {
+        using (var setup = new LocalSecretStore(StorePath, null, Fast))
+        {
+            setup.Create("mot-de-passe-local");
+            setup.Set("folder-1", "secret");
+        }
+
+        var protector = new LockingProtector();
+        using var store = new LocalSecretStore(StorePath, protector, Fast);
+        File.WriteAllBytes(StorePath, protector.Protect(File.ReadAllBytes(StorePath)));
+        protector.Store = store;
+
+        Assert.Throws<OperationCanceledException>(() => store.Unlock("mot-de-passe-local"));
+        Assert.False(store.IsUnlocked);
+        Assert.Empty(store.Ids);
+
+        protector.Store = null;
+        store.Unlock("mot-de-passe-local");
+        Assert.Equal(["folder-1"], store.Ids);
+    }
+
+    /// <summary>Coffres retirés (ou « se souvenir » décoché) pendant que le coffre local était verrouillé : oubliés ensuite.</summary>
+    [Fact]
+    public void RemoveAllExceptForgetsUnreferencedSecrets()
+    {
+        using (var store = new LocalSecretStore(StorePath, null, Fast))
+        {
+            store.Create("mot-de-passe-local");
+            store.Set("folder-1", "a");
+            store.Set("folder-2", "b");
+            store.Set("folder-3", "c");
+            Assert.Equal(2, store.RemoveAllExcept(["folder-2", "inconnu"]));
+            Assert.Equal(0, store.RemoveAllExcept(["folder-2"]));
+        }
+
+        using var reopened = new LocalSecretStore(StorePath, null, Fast);
+        reopened.Unlock("mot-de-passe-local");
+        Assert.Equal(["folder-2"], reopened.Ids);
+    }
+
+    /// <summary>Verrouille le coffre pendant la lecture du fichier, comme un verrouillage de session au mauvais moment.</summary>
+    private sealed class LockingProtector : ISecretProtector
+    {
+        public LocalSecretStore? Store { get; set; }
+
+        public byte[] Protect(byte[] data) => [.. data];
+
+        public byte[] Unprotect(byte[] data)
+        {
+            Store?.Lock();
+            return [.. data];
+        }
+    }
+
     private sealed class XorProtector : ISecretProtector
     {
         public byte[] Protect(byte[] data) => data.Select(b => (byte)(b ^ 0x5A)).ToArray();

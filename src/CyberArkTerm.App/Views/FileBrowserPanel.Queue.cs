@@ -93,13 +93,19 @@ public partial class FileBrowserPanel
         var terminal = session as SshSession;
         if (_settings.OfferArchive && terminal is not null)
         {
-            var (files, bytes) = TarGzPacker.Measure(paths);
-            if (files >= _settings.ArchiveThreshold && TarGzPacker.UstarProblem(paths) is { } tooLong)
+            // Parcours de toute l'arborescence déposée (partage réseau possible) : hors du fil de l'interface.
+            int threshold = _settings.ArchiveThreshold;
+            var (files, bytes, tooLong) = await Task.Run(() =>
+            {
+                var (count, size) = TarGzPacker.Measure(paths);
+                return (count, size, count >= threshold ? TarGzPacker.UstarProblem(paths) : null);
+            });
+            if (tooLong is not null)
             {
                 // Nom trop long ou fichier trop gros pour le format tar standard : envoi un par un.
                 SetStatus(Text.Format(Strings.ArchiveNotPossible, tooLong));
             }
-            else if (files >= _settings.ArchiveThreshold)
+            else if (files >= threshold)
             {
                 SetStatus(Strings.ArchiveLookingForGzip);
                 gzip = await _gzip.GetValue(browser, b => TarGzPacker.FindGzipAsync(b.ExistsAsync, CancellationToken.None));
@@ -126,8 +132,22 @@ public partial class FileBrowserPanel
             }
         }
 
-        // Écrasement : noms déjà dans le dossier, ou attendus d'un envoi en attente vers le même dossier.
-        var existing = (FileList.ItemsSource as IEnumerable<RemoteEntry> ?? []).Select(e => e.Name)
+        // Écrasement : noms déjà dans le dossier sur le serveur, fichiers cachés compris (la liste affichée peut les masquer,
+        // ou montrer un autre dossier si l'on a navigué entre-temps), ou attendus d'un envoi en attente vers ce dossier.
+        IEnumerable<string> present;
+        try
+        {
+            SetStatus(Text.Format(Strings.Reading, directory));
+            present = (await browser.BrowseAsync(directory, showHidden: true, CancellationToken.None)).Select(e => e.Name).ToList();
+            SetStatus("");
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            SetStatus(Text.Format(Strings.CannotOpen, directory, ErrorText.Describe(ex)), error: true);
+            return;
+        }
+
+        var existing = present
             .Concat(_queue.Items
                 .Where(i => i.Upload && i.State is TransferState.Pending or TransferState.Running && ReferenceEquals(i.Owner, session) && i.Destination == directory)
                 .SelectMany(i => i.Names))
@@ -178,12 +198,13 @@ public partial class FileBrowserPanel
         {
             var progress = new Progress<TransferProgress>(item.Report);
             item.FileCount = 1;
-            var folder = Path.Combine(Path.GetTempPath(), "CyberArkTerm", "archives", Guid.NewGuid().ToString("N"));
+            var folder = Path.Combine(ArchiveRoot, Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(folder);
             try
             {
                 var archive = Path.Combine(folder, archiveName);
-                await TarGzPacker.CreateAsync(paths, archive, compress: gzip is not null, progress, ct);
+                // Parcours et compression hors du fil de l'interface (la progression y revient d'elle-même).
+                await Task.Run(() => TarGzPacker.CreateAsync(paths, archive, compress: gzip is not null, progress, ct), ct);
                 await browser.UploadAsync(archive, directory, protocol, item.Checks, progress, background: true, ct);
                 item.ExtractCommand = TarGzPacker.ExtractCommand(directory, archiveName, gzip);
             }
@@ -206,8 +227,8 @@ public partial class FileBrowserPanel
         });
     }
 
-    /// <summary>Met en file le téléchargement de fichiers vers un dossier (ou un fichier choisi, pour un seul).</summary>
-    private void EnqueueDownload(IReadOnlyList<RemoteEntry> files, string folder, string? singleTarget)
+    /// <summary>Met en file le téléchargement de fichiers vers <paramref name="targets"/> (un chemin local par fichier).</summary>
+    private void EnqueueDownload(IReadOnlyList<RemoteEntry> files, string folder, IReadOnlyList<string> targets)
     {
         var browser = _browser;
         if (browser is null || files.Count == 0)
@@ -220,11 +241,10 @@ public partial class FileBrowserPanel
         {
             var progress = new Progress<TransferProgress>(item.Report);
             item.FileCount = files.Count;
-            foreach (var file in files)
+            for (int i = 0; i < files.Count; i++)
             {
-                // Nom Unix nettoyé (« ..\ », « : », « CON »...) : rien ne s'écrit hors du dossier choisi.
-                var target = singleTarget ?? Path.Combine(folder, WindowsFileName.Sanitize(file.Name));
-                await browser.DownloadAsync(file, target, item.Checks, progress, background: true, ct);
+                // Noms Unix nettoyés (« ..\ », « : », « CON »...) par l'appelant : rien ne s'écrit hors du dossier choisi.
+                await browser.DownloadAsync(files[i], targets[i], item.Checks, progress, background: true, ct);
             }
         })
         {
@@ -389,8 +409,10 @@ public partial class FileBrowserPanel
             }
         }
 
-        // Archives envoyées : il reste à les extraire, la commande est affichée dans un encadré.
-        foreach (var item in run.Where(i => i.State == TransferState.Done && i.ExtractCommand is not null))
+        // Archives envoyées : il reste à les extraire, la commande est affichée dans un encadré. Session fermée entre-temps :
+        // plus de terminal où la taper, rien n'est gardé (la session fermée ne reste pas en mémoire).
+        foreach (var item in run.Where(i => i.State == TransferState.Done && i.ExtractCommand is not null
+                                            && i.Owner is SshSession { IsDisposed: false }))
         {
             _extracts.Add(new PendingExtract(item.Owner as SshSession, item.Destination, item.ExtractCommand!));
         }

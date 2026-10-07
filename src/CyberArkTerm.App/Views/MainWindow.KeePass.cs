@@ -166,7 +166,7 @@ public partial class MainWindow
         {
             if (!_keePass.Store.IsUnlocked && _keePass.Store.Exists)
             {
-                new LocalStoreDialog(_keePass.Store, LocalStoreDialog.Mode.Unlock) { Owner = this }.ShowDialog();
+                new LocalStoreDialog(_keePass.Store, LocalStoreDialog.Mode.Unlock, SettingsDialog.RememberedFolderIds(_settings)) { Owner = this }.ShowDialog();
             }
 
             if (_keePass.StoredPassword(folder) is { } stored)
@@ -182,6 +182,12 @@ public partial class MainWindow
                 {
                     // Mot de passe mémorisé périmé, fichier clé déplacé... : on le demande.
                     message = ex.Message;
+                }
+                catch (OperationCanceledException)
+                {
+                    // Fenêtre fermée, ou session Windows verrouillée pendant l'ouverture : le coffre reste verrouillé.
+                    SetStatus("");
+                    return false;
                 }
                 finally
                 {
@@ -220,7 +226,7 @@ public partial class MainWindow
 
         var owner = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive) ?? this;
         var mode = store.Exists ? LocalStoreDialog.Mode.Unlock : LocalStoreDialog.Mode.Create;
-        return new LocalStoreDialog(store, mode) { Owner = owner }.ShowDialog() == true;
+        return new LocalStoreDialog(store, mode, SettingsDialog.RememberedFolderIds(_settings)) { Owner = owner }.ShowDialog() == true;
     }
 
     private void OnKeePassFolderMenuOpened(object sender, RoutedEventArgs e)
@@ -293,8 +299,17 @@ public partial class MainWindow
         {
             if (before != (folder.FilePath, folder.KeyFilePath, folder.UsesPassword))
             {
-                // Autre fichier ou autre clé : le coffre ouvert ne correspond plus.
+                // Autre fichier ou autre clé : le coffre ouvert ne correspond plus, ni le mot de passe mémorisé (oublié
+                // tout de suite si le coffre local est ouvert, sinon à son prochain déverrouillage).
                 _keePass.Lock(folder.Id);
+                if (folder.RememberPassword)
+                {
+                    folder.RememberPassword = false;
+                    if (_keePass.Store.IsUnlocked)
+                    {
+                        _keePass.Store.Remove(folder.Id);
+                    }
+                }
             }
 
             SaveSettings();
@@ -312,6 +327,7 @@ public partial class MainWindow
         }
 
         _keePass.Lock(folder.Id);
+        // Coffre local verrouillé : le mot de passe mémorisé sera oublié à son prochain déverrouillage.
         if (_keePass.Store.IsUnlocked)
         {
             _keePass.Store.Remove(folder.Id);
@@ -521,12 +537,36 @@ public partial class MainWindow
         }
 
         var entryId = node.Entry.Id;
-        // Lu à chaque connexion (terminal, puis SFTP et SCP de l'onglet Fichiers) ; rien si le coffre a été verrouillé.
-        string? Password() => _keePass.Get(folder.Id)?.RevealPassword(entryId);
+        var entryTitle = node.Entry.Title;
+        int reveals = 0;
+
+        // Lu à chaque connexion (terminal, puis SFTP et SCP de l'onglet Fichiers, reconnexions) ; rien si le coffre a été
+        // verrouillé. La première lecture suit la ligne du journal écrite ci-dessous ; chaque lecture suivante est notée
+        // à son tour, et sans journal, pas de mot de passe.
+        string? Password()
+        {
+            if (Interlocked.Increment(ref reveals) > 1
+                && !_keePass.Log.TryWrite("password-reuse", ("vault", folder.FilePath), ("entry", entryTitle),
+                    ("user", target.UserName), ("target", target.Address)))
+            {
+                return null;
+            }
+
+            return _keePass.Get(folder.Id)?.RevealPassword(entryId);
+        }
 
         var label = Text.Format(Strings.KeePassTabLabel, node.Title);
-        _keePass.Log.Write(KeePassTarget.Name(target.Protocol).ToLowerInvariant(), ("vault", folder.FilePath), ("entry", node.Entry.Title),
-            ("user", target.UserName), ("target", target.Address));
+        try
+        {
+            _keePass.Log.Write(KeePassTarget.Name(target.Protocol).ToLowerInvariant(), ("vault", folder.FilePath), ("entry", entryTitle),
+                ("user", target.UserName), ("target", target.Address));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            SetStatus(Text.Format(Strings.KeePassConnectNoLog, ex.Message), isError: true);
+            return;
+        }
+
         SetStatus(Text.Format(Strings.KeePassConnecting, node.Title, target.Address));
         try
         {

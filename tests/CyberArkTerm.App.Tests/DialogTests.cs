@@ -1019,7 +1019,9 @@ public sealed class DialogTests
             var list = SharedServerList.Create(Path.Combine(directory, "Équipe.json"), "Équipe", "pvwa.test", "alice");
             list.Add([Server("1", "web01", "Prod"), Server("2", "db01")], "alice");
             var settings = new AppSettings { KeepPvwaSessionAlive = false, SharedLists = [list.Path] };
-            settings.Recent.Add(new RecentSession { AccountId = "1", Label = "root@web01", Mode = "PSM-RDP", When = DateTime.Now });
+            settings.Recent.Add(new RecentSession { AccountId = "1", PvwaHost = "pvwa.test", Label = "root@web01", Mode = "PSM-RDP", When = DateTime.Now });
+            // Même ID de compte sur un autre PVWA : pas affichée ici.
+            settings.Recent.Add(new RecentSession { AccountId = "1", PvwaHost = "other.test", Label = "admin@dc01", Mode = "PSM-RDP", When = DateTime.Now });
             settings.Sessions.Add(new SavedSession { AccountId = "3", PvwaHost = "pvwa.test", Name = "root@app01" });
 
             RunWithTheme(() =>
@@ -1029,6 +1031,7 @@ public sealed class DialogTests
                 var window = new MainWindow(client, settings, "jdoe", "jdoe", new Services.KeePass.KeePassManager());
 
                 Assert.False(window.RecentList.IsEnabled);
+                Assert.Equal("root@web01", Assert.Single(Assert.IsAssignableFrom<IEnumerable<RecentSession>>(window.RecentList.ItemsSource)).Label);
                 Assert.Equal(Visibility.Visible, window.RecentLoadingText.Visibility);
                 Assert.Equal(Visibility.Visible, window.ImportServersButton.Visibility);
                 Assert.Equal(Visibility.Visible, window.SharedListsButton.Visibility);

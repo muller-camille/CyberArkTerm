@@ -13,8 +13,6 @@ public sealed record RemoteEntry(
     DateTime LastWriteTime,
     string Permissions)
 {
-    public bool IsHidden => Name.StartsWith('.');
-
     public string SizeText => IsDirectory ? "" : RemotePath.FormatSize(Length);
 
     /// <summary>Date courte et heure selon les réglages régionaux (01/10/2026 21:05, 10/1/2026 9:05 PM...).</summary>
@@ -69,19 +67,6 @@ public sealed record RemoteEntry(
     /// <summary>Droits au format <c>ls -l</c>, bits spéciaux compris (ex. <c>drwxrwxrwt</c>, <c>-rwsr-xr-x</c>).</summary>
     public static string FormatPermissions(bool isDirectory, bool isSymbolicLink, int mode) =>
         (isSymbolicLink ? 'l' : isDirectory ? 'd' : '-') + UnixPermissions.ToSymbolic(mode);
-
-    /// <summary>Droits au format <c>ls -l</c> (ex. <c>drwxr-x---</c>).</summary>
-    public static string FormatPermissions(bool isDirectory, bool isSymbolicLink, params bool[] rwx)
-    {
-        var chars = new char[10];
-        chars[0] = isSymbolicLink ? 'l' : isDirectory ? 'd' : '-';
-        for (int i = 0; i < 9; i++)
-        {
-            chars[i + 1] = i < rwx.Length && rwx[i] ? "rwx"[i % 3] : '-';
-        }
-
-        return new string(chars);
-    }
 }
 
 /// <summary>Colonne de tri de l'onglet Fichiers (clic sur l'en-tête).</summary>

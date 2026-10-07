@@ -136,7 +136,8 @@ public abstract class RemoteSession : IDisposable
         Editor?.Dispose();
         _lifetime.Cancel();
         CloseConnections();
-        DisposeInBackground(Browser is { IsCompletedSuccessfully: true } browser ? browser.Result : null);
+        // Une connexion encore en cours d'ouverture aboutit malgré l'annulation : fermée dès qu'elle est ouverte.
+        ReleaseBrowser(Browser);
         foreach (var dedicated in _dedicated)
         {
             DisposeInBackground(dedicated);
@@ -144,6 +145,25 @@ public abstract class RemoteSession : IDisposable
 
         _dedicated.Clear();
         _lifetime.Dispose();
+    }
+
+    /// <summary>Ferme une connexion de fichiers remplacée ou abandonnée, tout de suite ou dès que son ouverture aboutit.</summary>
+    protected void ReleaseBrowser(Task<IRemoteFiles>? browser)
+    {
+        if (browser is { IsCompletedSuccessfully: true })
+        {
+            DisposeInBackground(browser.Result);
+        }
+        else if (browser is { IsCompleted: false })
+        {
+            _ = browser.ContinueWith(t =>
+            {
+                if (t.IsCompletedSuccessfully)
+                {
+                    DisposeInBackground(t.Result);
+                }
+            }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+        }
     }
 
     /// <summary>Fermeture de la session : connexions propres au type de session (shell SSH...).</summary>

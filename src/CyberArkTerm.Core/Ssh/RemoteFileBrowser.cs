@@ -97,11 +97,27 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         return RemoteEntry.Sort(entries);
     }
 
-    /// <summary>Supprime un fichier (rm) ou un dossier vide (rmdir).</summary>
+    /// <summary>Supprime un fichier (rm), un dossier vide (rmdir) ou un lien symbolique lui-même (jamais sa cible).</summary>
     public async Task DeleteAsync(RemoteEntry entry, CancellationToken ct)
     {
         using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
-        if (entry.IsDirectory && !entry.IsSymbolicLink)
+        if (entry.IsSymbolicLink)
+        {
+            // SSH.NET résout le chemin (realpath) avant de supprimer : sur un lien, c'est sa cible qui partirait. Le lien
+            // est donc pris dans la liste de son dossier, dont le chemin garde son nom tel quel, et supprimé lui-même.
+            await foreach (var file in _sftp.ListDirectoryAsync(RemotePath.Parent(entry.FullPath), ct).ConfigureAwait(false))
+            {
+                if (file.Name == entry.Name)
+                {
+                    await file.DeleteAsync(ct).ConfigureAwait(false);
+                    return;
+                }
+            }
+
+            throw new Renci.SshNet.Common.SftpPathNotFoundException(entry.FullPath);
+        }
+
+        if (entry.IsDirectory)
         {
             await _sftp.DeleteDirectoryAsync(entry.FullPath, ct).ConfigureAwait(false);
         }
@@ -291,7 +307,9 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         progress?.Report(result.Changed);
         if (recursive && attributes.IsDirectory)
         {
-            await ApplyToContentsAsync(path, mode & UnixPermissions.RwxMask, executeOnlyIfAlready, result, progress, ct).ConfigureAwait(false);
+            // Chemin réel du dossier (liens des dossiers parents résolus) : le contenu lu doit s'y trouver.
+            var root = (await _sftp.GetAsync(path, ct).ConfigureAwait(false)).FullName;
+            await ApplyToContentsAsync(root, mode & UnixPermissions.RwxMask, executeOnlyIfAlready, result, progress, ct).ConfigureAwait(false);
         }
 
         return result;
@@ -305,6 +323,13 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         {
             await foreach (var file in _sftp.ListDirectoryAsync(directory, ct).ConfigureAwait(false))
             {
+                if (!file.FullName.StartsWith(directory.TrimEnd('/') + "/", StringComparison.Ordinal))
+                {
+                    // Dossier remplacé par un lien depuis sa lecture : son contenu est ailleurs (/etc…), rien n'y est changé.
+                    result.Errors.Add($"{directory} : {CoreStrings.ChangedDuringChmod}");
+                    return;
+                }
+
                 // Comme « chmod -R », les liens symboliques ne sont pas suivis.
                 if (file.Name is not ("." or "..") && !file.IsSymbolicLink)
                 {
@@ -330,6 +355,15 @@ public sealed class RemoteFileBrowser : IRemoteFiles
 
             try
             {
+                // Élément remplacé par un lien depuis la lecture du dossier : les droits iraient à la cible du lien (le serveur
+                // suit les liens), il est laissé tel quel.
+                var now = await _sftp.GetAsync(file.FullName, ct).ConfigureAwait(false);
+                if (now.FullName != file.FullName || now.IsSymbolicLink || now.IsDirectory != file.IsDirectory)
+                {
+                    result.Errors.Add($"{file.FullName} : {CoreStrings.ChangedDuringChmod}");
+                    continue;
+                }
+
                 await ApplyPermissionsAsync(file.FullName, file.Attributes, target, includeSpecial: false, ct).ConfigureAwait(false);
                 result.Changed++;
                 progress?.Report(result.Changed);
@@ -454,12 +488,13 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         byte[] remoteHash;
         long received;
         bool started = false;
+        var partial = TransferCheck.PartialPath(localPath);
         try
         {
             using (await _gate.EnterAsync(background, ct).ConfigureAwait(false))
             {
                 started = true;
-                await using var file = File.Create(localPath);
+                await using var file = File.Create(partial);
                 using var hashing = new HashingStream(file);
                 var report = progress is null ? null : new Progress<Renci.SshNet.DownloadFileProgressReport>(
                     p => progress.Report(new TransferProgress(entry.Name, (long)p.TotalBytesDownloaded, entry.Length)));
@@ -467,11 +502,15 @@ public sealed class RemoteFileBrowser : IRemoteFiles
                 remoteHash = hashing.GetHash();
                 received = hashing.Count;
             }
+
+            // Copie complète : elle ne remplace le fichier local existant que maintenant (un échec en cours de route le laisse
+            // intact).
+            File.Move(partial, localPath, overwrite: true);
         }
         catch (Exception e) when (e is not OutOfMemoryException && started)
         {
-            // Annulé ou en échec en cours de route : la copie locale, incomplète, est supprimée.
-            var detail = DiscardLocal(localPath);
+            // Annulé ou en échec en cours de route : la copie, incomplète, est supprimée.
+            var detail = DiscardLocal(partial);
             bool cancelled = e is OperationCanceledException && ct.IsCancellationRequested;
             checks?.Add(new TransferCheck(entry.Name, localPath, entry.FullPath, -1, [], -1, [],
                 cancelled ? detail : $"{e.Message} ({detail})") { Interrupted = cancelled, Failed = !cancelled });
@@ -544,9 +583,10 @@ public sealed class RemoteFileBrowser : IRemoteFiles
     /// <summary>
     /// Un fichier : envoi, puis vérification. Si le serveur refuse le protocole choisi avant tout contenu (PSMP qui
     /// limite la taille des envois SCP, SFTP en lecture seule…), l'autre protocole prend le relais aussitôt, sans
-    /// attente ni question. Annulé pendant l'envoi : le fichier incomplet est supprimé du serveur (seulement si son
-    /// envoi avait commencé, pour ne pas effacer un fichier existant resté intact). En échec : noté tel quel, le fichier
-    /// du serveur pouvant être incomplet.
+    /// attente ni question. Annulé pendant l'envoi : le fichier incomplet est supprimé du serveur (seulement s'il a pu
+    /// être modifié, pour ne pas effacer un fichier existant resté intact, voir <see cref="MayHaveWrittenAsync"/>). En
+    /// échec : noté tel quel, le fichier du serveur pouvant être incomplet. Vérification impossible (connexion perdue…) :
+    /// notée « non vérifié » avec l'erreur.
     /// </summary>
     private async Task UploadFileAsync(string localPath, string remotePath, TransferProtocol protocol, ICollection<TransferCheck> checks,
         IProgress<TransferProgress>? progress, bool background, CancellationToken ct)
@@ -568,19 +608,19 @@ public sealed class RemoteFileBrowser : IRemoteFiles
             reason = string.Format(CultureInfo.CurrentCulture, CoreStrings.ScpRefusedEarlier, RemotePath.FormatSize(refusedFrom));
         }
 
-        bool started = false;
+        var state = new SendState();
         (byte[] Hash, long Length)? sent = null;
         try
         {
             try
             {
-                sent = await SendAsync(used, localPath, remotePath, name, length, value => started = value, progress, background, ct)
+                sent = await SendAsync(used, localPath, remotePath, name, length, state, progress, background, ct)
                     .ConfigureAwait(false);
             }
             catch (UploadRefusedException e)
             {
                 // Refusé avant tout contenu : rien n'a été écrit sur le serveur, l'autre protocole prend le relais.
-                started = false;
+                state = new SendState();
                 ct.ThrowIfCancellationRequested();
                 Diagnostics.DebugLog.Write("files", $"{used.Label()} refusé par le serveur pour {name} ({e.Message}) : envoi en {used.Other().Label()}");
                 if (e.AtHeader)
@@ -593,7 +633,7 @@ public sealed class RemoteFileBrowser : IRemoteFiles
                 used = used.Other();
                 try
                 {
-                    sent = await SendAsync(used, localPath, remotePath, name, length, value => started = value, progress, background, ct)
+                    sent = await SendAsync(used, localPath, remotePath, name, length, state, progress, background, ct)
                         .ConfigureAwait(false);
                 }
                 catch (Exception second) when (second is not OperationCanceledException && second is not OutOfMemoryException)
@@ -605,7 +645,7 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            if (started)
+            if (state.Started && await MayHaveWrittenAsync(name, remotePath, state).ConfigureAwait(false))
             {
                 checks.Add((await DiscardRemoteAsync(name, localPath, remotePath).ConfigureAwait(false))
                     with { Protocol = used, Refused = refused, RefusedReason = reason });
@@ -637,24 +677,80 @@ public sealed class RemoteFileBrowser : IRemoteFiles
                 { Upload = true, Protocol = used, Refused = refused, RefusedReason = reason });
             throw;
         }
+        catch (Exception e) when (e is not OutOfMemoryException)
+        {
+            // Envoyé, mais pas relu (connexion SFTP perdue, fichier local devenu illisible…) : il est sur le serveur,
+            // non vérifié, et l'historique le montre.
+            var (hash, len) = sent ?? ([], -1);
+            checks.Add(new TransferCheck(name, localPath, remotePath, len, hash, -1, [], e.Message)
+                { Upload = true, Protocol = used, Refused = refused, RefusedReason = reason });
+            throw;
+        }
+    }
+
+    /// <summary>Où en est l'envoi d'un fichier : ce qu'il a pu faire au fichier du serveur s'il est annulé.</summary>
+    private sealed class SendState
+    {
+        /// <summary>L'envoi a pu ouvrir le fichier du serveur (le créer, ou le vider en SFTP).</summary>
+        public bool Started { get; set; }
+
+        /// <summary>Du contenu a été lu du fichier local pour partir vers le serveur.</summary>
+        public bool ContentSent { get; set; }
+    }
+
+    /// <summary>
+    /// Envoi annulé : vrai si le fichier du serveur a pu être modifié, et doit donc être supprimé. Sans aucun contenu
+    /// parti, un fichier non vide est resté tel quel (SFTP vide le fichier à son ouverture, scp ne le raccourcit qu'à
+    /// la fin) : il est gardé. Vide, il vient de l'envoi (créé ou vidé) : il est supprimé.
+    /// </summary>
+    private async Task<bool> MayHaveWrittenAsync(string name, string remotePath, SendState state)
+    {
+        if (state.ContentSent)
+        {
+            return true;
+        }
+
+        try
+        {
+            using (await _gate.EnterAsync(background: false, CancellationToken.None).ConfigureAwait(false))
+            {
+                var now = await _sftp.GetAsync(remotePath, CancellationToken.None).ConfigureAwait(false);
+                if (now.Length > 0)
+                {
+                    Diagnostics.DebugLog.Write("files", $"Envoi de {name} annulé avant tout contenu : le fichier du serveur est resté tel quel");
+                    return false;
+                }
+
+                return true;
+            }
+        }
+        catch (Renci.SshNet.Common.SftpPathNotFoundException)
+        {
+            return false;
+        }
+        catch (Exception e) when (e is Renci.SshNet.Common.SshException or ObjectDisposedException or InvalidOperationException)
+        {
+            // État inconnu : la suppression est tentée, et son échec noté.
+            return true;
+        }
     }
 
     /// <summary>Envoi par l'un des deux protocoles ; SFTP rend la somme du fichier, hachée au fil de l'envoi.</summary>
-    /// <param name="started">Vrai quand le fichier du serveur a pu être touché (annulé ensuite : il est supprimé).</param>
+    /// <param name="state">Ce que l'envoi a pu faire au fichier du serveur (annulé ensuite : il est peut-être supprimé).</param>
     private async Task<(byte[] Hash, long Length)?> SendAsync(TransferProtocol protocol, string localPath, string remotePath, string name,
-        long length, Action<bool> started, IProgress<TransferProgress>? progress, bool background, CancellationToken ct)
+        long length, SendState state, IProgress<TransferProgress>? progress, bool background, CancellationToken ct)
     {
         progress?.Report(new TransferProgress(name, 0, length, Protocol: protocol));
         if (protocol == TransferProtocol.Scp)
         {
-            await SendScpAsync(localPath, remotePath, name, started, progress, ct).ConfigureAwait(false);
+            await SendScpAsync(localPath, remotePath, name, state, progress, ct).ConfigureAwait(false);
             return null;
         }
 
         using (await _gate.EnterAsync(background, ct).ConfigureAwait(false))
         {
-            started(true);
-            return await SendSftpAsync(localPath, remotePath, name, progress, ct).ConfigureAwait(false);
+            state.Started = true;
+            return await SendSftpAsync(localPath, remotePath, name, state, progress, ct).ConfigureAwait(false);
         }
     }
 
@@ -690,7 +786,7 @@ public sealed class RemoteFileBrowser : IRemoteFiles
     /// Envoi SFTP, en hachant le fichier local au fil de l'envoi. Refusé par le serveur avant tout contenu (ouverture
     /// du fichier refusée, la connexion restant ouverte) : <see cref="UploadRefusedException"/>.
     /// </summary>
-    private async Task<(byte[] Hash, long Length)> SendSftpAsync(string localPath, string remotePath, string name,
+    private async Task<(byte[] Hash, long Length)> SendSftpAsync(string localPath, string remotePath, string name, SendState state,
         IProgress<TransferProgress>? progress, CancellationToken ct)
     {
         await using var file = File.OpenRead(localPath);
@@ -708,6 +804,10 @@ public sealed class RemoteFileBrowser : IRemoteFiles
             // Rien n'a été lu du fichier : le serveur a refusé l'ouverture (droits, SFTP en lecture seule…). Dossier
             // absent : SCP échouerait de même, l'erreur reste telle quelle.
             throw new UploadRefusedException(e.Message, e);
+        }
+        finally
+        {
+            state.ContentSent |= hashing.Count > 0;
         }
 
         return (hashing.GetHash(), hashing.Count);
@@ -727,8 +827,8 @@ public sealed class RemoteFileBrowser : IRemoteFiles
     /// ouvre une neuve. Refusé par le serveur avant le contenu (connexion refusée, canal fermé par le PSMP, refus de
     /// scp) : <see cref="UploadRefusedException"/>, rien n'a été écrit.
     /// </summary>
-    /// <param name="started">Vrai quand le fichier du serveur a pu être touché (annulé ensuite : il est supprimé).</param>
-    private async Task SendScpAsync(string localPath, string remotePath, string name, Action<bool> started,
+    /// <param name="state">Ce que l'envoi a pu faire au fichier du serveur (annulé ensuite : il est peut-être supprimé).</param>
+    private async Task SendScpAsync(string localPath, string remotePath, string name, SendState state,
         IProgress<TransferProgress>? progress, CancellationToken ct)
     {
         await _scpGate.WaitAsync(ct).ConfigureAwait(false);
@@ -754,7 +854,7 @@ public sealed class RemoteFileBrowser : IRemoteFiles
             scp.Uploading += handler;
             try
             {
-                started(true);
+                state.Started = true;
                 // Fil dédié : un envoi qui reste bloqué dans la bibliothèque SSH n'immobilise pas le pool de threads.
                 var upload = Task.Factory.StartNew(() => scp.Upload(source, remotePath), CancellationToken.None,
                     TaskCreationOptions.LongRunning, TaskScheduler.Default);
@@ -824,6 +924,7 @@ public sealed class RemoteFileBrowser : IRemoteFiles
             }
             finally
             {
+                state.ContentSent |= source.WasRead;
                 scp.Uploading -= handler;
                 // Coupée par la surveillance juste quand l'envoi se terminait : à ne pas laisser au suivant.
                 if (!stop.Finish())

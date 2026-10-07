@@ -166,7 +166,9 @@ public static partial class DebugLog
     [GeneratedRegex(@"(?<prefix>\bPSM@)[^\s""';,]+", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex PsmTicket();
 
-    [GeneratedRegex(@"(?<name>\b(?:password|passwd|pwd|secret|token|authorization|cookie|signature)\w*)(?<sep>""?\s*[:=]\s*)(?:""[^""]*""|[^\s,;]+)",
+    // Nom du champ (suivi d'un numéro dans un .rdp : « password 51:b:… »), puis valeur entre guillemets (guillemets
+    // échappés compris) ou jusqu'au prochain blanc, « , » ou « ; ».
+    [GeneratedRegex(@"(?<name>\b(?:password|passwd|pwd|secret|token|authorization|cookie|signature)\w*(?:\s+\d+)?)(?<sep>""?\s*[:=]\s*)(?:""(?:[^""\\]|\\.)*""|[^\s,;]+)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex SecretField();
 }

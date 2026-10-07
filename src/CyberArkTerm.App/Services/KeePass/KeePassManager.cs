@@ -14,6 +14,9 @@ internal sealed class KeePassManager : IDisposable
 {
     private readonly Dictionary<string, KeePassVault> _open = new(StringComparer.Ordinal);
 
+    // Augmenté par LockAll (sous le verrou de _open) : un coffre dont l'ouverture a commencé avant n'est pas gardé.
+    private long _generation;
+
     public KeePassManager()
     {
         var directory = Path.GetDirectoryName(AppSettings.DefaultPath)!;
@@ -44,8 +47,17 @@ internal sealed class KeePassManager : IDisposable
         folder.RememberPassword && Store.IsUnlocked ? Store.Get(folder.Id) : null;
 
     /// <summary>Ouvre le coffre avec ce mot de passe (UTF-8) et ce fichier clé ; l'action est journalisée.</summary>
+    /// <exception cref="OperationCanceledException">
+    /// Annulé, ou tout a été verrouillé pendant l'ouverture (session Windows verrouillée) : le coffre n'est pas gardé.
+    /// </exception>
     public async Task<KeePassVault> UnlockAsync(KeePassFolder folder, byte[]? password, string? keyFilePath, CancellationToken cancellation)
     {
+        long generation;
+        lock (_open)
+        {
+            generation = _generation;
+        }
+
         KeePassVault vault;
         try
         {
@@ -63,10 +75,27 @@ internal sealed class KeePassManager : IDisposable
                 }
             }
 
-            vault = await KeePassVault.OpenAsync(folder.FilePath, key, cancellation);
+            var opening = KeePassVault.OpenAsync(folder.FilePath, key, cancellation);
+            try
+            {
+                vault = await opening.WaitAsync(cancellation);
+            }
+            catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+            {
+                // Abandon pendant la dérivation de clé (Argon2 ne s'interrompt pas) : la fenêtre n'attend plus, et le coffre
+                // éventuellement ouvert à la fin du calcul est refermé aussitôt.
+                _ = opening.ContinueWith(t =>
+                {
+                    if (t.IsCompletedSuccessfully)
+                    {
+                        t.Result.Dispose();
+                    }
+                }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+                throw;
+            }
+
             if (cancellation.IsCancellationRequested)
             {
-                // Abandon pendant la dérivation de clé (qui ne s'interrompt pas toujours) : on ne garde rien d'ouvert.
                 vault.Dispose();
                 cancellation.ThrowIfCancellationRequested();
             }
@@ -91,9 +120,20 @@ internal sealed class KeePassManager : IDisposable
         }
 
         Lock(folder.Id, notify: false);
+        bool kept;
         lock (_open)
         {
-            _open[folder.Id] = vault;
+            kept = generation == _generation;
+            if (kept)
+            {
+                _open[folder.Id] = vault;
+            }
+        }
+
+        if (!kept)
+        {
+            vault.Dispose();
+            throw new OperationCanceledException();
         }
 
         Changed?.Invoke();
@@ -108,6 +148,7 @@ internal sealed class KeePassManager : IDisposable
         List<string> ids;
         lock (_open)
         {
+            _generation++;
             ids = [.. _open.Keys];
         }
 

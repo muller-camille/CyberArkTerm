@@ -57,6 +57,34 @@ public sealed class AppSettingsTests : IDisposable
     }
 
     /// <summary>
+    /// Connexions récentes : propres à chaque PVWA (le même ID de compte y désigne un autre compte) ; celles des versions
+    /// qui ne notaient pas le PVWA sont oubliées au chargement.
+    /// </summary>
+    [Fact]
+    public void RecentSessionsBelongToTheirPvwa()
+    {
+        var settings = new AppSettings();
+        settings.AddRecent(new RecentSession { AccountId = "12_3", PvwaHost = "pvwa-a", Mode = "PSM-RDP" });
+        settings.AddRecent(new RecentSession { AccountId = "12_3", PvwaHost = "pvwa-b", Mode = "PSM-RDP" });
+        settings.AddRecent(new RecentSession { AccountId = "12_3", PvwaHost = "PVWA-A", Mode = "PSM-RDP" });
+        Assert.Equal(["PVWA-A", "pvwa-b"], settings.Recent.Select(r => r.PvwaHost));
+        Assert.True(settings.Recent[0].IsForHost("pvwa-a"));
+        Assert.False(settings.Recent[1].IsForHost("pvwa-a"));
+
+        var path = Path.Combine(Path.GetTempPath(), $"cat-recent-{Guid.NewGuid():N}.json");
+        try
+        {
+            settings.Recent.Add(new RecentSession { AccountId = "7_1", Mode = "SSH" });
+            settings.Save(path);
+            Assert.Equal(2, AppSettings.Load(path).Recent.Count);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    /// <summary>
     /// Composants proposés : celui mémorisé pour la plateforme d'abord, puis ceux déjà utilisés (même absents de la liste
     /// usuelle, comme WIN-PSM), puis les usuels, sans doublon ni connexion SSH.
     /// </summary>

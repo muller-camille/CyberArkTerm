@@ -393,6 +393,44 @@ public class PvwaClientTests
         Assert.Equal(expected, new string(PvwaClient.DecodeSecret(System.Text.Encoding.UTF8.GetBytes(body))));
     }
 
+    /// <summary>
+    /// Page de maintenance HTML, redirection suivie vers une page de connexion SSO, réponse vide ou JSON qui n'est pas une
+    /// chaîne : jamais pris pour le mot de passe.
+    /// </summary>
+    [Theory]
+    [InlineData("html")]
+    [InlineData("redirect")]
+    [InlineData("empty")]
+    [InlineData("nocontent")]
+    [InlineData("object")]
+    public async Task RetrievePassword_RefusesAnythingButThePassword(string kind)
+    {
+        var pvwa = new FakePvwa(req =>
+        {
+            if (FakePvwa.IsLogon(req))
+            {
+                return FakePvwa.Json("\"tok\"");
+            }
+
+            return kind switch
+            {
+                "html" => new HttpResponseMessage(HttpStatusCode.OK)
+                    { Content = new StringContent("<html>Maintenance</html>", System.Text.Encoding.UTF8, "text/html") },
+                "redirect" => new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("login", System.Text.Encoding.UTF8, "text/plain"),
+                    RequestMessage = new HttpRequestMessage(HttpMethod.Get, "https://sso.test/login"),
+                },
+                "empty" => FakePvwa.Json(" \r\n"),
+                "nocontent" => new HttpResponseMessage(HttpStatusCode.NoContent),
+                _ => FakePvwa.Json("{\"ok\":true}"),
+            };
+        });
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+
+        await Assert.ThrowsAsync<PvwaException>(() => client.RetrievePasswordAsync("12_34", new RetrieveOptions()));
+    }
+
     [Fact]
     public async Task RetrievePassword_Refused_SurfacesThePvwaError()
     {
@@ -404,6 +442,35 @@ public class PvwaClientTests
         var ex = await Assert.ThrowsAsync<PvwaException>(() => client.RetrievePasswordAsync("1", new RetrieveOptions()));
 
         Assert.Equal(HttpStatusCode.Forbidden, ex.StatusCode);
+    }
+
+    /// <summary>
+    /// Fin d'appartenance un jour de changement d'heure (Paris) : 23:59:59 à l'heure de ce soir-là, sans erreur.
+    /// </summary>
+    [Theory]
+    [InlineData(2026, 3, 29, "2026-03-29T21:59:59Z")]
+    [InlineData(2026, 10, 25, "2026-10-25T22:59:59Z")]
+    [InlineData(2026, 7, 14, "2026-07-14T21:59:59Z")]
+    public void EndOfDayUsesTheOffsetOfThatEvening(int year, int month, int day, string expected)
+    {
+        var paris = TimeZoneInfo.TryFindSystemTimeZoneById("Europe/Paris", out var iana) ? iana
+            : TimeZoneInfo.FindSystemTimeZoneById("Romance Standard Time");
+        var date = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local);
+
+        Assert.Equal(DateTimeOffset.Parse(expected, System.Globalization.CultureInfo.InvariantCulture).ToUnixTimeSeconds(),
+            UnixTime.EndOfDay(date, paris));
+    }
+
+    /// <summary>Dates hors limites (millisecondes au lieu de secondes, valeur aberrante) : reconnues ou ignorées, jamais d'erreur.</summary>
+    [Fact]
+    public void OutOfRangeTimestampsNeverThrow()
+    {
+        Assert.Equal(DateTimeOffset.FromUnixTimeSeconds(1_767_225_600), UnixTime.ToOffset(1_767_225_600_000));
+        Assert.Null(UnixTime.ToOffset(long.MaxValue));
+        Assert.Null(UnixTime.ToOffset(0));
+        Assert.Null(new PvwaAccount { CreatedTime = long.MaxValue }.Created);
+        var member = JsonSerializer.Deserialize<SafeMember>("{\"memberName\":\"x\",\"membershipExpirationDate\":9223372036854775807}")!;
+        Assert.Null(member.Expires);
     }
 
     /// <summary>Ajout d'un membre fictif : nom, annuaire, type, fin d'appartenance (fin de journée) et les 22 droits.</summary>

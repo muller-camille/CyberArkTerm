@@ -126,20 +126,58 @@ public sealed class KeePassVaultTests : IDisposable
     }
 
     [Fact]
-    public async Task DetectsChangesOnDisk()
+    public async Task ReloadPicksUpChangesMadeElsewhere()
     {
         var path = Copy("py-kdbx4-argon2d-aes.kdbx");
         using var first = await Open(path, KdbxReadTests.Password, null);
-        Assert.False(await first.HasChangedOnDiskAsync());
         using (var second = await Open(path, KdbxReadTests.Password, null))
         {
             await second.SaveAsync(db => db.AddEntry(new KeePassEntryData("autre", "x", "x", "", "")));
         }
 
-        Assert.True(await first.HasChangedOnDiskAsync());
+        Assert.DoesNotContain(first.Database.Entries, e => e.Title == "autre");
         await first.ReloadAsync();
-        Assert.False(await first.HasChangedOnDiskAsync());
         Assert.Contains(first.Database.Entries, e => e.Title == "autre");
+    }
+
+    /// <summary>
+    /// Chaque enregistrement prend une nouvelle graine de dérivation (sel Argon2, graine AES-KDF ou TransformSeed) : la
+    /// clé dérivée d'une version ne déchiffre pas la suivante. Le coffre s'ouvre toujours avec la même clé.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(AllVaults))]
+    public async Task SavingRenewsTheKeyDerivationSeed(string vault, string? password, string? keyFile)
+    {
+        var path = Copy(vault);
+        using var v = await Open(path, password, keyFile);
+        var seed = Seed(v.Database);
+        var transformed = v.Database.TransformedKey.Reveal();
+
+        await v.SaveAsync(_ => { });
+
+        Assert.NotEqual(seed, Seed(v.Database));
+        Assert.NotEqual(transformed, v.Database.TransformedKey.Reveal());
+        using var reopened = await Open(path, password, keyFile);
+        Assert.Equal(Seed(v.Database), Seed(reopened.Database));
+
+        static byte[] Seed(KeePassDatabase db) =>
+            db.Version >= 0x00040000 ? VariantDictionary.Parse(db.KdfParameters).GetBytes("S")! : db.TransformSeed;
+    }
+
+    /// <summary>Champ inconnu de l'en-tête interne (version future du format) : réécrit tel quel.</summary>
+    [Fact]
+    public async Task UnknownInnerHeaderFieldsAreKept()
+    {
+        var path = Copy("kxc-kdbx41.kdbx");
+        using (var v = await Open(path, KdbxReadTests.Password, null))
+        {
+            await v.SaveAsync(db => db.OtherInnerFields.Add((0x77, new SecretBytes([1, 2, 3]))));
+        }
+
+        using var reopened = await Open(path, KdbxReadTests.Password, null);
+        var (id, data) = Assert.Single(reopened.Database.OtherInnerFields);
+        Assert.Equal(0x77, id);
+        Assert.Equal([1, 2, 3], data.Reveal());
     }
 
     [Fact]

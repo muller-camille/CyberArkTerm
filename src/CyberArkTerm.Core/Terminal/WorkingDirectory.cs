@@ -121,7 +121,12 @@ public static class WorkingDirectory
         return "'" + value.Replace("'", "'\\''") + "'";
     }
 
-    /// <summary>Extrait le chemin d'un OSC 7 : <c>file://hôte/chemin%20encodé</c> ou chemin absolu brut.</summary>
+    /// <summary>
+    /// Extrait le chemin d'un OSC 7 : <c>file://hôte/chemin%20encodé</c> ou chemin absolu brut. Refusé s'il contient,
+    /// une fois décodé, un caractère de contrôle ou de mise en forme invisible (retour à la ligne, échappement,
+    /// inversion du sens d'écriture…) : n'importe quelle sortie affichée peut contenir un OSC 7, et ce chemin s'affiche
+    /// dans l'onglet Fichiers.
+    /// </summary>
     public static string? Parse(string value)
     {
         value = value.Trim();
@@ -136,6 +141,10 @@ public static class WorkingDirectory
             value = Uri.UnescapeDataString(value[slash..]);
         }
 
-        return value.StartsWith('/') && !value.Contains('\0') ? value : null;
+        return value.StartsWith('/') && !value.Any(IsHidden) ? value : null;
     }
+
+    private static bool IsHidden(char c) =>
+        char.IsControl(c) || char.GetUnicodeCategory(c) is System.Globalization.UnicodeCategory.Format
+            or System.Globalization.UnicodeCategory.LineSeparator or System.Globalization.UnicodeCategory.ParagraphSeparator;
 }

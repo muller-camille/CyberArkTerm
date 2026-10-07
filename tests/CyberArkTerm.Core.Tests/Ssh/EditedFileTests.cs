@@ -106,6 +106,10 @@ public sealed class EditedFileTests : IDisposable
     [InlineData("x:y*z?.log", "x_y_z_.log")]
     [InlineData("...", "fichier")]
     [InlineData("été.txt", "été.txt")]
+    [InlineData("nul", "_nul")]
+    [InlineData("CON.txt", "_CON.txt")]
+    [InlineData("com1.log", "_com1.log")]
+    [InlineData("console.log", "console.log")]
     public void LocalCopyName_KeepsOnlySafeCharacters(string remote, string expected) =>
         Assert.Equal(expected, EditedFile.LocalCopyName(remote));
 

@@ -3104,7 +3104,7 @@ Enregistrer le résultat dans un fichier CSV (une ligne par ligne du fichier, sa
     <value>Serveurs ouverts sur une machine cible (vérifiez-les, la machine vient du fichier) :</value>
   </data>
   <data name="ImportServersOtherPvwa" xml:space="preserve">
-    <value>Ce fichier vient du PVWA {0} ; vous êtes connecté à {1} : les serveurs dont le compte n'existe pas ici apparaîtront grisés.</value>
+    <value>Ce fichier a été créé pour le PVWA {0} : ses ID de comptes y désignent d'autres comptes que sur {1}. Connectez-vous à {0} pour l'importer.</value>
   </data>
   <data name="ServersImported" xml:space="preserve">
     <value>{0} serveur(s) importé(s) ({1} déjà présent(s))</value>
@@ -3514,5 +3514,31 @@ Ces machines cibles viennent de la liste partagée, que peut modifier quiconque 
   </data>
   <data name="SharedOtherPvwaChange" xml:space="preserve">
     <value>La liste partagée « {0} » a été créée pour le PVWA {1} : on ne peut ni y ajouter des serveurs de {2}, ni copier ses serveurs dans Mes serveurs.</value>
+  </data>
+  <data name="SettingsSetAsideRestored" xml:space="preserve">
+    <value>Votre fichier de réglages était illisible (écriture interrompue, disque plein…). Il a été gardé tel quel sous :
+{0}
+
+Les réglages précédents ont été repris de leur sauvegarde.</value>
+  </data>
+  <data name="SettingsSetAsideReset" xml:space="preserve">
+    <value>Votre fichier de réglages était illisible (écriture interrompue, disque plein…). Il a été gardé tel quel sous :
+{0}
+
+Aucune sauvegarde n'a pu être lue : CyberArkTerm démarre avec les réglages par défaut. Vos serveurs et vos coffres sont toujours dans le fichier gardé.</value>
+  </data>
+  <data name="AlreadyRunning" xml:space="preserve">
+    <value>CyberArkTerm est déjà ouvert dans cette session Windows : utilisez la fenêtre ouverte (barre des tâches).
+
+Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et les fichiers en cours de modification.</value>
+  </data>
+  <data name="DownloadReplaceConfirm" xml:space="preserve">
+    <value>Ces fichiers existent déjà dans {0} :
+{1}
+
+Les remplacer ? Chacun n'est remplacé qu'une fois son téléchargement complet.</value>
+  </data>
+  <data name="KeePassConnectNoLog" xml:space="preserve">
+    <value>Le journal des accès d'urgence ne peut pas être écrit ({0}) : la connexion n'est pas ouverte.</value>
   </data>
 </root>

@@ -12,16 +12,18 @@ internal sealed class SessionLauncher
     // Le fichier RDP contient un jeton de connexion à usage unique : on le supprime dès que mstsc l'a lu.
     private static readonly TimeSpan RdpFileLifetime = TimeSpan.FromSeconds(60);
 
-    private readonly string _directory = Path.Combine(Path.GetTempPath(), "CyberArkTerm");
+    private static string RdpDirectory => PrivateTemp.Root;
 
     public void LaunchRdp(byte[] rdpFile, string label)
     {
-        Directory.CreateDirectory(_directory);
-        var path = Path.Combine(_directory, $"{SafeFileName(label)}-{Guid.NewGuid():N}.rdp");
+        Directory.CreateDirectory(RdpDirectory);
+        var path = Path.Combine(RdpDirectory, $"{SafeFileName(label)}-{Guid.NewGuid():N}.rdp");
         File.WriteAllBytes(path, rdpFile);
         try
         {
-            Start(new ProcessStartInfo("mstsc.exe") { ArgumentList = { path }, UseShellExecute = false });
+            // Chemin complet : un « mstsc.exe » posé dans le dossier de l'application ou le dossier courant recevrait sinon
+            // le fichier .rdp et son jeton PSM.
+            Start(new ProcessStartInfo(Path.Combine(Environment.SystemDirectory, "mstsc.exe")) { ArgumentList = { path }, UseShellExecute = false });
         }
         catch
         {
@@ -73,9 +75,9 @@ internal sealed class SessionLauncher
     {
         try
         {
-            if (Directory.Exists(_directory))
+            if (Directory.Exists(RdpDirectory))
             {
-                foreach (var file in Directory.EnumerateFiles(_directory, "*.rdp"))
+                foreach (var file in Directory.EnumerateFiles(RdpDirectory, "*.rdp"))
                 {
                     TryDelete(file);
                 }

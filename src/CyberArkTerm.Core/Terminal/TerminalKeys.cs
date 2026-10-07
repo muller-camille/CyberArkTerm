@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace CyberArkTerm.Core.Terminal;
 
 public enum TerminalKey
@@ -96,12 +98,38 @@ public static class TerminalKeys
     /// <summary>Texte collé : retours à la ligne normalisés en CR, encadré en mode « bracketed paste ».</summary>
     public static string Paste(string text, bool bracketed)
     {
-        text = text.Replace("\r\n", "\r").Replace('\n', '\r');
+        text = CleanPaste(text).Replace("\r\n", "\r").Replace('\n', '\r');
         if (bracketed)
         {
-            text = "\x1b[200~" + text.Replace("\x1b[201~", "") + "\x1b[201~";
+            text = "\x1b[200~" + text + "\x1b[201~";
         }
 
         return text;
+    }
+
+    /// <summary>
+    /// Texte collé débarrassé des caractères de contrôle, sauf tabulation et retours à la ligne : un texte piégé (page
+    /// web, presse-papiers d'un serveur VNC) ne peut ni fermer le collage protégé (ÉCHAP), ni valider une commande par une
+    /// touche Ctrl (Ctrl-O, Ctrl-J…), ni passer une séquence C1.
+    /// </summary>
+    public static string CleanPaste(string text)
+    {
+        if (!text.Any(IsUnsafe))
+        {
+            return text;
+        }
+
+        var clean = new StringBuilder(text.Length);
+        foreach (var c in text)
+        {
+            if (!IsUnsafe(c))
+            {
+                clean.Append(c);
+            }
+        }
+
+        return clean.ToString();
+
+        static bool IsUnsafe(char c) => char.IsControl(c) && c is not ('\t' or '\r' or '\n');
     }
 }

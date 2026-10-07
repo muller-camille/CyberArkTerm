@@ -28,7 +28,8 @@ public sealed record TerminalInput(TerminalInputKind Kind, string Text = "", Ter
     public static TerminalInput Special(TerminalKey key, bool shift = false, bool alt = false, bool ctrl = false) =>
         new(TerminalInputKind.Key, "", key, shift, alt, ctrl);
 
-    public static TerminalInput Pasted(string text) => new(TerminalInputKind.Paste, text);
+    /// <summary>Texte collé, sans caractère de contrôle (voir <see cref="TerminalKeys.CleanPaste"/>).</summary>
+    public static TerminalInput Pasted(string text) => new(TerminalInputKind.Paste, TerminalKeys.CleanPaste(text));
 
     public static TerminalInput Scrolled(TerminalKey key) => new(TerminalInputKind.Scroll, "", key);
 

@@ -72,7 +72,12 @@ public sealed class SavedSession
 
     public string? SafeName { get; set; }
 
-    public static SavedSession FromAccount(PvwaAccount account, string pvwaHost, string folder) => new()
+    /// <summary>
+    /// Serveur de « Mes serveurs » pour ce compte ; type de connexion d'après la plateforme. Sans PSMP renseigné
+    /// (<paramref name="hasPsmp"/> faux), PSM, comme un double-clic dans la liste des comptes. Pour une liste partagée,
+    /// le PSMP des collègues n'est pas connu : il est supposé renseigné.
+    /// </summary>
+    public static SavedSession FromAccount(PvwaAccount account, string pvwaHost, string folder, bool hasPsmp = true) => new()
     {
         AccountId = account.Id,
         PvwaHost = pvwaHost,
@@ -82,7 +87,7 @@ public sealed class SavedSession
         UserName = account.UserName,
         PlatformId = account.PlatformId,
         SafeName = account.SafeName,
-        Mode = AccountClassifier.DefaultMode(account, hasPsmp: true),
+        Mode = AccountClassifier.DefaultMode(account, hasPsmp),
     };
 }
 

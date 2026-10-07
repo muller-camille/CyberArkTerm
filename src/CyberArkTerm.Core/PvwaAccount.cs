@@ -39,7 +39,7 @@ public sealed class PvwaAccount
     public string RemoteMachines => RemoteMachinesAccess?.RemoteMachines ?? "";
 
     [JsonIgnore]
-    public DateTime? Created => CreatedTime is long t ? DateTimeOffset.FromUnixTimeSeconds(t).LocalDateTime : null;
+    public DateTime? Created => CreatedTime is long t ? UnixTime.ToLocal(t) : null;
 
     public string GetPlatformProperty(string key)
     {
@@ -96,5 +96,5 @@ public sealed class SecretManagement
     [JsonIgnore]
     public DateTime? LastReconciled => Local(LastReconciledTime);
 
-    private static DateTime? Local(long? seconds) => seconds is > 0 ? DateTimeOffset.FromUnixTimeSeconds(seconds.Value).LocalDateTime : null;
+    private static DateTime? Local(long? seconds) => seconds is long s ? UnixTime.ToLocal(s) : null;
 }

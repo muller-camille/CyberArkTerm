@@ -3104,7 +3104,7 @@ Salvare il risultato in un file CSV (una riga per ogni riga del file, senza le p
     <value>Server aperti su una macchina di destinazione (verificali, la macchina viene dal file):</value>
   </data>
   <data name="ImportServersOtherPvwa" xml:space="preserve">
-    <value>Questo file proviene dal PVWA {0}; sei connesso a {1}: i server il cui account non esiste qui appariranno in grigio.</value>
+    <value>Questo file è stato creato per il PVWA {0}: i suoi ID di account vi indicano account diversi da quelli di {1}. Accedi a {0} per importarlo.</value>
   </data>
   <data name="ServersImported" xml:space="preserve">
     <value>{0} server importati ({1} già presenti)</value>
@@ -3514,5 +3514,31 @@ Queste macchine di destinazione vengono dall'elenco condiviso, che chiunque abbi
   </data>
   <data name="SharedOtherPvwaChange" xml:space="preserve">
     <value>L'elenco condiviso «{0}» è stato creato per il PVWA {1}: non vi si possono aggiungere server di {2}, né copiare i suoi server in I miei server.</value>
+  </data>
+  <data name="SettingsSetAsideRestored" xml:space="preserve">
+    <value>Il file delle impostazioni era illeggibile (scrittura interrotta, disco pieno…). È stato conservato così com'è come:
+{0}
+
+Le impostazioni precedenti sono state riprese dal loro backup.</value>
+  </data>
+  <data name="SettingsSetAsideReset" xml:space="preserve">
+    <value>Il file delle impostazioni era illeggibile (scrittura interrotta, disco pieno…). È stato conservato così com'è come:
+{0}
+
+Nessun backup leggibile: CyberArkTerm parte con le impostazioni predefinite. I tuoi server e archivi sono ancora nel file conservato.</value>
+  </data>
+  <data name="AlreadyRunning" xml:space="preserve">
+    <value>CyberArkTerm è già aperto in questa sessione di Windows: usa la finestra aperta (barra delle applicazioni).
+
+Due istanze sovrascriverebbero a vicenda impostazioni, archivio locale e file in modifica.</value>
+  </data>
+  <data name="DownloadReplaceConfirm" xml:space="preserve">
+    <value>Questi file esistono già in {0}:
+{1}
+
+Sostituirli? Ognuno viene sostituito solo a download completato.</value>
+  </data>
+  <data name="KeePassConnectNoLog" xml:space="preserve">
+    <value>Il registro degli accessi di emergenza non può essere scritto ({0}): la connessione non viene aperta.</value>
   </data>
 </root>

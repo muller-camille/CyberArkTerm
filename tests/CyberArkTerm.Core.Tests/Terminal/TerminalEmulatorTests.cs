@@ -54,6 +54,28 @@ public class TerminalEmulatorTests
         Assert.Equal("2", Row(t, -1));
     }
 
+    /// <summary>
+    /// Historique plein : les plus anciennes lignes partent une à une, sans ralentir (une sortie abondante ou piégée
+    /// figeait l'interface) ; une séquence aux paramètres sans fin ne remplit pas la mémoire.
+    /// </summary>
+    [Fact]
+    public void FullScrollbackKeepsTheLatestLinesQuickly()
+    {
+        var t = new TerminalEmulator(10, 3, maxScrollback: 100);
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        t.Feed(string.Concat(Enumerable.Range(1, 200_000).Select(i => $"{i}\r\n")));
+        t.Feed(string.Concat(Enumerable.Repeat("\x1b[999S", 20_000)));
+        t.Feed("\x1b[" + new string(';', 1_000_000) + "m");
+        watch.Stop();
+
+        Assert.Equal(100, t.ScrollbackCount);
+        Assert.True(watch.Elapsed < TimeSpan.FromSeconds(10), watch.Elapsed.ToString());
+        t.ClearScrollback();
+        t.Feed("\x1b[2J\x1b[Ha\r\nb\r\nc\r\nd");
+        Assert.Equal(1, t.ScrollbackCount);
+        Assert.Equal("a", Row(t, -1));
+    }
+
     [Fact]
     public void ClearScrollbackKeepsTheScreen()
     {
@@ -183,12 +205,10 @@ public class TerminalEmulatorTests
     }
 
     [Fact]
-    public void ReportsTitleAndWorkingDirectory()
+    public void ReportsTheWorkingDirectoryAndIgnoresTheTitle()
     {
         var t = new TerminalEmulator();
-        string? title = null;
         var dirs = new List<string>();
-        t.TitleChanged += s => title = s;
         t.WorkingDirectoryChanged += dirs.Add;
 
         t.Feed("\x1b]0;root@srv: ~\a");
@@ -196,9 +216,37 @@ public class TerminalEmulatorTests
         t.Feed("\x1b]7;/opt/app\a");
         t.Feed("\x1b]7;relative\a");
 
-        Assert.Equal("root@srv: ~", title);
         Assert.Equal(["/var/log/my app", "/opt/app"], dirs);
         Assert.Equal("", Row(t, 0));
+    }
+
+    [Theory]
+    [InlineData("file://h/tmp/a%0Ab")]
+    [InlineData("file://h/tmp/a%1B[31m")]
+    [InlineData("file://h/tmp/%E2%80%AEtxt.exe")]
+    [InlineData("file://h/tmp/a%E2%80%8Bb")]
+    [InlineData("/tmp/a\u0085b")]
+    public void WorkingDirectoryWithHiddenCharactersIsIgnored(string value)
+    {
+        var t = new TerminalEmulator();
+        var dirs = new List<string>();
+        t.WorkingDirectoryChanged += dirs.Add;
+
+        t.Feed($"\x1b]7;{value}\a");
+
+        Assert.Empty(dirs);
+    }
+
+    [Fact]
+    public void LinePositionCountsFromTheScrollRegionInOriginMode()
+    {
+        var t = new TerminalEmulator(10, 10);
+
+        t.Feed("\x1b[3;8r\x1b[?6h\x1b[2dX");
+
+        Assert.Equal("X", Row(t, 3));
+        t.Feed("\x1b[?6l\x1b[2dY");
+        Assert.Equal("Y", Row(t, 1).Trim());
     }
 
     [Fact]
@@ -367,7 +415,16 @@ public class TerminalSupportTests
     public void PasteNormalizesNewlinesAndBrackets()
     {
         Assert.Equal("a\rb\rc", TerminalKeys.Paste("a\r\nb\nc", bracketed: false));
-        Assert.Equal("\x1b[200~ls\r\x1b[201~", TerminalKeys.Paste("ls\n\x1b[201~", bracketed: true));
+        Assert.Equal("\x1b[200~ls\r[201~\x1b[201~", TerminalKeys.Paste("ls\n\x1b[201~", bracketed: true));
+    }
+
+    [Fact]
+    public void PastedTextCannotLeaveTheBracketsNorRunACommand()
+    {
+        // Marqueur de fin imbriqué (« \e[20\e[201~1~ ») puis Ctrl-O : avant, le collage se fermait et « id » s'exécutait.
+        Assert.Equal("\x1b[200~[20[201~1~ id\x1b[201~", TerminalKeys.Paste("\x1b[20\x1b[201~1~ id\x0f", bracketed: true));
+        Assert.Equal("a\tb\rc", TerminalKeys.Paste("a\tb\u009b\u007f\nc\0", bracketed: false));
+        Assert.Equal("echo ok", TerminalKeys.CleanPaste("echo ok"));
     }
 
     [Theory]

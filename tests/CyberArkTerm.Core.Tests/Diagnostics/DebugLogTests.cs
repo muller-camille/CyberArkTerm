@@ -37,6 +37,8 @@ public sealed class DebugLogTests : IDisposable
     [InlineData("Authorization: abcdef", "Authorization: ***")]
     [InlineData("signature:s:AAAABBBB", "signature:***")]
     [InlineData("Cookie = CA66=xyz; suite", "Cookie = ***; suite")]
+    [InlineData("{\"password\":\"ab\\\"cdSECRET\",\"user\":\"jdoe\"}", "{\"password\":***,\"user\":\"jdoe\"}")]
+    [InlineData("password 51:b:01000000D08C9DDF suite", "password 51:*** suite")]
     public void SecretsAreMasked(string text, string expected)
     {
         Assert.Equal(expected, DebugLog.Redact(text));

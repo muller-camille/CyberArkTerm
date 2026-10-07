@@ -35,8 +35,10 @@ public sealed class TerminalEmulator
 {
     private const int MaxStringLength = 4096;
 
-    private readonly List<Cell[]> _scrollback = [];
-    private readonly int _maxScrollback;
+    // Paramètres d'une séquence CSI gardés au plus (xterm en garde 30) : « \e[1;1;1;…m » sans fin ne remplit pas la mémoire.
+    private const int MaxParams = 32;
+
+    private readonly LineRing _scrollback;
     private readonly List<int> _params = [];
     private readonly StringBuilder _osc = new();
 
@@ -63,7 +65,7 @@ public sealed class TerminalEmulator
     {
         Columns = Math.Max(columns, 2);
         Rows = Math.Max(rows, 2);
-        _maxScrollback = maxScrollback;
+        _scrollback = new LineRing(maxScrollback);
         _main = NewScreen(Rows, Columns);
         _screen = _main;
         _scrollBottom = Rows - 1;
@@ -86,16 +88,11 @@ public sealed class TerminalEmulator
         IgnoreStringEscape,
     }
 
-    /// <summary>Titre de la fenêtre (OSC 0 / 2).</summary>
-    public event Action<string>? TitleChanged;
-
     /// <summary>Dossier courant signalé par le shell (OSC 7), déjà décodé en chemin Unix.</summary>
     public event Action<string>? WorkingDirectoryChanged;
 
     /// <summary>Réponse à renvoyer au serveur (rapport de position du curseur, attributs du terminal...).</summary>
     public event Action<string>? Response;
-
-    public event Action? Bell;
 
     public int Columns { get; private set; }
 
@@ -118,8 +115,6 @@ public sealed class TerminalEmulator
     public bool OriginMode { get; private set; }
 
     public bool IsAlternateScreen => _alt is not null && ReferenceEquals(_screen, _alt);
-
-    public string Title { get; private set; } = "";
 
     /// <summary>Nombre de lignes d'historique consultables (aucune en écran alternatif : vim, less...).</summary>
     public int ScrollbackCount => IsAlternateScreen ? 0 : _scrollback.Count;
@@ -307,7 +302,7 @@ public sealed class TerminalEmulator
         switch (c)
         {
             case '\a':
-                Bell?.Invoke();
+                // Sonnerie : ignorée.
                 break;
             case '\b':
                 _wrapPending = false;
@@ -418,7 +413,11 @@ public sealed class TerminalEmulator
         {
             case ';':
             case ':':
-                _params.Add(_param);
+                if (_params.Count < MaxParams)
+                {
+                    _params.Add(_param);
+                }
+
                 _param = -1;
                 return;
             case '?':
@@ -444,7 +443,11 @@ public sealed class TerminalEmulator
             return;
         }
 
-        _params.Add(_param);
+        if (_params.Count < MaxParams)
+        {
+            _params.Add(_param);
+        }
+
         _state = State.Ground;
         if (c >= 0x40 && c <= 0x7E)
         {
@@ -539,7 +542,8 @@ public sealed class TerminalEmulator
                 EraseChars(Param(0, 1));
                 break;
             case 'd':
-                CursorPosition(Param(0, 1) - 1 - (OriginMode ? _scrollTop : 0), CursorColumn);
+                // Ligne absolue, comptée depuis le haut de la zone de défilement en mode origine (CursorPosition).
+                CursorPosition(Param(0, 1) - 1, CursorColumn);
                 break;
             case 'h':
             case 'l':
@@ -603,13 +607,9 @@ public sealed class TerminalEmulator
 
         var code = text[..sep];
         var value = text[(sep + 1)..];
+        // Titre de la fenêtre (OSC 0 / 2) et autres codes : ignorés.
         switch (code)
         {
-            case "0":
-            case "2":
-                Title = value;
-                TitleChanged?.Invoke(value);
-                break;
             case "7":
                 if (WorkingDirectory.Parse(value) is { } path)
                 {
@@ -855,12 +855,45 @@ public sealed class TerminalEmulator
         }
     }
 
-    private void PushScrollback(Cell[] line)
+    private void PushScrollback(Cell[] line) => _scrollback.Add(line);
+
+    /// <summary>
+    /// Historique en anneau : une fois plein, chaque nouvelle ligne remplace la plus ancienne sans déplacer les autres (une
+    /// sortie abondante ne fige plus l'interface).
+    /// </summary>
+    private sealed class LineRing(int capacity)
     {
-        _scrollback.Add(line);
-        if (_scrollback.Count > _maxScrollback)
+        private readonly Cell[][] _lines = new Cell[Math.Max(capacity, 0)][];
+        private int _start;
+
+        public int Count { get; private set; }
+
+        public Cell[] this[int index] => _lines[(_start + index) % _lines.Length];
+
+        public void Add(Cell[] line)
         {
-            _scrollback.RemoveRange(0, _scrollback.Count - _maxScrollback);
+            if (_lines.Length == 0)
+            {
+                return;
+            }
+
+            if (Count < _lines.Length)
+            {
+                _lines[(_start + Count) % _lines.Length] = line;
+                Count++;
+            }
+            else
+            {
+                _lines[_start] = line;
+                _start = (_start + 1) % _lines.Length;
+            }
+        }
+
+        public void Clear()
+        {
+            Array.Clear(_lines);
+            _start = 0;
+            Count = 0;
         }
     }
 

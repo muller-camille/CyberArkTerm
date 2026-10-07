@@ -366,4 +366,10 @@
   <data name="FtpTlsRequired" xml:space="preserve">
     <value>Il server FTP non propone la cifratura (TLS), richiesta da questa voce (ftpes:// o ftps://).</value>
   </data>
+  <data name="ChangedDuringChmod" xml:space="preserve">
+    <value>sostituito da un collegamento simbolico durante la modifica dei permessi: lasciato com'è</value>
+  </data>
+  <data name="PvwaUnexpectedSecretResponse" xml:space="preserve">
+    <value>Il PVWA non ha restituito la password ma una risposta inattesa ({0}): forse si è interposta una pagina di accesso (SSO) o di manutenzione. Riconnettersi e riprovare.</value>
+  </data>
 </root>

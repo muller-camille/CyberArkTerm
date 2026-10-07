@@ -9,6 +9,13 @@ public sealed record MfaSshKey(string PrivateKey, string? Format, DateTimeOffset
 
     public bool IsExpired(DateTimeOffset now) => ExpiresAt is { } end && now >= end - TimeSpan.FromMinutes(1);
 
+    /// <summary>Jamais la clé privée dans <c>ToString()</c> (journal, débogueur…).</summary>
+    private bool PrintMembers(System.Text.StringBuilder builder)
+    {
+        builder.Append("Format = ").Append(Format).Append(", ExpiresAt = ").Append(ExpiresAt);
+        return true;
+    }
+
     /// <summary>
     /// Lit la réponse du PVWA, quelle que soit sa forme selon les versions : on cherche les chaînes
     /// qui contiennent une clé privée et on préfère le format OpenSSH, puis PEM, puis PPK.
@@ -56,7 +63,7 @@ public sealed record MfaSshKey(string PrivateKey, string? Format, DateTimeOffset
                     }
                     else if (p.Name.Equals("expirationTime", StringComparison.OrdinalIgnoreCase) && p.Value.TryGetInt64(out var seconds))
                     {
-                        expires = DateTimeOffset.FromUnixTimeSeconds(seconds > 100_000_000_000 ? seconds / 1000 : seconds);
+                        expires = UnixTime.ToOffset(seconds) ?? expires;
                     }
                 }
 

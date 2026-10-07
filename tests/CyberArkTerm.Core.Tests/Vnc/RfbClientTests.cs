@@ -306,6 +306,92 @@ public sealed class RfbClientTests
     }
 
     [Fact]
+    public async Task CopiesOverlappingAreasInPlaceAndReadsEmptyCopies()
+    {
+        using var server = new FakeServer(async s =>
+        {
+            s.Write("RFB 003.008\n"u8);
+            Read(s, 12);
+            s.Write([1, 1]);
+            Read(s, 1);
+            s.Write(U32(0));
+            Read(s, 1);
+            s.Write(ServerInit(4, 4, "x"));
+            Read(s, 20 + 4 + 16 + 10);
+            var update = new List<byte> { 0, 0 };
+            update.AddRange(U16(4));
+            // Deux lignes : rouge = colonne, vert = ligne.
+            update.AddRange(Rect(0, 0, 4, 2, 0));
+            for (int y = 0; y < 2; y++)
+            {
+                for (int x = 0; x < 4; x++)
+                {
+                    update.AddRange(Px((byte)x, (byte)y, 0));
+                }
+            }
+
+            // CopyRect vide : sa source (4 octets) suit quand même.
+            update.AddRange(Rect(0, 0, 0, 3, 1));
+            update.AddRange([.. U16(0), .. U16(0)]);
+            // Lignes 0-1 copiées une ligne plus bas (chevauchement vertical), puis ligne 0 décalée d'un pixel à droite.
+            update.AddRange(Rect(0, 1, 4, 2, 1));
+            update.AddRange([.. U16(0), .. U16(0)]);
+            update.AddRange(Rect(1, 0, 3, 1, 1));
+            update.AddRange([.. U16(0), .. U16(0)]);
+            s.Write(update.ToArray());
+            Read(s, 10);
+        });
+
+        using var client = await RfbClient.ConnectAsync("127.0.0.1", server.Port, () => null, CancellationToken.None);
+        var updated = new TaskCompletionSource<VncRect>();
+        client.Updated += r => updated.TrySetResult(r);
+        using var cts = new CancellationTokenSource(Timeout);
+        _ = client.RunAsync(cts.Token);
+        Assert.Equal(new VncRect(0, 0, 4, 3), await updated.Task.WaitAsync(Timeout));
+        await server.Run.WaitAsync(Timeout);
+        cts.Cancel();
+
+        var fb = client.Framebuffer;
+        Assert.Equal([(0, 0, 0), (0, 0, 0), (1, 0, 0), (2, 0, 0)], Enumerable.Range(0, 4).Select(x => PixelAt(fb, x, 0)));
+        Assert.Equal([(0, 0, 0), (1, 0, 0), (2, 0, 0), (3, 0, 0)], Enumerable.Range(0, 4).Select(x => PixelAt(fb, x, 1)));
+        Assert.Equal([(0, 1, 0), (1, 1, 0), (2, 1, 0), (3, 1, 0)], Enumerable.Range(0, 4).Select(x => PixelAt(fb, x, 2)));
+        Assert.Equal((0, 0, 0), PixelAt(fb, 3, 3));
+    }
+
+    [Fact]
+    public async Task DisconnectsAServerThatKeepsResizingTheScreen()
+    {
+        using var server = new FakeServer(async s =>
+        {
+            s.Write("RFB 003.008\n"u8);
+            Read(s, 12);
+            s.Write([1, 1]);
+            Read(s, 1);
+            s.Write(U32(0));
+            Read(s, 1);
+            s.Write(ServerInit(8, 8, "x"));
+            Read(s, 20 + 4 + 16 + 10);
+            var update = new List<byte> { 0, 0 };
+            update.AddRange(U16(RfbClient.MaxResizes + 2));
+            // Même taille : pas un changement ; puis une taille différente à chaque fois.
+            update.AddRange(Rect(0, 0, 8, 8, -223));
+            for (int i = 0; i <= RfbClient.MaxResizes; i++)
+            {
+                update.AddRange(Rect(0, 0, i % 2 == 0 ? 9 : 8, 9, -223));
+            }
+
+            s.Write(update.ToArray());
+            await Task.Delay(100);
+        });
+
+        using var client = await RfbClient.ConnectAsync("127.0.0.1", server.Port, () => null, CancellationToken.None);
+        int resized = 0;
+        client.Resized += () => resized++;
+        await Assert.ThrowsAsync<RfbException>(() => client.RunAsync(CancellationToken.None).WaitAsync(Timeout));
+        Assert.Equal(RfbClient.MaxResizes, resized);
+    }
+
+    [Fact]
     public async Task RefusesAHugeScreenAndRectanglesOutsideTheScreen()
     {
         using (var server = new FakeServer(async s =>

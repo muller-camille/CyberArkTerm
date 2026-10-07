@@ -22,7 +22,7 @@ public sealed class DpapiProtectorTests : IDisposable
         using (var store = new LocalSecretStore(path, new DpapiProtector(), fast))
         {
             store.Create("mot-de-passe-local");
-            store.Set("vault", "Maître-1");
+            store.Set("vault", Encoding.UTF8.GetBytes("Maître-1"));
         }
 
         // Sans DPAPI le fichier est illisible (ni JSON, ni secrets) ; avec, il se rouvre.

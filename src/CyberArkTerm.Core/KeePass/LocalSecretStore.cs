@@ -21,6 +21,11 @@ public interface ISecretProtector
 /// coffre local par Argon2id, puis protégé par <see cref="ISecretProtector"/> (DPAPI). Rien n'y est lisible sans le
 /// mot de passe ; une fois déverrouillé, les secrets restent masqués en mémoire jusqu'au verrouillage.
 /// </summary>
+/// <remarks>
+/// Utilisable depuis plusieurs fils : le déverrouillage et le changement de mot de passe dérivent leur clé hors du
+/// verrou, et un verrouillage arrivé pendant ce calcul (session Windows verrouillée) l'emporte : le coffre reste
+/// verrouillé et rien n'est écrit (<see cref="OperationCanceledException"/>).
+/// </remarks>
 public sealed class LocalSecretStore : IDisposable
 {
     public const int MinPasswordLength = 8;
@@ -30,9 +35,13 @@ public sealed class LocalSecretStore : IDisposable
     private readonly ISecretProtector? _protector;
     private readonly KdfSettings _kdf;
     private readonly Dictionary<string, SecretBytes> _secrets = new(StringComparer.Ordinal);
+    private readonly object _sync = new();
     private SecretBytes? _key;
     private byte[] _salt = [];
     private KdfSettings _fileKdf;
+
+    // Augmenté à chaque verrouillage : un calcul de clé commencé avant n'est pas appliqué.
+    private long _generation;
 
     /// <param name="kdf">Coût d'Argon2id pour un nouveau mot de passe (par défaut 64 Mio, 3 passes, 2 voies).</param>
     public LocalSecretStore(string path, ISecretProtector? protector, KdfSettings? kdf = null)
@@ -45,35 +54,94 @@ public sealed class LocalSecretStore : IDisposable
 
     public bool Exists => File.Exists(_path);
 
-    public bool IsUnlocked => _key is not null;
+    public bool IsUnlocked
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return _key is not null;
+            }
+        }
+    }
 
     /// <summary>Identifiants des secrets mémorisés (coffre déverrouillé).</summary>
-    public IReadOnlyCollection<string> Ids => _secrets.Keys;
+    public IReadOnlyCollection<string> Ids
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return [.. _secrets.Keys];
+            }
+        }
+    }
 
     /// <summary>Crée un coffre local vide (remplace un éventuel coffre existant) et le laisse déverrouillé.</summary>
-    public void Create(string password)
+    public void Create(ReadOnlySpan<char> password)
     {
         CheckPassword(password);
-        Lock();
-        SetKey(password, _kdf);
-        Save();
+        long generation;
+        lock (_sync)
+        {
+            LockCore();
+            generation = _generation;
+        }
+
+        var salt = RandomNumberGenerator.GetBytes(32);
+        var key = Derive(password, salt, _kdf);
+        try
+        {
+            lock (_sync)
+            {
+                EnsureNotLockedSince(generation);
+                _salt = salt;
+                _fileKdf = _kdf;
+                _key = new SecretBytes(key);
+                Save();
+            }
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(key);
+        }
     }
 
     /// <summary>Déverrouille le coffre ; <see cref="KeePassError.InvalidKey"/> si le mot de passe est faux.</summary>
-    public void Unlock(string password)
+    public void Unlock(ReadOnlySpan<char> password)
     {
-        Lock();
-        var envelope = ReadEnvelope();
-        _fileKdf = envelope.Kdf;
-        _salt = envelope.Salt;
+        // Jamais le bon (8 caractères au moins à la création) ; Argon2 refuserait un mot de passe vide.
+        if (password.IsEmpty)
+        {
+            throw new KeePassException(KeePassError.InvalidKey, CoreStrings.LocalStoreWrongPassword);
+        }
+
+        long generation;
+        (KdfSettings Kdf, byte[] Salt, byte[] Nonce, byte[] Tag, byte[] Data) envelope;
+        lock (_sync)
+        {
+            LockCore();
+            generation = _generation;
+            envelope = ReadEnvelope();
+        }
+
         var key = Derive(password, envelope.Salt, envelope.Kdf);
         var plain = new byte[envelope.Data.Length];
         try
         {
-            using var aes = new AesGcm(key, 16);
-            aes.Decrypt(envelope.Nonce, envelope.Data, envelope.Tag, plain, AssociatedData(envelope.Kdf, envelope.Salt));
-            ReadSecrets(plain);
-            _key = new SecretBytes(key);
+            using (var aes = new AesGcm(key, 16))
+            {
+                aes.Decrypt(envelope.Nonce, envelope.Data, envelope.Tag, plain, AssociatedData(envelope.Kdf, envelope.Salt));
+            }
+
+            lock (_sync)
+            {
+                EnsureNotLockedSince(generation);
+                ReadSecrets(plain);
+                _fileKdf = envelope.Kdf;
+                _salt = envelope.Salt;
+                _key = new SecretBytes(key);
+            }
         }
         catch (AuthenticationTagMismatchException e)
         {
@@ -88,36 +156,38 @@ public sealed class LocalSecretStore : IDisposable
 
     public void Lock()
     {
-        _key?.Dispose();
-        _key = null;
-        foreach (var secret in _secrets.Values)
+        lock (_sync)
         {
-            secret.Dispose();
+            LockCore();
         }
-
-        _secrets.Clear();
     }
 
     /// <summary>Secret mémorisé, en UTF-8 : à effacer après usage. Null si absent.</summary>
     public byte[]? Get(string id)
     {
-        EnsureUnlocked();
-        return _secrets.TryGetValue(id, out var secret) ? secret.Reveal() : null;
+        lock (_sync)
+        {
+            EnsureUnlocked();
+            return _secrets.TryGetValue(id, out var secret) ? secret.Reveal() : null;
+        }
     }
 
     public void Set(string id, ReadOnlySpan<byte> utf8Secret)
     {
-        EnsureUnlocked();
-        if (_secrets.Remove(id, out var old))
+        lock (_sync)
         {
-            old.Dispose();
-        }
+            EnsureUnlocked();
+            if (_secrets.Remove(id, out var old))
+            {
+                old.Dispose();
+            }
 
-        _secrets[id] = new SecretBytes(utf8Secret);
-        Save();
+            _secrets[id] = new SecretBytes(utf8Secret);
+            Save();
+        }
     }
 
-    public void Set(string id, string secret)
+    internal void Set(string id, string secret)
     {
         var bytes = Encoding.UTF8.GetBytes(secret);
         try
@@ -132,42 +202,108 @@ public sealed class LocalSecretStore : IDisposable
 
     public void Remove(string id)
     {
-        EnsureUnlocked();
-        if (_secrets.Remove(id, out var old))
+        lock (_sync)
         {
-            old.Dispose();
-            Save();
+            EnsureUnlocked();
+            if (_secrets.Remove(id, out var old))
+            {
+                old.Dispose();
+                Save();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Oublie les secrets dont l'identifiant n'est pas dans <paramref name="keep"/> (coffres KeePass retirés, ou « se
+    /// souvenir » décoché, pendant que le coffre local était verrouillé). Renvoie le nombre de secrets oubliés.
+    /// </summary>
+    public int RemoveAllExcept(IEnumerable<string> keep)
+    {
+        var wanted = new HashSet<string>(keep, StringComparer.Ordinal);
+        lock (_sync)
+        {
+            EnsureUnlocked();
+            var stale = _secrets.Keys.Where(id => !wanted.Contains(id)).ToList();
+            foreach (var id in stale)
+            {
+                _secrets.Remove(id, out var old);
+                old!.Dispose();
+            }
+
+            if (stale.Count > 0)
+            {
+                Save();
+            }
+
+            return stale.Count;
         }
     }
 
     /// <summary>Nouveau mot de passe (et nouveau sel) ; le coffre doit être déverrouillé.</summary>
-    public void ChangePassword(string newPassword)
+    public void ChangePassword(ReadOnlySpan<char> newPassword)
     {
         CheckPassword(newPassword);
-        EnsureUnlocked();
-        _key!.Dispose();
-        SetKey(newPassword, _kdf);
-        Save();
+        long generation;
+        lock (_sync)
+        {
+            EnsureUnlocked();
+            generation = _generation;
+        }
+
+        var salt = RandomNumberGenerator.GetBytes(32);
+        var key = Derive(newPassword, salt, _kdf);
+        try
+        {
+            lock (_sync)
+            {
+                EnsureNotLockedSince(generation);
+                _key!.Dispose();
+                _key = new SecretBytes(key);
+                _salt = salt;
+                _fileKdf = _kdf;
+                Save();
+            }
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(key);
+        }
     }
 
     /// <summary>Supprime le fichier du coffre local et oublie tout.</summary>
     public void Delete()
     {
-        Lock();
-        if (File.Exists(_path))
+        lock (_sync)
         {
-            File.Delete(_path);
+            LockCore();
+            if (File.Exists(_path))
+            {
+                File.Delete(_path);
+            }
         }
     }
 
     public void Dispose() => Lock();
 
-    private static void CheckPassword(string password)
+    private static void CheckPassword(ReadOnlySpan<char> password)
     {
         if (password.Length < MinPasswordLength)
         {
             throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, CoreStrings.LocalStorePasswordTooShort, MinPasswordLength));
         }
+    }
+
+    private void LockCore()
+    {
+        _generation++;
+        _key?.Dispose();
+        _key = null;
+        foreach (var secret in _secrets.Values)
+        {
+            secret.Dispose();
+        }
+
+        _secrets.Clear();
     }
 
     private void EnsureUnlocked()
@@ -178,18 +314,19 @@ public sealed class LocalSecretStore : IDisposable
         }
     }
 
-    private void SetKey(string password, KdfSettings kdf)
+    /// <summary>Verrouillé pendant le calcul de la clé : le résultat n'est pas appliqué.</summary>
+    private void EnsureNotLockedSince(long generation)
     {
-        _salt = RandomNumberGenerator.GetBytes(32);
-        _fileKdf = kdf;
-        var key = Derive(password, _salt, kdf);
-        _key = new SecretBytes(key);
-        CryptographicOperations.ZeroMemory(key);
+        if (_generation != generation)
+        {
+            throw new OperationCanceledException(CoreStrings.LocalStoreLocked);
+        }
     }
 
-    private static byte[] Derive(string password, byte[] salt, KdfSettings kdf)
+    private static byte[] Derive(ReadOnlySpan<char> password, byte[] salt, KdfSettings kdf)
     {
-        var bytes = Encoding.UTF8.GetBytes(password);
+        var bytes = new byte[Encoding.UTF8.GetByteCount(password)];
+        Encoding.UTF8.GetBytes(password, bytes);
         try
         {
             using var argon = new Argon2id(bytes)

@@ -20,6 +20,10 @@ internal static class KeyDerivation
     // Garde-fous contre un fichier aux paramètres démesurés (mémoire ou temps de calcul).
     private const ulong MaxArgon2Memory = 4UL * 1024 * 1024 * 1024;
     private const ulong MaxArgon2Iterations = 10_000;
+
+    // Travail total (mémoire × passes) : chaque borne seule laissait 4 Gio × 10 000 passes, soit des heures de calcul
+    // qu'on ne peut pas interrompre. 64 Gio parcourus prennent environ une minute et demie.
+    private const ulong MaxArgon2Work = 64UL * 1024 * 1024 * 1024;
     private const ulong MaxAesRounds = 2_000_000_000;
 
     /// <summary>KDBX 4 : paramètres lus dans l'en-tête.</summary>
@@ -217,7 +221,13 @@ internal static class KeyDerivation
                 string.Format(CultureInfo.CurrentCulture, CoreStrings.KeePassUnsupportedKdf, $"Argon2 v{version:X}"));
         }
 
-        if (memory > MaxArgon2Memory || iterations > MaxArgon2Iterations || parallelism is 0 or > 256 || memory < 8 * 1024)
+        if (iterations == 0 || parallelism is 0 or > 256 || memory < 8 * 1024 * parallelism)
+        {
+            // Paramètres impossibles pour Argon2 (au moins une passe, 8 Kio par fil).
+            throw Corrupted($"Argon2 M={memory}, I={iterations}, P={parallelism}");
+        }
+
+        if (memory > MaxArgon2Memory || iterations > MaxArgon2Iterations || memory * iterations > MaxArgon2Work)
         {
             throw TooCostly($"Argon2 M={memory / (1024 * 1024)} Mio, I={iterations}, P={parallelism}");
         }
@@ -237,7 +247,14 @@ internal static class KeyDerivation
             argon.AssociatedData = associated;
         }
 
-        return argon.GetBytes(32);
+        try
+        {
+            return argon.GetBytes(32);
+        }
+        catch (Exception e) when (e is InvalidOperationException or ArgumentException or AggregateException)
+        {
+            throw Corrupted("Argon2");
+        }
     }
 
     /// <summary>Identifiant KeePass (16 octets dans l'ordre de leur écriture hexadécimale) → Guid.</summary>

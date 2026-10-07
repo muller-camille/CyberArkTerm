@@ -216,11 +216,15 @@ public partial class SettingsDialog : Window
 
     private void OnStoreChange(object sender, RoutedEventArgs e) => ShowStoreDialog(LocalStoreDialog.Mode.ChangePassword);
 
+    /// <summary>Coffres KeePass dont le mot de passe maître reste mémorisé dans le coffre local.</summary>
+    internal static IReadOnlyList<string> RememberedFolderIds(AppSettings settings) =>
+        [.. settings.KeePassFolders.Where(f => f.RememberPassword).Select(f => f.Id)];
+
     private void ShowStoreDialog(LocalStoreDialog.Mode mode)
     {
         if (_store is not null)
         {
-            new LocalStoreDialog(_store, mode) { Owner = this }.ShowDialog();
+            new LocalStoreDialog(_store, mode, RememberedFolderIds(_settings)) { Owner = this }.ShowDialog();
             UpdateStore();
         }
     }
