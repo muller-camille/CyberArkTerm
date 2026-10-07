@@ -672,7 +672,8 @@ CyberArkTerm is now called ZillaTerm. The first time `ZillaTerm.exe` starts, the
 old folder is kept: delete it, along with `CyberArkTerm.exe`, once you have moved to ZillaTerm. A
 `CyberArkTerm.env.json` file next to the executable is still read, shared lists stay readable by both versions and the
 master passwords of the local vault stay available. The old temporary folder (`%TEMP%\CyberArkTerm`) is emptied over the
-following starts (files older than one day). Both versions cannot be open at the same time.
+following starts (files older than one day). Both versions cannot be open at the same time. CyberArkTerm reports the
+first ZillaTerm version but cannot download it itself (renamed repository): download it once from the releases page.
 
 ## Security
 

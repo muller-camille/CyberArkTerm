@@ -17,15 +17,10 @@ public sealed record UpdateInfo(Version Version, string Tag, string PageUrl, str
 /// </summary>
 public static class UpdateChecker
 {
-    /// <summary>
-    /// Dépôt du projet sous son ancien nom : les requêtes et les liens passent par lui tant que des versions de CyberArkTerm
-    /// sont en service (elles ne reconnaissent que cette adresse) ; GitHub le redirige vers <see cref="RenamedRepository"/>
-    /// une fois le dépôt renommé.
-    /// </summary>
-    public const string Repository = "muller-camille/CyberArkTerm";
+    public const string Repository = "muller-camille/ZillaTerm";
 
-    /// <summary>Nom du dépôt après son renommage ; ses adresses sont acceptées dans les réponses de GitHub.</summary>
-    public const string RenamedRepository = "muller-camille/ZillaTerm";
+    /// <summary>Ancien nom du dépôt (CyberArkTerm), redirigé par GitHub : ses adresses restent acceptées.</summary>
+    public const string LegacyRepository = "muller-camille/CyberArkTerm";
 
     public const string ProjectUrl = "https://github.com/" + Repository;
     public const string ReleasesUrl = ProjectUrl + "/releases";
@@ -34,9 +29,9 @@ public static class UpdateChecker
     /// <summary>Au-delà, le téléchargement est interrompu (l'archive fait environ 70 Mo).</summary>
     public const long MaxPackageBytes = 512L * 1024 * 1024;
 
-    private static readonly string[] ProjectUrls = [ProjectUrl, "https://github.com/" + RenamedRepository];
+    private static readonly string[] ProjectUrls = [ProjectUrl, "https://github.com/" + LegacyRepository];
 
-    /// <summary>Archive de la version : « ZillaTerm-… », ou « CyberArkTerm-… » (même contenu, pour les anciennes versions).</summary>
+    /// <summary>Archive de la version : « ZillaTerm-… », ou « CyberArkTerm-… » pour une version publiée sous l'ancien nom.</summary>
     private const string PackagePrefix = "ZillaTerm-";
 
     private const string LegacyPackagePrefix = AppSettings.LegacyName + "-";

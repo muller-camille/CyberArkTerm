@@ -4,8 +4,8 @@
 
 [Français](README.fr.md) · **English** · [Italiano](README.it.md)
 
-[![build](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml/badge.svg)](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml)
-[![release](https://github.com/muller-camille/CyberArkTerm/actions/workflows/release.yml/badge.svg)](https://github.com/muller-camille/CyberArkTerm/releases/latest)
+[![build](https://github.com/muller-camille/ZillaTerm/actions/workflows/build.yml/badge.svg)](https://github.com/muller-camille/ZillaTerm/actions/workflows/build.yml)
+[![release](https://github.com/muller-camille/ZillaTerm/actions/workflows/release.yml/badge.svg)](https://github.com/muller-camille/ZillaTerm/releases/latest)
 
 **Multi-session Windows client for CyberArk.** ZillaTerm signs in to your PVWA, lists the accounts you can access
 and opens your sessions with a double-click: remote desktop through **PSM**, or an SSH terminal through **PSM for SSH
@@ -16,8 +16,8 @@ and opens your sessions with a double-click: remote desktop through **PSM**, or 
 
 ![SSH session through the PSMP, with the Files tab following the terminal folder](docs/captures/en/main-window.png)
 
-**[Download](https://github.com/muller-camille/CyberArkTerm/releases/latest)** ·
-**[User guide](docs/guide.md)** · [Release notes](https://github.com/muller-camille/CyberArkTerm/releases) ·
+**[Download](https://github.com/muller-camille/ZillaTerm/releases/latest)** ·
+**[User guide](docs/guide.md)** · [Release notes](https://github.com/muller-camille/ZillaTerm/releases) ·
 [Security policy](SECURITY.md)
 
 > Screenshots come from a demo environment (fictitious data).
@@ -63,14 +63,14 @@ and opens your sessions with a double-click: remote desktop through **PSM**, or 
 
 ### Download the executable
 
-1. Open the [latest release](https://github.com/muller-camille/CyberArkTerm/releases/latest) in the
+1. Open the [latest release](https://github.com/muller-camille/ZillaTerm/releases/latest) in the
    repository's *Releases*.
 2. Download **`ZillaTerm-<version>-win-x64.zip`** and unzip it (the SHA256 hash is in
    `SHA256SUMS.txt`).
 3. Run `ZillaTerm.exe`: a single file, no runtime to install, no administrator rights needed.
 
 Development builds: the executable of every build is also available as the `ZillaTerm-win-x64`
-artifact in the [Actions](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml) tab.
+artifact in the [Actions](https://github.com/muller-camille/ZillaTerm/actions/workflows/build.yml) tab.
 
 The executable is not signed: on first launch, Windows SmartScreen may show a warning
 ("More info" → "Run anyway").

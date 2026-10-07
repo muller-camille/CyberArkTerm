@@ -15,7 +15,7 @@ Only the latest release receives security fixes. Please update to it before repo
 ## Reporting a Vulnerability
 
 **Please do not open a public issue.** Report it privately through GitHub:
-[Security → Report a vulnerability](https://github.com/muller-camille/CyberArkTerm/security/advisories/new).
+[Security → Report a vulnerability](https://github.com/muller-camille/ZillaTerm/security/advisories/new).
 
 Include, if possible:
 

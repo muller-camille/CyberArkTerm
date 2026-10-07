@@ -714,7 +714,8 @@ CyberArkTerm s'appelle désormais ZillaTerm. Au premier démarrage de `ZillaTerm
 Un fichier `CyberArkTerm.env.json` posé à côté de l'exécutable est encore lu, les listes partagées restent lisibles par
 les deux versions et les mots de passe maîtres du coffre local restent accessibles. L'ancien dossier temporaire
 (`%TEMP%\CyberArkTerm`) est vidé au fil des démarrages (fichiers de plus d'un jour). Les deux versions ne s'ouvrent pas
-en même temps.
+en même temps. CyberArkTerm signale la première version de ZillaTerm mais ne peut pas la télécharger lui-même (dépôt
+renommé) : téléchargez-la une fois depuis la page des versions.
 
 ## Sécurité
 

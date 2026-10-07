@@ -163,9 +163,7 @@ Piste : une sélection multiple dans « Disponibles » (Ctrl+clic, comme dans «
 
 ## Distribution et projet
 
-- **Après le renommage du dépôt en ZillaTerm** (une fois l'équipe passée à la 0.19) : requêtes et liens vers
-  `muller-camille/ZillaTerm` (`UpdateChecker.Repository`), adresses du README et du guide, plus d'archive
-  `CyberArkTerm-…` dans les releases ; captures d'écran à refaire avec le nouveau nom.
+- **Captures d'écran** à refaire avec le nom ZillaTerm (titres des fenêtres).
 - **Exécutable signé** : sans signature, SmartScreen, l'antivirus ou AppLocker peuvent bloquer l'application. Il
   faut un certificat de signature de code ; la signature se brancherait dans le workflow de release.
 - **Installateur MSI** : déploiement sur les postes par les outils de l'entreprise.

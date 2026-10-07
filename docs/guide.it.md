@@ -716,7 +716,8 @@ copiata in `%APPDATA%\ZillaTerm`; la vecchia cartella viene conservata: eliminal
 volta passato a ZillaTerm. Un file `CyberArkTerm.env.json` accanto all'eseguibile viene ancora letto, gli elenchi
 condivisi restano leggibili dalle due versioni e le password principali del vault locale restano accessibili. La
 vecchia cartella temporanea (`%TEMP%\CyberArkTerm`) viene svuotata nei successivi avvii (file più vecchi di un giorno).
-Le due versioni non possono essere aperte contemporaneamente.
+Le due versioni non possono essere aperte contemporaneamente. CyberArkTerm segnala la prima versione di ZillaTerm ma non
+può scaricarla da solo (repository rinominato): scaricala una volta dalla pagina delle versioni.
 
 ## Sicurezza
 
