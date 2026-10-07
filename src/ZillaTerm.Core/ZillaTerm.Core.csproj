@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ZillaTerm.Core</RootNamespace>
+    <!-- Textes en anglais par défaut ; traductions française et italienne en assemblys satellites. -->
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Classe d'accès aux textes générée par Visual Studio (PublicResXFileCodeGenerator) à partir du .resx anglais. -->
+    <EmbeddedResource Update="Localization\CoreStrings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>CoreStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Update="Localization\CoreStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CoreStrings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ZillaTerm.Core.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- SSH, SFTP et SCP vers le PSM for SSH (licence MIT). -->
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
+    <!-- Argon2d / Argon2id, dérivation de clé des coffres KeePass (KDBX 4) (licence MIT). -->
+    <PackageReference Include="Konscious.Security.Cryptography.Argon2" Version="1.3.1" />
+    <!-- FTP et FTPS (TLS explicite et implicite) des entrées KeePass, onglet Fichiers (licence MIT). -->
+    <PackageReference Include="FluentFTP" Version="55.0.0" />
+  </ItemGroup>
+
+</Project>

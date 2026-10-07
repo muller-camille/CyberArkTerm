@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <!-- Contrôle Bureau à distance de Windows (ActiveX), hébergé dans les onglets RDP. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- Le manifeste règle la prise en charge des DPI pour WPF ; l'avis WinForms qui suggère une autre méthode ne s'applique pas. -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
+    <!-- Permet de compiler depuis Linux/macOS (CI) ; l'exécution reste Windows uniquement. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <AssemblyName>ZillaTerm</AssemblyName>
+    <RootNamespace>ZillaTerm.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\ZillaTerm.ico</ApplicationIcon>
+    <!-- Interface en anglais par défaut, traduite en français et en italien. -->
+    <NeutralLanguage>en</NeutralLanguage>
+    <SatelliteResourceLanguages>en;fr;it</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Classe d'accès aux textes générée par Visual Studio (PublicResXFileCodeGenerator) à partir du .resx anglais. -->
+    <EmbeddedResource Update="Localization\Strings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Update="Localization\Strings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- WinForms ne sert qu'à héberger le contrôle Bureau à distance : pas d'usings implicites qui masqueraient ceux de WPF. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Icône des fenêtres (barre de titre, barre des tâches, Alt+Tab). -->
+    <Resource Include="Assets\ZillaTerm.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ZillaTerm.Core\ZillaTerm.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ZillaTerm.App.Tests" />
+  </ItemGroup>
+
+</Project>

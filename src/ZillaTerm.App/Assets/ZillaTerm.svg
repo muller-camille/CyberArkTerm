@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <clipPath id="tile"><rect x="8" y="8" width="240" height="240" rx="52"/></clipPath>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="#15181e"/>
+  <g clip-path="url(#tile)">
+    <!-- Crête : quelques pointes simples à bout arrondi -->
+    <g fill="#2f9a5e" stroke="#2f9a5e" stroke-width="6" stroke-linejoin="round">
+      <path d="M210 52 L234 34 L228 68 Z"/>
+      <path d="M222 80 L248 70 L232 100 Z"/>
+      <path d="M226 110 L252 106 L234 132 Z"/>
+      <path d="M228 140 L252 140 L234 162 Z"/>
+    </g>
+    <!-- Cou et corps, derrière le terminal -->
+    <g fill="#4fc37f">
+      <rect x="166" y="72" width="62" height="200" rx="31"/>
+      <ellipse cx="214" cy="258" rx="70" ry="44"/>
+    </g>
+    <!-- Terminal -->
+    <rect x="30" y="114" width="156" height="108" rx="18" fill="#252a33" stroke="#3b424e" stroke-width="5"/>
+    <g fill="none" stroke="#5be49b" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M58 146 L80 166 L58 186"/>
+      <path d="M94 188 L124 188"/>
+    </g>
+    <!-- Tête : gueule ouverte -->
+    <rect x="100" y="78" width="76" height="20" rx="6" fill="#6b2230"/>
+    <g fill="#4fc37f">
+      <ellipse cx="180" cy="70" rx="46" ry="38"/>
+      <rect x="92" y="48" width="106" height="36" rx="18"/>
+      <rect x="104" y="92" width="80" height="16" rx="8"/>
+      <ellipse cx="126" cy="116" rx="12" ry="9"/>
+      <ellipse cx="152" cy="116" rx="12" ry="9"/>
+    </g>
+    <!-- Dents -->
+    <g fill="#f4f1e6">
+      <path d="M108 83 L116 83 L112 93 Z"/>
+      <path d="M121 83 L129 83 L125 93 Z"/>
+      <path d="M134 83 L142 83 L138 93 Z"/>
+      <path d="M147 83 L155 83 L151 93 Z"/>
+      <path d="M115 93 L123 93 L119 86 Z"/>
+      <path d="M140 93 L148 93 L144 86 Z"/>
+    </g>
+    <!-- Griffes sur le bord du terminal -->
+    <g fill="#f4f1e6">
+      <path d="M117 121 L123 121 L120 129 Z"/>
+      <path d="M126 122 L132 122 L129 130 Z"/>
+      <path d="M143 121 L149 121 L146 129 Z"/>
+      <path d="M152 122 L158 122 L155 130 Z"/>
+    </g>
+    <circle cx="108" cy="58" r="4.5" fill="#1d6b42"/>
+    <!-- Œil jaune à pupille fendue, sourcil froncé -->
+    <ellipse cx="178" cy="60" rx="12" ry="11" fill="#ffcf3f"/>
+    <ellipse cx="177" cy="61" rx="3.5" ry="9" fill="#15181e"/>
+    <path d="M150 50 L200 36 L202 46 L154 60 Z" fill="#1d6b42"/>
+  </g>
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="none" stroke="#2c323c" stroke-width="4"/>
+</svg>

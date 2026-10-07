@@ -1,15 +1,18 @@
 <img src="docs/icone.png" alt="" width="72" align="right">
 
-# CyberArkTerm
+# ZillaTerm
 
 [Français](README.fr.md) · [English](README.md) · **Italiano**
 
 [![build](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml/badge.svg)](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml)
 [![release](https://github.com/muller-camille/CyberArkTerm/actions/workflows/release.yml/badge.svg)](https://github.com/muller-camille/CyberArkTerm/releases/latest)
 
-**Client Windows multi-sessione per CyberArk.** CyberArkTerm accede al tuo PVWA, elenca gli account a cui hai accesso
+**Client Windows multi-sessione per CyberArk.** ZillaTerm accede al tuo PVWA, elenca gli account a cui hai accesso
 e apre le sessioni con un doppio clic: desktop remoto tramite **PSM**, oppure un terminale SSH tramite **PSM for SSH
 (PSMP)** con un **browser dei file** integrato per inviare file al server.
+
+> Prima **CyberArkTerm**: le impostazioni vengono riprese automaticamente al primo avvio
+> ([dettagli](docs/guide.it.md#passaggio-da-cyberarkterm-a-zillaterm)).
 
 ![Sessione SSH tramite il PSMP, con la scheda File che segue la cartella del terminale](docs/captures/it/main-window.png)
 
@@ -36,7 +39,7 @@ e apre le sessioni con un doppio clic: desktop remoto tramite **PSM**, oppure un
 | **Accesso CyberArk** | Autenticazione CyberArk, LDAP, RADIUS (challenge / OTP compresi) o Windows (sessione corrente). |
 | **Disponibili** | Tutti gli account visibili nel vault CyberArk, raggruppati per safe, piattaforma o tipo di destinazione, con ricerca istantanea; password (CPM, copia), membri di un safe, aggiunta, modifica e importazione di account. |
 | **I miei server** | I tuoi server di lavoro, organizzati in cartelle e sottocartelle, ognuno con le proprie impostazioni; esportazione, importazione ed **elenchi condivisi** su una condivisione di rete (ognuno aggiunge o rimuove, cronologia delle modifiche e delle versioni). |
-| **Ambiente condiviso** | La configurazione del team (PVWA, PSMP per dominio, componenti PSM, elenchi condivisi, chiavi dei PSMP) in un file `CyberArkTerm.env.json`: accanto all'eseguibile, importato o centrale su una condivisione; ogni modifica viene mostrata e confermata, niente di personale né alcuna password. |
+| **Ambiente condiviso** | La configurazione del team (PVWA, PSMP per dominio, componenti PSM, elenchi condivisi, chiavi dei PSMP) in un file `ZillaTerm.env.json`: accanto all'eseguibile, importato o centrale su una condivisione; ogni modifica viene mostrata e confermata, niente di personale né alcuna password. |
 | **Sessioni PSM** | Desktop remoto tramite il PSM (come il pulsante «Connect» del PVWA), in Connessione Desktop remoto di Windows: componente, macchina di destinazione (chiesta per un account di dominio, e mantenuta in «I miei server» se lo desideri), motivo, ticket. |
 | **Sessioni SSH (PSMP)** | Terminale integrato in una scheda (compatibile xterm: colori, vim, less, top…), MFA, menu del clic destro, ricerca, finestre separate, «Riconnetti» alla fine della sessione, un PSMP per dominio dei server. Solo file (SFTP, senza terminale) per le piattaforme «SFTP» o su richiesta. |
 | **Scheda File** | Browser SFTP del server: invio (SFTP, o SCP, con l'altro che subentra se il server rifiuta) e download con il trascinamento, verifica SHA-256 di ogni file, coda (risultati conservati) e cronologia dei trasferimenti, ordinamento per colonna, rinomina, modifica nel tuo editor di testo, permessi, monitoraggio in tempo reale (`tail -f`), confronto, invio a più server. |
@@ -62,22 +65,22 @@ e apre le sessioni con un doppio clic: desktop remoto tramite **PSM**, oppure un
 
 1. Apri l'[ultima versione](https://github.com/muller-camille/CyberArkTerm/releases/latest) nelle
    *Releases* del repository.
-2. Scarica **`CyberArkTerm-<versione>-win-x64.zip`** ed estrailo (l'impronta SHA256 è in `SHA256SUMS.txt`).
-3. Avvia `CyberArkTerm.exe`: un solo file, nessun runtime da installare, nessun diritto di amministratore
+2. Scarica **`ZillaTerm-<versione>-win-x64.zip`** ed estrailo (l'impronta SHA256 è in `SHA256SUMS.txt`).
+3. Avvia `ZillaTerm.exe`: un solo file, nessun runtime da installare, nessun diritto di amministratore
    richiesto.
 
 Versioni di sviluppo: l'eseguibile di ogni compilazione è disponibile anche come artefatto
-`CyberArkTerm-win-x64` nella scheda [Actions](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml).
+`ZillaTerm-win-x64` nella scheda [Actions](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml).
 
 L'eseguibile non è firmato: al primo avvio Windows SmartScreen può mostrare un avviso
 («Ulteriori informazioni» → «Esegui comunque»).
 
 ### Aggiornare
 
-Pulsante Impostazioni → **«Informazioni su CyberArkTerm…»**: versione, link del progetto, cartella delle impostazioni e
+Pulsante Impostazioni → **«Informazioni su ZillaTerm…»**: versione, link del progetto, cartella delle impostazioni e
 «Cerca ora». Se esiste una versione più recente, «Scarica e verifica» salva l'archivio nella cartella Download e lo
 confronta con `SHA256SUMS.txt` della stessa versione (conservato solo se identico). Nulla viene installato
-automaticamente: chiudi CyberArkTerm e sostituisci l'eseguibile; le impostazioni vengono conservate. L'opzione «Cerca
+automaticamente: chiudi ZillaTerm e sostituisci l'eseguibile; le impostazioni vengono conservate. L'opzione «Cerca
 una nuova versione all'avvio» (Impostazioni › Generale, disattivata per impostazione predefinita) fa questa ricerca al
 massimo una volta al giorno e mostra un link nella barra di stato.
 
@@ -89,7 +92,7 @@ massimo una volta al giorno e mostra un link nella barra di stato.
 - Il client Desktop remoto di Windows (presente di default): Connessione Desktop remoto (`mstsc`) per le sessioni
   PSM, il suo controllo integrato per il desktop remoto diretto dei database KeePass.
 - Facoltativo: Windows Terminal e il «Client OpenSSH» di Windows, solo se scegli di aprire l'SSH fuori da
-  CyberArkTerm.
+  ZillaTerm.
 
 **Lato CyberArk**
 
@@ -132,7 +135,7 @@ La **[guida all'uso](docs/guide.it.md)** descrive ogni scheda in dettaglio, le
 - **HTTPS obbligatorio** verso il PVWA; la validazione del certificato non viene mai disattivata.
 - **Nessun segreto su disco**: password CyberArk, token di sessione, chiave MFA e password PSMP restano in memoria; la
   sessione PVWA viene chiusa all'uscita. Il file di configurazione non contiene password, token né chiavi private.
-- **Sessioni CyberArk standard**: le sessioni PSM e PSMP aperte da CyberArkTerm sono registrate e verificate dal PSM
+- **Sessioni CyberArk standard**: le sessioni PSM e PSMP aperte da ZillaTerm sono registrate e verificate dal PSM
   come quelle aperte dal PVWA.
 - **Password copiate**: direttamente negli appunti di Windows, escluse dalla loro cronologia e sincronizzazione,
   cancellate dopo 20 s; mai mostrate né registrate.
@@ -157,10 +160,10 @@ Tutti i dettagli: [guida all'uso → Sicurezza](docs/guide.it.md#sicurezza). Per
 
 | Progetto | Ruolo |
 | --- | --- |
-| `src/CyberArkTerm.Core` | Logica senza interfaccia, multipiattaforma: client dell'API PVWA, classificazione degli account, emulatore di terminale xterm, connessioni PSMP e browser SFTP/SCP (SSH.NET), browser FTP/FTPS (FluentFTP), client VNC, cartelle di «I miei server», database KeePass (KDBX), vault locale, preferenze. |
-| `src/CyberArkTerm.App` | Applicazione WPF: finestre, schede, controllo terminale, controllo Desktop remoto (schede RDP), avvio di `mstsc`, icona (`Assets`). |
-| `tests/CyberArkTerm.Core.Tests` | Test xUnit di Core (falso PVWA HTTP, terminale, PSMP, cartelle, traduzioni…). |
-| `tests/CyberArkTerm.App.Tests` | Test Windows dell'applicazione (vero controllo Desktop remoto, DPAPI). |
+| `src/ZillaTerm.Core` | Logica senza interfaccia, multipiattaforma: client dell'API PVWA, classificazione degli account, emulatore di terminale xterm, connessioni PSMP e browser SFTP/SCP (SSH.NET), browser FTP/FTPS (FluentFTP), client VNC, cartelle di «I miei server», database KeePass (KDBX), vault locale, preferenze. |
+| `src/ZillaTerm.App` | Applicazione WPF: finestre, schede, controllo terminale, controllo Desktop remoto (schede RDP), avvio di `mstsc`, icona (`Assets`). |
+| `tests/ZillaTerm.Core.Tests` | Test xUnit di Core (falso PVWA HTTP, terminale, PSMP, cartelle, traduzioni…). |
+| `tests/ZillaTerm.App.Tests` | Test Windows dell'applicazione (vero controllo Desktop remoto, DPAPI). |
 
 Dipendenze esterne: [SSH.NET](https://github.com/sshnet/SSH.NET), [FluentFTP](https://github.com/robinrodricks/FluentFTP)
 e [Konscious.Security.Cryptography](https://github.com/kmaragon/Konscious.Security.Cryptography) (Argon2), tutte
@@ -168,8 +171,8 @@ con licenza MIT.
 
 ### Traduzioni
 
-I testi dell'interfaccia si trovano in `src/CyberArkTerm.Core/Localization/CoreStrings*.resx` e
-`src/CyberArkTerm.App/Localization/Strings*.resx`: inglese nel file neutro, poi `.fr` e `.it`.
+I testi dell'interfaccia si trovano in `src/ZillaTerm.Core/Localization/CoreStrings*.resx` e
+`src/ZillaTerm.App/Localization/Strings*.resx`: inglese nel file neutro, poi `.fr` e `.it`.
 Le classi `*.Designer.cs` sono generate da Visual Studio (`PublicResXFileCodeGenerator`); un test verifica che
 ogni lingua abbia tutte le chiavi, gli stessi parametri `{0}` e gli stessi tasti di scelta `_`.
 Per aggiungere una lingua: copia i file `.resx` con il nuovo codice (`.de.resx`…), traducili, poi aggiungi il
@@ -180,27 +183,27 @@ codice a `UiLanguage.Supported`.
 Con l'[SDK .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0):
 
 ```powershell
-dotnet test CyberArkTerm.sln
-dotnet run --project src/CyberArkTerm.App
+dotnet test ZillaTerm.sln
+dotnet run --project src/ZillaTerm.App
 ```
 
 Il progetto si compila anche su Linux o macOS (`EnableWindowsTargeting`); l'applicazione funziona solo su
-Windows. I test di `tests/CyberArkTerm.App.Tests` (tra cui un test del vero controllo Desktop remoto) si
-eseguono solo su Windows; altrove, esegui `dotnet test tests/CyberArkTerm.Core.Tests`.
+Windows. I test di `tests/ZillaTerm.App.Tests` (tra cui un test del vero controllo Desktop remoto) si
+eseguono solo su Windows; altrove, esegui `dotnet test tests/ZillaTerm.Core.Tests`.
 
 ### Pubblicare l'eseguibile
 
 ```powershell
 # Autonomo (~65 MB): niente da installare sulla postazione
-dotnet publish src/CyberArkTerm.App -c Release -r win-x64 -p:SelfContained=true `
+dotnet publish src/ZillaTerm.App -c Release -r win-x64 -p:SelfContained=true `
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish
 
 # Leggero: richiede il «.NET Desktop Runtime 10» sulla postazione
-dotnet publish src/CyberArkTerm.App -c Release -r win-x64 -p:SelfContained=false -p:PublishSingleFile=true -o publish
+dotnet publish src/ZillaTerm.App -c Release -r win-x64 -p:SelfContained=false -p:PublishSingleFile=true -o publish
 ```
 
 La CI ([`.github/workflows/build.yml`](.github/workflows/build.yml)) esegue i test e pubblica l'eseguibile
-autonomo come artefatto `CyberArkTerm-win-x64` per ogni pull request e ogni push su `main`.
+autonomo come artefatto `ZillaTerm-win-x64` per ogni pull request e ogni push su `main`.
 
 ### Pubblicare una versione
 

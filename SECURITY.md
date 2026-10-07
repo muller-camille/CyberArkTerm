@@ -1,6 +1,6 @@
 # Security Policy
 
-CyberArkTerm handles CyberArk credentials and opens privileged sessions, so security reports are welcome and
+ZillaTerm handles CyberArk credentials and opens privileged sessions, so security reports are welcome and
 taken seriously.
 
 ## Supported Versions
@@ -19,7 +19,7 @@ Only the latest release receives security fixes. Please update to it before repo
 
 Include, if possible:
 
-- the CyberArkTerm version and Windows version;
+- the ZillaTerm version and Windows version;
 - the steps to reproduce, or a proof of concept;
 - the impact you see (what an attacker could read, change or execute).
 
@@ -29,7 +29,7 @@ an explanation.
 
 ## Scope
 
-In scope: the CyberArkTerm code in this repository (PVWA client, PSM / PSMP connections, SSH terminal,
+In scope: the ZillaTerm code in this repository (PVWA client, PSM / PSMP connections, SSH terminal,
 SFTP / SCP and FTP / FTPS file transfers, embedded remote desktop and VNC tabs, KeePass vault reading and writing, the
 local encrypted vault, the emergency access log, settings storage, release executables).
 
