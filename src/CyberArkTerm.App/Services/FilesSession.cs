@@ -48,7 +48,7 @@ public sealed class FilesSession : RemoteSession
         {
             DebugLog.Write("files", $"{Label} : connexion {Protocol}");
             await opening;
-            if (connection == _connection)
+            if (connection == _connection && !IsDisposed)
             {
                 SetState(RemoteSessionState.Connected, null);
             }
@@ -56,31 +56,12 @@ public sealed class FilesSession : RemoteSession
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             DebugLog.Write("files", $"{Label} : échec de la connexion", ex);
-            if (connection == _connection)
+            if (connection == _connection && !IsDisposed)
             {
                 SetState(RemoteSessionState.Failed, ex is OperationCanceledException ? Strings.ConnectionCancelled : ErrorText.Describe(ex));
             }
 
             throw;
-        }
-    }
-
-    /// <summary>Ferme une connexion remplacée, tout de suite ou dès que son ouverture aboutit.</summary>
-    private void ReleaseBrowser(Task<IRemoteFiles>? browser)
-    {
-        if (browser is { IsCompletedSuccessfully: true })
-        {
-            DisposeInBackground(browser.Result);
-        }
-        else if (browser is { IsCompleted: false })
-        {
-            _ = browser.ContinueWith(t =>
-            {
-                if (t.IsCompletedSuccessfully)
-                {
-                    DisposeInBackground(t.Result);
-                }
-            }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
         }
     }
 }

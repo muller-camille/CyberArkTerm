@@ -64,19 +64,28 @@ public sealed class RemoteEditor : IDisposable
 
         _status(Text.Format(Strings.EditOpening, entry.Name), false);
         EditedFile file;
+        var folder = Path.Combine(_directory, Guid.NewGuid().ToString("N")[..8]);
         try
         {
             var browser = await _session.GetBrowserAsync();
-            var folder = Path.Combine(_directory, Guid.NewGuid().ToString("N")[..8]);
             Directory.CreateDirectory(folder);
             var local = Path.Combine(folder, EditedFile.LocalCopyName(entry.Name));
             // Date et taille relevées avant la copie : un changement sur le serveur pendant la copie sera signalé au renvoi.
             var (time, length) = await browser.GetStatAsync(entry.FullPath, CancellationToken.None);
-            await browser.DownloadAsync(entry, local, null, CancellationToken.None);
+            var check = await browser.DownloadAsync(entry, local, null, CancellationToken.None);
+            if (!check.Matches)
+            {
+                // Copie différente de l'original ou non vérifiée : jamais ouverte, son enregistrement remplacerait le
+                // fichier du serveur.
+                throw new IOException(check.Verified ? Text.Format(Strings.TransferMismatch, 1)
+                    : $"{Text.Format(Strings.TransferNotVerified, 1)} ({check.Error})");
+            }
+
             file = new EditedFile(entry.FullPath, local, time, length);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
+            TryDeleteFolder(folder);
             _status(Text.Format(Strings.CannotOpen, entry.Name, ErrorText.Describe(ex)), true);
             return;
         }
@@ -92,6 +101,41 @@ public sealed class RemoteEditor : IDisposable
         if (LaunchEditor(file.LocalPath))
         {
             _status(Text.Format(Strings.EditOpened, entry.Name), false);
+        }
+    }
+
+    /// <summary>Faux seulement si le fichier du serveur a encore la date et la taille relevées à l'ouverture (ou au dernier envoi).</summary>
+    private async Task<bool> MayHaveWrittenAsync(EditedFile file)
+    {
+        // Connexion perdue : pas de nouvelle connexion (ni question MFA) pour ce contrôle, on suppose le pire.
+        if (_session.OpenedBrowser is not { } browser)
+        {
+            return true;
+        }
+
+        try
+        {
+            var (time, length) = await browser.GetStatAsync(file.RemotePath, CancellationToken.None);
+            return time != file.RemoteWriteTime || length != file.RemoteLength;
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            return true;
+        }
+    }
+
+    private static void TryDeleteFolder(string folder)
+    {
+        try
+        {
+            if (Directory.Exists(folder))
+            {
+                Directory.Delete(folder, recursive: true);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Nettoyé au prochain démarrage.
         }
     }
 
@@ -154,7 +198,8 @@ public sealed class RemoteEditor : IDisposable
         var editor = _settings.TextEditor.Trim().Trim('"');
         if (editor.Length == 0)
         {
-            editor = "notepad.exe";
+            // Chemin complet, comme pour mstsc : pas un « notepad.exe » du dossier courant.
+            editor = Path.Combine(Environment.SystemDirectory, "notepad.exe");
         }
 
         try
@@ -256,6 +301,9 @@ public sealed class RemoteEditor : IDisposable
                 Renci.SshNet.Common.SftpPermissionDeniedException => Strings.PermissionDenied,
                 _ => ErrorText.Describe(ex),
             };
+            // Écriture refusée avant d'avoir commencé (droits, dossier absent) : le fichier du serveur n'a pas bougé, et le
+            // contrôle « modifié sur le serveur » reste actif pour le prochain envoi.
+            writing = writing && await MayHaveWrittenAsync(file);
             if (writing)
             {
                 file.MarkWriteInterrupted();

@@ -97,11 +97,27 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         return RemoteEntry.Sort(entries);
     }
 
-    /// <summary>Supprime un fichier (rm) ou un dossier vide (rmdir).</summary>
+    /// <summary>Supprime un fichier (rm), un dossier vide (rmdir) ou un lien symbolique lui-même (jamais sa cible).</summary>
     public async Task DeleteAsync(RemoteEntry entry, CancellationToken ct)
     {
         using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
-        if (entry.IsDirectory && !entry.IsSymbolicLink)
+        if (entry.IsSymbolicLink)
+        {
+            // SSH.NET résout le chemin (realpath) avant de supprimer : sur un lien, c'est sa cible qui partirait. Le lien
+            // est donc pris dans la liste de son dossier, dont le chemin garde son nom tel quel, et supprimé lui-même.
+            await foreach (var file in _sftp.ListDirectoryAsync(RemotePath.Parent(entry.FullPath), ct).ConfigureAwait(false))
+            {
+                if (file.Name == entry.Name)
+                {
+                    await file.DeleteAsync(ct).ConfigureAwait(false);
+                    return;
+                }
+            }
+
+            throw new Renci.SshNet.Common.SftpPathNotFoundException(entry.FullPath);
+        }
+
+        if (entry.IsDirectory)
         {
             await _sftp.DeleteDirectoryAsync(entry.FullPath, ct).ConfigureAwait(false);
         }
@@ -291,7 +307,9 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         progress?.Report(result.Changed);
         if (recursive && attributes.IsDirectory)
         {
-            await ApplyToContentsAsync(path, mode & UnixPermissions.RwxMask, executeOnlyIfAlready, result, progress, ct).ConfigureAwait(false);
+            // Chemin réel du dossier (liens des dossiers parents résolus) : le contenu lu doit s'y trouver.
+            var root = (await _sftp.GetAsync(path, ct).ConfigureAwait(false)).FullName;
+            await ApplyToContentsAsync(root, mode & UnixPermissions.RwxMask, executeOnlyIfAlready, result, progress, ct).ConfigureAwait(false);
         }
 
         return result;
@@ -305,6 +323,13 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         {
             await foreach (var file in _sftp.ListDirectoryAsync(directory, ct).ConfigureAwait(false))
             {
+                if (!file.FullName.StartsWith(directory.TrimEnd('/') + "/", StringComparison.Ordinal))
+                {
+                    // Dossier remplacé par un lien depuis sa lecture : son contenu est ailleurs (/etc…), rien n'y est changé.
+                    result.Errors.Add($"{directory} : {CoreStrings.ChangedDuringChmod}");
+                    return;
+                }
+
                 // Comme « chmod -R », les liens symboliques ne sont pas suivis.
                 if (file.Name is not ("." or "..") && !file.IsSymbolicLink)
                 {
@@ -330,6 +355,15 @@ public sealed class RemoteFileBrowser : IRemoteFiles
 
             try
             {
+                // Élément remplacé par un lien depuis la lecture du dossier : les droits iraient à la cible du lien (le serveur
+                // suit les liens), il est laissé tel quel.
+                var now = await _sftp.GetAsync(file.FullName, ct).ConfigureAwait(false);
+                if (now.FullName != file.FullName || now.IsSymbolicLink || now.IsDirectory != file.IsDirectory)
+                {
+                    result.Errors.Add($"{file.FullName} : {CoreStrings.ChangedDuringChmod}");
+                    continue;
+                }
+
                 await ApplyPermissionsAsync(file.FullName, file.Attributes, target, includeSpecial: false, ct).ConfigureAwait(false);
                 result.Changed++;
                 progress?.Report(result.Changed);
@@ -454,12 +488,13 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         byte[] remoteHash;
         long received;
         bool started = false;
+        var partial = TransferCheck.PartialPath(localPath);
         try
         {
             using (await _gate.EnterAsync(background, ct).ConfigureAwait(false))
             {
                 started = true;
-                await using var file = File.Create(localPath);
+                await using var file = File.Create(partial);
                 using var hashing = new HashingStream(file);
                 var report = progress is null ? null : new Progress<Renci.SshNet.DownloadFileProgressReport>(
                     p => progress.Report(new TransferProgress(entry.Name, (long)p.TotalBytesDownloaded, entry.Length)));
@@ -467,11 +502,15 @@ public sealed class RemoteFileBrowser : IRemoteFiles
                 remoteHash = hashing.GetHash();
                 received = hashing.Count;
             }
+
+            // Copie complète : elle ne remplace le fichier local existant que maintenant (un échec en cours de route le laisse
+            // intact).
+            File.Move(partial, localPath, overwrite: true);
         }
         catch (Exception e) when (e is not OutOfMemoryException && started)
         {
-            // Annulé ou en échec en cours de route : la copie locale, incomplète, est supprimée.
-            var detail = DiscardLocal(localPath);
+            // Annulé ou en échec en cours de route : la copie, incomplète, est supprimée.
+            var detail = DiscardLocal(partial);
             bool cancelled = e is OperationCanceledException && ct.IsCancellationRequested;
             checks?.Add(new TransferCheck(entry.Name, localPath, entry.FullPath, -1, [], -1, [],
                 cancelled ? detail : $"{e.Message} ({detail})") { Interrupted = cancelled, Failed = !cancelled });

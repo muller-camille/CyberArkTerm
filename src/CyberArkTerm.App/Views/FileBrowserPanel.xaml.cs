@@ -462,13 +462,21 @@ public partial class FileBrowserPanel : UserControl
             }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
-                // Lien vers un dossier que le serveur FTP n'a pas résolu (dossier aux nombreux liens) : on y entre.
-                if ((entry.IsSymbolicLink && await NavigateAsync(entry.FullPath, silent: true)) || _browser != browser)
+                // Autre session affichée entre-temps : rien à faire dans celle-ci. Lien vers un dossier que le serveur FTP
+                // n'a pas résolu (dossier aux nombreux liens) : on y entre.
+                if (_browser != browser || (entry.IsSymbolicLink && await NavigateAsync(entry.FullPath, silent: true)))
                 {
                     return;
                 }
 
                 SetStatus(Text.Format(Strings.CannotOpen, entry.Name, Describe(ex)), error: true);
+                return;
+            }
+
+            if (_browser != browser)
+            {
+                // Autre session (vue parallèle) ou autre connexion affichée pendant la lecture : le téléchargement
+                // prendrait le fichier du même nom sur l'autre serveur.
                 return;
             }
 
@@ -803,16 +811,17 @@ public partial class FileBrowserPanel : UserControl
         }
 
         string folder;
-        string? singleTarget = null;
+        IReadOnlyList<string> targets;
         if (files.Count == 1)
         {
+            // La fenêtre d'enregistrement demande elle-même avant de remplacer un fichier.
             var save = new SaveFileDialog { Title = Strings.DownloadTitle, FileName = WindowsFileName.Sanitize(files[0].Name) };
             if (save.ShowDialog(Window.GetWindow(this)) != true)
             {
                 return;
             }
 
-            singleTarget = save.FileName;
+            targets = [save.FileName];
             folder = Path.GetDirectoryName(save.FileName)!;
         }
         else
@@ -824,9 +833,20 @@ public partial class FileBrowserPanel : UserControl
             }
 
             folder = pick.FolderName;
+            // Noms Windows nettoyés et distincts sans tenir compte de la casse (« Report.txt » et « report.txt »), puis une
+            // seule question pour ceux qui existent déjà.
+            targets = VirtualFiles.AssignNames(files.Select(f => (IReadOnlyList<string>)[f.Name]).ToList())
+                .Select(name => Path.Combine(folder, name)).ToList();
+            var existing = targets.Where(File.Exists).Select(t => "  • " + Path.GetFileName(t)).ToList();
+            if (existing.Count > 0 && MessageBox.Show(Window.GetWindow(this),
+                    Text.Format(Strings.DownloadReplaceConfirm, folder, string.Join("\n", existing.Take(10)) + (existing.Count > 10 ? "\n  …" : "")),
+                    Strings.DownloadTitle, MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+            {
+                return;
+            }
         }
 
-        EnqueueDownload(files, folder, singleTarget);
+        EnqueueDownload(files, folder, targets);
     }
 
     // ===================== Vérification des transferts =====================

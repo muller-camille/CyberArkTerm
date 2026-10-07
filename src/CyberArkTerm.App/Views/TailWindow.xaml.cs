@@ -105,7 +105,11 @@ public partial class TailWindow : Window
         {
             _scroller = FindScroller(LogList);
             await PollAsync();
-            _timer.Start();
+            // Fenêtre fermée pendant la première lecture : le minuteur ne démarre pas (il la garderait en mémoire).
+            if (!_closing.IsCancellationRequested)
+            {
+                _timer.Start();
+            }
         };
         Activated += (_, _) => _unnotified = 0;
         Closed += (_, _) =>

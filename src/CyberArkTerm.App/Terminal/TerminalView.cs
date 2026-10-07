@@ -306,6 +306,12 @@ public sealed class TerminalView : FrameworkElement
     {
         if (!_brushes.TryGetValue(rgb, out var brush))
         {
+            // Couleurs 24 bits : une sortie qui en change sans cesse remplirait le cache, vidé au-delà de 4096 couleurs.
+            if (_brushes.Count >= 4096)
+            {
+                _brushes.Clear();
+            }
+
             brush = new SolidColorBrush(Color.FromRgb((byte)(rgb >> 16), (byte)(rgb >> 8), (byte)rgb));
             brush.Freeze();
             _brushes[rgb] = brush;

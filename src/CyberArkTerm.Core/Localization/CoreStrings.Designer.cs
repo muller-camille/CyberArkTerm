@@ -1116,5 +1116,14 @@ namespace CyberArkTerm.Core.Localization {
                 return ResourceManager.GetString("WriteIncomplete", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to replaced by a symbolic link while the rights were being changed: left as is.
+        /// </summary>
+        public static string ChangedDuringChmod {
+            get {
+                return ResourceManager.GetString("ChangedDuringChmod", resourceCulture);
+            }
+        }
     }
 }

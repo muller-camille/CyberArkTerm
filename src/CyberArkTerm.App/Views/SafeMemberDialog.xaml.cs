@@ -171,6 +171,8 @@ public partial class SafeMemberDialog : Window
     {
         _busy = busy;
         SaveButton.IsEnabled = !busy;
+        // Pendant l'envoi au PVWA, ni « Annuler » ni Échap : la demande est partie, son résultat doit être connu.
+        CancelButton.IsEnabled = !busy;
         StatusText.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
         if (busy)
         {

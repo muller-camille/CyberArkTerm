@@ -366,4 +366,7 @@
   <data name="FtpTlsRequired" xml:space="preserve">
     <value>The FTP server does not offer encryption (TLS), required by this entry (ftpes:// or ftps://).</value>
   </data>
+  <data name="ChangedDuringChmod" xml:space="preserve">
+    <value>replaced by a symbolic link while the rights were being changed: left as is</value>
+  </data>
 </root>

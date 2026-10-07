@@ -35,8 +35,10 @@ public sealed class TerminalEmulator
 {
     private const int MaxStringLength = 4096;
 
-    private readonly List<Cell[]> _scrollback = [];
-    private readonly int _maxScrollback;
+    // Paramètres d'une séquence CSI gardés au plus (xterm en garde 30) : « \e[1;1;1;…m » sans fin ne remplit pas la mémoire.
+    private const int MaxParams = 32;
+
+    private readonly LineRing _scrollback;
     private readonly List<int> _params = [];
     private readonly StringBuilder _osc = new();
 
@@ -63,7 +65,7 @@ public sealed class TerminalEmulator
     {
         Columns = Math.Max(columns, 2);
         Rows = Math.Max(rows, 2);
-        _maxScrollback = maxScrollback;
+        _scrollback = new LineRing(maxScrollback);
         _main = NewScreen(Rows, Columns);
         _screen = _main;
         _scrollBottom = Rows - 1;
@@ -418,7 +420,11 @@ public sealed class TerminalEmulator
         {
             case ';':
             case ':':
-                _params.Add(_param);
+                if (_params.Count < MaxParams)
+                {
+                    _params.Add(_param);
+                }
+
                 _param = -1;
                 return;
             case '?':
@@ -444,7 +450,11 @@ public sealed class TerminalEmulator
             return;
         }
 
-        _params.Add(_param);
+        if (_params.Count < MaxParams)
+        {
+            _params.Add(_param);
+        }
+
         _state = State.Ground;
         if (c >= 0x40 && c <= 0x7E)
         {
@@ -855,12 +865,45 @@ public sealed class TerminalEmulator
         }
     }
 
-    private void PushScrollback(Cell[] line)
+    private void PushScrollback(Cell[] line) => _scrollback.Add(line);
+
+    /// <summary>
+    /// Historique en anneau : une fois plein, chaque nouvelle ligne remplace la plus ancienne sans déplacer les autres (une
+    /// sortie abondante ne fige plus l'interface).
+    /// </summary>
+    private sealed class LineRing(int capacity)
     {
-        _scrollback.Add(line);
-        if (_scrollback.Count > _maxScrollback)
+        private readonly Cell[][] _lines = new Cell[Math.Max(capacity, 0)][];
+        private int _start;
+
+        public int Count { get; private set; }
+
+        public Cell[] this[int index] => _lines[(_start + index) % _lines.Length];
+
+        public void Add(Cell[] line)
         {
-            _scrollback.RemoveRange(0, _scrollback.Count - _maxScrollback);
+            if (_lines.Length == 0)
+            {
+                return;
+            }
+
+            if (Count < _lines.Length)
+            {
+                _lines[(_start + Count) % _lines.Length] = line;
+                Count++;
+            }
+            else
+            {
+                _lines[_start] = line;
+                _start = (_start + 1) % _lines.Length;
+            }
+        }
+
+        public void Clear()
+        {
+            Array.Clear(_lines);
+            _start = 0;
+            Count = 0;
         }
     }
 

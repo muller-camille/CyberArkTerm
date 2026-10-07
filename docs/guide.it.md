@@ -73,7 +73,8 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
   - «Copia la password…»: motivo e ticket se la piattaforma li richiede, poi la password viene copiata negli appunti
     per 20 secondi, **senza essere mostrata** (diritto «Recuperare gli account»; il recupero viene registrato
     nell'audit del vault).
-- Nella scheda Home, la **connessione rapida** trova un server mentre digiti: Invio per connetterti.
+- Nella scheda Home, la **connessione rapida** trova un server mentre digiti: Invio per connetterti. Le **sessioni
+  recenti** sono quelle del PVWA a cui sei connesso: su un altro PVWA lo stesso ID di account indica un altro account.
 
 ## 3. Aprire una sessione PSM (desktop remoto)
 
@@ -183,10 +184,13 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   restano in cima; l'ordinamento è mantenuto da una cartella e da una sessione all'altra.
 - **Inviare file**: trascinali da Esplora file sull'elenco (o il pulsante «Invia»). Invio in **SFTP** per
   impostazione predefinita (SCP a scelta nelle Impostazioni), cartelle comprese; conferma prima di sovrascrivere un
-  file esistente. Se il server rifiuta quel protocollo per un file prima di riceverlo (regola del PSMP, SFTP in sola
+  file esistente (file nascosti compresi, anche se non mostrati). Se il server rifiuta quel protocollo per un file prima di riceverlo (regola del PSMP, SFTP in sola
   lettura…), l'altro subentra subito, senza domande né attese: la barra di stato e il riepilogo lo indicano con la
   risposta del server, e così la Cronologia («SCP (SFTP rifiutato)»). In SCP, dopo un rifiuto all'annuncio di un
   file, i file grandi almeno altrettanto partono direttamente in SFTP fino alla chiusura della scheda.
+- **Scaricare**: pulsante «Scarica» o clic destro. Un file chiede dove salvarlo; più file vanno in una cartella
+  scelta, con una sola domanda per quelli già presenti. Un file locale viene sostituito solo a download completato: un
+  download interrotto o annullato lo lascia com'era.
 - **Scaricare trascinando**: trascina file o cartelle dall'elenco verso Esplora file o il desktop. Nulla viene
   scaricato durante il trascinamento: al rilascio, una finestra mostra l'avanzamento (Annulla lo interrompe), poi
   Esplora file copia i file dove li hai rilasciati. I nomi Unix vengono resi validi per Windows (`\`, `:`, `..`,
@@ -256,6 +260,7 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   che non può essere riletto (permessi) è segnalato «non verificato». La rilettura di un invio raddoppia il volume
   scambiato con il server.
 - **Eliminare**: selezione poi Canc (o clic destro → «Elimina (rm)»), con conferma. Le cartelle devono essere vuote.
+  Un collegamento simbolico viene eliminato esso stesso, mai il file o la cartella a cui punta.
 - **Modificare un file**: **doppio clic** sul file (o `Invio`, `F4`, clic destro → «Modifica», il pulsante matita).
   Il file si apre nell'editor di testo scelto nelle Impostazioni (Blocco note per impostazione predefinita). Con il
   doppio clic, un archivio, un'immagine, un eseguibile o un documento d'ufficio viene scaricato invece di essere
@@ -316,7 +321,8 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   e poi la cartella desiderata. Il server mantiene il tipo di connessione (PSM, SSH o solo file), il componente PSM e la
   macchina di destinazione usati.
 - **Cartelle**: clic destro → nuova cartella o sottocartella, rinomina, elimina; trascina server e cartelle per
-  spostarli.
+  spostarli. Eliminare una cartella conta ed elimina tutti i suoi server di questo PVWA, anche quelli nascosti dalla
+  ricerca; quelli di un altro PVWA restano.
 - **Cercare**: campo in cima alla scheda (o `Ctrl+F` nella scheda). Filtra i server per nome, server, utente,
   cartella, componente, macchina di destinazione, e le voci degli archivi KeePass sbloccati; le cartelle dei
   risultati vengono espanse. `Invio` o `↓` seleziona il primo risultato, `Esc` cancella.
@@ -348,8 +354,9 @@ Tre pulsanti in alto nella scheda, a sinistra del pulsante archivio KeePass:
   file seguito. Utile per cambiare computer o passare il proprio elenco.
 - **Importa** legge un file esportato (o un elenco condiviso) e riassume prima di aggiungere: server aggiunti, server
   già presenti (stesso account, tipo, componente, macchina di destinazione e cartella: ignorati), cartelle create,
-  server aperti su una macchina di destinazione (da verificare: la macchina viene dal file) e PVWA di origine se
-  diverso. Niente viene rimosso o modificato in «I miei server».
+  server aperti su una macchina di destinazione (da verificare: la macchina viene dal file). Niente viene rimosso o
+  modificato in «I miei server». Un file creato per un altro PVWA viene rifiutato: i suoi ID di account vi indicano
+  altri account.
 - **Elenchi condivisi** (icona con due persone): un elenco di server in un file su una condivisione di rete, che tutto
   il team apre e completa.
   - «Crea un elenco condiviso…»: scegli la posizione (condivisione di rete) e il nome mostrato a tutti; «Apri un
@@ -426,7 +433,9 @@ contengono.
 **Vault locale**: le password principali che scegli di memorizzare sono conservate in
 `%APPDATA%\CyberArkTerm\coffre-local.dat`, cifrato con una tua password (chiesta quando sblocchi un archivio KeePass
 la cui password è memorizzata, «Più tardi» per digitare invece la password dell'archivio) e legato al tuo account
-Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia password, elimina.
+Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia password, elimina. Si blocca alla disconnessione
+(così «Accesso di emergenza» non riapre mai gli archivi memorizzati senza password), alla chiusura e al blocco di
+Windows.
 
 ## Scorciatoie
 
@@ -480,7 +489,11 @@ Windows. Gestione nelle **Impostazioni**: crea, sblocca, cambia password, elimin
 Tutte le preferenze sono salvate in `%APPDATA%\CyberArkTerm\settings.json`: lingua, indirizzo del PVWA, metodo e
 nome utente di accesso, impostazioni qui sopra, «I miei server», le loro cartelle e i file seguiti su di essi
 (percorsi), sessioni recenti, posizione degli archivi KeePass e dei loro file chiave, e degli elenchi condivisi aperti. Questo file **non contiene
-password, token né chiavi private**. Per ripartire da zero, chiudi l'applicazione ed eliminalo. La cronologia dei
+password, token né chiavi private**. Per ripartire da zero, chiudi l'applicazione ed eliminalo. Viene scritto
+prima in un file temporaneo e poi messo al suo posto, mantenendo il precedente come `settings.json.bak`: se il file
+diventa illeggibile, viene messo da parte (mai sovrascritto), si riprende il backup e un messaggio lo segnala.
+CyberArkTerm si apre una sola volta per sessione di Windows: due istanze si sovrascriverebbero a vicenda le
+impostazioni. La cronologia dei
 trasferimenti della scheda File è accanto, in `transfers.json` (nomi e percorsi dei file, checksum SHA-256, mai il
 loro contenuto).
 

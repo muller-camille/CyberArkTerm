@@ -63,10 +63,27 @@ internal sealed class KeePassManager : IDisposable
                 }
             }
 
-            vault = await KeePassVault.OpenAsync(folder.FilePath, key, cancellation);
+            var opening = KeePassVault.OpenAsync(folder.FilePath, key, cancellation);
+            try
+            {
+                vault = await opening.WaitAsync(cancellation);
+            }
+            catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+            {
+                // Abandon pendant la dérivation de clé (Argon2 ne s'interrompt pas) : la fenêtre n'attend plus, et le coffre
+                // éventuellement ouvert à la fin du calcul est refermé aussitôt.
+                _ = opening.ContinueWith(t =>
+                {
+                    if (t.IsCompletedSuccessfully)
+                    {
+                        t.Result.Dispose();
+                    }
+                }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+                throw;
+            }
+
             if (cancellation.IsCancellationRequested)
             {
-                // Abandon pendant la dérivation de clé (qui ne s'interrompt pas toujours) : on ne garde rien d'ouvert.
                 vault.Dispose();
                 cancellation.ThrowIfCancellationRequested();
             }

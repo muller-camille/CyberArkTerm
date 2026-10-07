@@ -309,6 +309,12 @@ public partial class MainWindow
         int missing = 0;
         foreach (var saved in chosen)
         {
+            if (_loggedOff)
+            {
+                // Session expirée ou fenêtre en cours de fermeture : les serveurs suivants ne s'ouvrent pas.
+                break;
+            }
+
             if (!SessionLibrary.IsForHost(saved, PvwaHost) || !_byId.TryGetValue(saved.AccountId, out var account))
             {
                 missing++;

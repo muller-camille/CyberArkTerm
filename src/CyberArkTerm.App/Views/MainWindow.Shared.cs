@@ -87,6 +87,14 @@ public partial class MainWindow
             return;
         }
 
+        // Fichier d'un autre PVWA : ses ID de comptes y désignent d'autres comptes que sur celui-ci.
+        if (file.Pvwa.Length > 0 && !string.Equals(file.Pvwa, PvwaHost, StringComparison.OrdinalIgnoreCase))
+        {
+            MessageBox.Show(this, Text.Format(Strings.ImportServersOtherPvwa, file.Pvwa, PvwaHost), Strings.MyServers,
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
         var plan = ServerImport.Plan(_settings, PvwaHost, file);
         if (plan.Added.Count == 0 && plan.NewFolders.Count == 0)
         {
@@ -129,11 +137,6 @@ public partial class MainWindow
         if (targets.Count > 0)
         {
             text.Append("\n\n").Append(Strings.ImportServersTargets).Append('\n').Append(Abridged(targets, 8, "\n"));
-        }
-
-        if (file.Pvwa.Length > 0 && !string.Equals(file.Pvwa, PvwaHost, StringComparison.OrdinalIgnoreCase))
-        {
-            text.Append("\n\n").Append(Text.Format(Strings.ImportServersOtherPvwa, file.Pvwa, PvwaHost));
         }
 
         return text.ToString();

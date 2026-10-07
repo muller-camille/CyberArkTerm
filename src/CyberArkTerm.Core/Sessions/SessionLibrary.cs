@@ -127,8 +127,18 @@ public static class SessionLibrary
         Deduplicate(settings);
     }
 
-    /// <summary>Supprime un dossier, ses sous-dossiers et les sessions qu'ils contiennent ; renvoie le nombre de sessions supprimées.</summary>
-    public static int DeleteFolder(AppSettings settings, string path)
+    /// <summary>Serveurs de ce PVWA dans un dossier et ses sous-dossiers, recherche en cours ou non.</summary>
+    public static int CountInFolder(AppSettings settings, string path, string pvwaHost)
+    {
+        path = SessionFolders.Normalize(path);
+        return settings.Sessions.Count(s => InFolder(s, path) && IsForHost(s, pvwaHost));
+    }
+
+    /// <summary>
+    /// Supprime un dossier, ses sous-dossiers et les serveurs de ce PVWA qu'ils contiennent ; renvoie le nombre de serveurs
+    /// supprimés. Les serveurs d'un autre PVWA (invisibles ici) restent, avec leurs dossiers.
+    /// </summary>
+    public static int DeleteFolder(AppSettings settings, string path, string pvwaHost)
     {
         path = SessionFolders.Normalize(path);
         if (path.Length == 0)
@@ -136,9 +146,15 @@ public static class SessionLibrary
             throw new ArgumentException(CoreStrings.RootCannotBeDeleted);
         }
 
-        settings.SessionFolderList.RemoveAll(f => SessionFolders.IsWithin(f, path));
-        return settings.Sessions.RemoveAll(s => s.Folder.Length > 0 && SessionFolders.IsWithin(s.Folder, path));
+        int removed = settings.Sessions.RemoveAll(s => InFolder(s, path) && IsForHost(s, pvwaHost));
+        var kept = settings.Sessions.Where(s => InFolder(s, path)).Select(s => SessionFolders.Normalize(s.Folder)).ToList();
+        settings.SessionFolderList.RemoveAll(f => SessionFolders.IsWithin(f, path)
+                                                  && !kept.Any(k => SessionFolders.IsWithin(k, f)));
+        return removed;
     }
+
+    private static bool InFolder(SavedSession session, string path) =>
+        session.Folder.Length > 0 && SessionFolders.IsWithin(session.Folder, path);
 
     public static SavedSession AddSession(AppSettings settings, PvwaAccount account, string pvwaHost, string folder)
     {

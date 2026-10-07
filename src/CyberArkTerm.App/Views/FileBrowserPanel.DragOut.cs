@@ -30,26 +30,33 @@ public partial class FileBrowserPanel
     /// <summary>Dossier des téléchargements par glisser-déposer (un sous-dossier par glissement).</summary>
     private static string DragRoot => Path.Combine(Path.GetTempPath(), "CyberArkTerm", "drag");
 
+    /// <summary>Archives .tar.gz préparées pour un envoi, supprimées après l'envoi (ou au démarrage suivant).</summary>
+    private static string ArchiveRoot => Path.Combine(Path.GetTempPath(), "CyberArkTerm", "archives");
+
     /// <summary>Efface les dossiers temporaires d'anciens glissements (au démarrage).</summary>
     public static void CleanupDragFolders()
     {
-        try
+        // Glisser-déposer, et archives .tar.gz d'envoi (copies de fichiers parfois sensibles) restées après un arrêt brutal.
+        foreach (var root in new[] { DragRoot, ArchiveRoot })
         {
-            if (!Directory.Exists(DragRoot))
+            try
             {
-                return;
-            }
-
-            foreach (var dir in Directory.EnumerateDirectories(DragRoot))
-            {
-                if (Directory.GetLastWriteTimeUtc(dir) < DateTime.UtcNow.AddHours(-1))
+                if (!Directory.Exists(root))
                 {
-                    Directory.Delete(dir, recursive: true);
+                    continue;
+                }
+
+                foreach (var dir in Directory.EnumerateDirectories(root))
+                {
+                    if (Directory.GetLastWriteTimeUtc(dir) < DateTime.UtcNow.AddHours(-1))
+                    {
+                        Directory.Delete(dir, recursive: true);
+                    }
                 }
             }
-        }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
-        {
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+            }
         }
     }
 

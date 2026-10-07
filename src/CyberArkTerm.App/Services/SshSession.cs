@@ -23,6 +23,7 @@ public sealed class SshSession : RemoteSession
     private readonly ConcurrentQueue<string> _pending = new();
     private readonly Decoder _decoder = Encoding.UTF8.GetDecoder();
     private readonly object _sendLock = new();
+    private readonly object _readLock = new();
     private Task _sending = Task.CompletedTask;
     private SshClient? _client;
     private ShellStream? _shell;
@@ -82,9 +83,19 @@ public sealed class SshSession : RemoteSession
         {
             DebugLog.Write("ssh", $"{Label} : connexion");
             var connector = _connector;
-            _client = await connector.ConnectShellAsync(Lifetime);
-            DebugLog.Write("ssh", $"{Label} : connecté ({_client.ConnectionInfo.ServerVersion}, {_client.ConnectionInfo.CurrentServerEncryption}, bannière {!string.IsNullOrWhiteSpace(connector.Banner)})");
-            _client.KeepAliveInterval = TimeSpan.FromSeconds(30);
+            var client = await connector.ConnectShellAsync(Lifetime);
+            if (IsDisposed || connection != _connection)
+            {
+                // Onglet fermé ou nouvelle connexion demandée pendant celle-ci : l'authentification ne s'interrompt pas, la
+                // session PSMP aboutit quand même ; elle est refermée aussitôt au lieu de rester ouverte, invisible.
+                DebugLog.Write("ssh", $"{Label} : connexion abandonnée, refermée");
+                DisposeInBackground(client);
+                return;
+            }
+
+            _client = client;
+            DebugLog.Write("ssh", $"{Label} : connecté ({client.ConnectionInfo.ServerVersion}, {client.ConnectionInfo.CurrentServerEncryption}, bannière {!string.IsNullOrWhiteSpace(connector.Banner)})");
+            client.KeepAliveInterval = TimeSpan.FromSeconds(30);
             if (connection > 1 && Emulator.CursorColumn > 0)
             {
                 // Reconnexion : la nouvelle session commence sur une nouvelle ligne, après l'invite de la précédente.
@@ -97,17 +108,32 @@ public sealed class SshSession : RemoteSession
                 Emulator.Feed("\x1b[90m" + connector.Banner.TrimEnd().Replace("\r\n", "\n").Replace("\n", "\r\n") + "\x1b[0m\r\n");
             }
 
-            _shell = _client.CreateShellStream("xterm-256color", (uint)Emulator.Columns, (uint)Emulator.Rows, 0, 0, 65536);
-            _shell.DataReceived += (_, e) => OnData(e.Data);
-            _shell.Closed += (_, _) =>
+            var shell = _shell = client.CreateShellStream("xterm-256color", (uint)Emulator.Columns, (uint)Emulator.Rows, 0, 0, 65536);
+            shell.DataReceived += (_, _) => Pump(shell);
+            // Ce qui est arrivé avant l'abonnement attend dans le flux.
+            _ = Task.Run(() => Pump(shell));
+            // Événements d'une connexion remplacée depuis (reconnexion) : sans effet sur l'état de la session.
+            shell.Closed += (_, _) =>
             {
                 DebugLog.Write("ssh", $"{Label} : session fermée par le serveur");
-                Dispatcher.BeginInvoke(() => SetState(RemoteSessionState.Closed, Strings.SessionClosedByServer));
+                Dispatcher.BeginInvoke(() =>
+                {
+                    if (_shell == shell)
+                    {
+                        SetState(RemoteSessionState.Closed, Strings.SessionClosedByServer);
+                    }
+                });
             };
-            _shell.ErrorOccurred += (_, e) =>
+            shell.ErrorOccurred += (_, e) =>
             {
                 DebugLog.Write("ssh", $"{Label} : erreur de la session", e.Exception);
-                Dispatcher.BeginInvoke(() => SetState(RemoteSessionState.Failed, e.Exception.Message));
+                Dispatcher.BeginInvoke(() =>
+                {
+                    if (_shell == shell)
+                    {
+                        SetState(RemoteSessionState.Failed, e.Exception.Message);
+                    }
+                });
             };
             SetState(RemoteSessionState.Connected, null);
             ScreenUpdated?.Invoke();
@@ -119,8 +145,35 @@ public sealed class SshSession : RemoteSession
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             DebugLog.Write("ssh", $"{Label} : échec de la connexion", ex);
+            if (IsDisposed || connection != _connection)
+            {
+                // Échec d'une connexion abandonnée : la session fermée ou la connexion suivante ne sont pas concernées.
+                return;
+            }
+
             SetState(RemoteSessionState.Failed, ex is OperationCanceledException ? Strings.ConnectionCancelled : ex.Message);
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Lit ce que le flux a reçu. SSH.NET garde chaque paquet dans le tampon du flux jusqu'à sa lecture : sans elle, toute la
+    /// sortie de la session (un « tail -f » de plusieurs heures…) resterait en mémoire. Le flux d'une connexion remplacée
+    /// est vidé sans affichage.
+    /// </summary>
+    private void Pump(ShellStream shell)
+    {
+        lock (_readLock)
+        {
+            var buffer = new byte[16384];
+            while (shell.DataAvailable)
+            {
+                int read = shell.Read(buffer);
+                if (read > 0 && _shell == shell)
+                {
+                    OnData(buffer.AsSpan(0, read));
+                }
+            }
         }
     }
 
@@ -222,10 +275,10 @@ public sealed class SshSession : RemoteSession
         _client = null;
     }
 
-    private void OnData(byte[] data)
+    private void OnData(ReadOnlySpan<byte> data)
     {
-        var chars = new char[_decoder.GetCharCount(data, 0, data.Length)];
-        _decoder.GetChars(data, 0, data.Length, chars, 0);
+        var chars = new char[_decoder.GetCharCount(data, flush: false)];
+        _decoder.GetChars(data, chars, flush: false);
         _pending.Enqueue(new string(chars));
         _lastData = DateTime.UtcNow;
         if (Interlocked.Exchange(ref _drainScheduled, 1) == 0)

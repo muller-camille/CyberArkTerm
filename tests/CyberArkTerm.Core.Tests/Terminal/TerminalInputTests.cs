@@ -41,6 +41,8 @@ public sealed class TerminalInputTests
         Assert.True(TerminalInput.Pasted("cd /tmp\r\nrm -rf x").IsMultiLinePaste);
         Assert.True(TerminalInput.Pasted("a\rb").IsMultiLinePaste);
         Assert.False(TerminalInput.Typed("a\nb").IsMultiLinePaste);
+        // Caractères de contrôle retirés dès le collage (vue parallèle comprise).
+        Assert.Equal("id", TerminalInput.Pasted("\x1b[201~id\x0f").Text.Replace("[201~", ""));
     }
 
     [Theory]

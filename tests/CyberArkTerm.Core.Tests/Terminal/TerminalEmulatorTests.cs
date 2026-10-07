@@ -54,6 +54,28 @@ public class TerminalEmulatorTests
         Assert.Equal("2", Row(t, -1));
     }
 
+    /// <summary>
+    /// Historique plein : les plus anciennes lignes partent une à une, sans ralentir (une sortie abondante ou piégée
+    /// figeait l'interface) ; une séquence aux paramètres sans fin ne remplit pas la mémoire.
+    /// </summary>
+    [Fact]
+    public void FullScrollbackKeepsTheLatestLinesQuickly()
+    {
+        var t = new TerminalEmulator(10, 3, maxScrollback: 100);
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        t.Feed(string.Concat(Enumerable.Range(1, 200_000).Select(i => $"{i}\r\n")));
+        t.Feed(string.Concat(Enumerable.Repeat("\x1b[999S", 20_000)));
+        t.Feed("\x1b[" + new string(';', 1_000_000) + "m");
+        watch.Stop();
+
+        Assert.Equal(100, t.ScrollbackCount);
+        Assert.True(watch.Elapsed < TimeSpan.FromSeconds(10), watch.Elapsed.ToString());
+        t.ClearScrollback();
+        t.Feed("\x1b[2J\x1b[Ha\r\nb\r\nc\r\nd");
+        Assert.Equal(1, t.ScrollbackCount);
+        Assert.Equal("a", Row(t, -1));
+    }
+
     [Fact]
     public void ClearScrollbackKeepsTheScreen()
     {
@@ -367,7 +389,16 @@ public class TerminalSupportTests
     public void PasteNormalizesNewlinesAndBrackets()
     {
         Assert.Equal("a\rb\rc", TerminalKeys.Paste("a\r\nb\nc", bracketed: false));
-        Assert.Equal("\x1b[200~ls\r\x1b[201~", TerminalKeys.Paste("ls\n\x1b[201~", bracketed: true));
+        Assert.Equal("\x1b[200~ls\r[201~\x1b[201~", TerminalKeys.Paste("ls\n\x1b[201~", bracketed: true));
+    }
+
+    [Fact]
+    public void PastedTextCannotLeaveTheBracketsNorRunACommand()
+    {
+        // Marqueur de fin imbriqué (« \e[20\e[201~1~ ») puis Ctrl-O : avant, le collage se fermait et « id » s'exécutait.
+        Assert.Equal("\x1b[200~[20[201~1~ id\x1b[201~", TerminalKeys.Paste("\x1b[20\x1b[201~1~ id\x0f", bracketed: true));
+        Assert.Equal("a\tb\rc", TerminalKeys.Paste("a\tb\u009b\u007f\nc\0", bracketed: false));
+        Assert.Equal("echo ok", TerminalKeys.CleanPaste("echo ok"));
     }
 
     [Theory]

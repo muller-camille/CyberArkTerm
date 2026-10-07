@@ -148,7 +148,8 @@ public sealed class EditedFile : IDisposable
             return "fichier";
         }
 
-        return name.Length > 120 ? name[..120] : name;
+        // Nom réservé de Windows (« nul », « con.txt », « COM1 ») : préfixé, sinon la copie irait vers un périphérique.
+        return WindowsFileName.Sanitize(name.Length > 120 ? name[..120] : name);
     }
 
     /// <summary>Lit un fichier même s'il est encore ouvert par l'éditeur.</summary>

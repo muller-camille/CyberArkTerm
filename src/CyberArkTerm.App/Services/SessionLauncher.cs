@@ -21,7 +21,9 @@ internal sealed class SessionLauncher
         File.WriteAllBytes(path, rdpFile);
         try
         {
-            Start(new ProcessStartInfo("mstsc.exe") { ArgumentList = { path }, UseShellExecute = false });
+            // Chemin complet : un « mstsc.exe » posé dans le dossier de l'application ou le dossier courant recevrait sinon
+            // le fichier .rdp et son jeton PSM.
+            Start(new ProcessStartInfo(Path.Combine(Environment.SystemDirectory, "mstsc.exe")) { ArgumentList = { path }, UseShellExecute = false });
         }
         catch
         {

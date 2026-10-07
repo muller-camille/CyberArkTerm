@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services;
 using CyberArkTerm.App.Services.KeePass;
 using CyberArkTerm.App.Views;
@@ -17,10 +18,23 @@ public partial class App : Application
     private KeePassManager? _keePass;
     private CultureInfo _systemCulture = CultureInfo.CurrentUICulture;
 
+    // Une seule instance par session Windows : deux instances écraseraient l'une l'autre leurs réglages, leur coffre local
+    // et les fichiers en cours de modification (nettoyage du dossier temporaire au démarrage).
+    private Mutex? _instance;
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
         DispatcherUnhandledException += OnUnhandledException;
+        _instance = new Mutex(initiallyOwned: true, @"Local\CyberArkTerm.Instance", out bool first);
+        if (!first)
+        {
+            _instance.Dispose();
+            _instance = null;
+            MessageBox.Show(Strings.AlreadyRunning, "CyberArkTerm", MessageBoxButton.OK, MessageBoxImage.Information);
+            Shutdown();
+            return;
+        }
 
         // Même icône pour toutes les fenêtres (connexion, fenêtre principale, dialogues).
         var icon = BitmapFrame.Create(new Uri("pack://application:,,,/Assets/CyberArkTerm.ico", UriKind.Absolute));
@@ -46,6 +60,12 @@ public partial class App : Application
         FileBrowserPanel.CleanupDragFolders();
         _keePass = new KeePassManager();
         UiLanguage.Apply(UiLanguage.Resolve(_settings.Language, _systemCulture));
+        if (_settings.SetAsideFile is { } aside)
+        {
+            MessageBox.Show(Text.Format(_settings.RestoredFromBackup ? Strings.SettingsSetAsideRestored : Strings.SettingsSetAsideReset, aside),
+                "CyberArkTerm", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
         StartSession();
     }
 
@@ -53,6 +73,8 @@ public partial class App : Application
     {
         DebugLog.Write("app", "Fermeture de l'application.");
         _keePass?.Dispose();
+        _instance?.ReleaseMutex();
+        _instance?.Dispose();
         base.OnExit(e);
     }
 

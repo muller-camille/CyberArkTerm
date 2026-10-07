@@ -58,6 +58,12 @@ public sealed record TransferCheck(
         return $"\\{hash}  {escaped}";
     }
 
+    /// <summary>
+    /// Fichier où arrive un téléchargement, à côté de sa destination : il ne la remplace qu'une fois complet, si bien qu'un
+    /// transfert coupé ou annulé laisse intact le fichier local qui existait.
+    /// </summary>
+    internal static string PartialPath(string localPath) => $"{localPath}.{Guid.NewGuid().ToString("N")[..8]}.part";
+
     /// <summary>SHA-256 et taille d'un fichier local.</summary>
     internal static async Task<(byte[] Hash, long Length)> HashFileAsync(string path, CancellationToken ct)
     {

@@ -68,7 +68,8 @@ away in the chosen language, keeping the address and user name you typed.
   - "Copy the password…": reason and ticket if the platform asks for them, then the password is copied to the
     clipboard for 20 seconds, **without being shown** ("Retrieve accounts" right; the retrieval is recorded in the
     vault audit).
-- On the Home tab, **quick connect** finds a server as you type: press Enter to connect.
+- On the Home tab, **quick connect** finds a server as you type: press Enter to connect. The **recent sessions** are
+  those of the PVWA you are signed in to: the same account ID means another account on another PVWA.
 
 ## 3. Open a PSM session (remote desktop)
 
@@ -173,11 +174,15 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   shows it). Size and date start with the largest and the newest. Folders stay on top; the sort is kept from one
   folder and one session to the next.
 - **Upload files**: drag them from Explorer onto the list (or the "Upload" button). Sent over **SFTP** by default
-  (SCP can be chosen in Settings), folders included; confirmation before overwriting an existing file. If the server
+  (SCP can be chosen in Settings), folders included; confirmation before overwriting an existing file (hidden ones
+  included, even when they are not shown). If the server
   refuses that protocol for a file before receiving it (rule of the PSMP, read-only SFTP…), the other one takes over
   at once, with no question and no wait: the status bar and the summary show it with the server's answer, and so does
   the History ("SCP (SFTP refused)"). Over SCP, after a refusal when a file is announced, files at least as large go
   straight over SFTP until the tab is closed.
+- **Download**: "Download" button or right-click. One file asks where to save it; several go to a folder you choose,
+  with one question for the files already there. A local file is replaced only once its download is complete: an
+  interrupted or cancelled download leaves it as it was.
 - **Download by dragging**: drag files or folders from the list to Explorer or the desktop. Nothing is downloaded
   while dragging: on drop, a window shows the progress (Cancel stops it), then Explorer copies the files where you
   dropped them. Unix names are made valid for Windows (`\`, `:`, `..`, `CON`… replaced), never writing outside the
@@ -240,7 +245,8 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   the error is shown and the details open by themselves; a drag-and-drop download fails rather than deliver a wrong
   copy. A file that cannot be read again (permissions) is reported as "not checked". Reading an upload again doubles
   the data exchanged with the server.
-- **Delete**: select, then Del (or right-click → "Delete (rm)"), with confirmation. Folders must be empty.
+- **Delete**: select, then Del (or right-click → "Delete (rm)"), with confirmation. Folders must be empty. A symbolic
+  link is deleted itself, never the file or folder it points to.
 - **Edit a file**: **double-click** the file (or `Enter`, `F4`, right-click → "Edit", the pencil button). The file
   opens in the text editor chosen in Settings (Notepad by default). On double-click, an archive, an image, an
   executable or an office document is downloaded instead of opened, as is any file whose first bytes are binary. Every time you save, CyberArkTerm offers to send it back to the
@@ -297,7 +303,8 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
 - **Add a recent connection**: right-click in the recent sessions of the home page → "Add to my servers" then the
   folder you want. The server keeps the connection type (PSM, SSH or files only), the PSM component and the target machine
   used.
-- **Folders**: right-click → new folder or subfolder, rename, delete; drag servers and folders to move them.
+- **Folders**: right-click → new folder or subfolder, rename, delete; drag servers and folders to move them. Deleting a
+  folder counts and deletes all its servers of this PVWA, even those hidden by the search; those of another PVWA stay.
 - **Search**: box at the top of the tab (or `Ctrl+F` in the tab). It filters servers by name, server, user, folder,
   component, target machine, and the entries of unlocked KeePass vaults; the folders of the results are expanded.
   `Enter` or `↓` selects the first result, `Esc` clears.
@@ -329,8 +336,8 @@ Three buttons at the top of the tab, left of the KeePass vault button:
   to another computer or to pass your list on.
 - **Import** reads an exported file (or a shared list) and sums up before adding: servers added, servers already
   there (same account, type, component, target machine and folder: skipped), folders created, servers opened on a
-  target machine (check them: the machine comes from the file) and the source PVWA when it differs. Nothing is removed
-  or changed in "My servers".
+  target machine (check them: the machine comes from the file). Nothing is removed or changed in "My servers". A file
+  created for another PVWA is refused: its account IDs designate other accounts there.
 - **Shared lists** (two-people icon): a list of servers in a file on a network share, which the whole team opens and
   completes.
   - "Create a shared list…": choose the location (network share) and the name shown to everyone; "Open a shared
@@ -402,7 +409,8 @@ servers, over SSH, remote desktop or VNC, or to their files only (SFTP, FTP, FTP
 **Local vault**: the master passwords you choose to remember are kept in `%APPDATA%\CyberArkTerm\coffre-local.dat`,
 encrypted with a password of your own (asked when you unlock a KeePass vault whose password is remembered, "Later"
 to type the vault password instead) and tied to your Windows account. Manage it in the **Settings**: create, unlock,
-change the password, delete.
+change the password, delete. It locks on sign-out (so that "Emergency access" never reopens the remembered vaults
+without a password), on exit and when Windows is locked.
 
 ## Shortcuts
 
@@ -456,7 +464,10 @@ change the password, delete.
 All preferences are saved in `%APPDATA%\CyberArkTerm\settings.json`: language, PVWA address, sign-in method and user
 name, the settings above, "My servers", their folders and the files followed on them (paths), recent sessions,
 location of the KeePass vaults and of their key files, and of the open shared lists. This file contains **no password, token or private key**. To
-start from scratch, close the application and delete it. The transfer history of the Files tab is next to it, in
+start from scratch, close the application and delete it. It is written to a temporary file first, then put in place,
+the previous one being kept as `settings.json.bak`: if the file ever cannot be read, it is set aside (never
+overwritten), the backup is used and a message says so. CyberArkTerm opens only once per Windows session: two
+instances would overwrite each other's settings. The transfer history of the Files tab is next to it, in
 `transfers.json` (file names and paths, SHA-256 checksums, never their content).
 
 ## Security

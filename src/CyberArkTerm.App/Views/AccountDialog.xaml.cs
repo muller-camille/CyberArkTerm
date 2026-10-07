@@ -230,6 +230,8 @@ public partial class AccountDialog : Window
     {
         _busy = busy;
         CreateButton.IsEnabled = !busy;
+        // Pendant l'envoi au PVWA, ni « Annuler » ni Échap : la demande est partie, son résultat doit être connu.
+        CancelButton.IsEnabled = !busy;
         StatusText.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
         if (busy)
         {

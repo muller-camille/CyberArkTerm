@@ -73,6 +73,30 @@ public class ServerListTests
         Assert.Equal(["A", "A/B", "C", "C/D"], file.AllFolders().Order(StringComparer.Ordinal));
     }
 
+    /// <summary>
+    /// Liste partagée modifiée à la main : un motif n'est jamais repris (il serait envoyé au PVWA comme celui de chaque
+    /// utilisateur) ; un serveur sans « id » garde le même identifiant d'une lecture à l'autre (sinon impossible à retirer).
+    /// </summary>
+    [Fact]
+    public void SharedListsNeverCarryAReasonAndKeepStableIds()
+    {
+        const string Json = """
+            {"format":"CyberArkTerm.SharedServers","pvwa":"pvwa",
+             "servers":[{"accountId":"7","name":"web01","reason":"CHG123 approuvé"},{"accountId":"8","name":"db01"}]}
+            """;
+        var first = ServerListFile.Parse(Json);
+        var second = ServerListFile.Parse(Json);
+
+        Assert.All(first.Servers, s => Assert.Null(s.Reason));
+        Assert.Equal(first.Servers.Select(s => s.Id), second.Servers.Select(s => s.Id));
+        Assert.NotEqual(first.Servers[0].Id, first.Servers[1].Id);
+        Assert.Null(first.Servers[0].ToSession("pvwa").Reason);
+
+        // Un export personnel garde le motif par défaut de son auteur.
+        var export = ServerListFile.Parse(Json.Replace("SharedServers", "Servers", StringComparison.Ordinal));
+        Assert.Equal("CHG123 approuvé", export.Servers[0].Reason);
+    }
+
     [Fact]
     public void ImportSkipsServersAlreadyThereAndAddsTheMissingFolders()
     {
@@ -192,6 +216,26 @@ public sealed class SharedServerListTests : IDisposable
         Assert.Equal((SharedAction.Restored, "2"), (list.Content.Changes[^1].Action, list.Content.Changes[^1].Detail));
         Assert.Equal([4, 3, 2, 1], list.Versions().Select(v => v.Revision));
         Assert.True(new SharedServerList(path).Load());
+    }
+
+    /// <summary>Liste vidée par une écriture interrompue : « Restaurer » la remet d'aplomb au lieu d'échouer.</summary>
+    [Fact]
+    public void RestoringRepairsAnUnreadableList()
+    {
+        var path = PathOf("coupee.json");
+        var list = SharedServerList.Create(path, "Liste", "pvwa", "alice");
+        list.Add([Server("1", "web01")], "alice");
+        list.Add([Server("2", "db01")], "bob");
+        File.WriteAllText(path, "{\"format\":\"CyberArkTe");
+        Assert.False(new SharedServerList(path).Load());
+
+        list.Restore(list.Versions().Single(v => v.Revision == 2), "alice");
+
+        var reread = new SharedServerList(path);
+        Assert.True(reread.Load());
+        Assert.Equal(3, reread.Content!.Revision);
+        Assert.Equal(["web01"], reread.Content.Servers.Select(s => s.Name));
+        Assert.Equal(SharedAction.Restored, reread.Content.Changes[^1].Action);
     }
 
     [Fact]

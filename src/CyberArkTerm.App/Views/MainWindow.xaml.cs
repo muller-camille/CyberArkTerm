@@ -51,6 +51,9 @@ public partial class MainWindow : Window
     private bool _connecting;
     private bool _loggedOff;
 
+    // Nettoyage de fermeture terminé : la fenêtre peut se fermer pour de bon.
+    private bool _closeConfirmed;
+
     /// <param name="client">Client du PVWA connecté ; null pour l'accès d'urgence sans CyberArk.</param>
     internal MainWindow(PvwaClient? client, AppSettings settings, string sessionUser, string vaultUser, KeePassManager keePass)
     {
@@ -306,12 +309,14 @@ public partial class MainWindow : Window
     private void RefreshRecent()
     {
         bool usable = _accountsLoaded || _loadFailed;
-        RecentList.ItemsSource = _settings.Recent.ToList();
-        NoRecentText.Visibility = _settings.Recent.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        RecentList.Visibility = _settings.Recent.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        // Seulement celles de ce PVWA : ailleurs, le même ID de compte désigne un autre compte.
+        var recent = _settings.Recent.Where(r => r.IsForHost(PvwaHost)).ToList();
+        RecentList.ItemsSource = recent;
+        NoRecentText.Visibility = recent.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        RecentList.Visibility = recent.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
         RecentList.IsEnabled = usable;
         RecentList.Opacity = usable ? 1 : 0.45;
-        RecentLoadingText.Visibility = usable || _settings.Recent.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        RecentLoadingText.Visibility = usable || recent.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
     }
 
     /// <summary>Compte introuvable : comptes pas encore chargés, chargement échoué, ou compte vraiment disparu.</summary>
@@ -490,7 +495,10 @@ public partial class MainWindow : Window
 
     private void OnListSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (sender is ListBox { SelectedItem: PvwaAccount account })
+        // Résultats de la connexion rapide : leur premier élément, choisi d'office, n'est la cible que si l'on s'y
+        // trouve ; un rechargement des comptes (F5) ne doit pas faire viser en silence un autre compte.
+        if (sender is ListBox { SelectedItem: PvwaAccount account } list
+            && (list != QuickResults || QuickBox.IsKeyboardFocusWithin || QuickResults.IsKeyboardFocusWithin))
         {
             SetCurrent(account);
         }
@@ -608,7 +616,7 @@ public partial class MainWindow : Window
         }
 
         // Compte d'un autre PVWA, supprimé, ou accès d'urgence sans CyberArk : rien à ajouter.
-        var account = _byId.GetValueOrDefault(recent.AccountId);
+        var account = recent.IsForHost(PvwaHost) ? _byId.GetValueOrDefault(recent.AccountId) : null;
         foreach (var item in ((ContextMenu)sender).Items.OfType<MenuItem>().Where(i => i.Tag as string == "addcurrent"))
         {
             BuildAddToCurrentMenu(item, account is null ? null : folder => AddToCurrent(account, recent, folder));
@@ -624,7 +632,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!_byId.TryGetValue(recent.AccountId, out var account))
+        if (!recent.IsForHost(PvwaHost) || !_byId.TryGetValue(recent.AccountId, out var account))
         {
             SetStatus(MissingAccountText(Text.Format(Strings.AccountGone, recent.Label)), isError: true);
             return;
@@ -708,7 +716,7 @@ public partial class MainWindow : Window
     /// </summary>
     private async Task ConnectAsync(PvwaAccount account, ConnectRequest request, bool showDialog = false, SavedSession? saved = null)
     {
-        if (_connecting)
+        if (_connecting || _loggedOff)
         {
             return;
         }
@@ -851,6 +859,7 @@ public partial class MainWindow : Window
         _settings.AddRecent(new RecentSession
         {
             AccountId = account.Id,
+            PvwaHost = PvwaHost,
             Label = label,
             Mode = mode,
             RemoteMachine = remoteMachine,
@@ -1142,7 +1151,21 @@ public partial class MainWindow : Window
     protected override async void OnClosing(CancelEventArgs e)
     {
         base.OnClosing(e);
-        if (_loggedOff || e.Cancel)
+        if (_closeConfirmed)
+        {
+            // Fermeture finale, une fois tout nettoyé.
+            return;
+        }
+
+        if (_loggedOff)
+        {
+            // Nettoyage en cours (déconnexion du PVWA, transferts, Bureau à distance) : une deuxième demande de fermeture
+            // (croix, Alt+F4, session expirée) ne doit pas le couper.
+            e.Cancel = true;
+            return;
+        }
+
+        if (e.Cancel)
         {
             return;
         }
@@ -1180,8 +1203,9 @@ public partial class MainWindow : Window
         finally
         {
             CloseAllSshSessions();
-            // Les coffres KeePass ouverts se referment avec la fenêtre (le coffre local reste déverrouillé).
-            _keePass.LockAll();
+            // Les coffres KeePass ouverts se referment avec la fenêtre, et le coffre local avec eux : sinon « Accès d'urgence »,
+            // sur l'écran de connexion, rouvrirait les coffres retenus sans aucun mot de passe.
+            _keePass.LockAll(localStore: true);
             _launcher.Cleanup();
             _client?.Dispose();
             _lifetime.Dispose();
@@ -1195,6 +1219,7 @@ public partial class MainWindow : Window
             Environment.Exit(0);
         }
 
+        _closeConfirmed = true;
         Close();
     }
 }

@@ -142,7 +142,14 @@ public sealed class SharedServerList(string path)
             file.Servers = old.Servers;
             file.Folders = old.Folders;
             return [new SharedChange { Action = SharedAction.Restored, Detail = old.Revision.ToString(CultureInfo.InvariantCulture) }];
-        }, who);
+        }, who, whenUnreadable: () =>
+        {
+            // Liste illisible (écriture interrompue par une coupure réseau) : la restauration repart de la version choisie,
+            // numérotée après la plus récente des versions gardées.
+            var restored = Parse(File.ReadAllBytes(version.Path));
+            restored.Revision = Math.Max(restored.Revision, Versions().Select(v => v.Revision).DefaultIfEmpty(0).Max());
+            return restored;
+        });
     }
 
     /// <summary>Versions enregistrées, la plus récente d'abord.</summary>
@@ -177,11 +184,23 @@ public sealed class SharedServerList(string path)
     /// </summary>
     /// <exception cref="UnauthorizedAccessException">Pas le droit d'écrire (droits du partage).</exception>
     /// <exception cref="IOException">Fichier inaccessible, ou occupé trop longtemps par un autre poste.</exception>
-    private void Update(Func<ServerListFile, List<SharedChange>> change, string who)
+    /// <param name="whenUnreadable">Contenu de départ si le fichier est illisible (restauration seulement) ; sinon l'erreur remonte.</param>
+    private void Update(Func<ServerListFile, List<SharedChange>> change, string who, Func<ServerListFile>? whenUnreadable = null)
     {
         using var stream = OpenExclusive();
         var bytes = ReadAll(stream);
-        var file = Parse(bytes);
+        ServerListFile file;
+        bool readable = true;
+        try
+        {
+            file = Parse(bytes);
+        }
+        catch (InvalidDataException) when (whenUnreadable is not null)
+        {
+            file = whenUnreadable();
+            readable = false;
+        }
+
         if (!file.IsShared)
         {
             throw new InvalidDataException(CoreStrings.ServerListNotShared);
@@ -195,7 +214,11 @@ public sealed class SharedServerList(string path)
             return;
         }
 
-        SaveVersion(file.Revision, file.Saved, bytes);
+        if (readable)
+        {
+            SaveVersion(file.Revision, file.Saved, bytes);
+        }
+
         file.Revision++;
         file.Saved = DateTime.UtcNow;
         foreach (var entry in changes)

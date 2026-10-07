@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CyberArkTerm.Core.Localization;
@@ -8,9 +9,12 @@ namespace CyberArkTerm.Core;
 /// Serveur d'une liste exportée ou partagée : la configuration de connexion d'un serveur « Mes serveurs » (compte
 /// CyberArk, mode, composant, machine cible, dossier SFTP…), sans secret ni rien de personnel (fichiers suivis).
 /// </summary>
-public sealed class ServerEntry
+public sealed class ServerEntry : IJsonOnDeserializing
 {
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
+
+    /// <summary>Lecture d'un fichier : sans « id », l'identifiant vient de <see cref="ServerListFile.Parse"/>, stable.</summary>
+    void IJsonOnDeserializing.OnDeserializing() => Id = "";
 
     /// <summary>Compte CyberArk (ID PVWA) : il n'est utilisable que par ceux qui le voient dans le coffre.</summary>
     public string AccountId { get; set; } = "";
@@ -184,6 +188,11 @@ public sealed class ServerListFile
 
     public string ToJson() => JsonSerializer.Serialize(this, JsonOptions);
 
+    private static string StableId(ServerEntry server) =>
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes(string.Join('\n',
+            server.AccountId, server.Name, server.Folder, server.Mode, server.Component, server.RemoteMachine, server.StartDirectory))))[..32]
+            .ToLowerInvariant();
+
     /// <summary>Lit un fichier de serveurs (export ou liste partagée).</summary>
     /// <exception cref="InvalidDataException">Pas un fichier de serveurs CyberArkTerm, ou version trop récente.</exception>
     public static ServerListFile Parse(string json)
@@ -214,9 +223,17 @@ public sealed class ServerListFile
         file.Servers.RemoveAll(s => s is null || string.IsNullOrWhiteSpace(s.AccountId));
         foreach (var server in file.Servers)
         {
-            server.Id = string.IsNullOrWhiteSpace(server.Id) ? Guid.NewGuid().ToString("N") : server.Id;
             server.Name ??= "";
             server.Folder = SessionFolders.Normalize(server.Folder);
+            // Fichier écrit à la main sans « id » : un identifiant tiré de l'entrée, le même à chaque lecture (le retrait
+            // d'un serveur relit le fichier et le retrouve par son identifiant).
+            server.Id = string.IsNullOrWhiteSpace(server.Id) ? StableId(server) : server.Id;
+            if (file.IsShared)
+            {
+                // Le motif d'accès n'est jamais partagé : un motif ajouté à la main dans le fichier serait envoyé au PVWA
+                // comme celui de chaque utilisateur, sans qu'il le voie.
+                server.Reason = null;
+            }
         }
 
         file.Folders = file.Folders.Select(SessionFolders.Normalize).Where(f => f.Length > 0).Distinct(StringComparer.OrdinalIgnoreCase).ToList();

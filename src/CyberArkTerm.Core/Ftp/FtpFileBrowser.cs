@@ -389,14 +389,21 @@ public sealed class FtpFileBrowser : IRemoteFiles
             {
                 Checked(remotePath);
                 started = true;
-                sent = await SendAsync(localPath, remotePath, name, progress, ct).ConfigureAwait(false);
+                try
+                {
+                    sent = await SendAsync(localPath, remotePath, name, progress, ct).ConfigureAwait(false);
+                }
+                catch (Exception e) when (e is not OutOfMemoryException && NeedsRecovery(e))
+                {
+                    await ReconnectAsync().ConfigureAwait(false);
+                    throw;
+                }
             }
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
             if (started)
             {
-                await RecoverAsync().ConfigureAwait(false);
                 checks.Add((await DiscardRemoteAsync(name, localPath, remotePath).ConfigureAwait(false)) with { Protocol = protocol });
             }
 
@@ -404,11 +411,6 @@ public sealed class FtpFileBrowser : IRemoteFiles
         }
         catch (Exception e) when (e is not OutOfMemoryException)
         {
-            if (started && NeedsRecovery(e))
-            {
-                await RecoverAsync().ConfigureAwait(false);
-            }
-
             checks.Add(new TransferCheck(name, localPath, remotePath, -1, [], -1, [], e.Message) { Upload = true, Failed = true, Protocol = protocol });
             throw;
         }
@@ -417,20 +419,22 @@ public sealed class FtpFileBrowser : IRemoteFiles
         {
             using (await _gate.EnterAsync(background, ct).ConfigureAwait(false))
             {
-                var check = await CheckRemoteAsync(name, localPath, remotePath, sent.Length, sent.Hash, progress, ct).ConfigureAwait(false);
-                checks.Add(check with { Protocol = protocol });
+                try
+                {
+                    var check = await CheckRemoteAsync(name, localPath, remotePath, sent.Length, sent.Hash, progress, ct).ConfigureAwait(false);
+                    checks.Add(check with { Protocol = protocol });
+                }
+                catch (Exception e) when (e is not OutOfMemoryException && NeedsRecovery(e))
+                {
+                    await ReconnectAsync().ConfigureAwait(false);
+                    throw;
+                }
             }
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            await RecoverAsync().ConfigureAwait(false);
             checks.Add(new TransferCheck(name, localPath, remotePath, -1, [], -1, [], CoreStrings.TransferCheckCancelled)
                 { Upload = true, Protocol = protocol });
-            throw;
-        }
-        catch (Exception e) when (e is not OutOfMemoryException && NeedsRecovery(e))
-        {
-            await RecoverAsync().ConfigureAwait(false);
             throw;
         }
     }
@@ -445,9 +449,12 @@ public sealed class FtpFileBrowser : IRemoteFiles
     /// Après un transfert interrompu, la réponse du serveur à ce transfert peut arriver plus tard et passer pour celle de
     /// la commande suivante : la connexion de contrôle est refaite (même identification, certificat déjà accepté).
     /// </summary>
-    private async Task RecoverAsync()
+    /// <remarks>
+    /// Appelée en gardant la main sur la connexion (<c>_gate</c>) : une commande en attente ne doit pas passer avant, sur
+    /// la connexion désynchronisée.
+    /// </remarks>
+    private async Task ReconnectAsync()
     {
-        using var entered = await _gate.EnterAsync(background: false, CancellationToken.None).ConfigureAwait(false);
         try
         {
             await _client.Disconnect(CancellationToken.None).ConfigureAwait(false);
@@ -550,33 +557,42 @@ public sealed class FtpFileBrowser : IRemoteFiles
         byte[] remoteHash;
         long received;
         bool started = false;
+        var partial = TransferCheck.PartialPath(localPath);
         try
         {
             using (await _gate.EnterAsync(background, ct).ConfigureAwait(false))
             {
                 started = true;
-                await using var file = File.Create(localPath);
-                using var hashing = new HashingStream(file);
-                var report = progress is null ? null : new Progress<FtpProgress>(
-                    p => progress.Report(new TransferProgress(entry.Name, p.TransferredBytes, entry.Length)));
-                if (!await _client.DownloadStream(hashing, Checked(entry.FullPath), 0, report, ct).ConfigureAwait(false))
+                try
                 {
-                    throw new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.FtpTransferFailed, entry.FullPath));
-                }
+                    await using (var file = File.Create(partial))
+                    {
+                        using var hashing = new HashingStream(file);
+                        var report = progress is null ? null : new Progress<FtpProgress>(
+                            p => progress.Report(new TransferProgress(entry.Name, p.TransferredBytes, entry.Length)));
+                        if (!await _client.DownloadStream(hashing, Checked(entry.FullPath), 0, report, ct).ConfigureAwait(false))
+                        {
+                            throw new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.FtpTransferFailed, entry.FullPath));
+                        }
 
-                remoteHash = hashing.GetHash();
-                received = hashing.Count;
+                        remoteHash = hashing.GetHash();
+                        received = hashing.Count;
+                    }
+                }
+                catch (Exception e) when (e is not OutOfMemoryException && NeedsRecovery(e))
+                {
+                    await ReconnectAsync().ConfigureAwait(false);
+                    throw;
+                }
             }
+
+            // Copie complète : elle ne remplace le fichier local existant que maintenant.
+            File.Move(partial, localPath, overwrite: true);
         }
         catch (Exception e) when (e is not OutOfMemoryException && started)
         {
-            var detail = DiscardLocal(localPath);
+            var detail = DiscardLocal(partial);
             bool cancelled = e is OperationCanceledException && ct.IsCancellationRequested;
-            if (cancelled || NeedsRecovery(e))
-            {
-                await RecoverAsync().ConfigureAwait(false);
-            }
-
             checks?.Add(new TransferCheck(entry.Name, localPath, entry.FullPath, -1, [], -1, [],
                 cancelled ? detail : $"{e.Message} ({detail})") { Interrupted = cancelled, Failed = !cancelled });
             throw;
@@ -688,8 +704,7 @@ public sealed class FtpFileBrowser : IRemoteFiles
         catch (Exception e) when (e is not OutOfMemoryException && (NeedsRecovery(e) || content.TooLarge is not null))
         {
             // Transfert interrompu : connexion refaite avant toute autre commande.
-            entered.Dispose();
-            await RecoverAsync().ConfigureAwait(false);
+            await ReconnectAsync().ConfigureAwait(false);
             if (content.TooLarge is { } tooLarge)
             {
                 throw tooLarge;
@@ -702,8 +717,7 @@ public sealed class FtpFileBrowser : IRemoteFiles
         {
             // La bibliothèque rend « échec » sans exception, y compris quand le fichier a grossi au-delà de la limite
             // pendant la lecture (exception de BoundedStream avalée).
-            entered.Dispose();
-            await RecoverAsync().ConfigureAwait(false);
+            await ReconnectAsync().ConfigureAwait(false);
             throw content.TooLarge ?? new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.FtpTransferFailed, path));
         }
 

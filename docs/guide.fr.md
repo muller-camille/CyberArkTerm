@@ -76,7 +76,8 @@ aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant saisis.
     inscrite dans l'audit du coffre).
 - Sur l'accueil, la **connexion rapide** trouve un serveur au fil de la frappe : Entrée pour s'y connecter. Les
   **sessions récentes** restent grisées tant que les comptes ne sont pas chargés depuis le PVWA (« en attente des
-  comptes du PVWA… »).
+  comptes du PVWA… ») ; ce sont celles du PVWA où vous êtes connecté (sur un autre PVWA, le même ID de compte désigne
+  un autre compte).
 
 ## 3. Ouvrir une session PSM (bureau à distance)
 
@@ -186,11 +187,15 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   flèche l'indique). La taille et la date commencent par les plus gros et les plus récents. Les dossiers restent en
   tête ; le tri est gardé d'un dossier et d'une session à l'autre.
 - **Déposer des fichiers** : glissez-les depuis l'Explorateur sur la liste (ou bouton « Envoyer »). Envoi en **SFTP**
-  par défaut (SCP au choix dans les Paramètres), dossiers compris ; confirmation avant d'écraser un fichier existant.
+  par défaut (SCP au choix dans les Paramètres), dossiers compris ; confirmation avant d'écraser un fichier existant
+  (fichiers cachés compris, même non affichés).
   Si le serveur refuse ce protocole pour un fichier avant de le recevoir (règle du PSMP, SFTP en lecture seule…),
   l'autre prend le relais aussitôt, sans question ni attente : la barre d'état et le bilan l'indiquent avec la
   réponse du serveur, l'Historique aussi (« SCP (SFTP refusé) »). En SCP, après un refus à l'annonce d'un fichier, les
   fichiers au moins aussi gros partent directement en SFTP jusqu'à la fermeture de l'onglet.
+- **Télécharger** : bouton « Télécharger » ou clic droit. Un fichier demande où l'enregistrer ; plusieurs vont dans un
+  dossier choisi, avec une seule question pour ceux qui y sont déjà. Un fichier local n'est remplacé qu'une fois son
+  téléchargement complet : un téléchargement coupé ou annulé le laisse tel qu'il était.
 - **Télécharger en glissant** : glissez des fichiers ou des dossiers de la liste vers l'Explorateur ou le bureau.
   Rien n'est téléchargé pendant le glissement : au dépôt, une fenêtre montre la progression (Annuler l'interrompt),
   puis l'Explorateur copie les fichiers là où vous les avez déposés. Les noms Unix sont rendus valides pour Windows
@@ -257,7 +262,7 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   téléchargement par glisser-déposer échoue plutôt que de livrer une copie fausse. Un fichier qui ne peut pas être
   relu (droits) est signalé « non vérifié ». La relecture d'un envoi double le volume échangé avec le serveur.
 - **Supprimer** : sélection puis Suppr (ou clic droit → « Supprimer (rm) »), avec confirmation. Les dossiers doivent
-  être vides.
+  être vides. Un lien symbolique est supprimé lui-même, jamais le fichier ou le dossier vers lequel il pointe.
 - **Modifier un fichier** : **double-clic** sur le fichier (ou `Entrée`, `F4`, clic droit → « Modifier », bouton
   crayon). Le fichier s'ouvre dans l'éditeur de texte choisi dans les Paramètres (Bloc-notes par défaut). Au
   double-clic, une archive, une image, un exécutable ou un document bureautique est téléchargé plutôt qu'ouvert, de
@@ -319,7 +324,8 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   courants » puis le dossier voulu. Le serveur garde le type de connexion (PSM, SSH ou fichiers seuls), le composant
   PSM et la machine cible utilisés.
 - **Dossiers** : clic droit → nouveau dossier ou sous-dossier, renommer, supprimer ; glissez serveurs et dossiers
-  pour les déplacer.
+  pour les déplacer. Supprimer un dossier compte et supprime tous ses serveurs de ce PVWA, même ceux que la recherche
+  masque ; ceux d'un autre PVWA restent.
 - **Rechercher** : champ en haut de l'onglet (ou `Ctrl+F` dans l'onglet). Il filtre les serveurs par nom, serveur,
   utilisateur, dossier, composant, machine cible, ainsi que les entrées des coffres KeePass déverrouillés ; les
   dossiers des résultats sont dépliés. `Entrée` ou `↓` sélectionne le premier résultat, `Échap` efface.
@@ -351,8 +357,8 @@ Trois boutons en haut de l'onglet, à gauche du bouton coffre KeePass :
   fichier suivi. Pratique pour changer de poste ou transmettre sa liste.
 - **Importer** lit un fichier exporté (ou une liste partagée) et résume avant d'ajouter : serveurs ajoutés, serveurs
   déjà présents (même compte, type, composant, machine cible et dossier : ignorés), dossiers créés, serveurs ouverts
-  sur une machine cible (à vérifier : la machine vient du fichier) et PVWA d'origine s'il diffère. Rien n'est retiré
-  ni modifié dans « Mes serveurs ».
+  sur une machine cible (à vérifier : la machine vient du fichier). Rien n'est retiré ni modifié dans « Mes
+  serveurs ». Un fichier créé pour un autre PVWA est refusé : ses ID de comptes y désignent d'autres comptes.
 - **Listes partagées** (icône deux personnes) : une liste de serveurs dans un fichier sur un partage réseau, que
   toute l'équipe ouvre et complète.
   - « Créer une liste partagée… » : choisissez l'emplacement (partage réseau) et le nom affiché à tous ; « Ouvrir une
@@ -430,6 +436,8 @@ qu'ils contiennent.
 `%APPDATA%\CyberArkTerm\coffre-local.dat`, chiffré avec un mot de passe à vous (demandé au déverrouillage d'un
 coffre KeePass dont le mot de passe est mémorisé, « Plus tard » pour saisir plutôt le mot de passe du coffre) et lié
 à votre compte Windows. Gestion dans les **Paramètres** : créer, déverrouiller, changer le mot de passe, supprimer.
+Il se verrouille à la déconnexion (« Accès d'urgence » ne rouvre ainsi jamais les coffres mémorisés sans mot de
+passe), à la fermeture et au verrouillage de Windows.
 
 ## Raccourcis
 
@@ -484,8 +492,11 @@ Toutes les préférences sont enregistrées dans `%APPDATA%\CyberArkTerm\setting
 méthode et identifiant de connexion, paramètres ci-dessus, serveurs « Courants », leurs dossiers et les fichiers qui
 y ont été suivis (chemins), sessions récentes, emplacement des coffres KeePass et de leurs fichiers clés, et des listes partagées ouvertes. Ce fichier
 ne contient **aucun mot de passe, jeton ni clé privée**. Pour repartir de zéro, fermez l'application et
-supprimez-le. L'historique des transferts de l'onglet Fichiers est à côté, dans `transfers.json` (noms et chemins
-des fichiers, sommes SHA-256, jamais leur contenu).
+supprimez-le. Il est d'abord écrit dans un fichier temporaire puis mis en place, le précédent étant gardé en
+`settings.json.bak` : si le fichier devient illisible, il est mis de côté (jamais écrasé), la sauvegarde est reprise
+et un message le signale. CyberArkTerm ne s'ouvre qu'une fois par session Windows : deux instances écraseraient
+l'une l'autre leurs réglages. L'historique des transferts de l'onglet Fichiers est à côté, dans `transfers.json`
+(noms et chemins des fichiers, sommes SHA-256, jamais leur contenu).
 
 ## Sécurité
 

@@ -473,12 +473,14 @@ public partial class MainWindow
 
                 break;
             case SavedFolderNode folder:
-                var message = folder.Count == 0
+                // Tous les serveurs du dossier, y compris ceux que la recherche masque.
+                int count = SessionLibrary.CountInFolder(_settings, folder.Path, PvwaHost);
+                var message = count == 0
                     ? Text.Format(Strings.DeleteEmptyFolderConfirm, folder.Path)
-                    : Text.Format(Strings.DeleteFolderConfirm, folder.Path, folder.Count);
+                    : Text.Format(Strings.DeleteFolderConfirm, folder.Path, count);
                 if (MessageBox.Show(this, message, Strings.MyServers, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
-                    SessionLibrary.DeleteFolder(_settings, folder.Path);
+                    SessionLibrary.DeleteFolder(_settings, folder.Path, PvwaHost);
                     SaveAndRefreshSaved();
                 }
 
