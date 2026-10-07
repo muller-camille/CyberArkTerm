@@ -948,6 +948,18 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>Récapitulatif d'un environnement : « Réglage : valeur » pour un ajout, « ancienne → nouvelle » sinon ; oui / non lisibles.</summary>
+    [Fact]
+    public void EnvironmentRecapLines()
+    {
+        Assert.Equal(Text.Format(Strings.EnvLineNew, Strings.EnvDefaultPsmp, "psmp.corp.com:22"),
+            EnvironmentImport.Line(new EnvironmentChange(EnvironmentSetting.DefaultPsmp, null, "", "psmp.corp.com:22", true)));
+        Assert.Equal(Text.Format(Strings.EnvLineChange, Text.Format(Strings.EnvPlatformComponent, "WinDomain"), "PSM-RDP", "WIN-PSM"),
+            EnvironmentImport.Line(new EnvironmentChange(EnvironmentSetting.PlatformComponent, "WinDomain", "PSM-RDP", "WIN-PSM", false)));
+        Assert.Equal(Text.Format(Strings.EnvLineChange, Strings.EnvSshInApp, Strings.EnvYes, Strings.EnvNo),
+            EnvironmentImport.Line(new EnvironmentChange(EnvironmentSetting.SshInApp, null, "true", "false", false)));
+    }
+
     /// <summary>Onglet détaché : le terminal passe dans la fenêtre séparée, puis en ressort pour revenir dans l'onglet.</summary>
     [Fact]
     public void DetachedWindowHoldsTheTerminal()

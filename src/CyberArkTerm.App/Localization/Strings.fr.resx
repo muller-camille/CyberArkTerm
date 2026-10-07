@@ -4355,4 +4355,163 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   <data name="InvalidComponentName" xml:space="preserve">
     <value>Composant PSM invalide : lettres, chiffres, « - », « _ » et « . » seulement (par exemple WIN-PSM).</value>
   </data>
+  <data name="EnvTitle" xml:space="preserve">
+    <value>Environnement partagé</value>
+  </data>
+  <data name="EnvHeading" xml:space="preserve">
+    <value>Appliquer cet environnement ?</value>
+  </data>
+  <data name="EnvHeadingNamed" xml:space="preserve">
+    <value>Appliquer l'environnement « {0} » ?</value>
+  </data>
+  <data name="EnvMessage" xml:space="preserve">
+    <value>Ces réglages seront modifiés (rien de personnel : identifiant, « Mes serveurs » et sessions récentes restent tels quels) :</value>
+  </data>
+  <data name="EnvSensitiveBanner" xml:space="preserve">
+    <value>Le PVWA et les PSMP reçoivent votre mot de passe CyberArk, et une clé de serveur est acceptée sans question : n'appliquez qu'un fichier qui vient de votre équipe.</value>
+  </data>
+  <data name="EnvAcknowledge" xml:space="preserve">
+    <value>J'ai vérifié les adresses du PVWA et des PSMP, et les clés de serveur</value>
+  </data>
+  <data name="EnvApply" xml:space="preserve">
+    <value>_Appliquer</value>
+  </data>
+  <data name="EnvSkip" xml:space="preserve">
+    <value>_Ne pas appliquer</value>
+  </data>
+  <data name="EnvNothingToChange" xml:space="preserve">
+    <value>Vos réglages correspondent déjà à cet environnement.</value>
+  </data>
+  <data name="EnvHostKeyIgnored" xml:space="preserve">
+    <value>Clé de {0} non modifiée : elle diffère de celle déjà acceptée sur ce poste. Vérifiez avec l'équipe CyberArk.</value>
+  </data>
+  <data name="EnvRefused" xml:space="preserve">
+    <value>Fichier d'environnement refusé</value>
+  </data>
+  <data name="EnvPvwa" xml:space="preserve">
+    <value>Adresse du PVWA</value>
+  </data>
+  <data name="EnvAuthMethod" xml:space="preserve">
+    <value>Méthode de connexion</value>
+  </data>
+  <data name="EnvDefaultPsmp" xml:space="preserve">
+    <value>PSMP par défaut</value>
+  </data>
+  <data name="EnvPsmpServers" xml:space="preserve">
+    <value>PSMP par domaine</value>
+  </data>
+  <data name="EnvWindowsComponent" xml:space="preserve">
+    <value>Composant des comptes Windows</value>
+  </data>
+  <data name="EnvPlatformComponent" xml:space="preserve">
+    <value>Composant PSM de {0}</value>
+  </data>
+  <data name="EnvSharedList" xml:space="preserve">
+    <value>Liste partagée ajoutée</value>
+  </data>
+  <data name="EnvHostKey" xml:space="preserve">
+    <value>Clé de {0}</value>
+  </data>
+  <data name="EnvCentralFile" xml:space="preserve">
+    <value>Fichier d'environnement central</value>
+  </data>
+  <data name="EnvKeepAlive" xml:space="preserve">
+    <value>Garder la session PVWA ouverte</value>
+  </data>
+  <data name="EnvSshInApp" xml:space="preserve">
+    <value>SSH dans CyberArkTerm</value>
+  </data>
+  <data name="EnvCheckForUpdates" xml:space="preserve">
+    <value>Rechercher une nouvelle version au démarrage</value>
+  </data>
+  <data name="EnvUploadProtocol" xml:space="preserve">
+    <value>Protocole d'envoi</value>
+  </data>
+  <data name="EnvNone" xml:space="preserve">
+    <value>(aucun)</value>
+  </data>
+  <data name="EnvYes" xml:space="preserve">
+    <value>oui</value>
+  </data>
+  <data name="EnvNo" xml:space="preserve">
+    <value>non</value>
+  </data>
+  <data name="EnvTooLarge" xml:space="preserve">
+    <value>Fichier trop volumineux (1 Mo au plus) : {0}</value>
+  </data>
+  <data name="EnvInvalidJson" xml:space="preserve">
+    <value>Le fichier n'est pas un JSON valide : {0}</value>
+  </data>
+  <data name="EnvUnsupportedFormat" xml:space="preserve">
+    <value>Format {0} non pris en charge par cette version de CyberArkTerm : mettez-la à jour.</value>
+  </data>
+  <data name="EnvInvalidPvwa" xml:space="preserve">
+    <value>Adresse du PVWA invalide ou sans https : {0}</value>
+  </data>
+  <data name="EnvInvalidPsmp" xml:space="preserve">
+    <value>Adresse de PSMP invalide : {0}</value>
+  </data>
+  <data name="EnvInvalidPort" xml:space="preserve">
+    <value>Port invalide : {0}</value>
+  </data>
+  <data name="EnvInvalidDomain" xml:space="preserve">
+    <value>Domaine du PSMP {0} invalide ou absent.</value>
+  </data>
+  <data name="EnvDuplicateDomain" xml:space="preserve">
+    <value>Deux PSMP pour les serveurs de {0}.</value>
+  </data>
+  <data name="EnvInvalidComponent" xml:space="preserve">
+    <value>Composant PSM invalide : {0}</value>
+  </data>
+  <data name="EnvInvalidHostKey" xml:space="preserve">
+    <value>Clé de serveur invalide pour {0} (attendu « hôte:port » → « type SHA256:empreinte »).</value>
+  </data>
+  <data name="EnvInvalidPath" xml:space="preserve">
+    <value>Chemin invalide (chemin complet attendu) : {0}</value>
+  </data>
+  <data name="CentralFileLabel" xml:space="preserve">
+    <value>Fichier central :</value>
+  </data>
+  <data name="CentralFileHelp" xml:space="preserve">
+    <value>Fichier d'environnement de l'équipe sur un partage réseau (PVWA, PSMP, composants PSM, listes partagées, clés des PSMP), relu à chaque démarrage : ses changements vous sont montrés avant d'être appliqués. Pour le créer : bouton Paramètres › Exporter l'environnement.</value>
+  </data>
+  <data name="InvalidCentralFile" xml:space="preserve">
+    <value>Fichier central invalide : saisissez un chemin complet (\\serveur\partage\… ou C:\…).</value>
+  </data>
+  <data name="MenuEnvImport" xml:space="preserve">
+    <value>_Importer un environnement…</value>
+  </data>
+  <data name="MenuEnvImportTip" xml:space="preserve">
+    <value>Réglages de l'équipe (PVWA, PSMP, composants PSM…) depuis un fichier : les changements sont montrés avant d'être appliqués.</value>
+  </data>
+  <data name="MenuEnvExport" xml:space="preserve">
+    <value>_Exporter l'environnement…</value>
+  </data>
+  <data name="MenuEnvExportTip" xml:space="preserve">
+    <value>Fichier à partager avec l'équipe, ou à poser à côté de CyberArkTerm.exe (CyberArkTerm.env.json) : ni mot de passe ni donnée personnelle.</value>
+  </data>
+  <data name="EnvExported" xml:space="preserve">
+    <value>Environnement exporté dans {0} (ni mot de passe ni donnée personnelle).</value>
+  </data>
+  <data name="EnvExportFailed" xml:space="preserve">
+    <value>Environnement non exporté : {0}</value>
+  </data>
+  <data name="EnvApplied" xml:space="preserve">
+    <value>Environnement appliqué.</value>
+  </data>
+  <data name="EnvAppliedNextLogin" xml:space="preserve">
+    <value>Environnement appliqué ; la nouvelle adresse du PVWA servira à la prochaine connexion.</value>
+  </data>
+  <data name="LoginEnvImport" xml:space="preserve">
+    <value>_Importer un environnement…</value>
+  </data>
+  <data name="LoginEnvImportTip" xml:space="preserve">
+    <value>Réglages de l'équipe (PVWA, PSMP, composants PSM) depuis un fichier qu'elle vous a fourni : les changements sont montrés avant d'être appliqués.</value>
+  </data>
+  <data name="EnvLineNew" xml:space="preserve">
+    <value>{0} : {1}</value>
+  </data>
+  <data name="EnvLineChange" xml:space="preserve">
+    <value>{0} : {1} → {2}</value>
+  </data>
 </root>

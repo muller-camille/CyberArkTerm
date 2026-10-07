@@ -79,13 +79,20 @@
 
         <!-- Accès d'urgence : coffres KeePass, sans passer par CyberArk. -->
         <Border Grid.Row="4" BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,10,0,0">
-            <Button x:Name="EmergencyButton" Style="{StaticResource ToolButton}" HorizontalAlignment="Left" Focusable="True"
-                    ToolTip="{x:Static loc:Strings.LoginEmergencyTip}" Click="OnEmergencyClick">
-                <StackPanel Orientation="Horizontal">
-                    <Image Source="{StaticResource IconKeePass}" Width="18" Height="18" Margin="0,0,8,0" />
-                    <AccessText Text="{x:Static loc:Strings.LoginEmergency}" VerticalAlignment="Center" />
-                </StackPanel>
-            </Button>
+            <DockPanel>
+                <!-- Environnement de l'équipe (PVWA, PSMP, composants) depuis un fichier qu'elle a fourni. -->
+                <Button DockPanel.Dock="Right" Style="{StaticResource ToolButton}" Focusable="True"
+                        ToolTip="{x:Static loc:Strings.LoginEnvImportTip}" Click="OnImportEnvironment">
+                    <AccessText Text="{x:Static loc:Strings.LoginEnvImport}" VerticalAlignment="Center" />
+                </Button>
+                <Button x:Name="EmergencyButton" Style="{StaticResource ToolButton}" HorizontalAlignment="Left" Focusable="True"
+                        ToolTip="{x:Static loc:Strings.LoginEmergencyTip}" Click="OnEmergencyClick">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{StaticResource IconKeePass}" Width="18" Height="18" Margin="0,0,8,0" />
+                        <AccessText Text="{x:Static loc:Strings.LoginEmergency}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+            </DockPanel>
         </Border>
     </Grid>
 </Window>
