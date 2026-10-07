@@ -1,0 +1,639 @@
+using System.IO;
+using System.Net.Http;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using ZillaTerm.App.Localization;
+using ZillaTerm.App.Services;
+using ZillaTerm.App.Services.Rdp;
+using ZillaTerm.Core;
+using ZillaTerm.Core.Ssh;
+using ZillaTerm.Core.Terminal;
+using Renci.SshNet;
+
+namespace ZillaTerm.App.Views;
+
+/// <summary>Sessions SSH intégrées : un onglet terminal par session, panneau « Fichiers » associé.</summary>
+public partial class MainWindow
+{
+    private readonly SshInteraction _psmpUi;
+    // Sessions des onglets terminal et fichiers seuls.
+    private readonly List<RemoteSession> _remoteSessions = [];
+    private MfaSshKey? _mfaKey;
+    private DateTime _mfaRetryAfter;
+
+    private async Task OpenSshTabAsync(PvwaAccount account, PsmpEndpoint psmp, string login, string label, SavedSession? saved,
+        Func<Task>? duplicate, ConnectRequest request)
+    {
+        SetStatus(Text.Format(Strings.SshOpening, label, psmp.Host));
+        var key = await GetPsmpKeyAsync();
+        var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), key);
+        var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved)
+        {
+            Psmp = psmp.Host,
+            Request = request,
+        };
+        ShowSshTab(session, $"{login}@{psmp.Host}", Strings.ConnectingViaPsmp, "IconSsh",
+            Text.Format(Strings.SshOpened, label, psmp.Host), duplicate);
+    }
+
+    /// <summary>Onglet terminal + panneau « Fichiers » pour une session SSH (via le PSMP ou directe).</summary>
+    /// <param name="target">« utilisateur@serveur », affiché pendant la connexion.</param>
+    /// <param name="duplicate">Ouvre une autre session sur le même compte ou la même entrée (menu de l'onglet).</param>
+    private void ShowSshTab(SshSession session, string target, string connectingText, string icon, string openedMessage,
+        Func<Task>? duplicate)
+    {
+        var label = session.Label;
+        session.Editor = new RemoteEditor(session, this, _settings, (text, error) => SetStatus(text, error),
+            directory => FilesPanel.OnRemoteChanged(session, directory));
+        var view = new SshSessionView(session, target, connectingText) { PasteGuard = ConfirmMultiLinePaste };
+        var tab = new TabItem { Content = view, Tag = session };
+        tab.Header = TabHeader(tab, label, icon, duplicate);
+        view.SessionMenu = items => AddTerminalSessionItems(items, tab, duplicate);
+        session.StateChanged += () =>
+        {
+            switch (session.State)
+            {
+                case RemoteSessionState.Connected:
+                    SetStatus(openedMessage);
+                    break;
+                case RemoteSessionState.Failed:
+                    SetStatus(Text.Format(Strings.SshSessionError, label, session.Error), isError: true);
+                    break;
+            }
+        };
+
+        _remoteSessions.Add(session);
+        MainTabs.Items.Add(tab);
+        MainTabs.SelectedItem = tab;
+        // Les fichiers du serveur à côté du terminal ; un panneau de gauche replié le reste.
+        SelectSideTab(FilesTab, expand: false);
+        // La connexion (et ses éventuelles questions : clé d'hôte, mot de passe, MFA) se poursuit dans l'onglet.
+        _ = view.ConnectAsync();
+    }
+
+    /// <summary>
+    /// En-tête d'un onglet de session : pastille d'état, icône, nom (numéroté si un autre onglet porte le même), bouton
+    /// de fermeture, menu (clic droit) ; l'infobulle dit l'état et par où passe la session.
+    /// </summary>
+    private SessionTabHeader TabHeader(TabItem tab, string label, string icon, Func<Task>? duplicate)
+    {
+        var closeButton = new Button
+        {
+            Style = (Style)FindResource("TabCloseButton"),
+            Content = new Image { Source = (System.Windows.Media.ImageSource)FindResource("IconClose"), Width = 11, Height = 11 },
+            ToolTip = Strings.CloseSessionTip,
+        };
+        closeButton.Click += (_, _) => CloseSessionTab(tab);
+        var mode = tab.Tag is RemoteSession { Psmp: { } psmp } ? Text.Format(Strings.TabModePsmp, psmp) : Strings.TabModeDirect;
+        var shown = SessionTabHeader.UniqueLabel(label, SessionTabs().Select(t => t.Header).OfType<SessionTabHeader>().Select(h => h.Label));
+        var header = new SessionTabHeader(shown, (System.Windows.Media.ImageSource)FindResource(icon), closeButton, mode,
+            tab.Tag is SshSession ? Strings.TabDetachTip : null);
+        // Clic molette sur l'onglet : fermeture.
+        header.MouseDown += (_, e) =>
+        {
+            if (e.ChangedButton == MouseButton.Middle)
+            {
+                CloseSessionTab(tab);
+            }
+        };
+        header.ContextMenu = TabMenu(tab, duplicate);
+        FollowState(tab, header);
+        if (tab.Tag is SshSession)
+        {
+            EnableDragToDetach(tab, header);
+        }
+
+        return header;
+    }
+
+    /// <summary>La pastille de l'onglet suit l'état de sa session.</summary>
+    private void FollowState(TabItem tab, SessionTabHeader header)
+    {
+        switch (tab.Tag)
+        {
+            case RemoteSession session:
+                session.StateChanged += () => header.SetState(session.State switch
+                {
+                    RemoteSessionState.Connected => SessionTabState.Connected,
+                    RemoteSessionState.Closed => SessionTabState.Ended,
+                    RemoteSessionState.Failed => SessionTabState.Failed,
+                    _ => SessionTabState.Connecting,
+                });
+                break;
+            case RdpSession rdp:
+                rdp.StateChanged += () => header.SetState(rdp.State switch
+                {
+                    RdpSessionState.Connected => SessionTabState.Connected,
+                    RdpSessionState.Ended => SessionTabState.Ended,
+                    RdpSessionState.Failed => SessionTabState.Failed,
+                    _ => SessionTabState.Connecting,
+                });
+                break;
+            case VncSession vnc:
+                // Événement levé hors du fil de l'interface.
+                vnc.StateChanged += () => Dispatcher.BeginInvoke(() => header.SetState(vnc.State switch
+                {
+                    VncSessionState.Connected => SessionTabState.Connected,
+                    VncSessionState.Closed => SessionTabState.Ended,
+                    VncSessionState.Failed => SessionTabState.Failed,
+                    _ => SessionTabState.Connecting,
+                }));
+                break;
+        }
+    }
+
+    /// <summary>Menu de l'en-tête d'un onglet de session : reconnecter, dupliquer, fermer, fermer les autres.</summary>
+    private ContextMenu TabMenu(TabItem tab, Func<Task>? duplicate)
+    {
+        var actions = CreateSessionActions(tab, duplicate, () => this);
+        var ssh = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed;
+        var search = new MenuItem { Header = Strings.MenuTerminalSearch, InputGestureText = Strings.ShortcutTerminalSearch, Visibility = ssh };
+        search.Click += (_, _) => SshViewOf(tab)?.ShowSearch();
+        var save = new MenuItem { Header = Strings.MenuTerminalSave, InputGestureText = Strings.ShortcutTerminalSave, Visibility = ssh, ToolTip = Strings.MenuTerminalSaveTip };
+        save.Click += (_, _) => SshViewOf(tab)?.SaveContent();
+        var closeOthers = new MenuItem { Header = Strings.MenuTabCloseOthers };
+        closeOthers.Click += async (_, _) => await CloseOtherTabsAsync(tab);
+        var menu = new ContextMenu
+        {
+            Items =
+            {
+                actions.Reconnect, actions.Duplicate, actions.Detach, actions.Parallel, actions.AddSaved, new Separator { Visibility = ssh },
+                search, save,
+                new Separator(), actions.Close, closeOthers,
+            },
+        };
+        menu.Opened += (_, _) =>
+        {
+            actions.Refresh();
+            closeOthers.IsEnabled = SessionTabs().Any(t => t != tab);
+        };
+        return menu;
+    }
+
+    /// <summary>
+    /// Actions de la session à la fin du menu du clic droit dans son terminal, qu'il soit dans l'onglet, dans une fenêtre
+    /// séparée ou dans la vue parallèle : leurs questions s'affichent dans la fenêtre du terminal.
+    /// </summary>
+    private void AddTerminalSessionItems(ItemCollection items, TabItem tab, Func<Task>? duplicate)
+    {
+        var actions = CreateSessionActions(tab, duplicate, () => SshViewOf(tab) is { } view ? Window.GetWindow(view) : null);
+        actions.Refresh();
+        // Déjà dans une fenêtre séparée ou dans la vue parallèle : rien à détacher depuis le terminal.
+        actions.Detach.Visibility = actions.Detach.IsEnabled ? Visibility.Visible : Visibility.Collapsed;
+        foreach (var item in new object[] { actions.Reconnect, actions.Duplicate, actions.Detach, actions.Parallel, actions.AddSaved, new Separator(), actions.Close })
+        {
+            items.Add(item);
+        }
+    }
+
+    /// <summary>
+    /// « Ajouter à Mes serveurs » d'une session CyberArk : sous-menu des dossiers, ou grisé si ce compte et cette machine y
+    /// sont déjà ; masqué pour une connexion directe.
+    /// </summary>
+    private void RefreshAddSaved(MenuItem item, RemoteSession? session)
+    {
+        if (IsOffline || session is not { Account: { } account, Request: { } request })
+        {
+            item.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        bool saved = SessionLibrary.FindSession(_settings, account, PvwaHost, request.RemoteMachine) is not null;
+        item.Visibility = Visibility.Visible;
+        item.IsEnabled = !saved;
+        item.ToolTip = saved ? Strings.ToolAlreadyInMyServers : null;
+        BuildAddToCurrentMenu(item, saved ? null : folder => ShowAddedToCurrent(SessionLibrary.AddConnection(_settings, account,
+            PvwaHost, folder, request.Mode, request.Component, request.RemoteMachine)));
+    }
+
+    /// <summary>Actions communes au menu de l'en-tête d'un onglet et au menu du clic droit dans son terminal.</summary>
+    private sealed record SessionActions(MenuItem Reconnect, MenuItem Duplicate, MenuItem Detach, MenuItem Parallel, MenuItem AddSaved,
+        MenuItem Close, Action Refresh);
+
+    /// <param name="owner">Fenêtre où afficher les questions (confirmation de reconnexion, transferts en cours…).</param>
+    private SessionActions CreateSessionActions(TabItem tab, Func<Task>? duplicate, Func<Window?> owner)
+    {
+        static Image MenuIcon(object source) => new() { Source = (System.Windows.Media.ImageSource)source, Width = 16, Height = 16 };
+
+        var ssh = tab.Tag is SshSession ? Visibility.Visible : Visibility.Collapsed;
+        var reconnect = new MenuItem { Header = Strings.MenuTabReconnect, Icon = MenuIcon(FindResource("IconRefresh")) };
+        reconnect.Click += async (_, _) => await ReconnectTabAsync(tab, owner());
+        var copy = new MenuItem
+        {
+            Header = Strings.MenuTabDuplicate,
+            ToolTip = Strings.MenuTabDuplicateTip,
+            Icon = MenuIcon(FindResource("IconConnect")),
+            IsEnabled = duplicate is not null,
+        };
+        copy.Click += async (_, _) =>
+        {
+            if (duplicate is not null)
+            {
+                await duplicate();
+            }
+        };
+        // Fenêtre séparée et vue parallèle : terminal SSH seulement (voir MainWindow.Detach.cs et MainWindow.Parallel.cs).
+        var detach = new MenuItem { Header = Strings.MenuTabDetach, Visibility = ssh };
+        detach.Click += (_, _) => DetachTab(tab);
+        var parallel = new MenuItem { Header = Strings.MenuTabAddParallel, Icon = MenuIcon(FindResource("IconParallel")), Visibility = ssh };
+        parallel.Click += (_, _) =>
+        {
+            if (tab.Tag is SshSession session)
+            {
+                ToggleParallel(session);
+            }
+        };
+        // Session CyberArk : « Ajouter à Mes serveurs » avec son type et sa machine cible (sous-menu des dossiers).
+        var addSaved = new MenuItem { Header = Strings.MenuAddToMyServers, Icon = MenuIcon(FindResource("IconBookmark")), Visibility = Visibility.Collapsed };
+        ToolTipService.SetShowOnDisabled(addSaved, true);
+        var close = new MenuItem { Header = Strings.MenuTabClose, Icon = MenuIcon(FindResource("IconClose")), InputGestureText = Strings.ShortcutTabClose };
+        close.Click += (_, _) => CloseSessionTab(tab, owner());
+        return new SessionActions(reconnect, copy, detach, parallel, addSaved, close, () =>
+        {
+            detach.IsEnabled = tab.Content is SshSessionView;
+            bool inParallel = tab.Tag is SshSession session && _parallel?.Contains(session) == true;
+            parallel.Header = inParallel ? Strings.MenuTabRemoveParallel : Strings.MenuTabAddParallel;
+            RefreshAddSaved(addSaved, tab.Tag as RemoteSession);
+        });
+    }
+
+    /// <summary>Onglets de session (SSH, fichiers seuls, Bureau à distance, VNC), dans l'ordre affiché.</summary>
+    private IEnumerable<TabItem> SessionTabs() => MainTabs.Items.OfType<TabItem>().Where(t => t.Tag is RemoteSession or RdpSession or VncSession);
+
+    /// <summary>Nom de la session d'un onglet (« utilisateur@serveur »).</summary>
+    private static string TabLabel(TabItem tab) => tab.Tag switch
+    {
+        RemoteSession session => session.Label,
+        RdpSession rdp => rdp.Label,
+        VncSession vnc => vnc.Label,
+        _ => "",
+    };
+
+    /// <param name="owner">Fenêtre des questions (celle du terminal détaché) ; par défaut la fenêtre principale.</param>
+    private void CloseSessionTab(TabItem tab, Window? owner = null)
+    {
+        switch (tab.Tag)
+        {
+            case RemoteSession:
+                CloseRemoteTab(tab, owner);
+                break;
+            case RdpSession:
+                _ = CloseRdpTabAsync(tab);
+                break;
+            case VncSession:
+                CloseVncTab(tab, owner);
+                break;
+        }
+    }
+
+    /// <summary>Nouvelle connexion dans le même onglet (nouvelle demande au PVWA) ; confirmation si la session est ouverte.</summary>
+    /// <param name="owner">Fenêtre de la question (celle du terminal détaché) ; par défaut la fenêtre principale.</param>
+    private async Task ReconnectTabAsync(TabItem tab, Window? owner = null)
+    {
+        owner ??= this;
+        if (ReferenceEquals(owner, this))
+        {
+            // Session de la vue parallèle : c'est là que son terminal est affiché.
+            MainTabs.SelectedItem = tab.Tag is SshSession inView && _parallel?.Contains(inView) == true ? _parallelTab : tab;
+        }
+
+        bool Confirm(string label) => ConfirmDialog.Confirm(owner, new ConfirmRequest
+        {
+            Title = Strings.TabReconnectAction,
+            Heading = Text.Format(Strings.TabReconnectHeading, label),
+            Message = Strings.TabReconnectMessage,
+            Actions = [Strings.TabReconnectAction],
+        });
+
+        switch (tab.Tag)
+        {
+            case SshSession ssh when SshViewOf(tab) is { } view:
+                if (ssh.State != RemoteSessionState.Connected || Confirm(ssh.Label))
+                {
+                    await view.ConnectAsync();
+                }
+
+                break;
+            case FilesSession files when tab.Content is FilesSessionView view:
+                if (files.State != RemoteSessionState.Connected || Confirm(files.Label))
+                {
+                    await view.ConnectAsync();
+                }
+
+                break;
+            case RdpSession rdp:
+                if (!rdp.IsConnected || Confirm(rdp.Label))
+                {
+                    await rdp.ReconnectAsync();
+                }
+
+                break;
+            case VncSession vnc:
+                if (!vnc.IsConnected || Confirm(vnc.Label))
+                {
+                    await vnc.ConnectAsync();
+                }
+
+                break;
+        }
+    }
+
+    /// <summary>Ferme les autres onglets de session, après une seule confirmation.</summary>
+    private async Task CloseOtherTabsAsync(TabItem keep)
+    {
+        var others = SessionTabs().Where(t => t != keep).ToList();
+        if (others.Count == 0
+            || !ConfirmDialog.Confirm(this, new ConfirmRequest
+            {
+                Title = Strings.TabCloseOthersAction,
+                Heading = Strings.TabCloseOthersHeading,
+                Message = Strings.TabCloseOthersMessage,
+                Items = others.Select(TabLabel).ToList(),
+                Actions = [Strings.TabCloseOthersAction],
+            }))
+        {
+            return;
+        }
+
+        MainTabs.SelectedItem = keep;
+        var closing = new List<Task>();
+        foreach (var tab in others)
+        {
+            switch (tab.Tag)
+            {
+                case RemoteSession:
+                    // Seules questions possibles : fichiers modifiés pas encore renvoyés, transferts en cours.
+                    CloseRemoteTab(tab, confirmSession: false);
+                    break;
+                case RdpSession rdp:
+                    closing.Add(RemoveRdpTabAsync(rdp));
+                    break;
+                case VncSession:
+                    RemoveVncTab(tab);
+                    break;
+            }
+        }
+
+        await Task.WhenAll(closing);
+        MainTabs.SelectedItem = keep;
+    }
+
+    /// <summary>
+    /// Ferme un onglet terminal ou fichiers seuls : fichiers modifiés et transferts en cours d'abord, sinon confirmation
+    /// pour un terminal connecté (<paramref name="confirmSession"/> faux : déjà confirmé, « Fermer les autres »).
+    /// </summary>
+    private void CloseRemoteTab(TabItem tab, Window? owner = null, bool confirmSession = true)
+    {
+        if (tab.Tag is not RemoteSession session)
+        {
+            return;
+        }
+
+        owner ??= this;
+        bool asked = false;
+        if (session.Editor is { } editor)
+        {
+            asked = RemoteEditor.UnsentFiles([editor]).Count > 0;
+            if (!RemoteEditor.ConfirmClose(owner, [editor]))
+            {
+                return;
+            }
+        }
+
+        asked |= FilesPanel.ActiveTransfers(session) > 0;
+        if (!FilesPanel.ConfirmCancelTransfers(owner, session))
+        {
+            return;
+        }
+
+        if (confirmSession && !asked && session is SshSession { State: RemoteSessionState.Connected }
+            && !ConfirmCloseSession(owner, session.Label, Strings.SessionCloseSsh))
+        {
+            return;
+        }
+
+        if (session is SshSession ssh)
+        {
+            CloseDetachedWindow(ssh);
+            DropFromParallel(ssh);
+        }
+
+        FilesPanel.ReleaseTails(session);
+        MainTabs.Items.Remove(tab);
+        _remoteSessions.Remove(session);
+        _ = DisposeAfterTransfersAsync(session);
+        MainTabs.SelectedItem ??= HomeTab;
+        SetStatus(Text.Format(session is SshSession ? Strings.SshClosed : Strings.FilesClosed, session.Label));
+    }
+
+    /// <summary>Annule les transferts de la session, laisse le fichier interrompu être supprimé, puis ferme ses connexions.</summary>
+    private async Task DisposeAfterTransfersAsync(RemoteSession session)
+    {
+        try
+        {
+            await FilesPanel.CancelTransfersAsync(session);
+        }
+        finally
+        {
+            session.Dispose();
+        }
+    }
+
+    /// <summary>
+    /// Collage de plusieurs lignes dans un terminal dont le shell les exécuterait une à une (option des Paramètres,
+    /// activée par défaut) : aperçu des lignes, « Annuler » par défaut, et « Ne plus avertir ».
+    /// </summary>
+    private bool ConfirmMultiLinePaste(SshSessionView view, TerminalInput input)
+    {
+        if (!_settings.ConfirmMultiLinePaste)
+        {
+            return true;
+        }
+
+        var lines = SshSessionView.PastedLines(input.Text);
+        int choice = ConfirmDialog.Ask(Window.GetWindow(view) ?? this, new ConfirmRequest
+        {
+            Title = Strings.PasteAction,
+            Heading = Text.Format(Strings.PasteHeading, lines.Count),
+            Subject = view.Session.Label,
+            Message = Strings.PasteMessage,
+            Items = lines.Take(100).ToList(),
+            Kind = ConfirmKind.Warning,
+            Actions = [Strings.PasteAction],
+            DontAskAgain = Strings.PasteDontAsk,
+        }, out bool dontAsk);
+        if (choice != 0)
+        {
+            return false;
+        }
+
+        if (dontAsk)
+        {
+            _settings.ConfirmMultiLinePaste = false;
+            SaveSettings();
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Fermeture d'une session connectée (option des Paramètres, activée par défaut) : « Annuler » par défaut, avec
+    /// « Ne plus demander ». La même règle vaut pour SSH, Bureau à distance et VNC.
+    /// </summary>
+    private bool ConfirmCloseSession(Window owner, string label, string consequence)
+    {
+        if (!_settings.ConfirmCloseSession)
+        {
+            return true;
+        }
+
+        int choice = ConfirmDialog.Ask(owner, new ConfirmRequest
+        {
+            Title = Strings.SessionCloseAction,
+            Heading = Text.Format(Strings.SessionCloseHeading, label),
+            Message = consequence,
+            Actions = [Strings.SessionCloseAction],
+            DontAskAgain = Strings.SessionCloseDontAsk,
+        }, out bool dontAsk);
+        if (choice != 0)
+        {
+            return false;
+        }
+
+        if (dontAsk)
+        {
+            _settings.ConfirmCloseSession = false;
+            SaveSettings();
+            SetStatus(Strings.SessionCloseDontAskDone);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Déconnexion ou fermeture de l'application : un seul récapitulatif de ce qui sera fermé (sessions, transferts,
+    /// fichiers modifiés). Toujours demandé pour les transferts, les fichiers modifiés et le Bureau à distance ; pour
+    /// les terminaux SSH et VNC, selon l'option « Confirmer avant de fermer une session ».
+    /// </summary>
+    private bool ConfirmCloseAll()
+    {
+        var unsent = RemoteEditor.UnsentFiles(_remoteSessions.Select(s => s.Editor).OfType<RemoteEditor>());
+        int transfers = FilesPanel.ActiveTransfers(null);
+        int ssh = _remoteSessions.OfType<SshSession>().Count(s => s.State == RemoteSessionState.Connected);
+        int files = _remoteSessions.OfType<FilesSession>().Count(s => s.State == RemoteSessionState.Connected);
+        int rdp = _rdpViews.Count(v => v.Session.HasControl);
+        int vnc = MainTabs.Items.OfType<TabItem>().Select(t => t.Tag).OfType<VncSession>().Count(v => v.IsConnected);
+        bool always = unsent.Count > 0 || transfers > 0 || rdp > 0;
+        if (!always && !(_settings.ConfirmCloseSession && ssh + vnc > 0))
+        {
+            return true;
+        }
+
+        var bullets = new List<string>();
+        void Add(int count, string format)
+        {
+            if (count > 0)
+            {
+                bullets.Add(Text.Format(format, count));
+            }
+        }
+
+        Add(ssh, Strings.CloseAllSsh);
+        Add(files, Strings.CloseAllFiles);
+        Add(rdp, Strings.CloseAllRdp);
+        Add(vnc, Strings.CloseAllVnc);
+        Add(transfers, Strings.CloseAllTransfers);
+        Add(unsent.Count, Strings.CloseAllEdited);
+        return ConfirmDialog.Confirm(this, new ConfirmRequest
+        {
+            Title = "ZillaTerm",
+            Heading = LogoutRequested ? Strings.CloseAllLogoutHeading : Strings.CloseAllExitHeading,
+            Bullets = bullets,
+            Items = unsent,
+            Kind = unsent.Count > 0 || transfers > 0 ? ConfirmKind.Warning : ConfirmKind.Question,
+            Actions = [LogoutRequested ? Strings.ActionSignOut : Strings.ActionQuit],
+            DangerAction = unsent.Count > 0 || transfers > 0 ? 0 : -1,
+        });
+    }
+
+    private void CloseAllSshSessions()
+    {
+        CloseParallel();
+        CloseAllDetachedWindows();
+        FilesPanel.CloseTailWindows();
+        foreach (var session in _remoteSessions)
+        {
+            session.Dispose();
+        }
+
+        _remoteSessions.Clear();
+    }
+
+    private void OnMainTabChanged(object sender, SelectionChangedEventArgs e)
+    {
+        // SelectionChanged remonte aussi depuis les listes contenues dans les onglets.
+        if (!ReferenceEquals(e.OriginalSource, MainTabs))
+        {
+            return;
+        }
+
+        var tab = MainTabs.SelectedItem as TabItem;
+        BringTabIntoView(tab);
+        // Vue parallèle : l'onglet Fichiers suit la session où l'on travaille.
+        FilesPanel.Attach(tab?.Tag as RemoteSession ?? (tab?.Tag as ParallelView)?.ActiveSession);
+        ShowRdpView(tab);
+        if (tab?.Content is SshSessionView view)
+        {
+            view.FocusTerminal();
+        }
+        else if (tab?.Content is ParallelView parallel)
+        {
+            parallel.FocusActive();
+        }
+    }
+
+    /// <summary>
+    /// Clé « MFA caching » du PVWA : évite de ressaisir mot de passe et MFA à chaque connexion au PSMP.
+    /// Si le PVWA ne la fournit pas, le PSMP posera ses questions (mot de passe, code) dans une fenêtre.
+    /// </summary>
+    private async Task<PrivateKeyFile?> GetPsmpKeyAsync()
+    {
+        if (_mfaKey is null || _mfaKey.IsExpired(DateTimeOffset.Now))
+        {
+            _mfaKey = null;
+            if (DateTime.UtcNow < _mfaRetryAfter)
+            {
+                return null;
+            }
+
+            try
+            {
+                _mfaKey = await Client.GetMfaCachingSshKeyAsync(_lifetime.Token);
+            }
+            catch (Exception ex) when (ex is HttpRequestException or (PvwaException and not PvwaException { IsUnauthorized: true })
+                                           || (ex is TaskCanceledException && !_lifetime.IsCancellationRequested))
+            {
+                _mfaKey = null;
+            }
+
+            if (_mfaKey is null)
+            {
+                _mfaRetryAfter = DateTime.UtcNow.AddMinutes(15);
+                return null;
+            }
+        }
+
+        try
+        {
+            return new PrivateKeyFile(new MemoryStream(Encoding.UTF8.GetBytes(_mfaKey.PrivateKey)));
+        }
+        catch (Exception ex) when (ex is Renci.SshNet.Common.SshException or ArgumentException or InvalidOperationException or FormatException)
+        {
+            _mfaKey = null;
+            _mfaRetryAfter = DateTime.UtcNow.AddMinutes(15);
+            return null;
+        }
+    }
+}

@@ -1,0 +1,83 @@
+<Window x:Class="ZillaTerm.App.Views.ConnectDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:ZillaTerm.App.Views"
+        xmlns:loc="clr-namespace:ZillaTerm.App.Localization"
+        Title="{x:Static loc:Strings.ConnectTitle}"
+        Width="520" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <DockPanel>
+        <!-- En-tête : le compte ciblé -->
+        <Border DockPanel.Dock="Top" Background="{DynamicResource ToolbarBrush}" BorderBrush="{DynamicResource ToolbarBorderBrush}"
+                BorderThickness="0,0,0,1" Padding="16,12">
+            <DockPanel>
+                <Image x:Name="KindIcon" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center" />
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock x:Name="TitleText" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                    <TextBlock x:Name="DetailsText" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,4,16,16">
+            <Button Content="{x:Static loc:Strings.Connect}" IsDefault="True" Click="OnConnect" />
+            <Button Content="{x:Static loc:Strings.Cancel}" IsCancel="True" Margin="8,0,0,0" />
+        </StackPanel>
+
+        <StackPanel Margin="16,12,16,8">
+            <Border x:Name="ErrorPanel" Style="{StaticResource ErrorBanner}" Margin="0,0,0,12" Visibility="Collapsed">
+                <views:ErrorLine x:Name="ErrorText" />
+            </Border>
+
+            <TextBlock Text="{x:Static loc:Strings.ConnectionType}" Style="{StaticResource SectionTitle}" />
+            <WrapPanel Margin="0,0,0,12">
+                <RadioButton x:Name="PsmRadio" Content="{x:Static loc:Strings.ModePsm}" GroupName="Mode" Margin="0,0,24,4"
+                             Checked="OnModeChanged" />
+                <RadioButton x:Name="SshRadio" Content="{x:Static loc:Strings.ModeSsh}" GroupName="Mode" Margin="0,0,24,4" Checked="OnModeChanged" />
+                <RadioButton x:Name="SftpRadio" Content="{x:Static loc:Strings.ModeSftp}" GroupName="Mode" Margin="0,0,0,4" Checked="OnModeChanged" />
+            </WrapPanel>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="140" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Content="{x:Static loc:Strings.ComponentLabel}" Target="{Binding ElementName=ComponentBox}" />
+                <ComboBox Grid.Row="0" Grid.Column="1" x:Name="ComponentBox" IsEditable="True" Margin="0,0,0,8" />
+
+                <Label Grid.Row="1" Content="{x:Static loc:Strings.TargetMachineLabel}" Target="{Binding ElementName=MachineBox}" />
+                <ComboBox Grid.Row="1" Grid.Column="1" x:Name="MachineBox" IsEditable="True" Margin="0,0,0,8"
+                          ToolTip="{x:Static loc:Strings.TargetMachineTip}" />
+
+                <Label Grid.Row="2" Content="{x:Static loc:Strings.ReasonLabel}" Target="{Binding ElementName=ReasonBox}" />
+                <TextBox Grid.Row="2" Grid.Column="1" x:Name="ReasonBox" Margin="0,0,0,8"
+                         ToolTip="{x:Static loc:Strings.ReasonTip}" />
+
+                <Label Grid.Row="3" Content="{x:Static loc:Strings.TicketLabel}" Target="{Binding ElementName=TicketSystemBox}" />
+                <Grid Grid.Row="3" Grid.Column="1" Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="TicketSystemBox" ToolTip="{x:Static loc:Strings.TicketSystemTip}" />
+                    <TextBlock Style="{StaticResource Placeholder}" Tag="{Binding ElementName=TicketSystemBox}"
+                               Text="{x:Static loc:Strings.TicketSystemPlaceholder}" Margin="6,0,0,0" />
+                    <TextBox Grid.Column="2" x:Name="TicketIdBox" ToolTip="{x:Static loc:Strings.TicketIdTip}" />
+                    <TextBlock Grid.Column="2" Style="{StaticResource Placeholder}" Tag="{Binding ElementName=TicketIdBox}"
+                               Text="{x:Static loc:Strings.TicketIdPlaceholder}" Margin="6,0,0,0" />
+                </Grid>
+            </Grid>
+
+            <CheckBox x:Name="RememberBox" Margin="140,0,0,10" />
+            <TextBlock x:Name="SshHint" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,4" />
+        </StackPanel>
+    </DockPanel>
+</Window>

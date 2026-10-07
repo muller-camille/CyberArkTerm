@@ -99,7 +99,7 @@ Les journaux de `/var/log` sont souvent réservés à root. Le suivi passe aujou
 compte. Piste : un suivi par une commande `sudo tail -F` dans une session SSH dédiée.
 
 - C'est une commande lancée sur le serveur (enregistrée par le PSMP), contrairement au suivi par SFTP.
-- La politique sudo du serveur s'applique ; aucun mot de passe sudo n'est gardé par CyberArkTerm.
+- La politique sudo du serveur s'applique ; aucun mot de passe sudo n'est gardé par ZillaTerm.
 - À proposer seulement quand la lecture par SFTP est refusée (droits), avec une explication.
 
 ## CyberArk (API du PVWA)
@@ -155,7 +155,7 @@ Piste : une sélection multiple dans « Disponibles » (Ctrl+clic, comme dans «
 
 - Coffres chiffrés en Twofish.
 - Clés YubiKey (challenge-response).
-- Création d'un coffre depuis CyberArkTerm (aujourd'hui : avec KeePass ou KeePassXC).
+- Création d'un coffre depuis ZillaTerm (aujourd'hui : avec KeePass ou KeePassXC).
 - Affichage des pièces jointes (aujourd'hui gardées mais non affichées).
 - **VNC chiffré** : VeNCrypt (TLS) ou passage par un tunnel SSH vers le serveur, pour ne plus rien envoyer en clair.
 - **FTPS avec reprise de session TLS** : certains serveurs (vsftpd avec `require_ssl_reuse`) refusent une connexion
@@ -163,6 +163,7 @@ Piste : une sélection multiple dans « Disponibles » (Ctrl+clic, comme dans «
 
 ## Distribution et projet
 
+- **Captures d'écran** à refaire avec le nom ZillaTerm (titres des fenêtres).
 - **Exécutable signé** : sans signature, SmartScreen, l'antivirus ou AppLocker peuvent bloquer l'application. Il
   faut un certificat de signature de code ; la signature se brancherait dans le workflow de release.
 - **Installateur MSI** : déploiement sur les postes par les outils de l'entreprise.

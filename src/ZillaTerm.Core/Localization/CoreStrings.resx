@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="LanguageSystem" xml:space="preserve">
+    <value>System language</value>
+  </data>
+  <data name="RdpGatewayInstead" xml:space="preserve">
+    <value>The PVWA returned an HTML5 connection (PSM Gateway) instead of an RDP file.</value>
+  </data>
+  <data name="RdpUnexpected" xml:space="preserve">
+    <value>Unexpected response from the PVWA{0}: no RDP file.</value>
+  </data>
+  <data name="PsmpAddressWhat" xml:space="preserve">
+    <value>the PSMP address</value>
+  </data>
+  <data name="SshLoginWhat" xml:space="preserve">
+    <value>the SSH login</value>
+  </data>
+  <data name="ServerAddressWhat" xml:space="preserve">
+    <value>the server address</value>
+  </data>
+  <data name="UserNameWhat" xml:space="preserve">
+    <value>the user name</value>
+  </data>
+  <data name="CharacterNotAllowed" xml:space="preserve">
+    <value>Character not allowed in {0}: “{1}”.</value>
+  </data>
+  <data name="PasswordPromptTitle" xml:space="preserve">
+    <value>Connecting to {0}</value>
+  </data>
+  <data name="PasswordPrompt" xml:space="preserve">
+    <value>Password for {0}:</value>
+  </data>
+  <data name="AuthenticationCancelled" xml:space="preserve">
+    <value>Authentication cancelled.</value>
+  </data>
+  <data name="SizeBytes" xml:space="preserve">
+    <value>{0} B</value>
+  </data>
+  <data name="SizeKilobytes" xml:space="preserve">
+    <value>{0} KB</value>
+  </data>
+  <data name="SizeMegabytes" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="SizeGigabytes" xml:space="preserve">
+    <value>{0} GB</value>
+  </data>
+  <data name="KindDatabase" xml:space="preserve">
+    <value>Databases</value>
+  </data>
+  <data name="KindNetwork" xml:space="preserve">
+    <value>Network</value>
+  </data>
+  <data name="KindOther" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="GroupNotSet" xml:space="preserve">
+    <value>(not set)</value>
+  </data>
+  <data name="PvwaAddressRequired" xml:space="preserve">
+    <value>The PVWA address is required.</value>
+  </data>
+  <data name="PvwaAddressInvalid" xml:space="preserve">
+    <value>Invalid PVWA address: “{0}”.</value>
+  </data>
+  <data name="PvwaHttpsRequired" xml:space="preserve">
+    <value>The PVWA must be reached over HTTPS: your credentials go through this connection.</value>
+  </data>
+  <data name="PvwaNoToken" xml:space="preserve">
+    <value>Unexpected response from the PVWA: no session token received.</value>
+  </data>
+  <data name="PvwaEmptyResponse" xml:space="preserve">
+    <value>Empty response from the PVWA.</value>
+  </data>
+  <data name="PvwaSecretTooLong" xml:space="preserve">
+    <value>The PVWA response is too long to be a password.</value>
+  </data>
+  <data name="PvwaNoSession" xml:space="preserve">
+    <value>No session is open on the PVWA.</value>
+  </data>
+  <data name="ControlCharacterInPath" xml:space="preserve">
+    <value>Control characters are not allowed in the path.</value>
+  </data>
+  <data name="ColumnServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="ColumnUser" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="ColumnDomain" xml:space="preserve">
+    <value>Domain</value>
+  </data>
+  <data name="ColumnPlatform" xml:space="preserve">
+    <value>Platform</value>
+  </data>
+  <data name="ColumnSafe" xml:space="preserve">
+    <value>Safe</value>
+  </data>
+  <data name="ColumnName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ColumnAllowedMachines" xml:space="preserve">
+    <value>Allowed machines</value>
+  </data>
+  <data name="ColumnCreated" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="AccountHasNoUser" xml:space="preserve">
+    <value>The account has no user name.</value>
+  </data>
+  <data name="AccountHasNoAddress" xml:space="preserve">
+    <value>The account has no target address.</value>
+  </data>
+  <data name="VaultUserUnknown" xml:space="preserve">
+    <value>Unknown CyberArk Vault user.</value>
+  </data>
+  <data name="InvalidFolderName" xml:space="preserve">
+    <value>Invalid folder name.</value>
+  </data>
+  <data name="FolderIntoItself" xml:space="preserve">
+    <value>A folder cannot be moved into itself.</value>
+  </data>
+  <data name="RootCannotBeDeleted" xml:space="preserve">
+    <value>The root cannot be deleted.</value>
+  </data>
+  <data name="KeePassNotKdbx" xml:space="preserve">
+    <value>This file is not a KeePass 2 database (.kdbx).</value>
+  </data>
+  <data name="KeePassUnsupportedVersion" xml:space="preserve">
+    <value>KeePass format {0} is not supported (KDBX 3.1 and 4.x are).</value>
+  </data>
+  <data name="KeePassUnsupportedCipher" xml:space="preserve">
+    <value>This KeePass database uses an encryption that is not supported ({0}); AES-256 and ChaCha20 are.</value>
+  </data>
+  <data name="KeePassUnsupportedKdf" xml:space="preserve">
+    <value>This KeePass database uses a key derivation that is not supported ({0}).</value>
+  </data>
+  <data name="KeePassKdfTooCostly" xml:space="preserve">
+    <value>The key derivation settings of the KeePass database are too high to be computed here ({0}).</value>
+  </data>
+  <data name="KeePassInvalidKey" xml:space="preserve">
+    <value>Wrong master password or key file.</value>
+  </data>
+  <data name="KeePassKeyFileDamaged" xml:space="preserve">
+    <value>The key file is damaged (its checksum doesn't match).</value>
+  </data>
+  <data name="KeePassKeyFileVersion" xml:space="preserve">
+    <value>Key file version {0} is not supported.</value>
+  </data>
+  <data name="KeePassKeyFileTooLarge" xml:space="preserve">
+    <value>This file is too large to be used as a key file.</value>
+  </data>
+  <data name="KeePassCorrupted" xml:space="preserve">
+    <value>The KeePass database file is damaged ({0}).</value>
+  </data>
+  <data name="KeePassConflict" xml:space="preserve">
+    <value>The entry “{0}” was changed or deleted in the KeePass database in the meantime. Reload the folder and try again.</value>
+  </data>
+  <data name="KeePassBusy" xml:space="preserve">
+    <value>The KeePass database file keeps changing (another program is saving it). Try again in a moment.</value>
+  </data>
+  <data name="KeePassVerifyFailed" xml:space="preserve">
+    <value>The KeePass database was not saved: the new file failed verification, the original is untouched.</value>
+  </data>
+  <data name="LocalStoreWrongPassword" xml:space="preserve">
+    <value>Wrong password for the local vault.</value>
+  </data>
+  <data name="LocalStoreDamaged" xml:space="preserve">
+    <value>The local vault file is damaged or was created by another Windows account.</value>
+  </data>
+  <data name="LocalStoreMissing" xml:space="preserve">
+    <value>There is no local vault yet.</value>
+  </data>
+  <data name="LocalStoreLocked" xml:space="preserve">
+    <value>The local vault is locked.</value>
+  </data>
+  <data name="LocalStorePasswordTooShort" xml:space="preserve">
+    <value>The local vault password must have at least {0} characters.</value>
+  </data>
+  <data name="WriteIncomplete" xml:space="preserve">
+    <value>The server received {0} bytes instead of {1}: the file on the server is incomplete.</value>
+  </data>
+  <data name="TooManyFiles" xml:space="preserve">
+    <value>More than {0} files or folders: drag fewer at a time.</value>
+  </data>
+  <data name="ImportMissingColumn" xml:space="preserve">
+    <value>The header has no “{0}” column (accepted names: {1}).</value>
+  </data>
+  <data name="ImportMissingValue" xml:space="preserve">
+    <value>{0} missing</value>
+  </data>
+  <data name="ImportBadBoolean" xml:space="preserve">
+    <value>“{0}” not understood for {1} (yes or no expected)</value>
+  </data>
+  <data name="ImportNoRow" xml:space="preserve">
+    <value>The file contains no account.</value>
+  </data>
+  <data name="ImportTooManyRows" xml:space="preserve">
+    <value>The file has more than {0} lines: split it.</value>
+  </data>
+  <data name="ImportUnclosedQuote" xml:space="preserve">
+    <value>A quoted value is not closed.</value>
+  </data>
+  <data name="ImportColumnSafe" xml:space="preserve">
+    <value>safe</value>
+  </data>
+  <data name="ImportColumnPlatform" xml:space="preserve">
+    <value>platform</value>
+  </data>
+  <data name="ImportColumnAddress" xml:space="preserve">
+    <value>address</value>
+  </data>
+  <data name="ImportColumnUser" xml:space="preserve">
+    <value>user name</value>
+  </data>
+  <data name="ImportColumnCpm" xml:space="preserve">
+    <value>CPM management</value>
+  </data>
+  <data name="ImportResultLine" xml:space="preserve">
+    <value>Line</value>
+  </data>
+  <data name="ImportResultStatus" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="ImportResultDetail" xml:space="preserve">
+    <value>Detail</value>
+  </data>
+  <data name="ImportOutcomePending" xml:space="preserve">
+    <value>To create</value>
+  </data>
+  <data name="ImportOutcomeSending" xml:space="preserve">
+    <value>Sending…</value>
+  </data>
+  <data name="ImportOutcomeCreated" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="ImportOutcomeRefused" xml:space="preserve">
+    <value>Refused</value>
+  </data>
+  <data name="ImportOutcomeNotImported" xml:space="preserve">
+    <value>Not imported</value>
+  </data>
+  <data name="ImportOutcomeNotSent" xml:space="preserve">
+    <value>Not sent</value>
+  </data>
+  <data name="TransferIncompleteDeleted" xml:space="preserve">
+    <value>incomplete file deleted</value>
+  </data>
+  <data name="ScpClosedByServer" xml:space="preserve">
+    <value>The server closed the SCP connection during the upload: {0}.</value>
+  </data>
+  <data name="ScpRefusedCommand" xml:space="preserve">
+    <value>the server closed the SCP channel as soon as the scp command was sent: {0}</value>
+  </data>
+  <data name="ScpRefusedHeader" xml:space="preserve">
+    <value>the server closed the SCP channel when the file ({0}) was announced: {1}</value>
+  </data>
+  <data name="ScpRefusedEarlier" xml:space="preserve">
+    <value>refused earlier in this tab for a file of {0}</value>
+  </data>
+  <data name="ProtocolFallback" xml:space="preserve">
+    <value>{0} ({1} refused)</value>
+  </data>
+  <data name="UploadRefusedThenFailed" xml:space="preserve">
+    <value>{0} refused by the server: {1}. {2}: {3}</value>
+  </data>
+  <data name="TransferIncompleteNotDeleted" xml:space="preserve">
+    <value>incomplete file not deleted: {0}</value>
+  </data>
+  <data name="TransferCheckCancelled" xml:space="preserve">
+    <value>check cancelled, file transferred</value>
+  </data>
+  <data name="FileTooLargeToCompare" xml:space="preserve">
+    <value>{0} is too large to be compared ({1}, at most {2}).</value>
+  </data>
+  <data name="UpdateBadVersion" xml:space="preserve">
+    <value>Unexpected version number: {0}</value>
+  </data>
+  <data name="UpdateNoPackage" xml:space="preserve">
+    <value>This version has no Windows archive or no SHA256SUMS.txt file.</value>
+  </data>
+  <data name="UpdateNoChecksum" xml:space="preserve">
+    <value>The archive is missing from SHA256SUMS.txt: it cannot be checked.</value>
+  </data>
+  <data name="UpdateChecksumMismatch" xml:space="preserve">
+    <value>The downloaded archive does not match SHA256SUMS.txt (expected {0}, got {1}): it was deleted.</value>
+  </data>
+  <data name="UpdateTooLarge" xml:space="preserve">
+    <value>The archive is unexpectedly large: download stopped.</value>
+  </data>
+  <data name="ServerListInvalid" xml:space="preserve">
+    <value>This file is not a ZillaTerm server list.</value>
+  </data>
+  <data name="ServerListTooNew" xml:space="preserve">
+    <value>This server list was written by a newer version of ZillaTerm (format {0}): update ZillaTerm to open it.</value>
+  </data>
+  <data name="ServerListNotShared" xml:space="preserve">
+    <value>This file is an export of My servers, not a shared list: import it instead.</value>
+  </data>
+  <data name="ServerListBusy" xml:space="preserve">
+    <value>The shared list is being modified by someone else: try again in a moment.</value>
+  </data>
+  <data name="VncNotRfb" xml:space="preserve">
+    <value>This server does not speak the VNC protocol (RFB): check the address and the port (5900 by default).</value>
+  </data>
+  <data name="VncUnsupportedVersion" xml:space="preserve">
+    <value>Unsupported VNC protocol version: {0}</value>
+  </data>
+  <data name="VncRefused" xml:space="preserve">
+    <value>The VNC server refuses the connection: {0}</value>
+  </data>
+  <data name="VncAuthFailed" xml:space="preserve">
+    <value>VNC password refused. {0}</value>
+  </data>
+  <data name="VncSecurityUnsupported" xml:space="preserve">
+    <value>The VNC server offers no authentication supported by ZillaTerm (offered: {0}). ZillaTerm accepts the VNC password or no authentication: enable “VNC password” authentication on the server.</value>
+  </data>
+  <data name="VncPasswordRequired" xml:space="preserve">
+    <value>The VNC server asks for a password and the entry has none.</value>
+  </data>
+  <data name="VncProtocolError" xml:space="preserve">
+    <value>Unexpected data from the VNC server: connection closed.</value>
+  </data>
+  <data name="VncClosedByServer" xml:space="preserve">
+    <value>The VNC server closed the connection.</value>
+  </data>
+  <data name="VncScreenTooLarge" xml:space="preserve">
+    <value>The VNC server announces a screen of {0} × {1}: too large.</value>
+  </data>
+  <data name="VncTimeout" xml:space="preserve">
+    <value>No VNC answer from the server within 30 seconds: check the address and the port (5900 by default).</value>
+  </data>
+  <data name="FtpCleartextDeclined" xml:space="preserve">
+    <value>The FTP server does not offer encryption (TLS): connection in clear declined.</value>
+  </data>
+  <data name="FtpCertificateDeclined" xml:space="preserve">
+    <value>Certificate of the FTPS server refused: connection stopped.</value>
+  </data>
+  <data name="CertificateNameMismatch" xml:space="preserve">
+    <value>the certificate is not issued for this server name</value>
+  </data>
+  <data name="CertificateUntrusted" xml:space="preserve">
+    <value>the certificate is not issued by an authority trusted by Windows (self-signed, expired or revoked)</value>
+  </data>
+  <data name="CertificateMissing" xml:space="preserve">
+    <value>the server sent no certificate</value>
+  </data>
+  <data name="FtpTransferFailed" xml:space="preserve">
+    <value>Transfer of {0} not completed by the FTP server.</value>
+  </data>
+  <data name="FtpNoSuchFile" xml:space="preserve">
+    <value>{0}: file not found on the FTP server.</value>
+  </data>
+  <data name="FtpTlsRequired" xml:space="preserve">
+    <value>The FTP server does not offer encryption (TLS), required by this entry (ftpes:// or ftps://).</value>
+  </data>
+  <data name="ChangedDuringChmod" xml:space="preserve">
+    <value>replaced by a symbolic link while the rights were being changed: left as is</value>
+  </data>
+  <data name="PvwaUnexpectedSecretResponse" xml:space="preserve">
+    <value>The PVWA did not send the password but an unexpected response ({0}): a sign-in page (SSO) or a maintenance page may be in the way. Log on again, then try again.</value>
+  </data>
+  <data name="PermissionsUnknown" xml:space="preserve">
+    <value>current permissions unknown: only a full mode (all rwx boxes set or cleared) can be applied</value>
+  </data>
+  <data name="HostKeyRefused" xml:space="preserve">
+    <value>Connection cancelled: the server key was not accepted.</value>
+  </data>
+  <data name="RenameTargetExists" xml:space="preserve">
+    <value>“{0}” already exists: choose another name (nothing was replaced).</value>
+  </data>
+</root>

@@ -1,0 +1,103 @@
+<Window x:Class="ZillaTerm.App.Views.CompareWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:ZillaTerm.App.Localization"
+        xmlns:ssh="clr-namespace:ZillaTerm.Core.Ssh;assembly=ZillaTerm.Core"
+        Width="1200" Height="760" MinWidth="640" MinHeight="320" ShowInTaskbar="True" Background="{DynamicResource ContentBrush}"
+        PreviewKeyDown="OnWindowKeyDown">
+    <DockPanel Margin="10">
+        <!-- Actions -->
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+            <TextBlock x:Name="SummaryText" DockPanel.Dock="Right" FontWeight="SemiBold" VerticalAlignment="Center" Margin="12,0,0,0" />
+            <WrapPanel>
+                <Button Content="{x:Static loc:Strings.ComparePrevious}" Margin="0,0,6,4" Click="OnPrevious" ToolTip="{x:Static loc:Strings.ComparePreviousTip}" />
+                <Button Content="{x:Static loc:Strings.CompareNext}" Margin="0,0,12,4" Click="OnNext" ToolTip="{x:Static loc:Strings.CompareNextTip}" />
+                <CheckBox x:Name="WhitespaceBox" VerticalAlignment="Center" Margin="0,0,12,4" Click="OnOptionChanged">
+                    <AccessText Text="{x:Static loc:Strings.CompareIgnoreWhitespace}" />
+                </CheckBox>
+                <CheckBox x:Name="OnlyDiffBox" VerticalAlignment="Center" Margin="0,0,12,4" Click="OnOptionChanged">
+                    <AccessText Text="{x:Static loc:Strings.CompareOnlyDifferences}" />
+                </CheckBox>
+                <Button x:Name="SaveButton" Content="{x:Static loc:Strings.CompareSave}" Margin="0,0,6,4" Click="OnSave" ToolTip="{x:Static loc:Strings.CompareSaveTip}" />
+                <Button x:Name="ToolButton" Margin="0,0,6,4" Click="OnExternalTool" Visibility="Collapsed" ToolTip="{x:Static loc:Strings.CompareToolTip}" />
+            </WrapPanel>
+        </DockPanel>
+
+        <!-- Fichiers comparés -->
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="LeftTitle" FontWeight="SemiBold" Foreground="{DynamicResource DiffRemovedForeground}" TextTrimming="CharacterEllipsis" Margin="0,0,8,0" />
+            <TextBlock Grid.Column="1" x:Name="RightTitle" FontWeight="SemiBold" Foreground="{DynamicResource DiffAddedForeground}" TextTrimming="CharacterEllipsis" />
+        </Grid>
+
+        <TextBlock x:Name="NoteText" DockPanel.Dock="Bottom" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,6,0,0" />
+
+        <!-- Fichiers binaires ou trop grands : tailles et sommes SHA-256 seulement. -->
+        <Border x:Name="BinaryPanel" DockPanel.Dock="Top" Visibility="Collapsed" BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1"
+                Padding="12" Background="{DynamicResource SidePanelBrush}">
+            <TextBlock x:Name="BinaryText" TextWrapping="Wrap" FontFamily="Consolas, Courier New" />
+        </Border>
+
+        <ListBox x:Name="RowsList" FontFamily="Consolas" FontSize="12" BorderBrush="{DynamicResource ToolbarBorderBrush}"
+                 VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                 ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type ssh:DiffRow}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="46" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="46" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="LeftBack" Grid.Column="0" Grid.ColumnSpan="2" />
+                        <Border x:Name="RightBack" Grid.Column="2" Grid.ColumnSpan="2" />
+                        <TextBlock Text="{Binding LeftNumber, Mode=OneWay}" Foreground="{DynamicResource LineNumberBrush}" TextAlignment="Right" Margin="0,0,6,0" />
+                        <TextBlock Grid.Column="1" Text="{Binding Left, Mode=OneWay}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Left, Mode=OneWay}"
+                                   ToolTipService.IsEnabled="False" x:Name="LeftText" />
+                        <TextBlock Grid.Column="2" Text="{Binding RightNumber, Mode=OneWay}" Foreground="{DynamicResource LineNumberBrush}" TextAlignment="Right" Margin="0,0,6,0" />
+                        <TextBlock Grid.Column="3" Text="{Binding Right, Mode=OneWay}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Right, Mode=OneWay}"
+                                   ToolTipService.IsEnabled="False" x:Name="RightText" />
+                        <TextBlock x:Name="GapText" Grid.ColumnSpan="4" Visibility="Collapsed" HorizontalAlignment="Center" FontStyle="Italic"
+                                   Foreground="{DynamicResource MutedBrush}"
+                                   Text="{Binding Hidden, Mode=OneWay, StringFormat={x:Static loc:Strings.CompareHiddenLines}}" />
+                    </Grid>
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Kind}" Value="{x:Static ssh:DiffKind.Removed}">
+                            <Setter TargetName="LeftBack" Property="Background" Value="{DynamicResource DiffRemovedBrush}" />
+                            <Setter TargetName="RightBack" Property="Background" Value="{DynamicResource DiffEmptyBrush}" />
+                            <Setter TargetName="LeftText" Property="Foreground" Value="{DynamicResource DiffTextBrush}" />
+                            <Setter TargetName="LeftText" Property="ToolTipService.IsEnabled" Value="True" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Kind}" Value="{x:Static ssh:DiffKind.Added}">
+                            <Setter TargetName="LeftBack" Property="Background" Value="{DynamicResource DiffEmptyBrush}" />
+                            <Setter TargetName="RightBack" Property="Background" Value="{DynamicResource DiffAddedBrush}" />
+                            <Setter TargetName="RightText" Property="Foreground" Value="{DynamicResource DiffTextBrush}" />
+                            <Setter TargetName="RightText" Property="ToolTipService.IsEnabled" Value="True" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Kind}" Value="{x:Static ssh:DiffKind.Changed}">
+                            <Setter TargetName="LeftBack" Property="Background" Value="{DynamicResource DiffRemovedBrush}" />
+                            <Setter TargetName="RightBack" Property="Background" Value="{DynamicResource DiffAddedBrush}" />
+                            <Setter TargetName="LeftText" Property="Foreground" Value="{DynamicResource DiffTextBrush}" />
+                            <Setter TargetName="RightText" Property="Foreground" Value="{DynamicResource DiffTextBrush}" />
+                            <Setter TargetName="LeftText" Property="ToolTipService.IsEnabled" Value="True" />
+                            <Setter TargetName="RightText" Property="ToolTipService.IsEnabled" Value="True" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Kind}" Value="{x:Static ssh:DiffKind.Gap}">
+                            <Setter TargetName="GapText" Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</Window>

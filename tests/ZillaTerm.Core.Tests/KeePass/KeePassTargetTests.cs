@@ -1,0 +1,107 @@
+using ZillaTerm.Core.KeePass;
+
+namespace ZillaTerm.Core.Tests.KeePass;
+
+public class KeePassTargetTests
+{
+    private static KeePassEntry Entry(string title = "x y", string url = "", string user = "root", string tags = "",
+        Dictionary<string, string>? fields = null) =>
+        new() { Id = "id", Title = title, Url = url, UserName = user, Tags = tags, CustomFields = fields ?? [] };
+
+    [Theory]
+    [InlineData("ssh://srv-lnx01.corp.local:2222", RemoteProtocol.Ssh, "srv-lnx01.corp.local", 2222)]
+    [InlineData("ssh://root@srv-lnx01", RemoteProtocol.Ssh, "srv-lnx01", 22)]
+    [InlineData("sftp://10.0.0.5/var/tmp", RemoteProtocol.Sftp, "10.0.0.5", 22)]
+    [InlineData("vnc://srv-lnx03", RemoteProtocol.Vnc, "srv-lnx03", 5900)]
+    [InlineData("vnc://srv-lnx03:1", RemoteProtocol.Vnc, "srv-lnx03", 5901)]
+    [InlineData("vnc://srv-lnx03:5902", RemoteProtocol.Vnc, "srv-lnx03", 5902)]
+    [InlineData("srv-lnx04:5900", RemoteProtocol.Vnc, "srv-lnx04", 5900)]
+    [InlineData("ftp://user@ftp.corp.local/pub", RemoteProtocol.Ftp, "ftp.corp.local", 21)]
+    [InlineData("ftpes://ftp.corp.local:2121", RemoteProtocol.Ftpes, "ftp.corp.local", 2121)]
+    [InlineData("ftps://ftp.corp.local", RemoteProtocol.Ftps, "ftp.corp.local", 990)]
+    [InlineData("ftp.corp.local:990", RemoteProtocol.Ftps, "ftp.corp.local", 990)]
+    [InlineData("rdp://srv-win01.corp.local", RemoteProtocol.Rdp, "srv-win01.corp.local", 3389)]
+    [InlineData("rdp://[fe80::1]:3390", RemoteProtocol.Rdp, "fe80::1", 3390)]
+    [InlineData("srv-win02:3389", RemoteProtocol.Rdp, "srv-win02", 3389)]
+    [InlineData("srv-lnx02:22", RemoteProtocol.Ssh, "srv-lnx02", 22)]
+    [InlineData("srv-x", RemoteProtocol.Unknown, "srv-x", 22)]
+    public void ReadsProtocolHostAndPortFromUrl(string url, RemoteProtocol protocol, string host, int port)
+    {
+        var target = KeePassTarget.From(Entry(url: url));
+
+        Assert.Equal((protocol, host, port), (target.Protocol, target.Host, target.Port));
+    }
+
+    [Theory]
+    [InlineData("vnc", RemoteProtocol.Vnc, 5900)]
+    [InlineData("prod;ftp", RemoteProtocol.Ftp, 21)]
+    [InlineData("FTPS", RemoteProtocol.Ftps, 990)]
+    [InlineData("sftp", RemoteProtocol.Sftp, 22)]
+    public void ReadsVncAndFileTransferTags(string tags, RemoteProtocol protocol, int port)
+    {
+        var target = KeePassTarget.From(Entry(title: "srv-01", tags: tags));
+
+        Assert.Equal((protocol, "srv-01", port), (target.Protocol, target.Host, target.Port));
+        Assert.Equal(protocol != RemoteProtocol.Vnc, KeePassTarget.IsFileTransfer(protocol));
+        Assert.NotEmpty(KeePassTarget.Name(protocol));
+    }
+
+    [Fact]
+    public void UsesCustomFieldsAndTags()
+    {
+        var fields = new Dictionary<string, string> { ["Host"] = "10.1.1.1", ["Port"] = "2200" };
+
+        var target = KeePassTarget.From(Entry(tags: "prod;ssh", fields: fields));
+
+        Assert.Equal((RemoteProtocol.Ssh, "10.1.1.1", 2200), (target.Protocol, target.Host, target.Port));
+    }
+
+    [Fact]
+    public void ProtocolFieldWinsOverUrlScheme()
+    {
+        var target = KeePassTarget.From(Entry(url: "https://srv-win03", fields: new() { ["Protocol"] = "RDP" }));
+
+        Assert.Equal((RemoteProtocol.Rdp, "srv-win03", 3389), (target.Protocol, target.Host, target.Port));
+    }
+
+    [Fact]
+    public void FallsBackToTitleWhenItIsAHostName()
+    {
+        Assert.Equal("srv-db01.corp.local", KeePassTarget.From(Entry(title: "srv-db01.corp.local")).Host);
+        Assert.Equal("", KeePassTarget.From(Entry(title: "Serveur de base de données")).Host);
+    }
+
+    [Fact]
+    public void ChangingProtocolMovesImplicitPort()
+    {
+        var target = KeePassTarget.From(Entry(url: "srv-x"));
+
+        Assert.Equal(3389, target.WithProtocol(RemoteProtocol.Rdp).Port);
+        Assert.Equal(2222, (target with { Port = 2222 }).WithProtocol(RemoteProtocol.Rdp).Port);
+    }
+
+    [Fact]
+    public void AddressShowsNonDefaultPort()
+    {
+        Assert.Equal("srv:2222", new KeePassTarget(RemoteProtocol.Ssh, "srv", 2222, "u").Address);
+        Assert.Equal("srv", new KeePassTarget(RemoteProtocol.Rdp, "srv", 3389, "u").Address);
+    }
+
+    /// <summary>Recherche dans « Mes serveurs » : titre, serveur, utilisateur, dossier, étiquettes, protocole ; pas les notes.</summary>
+    [Fact]
+    public void SearchMatchesTheVisibleFields()
+    {
+        var entry = new KeePassEntry
+        {
+            Id = "id", Title = "Web front", Url = "ssh://srv-lnx01.corp.local", UserName = "root", Group = "Prod/Linux",
+            Tags = "urgence", Notes = "secret-note",
+        };
+
+        Assert.True(KeePassTarget.Matches(entry, null));
+        Assert.True(KeePassTarget.Matches(entry, "front lnx01"));
+        Assert.True(KeePassTarget.Matches(entry, "prod ssh"));
+        Assert.True(KeePassTarget.Matches(entry, "URGENCE root"));
+        Assert.False(KeePassTarget.Matches(entry, "front rdp"));
+        Assert.False(KeePassTarget.Matches(entry, "secret-note"));
+    }
+}

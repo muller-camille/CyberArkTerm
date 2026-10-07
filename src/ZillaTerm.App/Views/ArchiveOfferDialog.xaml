@@ -1,0 +1,18 @@
+<Window x:Class="ZillaTerm.App.Views.ArchiveOfferDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:ZillaTerm.App.Localization"
+        Title="{x:Static loc:Strings.ArchiveOfferTitle}" Width="560" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <StackPanel Margin="16">
+        <TextBlock x:Name="MessageText" TextWrapping="Wrap" Margin="0,0,0,12" />
+        <CheckBox x:Name="NeverBox" Margin="0,0,0,12">
+            <AccessText Text="{x:Static loc:Strings.ArchiveOfferNever}" TextWrapping="Wrap" />
+        </CheckBox>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="ArchiveButton" IsDefault="True" Click="OnArchive" />
+            <Button x:Name="FilesButton" Content="{x:Static loc:Strings.ArchiveOfferFiles}" Click="OnFiles" Margin="8,0,0,0" />
+            <Button Content="{x:Static loc:Strings.Cancel}" IsCancel="True" Margin="8,0,0,0" />
+        </StackPanel>
+    </StackPanel>
+</Window>

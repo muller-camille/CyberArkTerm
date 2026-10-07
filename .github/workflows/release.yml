@@ -45,11 +45,11 @@ jobs:
           "TAG=v$version" >> $env:GITHUB_ENV
 
       - name: Tests
-        run: dotnet test CyberArkTerm.sln -c Release
+        run: dotnet test ZillaTerm.sln -c Release
 
       - name: Publication (exe autonome win-x64)
         run: >
-          dotnet publish src/CyberArkTerm.App/CyberArkTerm.App.csproj
+          dotnet publish src/ZillaTerm.App/ZillaTerm.App.csproj
           -c Release -r win-x64 -p:SelfContained=true
           -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
           -p:EnableCompressionInSingleFile=true -p:DebugType=none
@@ -59,8 +59,8 @@ jobs:
       - name: Archive et empreinte
         shell: pwsh
         run: |
-          $zip = "CyberArkTerm-$env:VERSION-win-x64.zip"
-          Compress-Archive -Path publish/CyberArkTerm.exe, LICENSE -DestinationPath $zip
+          $zip = "ZillaTerm-$env:VERSION-win-x64.zip"
+          Compress-Archive -Path publish/ZillaTerm.exe, LICENSE -DestinationPath $zip
           $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  $zip" | Out-File -FilePath SHA256SUMS.txt -Encoding ascii
           Get-Content SHA256SUMS.txt
@@ -71,7 +71,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $notes = "docs/releases/$env:TAG.md"
-          $files = @("CyberArkTerm-$env:VERSION-win-x64.zip", "SHA256SUMS.txt")
+          $files = @("ZillaTerm-$env:VERSION-win-x64.zip", "SHA256SUMS.txt")
           $existing = @(gh release list --limit 200 --json tagName | ConvertFrom-Json | ForEach-Object tagName)
           if ($existing -contains $env:TAG) {
             # Release déjà existante (créée depuis l'interface GitHub, ou relance pour corriger les notes) :
@@ -82,7 +82,7 @@ jobs:
             if (Test-Path $notes) { gh release edit $env:TAG --notes-file $notes }
           } else {
             # Le tag est créé sur le commit compilé s'il n'existe pas encore.
-            $options = @('--title', "CyberArkTerm $env:VERSION", '--target', $env:GITHUB_SHA)
+            $options = @('--title', "ZillaTerm $env:VERSION", '--target', $env:GITHUB_SHA)
             if (Test-Path $notes) { $options += @('--notes-file', $notes) } else { $options += '--generate-notes' }
             gh release create $env:TAG @files @options
           }

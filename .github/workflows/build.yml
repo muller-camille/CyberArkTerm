@@ -20,11 +20,11 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Tests
-        run: dotnet test CyberArkTerm.sln -c Release
+        run: dotnet test ZillaTerm.sln -c Release
 
       - name: Publication (exe autonome win-x64)
         run: >
-          dotnet publish src/CyberArkTerm.App/CyberArkTerm.App.csproj
+          dotnet publish src/ZillaTerm.App/ZillaTerm.App.csproj
           -c Release -r win-x64 -p:SelfContained=true
           -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
           -p:EnableCompressionInSingleFile=true -p:DebugType=none
@@ -32,5 +32,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: CyberArkTerm-win-x64
-          path: publish/CyberArkTerm.exe
+          name: ZillaTerm-win-x64
+          path: publish/ZillaTerm.exe

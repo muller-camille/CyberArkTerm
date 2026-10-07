@@ -1,20 +1,23 @@
 <img src="docs/icone.png" alt="" width="72" align="right">
 
-# CyberArkTerm
+# ZillaTerm
 
 **Français** · [English](README.md) · [Italiano](README.it.md)
 
-[![build](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml/badge.svg)](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml)
-[![release](https://github.com/muller-camille/CyberArkTerm/actions/workflows/release.yml/badge.svg)](https://github.com/muller-camille/CyberArkTerm/releases/latest)
+[![build](https://github.com/muller-camille/ZillaTerm/actions/workflows/build.yml/badge.svg)](https://github.com/muller-camille/ZillaTerm/actions/workflows/build.yml)
+[![release](https://github.com/muller-camille/ZillaTerm/actions/workflows/release.yml/badge.svg)](https://github.com/muller-camille/ZillaTerm/releases/latest)
 
-**Client Windows multi-sessions pour CyberArk.** CyberArkTerm se connecte à votre PVWA, liste les comptes auxquels vous
+**Client Windows multi-sessions pour CyberArk.** ZillaTerm se connecte à votre PVWA, liste les comptes auxquels vous
 avez accès et ouvre vos sessions en un double-clic : bureau à distance via **PSM**, ou terminal SSH via **PSM for SSH
 (PSMP)** avec un **navigateur de fichiers** intégré pour déposer des fichiers sur le serveur.
 
+> Anciennement **CyberArkTerm** : vos réglages sont repris automatiquement au premier démarrage
+> ([détails](docs/guide.fr.md#passage-de-cyberarkterm-à-zillaterm)).
+
 ![Session SSH via le PSMP, avec l'onglet Fichiers qui suit le dossier du terminal](docs/captures/fr/main-window.png)
 
-**[Télécharger](https://github.com/muller-camille/CyberArkTerm/releases/latest)** ·
-**[Guide d'utilisation](docs/guide.fr.md)** · [Notes de version](https://github.com/muller-camille/CyberArkTerm/releases) ·
+**[Télécharger](https://github.com/muller-camille/ZillaTerm/releases/latest)** ·
+**[Guide d'utilisation](docs/guide.fr.md)** · [Notes de version](https://github.com/muller-camille/ZillaTerm/releases) ·
 [Politique de sécurité](SECURITY.md)
 
 > Les captures proviennent d'un environnement de démonstration (données fictives).
@@ -36,7 +39,7 @@ avez accès et ouvre vos sessions en un double-clic : bureau à distance via **P
 | **Connexion CyberArk** | Authentification CyberArk, LDAP, RADIUS (challenge / OTP compris) ou Windows (session courante). |
 | **Disponibles** | Tous les comptes visibles dans le coffre CyberArk, groupés par safe, plateforme ou type de cible, avec recherche instantanée ; mot de passe (CPM, copie), membres d'un safe, ajout, modification et import de comptes. |
 | **Mes serveurs** | Vos serveurs de travail, rangés en dossiers et sous-dossiers, chacun avec sa propre configuration ; export, import et **listes partagées** sur un partage réseau (chacun ajoute ou retire, historique des modifications et des versions). |
-| **Environnement partagé** | La configuration de l'équipe (PVWA, PSMP par domaine, composants PSM, listes partagées, clés des PSMP) dans un fichier `CyberArkTerm.env.json` : à côté de l'exécutable, importé, ou central sur un partage ; chaque changement est montré et confirmé, rien de personnel ni aucun mot de passe. |
+| **Environnement partagé** | La configuration de l'équipe (PVWA, PSMP par domaine, composants PSM, listes partagées, clés des PSMP) dans un fichier `ZillaTerm.env.json` : à côté de l'exécutable, importé, ou central sur un partage ; chaque changement est montré et confirmé, rien de personnel ni aucun mot de passe. |
 | **Sessions PSM** | Bureau à distance via le PSM (comme le bouton « Connect » du PVWA), dans la Connexion Bureau à distance de Windows : composant, machine cible (demandée pour un compte de domaine, et gardée dans « Mes serveurs » si vous le souhaitez), motif, ticket. |
 | **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), MFA, menu du clic droit, recherche, fenêtres séparées, « Reconnecter » en fin de session, un PSMP par domaine de serveurs. Fichiers seuls (SFTP, sans terminal) pour les plateformes « SFTP » ou à la demande. |
 | **Onglet Fichiers** | Navigateur SFTP du serveur : dépôt (SFTP, ou SCP, l'autre prenant le relais si le serveur refuse) et téléchargement par glisser-déposer, vérification SHA-256 de chaque fichier, file d'attente (résultats gardés) et historique des transferts, tri par colonne, renommage, modification dans votre éditeur de texte, droits, suivi en direct (`tail -f`), comparaison, envoi vers plusieurs serveurs. |
@@ -60,24 +63,24 @@ avez accès et ouvre vos sessions en un double-clic : bureau à distance via **P
 
 ### Télécharger l'exécutable
 
-1. Ouvrez la [dernière version](https://github.com/muller-camille/CyberArkTerm/releases/latest) dans les
+1. Ouvrez la [dernière version](https://github.com/muller-camille/ZillaTerm/releases/latest) dans les
    *Releases* du dépôt.
-2. Téléchargez **`CyberArkTerm-<version>-win-x64.zip`** et décompressez-le (l'empreinte SHA256 est dans
+2. Téléchargez **`ZillaTerm-<version>-win-x64.zip`** et décompressez-le (l'empreinte SHA256 est dans
    `SHA256SUMS.txt`).
-3. Lancez `CyberArkTerm.exe` : un seul fichier, aucun runtime à installer, aucun droit administrateur requis.
+3. Lancez `ZillaTerm.exe` : un seul fichier, aucun runtime à installer, aucun droit administrateur requis.
 
 Version de développement : l'exécutable de chaque compilation est aussi disponible en artefact
-`CyberArkTerm-win-x64` dans l'onglet [Actions](https://github.com/muller-camille/CyberArkTerm/actions/workflows/build.yml).
+`ZillaTerm-win-x64` dans l'onglet [Actions](https://github.com/muller-camille/ZillaTerm/actions/workflows/build.yml).
 
 L'exécutable n'est pas signé : au premier lancement, Windows SmartScreen peut afficher un avertissement
 (« Informations complémentaires » → « Exécuter quand même »).
 
 ### Mettre à jour
 
-Bouton Paramètres → **« À propos de CyberArkTerm… »** : version, liens du projet, dossier des paramètres, et
+Bouton Paramètres → **« À propos de ZillaTerm… »** : version, liens du projet, dossier des paramètres, et
 « Rechercher maintenant ». Si une version plus récente existe, « Télécharger et vérifier » enregistre l'archive dans
 le dossier Téléchargements puis la compare à `SHA256SUMS.txt` de la même version (gardée seulement si elle est
-identique). Rien n'est installé automatiquement : fermez CyberArkTerm et remplacez l'exécutable ; vos paramètres sont
+identique). Rien n'est installé automatiquement : fermez ZillaTerm et remplacez l'exécutable ; vos paramètres sont
 conservés. L'option « Rechercher une nouvelle version au démarrage » (Paramètres › Général, désactivée par défaut)
 fait cette recherche au plus une fois par jour et affiche un lien dans la barre d'état.
 
@@ -89,7 +92,7 @@ fait cette recherche au plus une fois par jour et affiche un lien dans la barre 
 - Le client Bureau à distance de Windows (présent par défaut) : la Connexion Bureau à distance (`mstsc`) pour les
   sessions PSM, son contrôle intégré pour le bureau à distance direct des bases KeePass.
 - Facultatif : Windows Terminal et le « Client OpenSSH » de Windows, uniquement si vous choisissez d'ouvrir
-  le SSH hors de CyberArkTerm.
+  le SSH hors de ZillaTerm.
 
 **Côté CyberArk**
 
@@ -133,7 +136,7 @@ Le **[guide d'utilisation](docs/guide.fr.md)** décrit chaque onglet en détail,
 - **Aucun secret sur disque** : mot de passe CyberArk, jeton de session, clé MFA et mot de passe PSMP restent en mémoire ;
   la session PVWA est fermée à la sortie. Le fichier de configuration ne contient aucun mot de passe, jeton ni clé
   privée.
-- **Sessions CyberArk standard** : les sessions PSM et PSMP ouvertes par CyberArkTerm sont enregistrées et auditées par
+- **Sessions CyberArk standard** : les sessions PSM et PSMP ouvertes par ZillaTerm sont enregistrées et auditées par
   le PSM comme celles ouvertes depuis le PVWA.
 - **Mots de passe copiés** : directement dans le presse-papiers Windows, exclus de son historique et de sa
   synchronisation, effacés après 20 s ; jamais affichés ni journalisés.
@@ -159,10 +162,10 @@ Tous les détails : [guide d'utilisation → Sécurité](docs/guide.fr.md#sécur
 
 | Projet | Rôle |
 | --- | --- |
-| `src/CyberArkTerm.Core` | Logique sans interface, multiplateforme : client de l'API PVWA, classement des comptes, émulateur de terminal xterm, connexions PSMP et navigateur SFTP/SCP (SSH.NET), navigateur FTP/FTPS (FluentFTP), client VNC, « Mes serveurs » en dossiers, bases KeePass (KDBX), coffre local, préférences. |
-| `src/CyberArkTerm.App` | Application WPF : fenêtres, onglets, contrôle terminal, contrôle Bureau à distance (onglets RDP), lancement de `mstsc`, icône (`Assets`). |
-| `tests/CyberArkTerm.Core.Tests` | Tests xUnit de Core (faux PVWA HTTP, terminal, PSMP, dossiers…). |
-| `tests/CyberArkTerm.App.Tests` | Tests Windows de l'application (vrai contrôle Bureau à distance, DPAPI). |
+| `src/ZillaTerm.Core` | Logique sans interface, multiplateforme : client de l'API PVWA, classement des comptes, émulateur de terminal xterm, connexions PSMP et navigateur SFTP/SCP (SSH.NET), navigateur FTP/FTPS (FluentFTP), client VNC, « Mes serveurs » en dossiers, bases KeePass (KDBX), coffre local, préférences. |
+| `src/ZillaTerm.App` | Application WPF : fenêtres, onglets, contrôle terminal, contrôle Bureau à distance (onglets RDP), lancement de `mstsc`, icône (`Assets`). |
+| `tests/ZillaTerm.Core.Tests` | Tests xUnit de Core (faux PVWA HTTP, terminal, PSMP, dossiers…). |
+| `tests/ZillaTerm.App.Tests` | Tests Windows de l'application (vrai contrôle Bureau à distance, DPAPI). |
 
 Dépendances externes : [SSH.NET](https://github.com/sshnet/SSH.NET), [FluentFTP](https://github.com/robinrodricks/FluentFTP)
 et [Konscious.Security.Cryptography](https://github.com/kmaragon/Konscious.Security.Cryptography) (Argon2), toutes
@@ -170,8 +173,8 @@ sous licence MIT.
 
 ### Traductions
 
-Les textes de l'interface sont dans `src/CyberArkTerm.Core/Localization/CoreStrings*.resx` et
-`src/CyberArkTerm.App/Localization/Strings*.resx` : anglais dans le fichier neutre, puis `.fr` et `.it`.
+Les textes de l'interface sont dans `src/ZillaTerm.Core/Localization/CoreStrings*.resx` et
+`src/ZillaTerm.App/Localization/Strings*.resx` : anglais dans le fichier neutre, puis `.fr` et `.it`.
 Les classes `*.Designer.cs` sont générées par Visual Studio (`PublicResXFileCodeGenerator`) ; un test vérifie
 que chaque langue a toutes les clés, les mêmes paramètres `{0}` et les mêmes touches d'accès `_`.
 Pour ajouter une langue : copier les `.resx` avec le nouveau code (`.de.resx`…), traduire, puis ajouter le
@@ -182,27 +185,27 @@ code à `UiLanguage.Supported`.
 Avec le [SDK .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) :
 
 ```powershell
-dotnet test CyberArkTerm.sln
-dotnet run --project src/CyberArkTerm.App
+dotnet test ZillaTerm.sln
+dotnet run --project src/ZillaTerm.App
 ```
 
 Le projet compile aussi sous Linux ou macOS (`EnableWindowsTargeting`) ; l'application ne s'exécute que sous
-Windows. Les tests de `tests/CyberArkTerm.App.Tests` (dont un test du vrai contrôle Bureau à distance) ne
-s'exécutent que sous Windows ; ailleurs, lancez `dotnet test tests/CyberArkTerm.Core.Tests`.
+Windows. Les tests de `tests/ZillaTerm.App.Tests` (dont un test du vrai contrôle Bureau à distance) ne
+s'exécutent que sous Windows ; ailleurs, lancez `dotnet test tests/ZillaTerm.Core.Tests`.
 
 ### Publier l'exécutable
 
 ```powershell
 # Autonome (~65 Mo) : aucun runtime à installer sur le poste
-dotnet publish src/CyberArkTerm.App -c Release -r win-x64 -p:SelfContained=true `
+dotnet publish src/ZillaTerm.App -c Release -r win-x64 -p:SelfContained=true `
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish
 
 # Léger : nécessite le « .NET Desktop Runtime 10 » sur le poste
-dotnet publish src/CyberArkTerm.App -c Release -r win-x64 -p:SelfContained=false -p:PublishSingleFile=true -o publish
+dotnet publish src/ZillaTerm.App -c Release -r win-x64 -p:SelfContained=false -p:PublishSingleFile=true -o publish
 ```
 
 La CI ([`.github/workflows/build.yml`](.github/workflows/build.yml)) exécute les tests et publie l'exécutable
-autonome en artefact `CyberArkTerm-win-x64` pour chaque pull request et chaque push sur `main`.
+autonome en artefact `ZillaTerm-win-x64` pour chaque pull request et chaque push sur `main`.
 
 ### Publier une version
 

@@ -1,4 +1,4 @@
-# Guida all'uso di CyberArkTerm
+# Guida all'uso di ZillaTerm
 
 [Français](guide.fr.md) · [English](guide.md) · **Italiano** · [← Torna al README](../README.it.md)
 
@@ -130,7 +130,7 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
 
 Fai doppio clic sull'account (oppure Invio, oppure il pulsante «Connetti»); un account Unix si apre in SSH tramite
 il PSMP quando il suo indirizzo è impostato, o in soli file per una piattaforma «SFTP» (vedi 4.), e «Connessione
-avanzata…» permette allora di scegliere il PSM. CyberArkTerm richiede la connessione al PVWA e apre la sessione in **Connessione Desktop remoto** di Windows
+avanzata…» permette allora di scegliere il PSM. ZillaTerm richiede la connessione al PVWA e apre la sessione in **Connessione Desktop remoto** di Windows
 (`mstsc`), esattamente come il pulsante «Connect» del PVWA: il file RDP del PVWA le viene passato così com'è. Un
 componente che apre un'applicazione remota (RemoteApp) apre le sue finestre sul desktop del computer.
 
@@ -177,7 +177,7 @@ permessi), tranne ciò che richiede un terminale (monitoraggio della cartella de
 `.tar.gz`). Utile per depositare o recuperare file, o quando la piattaforma consente PSMP-SFTP ma non la shell. Come
 ogni sessione PSMP, è registrata e verificata da CyberArk.
 
-La sessione si apre **in una scheda di CyberArkTerm**, con l'identificativo PSMP standard `<tu>@<account di
+La sessione si apre **in una scheda di ZillaTerm**, con l'identificativo PSMP standard `<tu>@<account di
 destinazione>[#dominio]@<server di destinazione>`. I nomi utente che contengono spazi (`Mario Rossi`, `Admin
 Locale`) sono accettati. Il pannello laterale passa alla scheda «File» del server (se è ridotto, resta ridotto).
 
@@ -277,7 +277,7 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
 
 - **Contrassegno della scheda**: sulla scheda «File», un contrassegno indica il numero di trasferimenti in corso o
   in attesa, oppure «!» per un trasferimento non riuscito o diverso che non hai ancora visto (mostrare la scheda lo
-  segna come visto). Anche il pulsante di CyberArkTerm nella barra delle applicazioni di Windows mostra l'attività o
+  segna come visto). Anche il pulsante di ZillaTerm nella barra delle applicazioni di Windows mostra l'attività o
   l'errore.
 - **Barra del percorso**: percorso corrente, modificabile (digita un percorso e premi Invio). Doppio clic su una
   cartella per entrarvi, `..` per risalire, pulsanti «cartella superiore» (icona diversa da quella di «Invia») e
@@ -330,7 +330,7 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   trasferimenti in corso chiede conferma («Annulla i trasferimenti e chiudi» o «Continua i trasferimenti»); alla
   disconnessione e all'uscita, compaiono nel riepilogo.
 - **Molti file insieme: archivio .tar.gz**: da 200 file rilasciati (soglia nelle Impostazioni, opzione «Proporre un
-  archivio .tar.gz»), CyberArkTerm propone di inviarli in un unico archivio: un solo file da trasferire e verificare
+  archivio .tar.gz»), ZillaTerm propone di inviarli in un unico archivio: un solo file da trasferire e verificare
   invece di migliaia, molto più veloce tramite il PSMP. L'archivio viene creato sul computer (nella coda,
   annullabile), inviato e verificato (SHA-256), poi eliminato dal computer; ogni elemento rilasciato è alla radice
   dell'archivio (permessi 0644 e 0755). Nulla viene eseguito sul server: un riquadro arancione compare in fondo alla
@@ -349,7 +349,7 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
     vengono allora inviati uno per uno, con un messaggio.
 - **Inviare a più server**: pulsante (freccia verso tre server) o clic destro → «Invia a più server…». Scegli i file
   o le cartelle, la cartella di destinazione (`~` = la cartella personale dell'account su ogni server, ad es.
-  `~/deploy`) e le sessioni SSH destinatarie. CyberArkTerm verifica prima su ogni server che la cartella esista e
+  `~/deploy`) e le sessioni SSH destinatarie. ZillaTerm verifica prima su ogni server che la cartella esista e
   cosa verrebbe sostituito (una sola domanda per tutti), poi mette in coda un invio per server: stesso protocollo,
   stessa verifica SHA-256 su ogni server, un solo riepilogo alla fine.
 - **Confrontare**: clic destro su un file → «Confronta con…»: lo stesso percorso (o un altro) su un server con una
@@ -392,7 +392,7 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   Il file si apre nell'editor di testo scelto nelle Impostazioni (Blocco note per impostazione predefinita). Con il
   doppio clic, un archivio, un'immagine, un eseguibile o un documento d'ufficio viene scaricato invece di essere
   aperto, come ogni file i cui primi byte sono binari. A ogni salvataggio,
-  CyberArkTerm propone di rinviarlo al server («Rimanda» o «Non ora»): invio in SFTP, permessi del file conservati.
+  ZillaTerm propone di rinviarlo al server («Rimanda» o «Non ora»): invio in SFTP, permessi del file conservati.
   Se il file è cambiato sul server dopo l'apertura, un avviso lo dice e chiede conferma («Sostituisci con la mia
   versione») prima di sovrascriverlo.
 - **Seguire un file (tail -f)**: clic destro su uno o più file → «Segui (tail -f)». Una finestra mostra la fine del
@@ -529,12 +529,12 @@ Tre pulsanti in alto nella scheda, a sinistra del pulsante cassaforte (database 
 
 ## 7. Accesso di emergenza fuori da CyberArk: database KeePass
 
-Quando CyberArk non è disponibile, CyberArkTerm apre i tuoi database KeePass (`.kdbx`) e si connette **direttamente**
+Quando CyberArk non è disponibile, ZillaTerm apre i tuoi database KeePass (`.kdbx`) e si connette **direttamente**
 ai server, in SSH, in desktop remoto o in VNC, o ai soli loro file (SFTP, FTP, FTPS), con gli account che
 contengono.
 
 > Queste connessioni **non passano dal PSM**: nessuna registrazione, nessuna regola CyberArk. Ogni apertura di
-> database, connessione e modifica è annotata nel registro locale `%APPDATA%\CyberArkTerm\urgence.log`.
+> database, connessione e modifica è annotata nel registro locale `%APPDATA%\ZillaTerm\urgence.log`.
 
 ![Accesso di emergenza: database KeePass sbloccato in «I miei server»](captures/it/keepass-vault.png)
 
@@ -551,7 +551,7 @@ contengono.
 - **Connettersi**: doppio clic su una voce. Il protocollo viene dal suo indirizzo (`ssh://server:22`,
   `rdp://server`, `vnc://server`, `sftp://`, `ftp://`, `ftpes://`, `ftps://`, o `server:3389`), da un campo
   «Protocol» / «Port» o da un'etichetta (`ssh`, `rdp`, `vnc`, `sftp`, `ftp`, `ftpes`, `ftps`); altrimenti
-  CyberArkTerm chiede il protocollo. La password della voce è usata direttamente; non è mai mostrata né scritta su
+  ZillaTerm chiede il protocollo. La password della voce è usata direttamente; non è mai mostrata né scritta su
   disco.
   - **SSH**: schede terminale + File. Alla prima connessione, l'impronta della chiave del server va confrontata con
     quella fornita dal suo amministratore, nella stessa finestra usata per il PSMP (vedi
@@ -568,7 +568,7 @@ contengono.
     una scheda di stato, senza terminale, e i file nella scheda «File» con le stesse funzioni (trasferimenti
     verificati con SHA-256, coda, cronologia, editor, confronto, monitoraggio in tempo reale, permessi se il server
     accetta `SITE CHMOD`). Clic destro → «Apri i file (SFTP, FTP)» fa lo stesso per una voce SSH, in SFTP. Con
-    `ftp://`, la cifratura TLS è tentata per prima; se il server non la propone, CyberArkTerm chiede prima di
+    `ftp://`, la cifratura TLS è tentata per prima; se il server non la propone, ZillaTerm chiede prima di
     connettersi in chiaro («Connetti senza cifratura», una volta per sessione) e un banner lo ricorda. `ftpes://` e
     `ftps://` non passano mai in chiaro. Un certificato FTPS che Windows non approva (autofirmato…) è mostrato con il
     soggetto, l'emittente, le date di validità e l'impronta SHA-256 (con «Copia»), poi memorizzato per quel server
@@ -582,7 +582,7 @@ contengono.
   **blocco di Windows**.
 
 **Vault locale**: le password principali che scegli di memorizzare sono conservate in
-`%APPDATA%\CyberArkTerm\coffre-local.dat`, cifrato con una tua password (almeno 8 caratteri) e legato al tuo account
+`%APPDATA%\ZillaTerm\coffre-local.dat`, cifrato con una tua password (almeno 8 caratteri) e legato al tuo account
 Windows. Questa password viene chiesta quando sblocchi un database KeePass la cui password è memorizzata; «Più tardi»
 (proposto solo in quel momento) permette di digitare invece la password del database. Se il vault locale non è
 aperto, il database si apre comunque, e la barra di stato segnala che la sua password principale non è stata
@@ -627,7 +627,7 @@ non riapre mai i database memorizzati senza password), alla chiusura e al blocco
 | Database KeePass | Connettere / modificare / eliminare una voce | Doppio clic o `Invio` / `F2` / `Canc` |
 
 In un terminale, `Ctrl+K`, `Ctrl+B` e `F6` vengono inviati al server (`F6` alle applicazioni come mc); `Ctrl+Tab`,
-`Ctrl+F4`, `Ctrl+Maiusc+W` e `Ctrl+1/2/3` restano a CyberArkTerm.
+`Ctrl+F4`, `Ctrl+Maiusc+W` e `Ctrl+1/2/3` restano a ZillaTerm.
 
 **Tastiera e accessibilità**: la barra degli strumenti si raggiunge con `Tab` (il focus è visibile), ogni menu e
 ogni finestra ha i suoi tasti di scelta (`Alt` + lettera sottolineata, senza doppioni, in italiano, francese e
@@ -656,7 +656,7 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 | CyberArk | PSMP per dominio | Altri PSMP (indirizzo, porta, dominio servito); ogni server passa da quello del dominio più vicino al suo (vedi [PSMP per dominio](#psmp-per-dominio)); «Quale PSMP per il server» per verificare | nessuno |
 | CyberArk | Componente degli account Windows | Componente PSM degli account Windows (di dominio o locali) senza componente memorizzato per la loro piattaforma, ad esempio `WIN-PSM` | vuoto = `PSM-RDP` |
 | CyberArk | Componente per piattaforma | Tabella Piattaforma (ID del PVWA, ad esempio `WinDomain`) / Componente PSM: «Aggiungi un componente», «Rimuovi la riga», celle modificabili; ha la precedenza sul componente degli account Windows. «Memorizza questo componente per la piattaforma» (finestra di connessione) vi aggiunge una riga | vuoto |
-| Terminale | SSH in CyberArkTerm | Terminale e scheda File integrati; altrimenti Windows Terminal | sì |
+| Terminale | SSH in ZillaTerm | Terminale e scheda File integrati; altrimenti Windows Terminal | sì |
 | Terminale | Colori del terminale, carattere | Tavolozza (Campbell, One Half, Solarized…) e dimensione del carattere dei terminali SSH | Campbell, 14 |
 | Terminale | Avvisa prima di incollare più righe | Anteprima e conferma quando la shell eseguirebbe le righe una alla volta | sì |
 | Terminale | Conferma prima di chiudere una sessione connessa | SSH, desktop remoto, VNC; «Non chiedere più» nella conferma deseleziona questa impostazione | sì |
@@ -673,13 +673,13 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 
 ### Ambiente condiviso
 
-Per dare CyberArkTerm a un collega con la configurazione del team (indirizzo del PVWA, metodo di accesso, PSMP
+Per dare ZillaTerm a un collega con la configurazione del team (indirizzo del PVWA, metodo di accesso, PSMP
 predefinito e per dominio, componente degli account Windows e componenti per piattaforma, elenchi condivisi, chiavi
 dei PSMP, alcune opzioni), senza niente di personale né alcuna password:
 
-1. **Esportare**: pulsante «Impostazioni» → «Esporta l'ambiente…» salva `CyberArkTerm.env.json`.
-2. **Accanto all'eseguibile**: metti questo file accanto a `CyberArkTerm.exe` (ad esempio nello stesso zip).
-   All'avvio, se è nuovo o è cambiato, CyberArkTerm lo propone prima della schermata di accesso.
+1. **Esportare**: pulsante «Impostazioni» → «Esporta l'ambiente…» salva `ZillaTerm.env.json`.
+2. **Accanto all'eseguibile**: metti questo file accanto a `ZillaTerm.exe` (ad esempio nello stesso zip).
+   All'avvio, se è nuovo o è cambiato, ZillaTerm lo propone prima della schermata di accesso.
 3. **Importare**: pulsante «Impostazioni» → «Importa un ambiente…», oppure «Importa un ambiente…» nella schermata di
    accesso.
 4. **File centrale**: Impostazioni › Generale › «File centrale» (un file su una condivisione di rete, che si può anche
@@ -696,17 +696,28 @@ importa. I percorsi (elenchi condivisi, file centrale) sono completi: `C:\…` o
 Il tuo nome utente, «I miei server» e le tue sessioni recenti non vengono mai toccati; gli elenchi
 condivisi si aggiungono senza togliere i tuoi.
 
-Tutte le preferenze sono salvate in `%APPDATA%\CyberArkTerm\settings.json`: lingua, indirizzo del PVWA, metodo e
+Tutte le preferenze sono salvate in `%APPDATA%\ZillaTerm\settings.json`: lingua, indirizzo del PVWA, metodo e
 nome utente di accesso, impostazioni qui sopra, «I miei server», le loro cartelle e i file seguiti su di essi
 (percorsi), sessioni recenti, posizione dei database KeePass e dei loro file chiave, e degli elenchi condivisi
 aperti, posizione e dimensione della finestra, larghezza e stato del pannello laterale. Questo file **non contiene
 password, token né chiavi private**. Per ripartire da zero, chiudi l'applicazione ed eliminalo. Viene scritto
 prima in un file temporaneo e poi messo al suo posto, mantenendo il precedente come `settings.json.bak`: se il file
 diventa illeggibile, viene messo da parte (mai sovrascritto), si riprende il backup e un messaggio lo segnala.
-CyberArkTerm si apre una sola volta per sessione di Windows: due istanze si sovrascriverebbero a vicenda le
+ZillaTerm si apre una sola volta per sessione di Windows: due istanze si sovrascriverebbero a vicenda le
 impostazioni. La cronologia dei
 trasferimenti della scheda File è accanto, in `transfers.json` (nomi e percorsi dei file, checksum SHA-256, mai il
 loro contenuto).
+
+### Passaggio da CyberArkTerm a ZillaTerm
+
+CyberArkTerm ora si chiama ZillaTerm. Al primo avvio di `ZillaTerm.exe`, la cartella `%APPDATA%\CyberArkTerm`
+(impostazioni, «I miei server», vault locale, cronologia dei trasferimenti, registro dell'accesso di emergenza) viene
+copiata in `%APPDATA%\ZillaTerm`; la vecchia cartella viene conservata: eliminala, insieme a `CyberArkTerm.exe`, una
+volta passato a ZillaTerm. Un file `CyberArkTerm.env.json` accanto all'eseguibile viene ancora letto, gli elenchi
+condivisi restano leggibili dalle due versioni e le password principali del vault locale restano accessibili. La
+vecchia cartella temporanea (`%TEMP%\CyberArkTerm`) viene svuotata nei successivi avvii (file più vecchi di un giorno).
+Le due versioni non possono essere aperte contemporaneamente. CyberArkTerm segnala la prima versione di ZillaTerm ma non
+può scaricarla da solo (repository rinominato): scaricala una volta dalla pagina delle versioni.
 
 ## Sicurezza
 
@@ -723,9 +734,9 @@ loro contenuto).
   reindirizzamento verso una pagina di accesso SSO, risposta vuota) viene rifiutata invece di essere copiata.
 - **Aggiunta di un account**: la password viene letta dal campo mascherato senza passare da una stringa, inviata una
   sola volta al PVWA in HTTPS, poi cancellata dalla memoria; non viene né salvata né scritta nel registro di debug.
-- **Cartella temporanea**: `%TEMP%\CyberArkTerm`, riservata al vostro account Windows (permessi limitati a voi
+- **Cartella temporanea**: `%TEMP%\ZillaTerm`, riservata al vostro account Windows (permessi limitati a voi
   soli); se appartiene a un altro account (variabile TEMP che punta a una cartella condivisa), viene usata
-  `%LOCALAPPDATA%\CyberArkTerm\Temp`. I percorsi qui sotto sono relativi a questa cartella.
+  `%LOCALAPPDATA%\ZillaTerm\Temp`. I percorsi qui sotto sono relativi a questa cartella.
 - **Sessioni PSM**: il file RDP del PVWA (token PSM monouso) viene scritto nella cartella temporanea per `mstsc`, che
   ne verifica la firma, poi eliminato dopo 60 s o alla chiusura.
 - **Digitazione simultanea** (vista parallela): disattivata a ogni apertura della vista, segnalata dal pulsante
@@ -774,7 +785,7 @@ loro contenuto).
     lettura della password di una voce vi è annotata, riconnessioni e connessioni SFTP / SCP della scheda File
     comprese; se il registro non può essere scritto, la connessione non viene aperta.
 - **Registro di debug**, disattivato per impostazione predefinita (menu del pulsante Impostazioni):
-  `%LOCALAPPDATA%\CyberArkTerm\debug.log`, al massimo 5 MB più una generazione `.1`. Registra lo svolgimento delle
+  `%LOCALAPPDATA%\ZillaTerm\debug.log`, al massimo 5 MB più una generazione `.1`. Registra lo svolgimento delle
   connessioni PVWA, PSM, desktop remoto e SSH: indirizzi e stati delle richieste, impostazioni del file .rdp, eventi
   e codici del controllo Desktop remoto, versione e algoritmi del server SSH, errori; per ogni protocollo di invio
   rifiutato, il passo (connessione, comando scp, annuncio del file), la risposta del server e il protocollo
@@ -787,7 +798,7 @@ loro contenuto).
 - **Nessuna iniezione di comandi**: percorsi SCP e cartelle iniziali protetti tra apici per la shell remota;
   argomenti `ssh` / Windows Terminal convalidati e passati senza shell.
 - Esportazione CSV protetta contro l'iniezione di formule Excel.
-- **File di ambiente** (`CyberArkTerm.env.json`): nessuna password né dato personale, vengono letti solo i campi noti.
+- **File di ambiente** (`ZillaTerm.env.json`): nessuna password né dato personale, vengono letti solo i campi noti.
   Un file non viene mai applicato senza il tuo consenso: modifiche e impronta SHA-256 mostrate, una casella da
   spuntare quando cambia l'indirizzo del PVWA o di un PSMP o viene aggiunta una chiave di server. Non sostituisce mai
   una chiave di server già accettata; indirizzo del PVWA in https obbligatorio; un file oltre 1 MB viene rifiutato.
@@ -797,7 +808,7 @@ loro contenuto).
   vault CyberArk. Una macchina di destinazione proveniente da un elenco condiviso e non consentita per l'account da CyberArk
   viene confermata prima della prima connessione. L'autore annotato nel registro (account CyberArk e account
   Windows) è dichiarativo: fa fede l'audit della condivisione di rete. Un file di oltre 8 MB viene rifiutato.
-- Le sessioni PSM e PSMP aperte da CyberArkTerm sono sessioni CyberArk standard: vengono registrate e verificate dal
+- Le sessioni PSM e PSMP aperte da ZillaTerm sono sessioni CyberArk standard: vengono registrate e verificate dal
   PSM come quelle aperte dal PVWA.
 
 Per segnalare una vulnerabilità, vedi [SECURITY.md](../SECURITY.md) (segnalazione privata, nessuna issue pubblica).
@@ -840,14 +851,14 @@ derivazione della chiave AES-KDF (istruzioni AES del processore) o Argon2d / Arg
 byte, 64 caratteri esadecimali o file qualsiasi. Il file riscritto mantiene la versione, la cifratura e la
 derivazione della chiave originali, con nuovi semi a ogni salvataggio, compreso quello della derivazione della chiave
 (come KeePass: una chiave derivata catturata una volta non decifra le versioni successive). I database di test
-(`tests/CyberArkTerm.Core.Tests/KeePass/Vaults`) provengono da KeePassXC e pykeepass, e i file scritti da
-CyberArkTerm sono stati verificati in entrambi gli strumenti.
+(`tests/ZillaTerm.Core.Tests/KeePass/Vaults`) provengono da KeePassXC e pykeepass, e i file scritti da
+ZillaTerm sono stati verificati in entrambi gli strumenti.
 
 ### Sessioni VNC
 
 Client integrato (protocollo RFB 3.3, 3.7 e 3.8, RFC 6143; a un server più recente, come RealVNC 4 o 5, si risponde
 in 3.8), nulla da installare: autenticazione «nessuna» o «password VNC» (se il server le propone entrambe: la password
-se la voce ne ha una, altrimenti nessuna) (DES del protocollo, implementato in CyberArkTerm perché la modalità FIPS di Windows può vietare DES),
+se la voce ne ha una, altrimenti nessuna) (DES del protocollo, implementato in ZillaTerm perché la modalità FIPS di Windows può vietare DES),
 codifiche Raw, CopyRect e Hextile, cambio di dimensione dello schermo, pixel a 32 bit. La tastiera è inviata come
 «keysym» X11 (i caratteri AltGr sono inviati come caratteri), la rotellina come pulsanti 4 e 5.
 
@@ -896,7 +907,7 @@ un PSMP che non legge più non blocca l'applicazione.
 
 ### Monitoraggio della cartella del terminale
 
-All'apertura di una sessione SSH (se l'opzione è attiva), CyberArkTerm attende che la shell del server di
+All'apertura di una sessione SSH (se l'opzione è attiva), ZillaTerm attende che la shell del server di
 destinazione mostri il prompt (fino a 60 s: il PSMP a volte impiega diversi secondi a raggiungere la destinazione),
 poi le invia un comando di una riga, preceduto da uno spazio per non finire nella cronologia (bash, o zsh con
 `HIST_IGNORE_SPACE`). Non viene inviato nulla se hai già iniziato a digitare; il comando può essere reinviato senza
@@ -945,7 +956,7 @@ destinata. Con csh, ksh, sh o fish il monitoraggio non viene installato e sullo 
 | Un elenco condiviso mostra «(illeggibile)» | Condivisione irraggiungibile o file danneggiato: la descrizione comandi riporta l'errore. Se il file è danneggiato, copia al suo posto la versione più recente della cartella `nome.versions`. |
 | Capire un errore di connessione | Impostazioni → Registro di debug, riproduci il problema, poi Impostazioni → «Mostra il file del registro». |
 | Una scheda di desktop remoto diretto (KeePass) mostra «Errore del controllo Desktop remoto» | Segnala il codice mostrato (se il controllo Desktop remoto manca dal computer, la connessione passa da `mstsc`). |
-| VNC: «Il server VNC non propone alcuna autenticazione supportata da CyberArkTerm…» | Il server richiede un'autenticazione propria del suo produttore (account Windows, cifratura VeNCrypt…): attiva l'autenticazione «password VNC» sul server. |
+| VNC: «Il server VNC non propone alcuna autenticazione supportata da ZillaTerm…» | Il server richiede un'autenticazione propria del suo produttore (account Windows, cifratura VeNCrypt…): attiva l'autenticazione «password VNC» sul server. |
 | VNC: «Nessuna risposta VNC dal server entro 30 secondi» | Porta sbagliata (5900 + numero dello schermo) o servizio diverso da VNC a questo indirizzo. |
 | FTP: «Il server FTP non propone la cifratura (TLS), richiesta da questa voce» | Il server non accetta TLS: usa `ftp://` (connessione in chiaro dopo conferma) o SFTP se disponibile. |
 | FTPS: l'elenco dei file non appare o un trasferimento scade | Un firewall blocca le porte passive del server, o il server esige la ripresa della sessione TLS sulle connessioni dati (`522`, per esempio `require_ssl_reuse` di vsftpd): rivolgiti all'amministratore del server. |
