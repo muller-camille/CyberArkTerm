@@ -9,7 +9,8 @@
     <SolidColorBrush x:Key="SidePanelBrush" Color="#F7F9FB" />
     <SolidColorBrush x:Key="TabStripBrush" Color="#DCE3EA" />
     <SolidColorBrush x:Key="StatusBrush" Color="#2B3A4A" />
-    <SolidColorBrush x:Key="MutedBrush" Color="#6B7785" />
+    <!-- Texte secondaire : 5,6:1 sur le panneau latéral (seuil 4,5:1). -->
+    <SolidColorBrush x:Key="MutedBrush" Color="#5A6573" />
     <SolidColorBrush x:Key="SidePanelForeground" Color="#1F2933" />
 
     <!-- Sélection toujours visible quand la liste n'a pas le focus (menu contextuel ouvert, clic ailleurs) :
@@ -568,6 +569,8 @@
         <Setter Property="Padding" Value="6,3" />
         <Setter Property="Margin" Value="1,0" />
         <Setter Property="Focusable" Value="False" />
+        <!-- Un bouton grisé dit pourquoi dans son infobulle. -->
+        <Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">

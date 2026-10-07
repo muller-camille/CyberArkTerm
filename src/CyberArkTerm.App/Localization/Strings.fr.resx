@@ -157,7 +157,7 @@
     <value>Ouvrir le compte en SSH via le PSMP</value>
   </data>
   <data name="ToolAdvanced" xml:space="preserve">
-    <value>Connexion…</value>
+    <value>Avancée…</value>
   </data>
   <data name="ToolAdvancedTip" xml:space="preserve">
     <value>Choisir le composant, la machine cible, le motif ou le ticket</value>
@@ -193,7 +193,7 @@
     <value>Filtrer par serveur, utilisateur, safe, plateforme… (Ctrl+F)</value>
   </data>
   <data name="SearchPlaceholder" xml:space="preserve">
-    <value>Filtrer les sessions…</value>
+    <value>Filtrer les comptes…</value>
   </data>
   <data name="GroupBy" xml:space="preserve">
     <value>Grouper par</value>
@@ -268,7 +268,7 @@
     <value> : onglet « Fichiers » à gauche, glisser-déposer pour envoyer</value>
   </data>
   <data name="ShortcutFilter" xml:space="preserve">
-    <value> : filtrer les sessions</value>
+    <value> : filtrer les comptes</value>
   </data>
   <data name="ShortcutReload" xml:space="preserve">
     <value> : recharger depuis le PVWA</value>
@@ -572,7 +572,7 @@ Les comptes restent disponibles dans l'onglet « Disponibles ».</value>
 Empreinte de sa clé ({2}) :
 SHA256:{3}
 
-Vérifiez-la auprès de l'équipe CyberArk si besoin. Faire confiance à ce serveur ?</value>
+Comparez-la avec l'empreinte publiée par votre équipe CyberArk. Faire confiance à ce serveur ?</value>
   </data>
   <data name="HostKeyChanged" xml:space="preserve">
     <value>ATTENTION : la clé du PSMP {0}:{1} a changé !
@@ -3540,5 +3540,17 @@ Les remplacer ? Chacun n'est remplacé qu'une fois son téléchargement complet.
   </data>
   <data name="KeePassConnectNoLog" xml:space="preserve">
     <value>Le journal des accès d'urgence ne peut pas être écrit ({0}) : la connexion n'est pas ouverte.</value>
+  </data>
+  <data name="ToolSelectAccount" xml:space="preserve">
+    <value>Sélectionnez d'abord un compte dans « Disponibles » ou « Mes serveurs ».</value>
+  </data>
+  <data name="ToolSelectKeePassEntry" xml:space="preserve">
+    <value>Sélectionnez d'abord une entrée KeePass.</value>
+  </data>
+  <data name="ToolBusyConnecting" xml:space="preserve">
+    <value>Une connexion est en cours d'ouverture.</value>
+  </data>
+  <data name="ToolAlreadyInMyServers" xml:space="preserve">
+    <value>Ce serveur est déjà dans « Mes serveurs ».</value>
   </data>
 </root>

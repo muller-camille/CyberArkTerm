@@ -155,7 +155,7 @@ public partial class FileBrowserPanel
         var conflicts = names.Where(existing.Contains).Distinct(StringComparer.Ordinal).ToList();
         if (conflicts.Count > 0 && MessageBox.Show(Window.GetWindow(this),
                 Text.Format(Strings.UploadConflicts, directory, string.Join("\n", conflicts.Take(10).Select(c => "  • " + c))),
-                Strings.UploadTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                Strings.UploadTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
         {
             return;
         }

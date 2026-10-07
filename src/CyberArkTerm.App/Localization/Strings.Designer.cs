@@ -3071,7 +3071,12 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to First connection to the PSMP {0}:{1}.  Key fingerprint ({2}): SHA256:{3}  Check it with your Cybe[rest of string was truncated].
+        ///   Looks up a localized string similar to First connection to the PSMP {0}:{1}.
+        ///
+        ///Key fingerprint ({2}):
+        ///SHA256:{3}
+        ///
+        ///Compare it with the fingerprint published by your CyberArk team. Trust this server?.
         /// </summary>
         public static string HostKeyUnknown {
             get {
@@ -7661,7 +7666,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Filter sessions….
+        ///   Looks up a localized string similar to Filter accounts….
         /// </summary>
         public static string SearchPlaceholder {
             get {
@@ -8363,7 +8368,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to : filter sessions.
+        ///   Looks up a localized string similar to : filter accounts.
         /// </summary>
         public static string ShortcutFilter {
             get {
@@ -10291,6 +10296,42 @@ namespace CyberArkTerm.App.Localization {
         public static string KeePassConnectNoLog {
             get {
                 return ResourceManager.GetString("KeePassConnectNoLog", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Select an account in “Available” or “My servers” first..
+        /// </summary>
+        public static string ToolSelectAccount {
+            get {
+                return ResourceManager.GetString("ToolSelectAccount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Select a KeePass entry first..
+        /// </summary>
+        public static string ToolSelectKeePassEntry {
+            get {
+                return ResourceManager.GetString("ToolSelectKeePassEntry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A connection is being opened..
+        /// </summary>
+        public static string ToolBusyConnecting {
+            get {
+                return ResourceManager.GetString("ToolBusyConnecting", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This server is already in “My servers”..
+        /// </summary>
+        public static string ToolAlreadyInMyServers {
+            get {
+                return ResourceManager.GetString("ToolAlreadyInMyServers", resourceCulture);
             }
         }
     }

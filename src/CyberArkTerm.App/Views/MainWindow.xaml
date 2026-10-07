@@ -465,7 +465,7 @@
                             <TextBlock Text="{x:Static loc:Strings.ToolAddToMyServers}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource ToolButton}" Command="Refresh" ToolTip="{x:Static loc:Strings.ToolRefreshTip}">
+                    <Button x:Name="RefreshButton" Style="{StaticResource ToolButton}" Command="Refresh" ToolTip="{x:Static loc:Strings.ToolRefreshTip}">
                         <StackPanel>
                             <Image Source="{StaticResource IconRefresh}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolRefresh}" Style="{StaticResource ToolLabel}" />

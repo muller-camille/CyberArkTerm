@@ -36,7 +36,9 @@ public partial class MainWindow
 
         SavedTree.ItemsSource = items;
         _savedTreeFiltered = filtered;
-        NoSavedText.Text = filtered ? Text.Format(Strings.SavedSearchNoMatch, filter) : Strings.NoSavedHelp;
+        NoSavedText.Text = filtered ? Text.Format(Strings.SavedSearchNoMatch, filter)
+            : IsOffline ? Strings.NoKeePassHelp
+            : Strings.NoSavedHelp;
         NoSavedText.Visibility = items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
@@ -474,7 +476,7 @@ public partial class MainWindow
         {
             case SavedSessionNode node:
                 if (MessageBox.Show(this, Text.Format(Strings.RemoveSavedConfirm, node.Session.Name),
-                        Strings.MyServers, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                        Strings.MyServers, MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
                     _settings.Sessions.Remove(node.Session);
                     SaveAndRefreshSaved();

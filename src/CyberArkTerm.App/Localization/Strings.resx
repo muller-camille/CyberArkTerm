@@ -193,7 +193,7 @@
     <value>Filter by server, user, safe, platform… (Ctrl+F)</value>
   </data>
   <data name="SearchPlaceholder" xml:space="preserve">
-    <value>Filter sessions…</value>
+    <value>Filter accounts…</value>
   </data>
   <data name="GroupBy" xml:space="preserve">
     <value>Group by</value>
@@ -268,7 +268,7 @@
     <value>: “Files” tab on the left, drag and drop to upload</value>
   </data>
   <data name="ShortcutFilter" xml:space="preserve">
-    <value>: filter sessions</value>
+    <value>: filter accounts</value>
   </data>
   <data name="ShortcutReload" xml:space="preserve">
     <value>: reload from the PVWA</value>
@@ -572,7 +572,7 @@ The accounts remain available in the “Available” tab.</value>
 Key fingerprint ({2}):
 SHA256:{3}
 
-Check it with your CyberArk team if needed. Trust this server?</value>
+Compare it with the fingerprint published by your CyberArk team. Trust this server?</value>
   </data>
   <data name="HostKeyChanged" xml:space="preserve">
     <value>WARNING: the key of the PSMP {0}:{1} has changed!
@@ -3540,5 +3540,17 @@ Replace them? Each one is replaced only once its download is complete.</value>
   </data>
   <data name="KeePassConnectNoLog" xml:space="preserve">
     <value>The emergency access log cannot be written ({0}): the connection is not opened.</value>
+  </data>
+  <data name="ToolSelectAccount" xml:space="preserve">
+    <value>Select an account in “Available” or “My servers” first.</value>
+  </data>
+  <data name="ToolSelectKeePassEntry" xml:space="preserve">
+    <value>Select a KeePass entry first.</value>
+  </data>
+  <data name="ToolBusyConnecting" xml:space="preserve">
+    <value>A connection is being opened.</value>
+  </data>
+  <data name="ToolAlreadyInMyServers" xml:space="preserve">
+    <value>This server is already in “My servers”.</value>
   </data>
 </root>

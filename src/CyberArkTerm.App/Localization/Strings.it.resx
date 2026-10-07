@@ -193,7 +193,7 @@
     <value>Filtra per server, utente, safe, piattaforma… (Ctrl+F)</value>
   </data>
   <data name="SearchPlaceholder" xml:space="preserve">
-    <value>Filtra le sessioni…</value>
+    <value>Filtra gli account…</value>
   </data>
   <data name="GroupBy" xml:space="preserve">
     <value>Raggruppa per</value>
@@ -268,7 +268,7 @@
     <value>: scheda «File» a sinistra, trascina e rilascia per inviare</value>
   </data>
   <data name="ShortcutFilter" xml:space="preserve">
-    <value>: filtra le sessioni</value>
+    <value>: filtra gli account</value>
   </data>
   <data name="ShortcutReload" xml:space="preserve">
     <value>: ricarica dal PVWA</value>
@@ -572,7 +572,7 @@ Gli account restano disponibili nella scheda «Disponibili».</value>
 Impronta della chiave ({2}):
 SHA256:{3}
 
-Verificala con il team CyberArk se necessario. Considerare attendibile questo server?</value>
+Confrontala con l'impronta pubblicata dal team CyberArk. Considerare attendibile questo server?</value>
   </data>
   <data name="HostKeyChanged" xml:space="preserve">
     <value>ATTENZIONE: la chiave del PSMP {0}:{1} è cambiata!
@@ -3540,5 +3540,17 @@ Sostituirli? Ognuno viene sostituito solo a download completato.</value>
   </data>
   <data name="KeePassConnectNoLog" xml:space="preserve">
     <value>Il registro degli accessi di emergenza non può essere scritto ({0}): la connessione non viene aperta.</value>
+  </data>
+  <data name="ToolSelectAccount" xml:space="preserve">
+    <value>Seleziona prima un account in «Disponibili» o «I miei server».</value>
+  </data>
+  <data name="ToolSelectKeePassEntry" xml:space="preserve">
+    <value>Seleziona prima una voce KeePass.</value>
+  </data>
+  <data name="ToolBusyConnecting" xml:space="preserve">
+    <value>È in corso l'apertura di una connessione.</value>
+  </data>
+  <data name="ToolAlreadyInMyServers" xml:space="preserve">
+    <value>Questo server è già in «I miei server».</value>
   </data>
 </root>

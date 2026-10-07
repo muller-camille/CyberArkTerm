@@ -61,7 +61,6 @@ public partial class MainWindow
         _remoteSessions.Add(session);
         MainTabs.Items.Add(tab);
         MainTabs.SelectedItem = tab;
-        SideTabs.SelectedItem = FilesTab;
         // La connexion (et ses éventuelles questions : clé d'hôte, mot de passe, MFA) se poursuit dans l'onglet.
         _ = view.ConnectAsync();
     }

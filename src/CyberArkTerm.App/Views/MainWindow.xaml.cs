@@ -105,9 +105,10 @@ public partial class MainWindow : Window
             // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de l'onglet « Courants ».
             AvailableTab.Visibility = Visibility.Collapsed;
             QuickPanel.Visibility = HomeLists.Visibility = NewFolderButton.Visibility = Visibility.Collapsed;
+            // Boutons propres à CyberArk masqués plutôt que grisés : ils ne serviraient jamais dans ce mode.
+            SshButton.Visibility = AdvancedButton.Visibility = AddCurrentButton.Visibility = RefreshButton.Visibility = Visibility.Collapsed;
             ImportServersButton.Visibility = ExportServersButton.Visibility = Visibility.Collapsed;
             SharedListsButton.Visibility = SharedSeparator.Visibility = Visibility.Collapsed;
-            NoSavedText.Text = Strings.NoKeePassHelp;
             SideTabs.SelectedItem = CurrentTab;
             CountText.Text = "";
         }
@@ -120,9 +121,21 @@ public partial class MainWindow : Window
         RefreshSaved();
         UpdateWelcome();
         UpdateActions();
+        // « Parallèle » n'est actif qu'avec au moins une session SSH ouverte.
+        ((System.Collections.Specialized.INotifyCollectionChanged)MainTabs.Items).CollectionChanged += (_, _) => UpdateActions();
         StartKeepAlive();
         Loaded += async (_, _) =>
         {
+            // Prêt à taper : la connexion rapide (ou, en accès d'urgence, la liste des coffres KeePass).
+            if (IsOffline)
+            {
+                SavedTree.Focus();
+            }
+            else
+            {
+                QuickBox.Focus();
+            }
+
             _ = CheckForUpdateAsync();
             if (!IsOffline)
             {
@@ -488,8 +501,20 @@ public partial class MainWindow : Window
         AdvancedButton.IsEnabled = has;
         AddCurrentButton.IsEnabled = _current is not null && _currentSaved is null;
         SshButton.IsEnabled = has && HasPsmp;
-        SshButton.ToolTip = HasPsmp ? Strings.ToolSshTip : Strings.SetPsmpAddress;
+        // Infobulles visibles sur un bouton grisé : elles disent ce qui manque.
+        string selectFirst = _connecting ? Strings.ToolBusyConnecting : IsOffline ? Strings.ToolSelectKeePassEntry : Strings.ToolSelectAccount;
+        ConnectButton.ToolTip = ConnectButton.IsEnabled ? Strings.ToolConnectTip : WithReason(Strings.ToolConnectTip, selectFirst);
+        AdvancedButton.ToolTip = has ? Strings.ToolAdvancedTip : WithReason(Strings.ToolAdvancedTip, selectFirst);
+        AddCurrentButton.ToolTip = AddCurrentButton.IsEnabled ? Strings.ToolAddToMyServersTip
+            : WithReason(Strings.ToolAddToMyServersTip, _currentSaved is not null ? Strings.ToolAlreadyInMyServers : Strings.ToolSelectAccount);
+        SshButton.ToolTip = !HasPsmp ? Strings.SetPsmpAddress : has ? Strings.ToolSshTip : WithReason(Strings.ToolSshTip, selectFirst);
+        bool anySsh = MainTabs.Items.OfType<TabItem>().Any(t => t.Tag is SshSession);
+        ParallelButton.IsEnabled = anySsh;
+        ParallelButton.ToolTip = anySsh ? Strings.ToolParallelTip : WithReason(Strings.ToolParallelTip, Strings.ParallelNoSession);
     }
+
+    /// <summary>Infobulle d'un bouton grisé : ce qu'il fait, puis ce qui manque pour qu'il soit actif.</summary>
+    private static string WithReason(string tip, string reason) => tip + "\n" + reason;
 
     private void OnTreeSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e) => SetCurrentFrom(e.NewValue);
 
