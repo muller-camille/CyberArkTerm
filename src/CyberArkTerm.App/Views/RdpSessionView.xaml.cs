@@ -1,6 +1,5 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.App.Services.Rdp;
 
@@ -58,7 +57,7 @@ public partial class RdpSessionView : UserControl
 
         if (session.IsNotResponding)
         {
-            StatusLine.Foreground = Brushes.Firebrick;
+            StatusLine.SetResourceReference(TextBlock.ForegroundProperty, "ErrorBrush");
             StatusLine.FontWeight = FontWeights.SemiBold;
         }
         else

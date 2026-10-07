@@ -9,7 +9,7 @@ using CyberArkTerm.Core.Terminal;
 namespace CyberArkTerm.App.Views;
 
 /// <summary>
-/// Plusieurs serveurs « Courants » à la fois : Ctrl+clic ajoute ou retire un serveur (ou tous ceux d'un dossier),
+/// Plusieurs serveurs « Mes serveurs » à la fois : Ctrl+clic ajoute ou retire un serveur (ou tous ceux d'un dossier),
 /// Maj+clic choisit une suite de serveurs ; clic droit → « Ouvrir en vue parallèle » ou « Se connecter aux N serveurs ».
 /// Un dossier s'ouvre aussi d'un coup (clic droit sur le dossier). Seuls les serveurs SSH vont dans la vue parallèle.
 /// </summary>
@@ -124,7 +124,7 @@ public partial class MainWindow
         }
     }
 
-    /// <summary>Serveurs de l'arbre « Courants », dans l'ordre affiché (dossiers repliés compris ou non).</summary>
+    /// <summary>Serveurs de l'arbre « Mes serveurs », dans l'ordre affiché (dossiers repliés compris ou non).</summary>
     private IEnumerable<SavedSessionNode> VisibleSavedNodes(bool includeCollapsed)
     {
         IEnumerable<SavedSessionNode> Walk(IEnumerable<object> nodes)
@@ -245,7 +245,7 @@ public partial class MainWindow
         }
     }
 
-    /// <summary>Requête de connexion d'un serveur « Courants », avec sa configuration.</summary>
+    /// <summary>Requête de connexion d'un serveur « Mes serveurs », avec sa configuration.</summary>
     private ConnectRequest SavedRequest(SavedSession saved, PvwaAccount account)
     {
         var machines = AccountClassifier.RemoteMachineList(account);

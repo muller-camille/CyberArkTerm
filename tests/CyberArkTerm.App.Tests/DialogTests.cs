@@ -70,6 +70,91 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>
+    /// Confirmations : boutons au verbe explicite, « Annuler » par défaut ; une action irréversible est rouge et reste
+    /// grisée tant que la case « J'ai vérifié… » n'est pas cochée.
+    /// </summary>
+    [Fact]
+    public void ConfirmationsDefaultToCancel()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var changed = new ConfirmDialog(new ConfirmRequest
+            {
+                Title = Strings.HostKeyTitle,
+                Banner = Strings.HostKeyChangedBanner,
+                Heading = Strings.HostKeyChangedPsmpHeading,
+                Subject = "psmp.corp:22",
+                Codes = [("old", "SHA256:AAA"), ("new", "SHA256:BBB")],
+                Kind = ConfirmKind.Danger,
+                Actions = [Strings.HostKeyReplace],
+                DangerAction = 0,
+                Acknowledge = Strings.HostKeyAckPsmp,
+            });
+            var buttons = changed.ButtonsPanel.Children.OfType<System.Windows.Controls.Button>().ToList();
+            Assert.Equal([Strings.HostKeyReplace, Strings.Cancel], buttons.Select(b => (string)b.Content));
+            Assert.False(buttons[0].IsEnabled);
+            Assert.False(buttons[0].IsDefault);
+            Assert.True(buttons[1].IsDefault && buttons[1].IsCancel);
+            Assert.Equal(Visibility.Visible, changed.Banner.Visibility);
+            changed.AcknowledgeBox.IsChecked = true;
+            Assert.True(buttons[0].IsEnabled);
+            Assert.Equal(2, changed.CodeList.Items.Count);
+            changed.Close();
+
+            // Renvoi d'un fichier enregistré dans l'éditeur : l'action attendue est le bouton par défaut.
+            var upload = new ConfirmDialog(new ConfirmRequest
+            {
+                Title = "t",
+                Heading = "h",
+                Items = ["a", "b"],
+                Actions = [Strings.EditUploadAction],
+                DefaultAction = 0,
+                CancelLabel = Strings.NotNow,
+            });
+            var choices = upload.ButtonsPanel.Children.OfType<System.Windows.Controls.Button>().ToList();
+            Assert.True(choices[0].IsDefault);
+            Assert.False(choices[1].IsDefault);
+            Assert.Equal(Strings.NotNow, choices[1].Content);
+            Assert.Equal(Visibility.Visible, upload.ItemsPanel.Visibility);
+            upload.Close();
+        });
+    }
+
+    /// <summary>Droits de plusieurs fichiers (755 et 644) : seuls les droits changés partent, pas ceux du premier.</summary>
+    [Fact]
+    public void PermissionsOfMixedItemsOnlyChangeWhatIsTicked()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var dialog = new PermissionsDialog("2", "root@srv:/opt", [0b111_101_101, 0b110_100_100], hasDirectory: false);
+            var boxes = dialog.BitsGrid.Children.OfType<System.Windows.Controls.CheckBox>().ToList();
+            Assert.Equal(9, boxes.Count);
+            // x du propriétaire, du groupe et des autres : différents d'un fichier à l'autre.
+            Assert.All(new[] { 2, 5, 8 }, i => Assert.Null(boxes[i].IsChecked));
+            Assert.Equal(Visibility.Visible, dialog.MixedText.Visibility);
+            Assert.Equal("", dialog.OctalBox.Text);
+            Assert.Equal("rw?r-?r-?", dialog.SymbolicText.Text);
+
+            boxes[4].IsChecked = true;
+            var change = dialog.CurrentChange;
+            Assert.Equal(0b111_111_101, change.Apply(0b111_101_101));
+            Assert.Equal(0b110_110_100, change.Apply(0b110_100_100));
+            Assert.Equal(Strings.PermissionsApply, dialog.OkButton.Content);
+            dialog.Close();
+        });
+    }
+
     [Fact]
     public void SafeMemberWindowsOpen()
     {
@@ -81,6 +166,10 @@ public sealed class DialogTests
         RunWithTheme(() =>
         {
             var add = new SafeMemberDialog("Prod", (_, _) => Task.CompletedTask);
+            // Nouveau membre : se connecter sans voir les mots de passe.
+            Assert.Equal(SafeProfile.AccountUser, add.ProfileBox.SelectedValue);
+            add.ProfileBox.SelectedValue = SafeProfile.ReadOnly;
+            Assert.Equal(SafeProfile.ReadOnly, add.ProfileBox.SelectedValue);
             Assert.Equal(Visibility.Visible, add.SearchInBox.Visibility);
             Assert.Equal("Vault", add.SearchInBox.Text);
             Assert.Equal((2, 3), (add.LeftGroups.Children.Count, add.RightGroups.Children.Count));
@@ -91,6 +180,11 @@ public sealed class DialogTests
                  "permissions":{"listAccounts":true,"addAccounts":true}}
                 """, Web)!;
             var edit = new SafeMemberDialog("Prod", member, (_, _) => Task.CompletedTask);
+            Assert.Equal(SafeProfile.Custom, edit.ProfileBox.SelectedValue);
+            Assert.Equal(Visibility.Collapsed, edit.ChangesText.Visibility);
+            edit.ProfileBox.SelectedValue = SafeProfile.ReadOnly;
+            // Lister gardé, ajouter retiré, audit et membres ajoutés.
+            Assert.Equal(Text.Format(Strings.SafeMemberChanges, 2, 1), edit.ChangesText.Text);
             Assert.True(edit.NameBox.IsReadOnly);
             Assert.False(edit.TypeBox.IsEnabled);
             Assert.Equal(1, edit.TypeBox.SelectedIndex);
@@ -255,17 +349,51 @@ public sealed class DialogTests
             Assert.Equal(Strings.QueueStateWaiting, TransferStatusConverter.StateText(waiting));
 
             panel.Queue.Cancel(waiting);
+            // Somme SHA-256 réelle (32 octets) : le bilan en affiche les 12 premiers caractères.
+            var hash = System.Security.Cryptography.SHA256.HashData("app.conf"u8);
+            running.Checks.Add(new TransferCheck("app.conf", @"C:\Temp\app.conf", "/opt/app/app.conf", 3, hash, 3, [.. hash]));
             release.SetResult();
 
             Assert.Equal((TransferState.Done, TransferState.Cancelled), (running.State, waiting.State));
-            Assert.Equal(Visibility.Collapsed, panel.QueuePanel.Visibility);
             Assert.Equal(0, panel.ActiveTransfers(null));
             Assert.Contains(Text.Format(Strings.QueueSummaryCancelled, 1), panel.StatusText.Text);
+            // Les résultats restent dans la file (vérification SHA-256 par ligne) jusqu'à « Effacer les terminés ».
+            Assert.Equal(Visibility.Visible, panel.QueuePanel.Visibility);
+            Assert.Equal(Text.Format(Strings.QueueStateVerified, 1, 1), TransferStatusConverter.StateText(running));
+            Assert.Equal("Ok", TransferStatusConverter.Outcome(running));
+            Assert.Equal((Visibility.Collapsed, Visibility.Visible), (panel.CancelAllButton.Visibility, panel.ClearFinishedButton.Visibility));
+            Assert.Equal(0, panel.UnseenProblems);
+            panel.Queue.ClearFinished();
+            Assert.Equal(Visibility.Collapsed, panel.QueuePanel.Visibility);
 
             // Historique : l'envoi terminé y figure ; l'élément retiré avant d'avoir commencé, non.
             var record = Assert.Single(panel.History.Records);
             Assert.Equal(("deploy/", true, TransferState.Done, "SCP"), (record.Label, record.Upload, record.State, record.Protocol));
+
+            // Un échec est signalé (pastille de l'onglet Fichiers) jusqu'à ce que l'onglet soit affiché.
+            panel.Queue.Enqueue(new TransferItem(true, "fail/", "/opt/app", (_, _) => throw new IOException("disque plein")));
+            Assert.Equal(1, panel.UnseenProblems);
+            Assert.Equal("Error", TransferStatusConverter.Outcome(panel.Queue.Items[^1]));
+            panel.MarkTransfersSeen();
+            Assert.Equal(0, panel.UnseenProblems);
         });
+    }
+
+    /// <summary>Nouveau nom (renommer, nouveau dossier) : ni « / », ni caractère de contrôle, ni « . » ou « .. ».</summary>
+    [Fact]
+    public void RemoteNamesAreChecked()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        Assert.Null(FileBrowserPanel.ValidateName("app.conf"));
+        Assert.Null(FileBrowserPanel.ValidateName(".bashrc"));
+        Assert.Equal(Strings.NameNoSlash, FileBrowserPanel.ValidateName("../etc/passwd"));
+        Assert.Equal(Strings.NameNoControl, FileBrowserPanel.ValidateName("a\r\nDELE b"));
+        Assert.Equal(Strings.NameReserved, FileBrowserPanel.ValidateName(".."));
+        Assert.Equal(Strings.NameReserved, FileBrowserPanel.ValidateName("."));
     }
 
     /// <summary>Onglet Fichiers : tri par colonne (« .. » et dossiers en tête), flèche dans l'en-tête, réglage enregistré.</summary>
@@ -387,8 +515,12 @@ public sealed class DialogTests
             dialog.RecordsGrid.SelectedItem = download;
             Assert.True(dialog.ChecksButton.IsEnabled);
             Assert.True(dialog.OpenFolderButton.IsEnabled);
-            Assert.Equal(Text.Format(Strings.HistoryDone, 1), TransferHistoryDialog.Result(download));
+            Assert.Equal(Text.Format(Strings.QueueStateVerified, 1, 1), TransferHistoryDialog.Result(download));
             Assert.Equal("✗ permission refusée", TransferHistoryDialog.Result(history.Records[0]));
+            // Échec en rouge, réussite normale.
+            Assert.True(TransferHistoryDialog.HasProblem(history.Records[0]));
+            Assert.False(TransferHistoryDialog.HasProblem(download));
+            Assert.NotNull(dialog.RecordsGrid.RowStyle);
             Assert.Equal(0, saved);
             dialog.Close();
         });
@@ -621,7 +753,7 @@ public sealed class DialogTests
 
         RunWithTheme(() =>
         {
-            var feed = new TailFeed(new MemoryLink("root@srv01"), "/var/log/app.log", TailBrushes.Sources[0]);
+            var feed = new TailFeed(new MemoryLink("root@srv01"), "/var/log/app.log", TailBrushes.Source(0));
             var style = new TailStyle(["db01"], null, Colors: true, Prefixes: true, Wrap: false);
             var block = new System.Windows.Controls.TextBlock();
             TailRowText.SetRow(block, new TailRow(new TailLine("12:00 ERROR db01 down", feed, TailLevel.Error, false), TailShownKind.Line, style));
@@ -636,6 +768,39 @@ public sealed class DialogTests
             var settings = new AppSettings { TailIndependentSession = true };
             var dialog = new SettingsDialog(settings);
             Assert.True(dialog.TailSessionBox.IsChecked);
+            dialog.Close();
+        });
+    }
+
+    /// <summary>
+    /// Paramètres, page Sécurité : clés acceptées en tableau (serveur, type, empreinte) ; seules les clés choisies sont
+    /// oubliées, et seulement à l'enregistrement.
+    /// </summary>
+    [Fact]
+    public void SettingsForgetOnlyTheChosenHostKeys()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var settings = new AppSettings();
+            CyberArkTerm.Core.Ssh.KnownHosts.Remember(settings.KnownHosts, "psmp.corp.local", 22, "ssh-ed25519", "AAAA");
+            CyberArkTerm.Core.Ssh.KnownHosts.Remember(settings.KnownHosts, "ftp.corp.local", 990, "X.509", "BBBB");
+            var dialog = new SettingsDialog(settings);
+            Assert.Equal(2, dialog.HostKeyRows.Count);
+            Assert.Contains(new SettingsDialog.HostKeyRow("psmp.corp.local:22", "ssh-ed25519", "SHA256:AAAA"), dialog.HostKeyRows);
+            Assert.False(dialog.ForgetKeysButton.IsEnabled);
+
+            dialog.HostKeysGrid.SelectedItems.Add(dialog.HostKeyRows.Single(r => r.Server == "ftp.corp.local:990"));
+            dialog.ForgetSelectedKeys();
+            Assert.Equal(["psmp.corp.local:22"], dialog.HostKeyRows.Select(r => r.Server));
+            Assert.Equal(2, settings.KnownHosts.Count);
+
+            dialog.ApplyForgottenKeys();
+            Assert.Equal(["psmp.corp.local:22"], settings.KnownHosts.Keys);
             dialog.Close();
         });
     }
@@ -873,6 +1038,9 @@ public sealed class DialogTests
 
             var compare = new CompareDialog("root@srv01 : /etc/app.conf", "/etc/app.conf", [s1, s2], s1);
             Assert.Equal("/etc/app.conf", compare.RemoteFile);
+            // Aucun autre serveur connecté : un fichier de ce poste est proposé (le même chemin donnerait le même fichier).
+            Assert.True(compare.LocalRadio.IsChecked);
+            compare.ServerRadio.IsChecked = true;
             Assert.True(compare.BrowseServerButton.IsEnabled);
             compare.Close();
 
@@ -1130,6 +1298,7 @@ public sealed class DialogTests
         public Task<List<RemoteEntry>> BrowseAsync(string directory, bool showHidden, CancellationToken ct) => Task.FromResult(entries.ToList());
         public Task DeleteAsync(RemoteEntry entry, CancellationToken ct) => throw new NotSupportedException();
         public Task CreateDirectoryAsync(string path, CancellationToken ct) => throw new NotSupportedException();
+        public Task RenameAsync(string path, string newPath, CancellationToken ct) => throw new NotSupportedException();
         public Task<bool> ExistsAsync(string path, CancellationToken ct) => Task.FromResult(true);
         public Task UploadAsync(string localPath, string remoteDirectory, TransferProtocol protocol, ICollection<TransferCheck> checks,
             IProgress<TransferProgress>? progress, bool background, CancellationToken ct) => throw new NotSupportedException();
@@ -1141,7 +1310,7 @@ public sealed class DialogTests
         public Task<(DateTime LastWriteTime, long Length)> WriteFileAsync(string remotePath, byte[] content, CancellationToken ct) =>
             throw new NotSupportedException();
         public Task<int?> GetModeAsync(string path, CancellationToken ct) => Task.FromResult<int?>(null);
-        public Task<PermissionsResult> SetPermissionsAsync(string path, int mode, bool includeSpecial, bool recursive,
+        public Task<PermissionsResult> SetPermissionsAsync(string path, PermissionChange change, bool recursive,
             bool executeOnlyIfAlready, IProgress<int>? progress, CancellationToken ct) => throw new NotSupportedException();
         public Task<List<RemoteTreeItem>> ListTreeAsync(IReadOnlyList<RemoteEntry> roots, int maxItems, CancellationToken ct) =>
             throw new NotSupportedException();

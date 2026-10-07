@@ -82,7 +82,9 @@ public partial class SafeMembersDialog : Window
 
     private async Task LoadAsync()
     {
-        ErrorMessage.Visibility = Visibility.Collapsed;
+        ErrorMessage.Visibility = RetryButton.Visibility = Visibility.Collapsed;
+        StatePanel.Visibility = LoadingBar.Visibility = Visibility.Visible;
+        StatusText.Text = Strings.SafeMembersLoading;
         StatusText.Visibility = Visibility.Visible;
         try
         {
@@ -125,7 +127,8 @@ public partial class SafeMembersDialog : Window
             ? Strings.SafeMembersNobodyCanAdd
             : Text.Format(Strings.SafeMembersCanAdd, string.Join(", ", canAdd.Select(r => r.Member.IsGroup ? r.Name + Strings.SafeMembersGroupSuffix : r.Name)));
         SummaryPanel.Visibility = Visibility.Visible;
-        MembersGrid.Visibility = Visibility.Visible;
+        MembersGrid.Visibility = HintText.Visibility = Visibility.Visible;
+        StatePanel.Visibility = Visibility.Collapsed;
         ManagePanel.Visibility = _actions is null ? Visibility.Collapsed : Visibility.Visible;
         ApplyFilter();
     }
@@ -133,12 +136,18 @@ public partial class SafeMembersDialog : Window
     private void ApplyFilter() =>
         MembersGrid.ItemsSource = OnlyAddBox.IsChecked == true ? _rows.Where(r => r.Permissions.AddAccounts).ToList() : _rows;
 
+    /// <summary>Erreur au centre, avec « Réessayer » ; l'astuce de copie du tableau disparaît avec lui.</summary>
     private void ShowError(string message)
     {
-        StatusText.Visibility = Visibility.Collapsed;
+        StatusText.Visibility = LoadingBar.Visibility = Visibility.Collapsed;
+        MembersGrid.Visibility = HintText.Visibility = SummaryPanel.Visibility = Visibility.Collapsed;
+        StatePanel.Visibility = Visibility.Visible;
         ErrorMessage.Text = message;
-        ErrorMessage.Visibility = Visibility.Visible;
+        ErrorMessage.Visibility = RetryButton.Visibility = Visibility.Visible;
+        RetryButton.Focus();
     }
+
+    private async void OnRetry(object sender, RoutedEventArgs e) => await LoadAsync();
 
     private void OnOnlyAddClick(object sender, RoutedEventArgs e) => ApplyFilter();
 
@@ -197,8 +206,8 @@ public partial class SafeMembersDialog : Window
     private async void OnRemoveMember(object sender, RoutedEventArgs e)
     {
         if (_actions is null || MembersGrid.SelectedItem is not SafeMemberRow row
-            || MessageBox.Show(this, Text.Format(Strings.SafeMemberRemoveConfirm, row.Name, _safe), Strings.SafeMembersTitle,
-                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+            || !ConfirmDialog.Destructive(this, Strings.SafeMembersTitle, Text.Format(Strings.SafeMemberRemoveHeading, row.Name),
+                Strings.SafeMemberRemoveAction, subject: Text.Format(Strings.SafeSubject, _safe), message: Strings.SafeMemberRemoveMessage))
         {
             return;
         }

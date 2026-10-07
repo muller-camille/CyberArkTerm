@@ -30,22 +30,22 @@ public sealed class AppSettings
 
     public GroupBy GroupBy { get; set; } = GroupBy.Safe;
 
-    /// <summary>Anciens favoris (remplacés par l'onglet « Courants », migrés au chargement des comptes).</summary>
+    /// <summary>Anciens favoris (remplacés par « Mes serveurs », migrés au chargement des comptes).</summary>
     public List<string> Favorites { get; set; } = [];
 
-    /// <summary>Dossiers de l'onglet « Courants » (« Prod/Web »...), y compris les dossiers vides.</summary>
+    /// <summary>Dossiers de « Mes serveurs » (« Prod/Web »...), y compris les dossiers vides.</summary>
     public List<string> SessionFolderList { get; set; } = [];
 
-    /// <summary>Serveurs de l'onglet « Courants », avec leur configuration.</summary>
+    /// <summary>Serveurs de « Mes serveurs », avec leur configuration.</summary>
     public List<SavedSession> Sessions { get; set; } = [];
 
     /// <summary>Requête légère régulière pour que la session PVWA n'expire pas par inactivité.</summary>
     public bool KeepPvwaSessionAlive { get; set; } = true;
 
-    /// <summary>Coffres KeePass affichés comme dossiers de l'onglet « Courants » (accès d'urgence hors CyberArk).</summary>
+    /// <summary>Coffres KeePass affichés comme dossiers de « Mes serveurs » (accès d'urgence hors CyberArk).</summary>
     public List<KeePassFolder> KeePassFolders { get; set; } = [];
 
-    /// <summary>Listes de serveurs partagées (fichiers sur un partage réseau) affichées dans l'onglet « Courants ».</summary>
+    /// <summary>Listes de serveurs partagées (fichiers sur un partage réseau) affichées dans « Mes serveurs ».</summary>
     public List<string> SharedLists { get; set; } = [];
 
     /// <summary>Sessions SSH dans un onglet CyberArkTerm (terminal + navigateur de fichiers) plutôt que Windows Terminal.</summary>
@@ -103,6 +103,15 @@ public sealed class AppSettings
     /// <summary>Le clic droit dans le terminal colle le presse-papiers au lieu d'ouvrir le menu (Maj+clic droit l'ouvre).</summary>
     public bool TerminalRightClickPastes { get; set; }
 
+    /// <summary>Confirmation avant de fermer une session connectée (SSH, Bureau à distance, VNC).</summary>
+    public bool ConfirmCloseSession { get; set; } = true;
+
+    /// <summary>
+    /// Avertissement avant de coller plusieurs lignes dans un terminal dont le shell n'a pas activé le collage protégé
+    /// (bash avant 5.1, ksh…) : chaque ligne y part comme une commande.
+    /// </summary>
+    public bool ConfirmMultiLinePaste { get; set; } = true;
+
     /// <summary>Outil de comparaison de fichiers (exécutable) proposé dans la fenêtre de comparaison ; vide = aucun.</summary>
     public string CompareTool { get; set; } = "";
 
@@ -115,6 +124,15 @@ public sealed class AppSettings
     public bool FollowTerminalFolder { get; set; } = true;
 
     public bool ShowHiddenFiles { get; set; }
+
+    /// <summary>Largeur du panneau de gauche (pixels indépendants) ; 0 = largeur par défaut.</summary>
+    public double SidePanelWidth { get; set; }
+
+    /// <summary>Panneau de gauche replié (Ctrl+B, double-clic sur le séparateur).</summary>
+    public bool SidePanelCollapsed { get; set; }
+
+    /// <summary>Position, taille et état de la fenêtre principale à sa dernière fermeture ; null = centrée, taille par défaut.</summary>
+    public WindowPlacement? MainWindowPlacement { get; set; }
 
     /// <summary>Tri de l'onglet Fichiers : colonne dont l'en-tête a été cliqué, et sens.</summary>
     public RemoteSortColumn FileSortColumn { get; set; } = RemoteSortColumn.Name;
@@ -161,7 +179,7 @@ public sealed class AppSettings
 
     /// <summary>
     /// Composants proposés dans les listes : celui mémorisé pour la plateforme <paramref name="platformId"/>, puis ceux
-    /// déjà utilisés (mémorisés, serveurs de « Courants », connexions récentes), puis les composants usuels de CyberArk.
+    /// déjà utilisés (mémorisés, serveurs de « Mes serveurs », connexions récentes), puis les composants usuels de CyberArk.
     /// Un PVWA peut nommer les siens autrement (par ex. WIN-PSM) : saisi une fois, un composant est ensuite proposé.
     /// </summary>
     public IReadOnlyList<string> KnownComponents(string? platformId)
@@ -348,6 +366,29 @@ public sealed class AppSettings
 }
 
 /// <summary>Connexion lancée récemment, affichée sur l'écran d'accueil.</summary>
+/// <summary>Position et taille d'une fenêtre (pixels indépendants), et si elle était agrandie.</summary>
+public sealed record WindowPlacement(double Left, double Top, double Width, double Height, bool Maximized)
+{
+    /// <summary>
+    /// Placement utilisable sur l'écran actuel (<paramref name="screen"/> : bureau virtuel, tous écrans) : taille au moins
+    /// minimale, et au moins 100 × 50 px de la barre de titre visibles. Null si la fenêtre serait hors de tout écran
+    /// (écran débranché…).
+    /// </summary>
+    public WindowPlacement? FitIn((double Left, double Top, double Width, double Height) screen, double minWidth, double minHeight)
+    {
+        if (!double.IsFinite(Left) || !double.IsFinite(Top) || !double.IsFinite(Width) || !double.IsFinite(Height))
+        {
+            return null;
+        }
+
+        var width = Math.Min(Math.Max(Width, minWidth), Math.Max(screen.Width, minWidth));
+        var height = Math.Min(Math.Max(Height, minHeight), Math.Max(screen.Height, minHeight));
+        bool visible = Left + width - 100 >= screen.Left && Left + 100 <= screen.Left + screen.Width
+                       && Top >= screen.Top - 10 && Top + 50 <= screen.Top + screen.Height;
+        return visible ? this with { Width = width, Height = height } : null;
+    }
+}
+
 public sealed class RecentSession
 {
     public string AccountId { get; set; } = "";
@@ -373,4 +414,7 @@ public sealed class RecentSession
     public string? RemoteMachine { get; set; }
 
     public DateTime When { get; set; }
+
+    /// <summary>Nom lu par les lecteurs d'écran dans la liste des connexions récentes.</summary>
+    public override string ToString() => $"{Label}, {Mode}";
 }

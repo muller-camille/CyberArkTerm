@@ -5,7 +5,7 @@ using CyberArkTerm.Core;
 
 namespace CyberArkTerm.App.Views;
 
-/// <summary>Configuration propre à un serveur de l'onglet « Courants ».</summary>
+/// <summary>Configuration propre à un serveur de « Mes serveurs ».</summary>
 public partial class SessionPropertiesDialog : Window
 {
     private readonly SavedSession _session;
@@ -33,6 +33,10 @@ public partial class SessionPropertiesDialog : Window
         MachineBox.Text = session.RemoteMachine ?? "";
         ReasonBox.Text = session.Reason ?? "";
         StartDirBox.Text = session.StartDirectory ?? "";
+        // Comme dans « Connexion avancée » : sans PSMP, SSH et SFTP sont grisés (le mode enregistré reste coché, visible).
+        SshRadio.IsEnabled = SftpRadio.IsEnabled = sshAvailable;
+        System.Windows.Controls.ToolTipService.SetShowOnDisabled(SshRadio, true);
+        System.Windows.Controls.ToolTipService.SetShowOnDisabled(SftpRadio, true);
         SshRadio.ToolTip = sshAvailable ? null : Strings.SetPsmpAddress;
         SftpRadio.ToolTip = sshAvailable ? Strings.MenuConnectSftpTip : Strings.SetPsmpAddress;
         (session.Mode switch { ConnectMode.Ssh => SshRadio, ConnectMode.Sftp => SftpRadio, _ => PsmRadio }).IsChecked = true;
@@ -60,8 +64,10 @@ public partial class SessionPropertiesDialog : Window
         var start = StartDirBox.Text.Trim();
         if (start.Length > 0 && !start.StartsWith('/'))
         {
-            MessageBox.Show(this, Strings.StartDirMustBeAbsolute, Title,
-                MessageBoxButton.OK, MessageBoxImage.Warning);
+            ErrorText.Text = Strings.StartDirMustBeAbsolute;
+            ErrorText.Visibility = Visibility.Visible;
+            StartDirBox.Focus();
+            StartDirBox.SelectAll();
             return;
         }
 

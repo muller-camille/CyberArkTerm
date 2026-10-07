@@ -14,8 +14,8 @@ public partial class SettingsDialog : Window
 {
     private readonly AppSettings _settings;
     private readonly LocalSecretStore? _store;
+    private readonly HashSet<string> _forgottenKeys = new(StringComparer.Ordinal);
     private bool _forgetComponents;
-    private bool _forgetHostKeys;
 
     /// <param name="store">Coffre local des mots de passe maîtres KeePass, géré depuis cette fenêtre.</param>
     public SettingsDialog(AppSettings settings, LocalSecretStore? store = null)
@@ -43,19 +43,46 @@ public partial class SettingsDialog : Window
         ThemeBox.SelectedItem = TerminalTheme.Find(settings.TerminalTheme);
         FontSizeBox.Text = settings.TerminalFontSize.ToString(CultureInfo.CurrentCulture);
         RightClickBox.IsChecked = settings.TerminalRightClickPastes;
+        ConfirmPasteBox.IsChecked = settings.ConfirmMultiLinePaste;
+        ConfirmCloseBox.IsChecked = settings.ConfirmCloseSession;
         CompareArgsBox.Text = settings.CompareToolArguments;
         (settings.PreferredUploadProtocol == TransferProtocol.Scp ? ScpRadio : SftpRadio).IsChecked = true;
         ArchiveBox.IsChecked = settings.OfferArchive;
         ArchiveThresholdBox.Text = settings.ArchiveThreshold.ToString(CultureInfo.InvariantCulture);
         TailSessionBox.IsChecked = settings.TailIndependentSession;
-        HostKeysText.Text = settings.KnownHosts.Count == 0
-            ? Strings.NoHostKeys
-            : Text.Format(Strings.HostKeys, string.Join(", ", settings.KnownHosts.Keys));
+        ShowHostKeys();
         ComponentsText.Text = settings.ComponentByPlatform.Count == 0
             ? Strings.NoComponents
             : string.Join(", ", settings.ComponentByPlatform.Select(kv => Text.Format(Strings.ComponentEntry, kv.Key, kv.Value)));
-        Loaded += (_, _) => PsmpBox.Focus();
+        ForgetComponentsButton.IsEnabled = settings.ComponentByPlatform.Count > 0;
+        Loaded += (_, _) => LanguageBox.Focus();
     }
+
+    /// <summary>Clé d'hôte acceptée : « hôte:port », type de clé (ou X.509 pour un certificat FTPS), empreinte SHA-256.</summary>
+    internal sealed record HostKeyRow(string Server, string Algorithm, string Fingerprint);
+
+    /// <summary>Clés affichées (celles choisies pour l'oubli disparaissent de la liste, l'oubli se fait à l'enregistrement).</summary>
+    internal IReadOnlyList<HostKeyRow> HostKeyRows { get; private set; } = [];
+
+    private void ShowHostKeys()
+    {
+        HostKeyRows = _settings.KnownHosts
+            .Where(kv => !_forgottenKeys.Contains(kv.Key))
+            .OrderBy(kv => kv.Key, StringComparer.OrdinalIgnoreCase)
+            .Select(kv =>
+            {
+                int space = kv.Value.IndexOf(' ');
+                return new HostKeyRow(kv.Key, space > 0 ? kv.Value[..space] : "", space > 0 ? kv.Value[(space + 1)..] : kv.Value);
+            })
+            .ToList();
+        HostKeysGrid.ItemsSource = HostKeyRows;
+        HostKeysText.Text = _forgottenKeys.Count > 0 ? Strings.HostKeysForgotten
+            : HostKeyRows.Count == 0 ? Strings.NoHostKeys
+            : Strings.HostKeysHelp;
+    }
+
+    private void OnHostKeySelected(object sender, System.Windows.Controls.SelectionChangedEventArgs e) =>
+        ForgetKeysButton.IsEnabled = HostKeysGrid.SelectedItems.Count > 0;
 
     /// <summary>
     /// Hauteur maximale : la zone de travail de l'écran où s'ouvre la fenêtre (celui de la fenêtre principale, qui peut
@@ -78,12 +105,29 @@ public partial class SettingsDialog : Window
     {
         _forgetComponents = true;
         ComponentsText.Text = Strings.ComponentsForgotten;
+        ForgetComponentsButton.IsEnabled = false;
     }
 
-    private void OnForgetHostKeys(object sender, RoutedEventArgs e)
+    /// <summary>Clés choisies retirées de la liste ; elles sont oubliées à l'enregistrement (« Annuler » les garde).</summary>
+    private void OnForgetHostKeys(object sender, RoutedEventArgs e) => ForgetSelectedKeys();
+
+    internal void ForgetSelectedKeys()
     {
-        _forgetHostKeys = true;
-        HostKeysText.Text = Strings.HostKeysForgotten;
+        foreach (var row in HostKeysGrid.SelectedItems.OfType<HostKeyRow>().ToList())
+        {
+            _forgottenKeys.Add(row.Server);
+        }
+
+        ShowHostKeys();
+    }
+
+    /// <summary>À l'enregistrement : les clés choisies sont oubliées des réglages.</summary>
+    internal void ApplyForgottenKeys()
+    {
+        foreach (var key in _forgottenKeys)
+        {
+            _settings.KnownHosts.Remove(key);
+        }
     }
 
     private void OnSave(object sender, RoutedEventArgs e)
@@ -91,26 +135,26 @@ public partial class SettingsDialog : Window
         var host = PsmpBox.Text.Trim();
         if (host.Length > 0 && Uri.CheckHostName(host) == UriHostNameType.Unknown)
         {
-            ShowError(Strings.InvalidPsmpAddress);
+            ShowError(Strings.InvalidPsmpAddress, PsmpBox);
             return;
         }
 
         if (!int.TryParse(PortBox.Text.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var port) || port is < 1 or > 65535)
         {
-            ShowError(Strings.InvalidPort);
+            ShowError(Strings.InvalidPort, PortBox);
             return;
         }
 
         if (!int.TryParse(ArchiveThresholdBox.Text.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var threshold) || threshold < 2)
         {
-            ShowError(Strings.InvalidArchiveThreshold);
+            ShowError(Strings.InvalidArchiveThreshold, ArchiveThresholdBox);
             return;
         }
 
         if (!double.TryParse(FontSizeBox.Text.Trim(), NumberStyles.Float, CultureInfo.CurrentCulture, out var fontSize)
             || fontSize < TerminalAppearance.MinFontSize || fontSize > TerminalAppearance.MaxFontSize)
         {
-            ShowError(Text.Format(Strings.InvalidFontSize, TerminalAppearance.MinFontSize, TerminalAppearance.MaxFontSize));
+            ShowError(Text.Format(Strings.InvalidFontSize, TerminalAppearance.MinFontSize, TerminalAppearance.MaxFontSize), FontSizeBox);
             return;
         }
 
@@ -123,7 +167,7 @@ public partial class SettingsDialog : Window
         if (!compareArgs.Contains("{0}", StringComparison.Ordinal) || !compareArgs.Contains("{1}", StringComparison.Ordinal)
             || !IsValidFormat(compareArgs))
         {
-            ShowError(Strings.InvalidCompareArguments);
+            ShowError(Strings.InvalidCompareArguments, CompareArgsBox);
             return;
         }
 
@@ -143,12 +187,10 @@ public partial class SettingsDialog : Window
         _settings.TerminalTheme = (ThemeBox.SelectedItem as TerminalTheme ?? TerminalTheme.Campbell).Id;
         _settings.TerminalFontSize = fontSize;
         _settings.TerminalRightClickPastes = RightClickBox.IsChecked == true;
+        _settings.ConfirmMultiLinePaste = ConfirmPasteBox.IsChecked == true;
+        _settings.ConfirmCloseSession = ConfirmCloseBox.IsChecked == true;
         _settings.CompareToolArguments = compareArgs;
-        if (_forgetHostKeys)
-        {
-            _settings.KnownHosts.Clear();
-        }
-
+        ApplyForgottenKeys();
         if (_forgetComponents)
         {
             _settings.ComponentByPlatform.Clear();
@@ -189,10 +231,26 @@ public partial class SettingsDialog : Window
         }
     }
 
-    private void ShowError(string message)
+    /// <summary>Erreur en pied de fenêtre ; la page du champ en cause s'affiche et le champ prend le focus.</summary>
+    private void ShowError(string message, System.Windows.Controls.Control field)
     {
         ErrorText.Text = message;
         ErrorText.Visibility = Visibility.Visible;
+        for (DependencyObject? node = field; node is not null; node = System.Windows.Media.VisualTreeHelper.GetParent(node)
+                                                                         ?? LogicalTreeHelper.GetParent(node))
+        {
+            if (node is System.Windows.Controls.TabItem page)
+            {
+                Pages.SelectedItem = page;
+                break;
+            }
+        }
+
+        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Input, () =>
+        {
+            field.Focus();
+            (field as System.Windows.Controls.TextBox)?.SelectAll();
+        });
     }
 
     // ===================== Coffre local (actions immédiates) =====================
@@ -224,15 +282,15 @@ public partial class SettingsDialog : Window
     {
         if (_store is not null)
         {
-            new LocalStoreDialog(_store, mode, RememberedFolderIds(_settings)) { Owner = this }.ShowDialog();
+            new LocalStoreDialog(_store, mode, RememberedFolderIds(_settings), offerLater: false) { Owner = this }.ShowDialog();
             UpdateStore();
         }
     }
 
     private void OnStoreDelete(object sender, RoutedEventArgs e)
     {
-        if (_store is null || MessageBox.Show(this, Strings.LocalStoreDeleteConfirm, Strings.LocalStoreTitle,
-                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+        if (_store is null || !ConfirmDialog.Destructive(this, Strings.LocalStoreTitle, Strings.LocalStoreDeleteHeading,
+                Strings.LocalStoreDeleteAction, bullets: [Strings.LocalStoreDeleteForget, Strings.LocalStoreDeleteKeePass, Strings.LocalStoreDeleteNow]))
         {
             return;
         }

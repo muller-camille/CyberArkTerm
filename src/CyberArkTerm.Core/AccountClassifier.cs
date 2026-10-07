@@ -49,7 +49,7 @@ public static class AccountClassifier
     }
 
     /// <summary>
-    /// Connexion par défaut (double-clic, ajout à « Courants ») : d'après le nom de la plateforme, « SFTP » donne les
+    /// Connexion par défaut (double-clic, ajout à « Mes serveurs ») : d'après le nom de la plateforme, « SFTP » donne les
     /// fichiers seuls via le PSMP, « SSH » une session SSH via le PSMP ; sinon SSH pour une cible Unix, PSM pour le reste.
     /// Sans PSMP renseigné, toujours PSM.
     /// </summary>

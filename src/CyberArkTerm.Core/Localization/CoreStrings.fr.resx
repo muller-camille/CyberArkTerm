@@ -124,7 +124,7 @@
     <value>Le compte n'a pas d'adresse cible.</value>
   </data>
   <data name="VaultUserUnknown" xml:space="preserve">
-    <value>Utilisateur du coffre inconnu.</value>
+    <value>Utilisateur du coffre CyberArk inconnu.</value>
   </data>
   <data name="InvalidFolderName" xml:space="preserve">
     <value>Nom de dossier invalide.</value>
@@ -136,19 +136,19 @@
     <value>La racine ne peut pas être supprimée.</value>
   </data>
   <data name="KeePassNotKdbx" xml:space="preserve">
-    <value>Ce fichier n'est pas un coffre KeePass 2 (.kdbx).</value>
+    <value>Ce fichier n'est pas une base KeePass 2 (.kdbx).</value>
   </data>
   <data name="KeePassUnsupportedVersion" xml:space="preserve">
     <value>Le format KeePass {0} n'est pas pris en charge (KDBX 3.1 et 4.x le sont).</value>
   </data>
   <data name="KeePassUnsupportedCipher" xml:space="preserve">
-    <value>Ce coffre utilise un chiffrement non pris en charge ({0}) ; AES-256 et ChaCha20 le sont.</value>
+    <value>Cette base KeePass utilise un chiffrement non pris en charge ({0}) ; AES-256 et ChaCha20 le sont.</value>
   </data>
   <data name="KeePassUnsupportedKdf" xml:space="preserve">
-    <value>Ce coffre utilise une dérivation de clé non prise en charge ({0}).</value>
+    <value>Cette base KeePass utilise une dérivation de clé non prise en charge ({0}).</value>
   </data>
   <data name="KeePassKdfTooCostly" xml:space="preserve">
-    <value>Les paramètres de dérivation de clé du coffre sont trop élevés pour être calculés ici ({0}).</value>
+    <value>Les paramètres de dérivation de clé de la base KeePass sont trop élevés pour être calculés ici ({0}).</value>
   </data>
   <data name="KeePassInvalidKey" xml:space="preserve">
     <value>Mot de passe maître ou fichier clé incorrect.</value>
@@ -163,16 +163,16 @@
     <value>Ce fichier est trop gros pour servir de fichier clé.</value>
   </data>
   <data name="KeePassCorrupted" xml:space="preserve">
-    <value>Le fichier du coffre est endommagé ({0}).</value>
+    <value>Le fichier de la base KeePass est endommagé ({0}).</value>
   </data>
   <data name="KeePassConflict" xml:space="preserve">
-    <value>L'entrée « {0} » a été modifiée ou supprimée dans le coffre entre-temps. Actualisez le dossier puis recommencez.</value>
+    <value>L'entrée « {0} » a été modifiée ou supprimée dans la base KeePass entre-temps. Actualisez le dossier puis recommencez.</value>
   </data>
   <data name="KeePassBusy" xml:space="preserve">
-    <value>Le fichier du coffre change sans cesse (un autre programme l'enregistre). Réessayez dans un instant.</value>
+    <value>Le fichier de la base KeePass change sans cesse (un autre programme l'enregistre). Réessayez dans un instant.</value>
   </data>
   <data name="KeePassVerifyFailed" xml:space="preserve">
-    <value>Le coffre n'a pas été enregistré : le nouveau fichier n'a pas passé la vérification, l'original est intact.</value>
+    <value>La base KeePass n'a pas été enregistrée : le nouveau fichier n'a pas passé la vérification, l'original est intact.</value>
   </data>
   <data name="LocalStoreWrongPassword" xml:space="preserve">
     <value>Mot de passe du coffre local incorrect.</value>
@@ -371,5 +371,14 @@
   </data>
   <data name="PvwaUnexpectedSecretResponse" xml:space="preserve">
     <value>Le PVWA n'a pas renvoyé le mot de passe mais une réponse inattendue ({0}) : une page de connexion (SSO) ou de maintenance s'est peut-être interposée. Reconnectez-vous, puis réessayez.</value>
+  </data>
+  <data name="PermissionsUnknown" xml:space="preserve">
+    <value>droits actuels inconnus : seuls des droits complets (toutes les cases rwx cochées ou décochées) peuvent être appliqués</value>
+  </data>
+  <data name="HostKeyRefused" xml:space="preserve">
+    <value>Connexion annulée : la clé du serveur n'a pas été acceptée.</value>
+  </data>
+  <data name="RenameTargetExists" xml:space="preserve">
+    <value>« {0} » existe déjà : choisissez un autre nom (rien n'a été remplacé).</value>
   </data>
 </root>

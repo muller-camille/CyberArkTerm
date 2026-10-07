@@ -13,7 +13,7 @@ using Microsoft.Win32;
 namespace CyberArkTerm.App.Views;
 
 /// <summary>
-/// Onglet « Courants » : export et import de la liste, et listes partagées (fichiers JSON sur un partage réseau, que
+/// Onglet « Mes serveurs » : export et import de la liste, et listes partagées (fichiers JSON sur un partage réseau, que
 /// chacun complète ou élague ; chaque modification est historisée avec son auteur et une copie de la version précédente).
 /// </summary>
 public partial class MainWindow
@@ -104,8 +104,16 @@ public partial class MainWindow
             return;
         }
 
-        if (MessageBox.Show(this, DescribeImport(plan, file, Path.GetFileName(dialog.FileName)), Strings.ImportServersTitle,
-                MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+        var details = DescribeImport(plan);
+        if (!ConfirmDialog.Confirm(this, new ConfirmRequest
+            {
+                Title = Strings.ImportServersTitle,
+                Heading = Text.Format(Strings.ImportServersConfirm, plan.Added.Count, Path.GetFileName(dialog.FileName)),
+                Message = details.Length > 0 ? details : null,
+                Kind = plan.WithTargetMachine.Any() ? ConfirmKind.Warning : ConfirmKind.Question,
+                Actions = [Strings.ImportServersAction],
+                DefaultAction = 0,
+            }))
         {
             return;
         }
@@ -120,24 +128,24 @@ public partial class MainWindow
         SetStatus(Text.Format(Strings.ServersImported, added, plan.Duplicates));
     }
 
-    /// <summary>Résumé avant import : serveurs ajoutés et ignorés, dossiers créés, machines cibles, autre PVWA.</summary>
-    private string DescribeImport(ServerImport plan, ServerListFile file, string fileName)
+    /// <summary>Détail avant import : serveurs ignorés, dossiers créés, machines cibles.</summary>
+    private static string DescribeImport(ServerImport plan)
     {
-        var text = new StringBuilder(Text.Format(Strings.ImportServersConfirm, plan.Added.Count, fileName));
+        var text = new StringBuilder();
         if (plan.Duplicates > 0)
         {
-            text.Append("\n\n").Append(Text.Format(Strings.ImportServersDuplicates, plan.Duplicates));
+            text.Append(Text.Format(Strings.ImportServersDuplicates, plan.Duplicates));
         }
 
         if (plan.NewFolders.Count > 0)
         {
-            text.Append("\n\n").Append(Text.Format(Strings.ImportServersFolders, Abridged(plan.NewFolders, 8, ", ")));
+            text.Append(text.Length > 0 ? "\n\n" : "").Append(Text.Format(Strings.ImportServersFolders, Abridged(plan.NewFolders, 8, ", ")));
         }
 
         var targets = plan.WithTargetMachine.Select(s => $"  {s.Name} — {s.RemoteMachine}").ToList();
         if (targets.Count > 0)
         {
-            text.Append("\n\n").Append(Strings.ImportServersTargets).Append('\n').Append(Abridged(targets, 8, "\n"));
+            text.Append(text.Length > 0 ? "\n\n" : "").Append(Strings.ImportServersTargets).Append('\n').Append(Abridged(targets, 8, "\n"));
         }
 
         return text.ToString();
@@ -649,8 +657,15 @@ public partial class MainWindow
             return;
         }
 
-        if (MessageBox.Show(this, Text.Format(Strings.ShareDropConfirm, sessions.Count, list.Name), Strings.SharedListsTitle,
-                MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        // Les autres utilisateurs de la liste verront ces serveurs : Entrée annule.
+        if (ConfirmDialog.Confirm(this, new ConfirmRequest
+            {
+                Title = Strings.SharedListsTitle,
+                Heading = Text.Format(Strings.ShareDropHeading, list.Name),
+                Message = Strings.ShareDropMessage,
+                Items = sessions.Select(s => s.Name).ToList(),
+                Actions = [Strings.ShareDropAction],
+            }))
         {
             await ShareAsync(list, sessions, folderOf);
         }
@@ -671,11 +686,19 @@ public partial class MainWindow
             return;
         }
 
-        var message = node is SharedFolderNode folder
-            ? Text.Format(Strings.SharedRemoveFolderConfirm, folder.Path, servers.Count, list.Name)
-            : Text.Format(Strings.SharedRemoveConfirm, servers[0].Title, list.Name);
-        if (MessageBox.Show(this, message, Strings.SharedListsTitle, MessageBoxButton.YesNo, MessageBoxImage.Question,
-                MessageBoxResult.No) != MessageBoxResult.Yes)
+        var heading = node is SharedFolderNode folder
+            ? Text.Format(Strings.SharedRemoveFolderHeading, folder.Path, list.Name)
+            : Text.Format(Strings.SharedRemoveHeading, servers[0].Title, list.Name);
+        if (!ConfirmDialog.Confirm(this, new ConfirmRequest
+            {
+                Title = Strings.SharedListsTitle,
+                Heading = heading,
+                Message = Strings.SharedRemoveMessage,
+                Items = node is SharedFolderNode ? servers.Select(s => s.Title).ToList() : [],
+                Kind = ConfirmKind.Warning,
+                Actions = [Strings.ActionRemove],
+                DangerAction = 0,
+            }))
         {
             return;
         }
@@ -709,8 +732,17 @@ public partial class MainWindow
             .Where(s => !string.IsNullOrWhiteSpace(s.RemoteMachine) && !IsAllowedTarget(s.AccountId, s.RemoteMachine!))
             .Select(s => $"  {s.Name} — {s.RemoteMachine!.Trim()}")
             .ToList();
-        if (targets.Count > 0 && MessageBox.Show(this, Text.Format(Strings.SharedCopyTargetsConfirm, servers[0].List.Name, Abridged(targets, 8, "\n")),
-                Strings.SharedListsTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+        if (targets.Count > 0 && !ConfirmDialog.Confirm(this, new ConfirmRequest
+            {
+                Title = Strings.SharedListsTitle,
+                Heading = Strings.SharedCopyTargetsHeading,
+                Subject = Text.Format(Strings.SharedListSubject, servers[0].List.Name),
+                Message = Strings.SharedCopyTargetsMessage,
+                Items = targets.Select(t => t.Trim()).ToList(),
+                Kind = ConfirmKind.Warning,
+                Actions = [Strings.SharedCopyAnyway],
+                DangerAction = 0,
+            }))
         {
             return;
         }
@@ -783,8 +815,16 @@ public partial class MainWindow
             return true;
         }
 
-        if (MessageBox.Show(this, Text.Format(Strings.SharedTargetConfirm, node.Title, node.List.Name, AccountLabel(account), machine),
-                Strings.SharedListsTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+        if (!ConfirmDialog.Confirm(this, new ConfirmRequest
+            {
+                Title = Strings.SharedListsTitle,
+                Heading = Text.Format(Strings.SharedTargetHeading, AccountLabel(account), machine),
+                Subject = Text.Format(Strings.SharedTargetSubject, node.Title, node.List.Name),
+                Message = Strings.SharedTargetMessage,
+                Kind = ConfirmKind.Warning,
+                Actions = [Strings.ConnectAnyway],
+                DangerAction = 0,
+            }))
         {
             return false;
         }

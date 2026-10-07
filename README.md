@@ -34,23 +34,24 @@ and opens your sessions with a double-click: remote desktop through **PSM**, or 
 | | |
 | --- | --- |
 | **CyberArk sign-in** | CyberArk, LDAP, RADIUS (challenge / OTP included) or Windows (current session) authentication. |
-| **Available** | Every account visible in the vault, grouped by safe, platform or target type, with instant search; password actions (CPM, copy), safe members, adding, editing and importing accounts. |
+| **Available** | Every account visible in the CyberArk Vault, grouped by safe, platform or target type, with instant search; password actions (CPM, copy), safe members, adding, editing and importing accounts. |
 | **My servers** | Your working servers, organized in folders and subfolders, each with its own settings; export, import and **shared lists** on a network share (everyone adds or removes, history of changes and versions). |
 | **PSM sessions** | Remote desktop through the PSM (like the PVWA "Connect" button), in Windows Remote Desktop Connection: component, target machine, reason, ticket. |
-| **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colours, vim, less, top…), MFA, right-click menu, search, separate windows. Files only (SFTP, without a terminal) for "SFTP" platforms or on request. |
-| **Files tab** | SFTP browser of the server: drag-and-drop upload (SFTP, or SCP, the other one taking over if the server refuses) and download, SHA-256 check of every file, transfer queue and history, sortable columns, editing in your text editor, permissions, live following (`tail -f`), comparison, sending to several servers. |
+| **SSH sessions (PSMP)** | Built-in terminal in a tab (xterm compatible: colours, vim, less, top…), MFA, right-click menu, search, separate windows, "Reconnect" at the end of a session. Files only (SFTP, without a terminal) for "SFTP" platforms or on request. |
+| **Files tab** | SFTP browser of the server: drag-and-drop upload (SFTP, or SCP, the other one taking over if the server refuses) and download, SHA-256 check of every file, transfer queue (results kept) and history, sortable columns, renaming, editing in your text editor, permissions, live following (`tail -f`), comparison, sending to several servers. |
 | **Parallel view** | Up to 8 SSH sessions side by side (a "My servers" folder opens in one click), optional simultaneous typing. |
-| **Emergency access (KeePass)** | Without CyberArk: KeePass vaults (.kdbx) in "My servers", direct SSH, remote desktop and VNC connections, files over SFTP, FTP or FTPS in the Files tab, local log. |
+| **Emergency access (KeePass)** | Without CyberArk: KeePass databases (.kdbx) in "My servers", direct SSH, remote desktop and VNC connections, files over SFTP, FTP or FTPS in the Files tab, local log. |
+| **Keyboard and accessibility** | Shortcuts for the tabs, the side panel and quick connect, confirmations with explicit buttons, screen readers, high contrast. |
 | **Languages** | English, French and Italian: Windows language by default, can be changed at any time. |
 
 <table>
 <tr>
-<td width="50%"><img src="docs/captures/en/available.png" alt="Available tab"><br><sub>"Available": every account of the vault, instant search</sub></td>
-<td width="50%"><img src="docs/captures/en/my-servers.png" alt="My servers tab"><br><sub>"My servers": your servers in folders, KeePass vaults on top</sub></td>
+<td width="50%"><img src="docs/captures/en/available.png" alt="Available tab"><br><sub>"Available": every account of the CyberArk Vault, instant search</sub></td>
+<td width="50%"><img src="docs/captures/en/my-servers.png" alt="My servers tab"><br><sub>"My servers": your servers in folders, KeePass databases on top</sub></td>
 </tr>
 <tr>
 <td><img src="docs/captures/en/terminal-menu.png" alt="Right-click menu of the terminal"><br><sub>Right-click in the terminal: copy, paste, search, tab actions</sub></td>
-<td><img src="docs/captures/en/keepass-vault.png" alt="Emergency access with KeePass"><br><sub>Emergency access: direct SSH from a KeePass vault</sub></td>
+<td><img src="docs/captures/en/keepass-vault.png" alt="Emergency access with KeePass"><br><sub>Emergency access: direct SSH from a KeePass database</sub></td>
 </tr>
 </table>
 
@@ -75,8 +76,8 @@ The executable is not signed: on first launch, Windows SmartScreen may show a wa
 Settings button → **"About CyberArkTerm…"**: version, project links, settings folder, and "Check now". When a newer
 version exists, "Download and check" saves the archive to the Downloads folder, then compares it with `SHA256SUMS.txt`
 of the same version (kept only when identical). Nothing is installed automatically: close CyberArkTerm and replace
-the executable; your settings are kept. The option "Look for a new version at startup" (off by default) does this
-check at most once a day and shows a link in the status bar.
+the executable; your settings are kept. The option "Look for a new version at startup" (Settings › General, off by
+default) does this check at most once a day and shows a link in the status bar.
 
 ### Requirements
 
@@ -84,7 +85,7 @@ check at most once a day and shows a link in the status bar.
 
 - Windows 10 or 11 (x64).
 - The Windows Remote Desktop client (installed by default): Remote Desktop Connection (`mstsc`) for PSM sessions,
-  its built-in control for direct remote desktop from KeePass vaults.
+  its built-in control for direct remote desktop from KeePass databases.
 - Optional: Windows Terminal and the Windows "OpenSSH Client", only if you choose to open SSH outside
   CyberArkTerm.
 
@@ -108,12 +109,12 @@ check at most once a day and shows a link in the status bar.
    opens an SSH terminal in a tab, through the PSMP set in **Settings**. Right-click in the terminal for copy, paste,
    search and the tab actions.
 4. **Files tab** (next to an SSH session): browse the server, drag files from Explorer to upload them, drag them to
-   Explorer to download them. Each file is checked (SHA-256); the **History** button of the toolbar keeps every
+   Explorer to download them. Each file is checked (SHA-256); the **Transfers** button of the toolbar keeps every
    transfer and its checksums. Click a column header to sort.
 5. **My servers**: keep your working servers in folders, each with its connection settings (PSM or SSH, component,
    target machine, start folder); open a whole folder in the **parallel view**.
 6. **Emergency access**: when CyberArk is unavailable, "Emergency access (KeePass)" on the sign-in window opens your
-   KeePass vaults and connects directly over SSH, remote desktop or VNC, or to the files over SFTP, FTP or FTPS (not
+   KeePass databases and connects directly over SSH, remote desktop or VNC, or to the files over SFTP, FTP or FTPS (not
    recorded by the PSM, logged on this computer).
 
 The **[user guide](docs/guide.md)** describes every tab in detail, the
@@ -133,7 +134,7 @@ The **[user guide](docs/guide.md)** describes every tab in detail, the
   certificates of KeePass entries).
 - **Unencrypted protocols** (VNC, FTP without TLS) are flagged by a permanent banner; FTP only goes to clear text
   after your agreement.
-- **KeePass vaults**: the master password is never saved, except in the local vault if you ask for it (Argon2id,
+- **KeePass databases**: the master password is never saved, except in the local vault if you ask for it (Argon2id,
   AES-256-GCM, protected by your Windows account); every opening and connection is written to a local log.
 - **No request to the Internet** without your action or the update option (off by default); a downloaded update is
   kept only if its SHA-256 matches `SHA256SUMS.txt`, and nothing is installed automatically.
@@ -148,7 +149,7 @@ All the details: [user guide → Security](docs/guide.md#security). To report a 
 
 | Project | Role |
 | --- | --- |
-| `src/CyberArkTerm.Core` | Cross-platform logic without UI: PVWA API client, account classification, xterm terminal emulator, PSMP connections and SFTP/SCP browser (SSH.NET), FTP/FTPS browser (FluentFTP), VNC client, "My servers" folders, KeePass vaults (KDBX), local vault, preferences. |
+| `src/CyberArkTerm.Core` | Cross-platform logic without UI: PVWA API client, account classification, xterm terminal emulator, PSMP connections and SFTP/SCP browser (SSH.NET), FTP/FTPS browser (FluentFTP), VNC client, "My servers" folders, KeePass databases (KDBX), local vault, preferences. |
 | `src/CyberArkTerm.App` | WPF application: windows, tabs, terminal control, Remote Desktop control (RDP tabs), `mstsc` launch, icon (`Assets`). |
 | `tests/CyberArkTerm.Core.Tests` | xUnit tests of Core (fake PVWA over HTTP, terminal, PSMP, folders, translations…). |
 | `tests/CyberArkTerm.App.Tests` | Windows tests of the application (real Remote Desktop control, DPAPI). |
@@ -208,8 +209,8 @@ zip and `SHA256SUMS.txt`. Release notes are read from `docs/releases/vX.Y.Z.md` 
 - **Privilege Cloud** (sign-in through CyberArk Identity) and **SAML** are not supported.
 - The Accounts API does not say which PSM components a platform offers: the component is deduced, then can be
   remembered.
-- KeePass vaults: Twofish encryption and YubiKey keys are not supported; no vault creation (create it with KeePass
-  or KeePassXC); attachments are kept but not shown.
+- KeePass databases: Twofish encryption and YubiKey keys are not supported; no database creation (create it with
+  KeePass or KeePassXC); attachments are kept but not shown.
 - Following the terminal folder requires bash, zsh or tcsh on the server.
 - VNC: VNC password or no authentication only (no vendor-specific authentication or encryption). FTPS: a server
   that requires TLS session reuse on data connections may refuse transfers.

@@ -308,23 +308,50 @@ internal sealed class TailRow(TailLine? line, TailShownKind kind, TailStyle styl
     public string Text => Kind == TailShownKind.Separator ? "--" : Line!.Format(Style.Prefixes);
 }
 
+/// <remarks>
+/// En contraste élevé, le texte garde la couleur système (le niveau se lit dans la ligne elle-même) et les surlignages
+/// prennent la couleur de sélection de Windows, avec son texte.
+/// </remarks>
 internal static class TailBrushes
 {
-    public static readonly Brush Error = Frozen(0xC6, 0x28, 0x28);
-    public static readonly Brush Warning = Frozen(0xB2, 0x6A, 0x00);
-    public static readonly Brush Muted = Frozen(0x6B, 0x77, 0x85);
-    public static readonly Brush Context = Frozen(0x8A, 0x93, 0x9E);
-    public static readonly Brush Marker = Frozen(0x3F, 0x51, 0xB5);
-    public static readonly Brush Highlight = Frozen(0xFF, 0xF1, 0x76);
-    public static readonly Brush Match = Frozen(0xFF, 0xB7, 0x4D);
-    public static readonly Brush Alert = Frozen(0xFD, 0xEC, 0xEA);
+    private static readonly Brush ErrorColor = Frozen(0xC6, 0x28, 0x28);
+    private static readonly Brush WarningColor = Frozen(0xB2, 0x6A, 0x00);
+    private static readonly Brush MutedColor = Frozen(0x6B, 0x77, 0x85);
+    private static readonly Brush ContextColor = Frozen(0x6B, 0x77, 0x85);
+    private static readonly Brush MarkerColor = Frozen(0x3F, 0x51, 0xB5);
+    private static readonly Brush HighlightColor = Frozen(0xFF, 0xF1, 0x76);
+    private static readonly Brush MatchColor = Frozen(0xFF, 0xB7, 0x4D);
+    private static readonly Brush AlertColor = Frozen(0xFD, 0xEC, 0xEA);
 
     /// <summary>Couleurs des fichiers de la vue combinée (ni rouge ni orange, réservés aux niveaux).</summary>
-    public static readonly Brush[] Sources =
+    private static readonly Brush[] SourceColors =
     [
         Frozen(0x15, 0x65, 0xC0), Frozen(0x2E, 0x7D, 0x32), Frozen(0x6A, 0x1B, 0x9A), Frozen(0x00, 0x83, 0x8F),
         Frozen(0xAD, 0x14, 0x57), Frozen(0x4E, 0x34, 0x2E), Frozen(0x28, 0x35, 0x93), Frozen(0x55, 0x8B, 0x2F),
     ];
+
+    private static bool HighContrast => SystemParameters.HighContrast;
+
+    public static Brush Error => HighContrast ? SystemColors.WindowTextBrush : ErrorColor;
+
+    public static Brush Warning => HighContrast ? SystemColors.WindowTextBrush : WarningColor;
+
+    public static Brush Muted => HighContrast ? SystemColors.WindowTextBrush : MutedColor;
+
+    public static Brush Context => HighContrast ? SystemColors.WindowTextBrush : ContextColor;
+
+    public static Brush Marker => HighContrast ? SystemColors.WindowTextBrush : MarkerColor;
+
+    public static Brush Highlight => HighContrast ? SystemColors.HighlightBrush : HighlightColor;
+
+    public static Brush Match => HighContrast ? SystemColors.HighlightBrush : MatchColor;
+
+    public static Brush Alert => HighContrast ? SystemColors.HighlightBrush : AlertColor;
+
+    /// <summary>Texte posé sur un surlignage ou une ligne d'alerte ; null hors contraste élevé (couleur du texte inchangée).</summary>
+    public static Brush? OnHighlight => HighContrast ? SystemColors.HighlightTextBrush : null;
+
+    public static Brush Source(int index) => HighContrast ? SystemColors.WindowTextBrush : SourceColors[index % SourceColors.Length];
 
     public static Brush? Level(TailLevel level) => level switch
     {
@@ -383,9 +410,11 @@ public static class TailRowText
         }
 
         var line = row.Line!;
+        // Contraste élevé : une ligne d'alerte est surlignée avec la couleur de sélection, tout son texte prend la couleur associée.
+        var onAlert = row.Kind == TailShownKind.Line && line.IsAlert ? TailBrushes.OnHighlight : null;
         if (style.Prefixes && line.Feed is { } feed)
         {
-            block.Inlines.Add(new Run($"[{feed.Label}] ") { Foreground = feed.Brush, FontWeight = FontWeights.SemiBold });
+            block.Inlines.Add(new Run($"[{feed.Label}] ") { Foreground = onAlert ?? feed.Brush, FontWeight = FontWeights.SemiBold });
         }
 
         if (line.IsMarker)
@@ -397,6 +426,11 @@ public static class TailRowText
         if ((row.Kind == TailShownKind.Context ? TailBrushes.Context : style.Colors ? TailBrushes.Level(line.Level) : null) is { } foreground)
         {
             block.Foreground = foreground;
+        }
+
+        if (onAlert is not null)
+        {
+            block.Foreground = onAlert;
         }
 
         var text = line.Text.Length > MaxShown ? line.Text[..MaxShown] : line.Text;
@@ -414,10 +448,18 @@ public static class TailRowText
                 if (segment.Match)
                 {
                     run.Background = TailBrushes.Match;
+                    if (TailBrushes.OnHighlight is { } onHighlight)
+                    {
+                        run.Foreground = onHighlight;
+                    }
                 }
                 else if (segment.Highlight)
                 {
                     run.Background = TailBrushes.Highlight;
+                    if (TailBrushes.OnHighlight is { } onHighlight)
+                    {
+                        run.Foreground = onHighlight;
+                    }
                 }
 
                 block.Inlines.Add(run);
@@ -426,7 +468,7 @@ public static class TailRowText
 
         if (text.Length < line.Text.Length)
         {
-            block.Inlines.Add(new Run(" …") { Foreground = TailBrushes.Muted });
+            block.Inlines.Add(new Run(" …") { Foreground = onAlert ?? TailBrushes.Muted });
         }
     }
 }

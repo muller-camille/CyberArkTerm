@@ -100,6 +100,10 @@ public class SshSupportTests
         Assert.Equal(HostKeyStatus.Trusted, KnownHosts.Check(store, "psmp.corp", 22, "ssh-ed25519", "AAA"));
         Assert.Equal(HostKeyStatus.Changed, KnownHosts.Check(store, "psmp.corp", 22, "ssh-ed25519", "BBB"));
         Assert.Equal(HostKeyStatus.Unknown, KnownHosts.Check(store, "psmp.corp", 2222, "ssh-ed25519", "AAA"));
+
+        // Clé changée : l'ancienne empreinte se montre à côté de la nouvelle.
+        Assert.Equal(("ssh-ed25519", "AAA"), KnownHosts.Known(store, "psmp.corp", 22));
+        Assert.Null(KnownHosts.Known(store, "psmp.corp", 2222));
     }
 
     [Fact]

@@ -146,7 +146,7 @@ public sealed record KeePassTarget(RemoteProtocol Protocol, string Host, int Por
         protocol is RemoteProtocol.Sftp or RemoteProtocol.Ftp or RemoteProtocol.Ftpes or RemoteProtocol.Ftps;
 
     /// <summary>
-    /// Recherche dans l'onglet « Courants » : titre, utilisateur, URL, dossier, étiquettes, serveur et protocole de
+    /// Recherche dans « Mes serveurs » : titre, utilisateur, URL, dossier, étiquettes, serveur et protocole de
     /// l'entrée (pas les notes ni les champs personnalisés).
     /// </summary>
     public static bool Matches(KeePassEntry entry, string? query)

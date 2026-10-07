@@ -101,16 +101,30 @@ public partial class FileBrowserPanel
                 return;
             }
 
-            if (MessageBox.Show(owner, text + "\n\n" + Text.Format(Strings.MultiUploadContinue, targets.Count), Strings.MultiUploadTitle,
-                    MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+            if (!ConfirmDialog.Confirm(owner, new ConfirmRequest
+                {
+                    Title = Strings.MultiUploadTitle,
+                    Heading = Strings.MultiUploadSomeHeading,
+                    Message = Text.Format(Strings.MultiUploadSomeMessage, targets.Count),
+                    Items = problems,
+                    Kind = ConfirmKind.Warning,
+                    Actions = [Strings.MultiUploadSendOthers],
+                }))
             {
                 return;
             }
         }
 
-        if (conflicts.Count > 0 && MessageBox.Show(owner,
-                Text.Format(Strings.MultiUploadConflicts, string.Join("\n", conflicts.Select(c => "  • " + c))), Strings.MultiUploadTitle,
-                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+        if (conflicts.Count > 0 && !ConfirmDialog.Confirm(owner, new ConfirmRequest
+            {
+                Title = Strings.MultiUploadTitle,
+                Heading = Strings.MultiUploadConflictsHeading,
+                Message = Strings.MultiUploadConflictsMessage,
+                Items = conflicts,
+                Kind = ConfirmKind.Warning,
+                Actions = [Strings.ActionReplace],
+                DangerAction = 0,
+            }))
         {
             return;
         }

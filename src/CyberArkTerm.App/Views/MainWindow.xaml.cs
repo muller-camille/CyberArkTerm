@@ -32,6 +32,8 @@ public partial class MainWindow : Window
     private readonly string _vaultUser;
     private readonly SessionLauncher _launcher = new();
     private readonly DispatcherTimer _searchDebounce;
+    // Dernière erreur de chargement des comptes, montrée dans la liste avec « Réessayer » ; null après un chargement réussi.
+    private string? _loadError;
     private readonly CancellationTokenSource _lifetime = new();
     private List<PvwaAccount> _accounts = [];
 
@@ -100,14 +102,16 @@ public partial class MainWindow : Window
         FilesPanel.Initialize(settings, SaveSettings);
         FilesPanel.OpenSessions = () => MainTabs.Items.OfType<TabItem>().Select(t => t.Tag).OfType<RemoteSession>().ToList();
         FilesPanel.ShowTerminalRequested += ShowTerminal;
+        FilesPanel.TransfersChanged += UpdateFilesBadge;
         if (IsOffline)
         {
-            // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de l'onglet « Courants ».
+            // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de « Mes serveurs ».
             AvailableTab.Visibility = Visibility.Collapsed;
             QuickPanel.Visibility = HomeLists.Visibility = NewFolderButton.Visibility = Visibility.Collapsed;
+            // Boutons propres à CyberArk masqués plutôt que grisés : ils ne serviraient jamais dans ce mode.
+            SshButton.Visibility = AdvancedButton.Visibility = AddCurrentButton.Visibility = RefreshButton.Visibility = Visibility.Collapsed;
             ImportServersButton.Visibility = ExportServersButton.Visibility = Visibility.Collapsed;
             SharedListsButton.Visibility = SharedSeparator.Visibility = Visibility.Collapsed;
-            NoSavedText.Text = Strings.NoKeePassHelp;
             SideTabs.SelectedItem = CurrentTab;
             CountText.Text = "";
         }
@@ -120,9 +124,23 @@ public partial class MainWindow : Window
         RefreshSaved();
         UpdateWelcome();
         UpdateActions();
+        // « Parallèle » n'est actif qu'avec au moins une session SSH ouverte.
+        ((System.Collections.Specialized.INotifyCollectionChanged)MainTabs.Items).CollectionChanged += (_, _) => UpdateActions();
         StartKeepAlive();
+        RestoreLayout();
         Loaded += async (_, _) =>
         {
+            SetUpTabStrip();
+            // Prêt à taper : la connexion rapide (ou, en accès d'urgence, la liste des coffres KeePass).
+            if (IsOffline)
+            {
+                SavedTree.Focus();
+            }
+            else
+            {
+                QuickBox.Focus();
+            }
+
             _ = CheckForUpdateAsync();
             if (!IsOffline)
             {
@@ -212,6 +230,8 @@ public partial class MainWindow : Window
         LoadProgress.IsIndeterminate = true;
         LoadProgress.Visibility = Visibility.Visible;
         CountText.Text = Strings.LoadingAccounts;
+        _loadError = null;
+        UpdateAvailableState();
 
         var progress = new Progress<(int Loaded, int Total)>(p =>
         {
@@ -261,14 +281,17 @@ public partial class MainWindow : Window
             // Un clic sur une connexion récente expliquera alors que les comptes n'ont pas pu être chargés.
             _loadFailed = true;
             RefreshRecent();
-            MessageBox.Show(this, Text.Format(Strings.LoadFailed, ErrorText.Describe(ex)),
-                "CyberArkTerm", MessageBoxButton.OK, MessageBoxImage.Error);
+            // Dit sur place, dans la liste, avec « Réessayer » ; et dans la barre d'état si l'on est ailleurs.
+            _loadError = ErrorText.Describe(ex);
+            SetStatus(Text.Format(Strings.AvailableLoadFailed, _loadError), isError: true);
         }
         finally
         {
             _loading = false;
             LoadProgress.Visibility = Visibility.Collapsed;
             CommandManager.InvalidateRequerySuggested();
+            UpdateAvailableState();
+            UpdateCountVisibility();
         }
     }
 
@@ -278,6 +301,7 @@ public partial class MainWindow : Window
         _shown = _accounts.Where(a => AccountFilter.Matches(a, _query)).ToList();
         RebuildTree();
         UpdateCount();
+        UpdateAvailableState();
     }
 
     private void RebuildTree()
@@ -296,6 +320,53 @@ public partial class MainWindow : Window
             ? Text.Format(Strings.AccountCount, _accounts.Count)
             : Text.Format(Strings.AccountCountFiltered, shown, _accounts.Count);
     }
+
+    /// <summary>Message à la place de la liste vide : chargement, échec, aucun compte, aucun résultat pour le filtre.</summary>
+    private void UpdateAvailableState()
+    {
+        string? text = null;
+        string? action = null;
+        if (_loading && _accounts.Count == 0)
+        {
+            text = Strings.LoadingAccounts;
+        }
+        else if (_loadError is not null && _accounts.Count == 0)
+        {
+            text = Text.Format(Strings.AvailableLoadFailed, _loadError);
+            action = Strings.Retry;
+        }
+        else if (_accountsLoaded && _accounts.Count == 0)
+        {
+            text = Strings.AvailableNone;
+        }
+        else if (_shown.Count == 0 && _query.Trim().Length > 0)
+        {
+            text = Text.Format(Strings.AvailableNoMatch, _query.Trim());
+            action = Strings.ClearFilter;
+        }
+
+        AvailableState.Visibility = text is null ? Visibility.Collapsed : Visibility.Visible;
+        AvailableStateText.Text = text ?? "";
+        AvailableStateButton.Content = action;
+        AvailableStateButton.Visibility = action is null ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private async void OnAvailableStateAction(object sender, RoutedEventArgs e)
+    {
+        if (_loadError is not null && _accounts.Count == 0)
+        {
+            await LoadAccountsAsync();
+        }
+        else
+        {
+            SearchBox.Clear();
+            SearchBox.Focus();
+        }
+    }
+
+    /// <summary>Le nombre de comptes ne s'affiche qu'avec la liste des comptes (ou pendant leur chargement).</summary>
+    private void UpdateCountVisibility() =>
+        CountText.Visibility = AvailableTab.IsSelected || _loading ? Visibility.Visible : Visibility.Collapsed;
 
     private void UpdateWelcome()
     {
@@ -332,14 +403,23 @@ public partial class MainWindow : Window
             return;
         }
 
-        var results = _accounts.Where(a => AccountFilter.Matches(a, text)).Take(50).ToList();
+        var matches = _accounts.Where(a => AccountFilter.Matches(a, text)).ToList();
+        var results = matches.Take(QuickMaxResults).ToList();
         QuickResults.ItemsSource = results;
-        QuickResultsPanel.Visibility = results.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        QuickResults.Visibility = results.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        QuickInfo.Text = !_accountsLoaded && _accounts.Count == 0 ? (_loading ? Strings.LoadingAccounts : Strings.LoadFailedShort)
+            : results.Count == 0 ? Text.Format(Strings.AvailableNoMatch, text.Trim())
+            : matches.Count > results.Count ? Text.Format(Strings.QuickFirstResults, results.Count, matches.Count)
+            : "";
+        QuickInfo.Visibility = QuickInfo.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        QuickResultsPanel.Visibility = Visibility.Visible;
         if (results.Count > 0)
         {
             QuickResults.SelectedIndex = 0;
         }
     }
+
+    private const int QuickMaxResults = 50;
 
     private void OnSearchChanged(object sender, TextChangedEventArgs e)
     {
@@ -393,7 +473,7 @@ public partial class MainWindow : Window
 
     private void OnFind(object sender, ExecutedRoutedEventArgs e)
     {
-        // Dans « Courants », Ctrl+F cherche parmi les serveurs courants ; ailleurs, parmi tous les comptes.
+        // Dans « Mes serveurs », Ctrl+F cherche parmi les serveurs courants ; ailleurs, parmi tous les comptes.
         var box = SideTabs.SelectedItem == CurrentTab ? SavedSearchBox : SearchBox;
         if (box == SearchBox)
         {
@@ -472,13 +552,27 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>Une entrée KeePass n'est plus la cible une fois l'onglet Courants quitté : elle n'est plus visible.</summary>
+    /// <summary>Une entrée KeePass n'est plus la cible une fois « Mes serveurs » quitté : elle n'est plus visible.</summary>
     private void OnSideTabChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (ReferenceEquals(e.Source, SideTabs) && _currentKeePass is not null && !CurrentTab.IsSelected)
+        if (!ReferenceEquals(e.Source, SideTabs))
+        {
+            return;
+        }
+
+        if (_currentKeePass is not null && !CurrentTab.IsSelected)
         {
             SetCurrent(null);
         }
+
+        UpdateCountVisibility();
+        // Un onglet de gauche choisi (Fichiers après une connexion, Ctrl+1/2/3…) se montre, même panneau replié.
+        if (IsLoaded && SidePanelCollapsed)
+        {
+            SetSidePanelCollapsed(false);
+        }
+
+        UpdateFilesBadge();
     }
 
     private void UpdateActions()
@@ -488,8 +582,20 @@ public partial class MainWindow : Window
         AdvancedButton.IsEnabled = has;
         AddCurrentButton.IsEnabled = _current is not null && _currentSaved is null;
         SshButton.IsEnabled = has && HasPsmp;
-        SshButton.ToolTip = HasPsmp ? Strings.ToolSshTip : Strings.SetPsmpAddress;
+        // Infobulles visibles sur un bouton grisé : elles disent ce qui manque.
+        string selectFirst = _connecting ? Strings.ToolBusyConnecting : IsOffline ? Strings.ToolSelectKeePassEntry : Strings.ToolSelectAccount;
+        ConnectButton.ToolTip = ConnectButton.IsEnabled ? Strings.ToolConnectTip : WithReason(Strings.ToolConnectTip, selectFirst);
+        AdvancedButton.ToolTip = has ? Strings.ToolAdvancedTip : WithReason(Strings.ToolAdvancedTip, selectFirst);
+        AddCurrentButton.ToolTip = AddCurrentButton.IsEnabled ? Strings.ToolAddToMyServersTip
+            : WithReason(Strings.ToolAddToMyServersTip, _currentSaved is not null ? Strings.ToolAlreadyInMyServers : Strings.ToolSelectAccount);
+        SshButton.ToolTip = !HasPsmp ? Strings.SetPsmpAddress : has ? Strings.ToolSshTip : WithReason(Strings.ToolSshTip, selectFirst);
+        bool anySsh = MainTabs.Items.OfType<TabItem>().Any(t => t.Tag is SshSession);
+        ParallelButton.IsEnabled = anySsh;
+        ParallelButton.ToolTip = anySsh ? Strings.ToolParallelTip : WithReason(Strings.ToolParallelTip, Strings.ParallelNoSession);
     }
+
+    /// <summary>Infobulle d'un bouton grisé : ce qu'il fait, puis ce qui manque pour qu'il soit actif.</summary>
+    private static string WithReason(string tip, string reason) => tip + "\n" + reason;
 
     private void OnTreeSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e) => SetCurrentFrom(e.NewValue);
 
@@ -594,9 +700,24 @@ public partial class MainWindow : Window
             e.Handled = true;
             ConnectRecent();
         }
+        else if (e.Key == Key.Delete)
+        {
+            e.Handled = true;
+            OnRemoveRecent(sender, e);
+        }
     }
 
     private void OnConnectRecent(object sender, RoutedEventArgs e) => ConnectRecent();
+
+    /// <summary>Retire la connexion choisie de la liste des récentes (rien n'est fermé ni supprimé ailleurs).</summary>
+    private void OnRemoveRecent(object sender, RoutedEventArgs e)
+    {
+        if (RecentList.SelectedItem is RecentSession recent && _settings.Recent.Remove(recent))
+        {
+            SaveSettings();
+            RefreshRecent();
+        }
+    }
 
     private void OnRecentMenuOpening(object sender, ContextMenuEventArgs e)
     {
@@ -869,12 +990,190 @@ public partial class MainWindow : Window
         RefreshRecent();
     }
 
+    /// <summary>
+    /// Message de la barre d'état. Une erreur reste jusqu'au message suivant ; un message ordinaire s'efface après
+    /// <see cref="StatusLifetime"/> pour ne pas rester hors de propos (« Session ouverte » longtemps après).
+    /// </summary>
     private void SetStatus(string message, bool isError = false)
     {
+        _statusClear ??= CreateStatusClearTimer();
+        _statusClear.Stop();
+        if (!isError && message.Length > 0)
+        {
+            _statusClear.Start();
+        }
+
         StatusText.Text = message;
-        StatusText.Foreground = isError
-            ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xFF, 0xB4, 0xA9))
-            : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x9F, 0xD3, 0x9F));
+        StatusText.SetResourceReference(TextBlock.ForegroundProperty, isError ? "StatusErrorForeground" : "StatusOkForeground");
+        // Annoncé par les lecteurs d'écran (zone « polie » de la barre d'état).
+        if (message.Length > 0 && System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(StatusText) is { } peer)
+        {
+            peer.RaiseAutomationEvent(System.Windows.Automation.Peers.AutomationEvents.LiveRegionChanged);
+        }
+    }
+
+    private static readonly TimeSpan StatusLifetime = TimeSpan.FromSeconds(10);
+    private DispatcherTimer? _statusClear;
+
+    private DispatcherTimer CreateStatusClearTimer()
+    {
+        var timer = new DispatcherTimer { Interval = StatusLifetime };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            StatusText.Text = "";
+        };
+        return timer;
+    }
+
+    // ===================== Clavier =====================
+
+    /// <summary>
+    /// Raccourcis réservés à l'application, interceptés avant le terminal (qui enverrait sinon Tab au serveur) :
+    /// Ctrl+Tab et Ctrl+Maj+Tab changent d'onglet, Ctrl+F4 et Ctrl+Maj+W ferment l'onglet de session, Ctrl+1/2/3 mènent
+    /// aux onglets de gauche (depuis une session aussi : F6 reste aux applications du serveur). La touche Menu (ou Maj+F10)
+    /// sur un onglet ouvre son menu.
+    /// </summary>
+    protected override void OnPreviewKeyDown(KeyEventArgs e)
+    {
+        base.OnPreviewKeyDown(e);
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        var mods = Keyboard.Modifiers;
+        bool ctrl = mods.HasFlag(ModifierKeys.Control), shift = mods.HasFlag(ModifierKeys.Shift), alt = mods.HasFlag(ModifierKeys.Alt);
+        if (ctrl && !alt && key == Key.Tab)
+        {
+            SelectAdjacentTab(shift ? -1 : 1);
+            e.Handled = true;
+        }
+        else if (ctrl && !alt && ((key == Key.F4 && !shift) || (key == Key.W && shift)))
+        {
+            if (MainTabs.SelectedItem is TabItem { Tag: not null } tab)
+            {
+                CloseSessionTab(tab);
+            }
+
+            e.Handled = true;
+        }
+        else if (mods == ModifierKeys.Control && key is Key.D1 or Key.NumPad1 or Key.D2 or Key.NumPad2 or Key.D3 or Key.NumPad3)
+        {
+            if (key is Key.D1 or Key.NumPad1 && IsOffline)
+            {
+                return;
+            }
+
+            ShowSideTab(key is Key.D1 or Key.NumPad1 ? AvailableTab : key is Key.D2 or Key.NumPad2 ? CurrentTab : FilesTab);
+            e.Handled = true;
+        }
+        else if ((key == Key.Apps || (shift && key == Key.F10)) && Keyboard.FocusedElement is TabItem { Header: FrameworkElement { ContextMenu: { } menu } header })
+        {
+            menu.PlacementTarget = header;
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            menu.IsOpen = true;
+            e.Handled = true;
+        }
+    }
+
+    /// <summary>
+    /// Raccourcis de la fenêtre, quand le terminal ne les a pas pris : Ctrl+K connexion rapide, Ctrl+virgule Paramètres,
+    /// Ctrl+B replie ou déplie le panneau de gauche, F6 bascule entre le panneau de gauche et la session.
+    /// </summary>
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        if (e.Handled)
+        {
+            return;
+        }
+
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        var mods = Keyboard.Modifiers;
+        if (mods == ModifierKeys.Control)
+        {
+            switch (key)
+            {
+                case Key.K:
+                    FocusQuickConnect();
+                    e.Handled = true;
+                    break;
+                case Key.OemComma:
+                    OnSettings(this, e);
+                    e.Handled = true;
+                    break;
+                case Key.B:
+                    ToggleSidePanel();
+                    e.Handled = true;
+                    break;
+            }
+        }
+        else if (mods == ModifierKeys.None && key == Key.F6)
+        {
+            ToggleFocusArea();
+            e.Handled = true;
+        }
+    }
+
+    /// <summary>Onglet de la zone principale suivant (<paramref name="step"/> = 1) ou précédent (-1), en boucle.</summary>
+    private void SelectAdjacentTab(int step)
+    {
+        var tabs = MainTabs.Items.OfType<TabItem>().Where(t => t.Visibility == Visibility.Visible).ToList();
+        if (tabs.Count < 2)
+        {
+            return;
+        }
+
+        int index = MainTabs.SelectedItem is TabItem current ? tabs.IndexOf(current) : -1;
+        MainTabs.SelectedItem = tabs[((index + step) % tabs.Count + tabs.Count) % tabs.Count];
+    }
+
+    private void FocusQuickConnect()
+    {
+        if (IsOffline)
+        {
+            ShowSideTab(CurrentTab);
+            return;
+        }
+
+        MainTabs.SelectedItem = HomeTab;
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, () =>
+        {
+            QuickBox.Focus();
+            QuickBox.SelectAll();
+        });
+    }
+
+    /// <summary>Affiche un onglet de gauche et place le curseur dans son champ principal.</summary>
+    private void ShowSideTab(TabItem tab)
+    {
+        SetSidePanelCollapsed(false);
+        SideTabs.SelectedItem = tab;
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, () =>
+        {
+            if (tab == AvailableTab)
+            {
+                SearchBox.Focus();
+            }
+            else if (tab == CurrentTab)
+            {
+                SavedSearchBox.Focus();
+            }
+            else
+            {
+                FilesPanel.FocusList();
+            }
+        });
+    }
+
+    /// <summary>F6 : du panneau de gauche à la session affichée, et retour.</summary>
+    private void ToggleFocusArea()
+    {
+        if (SideTabs.IsKeyboardFocusWithin)
+        {
+            FocusCurrentSession();
+        }
+        else
+        {
+            ShowSideTab((TabItem)SideTabs.SelectedItem);
+        }
     }
 
     // ===================== Menu contextuel, favoris, copie =====================
@@ -1032,7 +1331,7 @@ public partial class MainWindow : Window
     {
         var language = _settings.Language;
         var accepted = new SettingsDialog(_settings, _keePass.Store) { Owner = this }.ShowDialog() == true;
-        // Coffre local supprimé ou créé depuis les paramètres : l'arbre « Courants » peut changer.
+        // Coffre local supprimé ou créé depuis les paramètres : l'arbre « Mes serveurs » peut changer.
         RefreshSaved();
         if (accepted)
         {
@@ -1170,7 +1469,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!ConfirmCloseEditedFiles() || !ConfirmCloseRdpSessions() || !FilesPanel.ConfirmCancelTransfers(this, null))
+        if (!ConfirmCloseAll())
         {
             // Fichiers modifiés non renvoyés, sessions Bureau à distance ouvertes ou transferts en cours : l'utilisateur
             // garde la fenêtre.
@@ -1179,6 +1478,8 @@ public partial class MainWindow : Window
             return;
         }
 
+        RememberLayout();
+        SaveSettings();
         // Fermeture de la session PVWA avant de quitter (au plus 5 s d'attente).
         e.Cancel = true;
         _loggedOff = true;

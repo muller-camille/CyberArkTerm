@@ -34,23 +34,24 @@ e apre le sessioni con un doppio clic: desktop remoto tramite **PSM**, oppure un
 | | |
 | --- | --- |
 | **Accesso CyberArk** | Autenticazione CyberArk, LDAP, RADIUS (challenge / OTP compresi) o Windows (sessione corrente). |
-| **Disponibili** | Tutti gli account visibili nel vault, raggruppati per safe, piattaforma o tipo di destinazione, con ricerca istantanea; password (CPM, copia), membri di un safe, aggiunta, modifica e importazione di account. |
+| **Disponibili** | Tutti gli account visibili nel vault CyberArk, raggruppati per safe, piattaforma o tipo di destinazione, con ricerca istantanea; password (CPM, copia), membri di un safe, aggiunta, modifica e importazione di account. |
 | **I miei server** | I tuoi server di lavoro, organizzati in cartelle e sottocartelle, ognuno con le proprie impostazioni; esportazione, importazione ed **elenchi condivisi** su una condivisione di rete (ognuno aggiunge o rimuove, cronologia delle modifiche e delle versioni). |
 | **Sessioni PSM** | Desktop remoto tramite il PSM (come il pulsante «Connect» del PVWA), in Connessione Desktop remoto di Windows: componente, macchina di destinazione, motivo, ticket. |
-| **Sessioni SSH (PSMP)** | Terminale integrato in una scheda (compatibile xterm: colori, vim, less, top…), MFA, menu del clic destro, ricerca, finestre separate. Solo file (SFTP, senza terminale) per le piattaforme «SFTP» o su richiesta. |
-| **Scheda File** | Browser SFTP del server: invio (SFTP, o SCP, con l'altro che subentra se il server rifiuta) e download con il trascinamento, verifica SHA-256 di ogni file, coda e cronologia dei trasferimenti, ordinamento per colonna, modifica nel tuo editor di testo, permessi, monitoraggio in tempo reale (`tail -f`), confronto, invio a più server. |
+| **Sessioni SSH (PSMP)** | Terminale integrato in una scheda (compatibile xterm: colori, vim, less, top…), MFA, menu del clic destro, ricerca, finestre separate, «Riconnetti» alla fine della sessione. Solo file (SFTP, senza terminale) per le piattaforme «SFTP» o su richiesta. |
+| **Scheda File** | Browser SFTP del server: invio (SFTP, o SCP, con l'altro che subentra se il server rifiuta) e download con il trascinamento, verifica SHA-256 di ogni file, coda (risultati conservati) e cronologia dei trasferimenti, ordinamento per colonna, rinomina, modifica nel tuo editor di testo, permessi, monitoraggio in tempo reale (`tail -f`), confronto, invio a più server. |
 | **Vista parallela** | Fino a 8 sessioni SSH affiancate (una cartella di «I miei server» si apre con un clic), digitazione simultanea opzionale. |
-| **Accesso di emergenza (KeePass)** | Senza CyberArk: archivi KeePass (.kdbx) in «I miei server», connessioni SSH, desktop remoto e VNC dirette, file in SFTP, FTP o FTPS nella scheda File, registro locale. |
+| **Accesso di emergenza (KeePass)** | Senza CyberArk: database KeePass (.kdbx) in «I miei server», connessioni SSH, desktop remoto e VNC dirette, file in SFTP, FTP o FTPS nella scheda File, registro locale. |
+| **Tastiera e accessibilità** | Scorciatoie per le schede, il pannello laterale e la connessione rapida, conferme con pulsanti espliciti, utilità per la lettura dello schermo, contrasto elevato. |
 | **Lingue** | Italiano, francese e inglese: lingua di Windows per impostazione predefinita, modificabile in qualsiasi momento. |
 
 <table>
 <tr>
-<td width="50%"><img src="docs/captures/it/available.png" alt="Scheda Disponibili"><br><sub>«Disponibili»: tutti gli account del vault, ricerca istantanea</sub></td>
-<td width="50%"><img src="docs/captures/it/my-servers.png" alt="Scheda I miei server"><br><sub>«I miei server»: i tuoi server in cartelle, archivi KeePass in cima</sub></td>
+<td width="50%"><img src="docs/captures/it/available.png" alt="Scheda Disponibili"><br><sub>«Disponibili»: tutti gli account del vault CyberArk, ricerca istantanea</sub></td>
+<td width="50%"><img src="docs/captures/it/my-servers.png" alt="Scheda I miei server"><br><sub>«I miei server»: i tuoi server in cartelle, database KeePass in cima</sub></td>
 </tr>
 <tr>
 <td><img src="docs/captures/it/terminal-menu.png" alt="Menu del clic destro nel terminale"><br><sub>Clic destro nel terminale: copia, incolla, cerca, azioni della scheda</sub></td>
-<td><img src="docs/captures/it/keepass-vault.png" alt="Accesso di emergenza con KeePass"><br><sub>Accesso di emergenza: SSH diretto da un archivio KeePass</sub></td>
+<td><img src="docs/captures/it/keepass-vault.png" alt="Accesso di emergenza con KeePass"><br><sub>Accesso di emergenza: SSH diretto da un database KeePass</sub></td>
 </tr>
 </table>
 
@@ -76,8 +77,8 @@ Pulsante Impostazioni → **«Informazioni su CyberArkTerm…»**: versione, lin
 «Cerca ora». Se esiste una versione più recente, «Scarica e verifica» salva l'archivio nella cartella Download e lo
 confronta con `SHA256SUMS.txt` della stessa versione (conservato solo se identico). Nulla viene installato
 automaticamente: chiudi CyberArkTerm e sostituisci l'eseguibile; le impostazioni vengono conservate. L'opzione «Cerca
-una nuova versione all'avvio» (disattivata per impostazione predefinita) fa questa ricerca al massimo una volta al
-giorno e mostra un link nella barra di stato.
+una nuova versione all'avvio» (Impostazioni › Generale, disattivata per impostazione predefinita) fa questa ricerca al
+massimo una volta al giorno e mostra un link nella barra di stato.
 
 ### Requisiti
 
@@ -85,7 +86,7 @@ giorno e mostra un link nella barra di stato.
 
 - Windows 10 o 11 (x64).
 - Il client Desktop remoto di Windows (presente di default): Connessione Desktop remoto (`mstsc`) per le sessioni
-  PSM, il suo controllo integrato per il desktop remoto diretto degli archivi KeePass.
+  PSM, il suo controllo integrato per il desktop remoto diretto dei database KeePass.
 - Facoltativo: Windows Terminal e il «Client OpenSSH» di Windows, solo se scegli di aprire l'SSH fuori da
   CyberArkTerm.
 
@@ -110,12 +111,12 @@ giorno e mostra un link nella barra di stato.
    account Unix apre un terminale SSH in una scheda, tramite il PSMP impostato nelle **Impostazioni**. Clic destro nel
    terminale per copiare, incollare, cercare e le azioni della scheda.
 4. **Scheda File** (accanto a una sessione SSH): sfoglia il server, trascina i file da Esplora file per inviarli, verso
-   Esplora file per scaricarli. Ogni file viene verificato (SHA-256); il pulsante **Cronologia** della barra degli
+   Esplora file per scaricarli. Ogni file viene verificato (SHA-256); il pulsante **Trasferimenti** della barra degli
    strumenti conserva ogni trasferimento e i suoi checksum. Un clic sull'intestazione di una colonna ordina l'elenco.
 5. **I miei server**: organizza i server di lavoro in cartelle, ognuno con le sue impostazioni di connessione (PSM o
    SSH, componente, macchina di destinazione, cartella iniziale); apri un'intera cartella nella **vista parallela**.
 6. **Accesso di emergenza**: quando CyberArk non è disponibile, «Accesso di emergenza (KeePass)» nella finestra di
-   accesso apre i tuoi archivi KeePass e si connette direttamente in SSH, desktop remoto o VNC, o ai file in SFTP, FTP
+   accesso apre i tuoi database KeePass e si connette direttamente in SSH, desktop remoto o VNC, o ai file in SFTP, FTP
    o FTPS (senza registrazione del PSM, annotato in un registro su questo computer).
 
 La **[guida all'uso](docs/guide.it.md)** descrive ogni scheda in dettaglio, le
@@ -137,7 +138,7 @@ La **[guida all'uso](docs/guide.it.md)** descrive ogni scheda in dettaglio, le
   i certificati FTPS delle voci KeePass).
 - **Protocolli non cifrati** (VNC, FTP senza TLS) segnalati da un banner permanente; FTP passa in chiaro solo dopo il
   tuo consenso.
-- **Archivi KeePass**: la password principale non viene mai salvata, tranne nel vault locale se lo chiedi (Argon2id,
+- **Database KeePass**: la password principale non viene mai salvata, tranne nel vault locale se lo chiedi (Argon2id,
   AES-256-GCM, protetto dal tuo account Windows); ogni apertura e connessione viene annotata in un registro locale.
 - **Nessuna richiesta verso Internet** senza una tua azione o l'opzione di aggiornamento (disattivata per
   impostazione predefinita); un aggiornamento scaricato viene conservato solo se il suo SHA-256 corrisponde a
@@ -154,7 +155,7 @@ Tutti i dettagli: [guida all'uso → Sicurezza](docs/guide.it.md#sicurezza). Per
 
 | Progetto | Ruolo |
 | --- | --- |
-| `src/CyberArkTerm.Core` | Logica senza interfaccia, multipiattaforma: client dell'API PVWA, classificazione degli account, emulatore di terminale xterm, connessioni PSMP e browser SFTP/SCP (SSH.NET), browser FTP/FTPS (FluentFTP), client VNC, cartelle di «I miei server», archivi KeePass (KDBX), vault locale, preferenze. |
+| `src/CyberArkTerm.Core` | Logica senza interfaccia, multipiattaforma: client dell'API PVWA, classificazione degli account, emulatore di terminale xterm, connessioni PSMP e browser SFTP/SCP (SSH.NET), browser FTP/FTPS (FluentFTP), client VNC, cartelle di «I miei server», database KeePass (KDBX), vault locale, preferenze. |
 | `src/CyberArkTerm.App` | Applicazione WPF: finestre, schede, controllo terminale, controllo Desktop remoto (schede RDP), avvio di `mstsc`, icona (`Assets`). |
 | `tests/CyberArkTerm.Core.Tests` | Test xUnit di Core (falso PVWA HTTP, terminale, PSMP, cartelle, traduzioni…). |
 | `tests/CyberArkTerm.App.Tests` | Test Windows dell'applicazione (vero controllo Desktop remoto, DPAPI). |
@@ -213,7 +214,7 @@ e `SHA256SUMS.txt`. Le note di versione vengono lette da `docs/releases/vX.Y.Z.m
 - **Privilege Cloud** (accesso tramite CyberArk Identity) e **SAML** non sono supportati.
 - L'API Accounts non indica quali componenti PSM offre una piattaforma: il componente viene dedotto, poi può
   essere memorizzato.
-- Archivi KeePass: cifratura Twofish e chiavi YubiKey non supportate; nessuna creazione di archivio (crealo con
+- Database KeePass: cifratura Twofish e chiavi YubiKey non supportate; nessuna creazione di database (crealo con
   KeePass o KeePassXC); allegati conservati ma non mostrati.
 - Il monitoraggio della cartella del terminale richiede bash, zsh o tcsh sul server.
 - VNC: solo password VNC o nessuna autenticazione (né autenticazione propria di un produttore, né cifratura). FTPS:

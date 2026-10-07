@@ -16,7 +16,7 @@ public sealed class DetachedSessionWindow : Window
         View = view;
         Title = Text.Format(Strings.DetachedTitle, label);
         Icon = icon;
-        Background = System.Windows.Media.Brushes.White;
+        SetResourceReference(BackgroundProperty, "ContentBrush");
         ShowInTaskbar = true;
         Content = view;
         Activated += (_, _) => view.FocusTerminal();

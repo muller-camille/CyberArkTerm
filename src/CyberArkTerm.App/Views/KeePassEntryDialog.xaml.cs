@@ -9,6 +9,8 @@ namespace CyberArkTerm.App.Views;
 public partial class KeePassEntryDialog : Window
 {
     private readonly bool _editing;
+    // Champs personnalisés de l'entrée modifiée (« Host », « Port »…) : ils comptent pour l'adresse du serveur.
+    private readonly IReadOnlyDictionary<string, string> _customFields;
     private bool _syncing;
 
     /// <param name="entry">Entrée à modifier ; null pour en créer une dans <paramref name="group"/>.</param>
@@ -16,6 +18,7 @@ public partial class KeePassEntryDialog : Window
     {
         InitializeComponent();
         _editing = entry is not null;
+        _customFields = entry?.CustomFields ?? new Dictionary<string, string>();
         Title = _editing ? Strings.KeePassEditEntryTitle : Strings.KeePassNewEntryTitle;
         VaultText.Text = vaultName;
         GroupBox.ItemsSource = groups.Where(g => g.Length > 0).Order(StringComparer.OrdinalIgnoreCase).ToList();
@@ -65,6 +68,8 @@ public partial class KeePassEntryDialog : Window
         {
             PasswordText.Text = PasswordBox.Password;
             PasswordText.Visibility = Visibility.Visible;
+            // La touche d'accès du libellé vise le champ affiché.
+            PasswordLabel.Target = PasswordText;
             PasswordBox.Visibility = Visibility.Collapsed;
         }
         else
@@ -73,6 +78,7 @@ public partial class KeePassEntryDialog : Window
             PasswordText.Text = "";
             PasswordBox.Visibility = Visibility.Visible;
             PasswordText.Visibility = Visibility.Collapsed;
+            PasswordLabel.Target = PasswordBox;
         }
 
         _syncing = false;
@@ -94,10 +100,20 @@ public partial class KeePassEntryDialog : Window
 
     private void OnSave(object sender, RoutedEventArgs e)
     {
+        // Sans adresse, l'entrée ne servirait à rien : l'erreur est dite ici plutôt qu'à la connexion.
+        var host = KeePassTarget.From(new KeePassEntry { Id = "", Url = UrlBox.Text, CustomFields = _customFields }).Host;
+        if (string.IsNullOrWhiteSpace(host))
+        {
+            ErrorText.Text = Strings.KeePassAddressRequired;
+            ErrorText.Visibility = Visibility.Visible;
+            UrlBox.Focus();
+            return;
+        }
+
         var title = TitleBox.Text.Trim();
         if (title.Length == 0)
         {
-            title = KeePassTarget.From(new KeePassEntry { Id = "", Url = UrlBox.Text }).Host;
+            title = host;
         }
 
         var password = Password;

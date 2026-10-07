@@ -1,7 +1,7 @@
 namespace CyberArkTerm.Core.KeePass;
 
 /// <summary>
-/// Coffre KeePass affiché comme un dossier de l'onglet « Courants ». Seuls l'emplacement du fichier et celui du
+/// Coffre KeePass affiché comme un dossier de « Mes serveurs ». Seuls l'emplacement du fichier et celui du
 /// fichier clé sont enregistrés dans les préférences ; le mot de passe maître ne l'est jamais (au mieux, dans le
 /// coffre local chiffré, sous <see cref="Id"/>).
 /// </summary>

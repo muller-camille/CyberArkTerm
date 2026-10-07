@@ -28,6 +28,8 @@ public sealed class TransferItem(bool upload, string label, string destination, 
     private string? _error;
     private int _fileCount;
     private TransferProtocol? _currentProtocol;
+    private object? _owner;
+    private Func<TransferItem, CancellationToken, Task>? _run = run;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -39,8 +41,24 @@ public sealed class TransferItem(bool upload, string label, string destination, 
     /// <summary>Dossier du serveur (envoi) ou emplacement sur ce poste (téléchargement).</summary>
     public string Destination { get; } = destination;
 
-    /// <summary>Session à laquelle appartient le transfert (annulé à sa fermeture).</summary>
-    public object? Owner { get; init; }
+    /// <summary>
+    /// Session à laquelle appartient le transfert (annulé à sa fermeture). Oubliée à la fin de la série : un élément
+    /// gardé dans la file pour son résultat ne retient pas en mémoire une session fermée.
+    /// </summary>
+    public object? Owner
+    {
+        get => _owner;
+        init => _owner = value;
+    }
+
+    /// <summary>Serveur de la session (« utilisateur@serveur ») : nommé dans la file, qui peut mêler plusieurs serveurs.</summary>
+    public string? Server { get; init; }
+
+    /// <summary>Où va le transfert : « serveur:dossier » pour un envoi, le dossier de ce poste pour un téléchargement.</summary>
+    public string Target => Upload && !string.IsNullOrEmpty(Server) ? $"{Server}:{Destination}" : Destination;
+
+    /// <summary>Trajet complet (infobulle de la file) : d'où vient l'élément et où il va.</summary>
+    public string Route => Upload || string.IsNullOrEmpty(Server) ? $"{Label} → {Target}" : $"{Server}:{Label} → {Destination}";
 
     /// <summary>Protocole d'un envoi (SCP ou SFTP), celui des Paramètres.</summary>
     public string? Protocol { get; init; }
@@ -74,8 +92,15 @@ public sealed class TransferItem(bool upload, string label, string destination, 
     public TransferState State
     {
         get => _state;
-        internal set => Set(ref _state, value);
+        internal set
+        {
+            Set(ref _state, value);
+            OnPropertyChanged(nameof(HasChecks));
+        }
     }
+
+    /// <summary>Au moins un fichier traité, avec sa vérification (détail affichable).</summary>
+    public bool HasChecks => Checks.Count > 0;
 
     /// <summary>Avancement du fichier en cours (transfert ou vérification), en pourcentage.</summary>
     public double Percent
@@ -118,7 +143,16 @@ public sealed class TransferItem(bool upload, string label, string destination, 
 
     internal CancellationTokenSource Cancellation { get; } = new();
 
-    internal Func<TransferItem, CancellationToken, Task> Run { get; } = run;
+    internal Func<TransferItem, CancellationToken, Task>? Run => _run;
+
+    /// <summary>Élément terminé, gardé pour son résultat : plus de session ni de connexion retenues.</summary>
+    internal void Release()
+    {
+        _owner = null;
+        _run = null;
+    }
+
+    public bool IsFinished => State is TransferState.Done or TransferState.Failed or TransferState.Cancelled;
 
     /// <summary>Met à jour l'avancement (à appeler depuis le fil de l'interface, par un <see cref="Progress{T}"/>).</summary>
     public void Report(TransferProgress progress)
@@ -154,17 +188,21 @@ public sealed class TransferItem(bool upload, string label, string destination, 
 
 /// <summary>
 /// File d'attente des transferts : un élément à la fois, dans l'ordre des demandes. Un élément en attente peut être
-/// retiré, l'élément en cours annulé ; une erreur n'arrête pas la file. Les éléments restent dans
-/// <see cref="Items"/> (avec leur résultat) jusqu'à la fin de la série, signalée par <see cref="Drained"/>.
-/// À utiliser depuis le fil de l'interface.
+/// retiré, l'élément en cours annulé ; une erreur n'arrête pas la file. La fin d'une série est signalée par
+/// <see cref="Drained"/> ; ses éléments restent ensuite dans <see cref="Items"/> avec leur résultat (les
+/// <see cref="KeptFinished"/> derniers), jusqu'à <see cref="ClearFinished"/>. À utiliser depuis le fil de l'interface.
 /// </summary>
 /// <param name="describe">Message lisible d'une erreur de transfert.</param>
 public sealed class TransferQueue(Func<Exception, string> describe)
 {
+    /// <summary>Éléments terminés gardés pour leur résultat ; au-delà, les plus anciens sont retirés.</summary>
+    public const int KeptFinished = 50;
+
+    private readonly List<TransferItem> _series = [];
     private bool _active;
     private Task _runner = Task.CompletedTask;
 
-    /// <summary>Éléments de la série en cours : terminés, en cours et en attente.</summary>
+    /// <summary>Éléments en attente, en cours, et terminés (avec leur résultat) de cette série et des précédentes.</summary>
     public ObservableCollection<TransferItem> Items { get; } = [];
 
     public TransferItem? Current { get; private set; }
@@ -177,7 +215,7 @@ public sealed class TransferQueue(Func<Exception, string> describe)
     /// <summary>Un élément s'est terminé (réussi, en échec ou annulé).</summary>
     public event Action<TransferItem>? ItemFinished;
 
-    /// <summary>Plus rien en attente : bilan de la série (les éléments sont retirés de <see cref="Items"/>).</summary>
+    /// <summary>Plus rien en attente : bilan de la série (ses éléments restent dans <see cref="Items"/>).</summary>
     public event Action<IReadOnlyList<TransferItem>>? Drained;
 
     /// <summary>La file a changé (ajout, début, fin, annulation).</summary>
@@ -186,6 +224,8 @@ public sealed class TransferQueue(Func<Exception, string> describe)
     public void Enqueue(TransferItem item)
     {
         Items.Add(item);
+        _series.Add(item);
+        Trim();
         Changed?.Invoke();
         if (!_active)
         {
@@ -228,6 +268,27 @@ public sealed class TransferQueue(Func<Exception, string> describe)
         }
     }
 
+    /// <summary>Retire de la liste les éléments terminés (réussis, en échec ou annulés).</summary>
+    public void ClearFinished()
+    {
+        foreach (var item in Items.Where(i => i.IsFinished).ToList())
+        {
+            Items.Remove(item);
+        }
+
+        Changed?.Invoke();
+    }
+
+    /// <summary>Garde au plus <see cref="KeptFinished"/> éléments terminés (le bilan d'une série ne dépend pas de la liste).</summary>
+    private void Trim()
+    {
+        var old = Items.Where(i => i.IsFinished).ToList();
+        foreach (var item in old.Take(Math.Max(0, old.Count - KeptFinished)))
+        {
+            Items.Remove(item);
+        }
+    }
+
     /// <summary>Attend la fin de la série, au plus <paramref name="timeout"/>.</summary>
     public Task WaitIdleAsync(TimeSpan timeout) => Task.WhenAny(_runner, Task.Delay(timeout));
 
@@ -265,7 +326,7 @@ public sealed class TransferQueue(Func<Exception, string> describe)
             Changed?.Invoke();
             try
             {
-                await item.Run(item, item.Cancellation.Token);
+                await item.Run!(item, item.Cancellation.Token);
                 item.State = TransferState.Done;
             }
             catch (OperationCanceledException) when (item.CancelRequested)
@@ -283,10 +344,16 @@ public sealed class TransferQueue(Func<Exception, string> describe)
             Changed?.Invoke();
         }
 
-        var run = Items.ToList();
-        Items.Clear();
+        var run = _series.ToList();
+        _series.Clear();
         _active = false;
         Drained?.Invoke(run);
+        foreach (var item in run)
+        {
+            item.Release();
+        }
+
+        Trim();
         Changed?.Invoke();
     }
 }

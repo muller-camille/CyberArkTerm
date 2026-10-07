@@ -21,9 +21,6 @@ public partial class ImportAccountsDialog : Window
     /// <summary>Taille maximale du fichier lu.</summary>
     private const int MaxFileSize = 10 * 1024 * 1024;
 
-    /// <summary>Nombre de lignes en erreur détaillées avant l'import ; toutes figurent dans la fenêtre suivante.</summary>
-    private const int ShownLineErrors = 3;
-
     private AccountImport? _import;
     private string? _path;
 
@@ -133,19 +130,46 @@ public partial class ImportAccountsDialog : Window
     {
         var rows = _import?.Rows ?? [];
         int ready = _import?.Ready ?? 0;
-        var errors = rows.Where(r => r.Error is not null).ToList();
-        SummaryText.Text = Text.Format(Strings.ImportSummary, ready, errors.Count);
-        SummaryText.Visibility = rows.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
-        var lines = errors.Take(ShownLineErrors).Select(r => Text.Format(Strings.ImportLineError, r.Line, r.Error)).ToList();
-        if (errors.Count > ShownLineErrors)
-        {
-            lines.Add(Text.Format(Strings.ImportMoreErrors, errors.Count - ShownLineErrors));
-        }
-
-        LineErrorsText.Text = string.Join(Environment.NewLine, lines);
-        LineErrorsText.Visibility = lines.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        int errors = rows.Count(r => r.Error is not null);
+        int safes = rows.Where(r => r.Account is not null).Select(r => r.Safe).Distinct(StringComparer.OrdinalIgnoreCase).Count();
+        SummaryText.Text = Text.Format(Strings.ImportSummary, ready, errors) + (safes > 0 ? " " + Text.Format(Strings.ImportSafesCount, safes) : "");
+        SummaryText.Visibility = PreviewGrid.Visibility = rows.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        OnlyErrorsBox.Visibility = errors > 0 ? Visibility.Visible : Visibility.Collapsed;
+        OnlyErrorsBox.IsChecked = OnlyErrorsBox.IsChecked == true && errors > 0;
+        _preview = rows.Select(r => new PreviewRow(r)).ToList();
+        ShowPreview();
         PasswordWarning.Visibility = rows.Any(r => r.HasPassword) ? Visibility.Visible : Visibility.Collapsed;
+        // Le bouton dit ce qui va se passer : « Créer 248 comptes ».
+        ImportButton.Content = ready > 0 ? Text.Format(Strings.ImportCreateAccounts, ready) : Strings.ImportButton;
         ImportButton.IsEnabled = ready > 0;
+    }
+
+    private List<PreviewRow> _preview = [];
+
+    private void ShowPreview() =>
+        PreviewGrid.ItemsSource = OnlyErrorsBox.IsChecked == true ? _preview.Where(r => r.IsError).ToList() : _preview;
+
+    private void OnOnlyErrors(object sender, RoutedEventArgs e) => ShowPreview();
+
+    /// <summary>Ligne de l'aperçu : état, cible ; le mot de passe n'est indiqué que par sa présence.</summary>
+    private sealed class PreviewRow(ImportRow row)
+    {
+        public int Line { get; } = row.Line;
+
+        public bool IsError { get; } = row.Error is not null;
+
+        public string Status { get; } = row.Error ?? Strings.ImportReady;
+
+        public string Safe { get; } = row.Safe;
+
+        public string Platform { get; } = row.Platform;
+
+        public string Account { get; } = row.UserName.Length > 0 && row.Address.Length > 0 ? $"{row.UserName}@{row.Address}" : row.UserName + row.Address;
+
+        public string Password { get; } = row.HasPassword ? "••••••" : "";
+
+        /// <summary>Nom lu par les lecteurs d'écran.</summary>
+        public override string ToString() => $"{Line}, {Status}, {Account}";
     }
 
     private void OnImport(object sender, RoutedEventArgs e)

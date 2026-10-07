@@ -2,11 +2,11 @@ using CyberArkTerm.Core.Localization;
 
 namespace CyberArkTerm.Core;
 
-/// <summary>Opérations sur les dossiers et sessions de l'onglet « Courants » (stockés dans les préférences).</summary>
+/// <summary>Opérations sur les dossiers et sessions de « Mes serveurs » (stockés dans les préférences).</summary>
 public static class SessionLibrary
 {
     /// <summary>
-    /// Arbre de l'onglet « Courants » pour le PVWA <paramref name="pvwaHost"/>. Avec une recherche
+    /// Arbre de « Mes serveurs » pour le PVWA <paramref name="pvwaHost"/>. Avec une recherche
     /// (<paramref name="filter"/>), seuls les serveurs qui y répondent et leurs dossiers sont gardés.
     /// </summary>
     public static SessionFolderNode BuildTree(AppSettings settings, string pvwaHost, string? filter = null) =>
@@ -47,7 +47,7 @@ public static class SessionLibrary
         return root;
     }
 
-    /// <summary>Recherche dans « Courants » : nom, serveur, utilisateur, dossier, mode, composant, machine cible, plateforme, safe.</summary>
+    /// <summary>Recherche dans « Mes serveurs » : nom, serveur, utilisateur, dossier, mode, composant, machine cible, plateforme, safe.</summary>
     public static bool Matches(SavedSession session, string? query) => SearchQuery.Matches(
         query,
         session.Name,
@@ -195,7 +195,7 @@ public static class SessionLibrary
         AddFolder(settings, session.Folder);
     }
 
-    /// <summary>Reprend les anciens favoris comme sessions à la racine de « Courants » (une seule fois).</summary>
+    /// <summary>Reprend les anciens favoris comme sessions à la racine de « Mes serveurs » (une seule fois).</summary>
     public static void MigrateFavorites(AppSettings settings, IReadOnlyDictionary<string, PvwaAccount> accounts, string pvwaHost)
     {
         if (settings.Favorites.Count == 0)

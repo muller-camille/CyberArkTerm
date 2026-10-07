@@ -3,7 +3,7 @@ using CyberArkTerm.Core.KeePass;
 
 namespace CyberArkTerm.App;
 
-/// <summary>Coffre KeePass dans l'onglet « Courants » (accès d'urgence hors CyberArk).</summary>
+/// <summary>Coffre KeePass dans « Mes serveurs » (accès d'urgence hors CyberArk).</summary>
 public sealed class KeePassFolderNode(KeePassFolder folder, KeePassDatabase? database, List<object> children, bool isExpanded)
 {
     public KeePassFolder Folder { get; } = folder;
@@ -17,6 +17,9 @@ public sealed class KeePassFolderNode(KeePassFolder folder, KeePassDatabase? dat
     public bool IsExpanded { get; set; } = isExpanded;
 
     public string StateText => IsUnlocked ? $" ({database!.Entries.Count})" : "  " + Strings.KeePassLockedSuffix;
+
+    /// <summary>Nom lu par les lecteurs d'écran.</summary>
+    public override string ToString() => Name + StateText;
 
     public double Opacity => IsUnlocked ? 1 : 0.7;
 
@@ -50,6 +53,8 @@ public sealed class KeePassGroupNode(KeePassFolder folder, string path, List<obj
 
     public string Name => KeePassGroupPath.Name(Path);
 
+    public override string ToString() => Name;
+
     public List<object> Children { get; } = children;
 
     public int Count { get; init; }
@@ -69,6 +74,8 @@ public sealed class KeePassEntryNode(KeePassFolder folder, KeePassEntry entry)
     public string Title => Entry.Title.Length > 0 ? Entry.Title : Target.Host;
 
     public string ModeText => KeePassTarget.Name(Target.Protocol);
+
+    public override string ToString() => $"{Title}, {ModeText}";
 
     public bool IsExpanded { get; set; }
 
@@ -98,6 +105,8 @@ public sealed class KeePassHintNode(KeePassFolder folder, string text)
     public KeePassFolder Folder { get; } = folder;
 
     public string Text { get; } = text;
+
+    public override string ToString() => Text;
 
     public bool IsExpanded { get; set; }
 }

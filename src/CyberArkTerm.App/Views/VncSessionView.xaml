@@ -5,7 +5,7 @@
              Focusable="True" FocusVisualStyle="{x:Null}" KeyboardNavigation.TabNavigation="None"
              KeyboardNavigation.DirectionalNavigation="None" KeyboardNavigation.ControlTabNavigation="None">
     <DockPanel>
-        <Border DockPanel.Dock="Top" Background="#EEF2F6" BorderBrush="#BAC5D1" BorderThickness="0,0,0,1" Padding="8,3">
+        <Border DockPanel.Dock="Top" Background="{DynamicResource MainTabBrush}" BorderBrush="{DynamicResource MainTabBorderBrush}" BorderThickness="0,0,0,1" Padding="8,3">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                     <Button x:Name="CtrlAltDelButton" Content="{x:Static loc:Strings.VncCtrlAltDel}" ToolTip="{x:Static loc:Strings.VncCtrlAltDelTip}"
@@ -22,8 +22,8 @@
             </DockPanel>
         </Border>
         <!-- Le flux VNC n'est pas chiffré : rappel permanent. -->
-        <Border DockPanel.Dock="Top" Background="#FFF4CE" BorderBrush="#E0C068" BorderThickness="0,0,0,1" Padding="8,2">
-            <TextBlock x:Name="WarningText" Text="{x:Static loc:Strings.VncUnencrypted}" Foreground="#5C4A00" TextWrapping="Wrap" />
+        <Border DockPanel.Dock="Top" Background="{DynamicResource WarningBackgroundBrush}" BorderBrush="{DynamicResource WarningBorderBrush}" BorderThickness="0,0,0,1" Padding="8,2">
+            <TextBlock x:Name="WarningText" Text="{x:Static loc:Strings.VncUnencrypted}" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" />
         </Border>
         <Grid Background="#0C0C0C">
             <ScrollViewer x:Name="Scroller" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" Focusable="False">

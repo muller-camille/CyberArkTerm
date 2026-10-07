@@ -100,6 +100,15 @@ public sealed class FtpFileBrowserTests
                         case "MKD":
                             await WriteAsync(stream, "257 \"" + line[4..] + "\" created");
                             break;
+                        case "SIZE":
+                            await WriteAsync(stream, line.Contains("taken", StringComparison.Ordinal) ? "213 12" : "550 No such file.");
+                            break;
+                        case "CWD":
+                            await WriteAsync(stream, line[4..] == "/home/fake" ? "250 OK" : "550 Failed to change directory.");
+                            break;
+                        case "RNFR":
+                            await WriteAsync(stream, "350 Ready for RNTO.");
+                            break;
                         case "QUIT":
                             await WriteAsync(stream, "221 Goodbye.");
                             return;
@@ -230,6 +239,22 @@ public sealed class FtpFileBrowserTests
         Assert.False(server.Received("DELE"));
         await browser.CreateDirectoryAsync("/home/fake/ok", CancellationToken.None);
         Assert.Contains("MKD /home/fake/ok", server.Commands);
+    }
+
+    [Fact]
+    public async Task RenameNeverReplacesAnExistingFile()
+    {
+        using var server = new FakeFtp();
+        using var browser = await FtpFileBrowser.ConnectAsync(
+            Connection(server, FtpSecurity.Opportunistic, () => true), CancellationToken.None);
+
+        await Assert.ThrowsAsync<IOException>(() => browser.RenameAsync("/home/fake/a.txt", "/home/fake/taken.txt", CancellationToken.None));
+        Assert.False(server.Received("RNFR"));
+        Assert.False(server.Received("RNTO"));
+
+        await browser.RenameAsync("/home/fake/a.txt", "/home/fake/b.txt", CancellationToken.None);
+        Assert.Contains("RNFR /home/fake/a.txt", server.Commands);
+        Assert.Contains("RNTO /home/fake/b.txt", server.Commands);
     }
 
     [Fact]

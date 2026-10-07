@@ -45,6 +45,8 @@ public partial class App : Application
                 window.Icon = icon;
             }
         }));
+        // Contraste élevé de Windows : couleurs système à la place de la palette, avant la première fenêtre.
+        Palette.Follow(this);
         _systemCulture = CultureInfo.CurrentUICulture;
         _settings = AppSettings.Load(AppSettings.DefaultPath);
         AppDebugLog.Apply(_settings);

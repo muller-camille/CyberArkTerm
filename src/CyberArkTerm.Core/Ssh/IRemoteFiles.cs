@@ -31,6 +31,12 @@ public interface IRemoteFiles : IDisposable
 
     Task CreateDirectoryAsync(string path, CancellationToken ct);
 
+    /// <summary>
+    /// Renomme un fichier ou un dossier (<paramref name="newPath"/> dans le même dossier). Ne remplace jamais un élément
+    /// existant : <see cref="IOException"/> si <paramref name="newPath"/> existe déjà.
+    /// </summary>
+    Task RenameAsync(string path, string newPath, CancellationToken ct);
+
     Task<bool> ExistsAsync(string path, CancellationToken ct);
 
     /// <summary>Envoie un fichier ou un dossier local (récursivement) ; chaque fichier est vérifié (SHA-256).</summary>
@@ -56,7 +62,11 @@ public interface IRemoteFiles : IDisposable
     /// <summary>Droits actuels (12 bits) ; null s'ils ne sont pas connus.</summary>
     Task<int?> GetModeAsync(string path, CancellationToken ct);
 
-    Task<PermissionsResult> SetPermissionsAsync(string path, int mode, bool includeSpecial, bool recursive,
+    /// <summary>
+    /// Applique <paramref name="change"/> à l'élément et, si demandé, à tout le contenu d'un dossier (sans les bits
+    /// spéciaux, liens non suivis). Annulable entre deux éléments.
+    /// </summary>
+    Task<PermissionsResult> SetPermissionsAsync(string path, PermissionChange change, bool recursive,
         bool executeOnlyIfAlready, IProgress<int>? progress, CancellationToken ct);
 
     /// <summary>Éléments choisis et tout le contenu des dossiers, chacun avec son chemin relatif.</summary>

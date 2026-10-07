@@ -28,6 +28,8 @@ public partial class FileBrowserPanel : UserControl
     {
         InitializeComponent();
         InitializeQueue();
+        FileList.SelectionChanged += (_, _) => UpdateSelectionButtons();
+        FileList.SizeChanged += (_, _) => FitNameColumn();
         ShowMessage(Strings.NoSshSessionHelp, retry: false);
         HeaderText.Text = Strings.NoSshSession;
         UpdateToolbar();
@@ -316,6 +318,33 @@ public partial class FileBrowserPanel : UserControl
         }
     }
 
+    /// <summary>Largeur de la colonne « Droits » quand elle est affichée.</summary>
+    private double _permissionsWidth = 84;
+
+    /// <summary>
+    /// Colonne « Nom » élastique : elle prend la largeur laissée par les autres colonnes (panneau élargi ou rétréci).
+    /// Panneau trop étroit : la colonne « Droits » est masquée (elle revient en élargissant) plutôt que coupée.
+    /// </summary>
+    private void FitNameColumn()
+    {
+        const double MinName = 130;
+        if (PermissionsColumn.ActualWidth > 0)
+        {
+            _permissionsWidth = PermissionsColumn.ActualWidth;
+        }
+
+        double available = FileList.ActualWidth - SystemParameters.VerticalScrollBarWidth - 8;
+        double fixedWidth = SizeColumn.ActualWidth + ModifiedColumn.ActualWidth;
+        if (available <= 0)
+        {
+            return;
+        }
+
+        bool permissions = available - fixedWidth - _permissionsWidth >= MinName;
+        PermissionsColumn.Width = permissions ? _permissionsWidth : 0;
+        NameColumn.Width = Math.Max(MinName, available - fixedWidth - (permissions ? _permissionsWidth : 0));
+    }
+
     // ===================== Tri (clic sur un en-tête de colonne) =====================
 
     /// <summary>
@@ -506,6 +535,10 @@ public partial class FileBrowserPanel : UserControl
                 OnEdit(sender, e);
                 e.Handled = true;
                 break;
+            case Key.F2:
+                _ = RenameAsync();
+                e.Handled = true;
+                break;
             case Key.Back:
                 OnParent(sender, e);
                 e.Handled = true;
@@ -540,8 +573,8 @@ public partial class FileBrowserPanel : UserControl
                 "open" => selected.Count == 1,
                 "edit" => selected is [{ IsDirectory: false }],
                 "tail" => files,
-                "download" => selected.Count > 0 && selected.All(s => !s.IsDirectory),
-                "delete" or "copy" or "chmod" => selected.Count > 0,
+                "rename" => selected.Count == 1,
+                "download" or "delete" or "copy" or "chmod" => selected.Count > 0,
                 _ => _browser is not null,
             };
         }
@@ -578,7 +611,7 @@ public partial class FileBrowserPanel : UserControl
         }
 
         var dialog = new InputDialog(Strings.NewFolder, Text.Format(Strings.NewRemoteFolderPrompt, browser.CurrentDirectory),
-            validate: v => v.Contains('/') ? Strings.NameNoSlash : null) { Owner = Window.GetWindow(this) };
+            validate: ValidateName) { Owner = Window.GetWindow(this) };
         if (dialog.ShowDialog() != true)
         {
             return;
@@ -603,6 +636,69 @@ public partial class FileBrowserPanel : UserControl
 
     private void OnDelete(object sender, RoutedEventArgs e) => _ = DeleteAsync();
 
+    private void OnRename(object sender, RoutedEventArgs e) => _ = RenameAsync();
+
+    /// <summary>
+    /// Renomme l'élément choisi dans son dossier (F2). Le nouveau nom ne remplace jamais un élément existant : le
+    /// serveur n'est pas interrogé si le nom est pris.
+    /// </summary>
+    private async Task RenameAsync()
+    {
+        var browser = _browser;
+        int generation = _generation;
+        if (browser is null || _busy > 0 || SelectedEntries() is not [var entry])
+        {
+            return;
+        }
+
+        var directory = RemotePath.Parent(entry.FullPath);
+        var dialog = new InputDialog(Strings.RenameTitle,
+            Text.Format(Strings.RenamePrompt, entry.Name, Text.Format(Strings.ServerPath, _session?.Label ?? "", directory)),
+            entry.Name, ValidateName) { Owner = Window.GetWindow(this) };
+        if (dialog.ShowDialog() != true || dialog.Value == entry.Name || !StillShowing(browser, generation))
+        {
+            return;
+        }
+
+        var target = RemotePath.Combine(directory, dialog.Value);
+        Interlocked.Increment(ref _busy);
+        try
+        {
+            await browser.RenameAsync(entry.FullPath, target, CancellationToken.None);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            if (StillShowing(browser, generation))
+            {
+                SetStatus(Text.Format(Strings.RenameFailed, Describe(ex)), error: true);
+            }
+
+            return;
+        }
+        finally
+        {
+            Interlocked.Decrement(ref _busy);
+        }
+
+        if (StillShowing(browser, generation) && await NavigateAsync(browser.CurrentDirectory))
+        {
+            if (FileList.ItemsSource is IEnumerable<RemoteEntry> shown && shown.FirstOrDefault(e => e.FullPath == target) is { } renamed)
+            {
+                FileList.SelectedItem = renamed;
+                FileList.ScrollIntoView(renamed);
+            }
+
+            SetStatus(Text.Format(Strings.Renamed, entry.Name, dialog.Value));
+        }
+    }
+
+    /// <summary>Nom d'un élément dans un dossier du serveur : ni « / », ni caractère de contrôle, ni « . » ou « .. ».</summary>
+    internal static string? ValidateName(string name) =>
+        name.Contains('/') ? Strings.NameNoSlash
+        : name.Any(char.IsControl) ? Strings.NameNoControl
+        : name is "." or ".." ? Strings.NameReserved
+        : null;
+
     /// <summary>Le contenu d'un dossier du serveur a changé (fichier renvoyé depuis l'éditeur) : actualisation s'il est affiché.</summary>
     public void OnRemoteChanged(RemoteSession session, string directory)
     {
@@ -622,6 +718,9 @@ public partial class FileBrowserPanel : UserControl
 
     private void OnPermissions(object sender, RoutedEventArgs e) => _ = ChangePermissionsAsync();
 
+    /// <summary>Modification des droits en cours (bouton « Arrêter » de la barre d'état).</summary>
+    private CancellationTokenSource? _chmodCancel;
+
     private async Task ChangePermissionsAsync()
     {
         var browser = _browser;
@@ -633,15 +732,21 @@ public partial class FileBrowserPanel : UserControl
         }
 
         var target = selected.Count == 1 ? selected[0].Name : Text.Format(Strings.ItemsCount, selected.Count);
-        int mode = UnixPermissions.FromSymbolic(selected[0].Permissions);
-        if (selected[0].IsSymbolicLink)
+        var modes = new List<int>();
+        foreach (var entry in selected)
         {
+            if (!entry.IsSymbolicLink)
+            {
+                modes.Add(UnixPermissions.FromSymbolic(entry.Permissions));
+                continue;
+            }
+
             // La liste montre les droits du lien lui-même (lrwxrwxrwx) alors que chmod change ceux de sa cible :
             // partir de 777 rendrait la cible accessible à tous si l'on validait sans rien changer.
             int? targetMode;
             try
             {
-                targetMode = await browser.GetModeAsync(selected[0].FullPath, CancellationToken.None);
+                targetMode = await browser.GetModeAsync(entry.FullPath, CancellationToken.None);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
@@ -651,25 +756,59 @@ public partial class FileBrowserPanel : UserControl
 
             if (targetMode is not { } resolved)
             {
-                SetStatus(Text.Format(Strings.PermissionsLinkUnknown, selected[0].Name), error: true);
+                SetStatus(Text.Format(Strings.PermissionsLinkUnknown, entry.Name), error: true);
                 return;
             }
 
-            mode = resolved;
+            modes.Add(resolved);
         }
 
-        var dialog = new PermissionsDialog(target, browser.CurrentDirectory, mode, selected.Any(s => s.IsDirectory && !s.IsSymbolicLink))
-        {
-            Owner = Window.GetWindow(this),
-        };
+        var location = Text.Format(Strings.ServerPath, _session?.Label ?? "", browser.CurrentDirectory);
+        var owner = Window.GetWindow(this);
+        var dialog = new PermissionsDialog(target, location, modes, selected.Any(s => s.IsDirectory && !s.IsSymbolicLink)) { Owner = owner };
         if (dialog.ShowDialog() != true)
         {
             return;
         }
 
-        var octal = UnixPermissions.ToOctal(dialog.Mode);
+        var change = dialog.Change;
+        if (change.Set == 0 && change.Clear == 0)
+        {
+            SetStatus(Strings.PermissionsNothing);
+            return;
+        }
+
+        // Droits complets : leur valeur octale (755) ; sinon ce qui change (g+w).
+        var what = change.CoversAllRwx ? UnixPermissions.ToOctal(change.Set) : change.ToSymbolic();
+        if (dialog.Recursive)
+        {
+            var bullets = new List<string> { Strings.PermissionsRecursiveLinks };
+            if (dialog.ExecuteOnlyIfAlready)
+            {
+                bullets.Add(Strings.PermissionsRecursiveSmart);
+            }
+
+            bullets.Add(Strings.PermissionsRecursiveStop);
+            if (!ConfirmDialog.Confirm(owner, new ConfirmRequest
+                {
+                    Title = Strings.PermissionsTitle,
+                    Heading = Text.Format(Strings.PermissionsRecursiveHeading, what, target),
+                    Subject = location,
+                    Bullets = bullets,
+                    Kind = ConfirmKind.Warning,
+                    Actions = [Strings.PermissionsApply],
+                }))
+            {
+                return;
+            }
+        }
+
         var errors = new List<string>();
         int changed = 0;
+        bool stopped = false;
+        using var cancel = new CancellationTokenSource();
+        _chmodCancel = cancel;
+        StopChmodButton.Visibility = dialog.Recursive ? Visibility.Visible : Visibility.Collapsed;
         Interlocked.Increment(ref _busy);
         try
         {
@@ -692,10 +831,15 @@ public partial class FileBrowserPanel : UserControl
                 {
                     // Pas de propagation à travers un lien symbolique sélectionné (seule sa cible change de droits).
                     bool recursive = dialog.Recursive && entry.IsDirectory && !entry.IsSymbolicLink;
-                    var result = await browser.SetPermissionsAsync(entry.FullPath, dialog.Mode, dialog.SpecialChanged,
-                        recursive, dialog.ExecuteOnlyIfAlready, progress, CancellationToken.None);
+                    var result = await browser.SetPermissionsAsync(entry.FullPath, change, recursive, dialog.ExecuteOnlyIfAlready,
+                        progress, cancel.Token);
                     changed += result.Changed;
                     errors.AddRange(result.Errors);
+                }
+                catch (OperationCanceledException) when (cancel.IsCancellationRequested)
+                {
+                    stopped = true;
+                    break;
                 }
                 catch (Exception ex) when (ex is not OutOfMemoryException)
                 {
@@ -706,6 +850,8 @@ public partial class FileBrowserPanel : UserControl
         finally
         {
             Interlocked.Decrement(ref _busy);
+            _chmodCancel = null;
+            StopChmodButton.Visibility = Visibility.Collapsed;
         }
 
         if (!StillShowing(browser, generation))
@@ -718,11 +864,43 @@ public partial class FileBrowserPanel : UserControl
         {
             SetStatus(Text.Format(Strings.PermissionsFailed, string.Join(" ; ", errors.Take(5))), error: true);
         }
+        else if (stopped)
+        {
+            SetStatus(Text.Format(Strings.PermissionsStopped, changed));
+        }
         else
         {
             SetStatus(dialog.Recursive
-                ? Text.Format(Strings.PermissionsDoneCount, octal, changed)
-                : Text.Format(Strings.PermissionsDone, octal, target));
+                ? Text.Format(Strings.PermissionsDoneCount, what, changed)
+                : Text.Format(Strings.PermissionsDone, what, target));
+        }
+    }
+
+    private void OnStopChmod(object sender, RoutedEventArgs e) => _chmodCancel?.Cancel();
+
+    /// <summary>Curseur dans la liste des fichiers (Ctrl+3, F6) : sur l'élément choisi, sinon le premier.</summary>
+    public void FocusList()
+    {
+        if (FileList.Items.Count == 0)
+        {
+            FileList.Focus();
+            return;
+        }
+
+        if (FileList.SelectedIndex < 0)
+        {
+            FileList.SelectedIndex = 0;
+        }
+
+        FileList.ScrollIntoView(FileList.SelectedItem);
+        FileList.UpdateLayout();
+        if (FileList.ItemContainerGenerator.ContainerFromIndex(FileList.SelectedIndex) is ListViewItem item)
+        {
+            item.Focus();
+        }
+        else
+        {
+            FileList.Focus();
         }
     }
 
@@ -736,16 +914,16 @@ public partial class FileBrowserPanel : UserControl
             return;
         }
 
-        var names = string.Join("\n", selected.Take(10).Select(s => "  • " + s.Name + (s.IsDirectory ? "/" : "")));
-        if (selected.Count > 10)
-        {
-            names += "\n" + Text.Format(Strings.AndMore, selected.Count - 10);
-        }
-
-        var answer = MessageBox.Show(Window.GetWindow(this),
-            Text.Format(Strings.DeleteConfirm, browser.CurrentDirectory, names),
-            Strings.DeleteTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-        if (answer != MessageBoxResult.Yes)
+        // Le serveur est nommé : l'onglet Fichiers change de serveur avec l'onglet de session actif.
+        static string Name(RemoteEntry entry) => entry.Name + (entry.IsDirectory ? "/" : "");
+        if (!ConfirmDialog.Destructive(Window.GetWindow(this), Strings.DeleteTitle,
+                selected.Count == 1
+                    ? Text.Format(Strings.FileDeleteHeadingOne, Name(selected[0]))
+                    : Text.Format(Strings.FileDeleteHeadingMany, selected.Count),
+                Strings.ActionDelete,
+                subject: Text.Format(Strings.ServerPath, _session?.Label ?? "", browser.CurrentDirectory),
+                bullets: [Strings.FileDeleteNoBin, Strings.FileDeleteRules],
+                items: selected.Count == 1 ? null : selected.Select(Name).ToList()))
         {
             return;
         }
@@ -794,28 +972,72 @@ public partial class FileBrowserPanel : UserControl
 
     // ===================== Envoi (glisser-déposer) et téléchargement =====================
 
+    /// <summary>Ligne de dossier survolée pendant un dépôt : les fichiers iront dans ce dossier.</summary>
+    private ListViewItem? _dropRow;
+
     private void OnDragEnter(object sender, DragEventArgs e)
     {
         bool ok = _browser is not null && e.Data.GetDataPresent(DataFormats.FileDrop);
         e.Effects = ok ? DragDropEffects.Copy : DragDropEffects.None;
-        if (ok)
+        var row = ok ? FolderRowAt(e) : null;
+        SetDropRow(row);
+        if (ok && row?.DataContext is RemoteEntry folder)
         {
-            DropHintText.Text = Text.Format(_queue.ActiveCount > 0 ? Strings.DropHintQueued : Strings.DropHint, Protocol, _browser!.CurrentDirectory);
+            // Sur un dossier : la ligne en surbrillance, la destination dans la barre d'état (le voile cacherait la ligne).
+            DropHint.Visibility = Visibility.Collapsed;
+            SetStatus(Text.Format(Strings.DropIntoFolder, Text.Format(Strings.ServerPath, _session?.Label ?? "", folder.FullPath)));
+        }
+        else if (ok)
+        {
+            DropHintText.Text = Text.Format(_queue.ActiveCount > 0 ? Strings.DropHintQueued : Strings.DropHint, Protocol,
+                Text.Format(Strings.ServerPath, _session?.Label ?? "", _browser!.CurrentDirectory));
             DropHint.Visibility = Visibility.Visible;
         }
 
         e.Handled = true;
     }
 
-    private void OnDragLeave(object sender, DragEventArgs e) => DropHint.Visibility = Visibility.Collapsed;
+    private void OnDragLeave(object sender, DragEventArgs e)
+    {
+        DropHint.Visibility = Visibility.Collapsed;
+        SetDropRow(null);
+    }
 
     private void OnDrop(object sender, DragEventArgs e)
     {
         DropHint.Visibility = Visibility.Collapsed;
+        var target = (FolderRowAt(e)?.DataContext as RemoteEntry)?.FullPath;
+        SetDropRow(null);
         if (e.Data.GetData(DataFormats.FileDrop) is string[] paths && paths.Length > 0)
         {
-            _ = EnqueueUploadAsync(paths);
+            _ = EnqueueUploadAsync(paths, target);
         }
+    }
+
+    /// <summary>Ligne de dossier sous le pointeur (dossier parent compris), ou null.</summary>
+    private ListViewItem? FolderRowAt(DragEventArgs e)
+    {
+        DependencyObject? node = FileList.InputHitTest(e.GetPosition(FileList)) as DependencyObject;
+        while (node is not null and not ListViewItem && !ReferenceEquals(node, FileList))
+        {
+            node = node is System.Windows.Media.Visual or System.Windows.Media.Media3D.Visual3D
+                ? System.Windows.Media.VisualTreeHelper.GetParent(node)
+                : LogicalTreeHelper.GetParent(node);
+        }
+
+        return node is ListViewItem { DataContext: RemoteEntry { IsDirectory: true } } row ? row : null;
+    }
+
+    private void SetDropRow(ListViewItem? row)
+    {
+        if (ReferenceEquals(row, _dropRow))
+        {
+            return;
+        }
+
+        _dropRow?.ClearValue(TagProperty);
+        _dropRow = row;
+        row?.SetValue(TagProperty, "drop");
     }
 
     private void OnUploadDialog(object sender, RoutedEventArgs e)
@@ -838,8 +1060,17 @@ public partial class FileBrowserPanel : UserControl
     private string ProtocolOf(IRemoteFiles? browser) =>
         browser is { ChoosesUploadProtocol: false } ? browser.UploadProtocol.Label() : _settings.PreferredUploadProtocol.Label();
 
-    private void OnDownload(object sender, RoutedEventArgs e) =>
-        RequestDownload(SelectedEntries().Where(s => !s.IsDirectory).ToList());
+    /// <summary>Télécharge les fichiers choisis ; un dossier se télécharge en le glissant vers l'Explorateur (c'est dit).</summary>
+    private void OnDownload(object sender, RoutedEventArgs e)
+    {
+        var selected = SelectedEntries();
+        if (selected.Any(s => s.IsDirectory))
+        {
+            SetStatus(Strings.DownloadFolderHint);
+        }
+
+        RequestDownload(selected.Where(s => !s.IsDirectory).ToList());
+    }
 
     /// <summary>Demande où enregistrer, puis met le téléchargement en file.</summary>
     private void RequestDownload(IReadOnlyList<RemoteEntry> files)
@@ -876,10 +1107,20 @@ public partial class FileBrowserPanel : UserControl
             // seule question pour ceux qui existent déjà.
             targets = VirtualFiles.AssignNames(files.Select(f => (IReadOnlyList<string>)[f.Name]).ToList())
                 .Select(name => Path.Combine(folder, name)).ToList();
-            var existing = targets.Where(File.Exists).Select(t => "  • " + Path.GetFileName(t)).ToList();
-            if (existing.Count > 0 && MessageBox.Show(Window.GetWindow(this),
-                    Text.Format(Strings.DownloadReplaceConfirm, folder, string.Join("\n", existing.Take(10)) + (existing.Count > 10 ? "\n  …" : "")),
-                    Strings.DownloadTitle, MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+            var existing = targets.Where(File.Exists).Select(t => Path.GetFileName(t)).ToList();
+            if (existing.Count > 0 && !ConfirmDialog.Confirm(Window.GetWindow(this), new ConfirmRequest
+                {
+                    Title = Strings.DownloadTitle,
+                    Heading = existing.Count == 1
+                        ? Text.Format(Strings.DownloadReplaceHeadingOne, existing[0])
+                        : Text.Format(Strings.DownloadReplaceHeadingMany, existing.Count),
+                    Subject = folder,
+                    Message = Strings.DownloadReplaceMessage,
+                    Items = existing.Count == 1 ? [] : existing,
+                    Kind = ConfirmKind.Warning,
+                    Actions = [Strings.ActionReplace],
+                    DangerAction = 0,
+                }))
             {
                 return;
             }
@@ -943,7 +1184,7 @@ public partial class FileBrowserPanel : UserControl
     private void SetStatus(string text, bool error = false)
     {
         StatusText.Text = text;
-        StatusText.Foreground = error ? System.Windows.Media.Brushes.Firebrick : (System.Windows.Media.Brush)FindResource("MutedBrush");
+        StatusText.SetResourceReference(TextBlock.ForegroundProperty, error ? "ErrorBrush" : "MutedBrush");
     }
 
     private void ShowMessage(string text, bool retry)
@@ -961,5 +1202,24 @@ public partial class FileBrowserPanel : UserControl
         Toolbar.IsEnabled = ready;
         PathBox.IsEnabled = ready;
         HiddenBox.IsEnabled = ready;
+        UpdateSelectionButtons();
+    }
+
+    /// <summary>Boutons qui agissent sur la sélection : grisés comme dans le menu, l'infobulle dit ce qu'il faut choisir.</summary>
+    private void UpdateSelectionButtons()
+    {
+        var selected = SelectedEntries();
+        string? any = selected.Count > 0 ? null : Strings.FileNeedSelection;
+        Enable(DownloadButton, Strings.DownloadTip, any);
+        Enable(EditButton, Strings.EditTip, selected is [{ IsDirectory: false }] ? null : Strings.FileNeedOneFile);
+        Enable(RenameButton, Strings.RenameTip, selected.Count == 1 ? null : selected.Count == 0 ? Strings.FileNeedSelection : Strings.FileNeedOne);
+        Enable(PermissionsButton, Strings.PermissionsTip, any);
+        Enable(DeleteButton, Strings.DeleteTip, any);
+
+        static void Enable(Button button, string tip, string? missing)
+        {
+            button.IsEnabled = missing is null;
+            button.ToolTip = missing is null ? tip : tip + "\n" + missing;
+        }
     }
 }

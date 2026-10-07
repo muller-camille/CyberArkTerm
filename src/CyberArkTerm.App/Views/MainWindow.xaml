@@ -19,6 +19,7 @@
 
     <Window.Resources>
         <app:KindIconConverter x:Key="KindIcon" />
+        <app:RecentDateConverter x:Key="RecentDate" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
 
         <!-- Menu contextuel des comptes : arbre « Disponibles » et résultats de la connexion rapide de l'accueil. -->
@@ -102,9 +103,11 @@
                     <Image Source="{StaticResource IconBookmark}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <Separator />
+            <MenuItem Header="{x:Static loc:Strings.MenuRemoveRecent}" Click="OnRemoveRecent" />
         </ContextMenu>
 
-        <!-- Menus de l'onglet « Courants ». -->
+        <!-- Menus de « Mes serveurs ». -->
         <ContextMenu x:Key="SavedSessionMenu" x:Shared="False" Opened="OnSavedSessionMenuOpened">
             <MenuItem Tag="connect" Header="{x:Static loc:Strings.Connect}" Click="OnConnectSelectedSaved" FontWeight="SemiBold">
                 <MenuItem.Icon>
@@ -200,7 +203,7 @@
             </MenuItem>
         </ContextMenu>
 
-        <!-- Coffres KeePass de l'onglet « Courants » (accès d'urgence hors CyberArk). -->
+        <!-- Coffres KeePass de « Mes serveurs » (accès d'urgence hors CyberArk). -->
         <ContextMenu x:Key="KeePassFolderMenu" x:Shared="False" Opened="OnKeePassFolderMenuOpened">
             <MenuItem Tag="unlock" Header="{x:Static loc:Strings.MenuKeePassUnlock}" Click="OnKeePassUnlock" FontWeight="SemiBold">
                 <MenuItem.Icon>
@@ -272,7 +275,7 @@
             </MenuItem>
         </ContextMenu>
 
-        <!-- Listes partagées de l'onglet « Courants ». -->
+        <!-- Listes partagées de « Mes serveurs ». -->
         <ContextMenu x:Key="SharedListsMenu">
             <MenuItem Header="{x:Static loc:Strings.MenuOpenSharedList}" Click="OnOpenSharedList" FontWeight="SemiBold" />
             <MenuItem Header="{x:Static loc:Strings.MenuCreateSharedList}" Click="OnCreateSharedList">
@@ -393,9 +396,9 @@
                 <Image Source="{Binding Converter={StaticResource KindIcon}}" Width="18" Height="18" Margin="0,0,8,0" />
                 <StackPanel>
                     <TextBlock TextTrimming="CharacterEllipsis">
-                        <Run Text="{Binding UserName, Mode=OneWay}" FontWeight="SemiBold" /><Run Text="@" Foreground="Gray" /><Run Text="{Binding Address, Mode=OneWay}" />
+                        <Run Text="{Binding UserName, Mode=OneWay}" FontWeight="SemiBold" /><Run Text="@" Foreground="{DynamicResource MutedBrush}" /><Run Text="{Binding Address, Mode=OneWay}" />
                     </TextBlock>
-                    <TextBlock FontSize="11" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis">
+                    <TextBlock FontSize="11" Foreground="{DynamicResource MutedBrush}" TextTrimming="CharacterEllipsis">
                         <Run Text="{Binding PlatformId, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding SafeName, Mode=OneWay}" />
                     </TextBlock>
                 </StackPanel>
@@ -411,17 +414,21 @@
 
     <DockPanel>
         <!-- ===== Barre d'outils ===== -->
-        <Border DockPanel.Dock="Top" Background="{StaticResource ToolbarBrush}" BorderBrush="{StaticResource ToolbarBorderBrush}"
+        <Border DockPanel.Dock="Top" Background="{DynamicResource ToolbarBrush}" BorderBrush="{DynamicResource ToolbarBorderBrush}"
                 BorderThickness="0,0,0,1" Padding="6,4">
-            <DockPanel>
+            <!-- Un seul arrêt de tabulation pour la barre ; les flèches passent d'un bouton à l'autre. -->
+            <DockPanel KeyboardNavigation.TabNavigation="Once" KeyboardNavigation.DirectionalNavigation="Cycle"
+                       AutomationProperties.Name="{x:Static loc:Strings.A11yToolbar}">
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                    <Button Style="{StaticResource ToolButton}" Click="OnLogout" ToolTip="{x:Static loc:Strings.ToolLogoutTip}">
+                    <Button Style="{StaticResource ToolButton}" Click="OnLogout" ToolTip="{x:Static loc:Strings.ToolLogoutTip}"
+                            AutomationProperties.Name="{x:Static loc:Strings.ToolLogout}">
                         <StackPanel>
                             <Image Source="{StaticResource IconLogout}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolLogout}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource ToolButton}" Click="OnExit" ToolTip="{x:Static loc:Strings.ToolExitTip}">
+                    <Button Style="{StaticResource ToolButton}" Click="OnExit" ToolTip="{x:Static loc:Strings.ToolExitTip}"
+                            AutomationProperties.Name="{x:Static loc:Strings.ToolExit}">
                         <StackPanel>
                             <Image Source="{StaticResource IconExit}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolExit}" Style="{StaticResource ToolLabel}" />
@@ -430,28 +437,28 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="ConnectButton" Style="{StaticResource ToolButton}" Click="OnConnectDefault"
-                            ToolTip="{x:Static loc:Strings.ToolConnectTip}">
+                            ToolTip="{x:Static loc:Strings.ToolConnectTip}" AutomationProperties.Name="{x:Static loc:Strings.ToolConnect}">
                         <StackPanel>
                             <Image Source="{StaticResource IconConnect}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolConnect}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                     <Button x:Name="SshButton" Style="{StaticResource ToolButton}" Click="OnConnectSsh"
-                            ToolTip="{x:Static loc:Strings.ToolSshTip}">
+                            ToolTip="{x:Static loc:Strings.ToolSshTip}" AutomationProperties.Name="SSH">
                         <StackPanel>
                             <Image Source="{StaticResource IconSsh}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="SSH" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                     <Button x:Name="AdvancedButton" Style="{StaticResource ToolButton}" Click="OnConnectAdvanced"
-                            ToolTip="{x:Static loc:Strings.ToolAdvancedTip}">
+                            ToolTip="{x:Static loc:Strings.ToolAdvancedTip}" AutomationProperties.Name="{x:Static loc:Strings.ToolAdvanced}">
                         <StackPanel>
                             <Image Source="{StaticResource IconConnectAdvanced}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolAdvanced}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                     <Button x:Name="ParallelButton" Style="{StaticResource ToolButton}" Click="OnParallel"
-                            ToolTip="{x:Static loc:Strings.ToolParallelTip}">
+                            ToolTip="{x:Static loc:Strings.ToolParallelTip}" AutomationProperties.Name="{x:Static loc:Strings.ToolParallel}">
                         <StackPanel>
                             <Image Source="{StaticResource IconParallel}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolParallel}" Style="{StaticResource ToolLabel}" />
@@ -459,26 +466,29 @@
                     </Button>
                     <Rectangle Style="{StaticResource ToolSeparator}" />
                     <Button x:Name="AddCurrentButton" Style="{StaticResource ToolButton}" Click="OnAddToCurrent"
-                            ToolTip="{x:Static loc:Strings.ToolAddToMyServersTip}">
+                            ToolTip="{x:Static loc:Strings.ToolAddToMyServersTip}" AutomationProperties.Name="{x:Static loc:Strings.ToolAddToMyServers}">
                         <StackPanel>
                             <Image Source="{StaticResource IconBookmark}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolAddToMyServers}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource ToolButton}" Command="Refresh" ToolTip="{x:Static loc:Strings.ToolRefreshTip}">
+                    <Button x:Name="RefreshButton" Style="{StaticResource ToolButton}" Command="Refresh" ToolTip="{x:Static loc:Strings.ToolRefreshTip}"
+                            AutomationProperties.Name="{x:Static loc:Strings.ToolRefresh}">
                         <StackPanel>
                             <Image Source="{StaticResource IconRefresh}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolRefresh}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                     <Rectangle Style="{StaticResource ToolSeparator}" />
-                    <Button x:Name="HistoryButton" Style="{StaticResource ToolButton}" Click="OnTransferHistory" ToolTip="{x:Static loc:Strings.HistoryTip}">
+                    <Button x:Name="HistoryButton" Style="{StaticResource ToolButton}" Click="OnTransferHistory" ToolTip="{x:Static loc:Strings.HistoryTip}"
+                            AutomationProperties.Name="{x:Static loc:Strings.ToolHistory}">
                         <StackPanel>
                             <Image Source="{StaticResource IconTransferHistory}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolHistory}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource ToolButton}" Click="OnSettingsMenu" ToolTip="{x:Static loc:Strings.ToolSettingsTip}">
+                    <Button Style="{StaticResource ToolButton}" Click="OnSettingsMenu" ToolTip="{x:Static loc:Strings.ToolSettingsTip}"
+                            AutomationProperties.Name="{x:Static loc:Strings.ToolSettings}">
                         <StackPanel>
                             <Image Source="{StaticResource IconSettings}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolSettings}" Style="{StaticResource ToolLabel}" />
@@ -489,25 +499,26 @@
         </Border>
 
         <!-- ===== Barre d'état ===== -->
-        <Border DockPanel.Dock="Bottom" Background="{StaticResource StatusBrush}" Padding="10,3">
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource StatusBrush}" Padding="10,3">
             <DockPanel>
-                <TextBlock DockPanel.Dock="Right" x:Name="SessionText" Foreground="#C8D3DE" />
+                <TextBlock DockPanel.Dock="Right" x:Name="SessionText" Foreground="{DynamicResource StatusMutedForeground}" />
                 <!-- Nouvelle version disponible (option des Paramètres, ou recherche depuis « À propos »). -->
                 <TextBlock DockPanel.Dock="Right" x:Name="UpdateLink" Visibility="Collapsed" Margin="0,0,16,0">
-                    <Hyperlink Click="OnUpdateLink" Foreground="#F2C14E"><Run x:Name="UpdateLinkText" /></Hyperlink>
+                    <Hyperlink Click="OnUpdateLink" Foreground="{DynamicResource StatusWarningForeground}"><Run x:Name="UpdateLinkText" /></Hyperlink>
                 </TextBlock>
-                <TextBlock DockPanel.Dock="Right" x:Name="DebugLogText" Foreground="#F2C14E" Margin="0,0,16,0" Visibility="Collapsed"
+                <TextBlock DockPanel.Dock="Right" x:Name="DebugLogText" Foreground="{DynamicResource StatusWarningForeground}" Margin="0,0,16,0" Visibility="Collapsed"
                            Text="{x:Static loc:Strings.DebugLogActive}" />
-                <TextBlock x:Name="CountText" Foreground="White" Margin="0,0,16,0" />
+                <TextBlock x:Name="CountText" Foreground="{DynamicResource StatusForeground}" Margin="0,0,16,0" />
                 <ProgressBar x:Name="LoadProgress" Width="140" Height="8" Margin="0,0,16,0" Visibility="Collapsed" />
-                <TextBlock x:Name="StatusText" Foreground="#9FD39F" TextTrimming="CharacterEllipsis" />
+                <TextBlock x:Name="StatusText" Foreground="{DynamicResource StatusOkForeground}" TextTrimming="CharacterEllipsis" AutomationProperties.LiveSetting="Polite"
+                           ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
             </DockPanel>
         </Border>
 
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="360" MinWidth="220" />
-                <ColumnDefinition Width="4" />
+                <ColumnDefinition x:Name="SideColumn" Width="400" MinWidth="260" />
+                <ColumnDefinition x:Name="SplitterColumn" Width="5" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
@@ -524,10 +535,11 @@
                             <TextBlock Text="{x:Static loc:Strings.TabAvailable}" FontWeight="SemiBold" />
                         </StackPanel>
                     </TabItem.Header>
-                    <DockPanel TextElement.Foreground="{StaticResource SidePanelForeground}">
+                    <DockPanel TextElement.Foreground="{DynamicResource SidePanelForeground}">
                         <StackPanel DockPanel.Dock="Top" Margin="8,8,8,6">
                             <Grid>
                                 <TextBox x:Name="SearchBox" TextChanged="OnSearchChanged" Padding="24,4,4,4"
+                                         AutomationProperties.Name="{x:Static loc:Strings.SearchPlaceholder}"
                                          PreviewKeyDown="OnSearchKeyDown"
                                          ToolTip="{x:Static loc:Strings.SearchTip}" />
                                 <Image Source="{StaticResource IconSearch}" Width="14" Height="14" HorizontalAlignment="Left"
@@ -536,9 +548,16 @@
                                            Text="{x:Static loc:Strings.SearchPlaceholder}" Margin="26,0,0,0" />
                             </Grid>
                             <DockPanel Margin="0,6,0,0">
-                                <TextBlock Text="{x:Static loc:Strings.GroupBy}" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <Label Content="{x:Static loc:Strings.GroupBy}" Target="{Binding ElementName=GroupByBox}" Foreground="{DynamicResource MutedBrush}"
+                                       VerticalAlignment="Center" Margin="0,0,4,0" Padding="0" />
                                 <ComboBox x:Name="GroupByBox" SelectionChanged="OnGroupByChanged" Padding="6,2" />
                             </DockPanel>
+                        </StackPanel>
+                        <!-- État de la liste : chargement, échec (Réessayer), aucun compte, aucun résultat (Effacer le filtre). -->
+                        <StackPanel DockPanel.Dock="Top" x:Name="AvailableState" Margin="10,4,10,0" Visibility="Collapsed">
+                            <TextBlock x:Name="AvailableStateText" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}"
+                                       AutomationProperties.LiveSetting="Polite" />
+                            <Button x:Name="AvailableStateButton" HorizontalAlignment="Left" Margin="0,8,0,0" Click="OnAvailableStateAction" />
                         </StackPanel>
                         <TreeView x:Name="SessionTree" BorderThickness="0" Background="Transparent" Padding="2,0,0,0"
                                   VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
@@ -549,7 +568,7 @@
                                     <StackPanel Orientation="Horizontal" Margin="0,2">
                                         <Image Source="{StaticResource IconFolder}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                        <TextBlock Text="{Binding Count, StringFormat=' ({0})'}" Foreground="{StaticResource MutedBrush}" />
+                                        <TextBlock Text="{Binding Count, StringFormat=' ({0})'}" Foreground="{DynamicResource MutedBrush}" />
                                     </StackPanel>
                                 </HierarchicalDataTemplate>
                                 <DataTemplate DataType="{x:Type app:AccountNode}">
@@ -557,7 +576,7 @@
                                         <Image Source="{Binding Converter={StaticResource KindIcon}}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Title}" />
                                         <!-- Dernière opération du CPM en échec (détail dans l'info-bulle). -->
-                                        <TextBlock Text="⚠" Foreground="#E0A100" FontWeight="Bold" Margin="6,0,0,0"
+                                        <TextBlock Text="⚠" Foreground="{DynamicResource WarningBrush}" FontWeight="Bold" Margin="6,0,0,0"
                                                    Visibility="{Binding CpmFailed, Converter={StaticResource BoolToVisibility}}" />
                                     </StackPanel>
                                 </DataTemplate>
@@ -585,7 +604,7 @@
                             <TextBlock Text="{x:Static loc:Strings.TabMyServers}" FontWeight="SemiBold" />
                         </StackPanel>
                     </TabItem.Header>
-                    <DockPanel TextElement.Foreground="{StaticResource SidePanelForeground}">
+                    <DockPanel TextElement.Foreground="{DynamicResource SidePanelForeground}">
                         <DockPanel DockPanel.Dock="Top" Margin="8,8,6,4">
                             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                                 <Button x:Name="ImportServersButton" Style="{StaticResource SmallToolButton}" Click="OnImportMyServers"
@@ -600,17 +619,19 @@
                                         ToolTip="{x:Static loc:Strings.SharedListsTip}">
                                     <Image Source="{StaticResource IconShared}" Style="{StaticResource SmallIcon}" />
                                 </Button>
-                                <Rectangle x:Name="SharedSeparator" Width="1" Margin="2,4" Fill="{StaticResource ToolbarBorderBrush}" />
+                                <Rectangle x:Name="SharedSeparator" Width="1" Margin="2,4" Fill="{DynamicResource ToolbarBorderBrush}" />
                                 <Button Style="{StaticResource SmallToolButton}" Click="OnAddKeePass" ToolTip="{x:Static loc:Strings.ToolKeePassTip}">
                                     <Image Source="{StaticResource IconKeePass}" Style="{StaticResource SmallIcon}" />
                                 </Button>
                                 <Button x:Name="NewFolderButton" Style="{StaticResource SmallToolButton}" Click="OnNewFolder" ToolTip="{x:Static loc:Strings.NewFolder}">
                                     <Image Source="{StaticResource IconNewFolder}" Style="{StaticResource SmallIcon}" />
                                 </Button>
-                                <Button Style="{StaticResource SmallToolButton}" Click="OnEditSelectedSaved" ToolTip="{x:Static loc:Strings.EditSavedTip}">
+                                <Button x:Name="EditSavedButton" Style="{StaticResource SmallToolButton}" Click="OnEditSelectedSaved" ToolTip="{x:Static loc:Strings.EditSavedTip}"
+                                        IsEnabled="False">
                                     <Image Source="{StaticResource IconEdit}" Style="{StaticResource SmallIcon}" />
                                 </Button>
-                                <Button Style="{StaticResource SmallToolButton}" Click="OnDeleteSelectedSaved" ToolTip="{x:Static loc:Strings.DeleteSavedTip}">
+                                <Button x:Name="DeleteSavedButton" Style="{StaticResource SmallToolButton}" Click="OnDeleteSelectedSaved" ToolTip="{x:Static loc:Strings.DeleteSavedTip}"
+                                        IsEnabled="False">
                                     <Image Source="{StaticResource IconDelete}" Style="{StaticResource SmallIcon}" />
                                 </Button>
                             </StackPanel>
@@ -619,6 +640,7 @@
                         </DockPanel>
                         <Grid DockPanel.Dock="Top" Margin="8,2,8,6">
                             <TextBox x:Name="SavedSearchBox" TextChanged="OnSavedSearchChanged" Padding="24,4,4,4"
+                                     AutomationProperties.Name="{x:Static loc:Strings.SavedSearchPlaceholder}"
                                      PreviewKeyDown="OnSavedSearchKeyDown"
                                      ToolTip="{x:Static loc:Strings.SavedSearchTip}" />
                             <Image Source="{StaticResource IconSearch}" Width="14" Height="14" HorizontalAlignment="Left"
@@ -627,7 +649,7 @@
                                        Text="{x:Static loc:Strings.SavedSearchPlaceholder}" Margin="26,0,0,0" />
                         </Grid>
                         <TextBlock DockPanel.Dock="Top" x:Name="NoSavedText" Margin="10,4,10,0" TextWrapping="Wrap"
-                                   Foreground="{StaticResource MutedBrush}"
+                                   Foreground="{DynamicResource MutedBrush}"
                                    Text="{x:Static loc:Strings.NoSavedHelp}" />
                         <TreeView x:Name="SavedTree" BorderThickness="0" Background="Transparent" Padding="2,0,0,0" AllowDrop="True"
                                   SelectedItemChanged="OnSavedSelectionChanged" KeyDown="OnSavedKeyDown" IsKeyboardFocusWithinChanged="OnSelectorFocusChanged"
@@ -635,85 +657,82 @@
                                   DragOver="OnSavedDragOver" Drop="OnSavedDrop" ContextMenu="{StaticResource SavedBackgroundMenu}">
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type app:KeePassFolderNode}" ItemsSource="{Binding Children}">
-                                    <StackPanel Orientation="Horizontal" Margin="0,2" ContextMenu="{StaticResource KeePassFolderMenu}"
+                                    <StackPanel Orientation="Horizontal" Margin="0,2"
                                                 Background="Transparent" ToolTip="{Binding Details}">
                                         <Image Source="{StaticResource IconKeePass}" Width="16" Height="16" Margin="0,0,6,0" Opacity="{Binding Opacity}" />
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                        <TextBlock Text="{Binding StateText}" Foreground="{StaticResource MutedBrush}" />
+                                        <TextBlock Text="{Binding StateText}" Foreground="{DynamicResource MutedBrush}" />
                                     </StackPanel>
                                 </HierarchicalDataTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type app:KeePassGroupNode}" ItemsSource="{Binding Children}">
-                                    <StackPanel Orientation="Horizontal" Margin="0,2" ContextMenu="{StaticResource KeePassGroupMenu}" Background="Transparent">
+                                    <StackPanel Orientation="Horizontal" Margin="0,2" Background="Transparent">
                                         <Image Source="{StaticResource IconFolder}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Name}" />
-                                        <TextBlock Text="{Binding Count, StringFormat=' ({0})'}" Foreground="{StaticResource MutedBrush}" />
+                                        <TextBlock Text="{Binding Count, StringFormat=' ({0})'}" Foreground="{DynamicResource MutedBrush}" />
                                     </StackPanel>
                                 </HierarchicalDataTemplate>
                                 <DataTemplate DataType="{x:Type app:KeePassEntryNode}">
-                                    <StackPanel Orientation="Horizontal" Margin="0,1" ToolTip="{Binding Details}"
-                                                ContextMenu="{StaticResource KeePassEntryMenu}" Background="Transparent">
+                                    <StackPanel Orientation="Horizontal" Margin="0,1" ToolTip="{Binding Details}" Background="Transparent">
                                         <Image Source="{Binding Converter={StaticResource KindIcon}}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Title}" />
-                                        <TextBlock Text="{Binding ModeText}" Foreground="{StaticResource MutedBrush}" FontSize="10.5"
+                                        <TextBlock Text="{Binding ModeText}" Foreground="{DynamicResource MutedBrush}" FontSize="11"
                                                    Margin="6,0,0,0" VerticalAlignment="Center" />
                                     </StackPanel>
                                 </DataTemplate>
                                 <DataTemplate DataType="{x:Type app:KeePassHintNode}">
                                     <StackPanel Orientation="Horizontal" Margin="0,1" Background="Transparent">
                                         <Image Source="{StaticResource IconPermissions}" Width="14" Height="14" Margin="0,0,6,0" />
-                                        <TextBlock Text="{Binding Text}" FontStyle="Italic" Foreground="{StaticResource MutedBrush}" />
+                                        <TextBlock Text="{Binding Text}" FontStyle="Italic" Foreground="{DynamicResource MutedBrush}" />
                                     </StackPanel>
                                 </DataTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type app:SharedListNode}" ItemsSource="{Binding Children}">
-                                    <StackPanel Orientation="Horizontal" Margin="0,2" ContextMenu="{StaticResource SharedListMenu}"
+                                    <StackPanel Orientation="Horizontal" Margin="0,2"
                                                 Background="Transparent" ToolTip="{Binding Details}">
                                         <Image Source="{StaticResource IconShared}" Width="16" Height="16" Margin="0,0,6,0" Opacity="{Binding Opacity}" />
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                        <TextBlock Text="{Binding StateText}" Foreground="{StaticResource MutedBrush}" />
+                                        <TextBlock Text="{Binding StateText}" Foreground="{DynamicResource MutedBrush}" />
                                     </StackPanel>
                                 </HierarchicalDataTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type app:SharedFolderNode}" ItemsSource="{Binding Children}">
-                                    <StackPanel Orientation="Horizontal" Margin="0,2" ContextMenu="{StaticResource SharedFolderMenu}" Background="Transparent">
+                                    <StackPanel Orientation="Horizontal" Margin="0,2" Background="Transparent">
                                         <Image Source="{StaticResource IconFolder}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Name}" />
-                                        <TextBlock Text="{Binding Count, StringFormat=' ({0})'}" Foreground="{StaticResource MutedBrush}" />
+                                        <TextBlock Text="{Binding Count, StringFormat=' ({0})'}" Foreground="{DynamicResource MutedBrush}" />
                                     </StackPanel>
                                 </HierarchicalDataTemplate>
                                 <DataTemplate DataType="{x:Type app:SharedServerNode}">
-                                    <StackPanel Orientation="Horizontal" Margin="0,1" ToolTip="{Binding Details}" Opacity="{Binding Opacity}"
-                                                ContextMenu="{StaticResource SharedServerMenu}" Background="Transparent">
+                                    <StackPanel Orientation="Horizontal" Margin="0,1" ToolTip="{Binding Details}" Opacity="{Binding Opacity}" Background="Transparent">
                                         <Image Source="{Binding Converter={StaticResource KindIcon}}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Title}" />
-                                        <TextBlock Text="{Binding ModeText}" Foreground="{StaticResource MutedBrush}" FontSize="10.5"
+                                        <TextBlock Text="{Binding ModeText}" Foreground="{DynamicResource MutedBrush}" FontSize="11"
                                                    Margin="6,0,0,0" VerticalAlignment="Center" />
                                     </StackPanel>
                                 </DataTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type app:SavedFolderNode}" ItemsSource="{Binding Children}">
-                                    <StackPanel Orientation="Horizontal" Margin="0,2" ContextMenu="{StaticResource SavedFolderMenu}" Background="Transparent">
+                                    <StackPanel Orientation="Horizontal" Margin="0,2" Background="Transparent">
                                         <Image Source="{StaticResource IconFolder}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                        <TextBlock Text="{Binding Count, StringFormat=' ({0})'}" Foreground="{StaticResource MutedBrush}" />
+                                        <TextBlock Text="{Binding Count, StringFormat=' ({0})'}" Foreground="{DynamicResource MutedBrush}" />
                                     </StackPanel>
                                 </HierarchicalDataTemplate>
                                 <DataTemplate DataType="{x:Type app:SavedSessionNode}">
-                                    <StackPanel Orientation="Horizontal" Margin="0,1" ToolTip="{Binding Details}" Opacity="{Binding Opacity}"
-                                                ContextMenu="{StaticResource SavedSessionMenu}">
+                                    <StackPanel Orientation="Horizontal" Margin="0,1" ToolTip="{Binding Details}" Opacity="{Binding Opacity}">
                                         <!-- Serveurs choisis avec Ctrl+clic ou Maj+clic : fond et coche. -->
                                         <StackPanel.Style>
                                             <Style TargetType="StackPanel">
                                                 <Setter Property="Background" Value="Transparent" />
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsMarked}" Value="True">
-                                                        <Setter Property="Background" Value="{StaticResource AccentLightBrush}" />
+                                                        <Setter Property="Background" Value="{DynamicResource AccentLightBrush}" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </StackPanel.Style>
-                                        <TextBlock Text="✓" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" Margin="0,0,4,0"
+                                        <TextBlock Text="✓" Foreground="{DynamicResource AccentBrush}" FontWeight="Bold" Margin="0,0,4,0"
                                                    Visibility="{Binding IsMarked, Converter={StaticResource BoolToVisibility}}" />
                                         <Image Source="{Binding Converter={StaticResource KindIcon}}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Title}" />
-                                        <TextBlock Text="{Binding ModeText}" Foreground="{StaticResource MutedBrush}" FontSize="10.5"
+                                        <TextBlock Text="{Binding ModeText}" Foreground="{DynamicResource MutedBrush}" FontSize="11"
                                                    Margin="6,0,0,0" VerticalAlignment="Center" />
                                     </StackPanel>
                                 </DataTemplate>
@@ -722,6 +741,7 @@
                                 <Style TargetType="TreeViewItem">
                                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                                     <EventSetter Event="MouseDoubleClick" Handler="OnSavedItemDoubleClick" />
+                                    <EventSetter Event="Loaded" Handler="OnSavedItemLoaded" />
                                     <EventSetter Event="MouseRightButtonDown" Handler="OnTreeItemRightClick" />
                                 </Style>
                             </TreeView.ItemContainerStyle>
@@ -737,13 +757,22 @@
                                 </Image.LayoutTransform>
                             </Image>
                             <TextBlock Text="{x:Static loc:Strings.TabFiles}" FontWeight="SemiBold" />
+                            <!-- Pastille : transferts en cours (nombre), ou « ! » pour un échec pas encore vu. -->
+                            <Border x:Name="FilesBadge" Visibility="Collapsed" CornerRadius="7" MinWidth="16" Height="14" Padding="4,0"
+                                    Margin="6,0,0,0" VerticalAlignment="Center">
+                                <TextBlock x:Name="FilesBadgeText" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Border>
                         </StackPanel>
                     </TabItem.Header>
-                    <views:FileBrowserPanel x:Name="FilesPanel" Foreground="{StaticResource SidePanelForeground}" />
+                    <views:FileBrowserPanel x:Name="FilesPanel" Foreground="{DynamicResource SidePanelForeground}" />
                 </TabItem>
             </TabControl>
 
-            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="{StaticResource TabStripBrush}" />
+            <!-- Largeur mémorisée ; double-clic (ou Ctrl+B) : replier ou déplier le panneau. -->
+            <GridSplitter Grid.Column="1" x:Name="SideSplitter" HorizontalAlignment="Stretch" Background="{DynamicResource TabStripBrush}"
+                          DragCompleted="OnSideSplitterDragged" MouseDoubleClick="OnSideSplitterDoubleClick"
+                          ToolTip="{x:Static loc:Strings.SideSplitterTip}" />
 
             <!-- ===== Zone principale : onglets ===== -->
             <TabControl Grid.Column="2" x:Name="MainTabs" Style="{StaticResource MainTabControl}" SelectionChanged="OnMainTabChanged">
@@ -766,16 +795,17 @@
                             <DockPanel Grid.Row="0" Margin="0,0,0,20">
                                 <Image Source="{StaticResource IconConnect}" Width="54" Height="54" Margin="0,0,14,0" />
                                 <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="CyberArkTerm" FontSize="26" FontWeight="SemiBold" Foreground="#2B3A4A" />
-                                    <TextBlock x:Name="WelcomeText" Foreground="{StaticResource MutedBrush}" FontSize="13" TextWrapping="Wrap" />
+                                    <TextBlock Text="CyberArkTerm" FontSize="26" FontWeight="SemiBold" Foreground="{DynamicResource HeadingBrush}" />
+                                    <TextBlock x:Name="WelcomeText" Foreground="{DynamicResource MutedBrush}" FontSize="13" TextWrapping="Wrap" />
                                 </StackPanel>
                             </DockPanel>
 
                             <!-- Connexion rapide -->
-                            <Border Grid.Row="1" x:Name="QuickPanel" BorderBrush="{StaticResource AccentBrush}" BorderThickness="1.5" CornerRadius="4"
-                                    Background="White" Margin="0,0,0,4">
+                            <Border Grid.Row="1" x:Name="QuickPanel" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1.5" CornerRadius="4"
+                                    Background="{DynamicResource ContentBrush}" Margin="0,0,0,4">
                                 <Grid>
                                     <TextBox x:Name="QuickBox" BorderThickness="0" FontSize="15" Padding="36,8,8,8"
+                                             AutomationProperties.Name="{x:Static loc:Strings.QuickPlaceholder}"
                                              TextChanged="OnQuickChanged" PreviewKeyDown="OnQuickKeyDown" />
                                     <Image Source="{StaticResource IconSearch}" Width="18" Height="18" HorizontalAlignment="Left"
                                            Margin="10,0,0,0" IsHitTestVisible="False" />
@@ -783,12 +813,17 @@
                                                Text="{x:Static loc:Strings.QuickPlaceholder}" Margin="38,0,0,0" />
                                 </Grid>
                             </Border>
-                            <Border Grid.Row="2" x:Name="QuickResultsPanel" BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="1"
+                            <Border Grid.Row="2" x:Name="QuickResultsPanel" BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1"
                                     CornerRadius="0,0,4,4" Visibility="Collapsed" Margin="0,0,0,8">
-                                <ListBox x:Name="QuickResults" BorderThickness="0" MaxHeight="320"
-                                         ItemTemplate="{StaticResource AccountRow}" ItemContainerStyle="{StaticResource AccountListItem}"
-                                         SelectionChanged="OnListSelectionChanged" KeyDown="OnListKeyDown"
-                                         IsKeyboardFocusWithinChanged="OnSelectorFocusChanged" />
+                                <DockPanel>
+                                    <!-- Aucun résultat, liste limitée, chargement en cours : dit plutôt que de masquer la liste. -->
+                                    <TextBlock DockPanel.Dock="Bottom" x:Name="QuickInfo" Margin="10,6" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource MutedBrush}" AutomationProperties.LiveSetting="Polite" />
+                                    <ListBox x:Name="QuickResults" BorderThickness="0" MaxHeight="320"
+                                             ItemTemplate="{StaticResource AccountRow}" ItemContainerStyle="{StaticResource AccountListItem}"
+                                             SelectionChanged="OnListSelectionChanged" KeyDown="OnListKeyDown"
+                                             IsKeyboardFocusWithinChanged="OnSelectorFocusChanged" />
+                                </DockPanel>
                             </Border>
 
                             <Grid Grid.Row="3" x:Name="HomeLists" Margin="0,18,0,0">
@@ -802,14 +837,14 @@
                                     <DockPanel Margin="0,0,0,6">
                                         <Image Source="{StaticResource IconHistory}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <!-- Tant que les comptes du PVWA ne sont pas chargés, les connexions récentes sont grisées. -->
-                                        <TextBlock x:Name="RecentLoadingText" DockPanel.Dock="Right" Foreground="{StaticResource MutedBrush}"
+                                        <TextBlock x:Name="RecentLoadingText" DockPanel.Dock="Right" Foreground="{DynamicResource MutedBrush}"
                                                    VerticalAlignment="Center" Margin="12,0,0,0" FontStyle="Italic" Visibility="Collapsed"
                                                    Text="{x:Static loc:Strings.RecentWaitingAccounts}" />
                                         <TextBlock Text="{x:Static loc:Strings.RecentSessions}" Style="{StaticResource SectionTitle}" Margin="0" />
                                     </DockPanel>
-                                    <Border BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="1" CornerRadius="4">
+                                    <Border BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" CornerRadius="4">
                                         <Grid>
-                                            <TextBlock x:Name="NoRecentText" Margin="12" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"
+                                            <TextBlock x:Name="NoRecentText" Margin="12" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap"
                                                        Text="{x:Static loc:Strings.NoRecent}" />
                                             <ListBox x:Name="RecentList" BorderThickness="0" Background="Transparent" MaxHeight="360"
                                                      MouseDoubleClick="OnRecentDoubleClick" KeyDown="OnRecentKeyDown"
@@ -817,12 +852,12 @@
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate DataType="{x:Type core:RecentSession}">
                                                         <DockPanel Margin="2,3">
-                                                            <TextBlock DockPanel.Dock="Right" Foreground="{StaticResource MutedBrush}" Margin="12,0,0,0"
-                                                                       Text="{Binding When, StringFormat='dd/MM HH:mm'}" VerticalAlignment="Center" />
+                                                            <TextBlock DockPanel.Dock="Right" Foreground="{DynamicResource MutedBrush}" Margin="12,0,0,0"
+                                                                       Text="{Binding When, Converter={StaticResource RecentDate}}" VerticalAlignment="Center" />
                                                             <Image Source="{Binding Converter={StaticResource KindIcon}}" Width="18" Height="18" Margin="0,0,8,0" />
                                                             <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
                                                                 <Run Text="{Binding Label, Mode=OneWay}" FontWeight="SemiBold" />
-                                                                <Run Text="{Binding Mode, Mode=OneWay}" Foreground="{StaticResource MutedBrush}" />
+                                                                <Run Text="{Binding Mode, Mode=OneWay}" Foreground="{DynamicResource MutedBrush}" />
                                                             </TextBlock>
                                                         </DockPanel>
                                                     </DataTemplate>
@@ -834,11 +869,13 @@
 
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="{x:Static loc:Strings.Shortcuts}" Style="{StaticResource SectionTitle}" />
-                                    <Border Background="{StaticResource AccentLightBrush}" CornerRadius="4" Padding="12,10">
+                                    <Border Background="{DynamicResource AccentLightBrush}" CornerRadius="4" Padding="12,10">
                                         <StackPanel>
                                             <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"><Run FontWeight="SemiBold" Text="{x:Static loc:Strings.ShortcutOpenKey}" /><Run Text="{x:Static loc:Strings.ShortcutOpen}" /></TextBlock>
                                             <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"><Run FontWeight="SemiBold" Text="{x:Static loc:Strings.ShortcutMenuKey}" /><Run Text="{x:Static loc:Strings.ShortcutMenu}" /></TextBlock>
                                             <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"><Run FontWeight="SemiBold" Text="{x:Static loc:Strings.ShortcutSshKey}" /><Run Text="{x:Static loc:Strings.ShortcutSsh}" /></TextBlock>
+                                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"><Run FontWeight="SemiBold" Text="{x:Static loc:Strings.ShortcutQuickKey}" /><Run Text="{x:Static loc:Strings.ShortcutQuick}" /></TextBlock>
+                                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"><Run FontWeight="SemiBold" Text="{x:Static loc:Strings.ShortcutTabsKey}" /><Run Text="{x:Static loc:Strings.ShortcutTabs}" /></TextBlock>
                                             <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"><Run FontWeight="SemiBold" Text="Ctrl+F" /><Run Text="{x:Static loc:Strings.ShortcutFilter}" /></TextBlock>
                                             <TextBlock TextWrapping="Wrap"><Run FontWeight="SemiBold" Text="F5" /><Run Text="{x:Static loc:Strings.ShortcutReload}" /></TextBlock>
                                         </StackPanel>

@@ -18,6 +18,9 @@ public sealed class FolderNode(string name, IReadOnlyList<AccountNode> children,
     public int Count => Children.Count;
 
     public bool IsExpanded { get; set; } = isExpanded;
+
+    /// <summary>Nom lu par les lecteurs d'écran (les éléments d'arbre liés à des objets utilisent ToString).</summary>
+    public override string ToString() => $"{Name} ({Count})";
 }
 
 /// <summary>Compte affiché dans l'arbre des sessions.</summary>
@@ -29,6 +32,10 @@ public sealed class AccountNode(PvwaAccount account)
 
     /// <summary>La dernière opération du CPM (changement, vérification, réconciliation) a échoué.</summary>
     public bool CpmFailed => Account.SecretManagement?.Failed == true;
+
+    /// <summary>Nom lu par les lecteurs d'écran : compte, plateforme, safe, et l'échec du CPM (signalé à l'écran par un triangle).</summary>
+    public override string ToString() =>
+        $"{Title}, {Account.PlatformId}, {Account.SafeName}" + (CpmFailed ? ", " + Strings.A11yCpmFailed : "");
 
     public string Details
     {
@@ -131,7 +138,7 @@ internal static class RecentModes
     public const string Sftp = RecentSession.SftpMode;
 }
 
-/// <summary>Dossier de l'onglet « Courants ».</summary>
+/// <summary>Dossier de « Mes serveurs ».</summary>
 public sealed class SavedFolderNode(string path, List<object> children, bool isExpanded)
 {
     public string Path { get; } = path;
@@ -143,9 +150,11 @@ public sealed class SavedFolderNode(string path, List<object> children, bool isE
     public int Count { get; init; }
 
     public bool IsExpanded { get; set; } = isExpanded;
+
+    public override string ToString() => $"{Name} ({Count})";
 }
 
-/// <summary>Serveur de l'onglet « Courants » ; <see cref="Account"/> est null si le compte n'est plus visible dans CyberArk.</summary>
+/// <summary>Serveur de « Mes serveurs » ; <see cref="Account"/> est null si le compte n'est plus visible dans CyberArk.</summary>
 public sealed class SavedSessionNode(SavedSession session, PvwaAccount? account) : System.ComponentModel.INotifyPropertyChanged
 {
     private bool _isMarked;
@@ -177,6 +186,9 @@ public sealed class SavedSessionNode(SavedSession session, PvwaAccount? account)
     public double Opacity => Account is null ? 0.5 : 1;
 
     public bool IsExpanded { get; set; }
+
+    public override string ToString() =>
+        $"{Title}, {ModeText}" + (IsMarked ? ", " + Strings.A11yMarked : "") + (Account is null ? ", " + Strings.A11yUnavailable : "");
 
     public string Details
     {
@@ -213,7 +225,7 @@ public sealed class FileIconConverter : IValueConverter
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         Application.Current.TryFindResource(value switch
         {
-            RemoteEntry { IsParentLink: true } => "IconUp",
+            RemoteEntry { IsParentLink: true } => "IconParentFolder",
             RemoteEntry { IsDirectory: true } => "IconFolder",
             RemoteEntry { IsSymbolicLink: true } => "IconFileLink",
             _ => "IconFile",
@@ -221,4 +233,28 @@ public sealed class FileIconConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotSupportedException();
+}
+
+/// <summary>
+/// Date d'une connexion récente : « Aujourd'hui 09:28 », « Hier 18:02 », sinon la date courte et l'heure (format des
+/// réglages régionaux de Windows, comme le reste de l'application).
+/// </summary>
+public sealed class RecentDateConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is DateTime when ? Describe(when, DateTime.Now) : "";
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+
+    internal static string Describe(DateTime when, DateTime now)
+    {
+        var time = when.ToString("t", CultureInfo.CurrentCulture);
+        return (now.Date - when.Date).Days switch
+        {
+            0 => Text.Format(Strings.RecentToday, time),
+            1 => Text.Format(Strings.RecentYesterday, time),
+            _ => $"{when.ToString("d", CultureInfo.CurrentCulture)} {time}",
+        };
+    }
 }

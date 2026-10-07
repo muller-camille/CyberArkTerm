@@ -13,17 +13,52 @@ namespace CyberArkTerm.App.Views;
 /// </summary>
 public partial class CompareDialog : Window
 {
+    private readonly RemoteSession _current;
+    private readonly string _path;
+
     /// <param name="label">Fichier comparé, par ex. « root@srv01 : /etc/app.conf ».</param>
     /// <param name="sessions">Sessions SSH ouvertes ; la première autre que <paramref name="current"/> est proposée.</param>
     public CompareDialog(string label, string path, IReadOnlyList<RemoteSession> sessions, RemoteSession current)
     {
         InitializeComponent();
+        _current = current;
+        _path = path;
         IntroText.Text = Text.Format(Strings.CompareIntro, label);
         var connected = sessions.Where(s => s.State == RemoteSessionState.Connected).ToList();
         SessionBox.ItemsSource = connected;
-        SessionBox.SelectedItem = connected.FirstOrDefault(s => !ReferenceEquals(s, current)) ?? current;
+        var other = connected.FirstOrDefault(s => !ReferenceEquals(s, current));
+        SessionBox.SelectedItem = other ?? current;
         RemotePathBox.Text = path;
-        Loaded += (_, _) => SessionBox.Focus();
+        // Aucun autre serveur ouvert : le même chemin donnerait le même fichier, un fichier de ce poste est proposé.
+        if (other is null)
+        {
+            LocalRadio.IsChecked = true;
+        }
+
+        SessionBox.SelectionChanged += (_, _) => UpdateSameFile();
+        RemotePathBox.TextChanged += (_, _) => UpdateSameFile();
+        ServerRadio.Checked += (_, _) => UpdateSameFile();
+        LocalRadio.Checked += (_, _) => UpdateSameFile();
+        UpdateSameFile();
+        Loaded += (_, _) => (other is null ? LocalPathBox : (UIElement)SessionBox).Focus();
+    }
+
+    /// <summary>Même serveur et même chemin que le fichier comparé : rien à comparer.</summary>
+    private bool SameFile => ServerRadio.IsChecked == true && ReferenceEquals(Session, _current) && RemoteFile == _path;
+
+    /// <summary>Le même fichier des deux côtés est signalé tout de suite, et « Comparer » grisé.</summary>
+    private void UpdateSameFile()
+    {
+        bool same = SameFile;
+        CompareButton.IsEnabled = !same;
+        if (same)
+        {
+            ShowError(Strings.CompareSameFile);
+        }
+        else if (ErrorText.Text == Strings.CompareSameFile)
+        {
+            ErrorText.Visibility = Visibility.Collapsed;
+        }
     }
 
     /// <summary>Serveur choisi (null pour un fichier de ce poste).</summary>
@@ -94,7 +129,7 @@ public partial class CompareDialog : Window
     private void OnCompare(object sender, RoutedEventArgs e)
     {
         string? error = ServerRadio.IsChecked == true
-            ? Session is null ? Strings.CompareNoServer : RemoteFile.Length == 0 ? Strings.CompareNoPath : null
+            ? Session is null ? Strings.CompareNoServer : RemoteFile.Length == 0 ? Strings.CompareNoPath : SameFile ? Strings.CompareSameFile : null
             : !File.Exists(LocalFile) ? Strings.CompareNoLocalFile : null;
         if (error is not null)
         {

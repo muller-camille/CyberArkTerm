@@ -461,7 +461,7 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The vault file keeps changing (another program is saving it). Try again in a moment..
+        ///   Looks up a localized string similar to The KeePass database file keeps changing (another program is saving it). Try again in a moment..
         /// </summary>
         public static string KeePassBusy {
             get {
@@ -470,7 +470,7 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The entry “{0}” was changed or deleted in the vault in the meantime. Reload the folder and try ag[rest of string was truncated].
+        ///   Looks up a localized string similar to The entry “{0}” was changed or deleted in the KeePass database in the meantime. Reload the folder and try again..
         /// </summary>
         public static string KeePassConflict {
             get {
@@ -479,7 +479,7 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The vault file is damaged ({0})..
+        ///   Looks up a localized string similar to The KeePass database file is damaged ({0})..
         /// </summary>
         public static string KeePassCorrupted {
             get {
@@ -497,7 +497,7 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The vault's key derivation settings are too high to be computed here ({0})..
+        ///   Looks up a localized string similar to The key derivation settings of the KeePass database are too high to be computed here ({0})..
         /// </summary>
         public static string KeePassKdfTooCostly {
             get {
@@ -533,7 +533,7 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to This file is not a KeePass 2 vault (.kdbx)..
+        ///   Looks up a localized string similar to This file is not a KeePass 2 database (.kdbx)..
         /// </summary>
         public static string KeePassNotKdbx {
             get {
@@ -542,7 +542,7 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to This vault uses an encryption that is not supported ({0}); AES-256 and ChaCha20 are..
+        ///   Looks up a localized string similar to This KeePass database uses an encryption that is not supported ({0}); AES-256 and ChaCha20 are..
         /// </summary>
         public static string KeePassUnsupportedCipher {
             get {
@@ -551,7 +551,7 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to This vault uses a key derivation that is not supported ({0})..
+        ///   Looks up a localized string similar to This KeePass database uses a key derivation that is not supported ({0})..
         /// </summary>
         public static string KeePassUnsupportedKdf {
             get {
@@ -569,7 +569,7 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The vault was not saved: the new file failed verification, the original is untouched..
+        ///   Looks up a localized string similar to The KeePass database was not saved: the new file failed verification, the original is untouched..
         /// </summary>
         public static string KeePassVerifyFailed {
             get {
@@ -1010,7 +1010,7 @@ namespace CyberArkTerm.Core.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Unknown vault user..
+        ///   Looks up a localized string similar to Unknown CyberArk Vault user..
         /// </summary>
         public static string VaultUserUnknown {
             get {
@@ -1132,6 +1132,33 @@ namespace CyberArkTerm.Core.Localization {
         public static string PvwaUnexpectedSecretResponse {
             get {
                 return ResourceManager.GetString("PvwaUnexpectedSecretResponse", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to current permissions unknown: only a full mode (all rwx boxes set or cleared) can be applied.
+        /// </summary>
+        public static string PermissionsUnknown {
+            get {
+                return ResourceManager.GetString("PermissionsUnknown", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connection cancelled: the server key was not accepted..
+        /// </summary>
+        public static string HostKeyRefused {
+            get {
+                return ResourceManager.GetString("HostKeyRefused", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to “{0}” already exists: choose another name (nothing was replaced)..
+        /// </summary>
+        public static string RenameTargetExists {
+            get {
+                return ResourceManager.GetString("RenameTargetExists", resourceCulture);
             }
         }
     }

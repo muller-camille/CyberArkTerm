@@ -1,7 +1,6 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core;
 
@@ -87,7 +86,7 @@ public partial class SharedHistoryDialog : Window
     private void SetStatus(string text, bool error = false)
     {
         StatusText.Text = text;
-        StatusText.Foreground = error ? Brushes.Firebrick : (Brush)FindResource("MutedBrush");
+        StatusText.SetResourceReference(TextBlock.ForegroundProperty, error ? "ErrorBrush" : "MutedBrush");
     }
 
     private void OnVersionSelected(object sender, SelectionChangedEventArgs e) =>
@@ -100,8 +99,15 @@ public partial class SharedHistoryDialog : Window
             return;
         }
 
-        if (MessageBox.Show(this, Text.Format(Strings.SharedRestoreConfirm, _list.Name, row.Revision, row.Date), Title,
-                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+        if (!ConfirmDialog.Confirm(this, new ConfirmRequest
+            {
+                Title = Title,
+                Heading = Text.Format(Strings.SharedRestoreHeading, _list.Name, row.Revision),
+                Subject = row.Date,
+                Bullets = [Strings.SharedRestoreEffect, Strings.SharedRestoreUndo],
+                Kind = ConfirmKind.Warning,
+                Actions = [Strings.SharedRestoreAction],
+            }))
         {
             return;
         }

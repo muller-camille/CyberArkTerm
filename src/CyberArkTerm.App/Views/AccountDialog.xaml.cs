@@ -106,6 +106,8 @@ public partial class AccountDialog : Window
         if (safe.Length == 0 || platform.Length == 0 || address.Length == 0 || user.Length == 0)
         {
             ShowError(Strings.AddAccountRequired);
+            // Curseur sur le premier champ obligatoire vide.
+            (safe.Length == 0 ? SafeBox : platform.Length == 0 ? PlatformBox : address.Length == 0 ? (System.Windows.Controls.Control)AddressBox : UserBox).Focus();
             return;
         }
 

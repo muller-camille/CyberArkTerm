@@ -31,10 +31,10 @@ public partial class MainWindow
             Icon = Icon,
             Width = width,
             Height = height,
-            Background = Brushes.White,
             ShowInTaskbar = true,
             Content = view,
         };
+        window.SetResourceReference(BackgroundProperty, "ContentBrush");
         if (screenPoint is { } point && PresentationSource.FromVisual(this)?.CompositionTarget is { } target)
         {
             var position = target.TransformFromDevice.Transform(point);

@@ -3,13 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:loc="clr-namespace:CyberArkTerm.App.Localization"
         xmlns:views="clr-namespace:CyberArkTerm.App.Views"
-        Width="1060" Height="680" MinWidth="560" MinHeight="320" ShowInTaskbar="True" Background="White"
+        Width="1060" Height="680" MinWidth="560" MinHeight="320" ShowInTaskbar="True" Background="{DynamicResource ContentBrush}"
         PreviewKeyDown="OnWindowKeyDown">
     <DockPanel Margin="10">
         <!-- Actions -->
         <DockPanel DockPanel.Dock="Top">
             <Button x:Name="AlertButton" DockPanel.Dock="Right" Visibility="Collapsed" Padding="8,1" Margin="8,0,0,4" VerticalAlignment="Top"
-                    Foreground="#C62828" FontWeight="SemiBold" Click="OnNextAlert" ToolTip="{x:Static loc:Strings.TailAlertCountTip}">
+                    Foreground="{DynamicResource ErrorBrush}" FontWeight="SemiBold" Click="OnNextAlert" ToolTip="{x:Static loc:Strings.TailAlertCountTip}">
                 <Button.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="{x:Static loc:Strings.TailAlertReset}" Click="OnResetAlerts" />
@@ -39,9 +39,14 @@
         <!-- Filtre (grep, grep -v, grep -C) -->
         <WrapPanel DockPanel.Dock="Top">
             <Label Content="{x:Static loc:Strings.TailFilter}" Target="{Binding ElementName=FilterBox}" Padding="0,0,6,0" Margin="0,0,0,4" VerticalAlignment="Center" />
-            <TextBox x:Name="FilterBox" Width="200" Margin="0,0,14,4" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailFilterTip}" />
+            <!-- Champ rempli : fond ambre et ✕ pour le vider (un filtre oublié cache des lignes). -->
+            <TextBox x:Name="FilterBox" Width="200" Margin="0,0,2,4" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailFilterTip}" />
+            <Button x:Name="ClearFilterButton" Content="✕" Style="{StaticResource SmallToolButton}" Padding="4,0" Margin="0,0,12,4"
+                    Visibility="Hidden" Click="OnClearFilter" ToolTip="{x:Static loc:Strings.TailClearFieldTip}" />
             <Label Content="{x:Static loc:Strings.TailExclude}" Target="{Binding ElementName=ExcludeBox}" Padding="0,0,6,0" Margin="0,0,0,4" VerticalAlignment="Center" />
-            <TextBox x:Name="ExcludeBox" Width="160" Margin="0,0,14,4" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailExcludeTip}" />
+            <TextBox x:Name="ExcludeBox" Width="160" Margin="0,0,2,4" VerticalAlignment="Center" ToolTip="{x:Static loc:Strings.TailExcludeTip}" />
+            <Button x:Name="ClearExcludeButton" Content="✕" Style="{StaticResource SmallToolButton}" Padding="4,0" Margin="0,0,12,4"
+                    Visibility="Hidden" Click="OnClearExclude" ToolTip="{x:Static loc:Strings.TailClearFieldTip}" />
             <CheckBox x:Name="RegexBox" VerticalAlignment="Center" Margin="0,0,14,4" ToolTip="{x:Static loc:Strings.TailRegexTip}">
                 <AccessText Text="{x:Static loc:Strings.TailRegex}" />
             </CheckBox>
@@ -64,7 +69,7 @@
         </WrapPanel>
 
         <!-- Recherche (Ctrl+F) sans filtrer -->
-        <Border x:Name="SearchBar" DockPanel.Dock="Top" Visibility="Collapsed" Background="#F3F6FA" BorderBrush="{StaticResource ToolbarBorderBrush}"
+        <Border x:Name="SearchBar" DockPanel.Dock="Top" Visibility="Collapsed" Background="{DynamicResource SidePanelBrush}" BorderBrush="{DynamicResource ToolbarBorderBrush}"
                 BorderThickness="1" Padding="6,4" Margin="0,2,0,4">
             <StackPanel Orientation="Horizontal">
                 <Label Content="{x:Static loc:Strings.TailSearch}" Target="{Binding ElementName=SearchBox}" Padding="0,0,6,0" VerticalAlignment="Center" />
@@ -74,13 +79,13 @@
                 </CheckBox>
                 <Button Content="↑" Width="28" Margin="10,0,0,0" Click="OnSearchPrevious" ToolTip="{x:Static loc:Strings.TailSearchPreviousTip}" />
                 <Button Content="↓" Width="28" Margin="4,0,0,0" Click="OnSearchNext" ToolTip="{x:Static loc:Strings.TailSearchNextTip}" />
-                <TextBlock x:Name="SearchCount" Margin="10,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}" />
+                <TextBlock x:Name="SearchCount" Margin="10,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}" />
                 <Button Content="✕" Width="26" Margin="10,0,0,0" Click="OnCloseSearch" ToolTip="{x:Static loc:Strings.TailSearchCloseTip}" />
             </StackPanel>
         </Border>
 
         <!-- État -->
-        <TextBlock x:Name="StatusText" DockPanel.Dock="Bottom" Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
+        <TextBlock x:Name="StatusText" DockPanel.Dock="Bottom" Foreground="{DynamicResource MutedBrush}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
 
         <!-- Fichiers suivis : couleur, état, bouton pour arrêter -->
         <ItemsControl x:Name="SourcesList" DockPanel.Dock="Bottom" Margin="0,2,0,0" Focusable="False">
@@ -91,7 +96,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderBrush="{StaticResource ToolbarBorderBrush}" BorderThickness="1" CornerRadius="3" Padding="6,1,2,1" Margin="0,2,6,0"
+                    <Border BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1" CornerRadius="3" Padding="6,1,2,1" Margin="0,2,6,0"
                             ToolTip="{Binding Tip, Mode=OneWay}">
                         <StackPanel Orientation="Horizontal">
                             <Rectangle Width="10" Height="10" Fill="{Binding Brush, Mode=OneWay}" Margin="0,0,6,0" VerticalAlignment="Center" />
@@ -106,7 +111,7 @@
         </ItemsControl>
 
         <!-- Lignes : liste virtualisée, une ligne du fichier par élément -->
-        <ListBox x:Name="LogList" FontFamily="Consolas" FontSize="12" SelectionMode="Extended" BorderBrush="{StaticResource ToolbarBorderBrush}"
+        <ListBox x:Name="LogList" FontFamily="Consolas" FontSize="12" SelectionMode="Extended" BorderBrush="{DynamicResource ToolbarBorderBrush}"
                  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                  ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"
                  ScrollViewer.ScrollChanged="OnLogScrollChanged">

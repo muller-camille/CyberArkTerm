@@ -37,7 +37,7 @@
     <value>SSH tramite PSMP</value>
   </data>
   <data name="ComponentLabel" xml:space="preserve">
-    <value>_Componente PSM:</value>
+    <value>C_omponente PSM:</value>
   </data>
   <data name="TargetMachineLabel" xml:space="preserve">
     <value>_Macchina di destinazione:</value>
@@ -121,7 +121,7 @@
     <value>Copia dominio\utente</value>
   </data>
   <data name="MenuProperties" xml:space="preserve">
-    <value>_Proprietà…</value>
+    <value>Pr_oprietà…</value>
   </data>
   <data name="MenuRename" xml:space="preserve">
     <value>_Rinomina…</value>
@@ -166,7 +166,7 @@
     <value>Aggiungi</value>
   </data>
   <data name="ToolAddToMyServersTip" xml:space="preserve">
-    <value>Aggiungi l'account selezionato ai tuoi server</value>
+    <value>Aggiungi l'account selezionato ai miei server</value>
   </data>
   <data name="ToolRefresh" xml:space="preserve">
     <value>Aggiorna</value>
@@ -175,7 +175,7 @@
     <value>Ricarica gli account dal PVWA (F5)</value>
   </data>
   <data name="ToolHistory" xml:space="preserve">
-    <value>Cronologia</value>
+    <value>Trasferimenti</value>
   </data>
   <data name="ToolSettings" xml:space="preserve">
     <value>Impostazioni</value>
@@ -193,7 +193,7 @@
     <value>Filtra per server, utente, safe, piattaforma… (Ctrl+F)</value>
   </data>
   <data name="SearchPlaceholder" xml:space="preserve">
-    <value>Filtra le sessioni…</value>
+    <value>Filtra gli account…</value>
   </data>
   <data name="GroupBy" xml:space="preserve">
     <value>Raggruppa per</value>
@@ -220,7 +220,7 @@
     <value>Cerca un server…</value>
   </data>
   <data name="SavedSearchTip" xml:space="preserve">
-    <value>Filtra i miei server per nome, server, utente, cartella, componente… e le voci degli archivi KeePass sbloccati (Ctrl+F)</value>
+    <value>Filtra i miei server per nome, server, utente, cartella, componente… e le voci dei database KeePass sbloccati (Ctrl+F)</value>
   </data>
   <data name="SavedSearchNoMatch" xml:space="preserve">
     <value>Nessun server corrisponde a «{0}».</value>
@@ -268,7 +268,7 @@
     <value>: scheda «File» a sinistra, trascina e rilascia per inviare</value>
   </data>
   <data name="ShortcutFilter" xml:space="preserve">
-    <value>: filtra le sessioni</value>
+    <value>: filtra gli account</value>
   </data>
   <data name="ShortcutReload" xml:space="preserve">
     <value>: ricarica dal PVWA</value>
@@ -281,11 +281,6 @@
   </data>
   <data name="LoadFailedShort" xml:space="preserve">
     <value>Caricamento non riuscito.</value>
-  </data>
-  <data name="LoadFailed" xml:space="preserve">
-    <value>Impossibile caricare gli account:
-
-{0}</value>
   </data>
   <data name="AccountCount" xml:space="preserve">
     <value>Account: {0:N0}</value>
@@ -421,19 +416,6 @@
   <data name="RenameFolderTitle" xml:space="preserve">
     <value>Rinomina cartella</value>
   </data>
-  <data name="RemoveSavedConfirm" xml:space="preserve">
-    <value>Rimuovere «{0}» dai tuoi server?
-
-L'account resta disponibile nella scheda «Disponibili».</value>
-  </data>
-  <data name="DeleteEmptyFolderConfirm" xml:space="preserve">
-    <value>Eliminare la cartella «{0}»?</value>
-  </data>
-  <data name="DeleteFolderConfirm" xml:space="preserve">
-    <value>Eliminare la cartella «{0}» e i server che contiene ({1})?
-
-Gli account restano disponibili nella scheda «Disponibili».</value>
-  </data>
   <data name="SavedTargetMachine" xml:space="preserve">
     <value>Macchina di destinazione: {0}</value>
   </data>
@@ -492,7 +474,7 @@ Gli account restano disponibili nella scheda «Disponibili».</value>
     <value>Lingua</value>
   </data>
   <data name="LanguageLabel" xml:space="preserve">
-    <value>_Lingua dell'interfaccia:</value>
+    <value>Li_ngua dell'interfaccia:</value>
   </data>
   <data name="LanguageHelp" xml:space="preserve">
     <value>Applicata dopo la disconnessione o al prossimo avvio.</value>
@@ -521,9 +503,6 @@ Gli account restano disponibili nella scheda «Disponibili».</value>
   <data name="UploadProtocolTip" xml:space="preserve">
     <value>Protocollo provato per primo per gli invii. Se il server lo rifiuta per un file (regola del PSMP, SFTP in sola lettura…), l'altro subentra subito, senza domande; il riepilogo riporta la risposta del server, la Cronologia lo indica.</value>
   </data>
-  <data name="ForgetKeys" xml:space="preserve">
-    <value>Dimentica le _chiavi</value>
-  </data>
   <data name="ComponentsSection" xml:space="preserve">
     <value>Componenti PSM memorizzati</value>
   </data>
@@ -531,10 +510,7 @@ Gli account restano disponibili nella scheda «Disponibili».</value>
     <value>_Dimentica</value>
   </data>
   <data name="NoHostKeys" xml:space="preserve">
-    <value>Nessuna chiave PSMP memorizzata.</value>
-  </data>
-  <data name="HostKeys" xml:space="preserve">
-    <value>Chiavi dei server accettate (SSH, certificati FTPS): {0}</value>
+    <value>Nessuna chiave di server memorizzata.</value>
   </data>
   <data name="NoComponents" xml:space="preserve">
     <value>Nessuno: il componente è dedotto dalla piattaforma (PSM-RDP per Windows, PSM-SSH per Unix...).</value>
@@ -566,22 +542,6 @@ Gli account restano disponibili nella scheda «Disponibili».</value>
   <data name="HostKeyTitle" xml:space="preserve">
     <value>Chiave del server PSMP</value>
   </data>
-  <data name="HostKeyUnknown" xml:space="preserve">
-    <value>Prima connessione al PSMP {0}:{1}.
-
-Impronta della chiave ({2}):
-SHA256:{3}
-
-Verificala con il team CyberArk se necessario. Considerare attendibile questo server?</value>
-  </data>
-  <data name="HostKeyChanged" xml:space="preserve">
-    <value>ATTENZIONE: la chiave del PSMP {0}:{1} è cambiata!
-
-Nuova impronta ({2}):
-SHA256:{3}
-
-Potrebbe indicare un'intercettazione della connessione. Accetta solo se il team CyberArk ti ha confermato questa modifica. Accettare la nuova chiave?</value>
-  </data>
   <data name="SshClientNotFound" xml:space="preserve">
     <value>Client SSH non trovato: installa la funzionalità di Windows «Client OpenSSH».</value>
   </data>
@@ -595,10 +555,10 @@ Potrebbe indicare un'intercettazione della connessione. Accetta solo se il team 
     <value>_Nome:</value>
   </data>
   <data name="FolderLabel" xml:space="preserve">
-    <value>_Cartella:</value>
+    <value>C_artella:</value>
   </data>
   <data name="FolderTip" xml:space="preserve">
-    <value>Cartella della scheda «I miei server»; «/» per le sottocartelle (es. Prod/Web)</value>
+    <value>Cartella dei «I miei server»; «/» per le sottocartelle (es. Prod/Web)</value>
   </data>
   <data name="ConnectionSection" xml:space="preserve">
     <value>Connessione</value>
@@ -734,13 +694,6 @@ Potrebbe indicare un'intercettazione della connessione. Accetta solo se il team 
   <data name="AndMore" xml:space="preserve">
     <value>  … (altri {0})</value>
   </data>
-  <data name="DeleteConfirm" xml:space="preserve">
-    <value>Eliminare definitivamente dal server ({0}):
-
-{1}
-
-Le cartelle devono essere vuote.</value>
-  </data>
   <data name="DeleteTitle" xml:space="preserve">
     <value>Elimina</value>
   </data>
@@ -762,13 +715,6 @@ Le cartelle devono essere vuote.</value>
   </data>
   <data name="UploadTo" xml:space="preserve">
     <value>Invia a {0}</value>
-  </data>
-  <data name="UploadConflicts" xml:space="preserve">
-    <value>Questi elementi esistono già in {0} e verranno sostituiti:
-
-{1}
-
-Continuare?</value>
   </data>
   <data name="UploadTitle" xml:space="preserve">
     <value>Invio</value>
@@ -881,7 +827,7 @@ Continuare?</value>
     <value>⚠ Non verificato: {0}</value>
   </data>
   <data name="ChecksCopy" xml:space="preserve">
-    <value>_Copia per sha256sum -c</value>
+    <value>Copia per _sha256sum -c</value>
   </data>
   <data name="ChecksCopyTip" xml:space="preserve">
     <value>Copia una riga per file (checksum dell'originale e percorso sul server), per riverificare sul server con sha256sum -c.</value>
@@ -997,10 +943,10 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Comando di estrazione copiato: incollalo nel terminale della sessione, poi premi Invio (elimina l'archivio dopo l'estrazione).</value>
   </data>
   <data name="FileTail" xml:space="preserve">
-    <value>_Segui (tail -f)</value>
+    <value>Segui (_tail -f)</value>
   </data>
   <data name="FileTailAdd" xml:space="preserve">
-    <value>Aggiungi a una _finestra di monitoraggio</value>
+    <value>Aggi_ungi a una finestra di monitoraggio</value>
   </data>
   <data name="TailFilesTip" xml:space="preserve">
     <value>File già seguiti su questo server: seguili di nuovo</value>
@@ -1024,10 +970,10 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>_Riprendi</value>
   </data>
   <data name="TailFollowEnd" xml:space="preserve">
-    <value>Segui la _fine</value>
+    <value>Seg_ui la fine</value>
   </data>
   <data name="TailWrap" xml:space="preserve">
-    <value>_A capo</value>
+    <value>A capo auto_matico</value>
   </data>
   <data name="TailClear" xml:space="preserve">
     <value>_Cancella</value>
@@ -1081,7 +1027,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Registrazione interrotta: {0}</value>
   </data>
   <data name="TailReconnect" xml:space="preserve">
-    <value>Ri_connetti</value>
+    <value>_Riconnetti</value>
   </data>
   <data name="TailReconnectTip" xml:space="preserve">
     <value>Riapri la connessione del monitoraggio (la scheda SSH deve essere connessa)</value>
@@ -1093,7 +1039,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Mostra solo le righe che contengono questo testo (senza distinzione tra maiuscole e minuscole), come grep</value>
   </data>
   <data name="TailExclude" xml:space="preserve">
-    <value>E_scludi:</value>
+    <value>_Escludi:</value>
   </data>
   <data name="TailExcludeTip" xml:space="preserve">
     <value>Nascondi le righe che contengono questo testo, come grep -v</value>
@@ -1123,7 +1069,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Errori (ERROR, FATAL, CRITICAL…) in rosso, avvisi (WARN, WARNING) in arancione</value>
   </data>
   <data name="TailHighlight" xml:space="preserve">
-    <value>E_videnzia:</value>
+    <value>Evi_denzia:</value>
   </data>
   <data name="TailHighlightTip" xml:space="preserve">
     <value>Parole evidenziate in giallo, separate da virgole (conservate per le prossime finestre)</value>
@@ -1159,10 +1105,10 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>{0} nuova/e riga/e di avviso in {1}</value>
   </data>
   <data name="TailSearch" xml:space="preserve">
-    <value>Cerc_a:</value>
+    <value>Cerca:</value>
   </data>
   <data name="TailSearchRegex" xml:space="preserve">
-    <value>Espressione re_golare</value>
+    <value>Rege_x</value>
   </data>
   <data name="TailSearchPreviousTip" xml:space="preserve">
     <value>Precedente (Maiusc+Invio, Maiusc+F3)</value>
@@ -1267,7 +1213,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>La vista parallela mostra già 8 sessioni: rimuovine prima una.</value>
   </data>
   <data name="ParallelChoose" xml:space="preserve">
-    <value>_Scegli le sessioni…</value>
+    <value>S_cegli le sessioni…</value>
   </data>
   <data name="ParallelClose" xml:space="preserve">
     <value>Chiudi la vista</value>
@@ -1276,7 +1222,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Chiudi la vista parallela: le sessioni tornano nella loro scheda, non vengono chiuse</value>
   </data>
   <data name="ParallelBroadcast" xml:space="preserve">
-    <value>Digitazione _simultanea</value>
+    <value>_Digitazione simultanea</value>
   </data>
   <data name="ParallelBroadcastTip" xml:space="preserve">
     <value>Ciò che digiti in una sessione selezionata viene inviato anche alle altre sessioni selezionate e connesse. La rotellina non viene copiata; incollare più righe chiede conferma.</value>
@@ -1308,9 +1254,6 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
   <data name="ParallelStateClosed" xml:space="preserve">
     <value>Chiusa</value>
   </data>
-  <data name="ParallelPasteConfirm" xml:space="preserve">
-    <value>Incollare {0} righe in {1} sessioni? Ogni riga viene eseguita come comando su ogni server.</value>
-  </data>
   <data name="ParallelPlaceholder" xml:space="preserve">
     <value>Questa sessione è mostrata nella vista parallela.</value>
   </data>
@@ -1321,7 +1264,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>_Mostra la vista parallela</value>
   </data>
   <data name="MenuOpenInParallel" xml:space="preserve">
-    <value>Apri nella vista _parallela</value>
+    <value>Apr_i nella vista parallela</value>
   </data>
   <data name="MenuOpenManyInParallel" xml:space="preserve">
     <value>Apri i {0} server nella vista _parallela</value>
@@ -1369,7 +1312,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>La vista parallela è in una finestra separata.</value>
   </data>
   <data name="MenuTabAddParallel" xml:space="preserve">
-    <value>Aggiungi alla vista _parallela</value>
+    <value>Aggiungi alla _vista parallela</value>
   </data>
   <data name="MenuTabRemoveParallel" xml:space="preserve">
     <value>Togli dalla vista _parallela</value>
@@ -1381,7 +1324,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Invia gli stessi file a più server (verificati con SHA-256 su ciascuno)</value>
   </data>
   <data name="FileUploadMany" xml:space="preserve">
-    <value>Invia a _più server…</value>
+    <value>In_via a più server…</value>
   </data>
   <data name="MultiUploadIntro" xml:space="preserve">
     <value>Gli stessi file vengono inviati a ogni server selezionato, un server dopo l'altro, nella coda dei trasferimenti. Ogni file viene verificato con SHA-256 su ogni server; alla fine viene dato un solo riepilogo.</value>
@@ -1437,15 +1380,6 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
   <data name="MultiUploadProblems" xml:space="preserve">
     <value>Non verrà inviato nulla a questi server:
 {0}</value>
-  </data>
-  <data name="MultiUploadContinue" xml:space="preserve">
-    <value>Inviare agli altri {0} server?</value>
-  </data>
-  <data name="MultiUploadConflicts" xml:space="preserve">
-    <value>Questi file esistono già e verranno sostituiti (il loro vecchio contenuto va perso):
-{0}
-
-Inviare comunque?</value>
   </data>
   <data name="MultiUploadLabel" xml:space="preserve">
     <value>{0} → {1}</value>
@@ -1514,7 +1448,7 @@ Inviare comunque?</value>
     <value>Impossibile leggere {0}: {1}</value>
   </data>
   <data name="CompareLocal" xml:space="preserve">
-    <value>Un file di questo _computer</value>
+    <value>Un fi_le di questo computer</value>
   </data>
   <data name="CompareNote" xml:space="preserve">
     <value>I file vengono letti in memoria (50 MB al massimo ciascuno), senza copia su questo computer. Nulla viene eseguito sui server.</value>
@@ -1556,10 +1490,10 @@ Inviare comunque?</value>
     <value>Differenza successiva (F7)</value>
   </data>
   <data name="CompareIgnoreWhitespace" xml:space="preserve">
-    <value>Ignora gli _spazi</value>
+    <value>_Ignora gli spazi</value>
   </data>
   <data name="CompareOnlyDifferences" xml:space="preserve">
-    <value>_Solo le differenze</value>
+    <value>S_olo le differenze</value>
   </data>
   <data name="CompareSave" xml:space="preserve">
     <value>Salva il _diff…</value>
@@ -1622,7 +1556,7 @@ Inviare comunque?</value>
   {4} · SHA-256 {5}</value>
   </data>
   <data name="CompareToolLabel" xml:space="preserve">
-    <value>Strumento di _confronto:</value>
+    <value>Str_umento di confronto:</value>
   </data>
   <data name="CompareArgumentsLabel" xml:space="preserve">
     <value>Ar_gomenti:</value>
@@ -1715,7 +1649,7 @@ Inviare comunque?</value>
     <value>Il clic destro nel terminale incolla gli appunti (Maiusc+clic destro apre allora il menu)</value>
   </data>
   <data name="TerminalThemeLabel" xml:space="preserve">
-    <value>_Colori del terminale:</value>
+    <value>C_olori del terminale:</value>
   </data>
   <data name="TerminalFontLabel" xml:space="preserve">
     <value>_Carattere:</value>
@@ -1727,7 +1661,7 @@ Inviare comunque?</value>
     <value>La dimensione del carattere deve essere compresa tra {0} e {1}.</value>
   </data>
   <data name="MenuAbout" xml:space="preserve">
-    <value>_Informazioni su CyberArkTerm…</value>
+    <value>Informazioni su _CyberArkTerm…</value>
   </data>
   <data name="AboutTitle" xml:space="preserve">
     <value>Informazioni su CyberArkTerm</value>
@@ -1760,7 +1694,7 @@ Inviare comunque?</value>
     <value>Nuova versione</value>
   </data>
   <data name="AboutCheck" xml:space="preserve">
-    <value>_Cerca ora</value>
+    <value>Cerca _ora</value>
   </data>
   <data name="AboutChecking" xml:space="preserve">
     <value>Ricerca dell'ultima versione su GitHub…</value>
@@ -1843,20 +1777,14 @@ Inviare comunque?</value>
   <data name="HistoryColProtocol" xml:space="preserve">
     <value>Protocollo</value>
   </data>
-  <data name="HistoryDone" xml:space="preserve">
-    <value>✓ riuscito · {0} identico/i</value>
-  </data>
   <data name="HistoryChecks" xml:space="preserve">
-    <value>_Checksum…</value>
+    <value>C_hecksum…</value>
   </data>
   <data name="HistoryOpenFolder" xml:space="preserve">
     <value>_Apri la cartella</value>
   </data>
   <data name="HistoryClear" xml:space="preserve">
     <value>Ca_ncella la cronologia</value>
-  </data>
-  <data name="HistoryClearConfirm" xml:space="preserve">
-    <value>Cancellare la cronologia dei trasferimenti ({0} trasferimento/i)? I file stessi non vengono toccati.</value>
   </data>
   <data name="HistoryEmpty" xml:space="preserve">
     <value>Nessun trasferimento per ora.</value>
@@ -1877,7 +1805,7 @@ Inviare comunque?</value>
     <value>Annulla</value>
   </data>
   <data name="QueueCancelTip" xml:space="preserve">
-    <value>Interrompi questo trasferimento: il file in corso, incompleto, viene eliminato; i file già trasferiti restano.</value>
+    <value>Interrompi questo trasferimento: il file in corso, incompleto, viene eliminato (un file che stava per essere sostituito sul server resta incompleto); i file già trasferiti restano.</value>
   </data>
   <data name="QueueItems" xml:space="preserve">
     <value>{0} elementi</value>
@@ -1930,11 +1858,6 @@ Inviare comunque?</value>
   <data name="QueueDownloadFailed" xml:space="preserve">
     <value>Download di {0} non riuscito: {1}</value>
   </data>
-  <data name="QueueCloseConfirm" xml:space="preserve">
-    <value>{0} trasferimento/i in corso o in attesa verranno annullati (il file in corso, incompleto, viene eliminato).
-
-Chiudere comunque?</value>
-  </data>
   <data name="DropHintQueued" xml:space="preserve">
     <value>Rilascia per aggiungere alla coda dei trasferimenti: {0} a
 {1}</value>
@@ -1971,22 +1894,8 @@ Chiudere comunque?</value>
 
 Scegli un altro editor nelle impostazioni.</value>
   </data>
-  <data name="EditLargeFile" xml:space="preserve">
-    <value>«{0}» occupa {1}. Aprirlo comunque nell'editor di testo?</value>
-  </data>
   <data name="EditUploadTitle" xml:space="preserve">
     <value>Rinvia al server</value>
-  </data>
-  <data name="EditUploadPrompt" xml:space="preserve">
-    <value>«{0}» è stato salvato nell'editor.
-
-Rinviarlo al server?
-{1}</value>
-  </data>
-  <data name="EditRemoteChanged" xml:space="preserve">
-    <value>«{0}» è stato modificato sul server dopo l'apertura.
-
-Sostituirlo con la tua versione?</value>
   </data>
   <data name="EditUploading" xml:space="preserve">
     <value>Invio di {0} al server…</value>
@@ -2003,13 +1912,6 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
   </data>
   <data name="EditPendingTitle" xml:space="preserve">
     <value>Modifiche non inviate</value>
-  </data>
-  <data name="EditPendingOnClose" xml:space="preserve">
-    <value>Questi file modificati non sono stati rinviati al server:
-
-{0}
-
-Chiudere comunque? Le copie locali verranno eliminate.</value>
   </data>
   <data name="PermissionsTitle" xml:space="preserve">
     <value>Permessi</value>
@@ -2131,12 +2033,6 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
   <data name="RdpDisconnectCode" xml:space="preserve">
     <value>Disconnesso ({0}).</value>
   </data>
-  <data name="RdpCloseTabConfirm" xml:space="preserve">
-    <value>Disconnettere la sessione Desktop remoto {0}?</value>
-  </data>
-  <data name="RdpCloseAllConfirm" xml:space="preserve">
-    <value>Ci sono sessioni Desktop remoto aperte ({0}). Disconnetterle e chiudere?</value>
-  </data>
   <data name="RdpNotResponding" xml:space="preserve">
     <value>{0}: Desktop remoto non risponde. Il resto di CyberArkTerm resta utilizzabile; puoi chiudere questa scheda.</value>
   </data>
@@ -2179,15 +2075,6 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
   <data name="DetachedReattach" xml:space="preserve">
     <value>_Riporta nella scheda</value>
   </data>
-  <data name="TabReconnectConfirm" xml:space="preserve">
-    <value>Riconnettere {0}? La sessione aperta verrà chiusa.</value>
-  </data>
-  <data name="TabCloseOtherConfirm" xml:space="preserve">
-    <value>Chiudere l'altra scheda di sessione? La sua sessione verrà chiusa.</value>
-  </data>
-  <data name="TabCloseOthersConfirm" xml:space="preserve">
-    <value>Chiudere le altre {0} schede di sessione? Le loro sessioni verranno chiuse.</value>
-  </data>
   <data name="MenuSettings" xml:space="preserve">
     <value>_Impostazioni…</value>
   </data>
@@ -2213,25 +2100,25 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
     <value>Ancora nessun registro di debug: attivalo, poi riproduci il problema.</value>
   </data>
   <data name="KeePassFolderTitle" xml:space="preserve">
-    <value>Archivio KeePass</value>
+    <value>Database KeePass</value>
   </data>
   <data name="KeePassEmergencyWarning" xml:space="preserve">
-    <value>Accesso di emergenza fuori da CyberArk: le connessioni fatte con questo archivio non passano dal PSM (nessuna registrazione, nessuna regola CyberArk). Sono annotate nel registro locale (urgence.log).</value>
+    <value>Accesso di emergenza fuori da CyberArk: le connessioni fatte con questo database non passano dal PSM (nessuna registrazione, nessuna regola CyberArk). Sono annotate nel registro locale (urgence.log).</value>
   </data>
   <data name="KeePassFileLabel" xml:space="preserve">
-    <value>_File dell'archivio:</value>
+    <value>File _del database:</value>
   </data>
   <data name="KeePassKeyFileLabel" xml:space="preserve">
     <value>File _chiave:</value>
   </data>
   <data name="KeePassKeyFileHint" xml:space="preserve">
-    <value>Facoltativo. Lascia vuoto se l'archivio usa solo una password principale.</value>
+    <value>Facoltativo. Lascia vuoto se il database usa solo una password principale.</value>
   </data>
   <data name="KeePassUsesPassword" xml:space="preserve">
-    <value>L'archivio ha una _password principale</value>
+    <value>Il database ha una _password principale</value>
   </data>
   <data name="KeePassFilesFilter" xml:space="preserve">
-    <value>Archivi KeePass (*.kdbx)|*.kdbx|Tutti i file (*.*)|*.*</value>
+    <value>Database KeePass (*.kdbx)|*.kdbx|Tutti i file (*.*)|*.*</value>
   </data>
   <data name="AllFilesFilter" xml:space="preserve">
     <value>Tutti i file (*.*)|*.*</value>
@@ -2243,7 +2130,7 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
     <value>Serve una password principale, un file chiave, o entrambi.</value>
   </data>
   <data name="KeePassUnlockTitle" xml:space="preserve">
-    <value>Sblocca l'archivio KeePass</value>
+    <value>Sblocca il database KeePass</value>
   </data>
   <data name="KeePassMasterPasswordLabel" xml:space="preserve">
     <value>_Password principale:</value>
@@ -2315,7 +2202,7 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
     <value>(bloccato)</value>
   </data>
   <data name="KeePassFolderTip" xml:space="preserve">
-    <value>Archivio KeePass — accesso di emergenza fuori da CyberArk</value>
+    <value>Database KeePass — accesso di emergenza fuori da CyberArk</value>
   </data>
   <data name="KeePassKeyFileInfo" xml:space="preserve">
     <value>File chiave: {0}</value>
@@ -2324,13 +2211,13 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
     <value>Nessun indirizzo di server</value>
   </data>
   <data name="KeePassEntryOrigin" xml:space="preserve">
-    <value>Archivio KeePass {0} — fuori da CyberArk</value>
+    <value>Database KeePass {0} — fuori da CyberArk</value>
   </data>
   <data name="KeePassUnlockHint" xml:space="preserve">
     <value>Fai doppio clic per sbloccare</value>
   </data>
   <data name="MenuKeePassAdd" xml:space="preserve">
-    <value>Aggiungi un archivio _KeePass…</value>
+    <value>Aggiungi un database _KeePass…</value>
   </data>
   <data name="MenuKeePassUnlock" xml:space="preserve">
     <value>_Sblocca…</value>
@@ -2348,7 +2235,7 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
     <value>_Proprietà…</value>
   </data>
   <data name="MenuKeePassRemove" xml:space="preserve">
-    <value>_Rimuovi dall'elenco</value>
+    <value>Rimuovi _dall'elenco</value>
   </data>
   <data name="MenuKeePassConnect" xml:space="preserve">
     <value>_Connetti</value>
@@ -2366,36 +2253,30 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
     <value>_Elimina</value>
   </data>
   <data name="ToolKeePassTip" xml:space="preserve">
-    <value>Aggiungi un archivio KeePass (accesso di emergenza fuori da CyberArk)</value>
-  </data>
-  <data name="KeePassRemoveConfirm" xml:space="preserve">
-    <value>Rimuovere l'archivio KeePass «{0}» dall'elenco? Il file stesso non viene eliminato.</value>
-  </data>
-  <data name="KeePassDeleteEntryConfirm" xml:space="preserve">
-    <value>Eliminare la voce «{0}» dall'archivio KeePass {1}? Finisce nel cestino dell'archivio.</value>
+    <value>Aggiungi un database KeePass (accesso di emergenza fuori da CyberArk)</value>
   </data>
   <data name="KeePassUnlocked" xml:space="preserve">
-    <value>Archivio KeePass {0} sbloccato ({1} voci)</value>
+    <value>Database KeePass {0} sbloccato ({1} voci)</value>
   </data>
   <data name="KeePassLockedStatus" xml:space="preserve">
-    <value>Archivio KeePass {0} bloccato</value>
+    <value>Database KeePass {0} bloccato</value>
   </data>
   <data name="KeePassAllLocked" xml:space="preserve">
-    <value>Archivi KeePass bloccati (sessione Windows bloccata)</value>
+    <value>Database KeePass bloccati (sessione Windows bloccata)</value>
   </data>
   <data name="KeePassSaving" xml:space="preserve">
-    <value>Salvataggio dell'archivio KeePass {0}…</value>
+    <value>Salvataggio del database KeePass {0}…</value>
   </data>
   <data name="KeePassSaved" xml:space="preserve">
-    <value>Archivio KeePass {0} salvato (versione precedente conservata in {1})</value>
+    <value>Database KeePass {0} salvato (versione precedente conservata in {1})</value>
   </data>
   <data name="KeePassSaveFailed" xml:space="preserve">
-    <value>L'archivio KeePass {0} non è stato salvato:
+    <value>Il database KeePass {0} non è stato salvato:
 
 {1}</value>
   </data>
   <data name="KeePassReloaded" xml:space="preserve">
-    <value>Archivio KeePass {0} ricaricato</value>
+    <value>Database KeePass {0} ricaricato</value>
   </data>
   <data name="KeePassNoHostError" xml:space="preserve">
     <value>La voce «{0}» non ha un indirizzo di server: compila il suo indirizzo (ssh://… o rdp://…).</value>
@@ -2413,29 +2294,13 @@ Chiudere comunque? Le copie locali verranno eliminate.</value>
     <value>{0} · KeePass</value>
   </data>
   <data name="KeePassRdpNoControl" xml:space="preserve">
-    <value>{0}: controllo Desktop remoto non disponibile, Connessione Desktop remoto aperta senza la password (prendila dall'archivio KeePass).</value>
+    <value>{0}: controllo Desktop remoto non disponibile, Connessione Desktop remoto aperta senza la password (prendila dal database KeePass).</value>
   </data>
   <data name="ConnectingDirect" xml:space="preserve">
     <value>Connessione diretta (accesso di emergenza, fuori da CyberArk)…</value>
   </data>
   <data name="HostKeyTitleServer" xml:space="preserve">
     <value>Chiave del server</value>
-  </data>
-  <data name="HostKeyUnknownServer" xml:space="preserve">
-    <value>Prima connessione al server {0}:{1}.
-
-Impronta della chiave ({2}):
-SHA256:{3}
-
-Verificala con l'amministratore del server se necessario. Considerare attendibile questo server?</value>
-  </data>
-  <data name="HostKeyChangedServer" xml:space="preserve">
-    <value>ATTENZIONE: la chiave del server {0}:{1} è cambiata!
-
-Nuova impronta ({2}):
-SHA256:{3}
-
-Potrebbe indicare un'intercettazione della connessione. Accetta solo se l'amministratore del server ti ha confermato questa modifica. Accettare la nuova chiave?</value>
   </data>
   <data name="PromptTitleServer" xml:space="preserve">
     <value>Autenticazione SSH</value>
@@ -2444,7 +2309,7 @@ Potrebbe indicare un'intercettazione della connessione. Accetta solo se l'ammini
     <value>Vault locale</value>
   </data>
   <data name="LocalStoreCreateIntro" xml:space="preserve">
-    <value>Il vault locale conserva le password principali KeePass che scegli di memorizzare. È cifrato con la password qui sotto (Argon2id, AES-256) e il tuo account Windows (DPAPI). Questa password viene chiesta quando sblocchi un archivio KeePass la cui password è memorizzata; non può essere recuperata.</value>
+    <value>Questa password protegge le password principali KeePass che scegli di memorizzare. Non può essere recuperata: se la dimentichi, dovrai eliminare il vault locale e digitare di nuovo ogni password principale. Il vault locale è cifrato con questa password (Argon2id, AES-256) e il tuo account Windows (DPAPI).</value>
   </data>
   <data name="LocalStoreUnlockIntro" xml:space="preserve">
     <value>Sblocca il vault locale per usare le password principali KeePass memorizzate.</value>
@@ -2483,22 +2348,19 @@ Potrebbe indicare un'intercettazione della connessione. Accetta solo se l'ammini
     <value>C_rea…</value>
   </data>
   <data name="LocalStoreUnlockMenu" xml:space="preserve">
-    <value>_Sblocca…</value>
+    <value>S_blocca…</value>
   </data>
   <data name="LocalStoreChange" xml:space="preserve">
     <value>C_ambia password…</value>
   </data>
   <data name="LocalStoreDelete" xml:space="preserve">
-    <value>E_limina</value>
-  </data>
-  <data name="LocalStoreDeleteConfirm" xml:space="preserve">
-    <value>Eliminare il vault locale? Le password principali KeePass memorizzate saranno dimenticate (gli archivi KeePass non vengono toccati).</value>
+    <value>E_limina ora…</value>
   </data>
   <data name="LoginEmergency" xml:space="preserve">
     <value>Accesso di _emergenza (KeePass)</value>
   </data>
   <data name="LoginEmergencyTip" xml:space="preserve">
-    <value>Senza CyberArk: apri i tuoi archivi KeePass per connetterti direttamente ai server (SSH, desktop remoto).</value>
+    <value>Senza CyberArk: apri i tuoi database KeePass per connetterti direttamente ai server (SSH, desktop remoto).</value>
   </data>
   <data name="EmergencyTitle" xml:space="preserve">
     <value>CyberArkTerm — Accesso di emergenza (senza CyberArk)</value>
@@ -2507,7 +2369,7 @@ Potrebbe indicare un'intercettazione della connessione. Accetta solo se l'ammini
     <value>Accesso di emergenza — senza CyberArk</value>
   </data>
   <data name="EmergencyWelcome" xml:space="preserve">
-    <value>Accesso di emergenza senza CyberArk: apri un archivio KeePass in «I miei server», a sinistra. Le connessioni sono annotate nel registro locale (urgence.log).</value>
+    <value>Accesso di emergenza senza CyberArk: apri un database KeePass in «I miei server», a sinistra. Le connessioni sono annotate nel registro locale (urgence.log).</value>
   </data>
   <data name="PvwaSessionSection" xml:space="preserve">
     <value>Sessione CyberArk</value>
@@ -2519,7 +2381,7 @@ Potrebbe indicare un'intercettazione della connessione. Accetta solo se l'ammini
     <value>La sessione CyberArk è scaduta: accedi di nuovo per raggiungere gli account CyberArk.</value>
   </data>
   <data name="NoKeePassHelp" xml:space="preserve">
-    <value>Aggiungi un archivio KeePass con il pulsante cassaforte qui sopra (o clic destro qui).</value>
+    <value>Aggiungi un database KeePass con il pulsante cassaforte qui sopra (o clic destro qui).</value>
   </data>
   <data name="EditWriteInterrupted" xml:space="preserve">
     <value>L'invio di {0} è stato interrotto: il file sul server potrebbe essere incompleto.
@@ -2532,7 +2394,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>Impossibile leggere i permessi della destinazione del collegamento {0}.</value>
   </data>
   <data name="KeePassSavedNoLog" xml:space="preserve">
-    <value>Archivio KeePass {0} salvato, ma non è stato possibile scrivere il registro di emergenza (urgence.log)</value>
+    <value>Database KeePass {0} salvato, ma non è stato possibile scrivere il registro di emergenza (urgence.log)</value>
   </data>
   <data name="KeePassTargetInvalid" xml:space="preserve">
     <value>L'host o il nome utente di questa voce contiene un a capo o un carattere di controllo.</value>
@@ -2565,7 +2427,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value> (gruppo)</value>
   </data>
   <data name="SafeMembersOnlyAdd" xml:space="preserve">
-    <value>Solo chi può _aggiungere account</value>
+    <value>_Solo chi può aggiungere account</value>
   </data>
   <data name="SafeMembersHint" xml:space="preserve">
     <value>I membri di un gruppo hanno i diritti del gruppo. Ctrl+A e poi Ctrl+C copia la tabella.</value>
@@ -2685,7 +2547,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>_Safe:</value>
   </data>
   <data name="AddAccountPlatform" xml:space="preserve">
-    <value>_Piattaforma:</value>
+    <value>Pia_ttaforma:</value>
   </data>
   <data name="AddAccountPlatformTip" xml:space="preserve">
     <value>ID della piattaforma, come nel PVWA (ad esempio WinDomain, UnixSSH). L'elenco propone le piattaforme degli account che vedi.</value>
@@ -2706,7 +2568,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>_Nome dell'account:</value>
   </data>
   <data name="AddAccountNameTip" xml:space="preserve">
-    <value>Nome dell'account nel vault. Vuoto: scelto dal PVWA.</value>
+    <value>Nome dell'account nel vault CyberArk. Vuoto: scelto dal PVWA.</value>
   </data>
   <data name="AddAccountPassword" xml:space="preserve">
     <value>_Password:</value>
@@ -2727,7 +2589,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>Password gestita _automaticamente dal CPM</value>
   </data>
   <data name="AddAccountReason" xml:space="preserve">
-    <value>_Motivo della gestione manuale:</value>
+    <value>Motivo della _gestione manuale:</value>
   </data>
   <data name="AddAccountCreate" xml:space="preserve">
     <value>_Crea</value>
@@ -2766,7 +2628,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>_Riconcilia (CPM)…</value>
   </data>
   <data name="MenuEditAccount" xml:space="preserve">
-    <value>_Modifica l'account…</value>
+    <value>M_odifica l'account…</value>
   </data>
   <data name="MenuDeleteAccount" xml:space="preserve">
     <value>_Elimina l'account…</value>
@@ -2791,12 +2653,6 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
   </data>
   <data name="CpmLastReconciled" xml:space="preserve">
     <value>Riconciliata il {0}</value>
-  </data>
-  <data name="CpmChangeConfirm" xml:space="preserve">
-    <value>Chiedere al CPM di cambiare ora la password di {0}? La nuova password viene applicata sul server e conservata nel vault.</value>
-  </data>
-  <data name="CpmReconcileConfirm" xml:space="preserve">
-    <value>Chiedere al CPM di riconciliare la password di {0}? L'account di riconciliazione della piattaforma riallinea la password del server al vault.</value>
   </data>
   <data name="CpmRequested" xml:space="preserve">
     <value>{1} richiesta per {0}: il CPM la esegue a breve (F5 per aggiornare lo stato)</value>
@@ -2831,9 +2687,6 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
   <data name="AccountUpdated" xml:space="preserve">
     <value>Account {0} modificato</value>
   </data>
-  <data name="DeleteAccountConfirm" xml:space="preserve">
-    <value>Eliminare l'account {0} dal safe {1}? Viene eliminato in CyberArk, per tutti gli utenti.</value>
-  </data>
   <data name="DeleteAccountForbidden" xml:space="preserve">
     <value>Il PVWA rifiuta: il tuo account deve avere il diritto «Eliminare account» su questo safe. Messaggio del PVWA: {0}</value>
   </data>
@@ -2845,12 +2698,6 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
   </data>
   <data name="RetrieveTitle" xml:space="preserve">
     <value>Copia la password</value>
-  </data>
-  <data name="RetrieveIntro" xml:space="preserve">
-    <value>La password di {0} viene recuperata da CyberArk (il recupero viene registrato nell'audit) e copiata negli appunti per {1} secondi, senza essere mostrata. È esclusa dalla cronologia e dalla sincronizzazione degli appunti.</value>
-  </data>
-  <data name="RetrieveButton" xml:space="preserve">
-    <value>_Copia</value>
   </data>
   <data name="RetrieveWorking" xml:space="preserve">
     <value>Recupero della password…</value>
@@ -2895,7 +2742,7 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
     <value>File CSV (*.csv;*.txt)|*.csv;*.txt|Tutti i file (*.*)|*.*</value>
   </data>
   <data name="ImportDefaultSafe" xml:space="preserve">
-    <value>_Safe predefinito:</value>
+    <value>S_afe predefinito:</value>
   </data>
   <data name="ImportDefaultPlatform" xml:space="preserve">
     <value>_Piattaforma predefinita:</value>
@@ -2948,12 +2795,6 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
   <data name="AccountsImported" xml:space="preserve">
     <value>{0} account importato/i</value>
   </data>
-  <data name="ImportLineError" xml:space="preserve">
-    <value>Riga {0}: {1}</value>
-  </data>
-  <data name="ImportMoreErrors" xml:space="preserve">
-    <value>… e altre {0} riga/righe con errore.</value>
-  </data>
   <data name="ImportConfirmHint" xml:space="preserve">
     <value>Nulla viene inviato prima di «Importa»; la finestra successiva mostra poi il risultato di ogni riga.</value>
   </data>
@@ -2965,11 +2806,6 @@ Le modifiche restano nell'editor: salva di nuovo per inviare il file intero quan
   </data>
   <data name="ImportSaveResult" xml:space="preserve">
     <value>_Salva il risultato…</value>
-  </data>
-  <data name="ImportSaveResultAsk" xml:space="preserve">
-    <value>{0}
-
-Salvare il risultato in un file CSV (una riga per ogni riga del file, senza le password)?</value>
   </data>
   <data name="ImportResultFileName" xml:space="preserve">
     <value>risultato-importazione</value>
@@ -2984,7 +2820,7 @@ Salvare il risultato in un file CSV (una riga per ogni riga del file, senza le p
     <value>_Modifica i diritti…</value>
   </data>
   <data name="SafeMembersRemove" xml:space="preserve">
-    <value>_Rimuovi…</value>
+    <value>Rim_uovi…</value>
   </data>
   <data name="SafeMemberAddTitle" xml:space="preserve">
     <value>Aggiungi un membro al safe «{0}»</value>
@@ -2999,7 +2835,7 @@ Salvare il risultato in un file CSV (una riga per ogni riga del file, senza le p
     <value>_Membro:</value>
   </data>
   <data name="SafeMemberNameTip" xml:space="preserve">
-    <value>Nome dell'utente o del gruppo, come nel vault o nella directory LDAP.</value>
+    <value>Nome dell'utente o del gruppo, come nel vault CyberArk o nella directory LDAP.</value>
   </data>
   <data name="SafeMemberTypeLabel" xml:space="preserve">
     <value>_Tipo:</value>
@@ -3008,7 +2844,7 @@ Salvare il risultato in un file CSV (una riga per ogni riga del file, senza le p
     <value>_Cerca in:</value>
   </data>
   <data name="SafeMemberSearchInTip" xml:space="preserve">
-    <value>«Vault» per un utente o un gruppo del vault, altrimenti il nome della directory LDAP (ad esempio corp.example).</value>
+    <value>«Vault» per un utente o un gruppo del vault CyberArk, altrimenti il nome della directory LDAP (ad esempio corp.example).</value>
   </data>
   <data name="SafeMemberUntil" xml:space="preserve">
     <value>Membro _fino al:</value>
@@ -3031,12 +2867,6 @@ Salvare il risultato in un file CSV (una riga per ogni riga del file, senza le p
   <data name="SafeMemberGroupFolders" xml:space="preserve">
     <value>Cartelle</value>
   </data>
-  <data name="SafeMemberAll" xml:space="preserve">
-    <value>Seleziona _tutto</value>
-  </data>
-  <data name="SafeMemberNone" xml:space="preserve">
-    <value>_Deseleziona tutto</value>
-  </data>
   <data name="SafeMemberNameRequired" xml:space="preserve">
     <value>Inserisci il nome del membro.</value>
   </data>
@@ -3049,14 +2879,11 @@ Salvare il risultato in un file CSV (una riga per ogni riga del file, senza le p
   <data name="SafeMemberFailed" xml:space="preserve">
     <value>Il PVWA non ha salvato il membro: {0}</value>
   </data>
-  <data name="SafeMemberRemoveConfirm" xml:space="preserve">
-    <value>Rimuovere {0} dal safe «{1}»? Questo membro perde tutti i suoi diritti sul safe.</value>
-  </data>
   <data name="SafeMemberRemoveFailed" xml:space="preserve">
     <value>Il PVWA non ha rimosso il membro: {0}</value>
   </data>
   <data name="MenuExportAccounts" xml:space="preserve">
-    <value>_Esporta gli account visualizzati (CSV)…</value>
+    <value>Esporta gli account _visualizzati (CSV)…</value>
   </data>
   <data name="ImportServersTip" xml:space="preserve">
     <value>Importa un elenco di server (file esportato da I miei server, o elenco condiviso)</value>
@@ -3209,7 +3036,7 @@ Salvare il risultato in un file CSV (una riga per ogni riga del file, senza le p
     <value>Ripristino della revisione {0}</value>
   </data>
   <data name="MenuShareInList" xml:space="preserve">
-    <value>_Condividi in un elenco</value>
+    <value>Condividi in un _elenco</value>
   </data>
   <data name="MenuShareFolderInList" xml:space="preserve">
     <value>_Condividi la cartella in un elenco</value>
@@ -3217,20 +3044,11 @@ Salvare il risultato in un file CSV (una riga per ogni riga del file, senza le p
   <data name="ShareNoListTip" xml:space="preserve">
     <value>Apri o crea prima un elenco condiviso (pulsante in alto nella scheda).</value>
   </data>
-  <data name="ShareDropConfirm" xml:space="preserve">
-    <value>Aggiungere {0} server all'elenco condiviso «{1}»? Tutti quelli che aprono questo elenco li vedranno.</value>
-  </data>
   <data name="SharedServersAdded" xml:space="preserve">
     <value>{0} server aggiunti all'elenco condiviso «{1}» ({2} già presenti)</value>
   </data>
   <data name="SharedServersRemoved" xml:space="preserve">
     <value>{0} server rimossi dall'elenco condiviso «{1}»</value>
-  </data>
-  <data name="SharedRemoveConfirm" xml:space="preserve">
-    <value>Rimuovere «{0}» dall'elenco condiviso «{1}» per tutti? (La modifica viene registrata e può essere annullata dalla cronologia.)</value>
-  </data>
-  <data name="SharedRemoveFolderConfirm" xml:space="preserve">
-    <value>Rimuovere la cartella «{0}» e i suoi {1} server dall'elenco condiviso «{2}» per tutti? (La modifica viene registrata e può essere annullata dalla cronologia.)</value>
   </data>
   <data name="CopiedToMyServers" xml:space="preserve">
     <value>{0} server copiati in I miei server ({1} già presenti)</value>
@@ -3239,16 +3057,16 @@ Salvare il risultato in un file CSV (una riga per ogni riga del file, senza le p
     <value>Già in I miei server ({0} server).</value>
   </data>
   <data name="MenuSharedHistory" xml:space="preserve">
-    <value>_Cronologia delle modifiche…</value>
+    <value>Cr_onologia delle modifiche…</value>
   </data>
   <data name="MenuSharedRefresh" xml:space="preserve">
     <value>_Rileggi l'elenco</value>
   </data>
   <data name="MenuSharedCopyAll" xml:space="preserve">
-    <value>_Copia tutto in I miei server</value>
+    <value>Copia tutto in I miei _server</value>
   </data>
   <data name="MenuSharedCopyFolder" xml:space="preserve">
-    <value>_Copia la cartella in I miei server</value>
+    <value>Copia la cartella in I _miei server</value>
   </data>
   <data name="MenuSharedCopyServer" xml:space="preserve">
     <value>Cop_ia in I miei server</value>
@@ -3267,11 +3085,6 @@ Salvare il risultato in un file CSV (una riga per ogni riga del file, senza le p
   </data>
   <data name="MenuSharedCloseTip" xml:space="preserve">
     <value>Non mostrare più questo elenco qui; il file resta sulla condivisione per gli altri.</value>
-  </data>
-  <data name="SharedTargetConfirm" xml:space="preserve">
-    <value>Il server «{0}» dell'elenco condiviso «{1}» apre l'account {2} sulla macchina «{3}».
-
-Questa macchina di destinazione viene dall'elenco condiviso, che chiunque abbia diritto di scrittura sulla condivisione può modificare, e non da CyberArk. Connettersi?</value>
   </data>
   <data name="SharedHistoryTitle" xml:space="preserve">
     <value>Cronologia dell'elenco «{0}»</value>
@@ -3315,11 +3128,6 @@ Revisione attuale: {1} · {2} server</value>
   </data>
   <data name="SharedRestore" xml:space="preserve">
     <value>_Ripristina questa versione…</value>
-  </data>
-  <data name="SharedRestoreConfirm" xml:space="preserve">
-    <value>Riportare l'elenco «{0}» com'era alla revisione {1} ({2})?
-
-I server aggiunti da allora saranno rimossi e quelli rimossi torneranno, per tutti. Il ripristino viene registrato come nuova revisione: può essere a sua volta annullato.</value>
   </data>
   <data name="SharedRestored" xml:space="preserve">
     <value>Elenco riportato alla revisione {0}.</value>
@@ -3399,9 +3207,6 @@ I server aggiunti da allora saranno rimossi e quelli rimossi torneranno, per tut
   <data name="VncClosed" xml:space="preserve">
     <value>Sessione VNC {0} chiusa</value>
   </data>
-  <data name="VncCloseTabConfirm" xml:space="preserve">
-    <value>Chiudere la sessione VNC {0}?</value>
-  </data>
   <data name="MenuKeePassFiles" xml:space="preserve">
     <value>Apri i _file (SFTP, FTP)</value>
   </data>
@@ -3450,33 +3255,8 @@ I server aggiunti da allora saranno rimossi e quelli rimossi torneranno, per tut
   <data name="FtpCleartextTitle" xml:space="preserve">
     <value>FTP senza cifratura</value>
   </data>
-  <data name="FtpCleartextConfirm" xml:space="preserve">
-    <value>Il server FTP {0} non propone la cifratura (TLS).
-
-La password della voce e i file viaggerebbero in chiaro sulla rete, leggibili da chiunque possa osservarla. Connettersi comunque?</value>
-  </data>
   <data name="FtpCertificateTitle" xml:space="preserve">
     <value>Certificato del server FTPS</value>
-  </data>
-  <data name="FtpCertificateUnknown" xml:space="preserve">
-    <value>Il certificato del server FTPS {0} non è considerato attendibile da Windows: {1}.
-
-Soggetto: {2}
-Emittente: {3}
-Valido dal {4} al {5}
-SHA-256: {6}
-
-Verifica questa impronta con l'amministratore del server. Considerare attendibile questo certificato per questo server (verrà memorizzato)?</value>
-  </data>
-  <data name="FtpCertificateChanged" xml:space="preserve">
-    <value>ATTENZIONE: il certificato del server FTPS {0} è CAMBIATO dall'ultima connessione ({1}).
-
-Soggetto: {2}
-Emittente: {3}
-Valido dal {4} al {5}
-Nuova SHA-256: {6}
-
-Può essere un rinnovo, o un'intercettazione della connessione. Continua solo se l'amministratore del server conferma il cambiamento. Considerare attendibile il nuovo certificato?</value>
   </data>
   <data name="FilesConnectingBrowse" xml:space="preserve">
     <value>Connessione {0} in corso…</value>
@@ -3502,13 +3282,6 @@ Può essere un rinnovo, o un'intercettazione della connessione. Continua solo se
   <data name="SftpFilesOpening" xml:space="preserve">
     <value>Apertura dei file di {0} tramite {1}…</value>
   </data>
-  <data name="SharedCopyTargetsConfirm" xml:space="preserve">
-    <value>Questi server dell'elenco condiviso «{0}» aprono il loro account su una macchina di destinazione che CyberArk non consente per quell'account:
-
-{1}
-
-Queste macchine di destinazione vengono dall'elenco condiviso, che chiunque abbia il diritto di scrittura sulla condivisione può modificare, e non da CyberArk. Una volta copiate, non saranno più segnalate. Copiarle in I miei server?</value>
-  </data>
   <data name="SharedOtherPvwaConnect" xml:space="preserve">
     <value>«{0}» viene da un elenco condiviso creato per il PVWA {1}: i suoi account non sono quelli di {2}. Accedi a {1} per usarlo.</value>
   </data>
@@ -3525,20 +3298,935 @@ Le impostazioni precedenti sono state riprese dal loro backup.</value>
     <value>Il file delle impostazioni era illeggibile (scrittura interrotta, disco pieno…). È stato conservato così com'è come:
 {0}
 
-Nessun backup leggibile: CyberArkTerm parte con le impostazioni predefinite. I tuoi server e archivi sono ancora nel file conservato.</value>
+Nessun backup leggibile: CyberArkTerm parte con le impostazioni predefinite. I tuoi server e database KeePass sono ancora nel file conservato.</value>
   </data>
   <data name="AlreadyRunning" xml:space="preserve">
     <value>CyberArkTerm è già aperto in questa sessione di Windows: usa la finestra aperta (barra delle applicazioni).
 
-Due istanze sovrascriverebbero a vicenda impostazioni, archivio locale e file in modifica.</value>
-  </data>
-  <data name="DownloadReplaceConfirm" xml:space="preserve">
-    <value>Questi file esistono già in {0}:
-{1}
-
-Sostituirli? Ognuno viene sostituito solo a download completato.</value>
+Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in modifica.</value>
   </data>
   <data name="KeePassConnectNoLog" xml:space="preserve">
     <value>Il registro degli accessi di emergenza non può essere scritto ({0}): la connessione non viene aperta.</value>
+  </data>
+  <data name="ToolSelectAccount" xml:space="preserve">
+    <value>Seleziona prima un account in «Disponibili» o «I miei server».</value>
+  </data>
+  <data name="ToolSelectKeePassEntry" xml:space="preserve">
+    <value>Seleziona prima una voce KeePass.</value>
+  </data>
+  <data name="ToolBusyConnecting" xml:space="preserve">
+    <value>È in corso l'apertura di una connessione.</value>
+  </data>
+  <data name="ToolAlreadyInMyServers" xml:space="preserve">
+    <value>Questo server è già in «I miei server».</value>
+  </data>
+  <data name="ConfirmCopy" xml:space="preserve">
+    <value>Copia</value>
+  </data>
+  <data name="ConfirmCopied" xml:space="preserve">
+    <value>Copiato</value>
+  </data>
+  <data name="HostKeyVerifyPsmp" xml:space="preserve">
+    <value>Verifica l'identità del PSMP</value>
+  </data>
+  <data name="HostKeyVerifyServer" xml:space="preserve">
+    <value>Verifica l'identità del server</value>
+  </data>
+  <data name="HostKeyFirstPsmp" xml:space="preserve">
+    <value>Questo computer non si è mai connesso a questo PSMP. Confronta l'impronta qui sotto con quella pubblicata dal team CyberArk prima di considerarlo attendibile.</value>
+  </data>
+  <data name="HostKeyFirstServer" xml:space="preserve">
+    <value>Questo computer non si è mai connesso a questo server. Confronta l'impronta qui sotto con quella fornita dall'amministratore del server prima di considerarlo attendibile.</value>
+  </data>
+  <data name="HostKeyPsmpReceives" xml:space="preserve">
+    <value>Il PSMP riceve poi la tua password CyberArk e il codice MFA.</value>
+  </data>
+  <data name="HostKeyServerReceives" xml:space="preserve">
+    <value>Il server riceve poi la password della voce KeePass.</value>
+  </data>
+  <data name="HostKeyRemembered" xml:space="preserve">
+    <value>L'impronta viene memorizzata su questo computer: la domanda tornerà solo se cambia.</value>
+  </data>
+  <data name="HostKeyFingerprint" xml:space="preserve">
+    <value>Impronta (SHA-256)</value>
+  </data>
+  <data name="HostKeyTrust" xml:space="preserve">
+    <value>Considera attendibile e connetti</value>
+  </data>
+  <data name="HostKeyCancel" xml:space="preserve">
+    <value>Annulla la connessione</value>
+  </data>
+  <data name="HostKeyChangedPsmpHeading" xml:space="preserve">
+    <value>La chiave del PSMP è cambiata</value>
+  </data>
+  <data name="HostKeyChangedServerHeading" xml:space="preserve">
+    <value>La chiave del server è cambiata</value>
+  </data>
+  <data name="HostKeyChangedBanner" xml:space="preserve">
+    <value>Attenzione: potrebbe indicare un'intercettazione della connessione.</value>
+  </data>
+  <data name="HostKeyChangedPsmpMessage" xml:space="preserve">
+    <value>Accetta la nuova chiave solo se il team CyberArk ti ha confermato la modifica (PSMP reinstallato, nuova chiave). Altrimenti annulla e avvisalo.</value>
+  </data>
+  <data name="HostKeyChangedServerMessage" xml:space="preserve">
+    <value>Accetta la nuova chiave solo se l'amministratore del server ti ha confermato la modifica. Altrimenti annulla e avvisalo.</value>
+  </data>
+  <data name="HostKeyOld" xml:space="preserve">
+    <value>Impronta memorizzata su questo computer ({0})</value>
+  </data>
+  <data name="HostKeyNew" xml:space="preserve">
+    <value>Impronta ricevuta ora ({0})</value>
+  </data>
+  <data name="HostKeyAckPsmp" xml:space="preserve">
+    <value>Ho confermato la modifica con il team CyberArk</value>
+  </data>
+  <data name="HostKeyAckServer" xml:space="preserve">
+    <value>Ho confermato la modifica con l'amministratore del server</value>
+  </data>
+  <data name="HostKeyReplace" xml:space="preserve">
+    <value>Sostituisci la chiave e connetti</value>
+  </data>
+  <data name="FtpCertVerifyHeading" xml:space="preserve">
+    <value>Verifica il certificato del server FTPS</value>
+  </data>
+  <data name="FtpCertUnknownMessage" xml:space="preserve">
+    <value>Windows non considera attendibile questo certificato: {0}. Confronta l'impronta con quella fornita dall'amministratore del server prima di considerarlo attendibile.</value>
+  </data>
+  <data name="FtpCertChangedHeading" xml:space="preserve">
+    <value>Il certificato del server FTPS è cambiato</value>
+  </data>
+  <data name="FtpCertChangedMessage" xml:space="preserve">
+    <value>Può trattarsi di un rinnovo o di un'intercettazione della connessione ({0}). Considera attendibile il nuovo certificato solo se l'amministratore del server ha confermato la modifica.</value>
+  </data>
+  <data name="FtpCertSubject" xml:space="preserve">
+    <value>Soggetto: {0}</value>
+  </data>
+  <data name="FtpCertIssuer" xml:space="preserve">
+    <value>Emittente: {0}</value>
+  </data>
+  <data name="FtpCertValidity" xml:space="preserve">
+    <value>Valido dal {0} al {1}</value>
+  </data>
+  <data name="FtpCertFingerprint" xml:space="preserve">
+    <value>Impronta del certificato (SHA-256)</value>
+  </data>
+  <data name="FtpCertOld" xml:space="preserve">
+    <value>Impronta memorizzata su questo computer (SHA-256)</value>
+  </data>
+  <data name="FtpCertNew" xml:space="preserve">
+    <value>Impronta ricevuta ora (SHA-256)</value>
+  </data>
+  <data name="FtpCertReplace" xml:space="preserve">
+    <value>Considera attendibile il nuovo certificato e connetti</value>
+  </data>
+  <data name="FtpCleartextHeading" xml:space="preserve">
+    <value>Questo server FTP non offre la cifratura</value>
+  </data>
+  <data name="FtpCleartextMessage" xml:space="preserve">
+    <value>La password della voce e i file viaggerebbero in chiaro sulla rete, leggibili da chiunque possa osservarla.</value>
+  </data>
+  <data name="FtpCleartextAction" xml:space="preserve">
+    <value>Connetti senza cifratura</value>
+  </data>
+  <data name="ActionDelete" xml:space="preserve">
+    <value>Elimina</value>
+  </data>
+  <data name="ActionReplace" xml:space="preserve">
+    <value>Sostituisci</value>
+  </data>
+  <data name="ActionRemove" xml:space="preserve">
+    <value>Rimuovi</value>
+  </data>
+  <data name="ActionOpen" xml:space="preserve">
+    <value>Apri</value>
+  </data>
+  <data name="ServerPath" xml:space="preserve">
+    <value>{0}:{1}</value>
+  </data>
+  <data name="FileDeleteHeadingOne" xml:space="preserve">
+    <value>Eliminare definitivamente «{0}» dal server?</value>
+  </data>
+  <data name="FileDeleteHeadingMany" xml:space="preserve">
+    <value>Eliminare definitivamente {0} elementi dal server?</value>
+  </data>
+  <data name="FileDeleteNoBin" xml:space="preserve">
+    <value>Sul server non c'è un cestino: gli elementi eliminati non si possono recuperare.</value>
+  </data>
+  <data name="FileDeleteRules" xml:space="preserve">
+    <value>Le cartelle devono essere vuote; viene eliminato il collegamento, non la sua destinazione.</value>
+  </data>
+  <data name="DownloadReplaceHeadingOne" xml:space="preserve">
+    <value>Sostituire «{0}» su questo computer?</value>
+  </data>
+  <data name="DownloadReplaceHeadingMany" xml:space="preserve">
+    <value>Sostituire {0} file su questo computer?</value>
+  </data>
+  <data name="DownloadReplaceMessage" xml:space="preserve">
+    <value>Ogni file viene sostituito solo a download completato.</value>
+  </data>
+  <data name="UploadConflictHeadingOne" xml:space="preserve">
+    <value>«{0}» esiste già sul server</value>
+  </data>
+  <data name="UploadConflictHeadingMany" xml:space="preserve">
+    <value>{0} elementi esistono già sul server</value>
+  </data>
+  <data name="UploadConflictMessage" xml:space="preserve">
+    <value>Un file sostituito viene riscritto sul posto: se l'invio viene annullato o non riesce, resta incompleto.</value>
+  </data>
+  <data name="UploadSkipExisting" xml:space="preserve">
+    <value>Salta gli esistenti</value>
+  </data>
+  <data name="UploadNothingLeft" xml:space="preserve">
+    <value>Niente da inviare: tutti gli elementi esistono già in {0}.</value>
+  </data>
+  <data name="SessionCloseHeading" xml:space="preserve">
+    <value>Chiudere la sessione {0}?</value>
+  </data>
+  <data name="SessionCloseSsh" xml:space="preserve">
+    <value>I comandi ancora in esecuzione in questo terminale verranno interrotti.</value>
+  </data>
+  <data name="SessionCloseRdp" xml:space="preserve">
+    <value>Il desktop remoto viene disconnesso; i programmi continuano sul server solo se la sessione non viene chiusa.</value>
+  </data>
+  <data name="SessionCloseVnc" xml:space="preserve">
+    <value>Lo schermo remoto viene disconnesso.</value>
+  </data>
+  <data name="SessionCloseAction" xml:space="preserve">
+    <value>Chiudi la sessione</value>
+  </data>
+  <data name="SessionCloseDontAsk" xml:space="preserve">
+    <value>Non chiedere più alla chiusura di una sessione</value>
+  </data>
+  <data name="SessionCloseDontAskDone" xml:space="preserve">
+    <value>La chiusura di una sessione non sarà più confermata (Impostazioni › Terminale per richiederla).</value>
+  </data>
+  <data name="CloseAllLogoutHeading" xml:space="preserve">
+    <value>Disconnettersi e chiudere le sessioni aperte?</value>
+  </data>
+  <data name="CloseAllExitHeading" xml:space="preserve">
+    <value>Uscire e chiudere le sessioni aperte?</value>
+  </data>
+  <data name="CloseAllSsh" xml:space="preserve">
+    <value>Sessioni SSH: {0}</value>
+  </data>
+  <data name="CloseAllFiles" xml:space="preserve">
+    <value>Sessioni di file: {0}</value>
+  </data>
+  <data name="CloseAllRdp" xml:space="preserve">
+    <value>Sessioni desktop remoto: {0}</value>
+  </data>
+  <data name="CloseAllVnc" xml:space="preserve">
+    <value>Sessioni VNC: {0}</value>
+  </data>
+  <data name="CloseAllTransfers" xml:space="preserve">
+    <value>Trasferimenti in corso o in attesa: {0} (annullati; il file incompleto viene eliminato)</value>
+  </data>
+  <data name="CloseAllEdited" xml:space="preserve">
+    <value>File modificati non rimandati: {0} (le copie locali vengono eliminate)</value>
+  </data>
+  <data name="ActionSignOut" xml:space="preserve">
+    <value>Disconnetti</value>
+  </data>
+  <data name="ActionQuit" xml:space="preserve">
+    <value>Esci</value>
+  </data>
+  <data name="EditPendingHeading" xml:space="preserve">
+    <value>Chiudere senza rimandare le modifiche?</value>
+  </data>
+  <data name="EditPendingMessage" xml:space="preserve">
+    <value>Questi file modificati non sono stati rimandati al server. Le copie locali verranno eliminate.</value>
+  </data>
+  <data name="EditCloseWithoutSending" xml:space="preserve">
+    <value>Chiudi senza rimandare</value>
+  </data>
+  <data name="EditLargeHeading" xml:space="preserve">
+    <value>Aprire un file di grandi dimensioni nell'editor?</value>
+  </data>
+  <data name="EditLargeMessage" xml:space="preserve">
+    <value>Il file viene scaricato per intero e poi aperto nell'editor di testo, il che può essere lento.</value>
+  </data>
+  <data name="EditUploadHeading" xml:space="preserve">
+    <value>Rimandare «{0}» al server?</value>
+  </data>
+  <data name="EditUploadMessage" xml:space="preserve">
+    <value>Il file è stato salvato nell'editor.</value>
+  </data>
+  <data name="EditUploadAction" xml:space="preserve">
+    <value>Rimanda</value>
+  </data>
+  <data name="NotNow" xml:space="preserve">
+    <value>Non ora</value>
+  </data>
+  <data name="EditRemoteChangedHeading" xml:space="preserve">
+    <value>«{0}» è stato modificato sul server dopo l'apertura</value>
+  </data>
+  <data name="EditRemoteChangedMessage" xml:space="preserve">
+    <value>Sostituirlo con la tua versione fa perdere le modifiche fatte sul server.</value>
+  </data>
+  <data name="EditReplaceAnyway" xml:space="preserve">
+    <value>Sostituisci con la mia versione</value>
+  </data>
+  <data name="ImportSaveHeading" xml:space="preserve">
+    <value>Salvare il risultato in un file CSV?</value>
+  </data>
+  <data name="ImportSaveMessage" xml:space="preserve">
+    <value>Una riga per ogni riga del file, senza le password.</value>
+  </data>
+  <data name="ImportSaveAction" xml:space="preserve">
+    <value>Salva…</value>
+  </data>
+  <data name="DontSave" xml:space="preserve">
+    <value>Non salvare</value>
+  </data>
+  <data name="AccountDeleteTitle" xml:space="preserve">
+    <value>Elimina l'account</value>
+  </data>
+  <data name="AccountDeleteHeading" xml:space="preserve">
+    <value>Eliminare l'account {0}?</value>
+  </data>
+  <data name="SafeSubject" xml:space="preserve">
+    <value>Safe {0}</value>
+  </data>
+  <data name="AccountDeleteForEveryone" xml:space="preserve">
+    <value>Viene eliminato in CyberArk, per tutti gli utenti.</value>
+  </data>
+  <data name="AccountDeletePassword" xml:space="preserve">
+    <value>La password attuale non potrà più essere recuperata da CyberArk, anche se il CPM l'ha cambiata.</value>
+  </data>
+  <data name="AccountDeleteNoUndo" xml:space="preserve">
+    <value>L'eliminazione non può essere annullata da CyberArkTerm.</value>
+  </data>
+  <data name="AccountDeleteAck" xml:space="preserve">
+    <value>Ho capito che la password attuale non sarà più recuperabile</value>
+  </data>
+  <data name="CpmTitle" xml:space="preserve">
+    <value>Gestione della password (CPM)</value>
+  </data>
+  <data name="CpmChangeHeading" xml:space="preserve">
+    <value>Cambiare ora la password di {0}?</value>
+  </data>
+  <data name="CpmChangeMessage" xml:space="preserve">
+    <value>Il CPM imposta una nuova password sul server e la conserva nel vault CyberArk.</value>
+  </data>
+  <data name="CpmChangeAction" xml:space="preserve">
+    <value>Cambia la password</value>
+  </data>
+  <data name="CpmReconcileHeading" xml:space="preserve">
+    <value>Riconciliare la password di {0}?</value>
+  </data>
+  <data name="CpmReconcileMessage" xml:space="preserve">
+    <value>L'account di riconciliazione della piattaforma riallinea la password del server con il vault CyberArk.</value>
+  </data>
+  <data name="CpmReconcileAction" xml:space="preserve">
+    <value>Riconcilia</value>
+  </data>
+  <data name="KeePassRemoveHeading" xml:space="preserve">
+    <value>Rimuovere il database KeePass «{0}» dall'elenco?</value>
+  </data>
+  <data name="KeePassRemoveMessage" xml:space="preserve">
+    <value>Il file stesso non viene eliminato: potrai aggiungerlo di nuovo.</value>
+  </data>
+  <data name="KeePassDeleteEntryHeading" xml:space="preserve">
+    <value>Eliminare la voce «{0}»?</value>
+  </data>
+  <data name="KeePassDeleteEntryMessage" xml:space="preserve">
+    <value>Finisce nel cestino del database.</value>
+  </data>
+  <data name="MultiUploadSomeHeading" xml:space="preserve">
+    <value>Alcuni server non possono ricevere il file</value>
+  </data>
+  <data name="MultiUploadSomeMessage" xml:space="preserve">
+    <value>Non verrà inviato nulla a questi server. Gli altri ({0}) possono riceverlo.</value>
+  </data>
+  <data name="MultiUploadSendOthers" xml:space="preserve">
+    <value>Invia agli altri</value>
+  </data>
+  <data name="MultiUploadConflictsHeading" xml:space="preserve">
+    <value>Alcuni file esistono già sui server</value>
+  </data>
+  <data name="MultiUploadConflictsMessage" xml:space="preserve">
+    <value>Verranno sostituiti e il loro contenuto precedente andrà perso.</value>
+  </data>
+  <data name="SharedRestoreHeading" xml:space="preserve">
+    <value>Riportare l'elenco «{0}» com'era alla revisione {1}?</value>
+  </data>
+  <data name="SharedRestoreEffect" xml:space="preserve">
+    <value>I server aggiunti da allora verranno rimossi e quelli rimossi torneranno, per tutti.</value>
+  </data>
+  <data name="SharedRestoreUndo" xml:space="preserve">
+    <value>Il ripristino viene registrato come una nuova revisione: può essere annullato a sua volta.</value>
+  </data>
+  <data name="SharedRestoreAction" xml:space="preserve">
+    <value>Ripristina</value>
+  </data>
+  <data name="LocalStoreDeleteHeading" xml:space="preserve">
+    <value>Eliminare ora il vault locale?</value>
+  </data>
+  <data name="LocalStoreDeleteForget" xml:space="preserve">
+    <value>Le password principali KeePass memorizzate vengono dimenticate.</value>
+  </data>
+  <data name="LocalStoreDeleteKeePass" xml:space="preserve">
+    <value>I database KeePass stessi non vengono toccati.</value>
+  </data>
+  <data name="LocalStoreDeleteNow" xml:space="preserve">
+    <value>L'eliminazione è immediata, anche se poi annulli le impostazioni.</value>
+  </data>
+  <data name="LocalStoreDeleteAction" xml:space="preserve">
+    <value>Elimina ora</value>
+  </data>
+  <data name="HistoryClearHeading" xml:space="preserve">
+    <value>Cancellare la cronologia dei trasferimenti?</value>
+  </data>
+  <data name="HistoryClearCount" xml:space="preserve">
+    <value>Trasferimenti registrati: {0}</value>
+  </data>
+  <data name="HistoryClearMessage" xml:space="preserve">
+    <value>I file stessi non vengono toccati.</value>
+  </data>
+  <data name="HistoryClearAction" xml:space="preserve">
+    <value>Cancella la cronologia</value>
+  </data>
+  <data name="SafeMemberRemoveHeading" xml:space="preserve">
+    <value>Rimuovere {0} dal safe?</value>
+  </data>
+  <data name="SafeMemberRemoveMessage" xml:space="preserve">
+    <value>Questo membro perde tutti i suoi diritti sul safe.</value>
+  </data>
+  <data name="SafeMemberRemoveAction" xml:space="preserve">
+    <value>Rimuovi il membro</value>
+  </data>
+  <data name="ParallelPasteHeading" xml:space="preserve">
+    <value>Incollare {0} righe in {1} sessioni?</value>
+  </data>
+  <data name="ParallelPasteMessage" xml:space="preserve">
+    <value>Ogni riga viene eseguita come comando su ogni server.</value>
+  </data>
+  <data name="PasteAction" xml:space="preserve">
+    <value>Incolla</value>
+  </data>
+  <data name="PasteHeading" xml:space="preserve">
+    <value>Incollare {0} righe in questo terminale?</value>
+  </data>
+  <data name="PasteMessage" xml:space="preserve">
+    <value>La shell esegue ogni riga appena viene incollata.</value>
+  </data>
+  <data name="PasteDontAsk" xml:space="preserve">
+    <value>Non avvisare più prima di incollare più righe</value>
+  </data>
+  <data name="TabReconnectHeading" xml:space="preserve">
+    <value>Riconnettere {0}?</value>
+  </data>
+  <data name="TabReconnectMessage" xml:space="preserve">
+    <value>La sessione aperta verrà chiusa.</value>
+  </data>
+  <data name="TabReconnectAction" xml:space="preserve">
+    <value>Riconnetti</value>
+  </data>
+  <data name="TabCloseOthersHeading" xml:space="preserve">
+    <value>Chiudere le altre schede di sessione?</value>
+  </data>
+  <data name="TabCloseOthersMessage" xml:space="preserve">
+    <value>Le loro sessioni verranno chiuse.</value>
+  </data>
+  <data name="TabCloseOthersAction" xml:space="preserve">
+    <value>Chiudi le altre</value>
+  </data>
+  <data name="QueueCloseHeading" xml:space="preserve">
+    <value>Annullare i trasferimenti in corso?</value>
+  </data>
+  <data name="QueueCloseCount" xml:space="preserve">
+    <value>Trasferimenti in corso o in attesa: {0}</value>
+  </data>
+  <data name="QueueCloseMessage" xml:space="preserve">
+    <value>Il file in corso, incompleto, viene eliminato.</value>
+  </data>
+  <data name="QueueCloseAction" xml:space="preserve">
+    <value>Annulla i trasferimenti e chiudi</value>
+  </data>
+  <data name="QueueKeepGoing" xml:space="preserve">
+    <value>Continua i trasferimenti</value>
+  </data>
+  <data name="ImportServersAction" xml:space="preserve">
+    <value>Importa</value>
+  </data>
+  <data name="ShareDropHeading" xml:space="preserve">
+    <value>Aggiungere questi server all'elenco condiviso «{0}»?</value>
+  </data>
+  <data name="ShareDropMessage" xml:space="preserve">
+    <value>Chiunque apra questo elenco li vedrà.</value>
+  </data>
+  <data name="ShareDropAction" xml:space="preserve">
+    <value>Condividi</value>
+  </data>
+  <data name="SharedRemoveHeading" xml:space="preserve">
+    <value>Rimuovere «{0}» dall'elenco condiviso «{1}» per tutti?</value>
+  </data>
+  <data name="SharedRemoveFolderHeading" xml:space="preserve">
+    <value>Rimuovere la cartella «{0}» dall'elenco condiviso «{1}» per tutti?</value>
+  </data>
+  <data name="SharedRemoveMessage" xml:space="preserve">
+    <value>La modifica viene registrata e può essere annullata dalla cronologia.</value>
+  </data>
+  <data name="SharedCopyTargetsHeading" xml:space="preserve">
+    <value>Copiare server la cui macchina di destinazione non è consentita da CyberArk?</value>
+  </data>
+  <data name="SharedListSubject" xml:space="preserve">
+    <value>Elenco condiviso «{0}»</value>
+  </data>
+  <data name="SharedCopyTargetsMessage" xml:space="preserve">
+    <value>Queste macchine di destinazione provengono dall'elenco condiviso, che chiunque abbia accesso in scrittura alla condivisione può modificare, e non da CyberArk. Una volta copiate in I miei server, non verranno più segnalate.</value>
+  </data>
+  <data name="SharedCopyAnyway" xml:space="preserve">
+    <value>Copia comunque</value>
+  </data>
+  <data name="SharedTargetHeading" xml:space="preserve">
+    <value>Aprire {0} sulla macchina «{1}»?</value>
+  </data>
+  <data name="SharedTargetMessage" xml:space="preserve">
+    <value>Questa macchina di destinazione proviene dall'elenco condiviso, che chiunque abbia accesso in scrittura alla condivisione può modificare, e non da CyberArk.</value>
+  </data>
+  <data name="SharedTargetSubject" xml:space="preserve">
+    <value>«{0}», elenco condiviso «{1}»</value>
+  </data>
+  <data name="ConnectAnyway" xml:space="preserve">
+    <value>Connetti comunque</value>
+  </data>
+  <data name="RemoveSavedHeading" xml:space="preserve">
+    <value>Rimuovere «{0}» da I miei server?</value>
+  </data>
+  <data name="RemoveSavedMessage" xml:space="preserve">
+    <value>L'account resta disponibile nella scheda «Disponibili».</value>
+  </data>
+  <data name="DeleteFolderHeading" xml:space="preserve">
+    <value>Eliminare la cartella «{0}»?</value>
+  </data>
+  <data name="DeleteFolderMessage" xml:space="preserve">
+    <value>Contiene dei server ({0}): vengono rimossi da I miei server. Gli account restano disponibili nella scheda «Disponibili».</value>
+  </data>
+  <data name="DeleteFolderAction" xml:space="preserve">
+    <value>Elimina la cartella</value>
+  </data>
+  <data name="VncCtrlAltDelHeading" xml:space="preserve">
+    <value>Inviare Ctrl+Alt+Canc a {0}?</value>
+  </data>
+  <data name="VncCtrlAltDelMessage" xml:space="preserve">
+    <value>A seconda della macchina, apre la schermata di sicurezza o, su alcune console di macchine virtuali, la riavvia.</value>
+  </data>
+  <data name="VncCtrlAltDelAction" xml:space="preserve">
+    <value>Invia Ctrl+Alt+Canc</value>
+  </data>
+  <data name="SettingsConfirmClose" xml:space="preserve">
+    <value>Conferma prima di chiudere una sessione connessa (SSH, desktop remoto, VNC)</value>
+  </data>
+  <data name="SettingsConfirmPaste" xml:space="preserve">
+    <value>Avvisa prima di incollare più righe quando la shell le eseguirebbe una alla volta</value>
+  </data>
+  <data name="PermissionsApply" xml:space="preserve">
+    <value>Applica</value>
+  </data>
+  <data name="PermissionsApplyRecursive" xml:space="preserve">
+    <value>Applica ricorsivamente…</value>
+  </data>
+  <data name="PermissionsMixedHint" xml:space="preserve">
+    <value>Gli elementi non hanno tutti gli stessi permessi: una casella lasciata nello stato intermedio non cambia quel permesso su ogni elemento.</value>
+  </data>
+  <data name="PermissionsRecursiveHeading" xml:space="preserve">
+    <value>Applicare {0} a {1} e a tutto il suo contenuto?</value>
+  </data>
+  <data name="PermissionsRecursiveLinks" xml:space="preserve">
+    <value>I collegamenti simbolici non vengono seguiti; i bit speciali (setuid, setgid, sticky) non vengono applicati al contenuto.</value>
+  </data>
+  <data name="PermissionsRecursiveSmart" xml:space="preserve">
+    <value>Un file diventa eseguibile solo se lo era già.</value>
+  </data>
+  <data name="PermissionsRecursiveStop" xml:space="preserve">
+    <value>Potrai interrompere durante l'operazione; gli elementi già trattati mantengono i nuovi permessi.</value>
+  </data>
+  <data name="PermissionsStop" xml:space="preserve">
+    <value>Interrompi</value>
+  </data>
+  <data name="PermissionsStopTip" xml:space="preserve">
+    <value>Interrompi la modifica dei permessi (gli elementi già trattati mantengono i nuovi permessi)</value>
+  </data>
+  <data name="PermissionsStopped" xml:space="preserve">
+    <value>Interrotto: {0} elementi modificati</value>
+  </data>
+  <data name="PermissionsNothing" xml:space="preserve">
+    <value>Nessun permesso modificato.</value>
+  </data>
+  <data name="SafeMemberProfile" xml:space="preserve">
+    <value>_Profilo:</value>
+  </data>
+  <data name="SafeProfileReadOnly" xml:space="preserve">
+    <value>Sola lettura (elenco, audit, membri)</value>
+  </data>
+  <data name="SafeProfileAccountUser" xml:space="preserve">
+    <value>Utente degli account (elencare, connettersi)</value>
+  </data>
+  <data name="SafeProfileAccountManager" xml:space="preserve">
+    <value>Gestore degli account (recuperare, gestire account e cartelle)</value>
+  </data>
+  <data name="SafeProfileFull" xml:space="preserve">
+    <value>Completo (tutti i diritti, safe e membri compresi)</value>
+  </data>
+  <data name="SafeProfileCustom" xml:space="preserve">
+    <value>Personalizzato</value>
+  </data>
+  <data name="SafeMemberSensitiveTip" xml:space="preserve">
+    <value>Diritto sensibile: dà il controllo sul safe o sui suoi account</value>
+  </data>
+  <data name="SafeMemberChanges" xml:space="preserve">
+    <value>Modifiche: +{0} / −{1}</value>
+  </data>
+  <data name="SafeMemberChangedTip" xml:space="preserve">
+    <value>Modificato: era {0}</value>
+  </data>
+  <data name="SafeMemberWasGranted" xml:space="preserve">
+    <value>concesso</value>
+  </data>
+  <data name="SafeMemberWasNotGranted" xml:space="preserve">
+    <value>non concesso</value>
+  </data>
+  <data name="SafeMemberSensitiveHeading" xml:space="preserve">
+    <value>Concedere diritti sensibili a {0}?</value>
+  </data>
+  <data name="SafeMemberSensitiveMessage" xml:space="preserve">
+    <value>Questi diritti danno il controllo sul safe o sui suoi account. Verifica che siano davvero necessari.</value>
+  </data>
+  <data name="SafeMemberSensitiveAction" xml:space="preserve">
+    <value>Concedi questi diritti</value>
+  </data>
+  <data name="SafeMemberWindowTitle" xml:space="preserve">
+    <value>Diritti di un membro del safe</value>
+  </data>
+  <data name="RetrieveHeading" xml:space="preserve">
+    <value>Copia la password di {0}</value>
+  </data>
+  <data name="RetrieveAudited" xml:space="preserve">
+    <value>Il recupero viene registrato nell'audit CyberArk.</value>
+  </data>
+  <data name="RetrieveClipboard" xml:space="preserve">
+    <value>Copiata negli appunti per {0} secondi, mai mostrata, esclusa dalla cronologia e dalla sincronizzazione degli appunti.</value>
+  </data>
+  <data name="RetrieveReasonHint" xml:space="preserve">
+    <value>Facoltativi, a meno che la piattaforma non richieda un motivo o un ticket.</value>
+  </data>
+  <data name="RetrieveAndCopy" xml:space="preserve">
+    <value>_Recupera e copia</value>
+  </data>
+  <data name="PromptSession" xml:space="preserve">
+    <value>Sessione: {0}</value>
+  </data>
+  <data name="PromptDefaultInstructionServer" xml:space="preserve">
+    <value>Il server chiede:</value>
+  </data>
+  <data name="PromptSend" xml:space="preserve">
+    <value>_Invia</value>
+  </data>
+  <data name="PromptHintVaultPassword" xml:space="preserve">
+    <value>Probabilmente la password del tuo account CyberArk. Viene conservata in memoria per i file (SFTP, SCP) di questa scheda, mai salvata.</value>
+  </data>
+  <data name="PromptHintPassword" xml:space="preserve">
+    <value>Conservato in memoria per i file (SFTP, SCP) di questa scheda, mai salvato.</value>
+  </data>
+  <data name="PromptHintMfa" xml:space="preserve">
+    <value>Probabilmente il codice dell'autenticazione forte (MFA): viene richiesto a ogni connessione.</value>
+  </data>
+  <data name="A11yCpmFailed" xml:space="preserve">
+    <value>ultima operazione del CPM non riuscita</value>
+  </data>
+  <data name="A11yMarked" xml:space="preserve">
+    <value>scelto</value>
+  </data>
+  <data name="A11yUnavailable" xml:space="preserve">
+    <value>account non più visibile in CyberArk</value>
+  </data>
+  <data name="A11yToolbar" xml:space="preserve">
+    <value>Barra degli strumenti</value>
+  </data>
+  <data name="ShortcutTabsKey" xml:space="preserve">
+    <value>Ctrl+Tab</value>
+  </data>
+  <data name="ShortcutTabs" xml:space="preserve">
+    <value>: scheda successiva (Ctrl+Maiusc+Tab: precedente), Ctrl+F4: chiuderla</value>
+  </data>
+  <data name="ShortcutQuickKey" xml:space="preserve">
+    <value>Ctrl+K</value>
+  </data>
+  <data name="ShortcutQuick" xml:space="preserve">
+    <value>: connessione rapida (Ctrl+1, 2, 3: schede laterali; F6: dal pannello alla sessione e ritorno; Ctrl+B: chiudi il pannello)</value>
+  </data>
+  <data name="ShortcutTabClose" xml:space="preserve">
+    <value>Ctrl+F4</value>
+  </data>
+  <data name="LoginLanguageName" xml:space="preserve">
+    <value>Lingua</value>
+  </data>
+  <data name="LoginQuit" xml:space="preserve">
+    <value>Esci</value>
+  </data>
+  <data name="CapsLockOn" xml:space="preserve">
+    <value>Bloc Maiusc è attivo.</value>
+  </data>
+  <data name="A11yTerminalSearch" xml:space="preserve">
+    <value>Cerca nel terminale</value>
+  </data>
+  <data name="A11yArchiveThreshold" xml:space="preserve">
+    <value>Numero di file da cui viene proposto un archivio</value>
+  </data>
+  <data name="TabStateConnecting" xml:space="preserve">
+    <value>Connessione in corso</value>
+  </data>
+  <data name="TabStateConnected" xml:space="preserve">
+    <value>Connessa</value>
+  </data>
+  <data name="TabStateEnded" xml:space="preserve">
+    <value>Terminata</value>
+  </data>
+  <data name="TabStateFailed" xml:space="preserve">
+    <value>Connessione non riuscita</value>
+  </data>
+  <data name="TabModePsmp" xml:space="preserve">
+    <value>Tramite il PSMP {0}: sessione gestita da CyberArk</value>
+  </data>
+  <data name="TabModeDirect" xml:space="preserve">
+    <value>Accesso diretto di emergenza (KeePass): fuori da CyberArk, annotato in urgence.log</value>
+  </data>
+  <data name="TabListTip" xml:space="preserve">
+    <value>Tutte le schede</value>
+  </data>
+  <data name="SideSplitterTip" xml:space="preserve">
+    <value>Trascina per ridimensionare; doppio clic o Ctrl+B: chiudi il pannello</value>
+  </data>
+  <data name="AvailableLoadFailed" xml:space="preserve">
+    <value>Non è stato possibile caricare gli account: {0}</value>
+  </data>
+  <data name="AvailableNone" xml:space="preserve">
+    <value>Nessun account è disponibile per il tuo utente CyberArk (safe e autorizzazioni sono assegnati dal tuo team CyberArk).</value>
+  </data>
+  <data name="AvailableNoMatch" xml:space="preserve">
+    <value>Nessun account corrisponde a «{0}».</value>
+  </data>
+  <data name="ClearFilter" xml:space="preserve">
+    <value>_Cancella il filtro</value>
+  </data>
+  <data name="QuickFirstResults" xml:space="preserve">
+    <value>Primi {0} account su {1}: precisa la ricerca.</value>
+  </data>
+  <data name="MenuRemoveRecent" xml:space="preserve">
+    <value>_Rimuovi dall'elenco</value>
+  </data>
+  <data name="RecentToday" xml:space="preserve">
+    <value>Oggi {0}</value>
+  </data>
+  <data name="RecentYesterday" xml:space="preserve">
+    <value>Ieri {0}</value>
+  </data>
+  <data name="SettingsPageGeneral" xml:space="preserve">
+    <value>Generale</value>
+  </data>
+  <data name="SettingsPageCyberArk" xml:space="preserve">
+    <value>CyberArk</value>
+  </data>
+  <data name="SettingsPageTerminal" xml:space="preserve">
+    <value>Terminale</value>
+  </data>
+  <data name="SettingsPageFiles" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="SettingsPageSecurity" xml:space="preserve">
+    <value>Sicurezza</value>
+  </data>
+  <data name="SettingsUpdatesSection" xml:space="preserve">
+    <value>Aggiornamenti</value>
+  </data>
+  <data name="SettingsKeepAliveEffect" xml:space="preserve">
+    <value>⚠ Effetto: la sessione PVWA non si chiude più da sola dopo l'inattività finché CyberArkTerm è in esecuzione.</value>
+  </data>
+  <data name="SettingsRightClickEffect" xml:space="preserve">
+    <value>⚠ Effetto: un clic destro involontario invia gli appunti alla shell, anche a una shell root.</value>
+  </data>
+  <data name="SettingsFollowEffect" xml:space="preserve">
+    <value>⚠ Effetto: un comando viene aggiunto a PROMPT_COMMAND nella shell remota all'apertura della sessione.</value>
+  </data>
+  <data name="LocalStoreImmediate" xml:space="preserve">
+    <value>Queste azioni si applicano subito, senza «Salva».</value>
+  </data>
+  <data name="HostKeysSection" xml:space="preserve">
+    <value>Chiavi dei server accettate</value>
+  </data>
+  <data name="HostKeysHelp" xml:space="preserve">
+    <value>Impronte verificate e accettate (PSMP, SSH diretto, certificati FTPS). Una chiave dimenticata sarà richiesta di nuovo alla prossima connessione.</value>
+  </data>
+  <data name="HostKeyServer" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="HostKeyType" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="ForgetSelectedKeys" xml:space="preserve">
+    <value>Dimentica le chia_vi scelte</value>
+  </data>
+  <data name="AboutAutoCheckOn" xml:space="preserve">
+    <value>Gli aggiornamenti vengono cercati all'avvio (Impostazioni &gt; Generale).</value>
+  </data>
+  <data name="AboutAutoCheckOff" xml:space="preserve">
+    <value>La ricerca automatica degli aggiornamenti è disattivata (Impostazioni &gt; Generale).</value>
+  </data>
+  <data name="PsmOnlyField" xml:space="preserve">
+    <value>Serve solo per una connessione tramite il PSM (non in SSH né in SFTP tramite il PSMP).</value>
+  </data>
+  <data name="ComponentRequired" xml:space="preserve">
+    <value>Scegli il componente PSM da usare (ad esempio PSM-RDP).</value>
+  </data>
+  <data name="KeePassAddressRequired" xml:space="preserve">
+    <value>Compila l'indirizzo del server (ad esempio ssh://srv01 o rdp://srv02).</value>
+  </data>
+  <data name="LocalStoreMinLength" xml:space="preserve">
+    <value>Almeno {0} caratteri.</value>
+  </data>
+  <data name="KeePassNotRemembered" xml:space="preserve">
+    <value>Database KeePass {0} aperto, ma la sua password principale non è stata memorizzata (vault locale non aperto).</value>
+  </data>
+  <data name="KeePassAddHeading" xml:space="preserve">
+    <value>Aggiungi un database KeePass</value>
+  </data>
+  <data name="KeePassEditHeading" xml:space="preserve">
+    <value>Posizione del database KeePass</value>
+  </data>
+  <data name="KeePassChooseFile" xml:space="preserve">
+    <value>Scegli il database KeePass (.kdbx)</value>
+  </data>
+  <data name="KeePassChooseKeyFile" xml:space="preserve">
+    <value>Scegli il file chiave</value>
+  </data>
+  <data name="ImportOnlyErrors" xml:space="preserve">
+    <value>Solo _errori</value>
+  </data>
+  <data name="ImportPreview" xml:space="preserve">
+    <value>Righe del file</value>
+  </data>
+  <data name="ImportColStatus" xml:space="preserve">
+    <value>Stato</value>
+  </data>
+  <data name="ImportColSafe" xml:space="preserve">
+    <value>Safe</value>
+  </data>
+  <data name="ImportColPlatform" xml:space="preserve">
+    <value>Piattaforma</value>
+  </data>
+  <data name="ImportColAccount" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="ImportReady" xml:space="preserve">
+    <value>Pronto</value>
+  </data>
+  <data name="ImportSafesCount" xml:space="preserve">
+    <value>Safe interessati: {0}.</value>
+  </data>
+  <data name="ImportCreateAccounts" xml:space="preserve">
+    <value>_Crea {0} account</value>
+  </data>
+  <data name="ImportStopHeading" xml:space="preserve">
+    <value>Interrompere l'importazione?</value>
+  </data>
+  <data name="ImportStopCurrent" xml:space="preserve">
+    <value>L'account in corso di creazione viene completato; le righe successive non vengono inviate.</value>
+  </data>
+  <data name="ImportStopCreated" xml:space="preserve">
+    <value>Gli account già creati restano nel vault CyberArk.</value>
+  </data>
+  <data name="ImportStopAction" xml:space="preserve">
+    <value>_Interrompi l'importazione</value>
+  </data>
+  <data name="ImportContinue" xml:space="preserve">
+    <value>Continua</value>
+  </data>
+  <data name="SessionEndedWith" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="TerminalHistory" xml:space="preserve">
+    <value>Cronologia del terminale</value>
+  </data>
+  <data name="TerminalBackToBottom" xml:space="preserve">
+    <value>↓ Torna alla fine</value>
+  </data>
+  <data name="FileRename" xml:space="preserve">
+    <value>_Rinomina…</value>
+  </data>
+  <data name="RenameTip" xml:space="preserve">
+    <value>Rinomina (F2)</value>
+  </data>
+  <data name="RenamePrompt" xml:space="preserve">
+    <value>Nuovo nome per «{0}» in {1}:</value>
+  </data>
+  <data name="NameReserved" xml:space="preserve">
+    <value>«.» e «..» non sono nomi validi.</value>
+  </data>
+  <data name="NameNoControl" xml:space="preserve">
+    <value>Il nome non deve contenere caratteri di controllo (a capo, tabulazione…).</value>
+  </data>
+  <data name="Renamed" xml:space="preserve">
+    <value>Rinominato: {0} → {1}</value>
+  </data>
+  <data name="RenameFailed" xml:space="preserve">
+    <value>Impossibile rinominare: {0}</value>
+  </data>
+  <data name="DownloadFolderHint" xml:space="preserve">
+    <value>Per scaricare una cartella, trascinala in Esplora file o sul desktop.</value>
+  </data>
+  <data name="FileNeedSelection" xml:space="preserve">
+    <value>Seleziona prima un file o una cartella nell'elenco.</value>
+  </data>
+  <data name="FileNeedOneFile" xml:space="preserve">
+    <value>Seleziona un solo file (non una cartella).</value>
+  </data>
+  <data name="FileNeedOne" xml:space="preserve">
+    <value>Seleziona un solo file o cartella.</value>
+  </data>
+  <data name="DropIntoFolder" xml:space="preserve">
+    <value>Rilascia in {0}</value>
+  </data>
+  <data name="QueueClearFinished" xml:space="preserve">
+    <value>Cancella i _completati</value>
+  </data>
+  <data name="QueueClearFinishedTip" xml:space="preserve">
+    <value>Rimuovi da questo elenco i trasferimenti completati, non riusciti o annullati (la cronologia dei trasferimenti li conserva)</value>
+  </data>
+  <data name="QueueDetails" xml:space="preserve">
+    <value>Dettagli</value>
+  </data>
+  <data name="QueueDetailsTip" xml:space="preserve">
+    <value>Somma SHA-256 di ogni file di questo trasferimento</value>
+  </data>
+  <data name="QueueStateVerified" xml:space="preserve">
+    <value>✓ completato · SHA-256 verificato ({0}/{1})</value>
+  </data>
+  <data name="QueueStateUnverified" xml:space="preserve">
+    <value>⚠ completato · non verificato: {0} su {1}</value>
+  </data>
+  <data name="FilesBadgeActive" xml:space="preserve">
+    <value>{0} trasferimento/i in corso o in attesa</value>
+  </data>
+  <data name="FilesBadgeProblem" xml:space="preserve">
+    <value>{0} trasferimento/i non riuscito/i o diverso/i: vedi la scheda File</value>
+  </data>
+  <data name="TailFilterActive" xml:space="preserve">
+    <value>Filtro: {0} / {1} righe visualizzate</value>
+  </data>
+  <data name="TailClearFieldTip" xml:space="preserve">
+    <value>Svuota questo campo</value>
+  </data>
+  <data name="CompareSameFile" xml:space="preserve">
+    <value>È lo stesso file sullo stesso server: scegli un altro server, un altro percorso o un file di questo computer.</value>
+  </data>
+  <data name="ParallelTypingHere" xml:space="preserve">
+    <value>⌨ Digitazione qui</value>
+  </data>
+  <data name="ParallelExcluded" xml:space="preserve">
+    <value>esclusa</value>
+  </data>
+  <data name="ParallelBroadcastOn" xml:space="preserve">
+    <value>ATTIVA ({0})</value>
   </data>
 </root>

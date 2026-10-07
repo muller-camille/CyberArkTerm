@@ -316,6 +316,19 @@ public sealed class FtpFileBrowser : IRemoteFiles
         return await ExistsCoreAsync(path, ct).ConfigureAwait(false);
     }
 
+    public async Task RenameAsync(string path, string newPath, CancellationToken ct)
+    {
+        using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
+        // Jamais d'écrasement : RNTO remplace la cible sur la plupart des serveurs FTP.
+        if (await ExistsCoreAsync(newPath, ct).ConfigureAwait(false))
+        {
+            throw new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.RenameTargetExists, newPath));
+        }
+
+        await CommandAsync("RNFR " + Checked(path), ct).ConfigureAwait(false);
+        await CommandAsync("RNTO " + Checked(newPath), ct).ConfigureAwait(false);
+    }
+
     private async Task<bool> ExistsCoreAsync(string path, CancellationToken ct) =>
         await _client.FileExists(Checked(path), ct).ConfigureAwait(false) || await IsDirectoryAsync(path, ct).ConfigureAwait(false);
 
@@ -824,19 +837,25 @@ public sealed class FtpFileBrowser : IRemoteFiles
     }
 
     /// <summary>SITE CHMOD sur l'élément et, si demandé, sur son contenu (liens non suivis).</summary>
-    public async Task<PermissionsResult> SetPermissionsAsync(string path, int mode, bool includeSpecial, bool recursive,
+    public async Task<PermissionsResult> SetPermissionsAsync(string path, PermissionChange change, bool recursive,
         bool executeOnlyIfAlready, IProgress<int>? progress, CancellationToken ct)
     {
         using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
         var result = new PermissionsResult();
         int current = ModeOf(await _client.GetChmod(Checked(path), ct).ConfigureAwait(false));
-        int target = includeSpecial ? mode : (mode & UnixPermissions.RwxMask) | (current & ~UnixPermissions.RwxMask & 0xE00);
-        await ChmodAsync(path, target, ct).ConfigureAwait(false);
+        if (current == 0 && !change.CoversAllRwx)
+        {
+            // Droits non donnés par le serveur : ajouter ou retirer un bit partirait de 000.
+            result.Errors.Add($"{path} : {CoreStrings.PermissionsUnknown}");
+            return result;
+        }
+
+        await ChmodAsync(path, change.Apply(current), ct).ConfigureAwait(false);
         result.Changed++;
         progress?.Report(result.Changed);
         if (recursive && await IsDirectoryAsync(path, ct).ConfigureAwait(false))
         {
-            await ApplyToContentsAsync(path, mode & UnixPermissions.RwxMask, executeOnlyIfAlready, result, progress, ct).ConfigureAwait(false);
+            await ApplyToContentsAsync(path, change, executeOnlyIfAlready, result, progress, ct).ConfigureAwait(false);
         }
 
         return result;
@@ -845,7 +864,7 @@ public sealed class FtpFileBrowser : IRemoteFiles
     private Task ChmodAsync(string path, int mode, CancellationToken ct) =>
         CommandAsync(string.Format(CultureInfo.InvariantCulture, "SITE CHMOD {0} {1}", Convert.ToString(mode, 8).PadLeft(3, '0'), Checked(path)), ct);
 
-    private async Task ApplyToContentsAsync(string directory, int mode, bool executeOnlyIfAlready, PermissionsResult result,
+    private async Task ApplyToContentsAsync(string directory, PermissionChange change, bool executeOnlyIfAlready, PermissionsResult result,
         IProgress<int>? progress, CancellationToken ct)
     {
         FtpListItem[] items;
@@ -863,28 +882,29 @@ public sealed class FtpFileBrowser : IRemoteFiles
         {
             ct.ThrowIfCancellationRequested();
             var path = RemotePath.Combine(directory, item.Name);
-            const int executeBits = 0x49;
-            int target = mode;
             int itemMode = ModeOf(item.Chmod);
-            if (executeOnlyIfAlready && item.Type != FtpObjectType.Directory && (itemMode & executeBits) == 0)
-            {
-                target &= ~executeBits;
-            }
-
+            bool isDirectory = item.Type == FtpObjectType.Directory;
             try
             {
-                await ChmodAsync(path, target | (itemMode & 0xE00), ct).ConfigureAwait(false);
-                result.Changed++;
-                progress?.Report(result.Changed);
+                if (itemMode == 0 && !change.CoversAllRwx)
+                {
+                    result.Errors.Add($"{path} : {CoreStrings.PermissionsUnknown}");
+                }
+                else
+                {
+                    await ChmodAsync(path, change.ApplyToContent(itemMode, isDirectory, executeOnlyIfAlready), ct).ConfigureAwait(false);
+                    result.Changed++;
+                    progress?.Report(result.Changed);
+                }
             }
             catch (Exception e) when (e is FtpException or IOException)
             {
                 result.Errors.Add($"{path} : {e.Message}");
             }
 
-            if (item.Type == FtpObjectType.Directory)
+            if (isDirectory)
             {
-                await ApplyToContentsAsync(path, mode, executeOnlyIfAlready, result, progress, ct).ConfigureAwait(false);
+                await ApplyToContentsAsync(path, change, executeOnlyIfAlready, result, progress, ct).ConfigureAwait(false);
             }
         }
     }

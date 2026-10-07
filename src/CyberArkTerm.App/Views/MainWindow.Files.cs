@@ -25,7 +25,7 @@ public partial class MainWindow
     {
         SetStatus(Text.Format(Strings.SftpFilesOpening, label, _settings.PsmpAddress));
         var key = await GetPsmpKeyAsync();
-        var connector = new SshConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi, key);
+        var connector = new SshConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi.For(label), key);
         var session = new FilesSession(label, "SFTP", connector.OpenFileBrowserAsync, Dispatcher, account, saved);
         ShowFilesTab(session, $"{login}@{_settings.PsmpAddress}", duplicate);
     }
@@ -36,7 +36,7 @@ public partial class MainWindow
         Func<CancellationToken, Task<IRemoteFiles>> open;
         if (target.Protocol == RemoteProtocol.Sftp)
         {
-            var connector = new SshConnector(target.Host, target.Port, target.UserName, _directUi, password: password,
+            var connector = new SshConnector(target.Host, target.Port, target.UserName, _directUi.For(label), password: password,
                 addressWhat: CoreStrings.ServerAddressWhat);
             open = connector.OpenFileBrowserAsync;
         }
@@ -85,7 +85,7 @@ public partial class MainWindow
                 return true;
             },
         };
-        view.ShowFilesRequested += () => SideTabs.SelectedItem = FilesTab;
+        view.ShowFilesRequested += () => ShowSideTab(FilesTab);
         var tab = new TabItem { Content = view, Tag = session };
         tab.Header = TabHeader(tab, session.Label, "IconFiles", duplicate);
         session.StateChanged += () =>
@@ -121,13 +121,47 @@ public partial class MainWindow
             return true;
         }
 
-        var fingerprint = string.Join(" ", certificate.Sha256.Chunk(16).Select(c => new string(c)));
-        var message = Text.Format(status == HostKeyStatus.Unknown ? Strings.FtpCertificateUnknown : Strings.FtpCertificateChanged,
-            target.Address, certificate.Problem, certificate.Subject, certificate.Issuer,
-            certificate.NotBefore.ToString("d", System.Globalization.CultureInfo.CurrentCulture),
-            certificate.NotAfter.ToString("d", System.Globalization.CultureInfo.CurrentCulture), fingerprint);
-        if (MessageBox.Show(this, message, Strings.FtpCertificateTitle, MessageBoxButton.YesNo,
-                status == HostKeyStatus.Unknown ? MessageBoxImage.Question : MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+        static string Spaced(string sha256) => string.Join(" ", sha256.Chunk(16).Select(c => new string(c)));
+        var culture = System.Globalization.CultureInfo.CurrentCulture;
+        IReadOnlyList<string> details =
+        [
+            Text.Format(Strings.FtpCertSubject, certificate.Subject),
+            Text.Format(Strings.FtpCertIssuer, certificate.Issuer),
+            Text.Format(Strings.FtpCertValidity, certificate.NotBefore.ToString("d", culture), certificate.NotAfter.ToString("d", culture)),
+        ];
+        var request = status == HostKeyStatus.Unknown
+            ? new ConfirmRequest
+            {
+                Title = Strings.FtpCertificateTitle,
+                Heading = Strings.FtpCertVerifyHeading,
+                Subject = target.Address,
+                Message = Text.Format(Strings.FtpCertUnknownMessage, certificate.Problem),
+                Bullets = details,
+                Codes = [(Strings.FtpCertFingerprint, Spaced(certificate.Sha256))],
+                Kind = ConfirmKind.Warning,
+                Actions = [Strings.HostKeyTrust],
+                CancelLabel = Strings.HostKeyCancel,
+            }
+            : new ConfirmRequest
+            {
+                Title = Strings.FtpCertificateTitle,
+                Banner = Strings.HostKeyChangedBanner,
+                Heading = Strings.FtpCertChangedHeading,
+                Subject = target.Address,
+                Message = Text.Format(Strings.FtpCertChangedMessage, certificate.Problem),
+                Bullets = details,
+                Codes =
+                [
+                    (Strings.FtpCertOld, Spaced(KnownHosts.Known(_settings.KnownHosts, host, target.Port)?.Sha256 ?? "")),
+                    (Strings.FtpCertNew, Spaced(certificate.Sha256)),
+                ],
+                Kind = ConfirmKind.Danger,
+                Actions = [Strings.FtpCertReplace],
+                DangerAction = 0,
+                CancelLabel = Strings.HostKeyCancel,
+                Acknowledge = Strings.HostKeyAckServer,
+            };
+        if (!ConfirmDialog.Confirm(this, request))
         {
             return false;
         }
@@ -138,6 +172,14 @@ public partial class MainWindow
     }
 
     private bool ConfirmFtpCleartext(KeePassTarget target) =>
-        MessageBox.Show(this, Text.Format(Strings.FtpCleartextConfirm, target.Address), Strings.FtpCleartextTitle,
-            MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
+        ConfirmDialog.Confirm(this, new ConfirmRequest
+        {
+            Title = Strings.FtpCleartextTitle,
+            Heading = Strings.FtpCleartextHeading,
+            Subject = target.Address,
+            Message = Strings.FtpCleartextMessage,
+            Kind = ConfirmKind.Warning,
+            Actions = [Strings.FtpCleartextAction],
+            DangerAction = 0,
+        });
 }

@@ -23,9 +23,12 @@ public partial class LocalStoreDialog : Window
     /// Coffres KeePass dont le mot de passe doit rester mémorisé : au déverrouillage, les autres secrets (coffres retirés
     /// ou « se souvenir » décoché pendant que le coffre local était verrouillé) sont oubliés.
     /// </param>
-    public LocalStoreDialog(LocalSecretStore store, Mode mode, IEnumerable<string>? remembered = null)
+    /// <param name="offerLater">Déverrouillage demandé en passant (ouverture d'une base KeePass) : « Plus tard » plutôt
+    /// qu'« Annuler ».</param>
+    public LocalStoreDialog(LocalSecretStore store, Mode mode, IEnumerable<string>? remembered = null, bool offerLater = true)
     {
         InitializeComponent();
+        CapsLockWarning.Attach(CapsLockText, PasswordBox, ConfirmBox);
         _store = store;
         _mode = mode;
         _remembered = remembered;
@@ -43,8 +46,16 @@ public partial class LocalStoreDialog : Window
         };
         if (mode == Mode.Unlock)
         {
-            ConfirmLabel.Visibility = ConfirmBox.Visibility = Visibility.Collapsed;
-            CancelButton.Content = Strings.LocalStoreLater;
+            ConfirmLabel.Visibility = ConfirmBox.Visibility = MinLengthText.Visibility = Visibility.Collapsed;
+            if (offerLater)
+            {
+                CancelButton.Content = Strings.LocalStoreLater;
+            }
+        }
+        else
+        {
+            // Annoncé avant la saisie, pas seulement après une erreur.
+            MinLengthText.Text = Text.Format(Strings.LocalStoreMinLength, LocalSecretStore.MinPasswordLength);
         }
 
         Loaded += (_, _) => PasswordBox.Focus();

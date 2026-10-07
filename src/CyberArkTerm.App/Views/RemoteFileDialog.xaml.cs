@@ -1,7 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using CyberArkTerm.App.Localization;
 using CyberArkTerm.Core.Ssh;
 
@@ -160,7 +159,7 @@ public partial class RemoteFileDialog : Window
     private void SetStatus(string text, bool error = false)
     {
         StatusText.Text = text;
-        StatusText.Foreground = error ? Brushes.Firebrick : (Brush)FindResource("MutedBrush");
+        StatusText.SetResourceReference(TextBlock.ForegroundProperty, error ? "ErrorBrush" : "MutedBrush");
     }
 
     private void Choose(RemoteEntry entry)

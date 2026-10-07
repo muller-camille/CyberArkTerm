@@ -58,7 +58,7 @@ public sealed class FilesSession : RemoteSession
             DebugLog.Write("files", $"{Label} : échec de la connexion", ex);
             if (connection == _connection && !IsDisposed)
             {
-                SetState(RemoteSessionState.Failed, ex is OperationCanceledException ? Strings.ConnectionCancelled : ErrorText.Describe(ex));
+                SetState(RemoteSessionState.Failed, ex is HostKeyRefusedException ? ex.Message : ex is OperationCanceledException ? Strings.ConnectionCancelled : ErrorText.Describe(ex));
             }
 
             throw;

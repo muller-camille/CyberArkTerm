@@ -109,4 +109,48 @@ public sealed class AppSettingsTests : IDisposable
         Assert.Equal(components.Count, components.Distinct(StringComparer.OrdinalIgnoreCase).Count());
         Assert.Equal(AccountClassifier.CommonComponents, new AppSettings().KnownComponents("WinDomain"));
     }
+
+    /// <summary>
+    /// Fenêtre principale remise où elle était, sauf si elle tomberait hors des écrans actuels (écran débranché) ; une
+    /// taille plus grande que l'écran est ramenée à l'écran, une taille trop petite au minimum.
+    /// </summary>
+    [Fact]
+    public void WindowPlacementIsKeptOnlyWhenVisible()
+    {
+        var screen = (0d, 0d, 1920d, 1080d);
+        var kept = new WindowPlacement(100, 80, 1280, 780, false).FitIn(screen, 820, 480);
+        Assert.Equal(new WindowPlacement(100, 80, 1280, 780, false), kept);
+
+        Assert.Null(new WindowPlacement(2500, 80, 1280, 780, false).FitIn(screen, 820, 480));
+        Assert.Null(new WindowPlacement(100, 1200, 1280, 780, true).FitIn(screen, 820, 480));
+        Assert.Null(new WindowPlacement(double.NaN, 0, 1280, 780, false).FitIn(screen, 820, 480));
+
+        var resized = new WindowPlacement(0, 0, 4000, 100, true).FitIn(screen, 820, 480);
+        Assert.Equal(new WindowPlacement(0, 0, 1920, 480, true), resized);
+    }
+
+    [Fact]
+    public void LayoutIsSavedWithTheSettings()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"cat-layout-{Guid.NewGuid():N}.json");
+        try
+        {
+            new AppSettings
+            {
+                SidePanelWidth = 455,
+                SidePanelCollapsed = true,
+                MainWindowPlacement = new WindowPlacement(10, 20, 1300, 800, true),
+            }.Save(path);
+
+            var loaded = AppSettings.Load(path);
+            Assert.Equal(455, loaded.SidePanelWidth);
+            Assert.True(loaded.SidePanelCollapsed);
+            Assert.Equal(new WindowPlacement(10, 20, 1300, 800, true), loaded.MainWindowPlacement);
+        }
+        finally
+        {
+            File.Delete(path);
+            File.Delete(path + ".bak");
+        }
+    }
 }

@@ -7,7 +7,7 @@ using CyberArkTerm.Core;
 
 namespace CyberArkTerm.App.Views;
 
-/// <summary>Onglet « Courants » : serveurs de travail de l'utilisateur, rangés en dossiers, chacun avec sa configuration.</summary>
+/// <summary>Onglet « Mes serveurs » : serveurs de travail de l'utilisateur, rangés en dossiers, chacun avec sa configuration.</summary>
 public partial class MainWindow
 {
     private const string SavedDragFormat = "CyberArkTerm.SavedItem";
@@ -36,7 +36,9 @@ public partial class MainWindow
 
         SavedTree.ItemsSource = items;
         _savedTreeFiltered = filtered;
-        NoSavedText.Text = filtered ? Text.Format(Strings.SavedSearchNoMatch, filter) : Strings.NoSavedHelp;
+        NoSavedText.Text = filtered ? Text.Format(Strings.SavedSearchNoMatch, filter)
+            : IsOffline ? Strings.NoKeePassHelp
+            : Strings.NoSavedHelp;
         NoSavedText.Visibility = items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
@@ -165,6 +167,8 @@ public partial class MainWindow
 
     private void OnSavedSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
     {
+        // Modifier et Supprimer (en-tête) n'agissent que sur un serveur ou un dossier de « Mes serveurs ».
+        EditSavedButton.IsEnabled = DeleteSavedButton.IsEnabled = e.NewValue is SavedSessionNode or SavedFolderNode;
         // Arbre reconstruit en arrière-plan (liste partagée modifiée par un collègue, Paramètres, verrouillage de
         // Windows) : sa sélection disparaît, mais la cible choisie dans une autre liste reste.
         if (e.NewValue is not null || SavedTree.IsKeyboardFocusWithin)
@@ -324,7 +328,7 @@ public partial class MainWindow
     private void AddToCurrent(PvwaAccount account, string folder) =>
         ShowAddedToCurrent(SessionLibrary.AddSession(_settings, account, PvwaHost, folder, HasPsmp));
 
-    /// <summary>Connexion récente ajoutée aux « Courants » avec son mode, son composant et sa machine cible.</summary>
+    /// <summary>Connexion récente ajoutée à « Mes serveurs » avec son mode, son composant et sa machine cible.</summary>
     private void AddToCurrent(PvwaAccount account, RecentSession recent, string folder) =>
         ShowAddedToCurrent(SessionLibrary.AddFromRecent(_settings, account, recent, PvwaHost, folder));
 
@@ -468,13 +472,43 @@ public partial class MainWindow
 
     private void OnDeleteSelectedSaved(object sender, RoutedEventArgs e) => DeleteSelectedSaved();
 
+    /// <summary>
+    /// Menu de chaque élément de « Mes serveurs », posé sur l'élément de l'arbre lui-même : le clic droit, Maj+F10 et
+    /// la touche Menu ouvrent le même menu.
+    /// </summary>
+    private void OnSavedItemLoaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is TreeViewItem item && SavedMenuKey(item.DataContext) is { } key)
+        {
+            item.ContextMenu = (ContextMenu)FindResource(key);
+        }
+    }
+
+    private static string? SavedMenuKey(object? node) => node switch
+    {
+        KeePassFolderNode or KeePassHintNode => "KeePassFolderMenu",
+        KeePassGroupNode => "KeePassGroupMenu",
+        KeePassEntryNode => "KeePassEntryMenu",
+        SharedListNode => "SharedListMenu",
+        SharedFolderNode => "SharedFolderMenu",
+        SharedServerNode => "SharedServerMenu",
+        SavedFolderNode => "SavedFolderMenu",
+        SavedSessionNode => "SavedSessionMenu",
+        _ => null,
+    };
+
     private void DeleteSelectedSaved()
     {
         switch (SavedTree.SelectedItem)
         {
             case SavedSessionNode node:
-                if (MessageBox.Show(this, Text.Format(Strings.RemoveSavedConfirm, node.Session.Name),
-                        Strings.MyServers, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                if (ConfirmDialog.Confirm(this, new ConfirmRequest
+                    {
+                        Title = Strings.MyServers,
+                        Heading = Text.Format(Strings.RemoveSavedHeading, node.Session.Name),
+                        Message = Strings.RemoveSavedMessage,
+                        Actions = [Strings.ActionRemove],
+                    }))
                 {
                     _settings.Sessions.Remove(node.Session);
                     SaveAndRefreshSaved();
@@ -484,10 +518,15 @@ public partial class MainWindow
             case SavedFolderNode folder:
                 // Tous les serveurs du dossier, y compris ceux que la recherche masque.
                 int count = SessionLibrary.CountInFolder(_settings, folder.Path, PvwaHost);
-                var message = count == 0
-                    ? Text.Format(Strings.DeleteEmptyFolderConfirm, folder.Path)
-                    : Text.Format(Strings.DeleteFolderConfirm, folder.Path, count);
-                if (MessageBox.Show(this, message, Strings.MyServers, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
+                if (ConfirmDialog.Confirm(this, new ConfirmRequest
+                    {
+                        Title = Strings.MyServers,
+                        Heading = Text.Format(Strings.DeleteFolderHeading, folder.Path),
+                        Message = count == 0 ? null : Text.Format(Strings.DeleteFolderMessage, count),
+                        Kind = count == 0 ? ConfirmKind.Question : ConfirmKind.Warning,
+                        Actions = [Strings.DeleteFolderAction],
+                        DangerAction = count == 0 ? -1 : 0,
+                    }))
                 {
                     SessionLibrary.DeleteFolder(_settings, folder.Path, PvwaHost);
                     SaveAndRefreshSaved();
@@ -539,7 +578,7 @@ public partial class MainWindow
             || Math.Abs(delta.Y) > SystemParameters.MinimumVerticalDragDistance;
     }
 
-    /// <summary>Un compte glissé depuis « Disponibles » sur l'onglet « Courants » ouvre cet onglet.</summary>
+    /// <summary>Un compte glissé depuis « Disponibles » sur « Mes serveurs » ouvre cet onglet.</summary>
     private void OnCurrentTabDragEnter(object sender, DragEventArgs e)
     {
         if (e.Data.GetDataPresent(AccountDragFormat))

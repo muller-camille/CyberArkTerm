@@ -11,24 +11,25 @@
                 <ComboBoxItem Content="{x:Static loc:Strings.HistoryFilterUploads}" />
                 <ComboBoxItem Content="{x:Static loc:Strings.HistoryFilterDownloads}" />
             </ComboBox>
-            <TextBlock Text="{x:Static loc:Strings.HistoryNote}" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
+            <TextBlock Text="{x:Static loc:Strings.HistoryNote}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
         </DockPanel>
 
         <DockPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
-            <Button DockPanel.Dock="Right" Content="{x:Static loc:Strings.CloseButton}" IsCancel="True" MinWidth="80" Margin="8,0,0,0" />
+            <Button DockPanel.Dock="Right" Content="{x:Static loc:Strings.CloseButton}" IsCancel="True" Margin="8,0,0,0" />
             <StackPanel Orientation="Horizontal">
                 <Button x:Name="ChecksButton" Content="{x:Static loc:Strings.HistoryChecks}" Click="OnChecks" IsEnabled="False" />
                 <Button x:Name="OpenFolderButton" Content="{x:Static loc:Strings.HistoryOpenFolder}" Click="OnOpenFolder" IsEnabled="False" Margin="8,0,0,0" />
-                <Button x:Name="ClearButton" Content="{x:Static loc:Strings.HistoryClear}" Click="OnClear" Margin="8,0,0,0" />
+                <!-- Action destructive à l'écart des autres. -->
+                <Button x:Name="ClearButton" Content="{x:Static loc:Strings.HistoryClear}" Click="OnClear" Margin="32,0,0,0" />
             </StackPanel>
         </DockPanel>
 
         <Grid>
             <DataGrid x:Name="RecordsGrid" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False"
                       SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                      HorizontalGridLinesBrush="#E5E9EE" AlternatingRowBackground="#F7F9FC" ClipboardCopyMode="IncludeHeader"
+                      HorizontalGridLinesBrush="{DynamicResource GridLineBrush}" AlternatingRowBackground="{DynamicResource AlternateRowBrush}" ClipboardCopyMode="IncludeHeader"
                       MouseDoubleClick="OnRowDoubleClick" />
-            <TextBlock x:Name="EmptyText" Text="{x:Static loc:Strings.HistoryEmpty}" Foreground="{StaticResource MutedBrush}"
+            <TextBlock x:Name="EmptyText" Text="{x:Static loc:Strings.HistoryEmpty}" Foreground="{DynamicResource MutedBrush}"
                        HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" />
         </Grid>
     </DockPanel>

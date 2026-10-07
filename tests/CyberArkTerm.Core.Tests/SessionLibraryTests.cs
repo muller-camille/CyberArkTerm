@@ -126,7 +126,7 @@ public class SessionLibraryTests
     }
 
     /// <summary>
-    /// Connexion récente ajoutée aux « Courants » : même mode, même composant PSM, même machine cible, même nom que dans
+    /// Connexion récente ajoutée à « Mes serveurs » : même mode, même composant PSM, même machine cible, même nom que dans
     /// la liste des connexions récentes.
     /// </summary>
     [Fact]
@@ -154,7 +154,7 @@ public class SessionLibraryTests
     }
 
     /// <summary>
-    /// Recherche dans « Courants » : seuls les serveurs qui répondent à tous les mots et leurs dossiers restent (pas les
+    /// Recherche dans « Mes serveurs » : seuls les serveurs qui répondent à tous les mots et leurs dossiers restent (pas les
     /// dossiers vides) ; le nom du dossier, le composant et la machine cible comptent.
     /// </summary>
     [Fact]

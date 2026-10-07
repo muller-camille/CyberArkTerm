@@ -19,6 +19,7 @@ public partial class LoginWindow : Window
     public LoginWindow(AppSettings settings)
     {
         InitializeComponent();
+        CapsLockWarning.Attach(CapsLockText, PasswordBox, ChallengeBox);
         _settings = settings;
 
         MethodBox.ItemsSource = Enum.GetValues<AuthMethod>();
@@ -208,6 +209,7 @@ public partial class LoginWindow : Window
 
     private void ShowError(string message)
     {
+        // ErrorLine : annoncée par les lecteurs d'écran.
         StatusText.Text = message;
         StatusText.Visibility = Visibility.Visible;
     }
