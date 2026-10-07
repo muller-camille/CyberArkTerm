@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using CyberArkTerm.App.Localization;
+using CyberArkTerm.App.Views;
 using CyberArkTerm.Core;
 using CyberArkTerm.Core.Ssh;
 
@@ -75,8 +76,14 @@ public sealed class RemoteEditor : IDisposable
 
     private async Task OpenNewAsync(RemoteEntry entry)
     {
-        if (entry.Length > LargeFile && MessageBox.Show(_owner, Text.Format(Strings.EditLargeFile, entry.Name, entry.SizeText),
-                Strings.FileEdit.Replace("_", ""), MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+        if (entry.Length > LargeFile && !ConfirmDialog.Confirm(_owner, new ConfirmRequest
+            {
+                Title = Strings.FileEdit.Replace("_", ""),
+                Heading = Strings.EditLargeHeading,
+                Subject = $"{entry.Name} — {entry.SizeText}",
+                Message = Strings.EditLargeMessage,
+                Actions = [Strings.ActionOpen],
+            }))
         {
             return;
         }
@@ -161,11 +168,23 @@ public sealed class RemoteEditor : IDisposable
     /// <summary>Demande à l'utilisateur s'il faut renvoyer ce qui n'a pas été envoyé ; vrai si l'on peut fermer.</summary>
     public static bool ConfirmClose(Window owner, IEnumerable<RemoteEditor> editors)
     {
-        var unsent = editors.SelectMany(e => e.Unsent.Select(f => $"  • {e._session.Label}:{f.RemotePath}")).ToList();
+        var unsent = UnsentFiles(editors);
         return unsent.Count == 0
-            || MessageBox.Show(owner, Text.Format(Strings.EditPendingOnClose, string.Join("\n", unsent)), Strings.EditPendingTitle,
-                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
+            || ConfirmDialog.Confirm(owner, new ConfirmRequest
+            {
+                Title = Strings.EditPendingTitle,
+                Heading = Strings.EditPendingHeading,
+                Message = Strings.EditPendingMessage,
+                Items = unsent,
+                Kind = ConfirmKind.Warning,
+                Actions = [Strings.EditCloseWithoutSending],
+                DangerAction = 0,
+            });
     }
+
+    /// <summary>Fichiers modifiés et pas encore renvoyés, sous la forme « serveur:chemin ».</summary>
+    public static List<string> UnsentFiles(IEnumerable<RemoteEditor> editors) =>
+        editors.SelectMany(e => e.Unsent.Select(f => $"{e._session.Label}:{f.RemotePath}")).ToList();
 
     /// <summary>Supprime les copies laissées par une session qui n'a pas pu se fermer normalement (plus d'un jour).</summary>
     public static void CleanupStale()
@@ -258,9 +277,17 @@ public sealed class RemoteEditor : IDisposable
                     break;
                 }
 
-                var target = $"{_session.Label}:{file.RemotePath}";
-                if (MessageBox.Show(_owner, Text.Format(Strings.EditUploadPrompt, file.Name, target), Strings.EditUploadTitle,
-                        MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                // Après un enregistrement dans l'éditeur, le renvoi est attendu : Entrée renvoie.
+                if (!ConfirmDialog.Confirm(_owner, new ConfirmRequest
+                    {
+                        Title = Strings.EditUploadTitle,
+                        Heading = Text.Format(Strings.EditUploadHeading, file.Name),
+                        Subject = $"{_session.Label}:{file.RemotePath}",
+                        Message = Strings.EditUploadMessage,
+                        Actions = [Strings.EditUploadAction],
+                        DefaultAction = 0,
+                        CancelLabel = Strings.NotNow,
+                    }))
                 {
                     break;
                 }
@@ -297,8 +324,16 @@ public sealed class RemoteEditor : IDisposable
             }
 
             // Après un envoi coupé, c'est notre propre écriture partielle qui a changé le fichier : on le remplace.
-            if (changed && !file.WriteInterrupted && MessageBox.Show(_owner, Text.Format(Strings.EditRemoteChanged, file.Name), Strings.EditUploadTitle,
-                    MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+            if (changed && !file.WriteInterrupted && !ConfirmDialog.Confirm(_owner, new ConfirmRequest
+                {
+                    Title = Strings.EditUploadTitle,
+                    Heading = Text.Format(Strings.EditRemoteChangedHeading, file.Name),
+                    Subject = $"{_session.Label}:{file.RemotePath}",
+                    Message = Strings.EditRemoteChangedMessage,
+                    Kind = ConfirmKind.Warning,
+                    Actions = [Strings.EditReplaceAnyway],
+                    DangerAction = 0,
+                }))
             {
                 return false;
             }

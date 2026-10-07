@@ -1195,7 +1195,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (!ConfirmCloseEditedFiles() || !ConfirmCloseRdpSessions() || !FilesPanel.ConfirmCancelTransfers(this, null))
+        if (!ConfirmCloseAll())
         {
             // Fichiers modifiés non renvoyés, sessions Bureau à distance ouvertes ou transferts en cours : l'utilisateur
             // garde la fenêtre.

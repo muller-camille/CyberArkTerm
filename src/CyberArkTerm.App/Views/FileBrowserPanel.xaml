@@ -18,8 +18,9 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock x:Name="Arrow" Text="⬆" Foreground="#1565C0" Margin="0,0,6,0" VerticalAlignment="Top" />
                 <StackPanel Grid.Column="1">
-                    <TextBlock TextTrimming="CharacterEllipsis" ToolTip="{Binding Destination, Mode=OneWay}">
-                        <Run Text="{Binding Label, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" → " /><Run Text="{Binding Destination, Mode=OneWay}" />
+                    <!-- Le serveur est nommé : la file peut mêler les transferts de plusieurs onglets. -->
+                    <TextBlock TextTrimming="CharacterEllipsis" ToolTip="{Binding Route, Mode=OneWay}">
+                        <Run Text="{Binding Label, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" → " /><Run Text="{Binding Target, Mode=OneWay}" />
                     </TextBlock>
                     <TextBlock x:Name="StateText" FontSize="11" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis">
                         <TextBlock.Text>
@@ -222,7 +223,13 @@
                     </DockPanel>
                 </Border>
                 <!-- Sommes SHA-256 de chaque transfert : bouton « Historique » de la barre d'outils. -->
-                <TextBlock x:Name="StatusText" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
+                <DockPanel>
+                    <!-- Modification récursive des droits en cours : elle peut être arrêtée. -->
+                    <Button x:Name="StopChmodButton" DockPanel.Dock="Right" Content="{x:Static loc:Strings.PermissionsStop}" Padding="8,0"
+                            MinWidth="0" Margin="6,0,0,0" Visibility="Collapsed" Click="OnStopChmod"
+                            ToolTip="{x:Static loc:Strings.PermissionsStopTip}" />
+                    <TextBlock x:Name="StatusText" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
+                </DockPanel>
             </StackPanel>
         </Border>
 

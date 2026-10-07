@@ -70,6 +70,91 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>
+    /// Confirmations : boutons au verbe explicite, « Annuler » par défaut ; une action irréversible est rouge et reste
+    /// grisée tant que la case « J'ai vérifié… » n'est pas cochée.
+    /// </summary>
+    [Fact]
+    public void ConfirmationsDefaultToCancel()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var changed = new ConfirmDialog(new ConfirmRequest
+            {
+                Title = Strings.HostKeyTitle,
+                Banner = Strings.HostKeyChangedBanner,
+                Heading = Strings.HostKeyChangedPsmpHeading,
+                Subject = "psmp.corp:22",
+                Codes = [("old", "SHA256:AAA"), ("new", "SHA256:BBB")],
+                Kind = ConfirmKind.Danger,
+                Actions = [Strings.HostKeyReplace],
+                DangerAction = 0,
+                Acknowledge = Strings.HostKeyAckPsmp,
+            });
+            var buttons = changed.ButtonsPanel.Children.OfType<System.Windows.Controls.Button>().ToList();
+            Assert.Equal([Strings.HostKeyReplace, Strings.Cancel], buttons.Select(b => (string)b.Content));
+            Assert.False(buttons[0].IsEnabled);
+            Assert.False(buttons[0].IsDefault);
+            Assert.True(buttons[1].IsDefault && buttons[1].IsCancel);
+            Assert.Equal(Visibility.Visible, changed.Banner.Visibility);
+            changed.AcknowledgeBox.IsChecked = true;
+            Assert.True(buttons[0].IsEnabled);
+            Assert.Equal(2, changed.CodeList.Items.Count);
+            changed.Close();
+
+            // Renvoi d'un fichier enregistré dans l'éditeur : l'action attendue est le bouton par défaut.
+            var upload = new ConfirmDialog(new ConfirmRequest
+            {
+                Title = "t",
+                Heading = "h",
+                Items = ["a", "b"],
+                Actions = [Strings.EditUploadAction],
+                DefaultAction = 0,
+                CancelLabel = Strings.NotNow,
+            });
+            var choices = upload.ButtonsPanel.Children.OfType<System.Windows.Controls.Button>().ToList();
+            Assert.True(choices[0].IsDefault);
+            Assert.False(choices[1].IsDefault);
+            Assert.Equal(Strings.NotNow, choices[1].Content);
+            Assert.Equal(Visibility.Visible, upload.ItemsPanel.Visibility);
+            upload.Close();
+        });
+    }
+
+    /// <summary>Droits de plusieurs fichiers (755 et 644) : seuls les droits changés partent, pas ceux du premier.</summary>
+    [Fact]
+    public void PermissionsOfMixedItemsOnlyChangeWhatIsTicked()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var dialog = new PermissionsDialog("2", "root@srv:/opt", [0b111_101_101, 0b110_100_100], hasDirectory: false);
+            var boxes = dialog.BitsGrid.Children.OfType<System.Windows.Controls.CheckBox>().ToList();
+            Assert.Equal(9, boxes.Count);
+            // x du propriétaire, du groupe et des autres : différents d'un fichier à l'autre.
+            Assert.All(new[] { 2, 5, 8 }, i => Assert.Null(boxes[i].IsChecked));
+            Assert.Equal(Visibility.Visible, dialog.MixedText.Visibility);
+            Assert.Equal("", dialog.OctalBox.Text);
+            Assert.Equal("rw?r-?r-?", dialog.SymbolicText.Text);
+
+            boxes[4].IsChecked = true;
+            var change = dialog.CurrentChange;
+            Assert.Equal(0b111_111_101, change.Apply(0b111_101_101));
+            Assert.Equal(0b110_110_100, change.Apply(0b110_100_100));
+            Assert.Equal(Strings.PermissionsApply, dialog.OkButton.Content);
+            dialog.Close();
+        });
+    }
+
     [Fact]
     public void SafeMemberWindowsOpen()
     {
@@ -81,6 +166,10 @@ public sealed class DialogTests
         RunWithTheme(() =>
         {
             var add = new SafeMemberDialog("Prod", (_, _) => Task.CompletedTask);
+            // Nouveau membre : se connecter sans voir les mots de passe.
+            Assert.Equal(SafeProfile.AccountUser, add.ProfileBox.SelectedValue);
+            add.ProfileBox.SelectedValue = SafeProfile.ReadOnly;
+            Assert.Equal(SafeProfile.ReadOnly, add.ProfileBox.SelectedValue);
             Assert.Equal(Visibility.Visible, add.SearchInBox.Visibility);
             Assert.Equal("Vault", add.SearchInBox.Text);
             Assert.Equal((2, 3), (add.LeftGroups.Children.Count, add.RightGroups.Children.Count));
@@ -91,6 +180,11 @@ public sealed class DialogTests
                  "permissions":{"listAccounts":true,"addAccounts":true}}
                 """, Web)!;
             var edit = new SafeMemberDialog("Prod", member, (_, _) => Task.CompletedTask);
+            Assert.Equal(SafeProfile.Custom, edit.ProfileBox.SelectedValue);
+            Assert.Equal(Visibility.Collapsed, edit.ChangesText.Visibility);
+            edit.ProfileBox.SelectedValue = SafeProfile.ReadOnly;
+            // Lister gardé, ajouter retiré, audit et membres ajoutés.
+            Assert.Equal(Text.Format(Strings.SafeMemberChanges, 2, 1), edit.ChangesText.Text);
             Assert.True(edit.NameBox.IsReadOnly);
             Assert.False(edit.TypeBox.IsEnabled);
             Assert.Equal(1, edit.TypeBox.SelectedIndex);
@@ -1141,7 +1235,7 @@ public sealed class DialogTests
         public Task<(DateTime LastWriteTime, long Length)> WriteFileAsync(string remotePath, byte[] content, CancellationToken ct) =>
             throw new NotSupportedException();
         public Task<int?> GetModeAsync(string path, CancellationToken ct) => Task.FromResult<int?>(null);
-        public Task<PermissionsResult> SetPermissionsAsync(string path, int mode, bool includeSpecial, bool recursive,
+        public Task<PermissionsResult> SetPermissionsAsync(string path, PermissionChange change, bool recursive,
             bool executeOnlyIfAlready, IProgress<int>? progress, CancellationToken ct) => throw new NotSupportedException();
         public Task<List<RemoteTreeItem>> ListTreeAsync(IReadOnlyList<RemoteEntry> roots, int maxItems, CancellationToken ct) =>
             throw new NotSupportedException();

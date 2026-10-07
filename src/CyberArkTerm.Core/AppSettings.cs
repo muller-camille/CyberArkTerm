@@ -103,6 +103,15 @@ public sealed class AppSettings
     /// <summary>Le clic droit dans le terminal colle le presse-papiers au lieu d'ouvrir le menu (Maj+clic droit l'ouvre).</summary>
     public bool TerminalRightClickPastes { get; set; }
 
+    /// <summary>Confirmation avant de fermer une session connectée (SSH, Bureau à distance, VNC).</summary>
+    public bool ConfirmCloseSession { get; set; } = true;
+
+    /// <summary>
+    /// Avertissement avant de coller plusieurs lignes dans un terminal dont le shell n'a pas activé le collage protégé
+    /// (bash avant 5.1, ksh…) : chaque ligne y part comme une commande.
+    /// </summary>
+    public bool ConfirmMultiLinePaste { get; set; } = true;
+
     /// <summary>Outil de comparaison de fichiers (exécutable) proposé dans la fenêtre de comparaison ; vide = aucun.</summary>
     public string CompareTool { get; set; } = "";
 

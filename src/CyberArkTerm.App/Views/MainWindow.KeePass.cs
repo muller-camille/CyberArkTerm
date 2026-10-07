@@ -320,8 +320,13 @@ public partial class MainWindow
     private void OnKeePassRemove(object sender, RoutedEventArgs e)
     {
         if (SelectedKeePassFolder is not { } folder
-            || MessageBox.Show(this, Text.Format(Strings.KeePassRemoveConfirm, folder.DisplayName), Strings.KeePassFolderTitle,
-                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+            || !ConfirmDialog.Confirm(this, new ConfirmRequest
+            {
+                Title = Strings.KeePassFolderTitle,
+                Heading = Text.Format(Strings.KeePassRemoveHeading, folder.DisplayName),
+                Message = Strings.KeePassRemoveMessage,
+                Actions = [Strings.ActionRemove],
+            }))
         {
             return;
         }
@@ -408,8 +413,8 @@ public partial class MainWindow
 
     private async Task DeleteKeePassEntryAsync(KeePassEntryNode node)
     {
-        if (MessageBox.Show(this, Text.Format(Strings.KeePassDeleteEntryConfirm, node.Title, node.Folder.DisplayName), Strings.KeePassFolderTitle,
-                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
+        if (ConfirmDialog.Destructive(this, Strings.KeePassFolderTitle, Text.Format(Strings.KeePassDeleteEntryHeading, node.Title),
+                Strings.ActionDelete, subject: node.Folder.DisplayName, message: Strings.KeePassDeleteEntryMessage))
         {
             await SaveKeePassAsync(node.Folder, db => db.DeleteEntry(node.Entry.Id, node.Entry.Modified), "entry-delete", node.Entry.Title);
         }
@@ -580,7 +585,7 @@ public partial class MainWindow
             }
             else if (target.Protocol == RemoteProtocol.Ssh)
             {
-                var connector = new Core.Ssh.SshConnector(target.Host, target.Port, target.UserName, _directUi,
+                var connector = new Core.Ssh.SshConnector(target.Host, target.Port, target.UserName, _directUi.For(label),
                     password: Password, addressWhat: CoreStrings.ServerAddressWhat);
                 var session = new SshSession(null, label, connector, Dispatcher, _settings.FollowTerminalFolder, null);
                 ShowSshTab(session, $"{target.UserName}@{target.Address}", Strings.ConnectingDirect, "IconKeePass",

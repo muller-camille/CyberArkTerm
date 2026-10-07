@@ -296,26 +296,26 @@ public sealed class RemoteFileBrowser : IRemoteFiles
     /// pour ne pas rendre tous les fichiers exécutables.
     /// </param>
     /// <param name="progress">Nombre d'éléments traités.</param>
-    public async Task<PermissionsResult> SetPermissionsAsync(string path, int mode, bool includeSpecial, bool recursive,
+    public async Task<PermissionsResult> SetPermissionsAsync(string path, PermissionChange change, bool recursive,
         bool executeOnlyIfAlready, IProgress<int>? progress, CancellationToken ct)
     {
         using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
         var result = new PermissionsResult();
         var attributes = await _sftp.GetAttributesAsync(path, ct).ConfigureAwait(false);
-        await ApplyPermissionsAsync(path, attributes, mode, includeSpecial, ct).ConfigureAwait(false);
+        await ApplyPermissionsAsync(path, attributes, change.Apply(UnixPermissions.FromAttributes(attributes)), ct).ConfigureAwait(false);
         result.Changed++;
         progress?.Report(result.Changed);
         if (recursive && attributes.IsDirectory)
         {
             // Chemin réel du dossier (liens des dossiers parents résolus) : le contenu lu doit s'y trouver.
             var root = (await _sftp.GetAsync(path, ct).ConfigureAwait(false)).FullName;
-            await ApplyToContentsAsync(root, mode & UnixPermissions.RwxMask, executeOnlyIfAlready, result, progress, ct).ConfigureAwait(false);
+            await ApplyToContentsAsync(root, change, executeOnlyIfAlready, result, progress, ct).ConfigureAwait(false);
         }
 
         return result;
     }
 
-    private async Task ApplyToContentsAsync(string directory, int mode, bool executeOnlyIfAlready, PermissionsResult result,
+    private async Task ApplyToContentsAsync(string directory, PermissionChange change, bool executeOnlyIfAlready, PermissionsResult result,
         IProgress<int>? progress, CancellationToken ct)
     {
         var entries = new List<ISftpFile>();
@@ -346,12 +346,7 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         foreach (var file in entries)
         {
             ct.ThrowIfCancellationRequested();
-            var target = mode;
-            const int executeBits = 0x49;
-            if (executeOnlyIfAlready && !file.IsDirectory && (UnixPermissions.FromAttributes(file.Attributes) & executeBits) == 0)
-            {
-                target &= ~executeBits;
-            }
+            var target = change.ApplyToContent(UnixPermissions.FromAttributes(file.Attributes), file.IsDirectory, executeOnlyIfAlready);
 
             try
             {
@@ -364,7 +359,7 @@ public sealed class RemoteFileBrowser : IRemoteFiles
                     continue;
                 }
 
-                await ApplyPermissionsAsync(file.FullName, file.Attributes, target, includeSpecial: false, ct).ConfigureAwait(false);
+                await ApplyPermissionsAsync(file.FullName, file.Attributes, target, ct).ConfigureAwait(false);
                 result.Changed++;
                 progress?.Report(result.Changed);
             }
@@ -375,12 +370,13 @@ public sealed class RemoteFileBrowser : IRemoteFiles
 
             if (file.IsDirectory)
             {
-                await ApplyToContentsAsync(file.FullName, mode, executeOnlyIfAlready, result, progress, ct).ConfigureAwait(false);
+                await ApplyToContentsAsync(file.FullName, change, executeOnlyIfAlready, result, progress, ct).ConfigureAwait(false);
             }
         }
     }
 
-    private Task ApplyPermissionsAsync(string path, SftpFileAttributes attributes, int mode, bool includeSpecial, CancellationToken ct)
+    /// <summary>Écrit les 12 bits de <paramref name="mode"/> (les bits spéciaux inchangés y sont repris tels quels).</summary>
+    private Task ApplyPermissionsAsync(string path, SftpFileAttributes attributes, int mode, CancellationToken ct)
     {
         attributes.OwnerCanRead = (mode & 0x100) != 0;
         attributes.OwnerCanWrite = (mode & 0x80) != 0;
@@ -391,12 +387,9 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         attributes.OthersCanRead = (mode & 0x04) != 0;
         attributes.OthersCanWrite = (mode & 0x02) != 0;
         attributes.OthersCanExecute = (mode & 0x01) != 0;
-        if (includeSpecial)
-        {
-            attributes.IsUIDBitSet = (mode & UnixPermissions.SetUid) != 0;
-            attributes.IsGroupIDBitSet = (mode & UnixPermissions.SetGid) != 0;
-            attributes.IsStickyBitSet = (mode & UnixPermissions.Sticky) != 0;
-        }
+        attributes.IsUIDBitSet = (mode & UnixPermissions.SetUid) != 0;
+        attributes.IsGroupIDBitSet = (mode & UnixPermissions.SetGid) != 0;
+        attributes.IsStickyBitSet = (mode & UnixPermissions.Sticky) != 0;
 
         // SSH.NET n'envoie que les attributs modifiés : seuls les droits changent sur le serveur.
         return Task.Run(() => _sftp.SetAttributes(path, attributes), ct);

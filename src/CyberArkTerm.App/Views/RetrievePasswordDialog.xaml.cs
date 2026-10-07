@@ -21,13 +21,21 @@ public partial class RetrievePasswordDialog : Window
     private bool _busy;
 
     /// <param name="copy">Copie dans le presse-papiers ; faux s'il est occupé par une autre application.</param>
+    /// <param name="safe">Safe du compte, affiché sous son nom.</param>
     public RetrievePasswordDialog(string account, TimeSpan clipboardDelay, string? reason,
-        Func<RetrieveOptions, CancellationToken, Task<char[]>> retrieve, Func<char[], bool> copy)
+        Func<RetrieveOptions, CancellationToken, Task<char[]>> retrieve, Func<char[], bool> copy, string? safe = null)
     {
         InitializeComponent();
         _retrieve = retrieve;
         _copy = copy;
-        IntroText.Text = Text.Format(Strings.RetrieveIntro, account, (int)clipboardDelay.TotalSeconds);
+        HeadingText.Text = Text.Format(Strings.RetrieveHeading, account);
+        if (!string.IsNullOrWhiteSpace(safe))
+        {
+            SafeText.Text = Text.Format(Strings.SafeSubject, safe);
+            SafeText.Visibility = Visibility.Visible;
+        }
+
+        ClipboardText.Text = Text.Format(Strings.RetrieveClipboard, (int)clipboardDelay.TotalSeconds);
         ReasonBox.Text = reason ?? "";
         Loaded += (_, _) => ReasonBox.Focus();
         Closed += (_, _) => _closing.Cancel();
@@ -79,6 +87,8 @@ public partial class RetrievePasswordDialog : Window
         catch (PvwaException ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
         {
             ShowError(Text.Format(Strings.RetrieveForbidden, ex.Message));
+            // Refus souvent dû à un motif exigé : le curseur y va.
+            ReasonBox.Focus();
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -104,13 +114,13 @@ public partial class RetrievePasswordDialog : Window
         StatusText.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
         if (busy)
         {
-            ErrorMessage.Visibility = Visibility.Collapsed;
+            ErrorPanel.Visibility = Visibility.Collapsed;
         }
     }
 
     private void ShowError(string message)
     {
         ErrorMessage.Text = message;
-        ErrorMessage.Visibility = Visibility.Visible;
+        ErrorPanel.Visibility = Visibility.Visible;
     }
 }

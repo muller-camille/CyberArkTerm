@@ -57,8 +57,7 @@ public partial class MainWindow
             return;
         }
 
-        if (session.IsConnected && MessageBox.Show(this, Text.Format(Strings.RdpCloseTabConfirm, session.Label), Strings.RdpTitle,
-                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+        if (session.IsConnected && !ConfirmCloseSession(this, session.Label, Strings.SessionCloseRdp))
         {
             return;
         }
@@ -82,15 +81,6 @@ public partial class MainWindow
         await Task.WhenAny(session.Closed, Task.Delay(TimeSpan.FromSeconds(3)));
         _rdpViews.Remove(view);
         RdpLayer.Children.Remove(view);
-    }
-
-    /// <summary>Vrai si l'on peut fermer : aucune session Bureau à distance connectée, ou l'utilisateur accepte de les fermer.</summary>
-    private bool ConfirmCloseRdpSessions()
-    {
-        var open = _rdpViews.Count(v => v.Session.HasControl);
-        return open == 0
-            || MessageBox.Show(this, Text.Format(Strings.RdpCloseAllConfirm, open), Strings.RdpTitle,
-                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
     }
 
     /// <summary>

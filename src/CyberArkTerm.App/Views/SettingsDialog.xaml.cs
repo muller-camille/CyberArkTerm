@@ -43,6 +43,8 @@ public partial class SettingsDialog : Window
         ThemeBox.SelectedItem = TerminalTheme.Find(settings.TerminalTheme);
         FontSizeBox.Text = settings.TerminalFontSize.ToString(CultureInfo.CurrentCulture);
         RightClickBox.IsChecked = settings.TerminalRightClickPastes;
+        ConfirmPasteBox.IsChecked = settings.ConfirmMultiLinePaste;
+        ConfirmCloseBox.IsChecked = settings.ConfirmCloseSession;
         CompareArgsBox.Text = settings.CompareToolArguments;
         (settings.PreferredUploadProtocol == TransferProtocol.Scp ? ScpRadio : SftpRadio).IsChecked = true;
         ArchiveBox.IsChecked = settings.OfferArchive;
@@ -143,6 +145,8 @@ public partial class SettingsDialog : Window
         _settings.TerminalTheme = (ThemeBox.SelectedItem as TerminalTheme ?? TerminalTheme.Campbell).Id;
         _settings.TerminalFontSize = fontSize;
         _settings.TerminalRightClickPastes = RightClickBox.IsChecked == true;
+        _settings.ConfirmMultiLinePaste = ConfirmPasteBox.IsChecked == true;
+        _settings.ConfirmCloseSession = ConfirmCloseBox.IsChecked == true;
         _settings.CompareToolArguments = compareArgs;
         if (_forgetHostKeys)
         {
@@ -231,8 +235,8 @@ public partial class SettingsDialog : Window
 
     private void OnStoreDelete(object sender, RoutedEventArgs e)
     {
-        if (_store is null || MessageBox.Show(this, Strings.LocalStoreDeleteConfirm, Strings.LocalStoreTitle,
-                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+        if (_store is null || !ConfirmDialog.Destructive(this, Strings.LocalStoreTitle, Strings.LocalStoreDeleteHeading,
+                Strings.LocalStoreDeleteAction, bullets: [Strings.LocalStoreDeleteForget, Strings.LocalStoreDeleteKeePass, Strings.LocalStoreDeleteNow]))
         {
             return;
         }

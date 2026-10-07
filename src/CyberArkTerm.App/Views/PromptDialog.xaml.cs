@@ -8,12 +8,32 @@ public partial class PromptDialog : Window
 {
     private readonly bool _echo;
 
-    public PromptDialog(string instruction, string prompt, bool echo)
+    /// <param name="session">Session qui pose la question (« compte → cible ») ; null si inconnue.</param>
+    /// <param name="hint">Aide selon la question (mot de passe CyberArk, code MFA…).</param>
+    /// <param name="direct">Serveur joint directement (accès d'urgence) : pas de PSMP en jeu.</param>
+    public PromptDialog(string instruction, string prompt, bool echo, string? session = null, string? hint = null, bool direct = false)
     {
         InitializeComponent();
         _echo = echo;
-        InstructionText.Text = string.IsNullOrWhiteSpace(instruction) ? Strings.PromptDefaultInstruction : instruction.Trim();
+        InstructionText.Text = string.IsNullOrWhiteSpace(instruction)
+            ? (direct ? Strings.PromptDefaultInstructionServer : Strings.PromptDefaultInstruction)
+            : instruction.Trim();
         PromptText.Text = prompt.Trim();
+        if (!string.IsNullOrWhiteSpace(session))
+        {
+            SessionText.Text = Text.Format(Strings.PromptSession, session);
+            SessionText.Visibility = Visibility.Visible;
+        }
+
+        if (!string.IsNullOrWhiteSpace(hint))
+        {
+            HintText.Text = hint;
+            HintText.Visibility = Visibility.Visible;
+        }
+
+        // Nom accessible des champs : la question du serveur.
+        System.Windows.Automation.AutomationProperties.SetName(SecretBox, PromptText.Text);
+        System.Windows.Automation.AutomationProperties.SetName(TextBox, PromptText.Text);
         SecretBox.Visibility = echo ? Visibility.Collapsed : Visibility.Visible;
         TextBox.Visibility = echo ? Visibility.Visible : Visibility.Collapsed;
         Loaded += (_, _) =>

@@ -236,7 +236,7 @@ public sealed class SshConnector
         }
     });
 
-    internal static bool IsPasswordPrompt(string request) =>
+    public static bool IsPasswordPrompt(string request) =>
         request.Contains("password", StringComparison.OrdinalIgnoreCase)
         || request.Contains("mot de passe", StringComparison.OrdinalIgnoreCase);
 }

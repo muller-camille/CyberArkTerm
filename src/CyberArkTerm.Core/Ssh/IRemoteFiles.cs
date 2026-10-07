@@ -56,7 +56,11 @@ public interface IRemoteFiles : IDisposable
     /// <summary>Droits actuels (12 bits) ; null s'ils ne sont pas connus.</summary>
     Task<int?> GetModeAsync(string path, CancellationToken ct);
 
-    Task<PermissionsResult> SetPermissionsAsync(string path, int mode, bool includeSpecial, bool recursive,
+    /// <summary>
+    /// Applique <paramref name="change"/> à l'élément et, si demandé, à tout le contenu d'un dossier (sans les bits
+    /// spéciaux, liens non suivis). Annulable entre deux éléments.
+    /// </summary>
+    Task<PermissionsResult> SetPermissionsAsync(string path, PermissionChange change, bool recursive,
         bool executeOnlyIfAlready, IProgress<int>? progress, CancellationToken ct);
 
     /// <summary>Éléments choisis et tout le contenu des dossiers, chacun avec son chemin relatif.</summary>

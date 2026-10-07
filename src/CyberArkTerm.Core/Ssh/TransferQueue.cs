@@ -42,6 +42,15 @@ public sealed class TransferItem(bool upload, string label, string destination, 
     /// <summary>Session à laquelle appartient le transfert (annulé à sa fermeture).</summary>
     public object? Owner { get; init; }
 
+    /// <summary>Serveur de la session (« utilisateur@serveur ») : nommé dans la file, qui peut mêler plusieurs serveurs.</summary>
+    public string? Server { get; init; }
+
+    /// <summary>Où va le transfert : « serveur:dossier » pour un envoi, le dossier de ce poste pour un téléchargement.</summary>
+    public string Target => Upload && !string.IsNullOrEmpty(Server) ? $"{Server}:{Destination}" : Destination;
+
+    /// <summary>Trajet complet (infobulle de la file) : d'où vient l'élément et où il va.</summary>
+    public string Route => Upload || string.IsNullOrEmpty(Server) ? $"{Label} → {Target}" : $"{Server}:{Label} → {Destination}";
+
     /// <summary>Protocole d'un envoi (SCP ou SFTP), celui des Paramètres.</summary>
     public string? Protocol { get; init; }
 

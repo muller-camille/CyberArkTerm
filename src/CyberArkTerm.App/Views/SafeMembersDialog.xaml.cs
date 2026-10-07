@@ -197,8 +197,8 @@ public partial class SafeMembersDialog : Window
     private async void OnRemoveMember(object sender, RoutedEventArgs e)
     {
         if (_actions is null || MembersGrid.SelectedItem is not SafeMemberRow row
-            || MessageBox.Show(this, Text.Format(Strings.SafeMemberRemoveConfirm, row.Name, _safe), Strings.SafeMembersTitle,
-                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+            || !ConfirmDialog.Destructive(this, Strings.SafeMembersTitle, Text.Format(Strings.SafeMemberRemoveHeading, row.Name),
+                Strings.SafeMemberRemoveAction, subject: Text.Format(Strings.SafeSubject, _safe), message: Strings.SafeMemberRemoveMessage))
         {
             return;
         }

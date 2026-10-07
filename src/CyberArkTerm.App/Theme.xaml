@@ -561,6 +561,65 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <!-- Mot de passe : une clé. -->
+    <DrawingImage x:Key="IconKey">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#E0A100" Geometry="M2.5,12 A5,5 0 1 1 12.5,12 A5,5 0 1 1 2.5,12 Z M5.5,12 A2,2 0 1 0 9.5,12 A2,2 0 1 0 5.5,12 Z M12,10.9 H21.8 V13.1 H12 Z M16.6,13 H18.6 V16.4 H16.6 Z M19.8,13 H21.8 V15.4 H19.8 Z">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#8A6100" Thickness="0.7" LineJoin="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <!-- Icônes des confirmations (32 x 32 à l'écran) : question, information, avertissement, danger. -->
+    <DrawingImage x:Key="IconQuestion">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#1565C0" Geometry="M2,12 A10,10 0 1 1 22,12 A10,10 0 1 1 2,12 Z" />
+                <GeometryDrawing Geometry="M9.1,9.3 A2.9,2.9 0 1 1 13.4,11.8 C12.5,12.3 12,12.9 12,13.9 V14.4">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="White" Thickness="2" StartLineCap="Round" EndLineCap="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="White" Geometry="M10.8,17.6 A1.2,1.2 0 1 1 13.2,17.6 A1.2,1.2 0 1 1 10.8,17.6 Z" />
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <DrawingImage x:Key="IconInfo">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#1565C0" Geometry="M2,12 A10,10 0 1 1 22,12 A10,10 0 1 1 2,12 Z" />
+                <GeometryDrawing Brush="White" Geometry="M10.8,7.4 A1.2,1.2 0 1 1 13.2,7.4 A1.2,1.2 0 1 1 10.8,7.4 Z M11,10.4 H13 V17.6 H11 Z" />
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <DrawingImage x:Key="IconWarning">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#F2B01E" Geometry="M12,2.4 L22.6,20.8 H1.4 Z">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#9A6700" Thickness="0.9" LineJoin="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#1F2933" Geometry="M11,8.2 H13 V14.4 H11 Z M10.8,17.3 A1.2,1.2 0 1 1 13.2,17.3 A1.2,1.2 0 1 1 10.8,17.3 Z" />
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <DrawingImage x:Key="IconDanger">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#B3261E" Geometry="M7.9,2 H16.1 L22,7.9 V16.1 L16.1,22 H7.9 L2,16.1 V7.9 Z" />
+                <GeometryDrawing Brush="White" Geometry="M11,6.6 H13 V13.8 H11 Z M10.8,17 A1.2,1.2 0 1 1 13.2,17 A1.2,1.2 0 1 1 10.8,17 Z" />
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
     <!-- ===== Styles ===== -->
 
     <!-- Gros bouton icône + libellé de la barre d'outils. -->
@@ -731,6 +790,50 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <!-- Bouton d'une action irréversible (supprimer, remplacer une clé) : rouge, jamais bouton par défaut. -->
+    <Style x:Key="DangerButton" TargetType="Button">
+        <Setter Property="Padding" Value="12,4" />
+        <Setter Property="MinWidth" Value="90" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Background" Value="#B3261E" />
+        <Setter Property="BorderBrush" Value="#8C1D18" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1" CornerRadius="2" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="#C93A31" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="#8C1D18" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="#1F2933" />
+                            <Setter TargetName="Bd" Property="BorderThickness" Value="2" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.45" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Bloc de texte à espacement fixe (empreintes, chemins) : sélectionnable, sans bordure. -->
+    <Style x:Key="CodeBox" TargetType="TextBox">
+        <Setter Property="FontFamily" Value="Consolas, Courier New" />
+        <Setter Property="IsReadOnly" Value="True" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Background" Value="#F3F5F7" />
+        <Setter Property="BorderBrush" Value="#D5DCE3" />
+        <Setter Property="Padding" Value="6,4" />
     </Style>
 
     <Style x:Key="SectionTitle" TargetType="TextBlock">

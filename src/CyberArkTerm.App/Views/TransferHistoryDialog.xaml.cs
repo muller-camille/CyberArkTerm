@@ -112,8 +112,8 @@ public partial class TransferHistoryDialog : Window
 
     private void OnClear(object sender, RoutedEventArgs e)
     {
-        if (MessageBox.Show(this, Text.Format(Strings.HistoryClearConfirm, _history.Records.Count), Strings.HistoryTitle,
-                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+        if (!ConfirmDialog.Destructive(this, Strings.HistoryTitle, Strings.HistoryClearHeading, Strings.HistoryClearAction,
+                subject: Text.Format(Strings.HistoryClearCount, _history.Records.Count), message: Strings.HistoryClearMessage))
         {
             return;
         }

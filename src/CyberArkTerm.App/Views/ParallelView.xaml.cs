@@ -184,11 +184,15 @@ public partial class ParallelView : UserControl
         var targets = ParallelLayout.Targets(from, _panes, Broadcast, p => p.Included, p => IsConnected(p.View.Session));
         if (targets.Count > 1 && input.IsMultiLinePaste)
         {
-            int lines = input.Text.TrimEnd('\r', '\n').Replace("\r\n", "\n").Split('\n', '\r').Length;
-            if (!(ConfirmPaste ?? AskPaste)(lines, targets.Count))
+            int lines = SshSessionView.PastedLines(input.Text).Count;
+            if (!(ConfirmPaste is { } hook ? hook(lines, targets.Count) : AskPaste(input.Text, targets.Count)))
             {
                 return;
             }
+        }
+        else if (targets.Count == 1 && !targets[0].View.MayPaste(input))
+        {
+            return;
         }
 
         foreach (var pane in targets)
@@ -197,9 +201,20 @@ public partial class ParallelView : UserControl
         }
     }
 
-    private bool AskPaste(int lines, int sessions) =>
-        MessageBox.Show(Window.GetWindow(this), Text.Format(Strings.ParallelPasteConfirm, lines, sessions), Strings.ParallelTitle,
-            MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
+    private bool AskPaste(string text, int sessions)
+    {
+        var lines = SshSessionView.PastedLines(text);
+        return ConfirmDialog.Confirm(Window.GetWindow(this), new ConfirmRequest
+        {
+            Title = Strings.ParallelTitle,
+            Heading = Text.Format(Strings.ParallelPasteHeading, lines.Count, sessions),
+            Message = Strings.ParallelPasteMessage,
+            Items = lines.Take(100).ToList(),
+            Kind = ConfirmKind.Warning,
+            Actions = [Strings.PasteAction],
+            DangerAction = 0,
+        });
+    }
 
     private void OnBroadcast(object sender, RoutedEventArgs e)
     {

@@ -1134,5 +1134,14 @@ namespace CyberArkTerm.Core.Localization {
                 return ResourceManager.GetString("PvwaUnexpectedSecretResponse", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to current permissions unknown: only a full mode (all rwx boxes set or cleared) can be applied.
+        /// </summary>
+        public static string PermissionsUnknown {
+            get {
+                return ResourceManager.GetString("PermissionsUnknown", resourceCulture);
+            }
+        }
     }
 }

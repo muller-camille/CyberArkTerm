@@ -72,6 +72,12 @@
         <CheckBox x:Name="RightClickBox" Margin="0,6,0,4">
             <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SettingsRightClickPastes}" />
         </CheckBox>
+        <CheckBox x:Name="ConfirmPasteBox" Margin="0,4,0,4">
+            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SettingsConfirmPaste}" />
+        </CheckBox>
+        <CheckBox x:Name="ConfirmCloseBox" Margin="0,4,0,4">
+            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SettingsConfirmClose}" />
+        </CheckBox>
         <CheckBox x:Name="SshInAppBox" Margin="0,4,0,8">
             <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SshInApp}" />
         </CheckBox>

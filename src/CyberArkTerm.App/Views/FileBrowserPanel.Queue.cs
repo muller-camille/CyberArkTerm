@@ -49,8 +49,17 @@ public partial class FileBrowserPanel
     public bool ConfirmCancelTransfers(Window owner, RemoteSession? session)
     {
         int count = ActiveTransfers(session);
-        return count == 0 || MessageBox.Show(owner, Text.Format(Strings.QueueCloseConfirm, count), "CyberArkTerm",
-            MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
+        return count == 0 || ConfirmDialog.Confirm(owner, new ConfirmRequest
+        {
+            Title = Strings.QueueTitle,
+            Heading = Strings.QueueCloseHeading,
+            Subject = session?.Label,
+            Message = Text.Format(Strings.QueueCloseCount, count) + "\n" + Strings.QueueCloseMessage,
+            Kind = ConfirmKind.Warning,
+            Actions = [Strings.QueueCloseAction],
+            DangerAction = 0,
+            CancelLabel = Strings.QueueKeepGoing,
+        });
     }
 
     /// <summary>
@@ -153,11 +162,40 @@ public partial class FileBrowserPanel
                 .SelectMany(i => i.Names))
             .ToHashSet(StringComparer.Ordinal);
         var conflicts = names.Where(existing.Contains).Distinct(StringComparer.Ordinal).ToList();
-        if (conflicts.Count > 0 && MessageBox.Show(Window.GetWindow(this),
-                Text.Format(Strings.UploadConflicts, directory, string.Join("\n", conflicts.Take(10).Select(c => "  • " + c))),
-                Strings.UploadTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+        if (conflicts.Count > 0)
         {
-            return;
+            // Remplacer, ignorer les éléments existants (pas pour une archive, préparée pour tout le dépôt) ou annuler ;
+            // le serveur est nommé, et Entrée annule.
+            int choice = ConfirmDialog.Ask(Window.GetWindow(this), new ConfirmRequest
+            {
+                Title = Strings.UploadTitle,
+                Heading = conflicts.Count == 1
+                    ? Text.Format(Strings.UploadConflictHeadingOne, conflicts[0])
+                    : Text.Format(Strings.UploadConflictHeadingMany, conflicts.Count),
+                Subject = Text.Format(Strings.ServerPath, session.Label, directory),
+                Message = Strings.UploadConflictMessage,
+                Items = conflicts.Count == 1 ? [] : conflicts,
+                Kind = ConfirmKind.Warning,
+                Actions = archiveName is null ? [Strings.ActionReplace, Strings.UploadSkipExisting] : [Strings.ActionReplace],
+                DangerAction = 0,
+            });
+            if (choice < 0)
+            {
+                return;
+            }
+
+            if (choice == 1)
+            {
+                var kept = Enumerable.Range(0, paths.Count).Where(i => !existing.Contains(names[i])).ToList();
+                if (kept.Count == 0)
+                {
+                    SetStatus(Text.Format(Strings.UploadNothingLeft, directory));
+                    return;
+                }
+
+                paths = kept.Select(i => paths[i]).ToList();
+                names = kept.Select(i => names[i]).ToList();
+            }
         }
 
         var protocol = _settings.PreferredUploadProtocol;
@@ -180,6 +218,7 @@ public partial class FileBrowserPanel
         })
         {
             Owner = session,
+            Server = session.Label,
             Protocol = Protocol,
             Names = names,
         });
@@ -222,6 +261,7 @@ public partial class FileBrowserPanel
         })
         {
             Owner = session,
+            Server = session.Label,
             Protocol = Protocol,
             Names = names,
         });
@@ -249,6 +289,7 @@ public partial class FileBrowserPanel
         })
         {
             Owner = _session,
+            Server = _session?.Label,
         });
     }
 

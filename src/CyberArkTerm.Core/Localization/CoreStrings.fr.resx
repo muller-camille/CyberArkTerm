@@ -372,4 +372,7 @@
   <data name="PvwaUnexpectedSecretResponse" xml:space="preserve">
     <value>Le PVWA n'a pas renvoyé le mot de passe mais une réponse inattendue ({0}) : une page de connexion (SSO) ou de maintenance s'est peut-être interposée. Reconnectez-vous, puis réessayez.</value>
   </data>
+  <data name="PermissionsUnknown" xml:space="preserve">
+    <value>droits actuels inconnus : seuls des droits complets (toutes les cases rwx cochées ou décochées) peuvent être appliqués</value>
+  </data>
 </root>

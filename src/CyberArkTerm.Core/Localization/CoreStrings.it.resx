@@ -372,4 +372,7 @@
   <data name="PvwaUnexpectedSecretResponse" xml:space="preserve">
     <value>Il PVWA non ha restituito la password ma una risposta inattesa ({0}): forse si è interposta una pagina di accesso (SSO) o di manutenzione. Riconnettersi e riprovare.</value>
   </data>
+  <data name="PermissionsUnknown" xml:space="preserve">
+    <value>permessi attuali sconosciuti: si possono applicare solo permessi completi (tutte le caselle rwx selezionate o deselezionate)</value>
+  </data>
 </root>

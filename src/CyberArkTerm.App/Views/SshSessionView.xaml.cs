@@ -194,17 +194,31 @@ public partial class SshSessionView : UserControl
     /// <summary>Saisie reçue, encodée selon l'état du terminal de cette session.</summary>
     public void Send(TerminalInput input) => Session.SendInput(input.Encode(Session.Emulator));
 
+    /// <summary>
+    /// Question avant un collage de plusieurs lignes que le shell exécuterait une à une (collage protégé non activé :
+    /// bash avant 5.1, ksh…) ; vrai pour coller. Sans question : le collage part.
+    /// </summary>
+    public Func<SshSessionView, TerminalInput, bool>? PasteGuard { get; set; }
+
+    /// <summary>Vrai si cette saisie peut partir dans la session : pas un collage de plusieurs lignes à risque, ou accepté.</summary>
+    public bool MayPaste(TerminalInput input) =>
+        !input.IsMultiLinePaste || Session.Emulator.BracketedPaste || PasteGuard?.Invoke(this, input) != false;
+
     private void OnInput(TerminalInput input)
     {
         if (InputRouter is { } router && input.IsTyping)
         {
             router(this, input);
         }
-        else
+        else if (MayPaste(input))
         {
             Send(input);
         }
     }
+
+    /// <summary>Lignes d'un texte collé, pour l'aperçu de la question (les dernières fins de ligne ne comptent pas).</summary>
+    public static IReadOnlyList<string> PastedLines(string text) =>
+        text.TrimEnd('\r', '\n').Replace("\r\n", "\n").Split('\n', '\r');
 
     /// <summary>Actions de la session (reconnecter, dupliquer…) à la fin du menu du clic droit dans le terminal.</summary>
     public Action<ItemCollection>? SessionMenu

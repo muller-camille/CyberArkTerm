@@ -1676,15 +1676,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Ask the CPM to change the password of {0} now? The new password is set on the server and stored i[rest of string was truncated].
-        /// </summary>
-        public static string CpmChangeConfirm {
-            get {
-                return ResourceManager.GetString("CpmChangeConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to The PVWA refused the CPM operation: {0}.
         /// </summary>
         public static string CpmFailed {
@@ -1766,15 +1757,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Ask the CPM to reconcile the password of {0}? The platform's reconcile account sets the server pa[rest of string was truncated].
-        /// </summary>
-        public static string CpmReconcileConfirm {
-            get {
-                return ResourceManager.GetString("CpmReconcileConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to {1} requested for {0}: the CPM handles it shortly (F5 to refresh the status).
         /// </summary>
         public static string CpmRequested {
@@ -1847,15 +1829,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Delete the account {0} from the safe {1}? It is deleted in CyberArk, for every user..
-        /// </summary>
-        public static string DeleteAccountConfirm {
-            get {
-                return ResourceManager.GetString("DeleteAccountConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to The PVWA did not delete the account: {0}.
         /// </summary>
         public static string DeleteAccountFailed {
@@ -1870,33 +1843,6 @@ namespace CyberArkTerm.App.Localization {
         public static string DeleteAccountForbidden {
             get {
                 return ResourceManager.GetString("DeleteAccountForbidden", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Permanently delete from the server ({0}):  {1}  Folders must be empty..
-        /// </summary>
-        public static string DeleteConfirm {
-            get {
-                return ResourceManager.GetString("DeleteConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Delete the folder “{0}”?.
-        /// </summary>
-        public static string DeleteEmptyFolderConfirm {
-            get {
-                return ResourceManager.GetString("DeleteEmptyFolderConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Delete the folder “{0}” and the servers it contains ({1})?  The accounts remain available in the [rest of string was truncated].
-        /// </summary>
-        public static string DeleteFolderConfirm {
-            get {
-                return ResourceManager.GetString("DeleteFolderConfirm", resourceCulture);
             }
         }
 
@@ -2171,15 +2117,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to “{0}” is {1}. Open it in the text editor anyway?.
-        /// </summary>
-        public static string EditLargeFile {
-            get {
-                return ResourceManager.GetString("EditLargeFile", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to {0} opened in the editor: each save offers to send it back to the server.
         /// </summary>
         public static string EditOpened {
@@ -2198,29 +2135,11 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to These edited files were not sent back to the server:  {0}  Close anyway? The local copies will be[rest of string was truncated].
-        /// </summary>
-        public static string EditPendingOnClose {
-            get {
-                return ResourceManager.GetString("EditPendingOnClose", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Unsent changes.
         /// </summary>
         public static string EditPendingTitle {
             get {
                 return ResourceManager.GetString("EditPendingTitle", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to “{0}” was changed on the server since you opened it.  Replace it with your version?.
-        /// </summary>
-        public static string EditRemoteChanged {
-            get {
-                return ResourceManager.GetString("EditRemoteChanged", resourceCulture);
             }
         }
 
@@ -2248,15 +2167,6 @@ namespace CyberArkTerm.App.Localization {
         public static string EditUploadFailed {
             get {
                 return ResourceManager.GetString("EditUploadFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to “{0}” was saved in the editor.  Send it back to the server? {1}.
-        /// </summary>
-        public static string EditUploadPrompt {
-            get {
-                return ResourceManager.GetString("EditUploadPrompt", resourceCulture);
             }
         }
 
@@ -2765,38 +2675,11 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to WARNING: the certificate of the FTPS server {0} has CHANGED since the last connection ({1}).  Sub[rest of string was truncated].
-        /// </summary>
-        public static string FtpCertificateChanged {
-            get {
-                return ResourceManager.GetString("FtpCertificateChanged", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to FTPS server certificate.
         /// </summary>
         public static string FtpCertificateTitle {
             get {
                 return ResourceManager.GetString("FtpCertificateTitle", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to The certificate of the FTPS server {0} is not trusted by Windows: {1}.  Subject: {2} Issuer: {3} [rest of string was truncated].
-        /// </summary>
-        public static string FtpCertificateUnknown {
-            get {
-                return ResourceManager.GetString("FtpCertificateUnknown", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to The FTP server {0} does not offer encryption (TLS).  The password of the entry and the files woul[rest of string was truncated].
-        /// </summary>
-        public static string FtpCleartextConfirm {
-            get {
-                return ResourceManager.GetString("FtpCleartextConfirm", resourceCulture);
             }
         }
 
@@ -2869,15 +2752,6 @@ namespace CyberArkTerm.App.Localization {
         public static string HistoryClear {
             get {
                 return ResourceManager.GetString("HistoryClear", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Clear the transfer history ({0} transfer(s))? The files themselves are not touched..
-        /// </summary>
-        public static string HistoryClearConfirm {
-            get {
-                return ResourceManager.GetString("HistoryClearConfirm", resourceCulture);
             }
         }
 
@@ -3035,24 +2909,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to WARNING: the key of the PSMP {0}:{1} has changed!  New fingerprint ({2}): SHA256:{3}  This may me[rest of string was truncated].
-        /// </summary>
-        public static string HostKeyChanged {
-            get {
-                return ResourceManager.GetString("HostKeyChanged", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to WARNING: the key of the server {0}:{1} has changed!  New fingerprint ({2}): SHA256:{3}  This may [rest of string was truncated].
-        /// </summary>
-        public static string HostKeyChangedServer {
-            get {
-                return ResourceManager.GetString("HostKeyChangedServer", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to PSMP server key.
         /// </summary>
         public static string HostKeyTitle {
@@ -3067,29 +2923,6 @@ namespace CyberArkTerm.App.Localization {
         public static string HostKeyTitleServer {
             get {
                 return ResourceManager.GetString("HostKeyTitleServer", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to First connection to the PSMP {0}:{1}.
-        ///
-        ///Key fingerprint ({2}):
-        ///SHA256:{3}
-        ///
-        ///Compare it with the fingerprint published by your CyberArk team. Trust this server?.
-        /// </summary>
-        public static string HostKeyUnknown {
-            get {
-                return ResourceManager.GetString("HostKeyUnknown", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to First connection to the server {0}:{1}.  Key fingerprint ({2}): SHA256:{3}  Check it with the ser[rest of string was truncated].
-        /// </summary>
-        public static string HostKeyUnknownServer {
-            get {
-                return ResourceManager.GetString("HostKeyUnknownServer", resourceCulture);
             }
         }
 
@@ -3315,15 +3148,6 @@ namespace CyberArkTerm.App.Localization {
         public static string ImportSaveResult {
             get {
                 return ResourceManager.GetString("ImportSaveResult", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to {0}  Save the result to a CSV file (one line per line of the file, without the passwords)?.
-        /// </summary>
-        public static string ImportSaveResultAsk {
-            get {
-                return ResourceManager.GetString("ImportSaveResultAsk", resourceCulture);
             }
         }
 
@@ -3580,15 +3404,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Delete the entry “{0}” from the KeePass vault {1}? It goes to the vault's recycle bin..
-        /// </summary>
-        public static string KeePassDeleteEntryConfirm {
-            get {
-                return ResourceManager.GetString("KeePassDeleteEntryConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Edit the KeePass entry.
         /// </summary>
         public static string KeePassEditEntryTitle {
@@ -3828,15 +3643,6 @@ namespace CyberArkTerm.App.Localization {
         public static string KeePassRememberHint {
             get {
                 return ResourceManager.GetString("KeePassRememberHint", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Remove the KeePass vault “{0}” from the list? The file itself is not deleted..
-        /// </summary>
-        public static string KeePassRemoveConfirm {
-            get {
-                return ResourceManager.GetString("KeePassRemoveConfirm", resourceCulture);
             }
         }
 
@@ -4197,15 +4003,6 @@ namespace CyberArkTerm.App.Localization {
         public static string LocalStoreDelete {
             get {
                 return ResourceManager.GetString("LocalStoreDelete", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Delete the local vault? The remembered KeePass master passwords will be forgotten (the KeePass va[rest of string was truncated].
-        /// </summary>
-        public static string LocalStoreDeleteConfirm {
-            get {
-                return ResourceManager.GetString("LocalStoreDeleteConfirm", resourceCulture);
             }
         }
 
@@ -5254,24 +5051,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to These files already exist and will be replaced (their old content is lost): {0}  Send anyway?.
-        /// </summary>
-        public static string MultiUploadConflicts {
-            get {
-                return ResourceManager.GetString("MultiUploadConflicts", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Send to the {0} other server(s)?.
-        /// </summary>
-        public static string MultiUploadContinue {
-            get {
-                return ResourceManager.GetString("MultiUploadContinue", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to _Destination folder on each server.
         /// </summary>
         public static string MultiUploadDestination {
@@ -5799,15 +5578,6 @@ namespace CyberArkTerm.App.Localization {
         public static string ParallelOpenedStatus {
             get {
                 return ResourceManager.GetString("ParallelOpenedStatus", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Paste {0} lines in {1} sessions? Each line runs as a command on every server..
-        /// </summary>
-        public static string ParallelPasteConfirm {
-            get {
-                return ResourceManager.GetString("ParallelPasteConfirm", resourceCulture);
             }
         }
 
@@ -6361,7 +6131,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Stop this transfer: the file being transferred, incomplete, is deleted; files already transferred[rest of string was truncated].
+        ///   Looks up a localized string similar to Stop this transfer: the file being transferred, incomplete, is deleted (a file that was being replaced on the server stays incomplete); files already transferred stay..
         /// </summary>
         public static string QueueCancelTip {
             get {
@@ -6375,15 +6145,6 @@ namespace CyberArkTerm.App.Localization {
         public static string QueueCancelledOne {
             get {
                 return ResourceManager.GetString("QueueCancelledOne", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to {0} transfer(s) running or waiting will be cancelled (the file being transferred, incomplete, is [rest of string was truncated].
-        /// </summary>
-        public static string QueueCloseConfirm {
-            get {
-                return ResourceManager.GetString("QueueCloseConfirm", resourceCulture);
             }
         }
 
@@ -6555,24 +6316,6 @@ namespace CyberArkTerm.App.Localization {
         public static string QuickPlaceholder {
             get {
                 return ResourceManager.GetString("QuickPlaceholder", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Remote desktop sessions are open ({0}). Disconnect them and close?.
-        /// </summary>
-        public static string RdpCloseAllConfirm {
-            get {
-                return ResourceManager.GetString("RdpCloseAllConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Disconnect the remote desktop session {0}?.
-        /// </summary>
-        public static string RdpCloseTabConfirm {
-            get {
-                return ResourceManager.GetString("RdpCloseTabConfirm", resourceCulture);
             }
         }
 
@@ -6856,15 +6599,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Remove “{0}” from your servers?  The account remains available in the “Available” tab..
-        /// </summary>
-        public static string RemoveSavedConfirm {
-            get {
-                return ResourceManager.GetString("RemoveSavedConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Rename folder.
         /// </summary>
         public static string RenameFolderTitle {
@@ -6883,15 +6617,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Copy.
-        /// </summary>
-        public static string RetrieveButton {
-            get {
-                return ResourceManager.GetString("RetrieveButton", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to The PVWA did not give the password: {0}.
         /// </summary>
         public static string RetrieveFailed {
@@ -6906,15 +6631,6 @@ namespace CyberArkTerm.App.Localization {
         public static string RetrieveForbidden {
             get {
                 return ResourceManager.GetString("RetrieveForbidden", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to The password of {0} is retrieved from CyberArk (the retrieval is recorded in the audit) and copie[rest of string was truncated].
-        /// </summary>
-        public static string RetrieveIntro {
-            get {
-                return ResourceManager.GetString("RetrieveIntro", resourceCulture);
             }
         }
 
@@ -6960,15 +6676,6 @@ namespace CyberArkTerm.App.Localization {
         public static string SafeMemberAddTitle {
             get {
                 return ResourceManager.GetString("SafeMemberAddTitle", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Tick _all.
-        /// </summary>
-        public static string SafeMemberAll {
-            get {
-                return ResourceManager.GetString("SafeMemberAll", resourceCulture);
             }
         }
 
@@ -7095,24 +6802,6 @@ namespace CyberArkTerm.App.Localization {
         public static string SafeMemberNameTip {
             get {
                 return ResourceManager.GetString("SafeMemberNameTip", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to _Untick all.
-        /// </summary>
-        public static string SafeMemberNone {
-            get {
-                return ResourceManager.GetString("SafeMemberNone", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Remove {0} from the safe {1}? This member loses all its rights on the safe..
-        /// </summary>
-        public static string SafeMemberRemoveConfirm {
-            get {
-                return ResourceManager.GetString("SafeMemberRemoveConfirm", resourceCulture);
             }
         }
 
@@ -7891,15 +7580,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Add {0} server(s) to the shared list “{1}”? Everyone who opens this list will see them..
-        /// </summary>
-        public static string ShareDropConfirm {
-            get {
-                return ResourceManager.GetString("ShareDropConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Open or create a shared list first (button at the top of the tab)..
         /// </summary>
         public static string ShareNoListTip {
@@ -8287,38 +7967,11 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Remove “{0}” from the shared list “{1}” for everyone? (The change is recorded and can be undone f[rest of string was truncated].
-        /// </summary>
-        public static string SharedRemoveConfirm {
-            get {
-                return ResourceManager.GetString("SharedRemoveConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Remove the folder “{0}” and its {1} server(s) from the shared list “{2}” for everyone? (The chang[rest of string was truncated].
-        /// </summary>
-        public static string SharedRemoveFolderConfirm {
-            get {
-                return ResourceManager.GetString("SharedRemoveFolderConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to _Restore this version….
         /// </summary>
         public static string SharedRestore {
             get {
                 return ResourceManager.GetString("SharedRestore", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Put the list “{0}” back as it was at revision {1} ({2})?  Servers added since will be removed and[rest of string was truncated].
-        /// </summary>
-        public static string SharedRestoreConfirm {
-            get {
-                return ResourceManager.GetString("SharedRestoreConfirm", resourceCulture);
             }
         }
 
@@ -8355,15 +8008,6 @@ namespace CyberArkTerm.App.Localization {
         public static string SharedServersRemoved {
             get {
                 return ResourceManager.GetString("SharedServersRemoved", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to The server “{0}” of the shared list “{1}” opens the account {2} on the machine “{3}”.  This targe[rest of string was truncated].
-        /// </summary>
-        public static string SharedTargetConfirm {
-            get {
-                return ResourceManager.GetString("SharedTargetConfirm", resourceCulture);
             }
         }
 
@@ -8674,24 +8318,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Close the other session tab? Its session will be closed..
-        /// </summary>
-        public static string TabCloseOtherConfirm {
-            get {
-                return ResourceManager.GetString("TabCloseOtherConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Close the {0} other session tabs? Their sessions will be closed..
-        /// </summary>
-        public static string TabCloseOthersConfirm {
-            get {
-                return ResourceManager.GetString("TabCloseOthersConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Drag the tab out of the window, or right-click, to show the session in a separate window (another[rest of string was truncated].
         /// </summary>
         public static string TabDetachTip {
@@ -8742,15 +8368,6 @@ namespace CyberArkTerm.App.Localization {
         public static string TabMyServersTip {
             get {
                 return ResourceManager.GetString("TabMyServersTip", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Reconnect {0}? The open session will be closed..
-        /// </summary>
-        public static string TabReconnectConfirm {
-            get {
-                return ResourceManager.GetString("TabReconnectConfirm", resourceCulture);
             }
         }
 
@@ -9844,15 +9461,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to These items already exist in {0} and will be replaced:  {1}  Continue?.
-        /// </summary>
-        public static string UploadConflicts {
-            get {
-                return ResourceManager.GetString("UploadConflicts", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Upload of {0} failed: {1}.
         /// </summary>
         public static string UploadFailed {
@@ -9975,15 +9583,6 @@ namespace CyberArkTerm.App.Localization {
         public static string VncClipboardSent {
             get {
                 return ResourceManager.GetString("VncClipboardSent", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Close the VNC session {0}?.
-        /// </summary>
-        public static string VncCloseTabConfirm {
-            get {
-                return ResourceManager.GetString("VncCloseTabConfirm", resourceCulture);
             }
         }
 
@@ -10213,19 +9812,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to These servers of the shared list "{0}" open their account on a target machine that CyberArk does not allow for that account:
-        ///
-        ///{1}
-        ///
-        ///These target machines come from the shared list, which anyone with write access to the share can change, not from CyberArk. Once copied, they will no longer be flagged. Copy them into My servers?.
-        /// </summary>
-        public static string SharedCopyTargetsConfirm {
-            get {
-                return ResourceManager.GetString("SharedCopyTargetsConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to "{0}" comes from a shared list created for the PVWA {1}: its accounts are not those of {2}. Sign in to {1} to use it..
         /// </summary>
         public static string SharedOtherPvwaConnect {
@@ -10279,18 +9865,6 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to These files already exist in {0}:
-        ///{1}
-        ///
-        ///Replace them? Each one is replaced only once its download is complete..
-        /// </summary>
-        public static string DownloadReplaceConfirm {
-            get {
-                return ResourceManager.GetString("DownloadReplaceConfirm", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to The emergency access log cannot be written ({0}): the connection is not opened..
         /// </summary>
         public static string KeePassConnectNoLog {
@@ -10332,6 +9906,1842 @@ namespace CyberArkTerm.App.Localization {
         public static string ToolAlreadyInMyServers {
             get {
                 return ResourceManager.GetString("ToolAlreadyInMyServers", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copy.
+        /// </summary>
+        public static string ConfirmCopy {
+            get {
+                return ResourceManager.GetString("ConfirmCopy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copied.
+        /// </summary>
+        public static string ConfirmCopied {
+            get {
+                return ResourceManager.GetString("ConfirmCopied", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Verify the identity of the PSMP.
+        /// </summary>
+        public static string HostKeyVerifyPsmp {
+            get {
+                return ResourceManager.GetString("HostKeyVerifyPsmp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Verify the identity of the server.
+        /// </summary>
+        public static string HostKeyVerifyServer {
+            get {
+                return ResourceManager.GetString("HostKeyVerifyServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This computer has never connected to this PSMP. Compare the fingerprint below with the one published by your CyberArk team before you trust it..
+        /// </summary>
+        public static string HostKeyFirstPsmp {
+            get {
+                return ResourceManager.GetString("HostKeyFirstPsmp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This computer has never connected to this server. Compare the fingerprint below with the one given by the server's administrator before you trust it..
+        /// </summary>
+        public static string HostKeyFirstServer {
+            get {
+                return ResourceManager.GetString("HostKeyFirstServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PSMP then receives your CyberArk password and MFA code..
+        /// </summary>
+        public static string HostKeyPsmpReceives {
+            get {
+                return ResourceManager.GetString("HostKeyPsmpReceives", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The server then receives the password of the KeePass entry..
+        /// </summary>
+        public static string HostKeyServerReceives {
+            get {
+                return ResourceManager.GetString("HostKeyServerReceives", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The fingerprint is remembered on this computer: you will only be asked again if it changes..
+        /// </summary>
+        public static string HostKeyRemembered {
+            get {
+                return ResourceManager.GetString("HostKeyRemembered", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Key fingerprint ({0}).
+        /// </summary>
+        public static string HostKeyFingerprint {
+            get {
+                return ResourceManager.GetString("HostKeyFingerprint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Trust and connect.
+        /// </summary>
+        public static string HostKeyTrust {
+            get {
+                return ResourceManager.GetString("HostKeyTrust", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel connection.
+        /// </summary>
+        public static string HostKeyCancel {
+            get {
+                return ResourceManager.GetString("HostKeyCancel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The key of the PSMP has changed.
+        /// </summary>
+        public static string HostKeyChangedPsmpHeading {
+            get {
+                return ResourceManager.GetString("HostKeyChangedPsmpHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The key of the server has changed.
+        /// </summary>
+        public static string HostKeyChangedServerHeading {
+            get {
+                return ResourceManager.GetString("HostKeyChangedServerHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Warning: this may mean that the connection is being intercepted..
+        /// </summary>
+        public static string HostKeyChangedBanner {
+            get {
+                return ResourceManager.GetString("HostKeyChangedBanner", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Only accept the new key if your CyberArk team confirmed this change (PSMP reinstalled, new key). Otherwise, cancel and alert them..
+        /// </summary>
+        public static string HostKeyChangedPsmpMessage {
+            get {
+                return ResourceManager.GetString("HostKeyChangedPsmpMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Only accept the new key if the server's administrator confirmed this change. Otherwise, cancel and alert them..
+        /// </summary>
+        public static string HostKeyChangedServerMessage {
+            get {
+                return ResourceManager.GetString("HostKeyChangedServerMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fingerprint remembered on this computer ({0}).
+        /// </summary>
+        public static string HostKeyOld {
+            get {
+                return ResourceManager.GetString("HostKeyOld", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fingerprint received now ({0}).
+        /// </summary>
+        public static string HostKeyNew {
+            get {
+                return ResourceManager.GetString("HostKeyNew", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to I confirmed this change with the CyberArk team.
+        /// </summary>
+        public static string HostKeyAckPsmp {
+            get {
+                return ResourceManager.GetString("HostKeyAckPsmp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to I confirmed this change with the server's administrator.
+        /// </summary>
+        public static string HostKeyAckServer {
+            get {
+                return ResourceManager.GetString("HostKeyAckServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Replace the key and connect.
+        /// </summary>
+        public static string HostKeyReplace {
+            get {
+                return ResourceManager.GetString("HostKeyReplace", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Verify the certificate of the FTPS server.
+        /// </summary>
+        public static string FtpCertVerifyHeading {
+            get {
+                return ResourceManager.GetString("FtpCertVerifyHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Windows does not trust this certificate: {0}. Compare its fingerprint with the one given by the server's administrator before you trust it..
+        /// </summary>
+        public static string FtpCertUnknownMessage {
+            get {
+                return ResourceManager.GetString("FtpCertUnknownMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The certificate of the FTPS server has changed.
+        /// </summary>
+        public static string FtpCertChangedHeading {
+            get {
+                return ResourceManager.GetString("FtpCertChangedHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This may be a renewal, or an interception of the connection ({0}). Only trust the new certificate if the server's administrator confirmed the change..
+        /// </summary>
+        public static string FtpCertChangedMessage {
+            get {
+                return ResourceManager.GetString("FtpCertChangedMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Subject: {0}.
+        /// </summary>
+        public static string FtpCertSubject {
+            get {
+                return ResourceManager.GetString("FtpCertSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Issuer: {0}.
+        /// </summary>
+        public static string FtpCertIssuer {
+            get {
+                return ResourceManager.GetString("FtpCertIssuer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Valid from {0} to {1}.
+        /// </summary>
+        public static string FtpCertValidity {
+            get {
+                return ResourceManager.GetString("FtpCertValidity", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Certificate fingerprint (SHA-256).
+        /// </summary>
+        public static string FtpCertFingerprint {
+            get {
+                return ResourceManager.GetString("FtpCertFingerprint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fingerprint remembered on this computer (SHA-256).
+        /// </summary>
+        public static string FtpCertOld {
+            get {
+                return ResourceManager.GetString("FtpCertOld", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fingerprint received now (SHA-256).
+        /// </summary>
+        public static string FtpCertNew {
+            get {
+                return ResourceManager.GetString("FtpCertNew", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Trust the new certificate and connect.
+        /// </summary>
+        public static string FtpCertReplace {
+            get {
+                return ResourceManager.GetString("FtpCertReplace", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This FTP server does not offer encryption.
+        /// </summary>
+        public static string FtpCleartextHeading {
+            get {
+                return ResourceManager.GetString("FtpCleartextHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The password of the entry and the files would travel in clear on the network, readable by anyone who can observe it..
+        /// </summary>
+        public static string FtpCleartextMessage {
+            get {
+                return ResourceManager.GetString("FtpCleartextMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connect without encryption.
+        /// </summary>
+        public static string FtpCleartextAction {
+            get {
+                return ResourceManager.GetString("FtpCleartextAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        public static string ActionDelete {
+            get {
+                return ResourceManager.GetString("ActionDelete", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Replace.
+        /// </summary>
+        public static string ActionReplace {
+            get {
+                return ResourceManager.GetString("ActionReplace", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove.
+        /// </summary>
+        public static string ActionRemove {
+            get {
+                return ResourceManager.GetString("ActionRemove", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open.
+        /// </summary>
+        public static string ActionOpen {
+            get {
+                return ResourceManager.GetString("ActionOpen", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}:{1}.
+        /// </summary>
+        public static string ServerPath {
+            get {
+                return ResourceManager.GetString("ServerPath", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Permanently delete “{0}” from the server?.
+        /// </summary>
+        public static string FileDeleteHeadingOne {
+            get {
+                return ResourceManager.GetString("FileDeleteHeadingOne", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Permanently delete {0} items from the server?.
+        /// </summary>
+        public static string FileDeleteHeadingMany {
+            get {
+                return ResourceManager.GetString("FileDeleteHeadingMany", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to There is no recycle bin on the server: deleted items cannot be recovered..
+        /// </summary>
+        public static string FileDeleteNoBin {
+            get {
+                return ResourceManager.GetString("FileDeleteNoBin", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Folders must be empty; a link is deleted, not its target..
+        /// </summary>
+        public static string FileDeleteRules {
+            get {
+                return ResourceManager.GetString("FileDeleteRules", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Replace “{0}” on this computer?.
+        /// </summary>
+        public static string DownloadReplaceHeadingOne {
+            get {
+                return ResourceManager.GetString("DownloadReplaceHeadingOne", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Replace {0} files on this computer?.
+        /// </summary>
+        public static string DownloadReplaceHeadingMany {
+            get {
+                return ResourceManager.GetString("DownloadReplaceHeadingMany", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Each file is replaced only once its download is complete..
+        /// </summary>
+        public static string DownloadReplaceMessage {
+            get {
+                return ResourceManager.GetString("DownloadReplaceMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to “{0}” already exists on the server.
+        /// </summary>
+        public static string UploadConflictHeadingOne {
+            get {
+                return ResourceManager.GetString("UploadConflictHeadingOne", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} items already exist on the server.
+        /// </summary>
+        public static string UploadConflictHeadingMany {
+            get {
+                return ResourceManager.GetString("UploadConflictHeadingMany", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A replaced file is rewritten in place: if the upload is cancelled or fails, it stays incomplete..
+        /// </summary>
+        public static string UploadConflictMessage {
+            get {
+                return ResourceManager.GetString("UploadConflictMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Skip existing.
+        /// </summary>
+        public static string UploadSkipExisting {
+            get {
+                return ResourceManager.GetString("UploadSkipExisting", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing to send: every item already exists in {0}..
+        /// </summary>
+        public static string UploadNothingLeft {
+            get {
+                return ResourceManager.GetString("UploadNothingLeft", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close the session {0}?.
+        /// </summary>
+        public static string SessionCloseHeading {
+            get {
+                return ResourceManager.GetString("SessionCloseHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Commands still running in this terminal will be stopped..
+        /// </summary>
+        public static string SessionCloseSsh {
+            get {
+                return ResourceManager.GetString("SessionCloseSsh", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The remote desktop is disconnected; programs keep running on the server only if the session is not logged off..
+        /// </summary>
+        public static string SessionCloseRdp {
+            get {
+                return ResourceManager.GetString("SessionCloseRdp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The remote screen is disconnected..
+        /// </summary>
+        public static string SessionCloseVnc {
+            get {
+                return ResourceManager.GetString("SessionCloseVnc", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close the session.
+        /// </summary>
+        public static string SessionCloseAction {
+            get {
+                return ResourceManager.GetString("SessionCloseAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Don't ask again when closing a session.
+        /// </summary>
+        public static string SessionCloseDontAsk {
+            get {
+                return ResourceManager.GetString("SessionCloseDontAsk", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Closing a session will no longer be confirmed (Settings › Terminal to ask again)..
+        /// </summary>
+        public static string SessionCloseDontAskDone {
+            get {
+                return ResourceManager.GetString("SessionCloseDontAskDone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Sign out and close the open sessions?.
+        /// </summary>
+        public static string CloseAllLogoutHeading {
+            get {
+                return ResourceManager.GetString("CloseAllLogoutHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Quit and close the open sessions?.
+        /// </summary>
+        public static string CloseAllExitHeading {
+            get {
+                return ResourceManager.GetString("CloseAllExitHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SSH sessions: {0}.
+        /// </summary>
+        public static string CloseAllSsh {
+            get {
+                return ResourceManager.GetString("CloseAllSsh", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to File sessions: {0}.
+        /// </summary>
+        public static string CloseAllFiles {
+            get {
+                return ResourceManager.GetString("CloseAllFiles", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote desktop sessions: {0}.
+        /// </summary>
+        public static string CloseAllRdp {
+            get {
+                return ResourceManager.GetString("CloseAllRdp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to VNC sessions: {0}.
+        /// </summary>
+        public static string CloseAllVnc {
+            get {
+                return ResourceManager.GetString("CloseAllVnc", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Transfers running or waiting: {0} (cancelled; the incomplete file is deleted).
+        /// </summary>
+        public static string CloseAllTransfers {
+            get {
+                return ResourceManager.GetString("CloseAllTransfers", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Edited files not sent back: {0} (their local copies are deleted).
+        /// </summary>
+        public static string CloseAllEdited {
+            get {
+                return ResourceManager.GetString("CloseAllEdited", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Sign out.
+        /// </summary>
+        public static string ActionSignOut {
+            get {
+                return ResourceManager.GetString("ActionSignOut", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Quit.
+        /// </summary>
+        public static string ActionQuit {
+            get {
+                return ResourceManager.GetString("ActionQuit", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close without sending your changes back?.
+        /// </summary>
+        public static string EditPendingHeading {
+            get {
+                return ResourceManager.GetString("EditPendingHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to These edited files were not sent back to the server. Their local copies will be deleted..
+        /// </summary>
+        public static string EditPendingMessage {
+            get {
+                return ResourceManager.GetString("EditPendingMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close without sending.
+        /// </summary>
+        public static string EditCloseWithoutSending {
+            get {
+                return ResourceManager.GetString("EditCloseWithoutSending", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open a large file in the editor?.
+        /// </summary>
+        public static string EditLargeHeading {
+            get {
+                return ResourceManager.GetString("EditLargeHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file is downloaded completely, then opened in your text editor, which may be slow..
+        /// </summary>
+        public static string EditLargeMessage {
+            get {
+                return ResourceManager.GetString("EditLargeMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send “{0}” back to the server?.
+        /// </summary>
+        public static string EditUploadHeading {
+            get {
+                return ResourceManager.GetString("EditUploadHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file was saved in the editor..
+        /// </summary>
+        public static string EditUploadMessage {
+            get {
+                return ResourceManager.GetString("EditUploadMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send back.
+        /// </summary>
+        public static string EditUploadAction {
+            get {
+                return ResourceManager.GetString("EditUploadAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Not now.
+        /// </summary>
+        public static string NotNow {
+            get {
+                return ResourceManager.GetString("NotNow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to “{0}” was changed on the server since you opened it.
+        /// </summary>
+        public static string EditRemoteChangedHeading {
+            get {
+                return ResourceManager.GetString("EditRemoteChangedHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Replacing it with your version loses the changes made on the server..
+        /// </summary>
+        public static string EditRemoteChangedMessage {
+            get {
+                return ResourceManager.GetString("EditRemoteChangedMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Replace with my version.
+        /// </summary>
+        public static string EditReplaceAnyway {
+            get {
+                return ResourceManager.GetString("EditReplaceAnyway", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Save the result to a CSV file?.
+        /// </summary>
+        public static string ImportSaveHeading {
+            get {
+                return ResourceManager.GetString("ImportSaveHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to One line per line of the file, without the passwords..
+        /// </summary>
+        public static string ImportSaveMessage {
+            get {
+                return ResourceManager.GetString("ImportSaveMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Save….
+        /// </summary>
+        public static string ImportSaveAction {
+            get {
+                return ResourceManager.GetString("ImportSaveAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Don't save.
+        /// </summary>
+        public static string DontSave {
+            get {
+                return ResourceManager.GetString("DontSave", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete the account.
+        /// </summary>
+        public static string AccountDeleteTitle {
+            get {
+                return ResourceManager.GetString("AccountDeleteTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete the account {0}?.
+        /// </summary>
+        public static string AccountDeleteHeading {
+            get {
+                return ResourceManager.GetString("AccountDeleteHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Safe {0}.
+        /// </summary>
+        public static string SafeSubject {
+            get {
+                return ResourceManager.GetString("SafeSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to It is deleted in CyberArk, for every user..
+        /// </summary>
+        public static string AccountDeleteForEveryone {
+            get {
+                return ResourceManager.GetString("AccountDeleteForEveryone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Its current password can no longer be retrieved from CyberArk, even if the CPM changed it..
+        /// </summary>
+        public static string AccountDeletePassword {
+            get {
+                return ResourceManager.GetString("AccountDeletePassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This cannot be undone from CyberArkTerm..
+        /// </summary>
+        public static string AccountDeleteNoUndo {
+            get {
+                return ResourceManager.GetString("AccountDeleteNoUndo", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to I understand that the current password will no longer be retrievable.
+        /// </summary>
+        public static string AccountDeleteAck {
+            get {
+                return ResourceManager.GetString("AccountDeleteAck", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password management (CPM).
+        /// </summary>
+        public static string CpmTitle {
+            get {
+                return ResourceManager.GetString("CpmTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Change the password of {0} now?.
+        /// </summary>
+        public static string CpmChangeHeading {
+            get {
+                return ResourceManager.GetString("CpmChangeHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The CPM sets a new password on the server and stores it in the CyberArk Vault..
+        /// </summary>
+        public static string CpmChangeMessage {
+            get {
+                return ResourceManager.GetString("CpmChangeMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Change the password.
+        /// </summary>
+        public static string CpmChangeAction {
+            get {
+                return ResourceManager.GetString("CpmChangeAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reconcile the password of {0}?.
+        /// </summary>
+        public static string CpmReconcileHeading {
+            get {
+                return ResourceManager.GetString("CpmReconcileHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The platform's reconcile account sets the server password back in line with the CyberArk Vault..
+        /// </summary>
+        public static string CpmReconcileMessage {
+            get {
+                return ResourceManager.GetString("CpmReconcileMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reconcile.
+        /// </summary>
+        public static string CpmReconcileAction {
+            get {
+                return ResourceManager.GetString("CpmReconcileAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove the KeePass database “{0}” from the list?.
+        /// </summary>
+        public static string KeePassRemoveHeading {
+            get {
+                return ResourceManager.GetString("KeePassRemoveHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file itself is not deleted: you can add it again later..
+        /// </summary>
+        public static string KeePassRemoveMessage {
+            get {
+                return ResourceManager.GetString("KeePassRemoveMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete the entry “{0}”?.
+        /// </summary>
+        public static string KeePassDeleteEntryHeading {
+            get {
+                return ResourceManager.GetString("KeePassDeleteEntryHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to It goes to the recycle bin of the database..
+        /// </summary>
+        public static string KeePassDeleteEntryMessage {
+            get {
+                return ResourceManager.GetString("KeePassDeleteEntryMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Some servers cannot receive the file.
+        /// </summary>
+        public static string MultiUploadSomeHeading {
+            get {
+                return ResourceManager.GetString("MultiUploadSomeHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing will be sent to these servers. The others ({0}) can receive it..
+        /// </summary>
+        public static string MultiUploadSomeMessage {
+            get {
+                return ResourceManager.GetString("MultiUploadSomeMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send to the others.
+        /// </summary>
+        public static string MultiUploadSendOthers {
+            get {
+                return ResourceManager.GetString("MultiUploadSendOthers", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Some files already exist on the servers.
+        /// </summary>
+        public static string MultiUploadConflictsHeading {
+            get {
+                return ResourceManager.GetString("MultiUploadConflictsHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to They will be replaced and their old content is lost..
+        /// </summary>
+        public static string MultiUploadConflictsMessage {
+            get {
+                return ResourceManager.GetString("MultiUploadConflictsMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Put the list “{0}” back as it was at revision {1}?.
+        /// </summary>
+        public static string SharedRestoreHeading {
+            get {
+                return ResourceManager.GetString("SharedRestoreHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Servers added since will be removed and servers removed since will come back, for everyone..
+        /// </summary>
+        public static string SharedRestoreEffect {
+            get {
+                return ResourceManager.GetString("SharedRestoreEffect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The restore is recorded as a new revision: it can itself be undone..
+        /// </summary>
+        public static string SharedRestoreUndo {
+            get {
+                return ResourceManager.GetString("SharedRestoreUndo", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Restore.
+        /// </summary>
+        public static string SharedRestoreAction {
+            get {
+                return ResourceManager.GetString("SharedRestoreAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete the local vault now?.
+        /// </summary>
+        public static string LocalStoreDeleteHeading {
+            get {
+                return ResourceManager.GetString("LocalStoreDeleteHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The remembered KeePass master passwords are forgotten..
+        /// </summary>
+        public static string LocalStoreDeleteForget {
+            get {
+                return ResourceManager.GetString("LocalStoreDeleteForget", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The KeePass databases themselves are not affected..
+        /// </summary>
+        public static string LocalStoreDeleteKeePass {
+            get {
+                return ResourceManager.GetString("LocalStoreDeleteKeePass", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The deletion is immediate, even if you then cancel the settings..
+        /// </summary>
+        public static string LocalStoreDeleteNow {
+            get {
+                return ResourceManager.GetString("LocalStoreDeleteNow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete now.
+        /// </summary>
+        public static string LocalStoreDeleteAction {
+            get {
+                return ResourceManager.GetString("LocalStoreDeleteAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Clear the transfer history?.
+        /// </summary>
+        public static string HistoryClearHeading {
+            get {
+                return ResourceManager.GetString("HistoryClearHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Transfers recorded: {0}.
+        /// </summary>
+        public static string HistoryClearCount {
+            get {
+                return ResourceManager.GetString("HistoryClearCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The files themselves are not touched..
+        /// </summary>
+        public static string HistoryClearMessage {
+            get {
+                return ResourceManager.GetString("HistoryClearMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Clear the history.
+        /// </summary>
+        public static string HistoryClearAction {
+            get {
+                return ResourceManager.GetString("HistoryClearAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove {0} from the safe?.
+        /// </summary>
+        public static string SafeMemberRemoveHeading {
+            get {
+                return ResourceManager.GetString("SafeMemberRemoveHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This member loses all its rights on the safe..
+        /// </summary>
+        public static string SafeMemberRemoveMessage {
+            get {
+                return ResourceManager.GetString("SafeMemberRemoveMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove the member.
+        /// </summary>
+        public static string SafeMemberRemoveAction {
+            get {
+                return ResourceManager.GetString("SafeMemberRemoveAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Paste {0} lines in {1} sessions?.
+        /// </summary>
+        public static string ParallelPasteHeading {
+            get {
+                return ResourceManager.GetString("ParallelPasteHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Each line runs as a command on every server..
+        /// </summary>
+        public static string ParallelPasteMessage {
+            get {
+                return ResourceManager.GetString("ParallelPasteMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Paste.
+        /// </summary>
+        public static string PasteAction {
+            get {
+                return ResourceManager.GetString("PasteAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Paste {0} lines in this terminal?.
+        /// </summary>
+        public static string PasteHeading {
+            get {
+                return ResourceManager.GetString("PasteHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The shell runs each line as soon as it is pasted..
+        /// </summary>
+        public static string PasteMessage {
+            get {
+                return ResourceManager.GetString("PasteMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Don't warn again before pasting several lines.
+        /// </summary>
+        public static string PasteDontAsk {
+            get {
+                return ResourceManager.GetString("PasteDontAsk", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reconnect {0}?.
+        /// </summary>
+        public static string TabReconnectHeading {
+            get {
+                return ResourceManager.GetString("TabReconnectHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The open session will be closed..
+        /// </summary>
+        public static string TabReconnectMessage {
+            get {
+                return ResourceManager.GetString("TabReconnectMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reconnect.
+        /// </summary>
+        public static string TabReconnectAction {
+            get {
+                return ResourceManager.GetString("TabReconnectAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close the other session tabs?.
+        /// </summary>
+        public static string TabCloseOthersHeading {
+            get {
+                return ResourceManager.GetString("TabCloseOthersHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Their sessions will be closed..
+        /// </summary>
+        public static string TabCloseOthersMessage {
+            get {
+                return ResourceManager.GetString("TabCloseOthersMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close the others.
+        /// </summary>
+        public static string TabCloseOthersAction {
+            get {
+                return ResourceManager.GetString("TabCloseOthersAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel the transfers in progress?.
+        /// </summary>
+        public static string QueueCloseHeading {
+            get {
+                return ResourceManager.GetString("QueueCloseHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Transfers running or waiting: {0}.
+        /// </summary>
+        public static string QueueCloseCount {
+            get {
+                return ResourceManager.GetString("QueueCloseCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file being transferred, incomplete, is deleted..
+        /// </summary>
+        public static string QueueCloseMessage {
+            get {
+                return ResourceManager.GetString("QueueCloseMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel the transfers and close.
+        /// </summary>
+        public static string QueueCloseAction {
+            get {
+                return ResourceManager.GetString("QueueCloseAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Keep transferring.
+        /// </summary>
+        public static string QueueKeepGoing {
+            get {
+                return ResourceManager.GetString("QueueKeepGoing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import.
+        /// </summary>
+        public static string ImportServersAction {
+            get {
+                return ResourceManager.GetString("ImportServersAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add these servers to the shared list “{0}”?.
+        /// </summary>
+        public static string ShareDropHeading {
+            get {
+                return ResourceManager.GetString("ShareDropHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Everyone who opens this list will see them..
+        /// </summary>
+        public static string ShareDropMessage {
+            get {
+                return ResourceManager.GetString("ShareDropMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Share.
+        /// </summary>
+        public static string ShareDropAction {
+            get {
+                return ResourceManager.GetString("ShareDropAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove “{0}” from the shared list “{1}” for everyone?.
+        /// </summary>
+        public static string SharedRemoveHeading {
+            get {
+                return ResourceManager.GetString("SharedRemoveHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove the folder “{0}” from the shared list “{1}” for everyone?.
+        /// </summary>
+        public static string SharedRemoveFolderHeading {
+            get {
+                return ResourceManager.GetString("SharedRemoveFolderHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The change is recorded and can be undone from the history..
+        /// </summary>
+        public static string SharedRemoveMessage {
+            get {
+                return ResourceManager.GetString("SharedRemoveMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copy servers whose target machine CyberArk does not allow?.
+        /// </summary>
+        public static string SharedCopyTargetsHeading {
+            get {
+                return ResourceManager.GetString("SharedCopyTargetsHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shared list “{0}”.
+        /// </summary>
+        public static string SharedListSubject {
+            get {
+                return ResourceManager.GetString("SharedListSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to These target machines come from the shared list, which anyone with write access to the share can change, not from CyberArk. Once copied into My servers, they will no longer be flagged..
+        /// </summary>
+        public static string SharedCopyTargetsMessage {
+            get {
+                return ResourceManager.GetString("SharedCopyTargetsMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copy anyway.
+        /// </summary>
+        public static string SharedCopyAnyway {
+            get {
+                return ResourceManager.GetString("SharedCopyAnyway", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Open {0} on the machine “{1}”?.
+        /// </summary>
+        public static string SharedTargetHeading {
+            get {
+                return ResourceManager.GetString("SharedTargetHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This target machine comes from the shared list, which anyone with write access to the share can modify, and not from CyberArk..
+        /// </summary>
+        public static string SharedTargetMessage {
+            get {
+                return ResourceManager.GetString("SharedTargetMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to “{0}”, shared list “{1}”.
+        /// </summary>
+        public static string SharedTargetSubject {
+            get {
+                return ResourceManager.GetString("SharedTargetSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connect anyway.
+        /// </summary>
+        public static string ConnectAnyway {
+            get {
+                return ResourceManager.GetString("ConnectAnyway", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove “{0}” from My servers?.
+        /// </summary>
+        public static string RemoveSavedHeading {
+            get {
+                return ResourceManager.GetString("RemoveSavedHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The account remains available in the “Available” tab..
+        /// </summary>
+        public static string RemoveSavedMessage {
+            get {
+                return ResourceManager.GetString("RemoveSavedMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete the folder “{0}”?.
+        /// </summary>
+        public static string DeleteFolderHeading {
+            get {
+                return ResourceManager.GetString("DeleteFolderHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to It contains servers ({0}): they are removed from My servers. The accounts remain available in the “Available” tab..
+        /// </summary>
+        public static string DeleteFolderMessage {
+            get {
+                return ResourceManager.GetString("DeleteFolderMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete the folder.
+        /// </summary>
+        public static string DeleteFolderAction {
+            get {
+                return ResourceManager.GetString("DeleteFolderAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send Ctrl+Alt+Del to {0}?.
+        /// </summary>
+        public static string VncCtrlAltDelHeading {
+            get {
+                return ResourceManager.GetString("VncCtrlAltDelHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Depending on the machine, this opens the security screen or, on some virtual machine consoles, restarts it..
+        /// </summary>
+        public static string VncCtrlAltDelMessage {
+            get {
+                return ResourceManager.GetString("VncCtrlAltDelMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send Ctrl+Alt+Del.
+        /// </summary>
+        public static string VncCtrlAltDelAction {
+            get {
+                return ResourceManager.GetString("VncCtrlAltDelAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm before closing a connected session (SSH, remote desktop, VNC).
+        /// </summary>
+        public static string SettingsConfirmClose {
+            get {
+                return ResourceManager.GetString("SettingsConfirmClose", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Warn before pasting several lines when the shell would run them one by one.
+        /// </summary>
+        public static string SettingsConfirmPaste {
+            get {
+                return ResourceManager.GetString("SettingsConfirmPaste", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Apply.
+        /// </summary>
+        public static string PermissionsApply {
+            get {
+                return ResourceManager.GetString("PermissionsApply", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Apply recursively….
+        /// </summary>
+        public static string PermissionsApplyRecursive {
+            get {
+                return ResourceManager.GetString("PermissionsApplyRecursive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The items do not all have the same permissions: a box left in the middle state leaves that permission unchanged on each item..
+        /// </summary>
+        public static string PermissionsMixedHint {
+            get {
+                return ResourceManager.GetString("PermissionsMixedHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Apply {0} to {1} and all its contents?.
+        /// </summary>
+        public static string PermissionsRecursiveHeading {
+            get {
+                return ResourceManager.GetString("PermissionsRecursiveHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Symbolic links are not followed; special bits (setuid, setgid, sticky) are not applied to the contents..
+        /// </summary>
+        public static string PermissionsRecursiveLinks {
+            get {
+                return ResourceManager.GetString("PermissionsRecursiveLinks", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A file only becomes executable if it already was..
+        /// </summary>
+        public static string PermissionsRecursiveSmart {
+            get {
+                return ResourceManager.GetString("PermissionsRecursiveSmart", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You can stop along the way; items already done keep their new permissions..
+        /// </summary>
+        public static string PermissionsRecursiveStop {
+            get {
+                return ResourceManager.GetString("PermissionsRecursiveStop", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Stop.
+        /// </summary>
+        public static string PermissionsStop {
+            get {
+                return ResourceManager.GetString("PermissionsStop", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Stop changing permissions (items already done keep their new permissions).
+        /// </summary>
+        public static string PermissionsStopTip {
+            get {
+                return ResourceManager.GetString("PermissionsStopTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Stopped: {0} items changed.
+        /// </summary>
+        public static string PermissionsStopped {
+            get {
+                return ResourceManager.GetString("PermissionsStopped", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No permission changed..
+        /// </summary>
+        public static string PermissionsNothing {
+            get {
+                return ResourceManager.GetString("PermissionsNothing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Profile:.
+        /// </summary>
+        public static string SafeMemberProfile {
+            get {
+                return ResourceManager.GetString("SafeMemberProfile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Read only (list, audit, members).
+        /// </summary>
+        public static string SafeProfileReadOnly {
+            get {
+                return ResourceManager.GetString("SafeProfileReadOnly", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account user (list and connect).
+        /// </summary>
+        public static string SafeProfileAccountUser {
+            get {
+                return ResourceManager.GetString("SafeProfileAccountUser", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account manager (retrieve, manage accounts and folders).
+        /// </summary>
+        public static string SafeProfileAccountManager {
+            get {
+                return ResourceManager.GetString("SafeProfileAccountManager", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Full (every right, including the safe and its members).
+        /// </summary>
+        public static string SafeProfileFull {
+            get {
+                return ResourceManager.GetString("SafeProfileFull", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Custom.
+        /// </summary>
+        public static string SafeProfileCustom {
+            get {
+                return ResourceManager.GetString("SafeProfileCustom", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Sensitive right: it gives control over the safe or its accounts.
+        /// </summary>
+        public static string SafeMemberSensitiveTip {
+            get {
+                return ResourceManager.GetString("SafeMemberSensitiveTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Changes: +{0} / −{1}.
+        /// </summary>
+        public static string SafeMemberChanges {
+            get {
+                return ResourceManager.GetString("SafeMemberChanges", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Changed: it was {0}.
+        /// </summary>
+        public static string SafeMemberChangedTip {
+            get {
+                return ResourceManager.GetString("SafeMemberChangedTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to granted.
+        /// </summary>
+        public static string SafeMemberWasGranted {
+            get {
+                return ResourceManager.GetString("SafeMemberWasGranted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to not granted.
+        /// </summary>
+        public static string SafeMemberWasNotGranted {
+            get {
+                return ResourceManager.GetString("SafeMemberWasNotGranted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Grant sensitive rights to {0}?.
+        /// </summary>
+        public static string SafeMemberSensitiveHeading {
+            get {
+                return ResourceManager.GetString("SafeMemberSensitiveHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to These rights give control over the safe or its accounts. Check that they are really needed..
+        /// </summary>
+        public static string SafeMemberSensitiveMessage {
+            get {
+                return ResourceManager.GetString("SafeMemberSensitiveMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Grant these rights.
+        /// </summary>
+        public static string SafeMemberSensitiveAction {
+            get {
+                return ResourceManager.GetString("SafeMemberSensitiveAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Safe member rights.
+        /// </summary>
+        public static string SafeMemberWindowTitle {
+            get {
+                return ResourceManager.GetString("SafeMemberWindowTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copy the password of {0}.
+        /// </summary>
+        public static string RetrieveHeading {
+            get {
+                return ResourceManager.GetString("RetrieveHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The retrieval is recorded in the CyberArk audit..
+        /// </summary>
+        public static string RetrieveAudited {
+            get {
+                return ResourceManager.GetString("RetrieveAudited", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Copied to the clipboard for {0} seconds, never shown, excluded from the clipboard history and synchronization..
+        /// </summary>
+        public static string RetrieveClipboard {
+            get {
+                return ResourceManager.GetString("RetrieveClipboard", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Optional, unless the platform requires a reason or a ticket..
+        /// </summary>
+        public static string RetrieveReasonHint {
+            get {
+                return ResourceManager.GetString("RetrieveReasonHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Retrieve and copy.
+        /// </summary>
+        public static string RetrieveAndCopy {
+            get {
+                return ResourceManager.GetString("RetrieveAndCopy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Session: {0}.
+        /// </summary>
+        public static string PromptSession {
+            get {
+                return ResourceManager.GetString("PromptSession", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The server asks:.
+        /// </summary>
+        public static string PromptDefaultInstructionServer {
+            get {
+                return ResourceManager.GetString("PromptDefaultInstructionServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Send.
+        /// </summary>
+        public static string PromptSend {
+            get {
+                return ResourceManager.GetString("PromptSend", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Probably the password of your CyberArk account. It is kept in memory for the files (SFTP, SCP) of this tab, never saved..
+        /// </summary>
+        public static string PromptHintVaultPassword {
+            get {
+                return ResourceManager.GetString("PromptHintVaultPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Kept in memory for the files (SFTP, SCP) of this tab, never saved..
+        /// </summary>
+        public static string PromptHintPassword {
+            get {
+                return ResourceManager.GetString("PromptHintPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Probably the code of your strong authentication (MFA): it is asked again at each connection..
+        /// </summary>
+        public static string PromptHintMfa {
+            get {
+                return ResourceManager.GetString("PromptHintMfa", resourceCulture);
             }
         }
     }

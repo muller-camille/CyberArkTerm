@@ -475,8 +475,13 @@ public partial class MainWindow
         switch (SavedTree.SelectedItem)
         {
             case SavedSessionNode node:
-                if (MessageBox.Show(this, Text.Format(Strings.RemoveSavedConfirm, node.Session.Name),
-                        Strings.MyServers, MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
+                if (ConfirmDialog.Confirm(this, new ConfirmRequest
+                    {
+                        Title = Strings.MyServers,
+                        Heading = Text.Format(Strings.RemoveSavedHeading, node.Session.Name),
+                        Message = Strings.RemoveSavedMessage,
+                        Actions = [Strings.ActionRemove],
+                    }))
                 {
                     _settings.Sessions.Remove(node.Session);
                     SaveAndRefreshSaved();
@@ -486,10 +491,15 @@ public partial class MainWindow
             case SavedFolderNode folder:
                 // Tous les serveurs du dossier, y compris ceux que la recherche masque.
                 int count = SessionLibrary.CountInFolder(_settings, folder.Path, PvwaHost);
-                var message = count == 0
-                    ? Text.Format(Strings.DeleteEmptyFolderConfirm, folder.Path)
-                    : Text.Format(Strings.DeleteFolderConfirm, folder.Path, count);
-                if (MessageBox.Show(this, message, Strings.MyServers, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
+                if (ConfirmDialog.Confirm(this, new ConfirmRequest
+                    {
+                        Title = Strings.MyServers,
+                        Heading = Text.Format(Strings.DeleteFolderHeading, folder.Path),
+                        Message = count == 0 ? null : Text.Format(Strings.DeleteFolderMessage, count),
+                        Kind = count == 0 ? ConfirmKind.Question : ConfirmKind.Warning,
+                        Actions = [Strings.DeleteFolderAction],
+                        DangerAction = count == 0 ? -1 : 0,
+                    }))
                 {
                     SessionLibrary.DeleteFolder(_settings, folder.Path, PvwaHost);
                     SaveAndRefreshSaved();

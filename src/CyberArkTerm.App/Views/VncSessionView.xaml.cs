@@ -440,6 +440,19 @@ public partial class VncSessionView : UserControl
             return;
         }
 
+        // Sur certaines consoles de machines virtuelles, Ctrl+Alt+Suppr redémarre la machine.
+        if (!ConfirmDialog.Confirm(Window.GetWindow(this), new ConfirmRequest
+            {
+                Title = Strings.VncCtrlAltDelAction,
+                Heading = Text.Format(Strings.VncCtrlAltDelHeading, Session.Label),
+                Message = Strings.VncCtrlAltDelMessage,
+                Kind = ConfirmKind.Warning,
+                Actions = [Strings.VncCtrlAltDelAction],
+            }) || !Session.IsConnected)
+        {
+            return;
+        }
+
         uint[] keys = [VncKeys.ControlLeft, VncKeys.AltLeft, VncKeys.Delete];
         foreach (var k in keys)
         {

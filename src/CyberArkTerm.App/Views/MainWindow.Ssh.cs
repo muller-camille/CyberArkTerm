@@ -9,6 +9,7 @@ using CyberArkTerm.App.Services;
 using CyberArkTerm.App.Services.Rdp;
 using CyberArkTerm.Core;
 using CyberArkTerm.Core.Ssh;
+using CyberArkTerm.Core.Terminal;
 using Renci.SshNet;
 
 namespace CyberArkTerm.App.Views;
@@ -26,7 +27,7 @@ public partial class MainWindow
     {
         SetStatus(Text.Format(Strings.SshOpening, label, _settings.PsmpAddress));
         var key = await GetPsmpKeyAsync();
-        var connector = new SshConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi, key);
+        var connector = new SshConnector(_settings.PsmpAddress, _settings.PsmpPort, login, _psmpUi.For(label), key);
         var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved);
         ShowSshTab(session, $"{login}@{_settings.PsmpAddress}", Strings.ConnectingViaPsmp, "IconSsh",
             Text.Format(Strings.SshOpened, label, _settings.PsmpAddress), duplicate);
@@ -41,7 +42,7 @@ public partial class MainWindow
         var label = session.Label;
         session.Editor = new RemoteEditor(session, this, _settings, (text, error) => SetStatus(text, error),
             directory => FilesPanel.OnRemoteChanged(session, directory));
-        var view = new SshSessionView(session, target, connectingText);
+        var view = new SshSessionView(session, target, connectingText) { PasteGuard = ConfirmMultiLinePaste };
         var tab = new TabItem { Content = view, Tag = session };
         tab.Header = TabHeader(tab, label, icon, duplicate);
         view.SessionMenu = items => AddTerminalSessionItems(items, tab, duplicate);
@@ -189,6 +190,15 @@ public partial class MainWindow
     /// <summary>Onglets de session (SSH, fichiers seuls, Bureau à distance, VNC), dans l'ordre affiché.</summary>
     private IEnumerable<TabItem> SessionTabs() => MainTabs.Items.OfType<TabItem>().Where(t => t.Tag is RemoteSession or RdpSession or VncSession);
 
+    /// <summary>Nom de la session d'un onglet (« utilisateur@serveur »).</summary>
+    private static string TabLabel(TabItem tab) => tab.Tag switch
+    {
+        RemoteSession session => session.Label,
+        RdpSession rdp => rdp.Label,
+        VncSession vnc => vnc.Label,
+        _ => "",
+    };
+
     /// <param name="owner">Fenêtre des questions (celle du terminal détaché) ; par défaut la fenêtre principale.</param>
     private void CloseSessionTab(TabItem tab, Window? owner = null)
     {
@@ -217,9 +227,13 @@ public partial class MainWindow
             MainTabs.SelectedItem = tab.Tag is SshSession inView && _parallel?.Contains(inView) == true ? _parallelTab : tab;
         }
 
-        bool Confirm(string label) =>
-            MessageBox.Show(owner, Text.Format(Strings.TabReconnectConfirm, label), "CyberArkTerm",
-                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes;
+        bool Confirm(string label) => ConfirmDialog.Confirm(owner, new ConfirmRequest
+        {
+            Title = Strings.TabReconnectAction,
+            Heading = Text.Format(Strings.TabReconnectHeading, label),
+            Message = Strings.TabReconnectMessage,
+            Actions = [Strings.TabReconnectAction],
+        });
 
         switch (tab.Tag)
         {
@@ -259,8 +273,14 @@ public partial class MainWindow
     {
         var others = SessionTabs().Where(t => t != keep).ToList();
         if (others.Count == 0
-            || MessageBox.Show(this, others.Count == 1 ? Strings.TabCloseOtherConfirm : Text.Format(Strings.TabCloseOthersConfirm, others.Count), "CyberArkTerm",
-                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+            || !ConfirmDialog.Confirm(this, new ConfirmRequest
+            {
+                Title = Strings.TabCloseOthersAction,
+                Heading = Strings.TabCloseOthersHeading,
+                Message = Strings.TabCloseOthersMessage,
+                Items = others.Select(TabLabel).ToList(),
+                Actions = [Strings.TabCloseOthersAction],
+            }))
         {
             return;
         }
@@ -272,8 +292,8 @@ public partial class MainWindow
             switch (tab.Tag)
             {
                 case RemoteSession:
-                    // Seule question possible : des fichiers modifiés pas encore renvoyés.
-                    CloseRemoteTab(tab);
+                    // Seules questions possibles : fichiers modifiés pas encore renvoyés, transferts en cours.
+                    CloseRemoteTab(tab, confirmSession: false);
                     break;
                 case RdpSession rdp:
                     closing.Add(RemoveRdpTabAsync(rdp));
@@ -288,8 +308,11 @@ public partial class MainWindow
         MainTabs.SelectedItem = keep;
     }
 
-    /// <summary>Ferme un onglet terminal ou fichiers seuls (fichiers modifiés et transferts en cours d'abord).</summary>
-    private void CloseRemoteTab(TabItem tab, Window? owner = null)
+    /// <summary>
+    /// Ferme un onglet terminal ou fichiers seuls : fichiers modifiés et transferts en cours d'abord, sinon confirmation
+    /// pour un terminal connecté (<paramref name="confirmSession"/> faux : déjà confirmé, « Fermer les autres »).
+    /// </summary>
+    private void CloseRemoteTab(TabItem tab, Window? owner = null, bool confirmSession = true)
     {
         if (tab.Tag is not RemoteSession session)
         {
@@ -297,12 +320,24 @@ public partial class MainWindow
         }
 
         owner ??= this;
-        if (session.Editor is { } editor && !RemoteEditor.ConfirmClose(owner, [editor]))
+        bool asked = false;
+        if (session.Editor is { } editor)
+        {
+            asked = RemoteEditor.UnsentFiles([editor]).Count > 0;
+            if (!RemoteEditor.ConfirmClose(owner, [editor]))
+            {
+                return;
+            }
+        }
+
+        asked |= FilesPanel.ActiveTransfers(session) > 0;
+        if (!FilesPanel.ConfirmCancelTransfers(owner, session))
         {
             return;
         }
 
-        if (!FilesPanel.ConfirmCancelTransfers(owner, session))
+        if (confirmSession && !asked && session is SshSession { State: RemoteSessionState.Connected }
+            && !ConfirmCloseSession(owner, session.Label, Strings.SessionCloseSsh))
         {
             return;
         }
@@ -334,9 +369,122 @@ public partial class MainWindow
         }
     }
 
-    /// <summary>Vrai si l'on peut fermer : aucun fichier modifié non renvoyé, ou l'utilisateur accepte de les perdre.</summary>
-    private bool ConfirmCloseEditedFiles() =>
-        RemoteEditor.ConfirmClose(this, _remoteSessions.Select(s => s.Editor).OfType<RemoteEditor>());
+    /// <summary>
+    /// Collage de plusieurs lignes dans un terminal dont le shell les exécuterait une à une (option des Paramètres,
+    /// activée par défaut) : aperçu des lignes, « Annuler » par défaut, et « Ne plus avertir ».
+    /// </summary>
+    private bool ConfirmMultiLinePaste(SshSessionView view, TerminalInput input)
+    {
+        if (!_settings.ConfirmMultiLinePaste)
+        {
+            return true;
+        }
+
+        var lines = SshSessionView.PastedLines(input.Text);
+        int choice = ConfirmDialog.Ask(Window.GetWindow(view) ?? this, new ConfirmRequest
+        {
+            Title = Strings.PasteAction,
+            Heading = Text.Format(Strings.PasteHeading, lines.Count),
+            Subject = view.Session.Label,
+            Message = Strings.PasteMessage,
+            Items = lines.Take(100).ToList(),
+            Kind = ConfirmKind.Warning,
+            Actions = [Strings.PasteAction],
+            DontAskAgain = Strings.PasteDontAsk,
+        }, out bool dontAsk);
+        if (choice != 0)
+        {
+            return false;
+        }
+
+        if (dontAsk)
+        {
+            _settings.ConfirmMultiLinePaste = false;
+            SaveSettings();
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Fermeture d'une session connectée (option des Paramètres, activée par défaut) : « Annuler » par défaut, avec
+    /// « Ne plus demander ». La même règle vaut pour SSH, Bureau à distance et VNC.
+    /// </summary>
+    private bool ConfirmCloseSession(Window owner, string label, string consequence)
+    {
+        if (!_settings.ConfirmCloseSession)
+        {
+            return true;
+        }
+
+        int choice = ConfirmDialog.Ask(owner, new ConfirmRequest
+        {
+            Title = Strings.SessionCloseAction,
+            Heading = Text.Format(Strings.SessionCloseHeading, label),
+            Message = consequence,
+            Actions = [Strings.SessionCloseAction],
+            DontAskAgain = Strings.SessionCloseDontAsk,
+        }, out bool dontAsk);
+        if (choice != 0)
+        {
+            return false;
+        }
+
+        if (dontAsk)
+        {
+            _settings.ConfirmCloseSession = false;
+            SaveSettings();
+            SetStatus(Strings.SessionCloseDontAskDone);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Déconnexion ou fermeture de l'application : un seul récapitulatif de ce qui sera fermé (sessions, transferts,
+    /// fichiers modifiés). Toujours demandé pour les transferts, les fichiers modifiés et le Bureau à distance ; pour
+    /// les terminaux SSH et VNC, selon l'option « Confirmer avant de fermer une session ».
+    /// </summary>
+    private bool ConfirmCloseAll()
+    {
+        var unsent = RemoteEditor.UnsentFiles(_remoteSessions.Select(s => s.Editor).OfType<RemoteEditor>());
+        int transfers = FilesPanel.ActiveTransfers(null);
+        int ssh = _remoteSessions.OfType<SshSession>().Count(s => s.State == RemoteSessionState.Connected);
+        int files = _remoteSessions.OfType<FilesSession>().Count(s => s.State == RemoteSessionState.Connected);
+        int rdp = _rdpViews.Count(v => v.Session.HasControl);
+        int vnc = MainTabs.Items.OfType<TabItem>().Select(t => t.Tag).OfType<VncSession>().Count(v => v.IsConnected);
+        bool always = unsent.Count > 0 || transfers > 0 || rdp > 0;
+        if (!always && !(_settings.ConfirmCloseSession && ssh + vnc > 0))
+        {
+            return true;
+        }
+
+        var bullets = new List<string>();
+        void Add(int count, string format)
+        {
+            if (count > 0)
+            {
+                bullets.Add(Text.Format(format, count));
+            }
+        }
+
+        Add(ssh, Strings.CloseAllSsh);
+        Add(files, Strings.CloseAllFiles);
+        Add(rdp, Strings.CloseAllRdp);
+        Add(vnc, Strings.CloseAllVnc);
+        Add(transfers, Strings.CloseAllTransfers);
+        Add(unsent.Count, Strings.CloseAllEdited);
+        return ConfirmDialog.Confirm(this, new ConfirmRequest
+        {
+            Title = "CyberArkTerm",
+            Heading = LogoutRequested ? Strings.CloseAllLogoutHeading : Strings.CloseAllExitHeading,
+            Bullets = bullets,
+            Items = unsent,
+            Kind = unsent.Count > 0 || transfers > 0 ? ConfirmKind.Warning : ConfirmKind.Question,
+            Actions = [LogoutRequested ? Strings.ActionSignOut : Strings.ActionQuit],
+            DangerAction = unsent.Count > 0 || transfers > 0 ? 0 : -1,
+        });
+    }
 
     private void CloseAllSshSessions()
     {

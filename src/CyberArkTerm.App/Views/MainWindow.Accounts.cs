@@ -17,6 +17,7 @@ public partial class MainWindow
     private static readonly TimeSpan PasswordClipboardDelay = TimeSpan.FromSeconds(20);
 
     private SecureClipboard? _passwordClipboard;
+    private System.Windows.Threading.DispatcherTimer? _passwordCountdown;
 
     private static string AccountLabel(PvwaAccount account) => $"{account.UserName}@{account.Address}";
 
@@ -161,8 +162,11 @@ public partial class MainWindow
         }
 
         var label = AccountLabel(account);
-        if (MessageBox.Show(this, Text.Format(Strings.DeleteAccountConfirm, label, account.SafeName), "CyberArkTerm",
-                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+        // Action la plus lourde du produit : conséquences détaillées, et case à cocher avant que le bouton s'active.
+        if (!ConfirmDialog.Destructive(this, Strings.AccountDeleteTitle, Text.Format(Strings.AccountDeleteHeading, label),
+                Strings.AccountDeleteTitle, subject: Text.Format(Strings.SafeSubject, account.SafeName),
+                bullets: [Strings.AccountDeleteForEveryone, Strings.AccountDeletePassword, Strings.AccountDeleteNoUndo],
+                acknowledge: Strings.AccountDeleteAck))
         {
             return;
         }
@@ -228,12 +232,19 @@ public partial class MainWindow
         var label = AccountLabel(account);
         var confirm = action switch
         {
-            CpmAction.Change => Strings.CpmChangeConfirm,
-            CpmAction.Reconcile => Strings.CpmReconcileConfirm,
-            _ => null,
+            CpmAction.Change => (Heading: Strings.CpmChangeHeading, Message: Strings.CpmChangeMessage, Action: Strings.CpmChangeAction),
+            CpmAction.Reconcile => (Strings.CpmReconcileHeading, Strings.CpmReconcileMessage, Strings.CpmReconcileAction),
+            _ => default((string Heading, string Message, string Action)?),
         };
-        if (confirm is not null && MessageBox.Show(this, Text.Format(confirm, label), "CyberArkTerm",
-                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+        if (confirm is { } c && !ConfirmDialog.Confirm(this, new ConfirmRequest
+            {
+                Title = Strings.CpmTitle,
+                Heading = Text.Format(c.Heading, label),
+                Subject = Text.Format(Strings.SafeSubject, account.SafeName),
+                Message = c.Message,
+                Kind = ConfirmKind.Warning,
+                Actions = [c.Action],
+            }))
         {
             return;
         }
@@ -291,19 +302,44 @@ public partial class MainWindow
         }
 
         var label = AccountLabel(account);
-        _passwordClipboard ??= new SecureClipboard(new WindowInteropHelper(this).Handle, PasswordClipboardDelay,
-            () => SetStatus(Strings.PasswordClipboardCleared));
+        _passwordClipboard ??= new SecureClipboard(new WindowInteropHelper(this).Handle, PasswordClipboardDelay, () =>
+        {
+            _passwordCountdown?.Stop();
+            SetStatus(Strings.PasswordClipboardCleared);
+        });
         var reason = _currentSaved?.AccountId == account.Id ? _currentSaved.Reason : null;
         var dialog = new RetrievePasswordDialog(label, PasswordClipboardDelay, reason,
-            (options, ct) => client.RetrievePasswordAsync(account.Id, options, ct), _passwordClipboard.Copy) { Owner = this };
+            (options, ct) => client.RetrievePasswordAsync(account.Id, options, ct), _passwordClipboard.Copy, account.SafeName) { Owner = this };
         if (dialog.ShowDialog() == true)
         {
-            SetStatus(Text.Format(Strings.PasswordCopied, label, (int)PasswordClipboardDelay.TotalSeconds));
+            StartPasswordCountdown(label);
         }
         else if (dialog.SessionExpired)
         {
             OnSessionExpired();
         }
+    }
+
+    /// <summary>Barre d'état : secondes restantes avant l'effacement du mot de passe copié.</summary>
+    private void StartPasswordCountdown(string label)
+    {
+        var clearsAt = DateTime.UtcNow + PasswordClipboardDelay;
+        void Show() => SetStatus(Text.Format(Strings.PasswordCopied, label,
+            Math.Max(0, (int)Math.Ceiling((clearsAt - DateTime.UtcNow).TotalSeconds))));
+        _passwordCountdown?.Stop();
+        _passwordCountdown = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _passwordCountdown.Tick += (_, _) =>
+        {
+            if (DateTime.UtcNow >= clearsAt)
+            {
+                _passwordCountdown?.Stop();
+                return;
+            }
+
+            Show();
+        };
+        Show();
+        _passwordCountdown.Start();
     }
 
     /// <summary>Efface du presse-papiers un mot de passe copié (déconnexion, fermeture, verrouillage de Windows).</summary>

@@ -41,8 +41,7 @@ public partial class MainWindow
             return;
         }
 
-        if (session.IsConnected && MessageBox.Show(owner ?? this, Text.Format(Strings.VncCloseTabConfirm, session.Label), "CyberArkTerm",
-                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+        if (session.IsConnected && !ConfirmCloseSession(owner ?? this, session.Label, Strings.SessionCloseVnc))
         {
             return;
         }

@@ -37,8 +37,15 @@ public partial class ImportProgressDialog : Window
         _import = import;
         _create = create;
         _rows = import.Rows.Select(r => new ImportRowView(r)).ToList();
-        AskToSave = summary => MessageBox.Show(this, Text.Format(Strings.ImportSaveResultAsk, summary), Strings.ImportTitle,
-            MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes) == MessageBoxResult.Yes;
+        AskToSave = summary => ConfirmDialog.Confirm(this, new ConfirmRequest
+        {
+            Title = Strings.ImportTitle,
+            Heading = Strings.ImportSaveHeading,
+            Message = summary + "\n\n" + Strings.ImportSaveMessage,
+            Actions = [Strings.ImportSaveAction],
+            DefaultAction = 0,
+            CancelLabel = Strings.DontSave,
+        });
         BuildColumns();
         RowsGrid.ItemsSource = _rows;
         HeadingText.Text = Text.Format(Strings.ImportRunning, import.Ready);

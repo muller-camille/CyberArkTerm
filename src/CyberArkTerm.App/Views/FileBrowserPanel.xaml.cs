@@ -622,6 +622,9 @@ public partial class FileBrowserPanel : UserControl
 
     private void OnPermissions(object sender, RoutedEventArgs e) => _ = ChangePermissionsAsync();
 
+    /// <summary>Modification des droits en cours (bouton « Arrêter » de la barre d'état).</summary>
+    private CancellationTokenSource? _chmodCancel;
+
     private async Task ChangePermissionsAsync()
     {
         var browser = _browser;
@@ -633,15 +636,21 @@ public partial class FileBrowserPanel : UserControl
         }
 
         var target = selected.Count == 1 ? selected[0].Name : Text.Format(Strings.ItemsCount, selected.Count);
-        int mode = UnixPermissions.FromSymbolic(selected[0].Permissions);
-        if (selected[0].IsSymbolicLink)
+        var modes = new List<int>();
+        foreach (var entry in selected)
         {
+            if (!entry.IsSymbolicLink)
+            {
+                modes.Add(UnixPermissions.FromSymbolic(entry.Permissions));
+                continue;
+            }
+
             // La liste montre les droits du lien lui-même (lrwxrwxrwx) alors que chmod change ceux de sa cible :
             // partir de 777 rendrait la cible accessible à tous si l'on validait sans rien changer.
             int? targetMode;
             try
             {
-                targetMode = await browser.GetModeAsync(selected[0].FullPath, CancellationToken.None);
+                targetMode = await browser.GetModeAsync(entry.FullPath, CancellationToken.None);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
@@ -651,25 +660,59 @@ public partial class FileBrowserPanel : UserControl
 
             if (targetMode is not { } resolved)
             {
-                SetStatus(Text.Format(Strings.PermissionsLinkUnknown, selected[0].Name), error: true);
+                SetStatus(Text.Format(Strings.PermissionsLinkUnknown, entry.Name), error: true);
                 return;
             }
 
-            mode = resolved;
+            modes.Add(resolved);
         }
 
-        var dialog = new PermissionsDialog(target, browser.CurrentDirectory, mode, selected.Any(s => s.IsDirectory && !s.IsSymbolicLink))
-        {
-            Owner = Window.GetWindow(this),
-        };
+        var location = Text.Format(Strings.ServerPath, _session?.Label ?? "", browser.CurrentDirectory);
+        var owner = Window.GetWindow(this);
+        var dialog = new PermissionsDialog(target, location, modes, selected.Any(s => s.IsDirectory && !s.IsSymbolicLink)) { Owner = owner };
         if (dialog.ShowDialog() != true)
         {
             return;
         }
 
-        var octal = UnixPermissions.ToOctal(dialog.Mode);
+        var change = dialog.Change;
+        if (change.Set == 0 && change.Clear == 0)
+        {
+            SetStatus(Strings.PermissionsNothing);
+            return;
+        }
+
+        // Droits complets : leur valeur octale (755) ; sinon ce qui change (g+w).
+        var what = change.CoversAllRwx ? UnixPermissions.ToOctal(change.Set) : change.ToSymbolic();
+        if (dialog.Recursive)
+        {
+            var bullets = new List<string> { Strings.PermissionsRecursiveLinks };
+            if (dialog.ExecuteOnlyIfAlready)
+            {
+                bullets.Add(Strings.PermissionsRecursiveSmart);
+            }
+
+            bullets.Add(Strings.PermissionsRecursiveStop);
+            if (!ConfirmDialog.Confirm(owner, new ConfirmRequest
+                {
+                    Title = Strings.PermissionsTitle,
+                    Heading = Text.Format(Strings.PermissionsRecursiveHeading, what, target),
+                    Subject = location,
+                    Bullets = bullets,
+                    Kind = ConfirmKind.Warning,
+                    Actions = [Strings.PermissionsApply],
+                }))
+            {
+                return;
+            }
+        }
+
         var errors = new List<string>();
         int changed = 0;
+        bool stopped = false;
+        using var cancel = new CancellationTokenSource();
+        _chmodCancel = cancel;
+        StopChmodButton.Visibility = dialog.Recursive ? Visibility.Visible : Visibility.Collapsed;
         Interlocked.Increment(ref _busy);
         try
         {
@@ -692,10 +735,15 @@ public partial class FileBrowserPanel : UserControl
                 {
                     // Pas de propagation à travers un lien symbolique sélectionné (seule sa cible change de droits).
                     bool recursive = dialog.Recursive && entry.IsDirectory && !entry.IsSymbolicLink;
-                    var result = await browser.SetPermissionsAsync(entry.FullPath, dialog.Mode, dialog.SpecialChanged,
-                        recursive, dialog.ExecuteOnlyIfAlready, progress, CancellationToken.None);
+                    var result = await browser.SetPermissionsAsync(entry.FullPath, change, recursive, dialog.ExecuteOnlyIfAlready,
+                        progress, cancel.Token);
                     changed += result.Changed;
                     errors.AddRange(result.Errors);
+                }
+                catch (OperationCanceledException) when (cancel.IsCancellationRequested)
+                {
+                    stopped = true;
+                    break;
                 }
                 catch (Exception ex) when (ex is not OutOfMemoryException)
                 {
@@ -706,6 +754,8 @@ public partial class FileBrowserPanel : UserControl
         finally
         {
             Interlocked.Decrement(ref _busy);
+            _chmodCancel = null;
+            StopChmodButton.Visibility = Visibility.Collapsed;
         }
 
         if (!StillShowing(browser, generation))
@@ -718,13 +768,19 @@ public partial class FileBrowserPanel : UserControl
         {
             SetStatus(Text.Format(Strings.PermissionsFailed, string.Join(" ; ", errors.Take(5))), error: true);
         }
+        else if (stopped)
+        {
+            SetStatus(Text.Format(Strings.PermissionsStopped, changed));
+        }
         else
         {
             SetStatus(dialog.Recursive
-                ? Text.Format(Strings.PermissionsDoneCount, octal, changed)
-                : Text.Format(Strings.PermissionsDone, octal, target));
+                ? Text.Format(Strings.PermissionsDoneCount, what, changed)
+                : Text.Format(Strings.PermissionsDone, what, target));
         }
     }
+
+    private void OnStopChmod(object sender, RoutedEventArgs e) => _chmodCancel?.Cancel();
 
     private async Task DeleteAsync()
     {
@@ -736,16 +792,16 @@ public partial class FileBrowserPanel : UserControl
             return;
         }
 
-        var names = string.Join("\n", selected.Take(10).Select(s => "  • " + s.Name + (s.IsDirectory ? "/" : "")));
-        if (selected.Count > 10)
-        {
-            names += "\n" + Text.Format(Strings.AndMore, selected.Count - 10);
-        }
-
-        var answer = MessageBox.Show(Window.GetWindow(this),
-            Text.Format(Strings.DeleteConfirm, browser.CurrentDirectory, names),
-            Strings.DeleteTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-        if (answer != MessageBoxResult.Yes)
+        // Le serveur est nommé : l'onglet Fichiers change de serveur avec l'onglet de session actif.
+        static string Name(RemoteEntry entry) => entry.Name + (entry.IsDirectory ? "/" : "");
+        if (!ConfirmDialog.Destructive(Window.GetWindow(this), Strings.DeleteTitle,
+                selected.Count == 1
+                    ? Text.Format(Strings.FileDeleteHeadingOne, Name(selected[0]))
+                    : Text.Format(Strings.FileDeleteHeadingMany, selected.Count),
+                Strings.ActionDelete,
+                subject: Text.Format(Strings.ServerPath, _session?.Label ?? "", browser.CurrentDirectory),
+                bullets: [Strings.FileDeleteNoBin, Strings.FileDeleteRules],
+                items: selected.Count == 1 ? null : selected.Select(Name).ToList()))
         {
             return;
         }
@@ -800,7 +856,8 @@ public partial class FileBrowserPanel : UserControl
         e.Effects = ok ? DragDropEffects.Copy : DragDropEffects.None;
         if (ok)
         {
-            DropHintText.Text = Text.Format(_queue.ActiveCount > 0 ? Strings.DropHintQueued : Strings.DropHint, Protocol, _browser!.CurrentDirectory);
+            DropHintText.Text = Text.Format(_queue.ActiveCount > 0 ? Strings.DropHintQueued : Strings.DropHint, Protocol,
+                Text.Format(Strings.ServerPath, _session?.Label ?? "", _browser!.CurrentDirectory));
             DropHint.Visibility = Visibility.Visible;
         }
 
@@ -876,10 +933,20 @@ public partial class FileBrowserPanel : UserControl
             // seule question pour ceux qui existent déjà.
             targets = VirtualFiles.AssignNames(files.Select(f => (IReadOnlyList<string>)[f.Name]).ToList())
                 .Select(name => Path.Combine(folder, name)).ToList();
-            var existing = targets.Where(File.Exists).Select(t => "  • " + Path.GetFileName(t)).ToList();
-            if (existing.Count > 0 && MessageBox.Show(Window.GetWindow(this),
-                    Text.Format(Strings.DownloadReplaceConfirm, folder, string.Join("\n", existing.Take(10)) + (existing.Count > 10 ? "\n  …" : "")),
-                    Strings.DownloadTitle, MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+            var existing = targets.Where(File.Exists).Select(t => Path.GetFileName(t)).ToList();
+            if (existing.Count > 0 && !ConfirmDialog.Confirm(Window.GetWindow(this), new ConfirmRequest
+                {
+                    Title = Strings.DownloadTitle,
+                    Heading = existing.Count == 1
+                        ? Text.Format(Strings.DownloadReplaceHeadingOne, existing[0])
+                        : Text.Format(Strings.DownloadReplaceHeadingMany, existing.Count),
+                    Subject = folder,
+                    Message = Strings.DownloadReplaceMessage,
+                    Items = existing.Count == 1 ? [] : existing,
+                    Kind = ConfirmKind.Warning,
+                    Actions = [Strings.ActionReplace],
+                    DangerAction = 0,
+                }))
             {
                 return;
             }

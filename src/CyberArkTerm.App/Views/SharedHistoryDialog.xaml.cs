@@ -100,8 +100,15 @@ public partial class SharedHistoryDialog : Window
             return;
         }
 
-        if (MessageBox.Show(this, Text.Format(Strings.SharedRestoreConfirm, _list.Name, row.Revision, row.Date), Title,
-                MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+        if (!ConfirmDialog.Confirm(this, new ConfirmRequest
+            {
+                Title = Title,
+                Heading = Text.Format(Strings.SharedRestoreHeading, _list.Name, row.Revision),
+                Subject = row.Date,
+                Bullets = [Strings.SharedRestoreEffect, Strings.SharedRestoreUndo],
+                Kind = ConfirmKind.Warning,
+                Actions = [Strings.SharedRestoreAction],
+            }))
         {
             return;
         }
