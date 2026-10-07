@@ -110,6 +110,18 @@ public sealed class EnvironmentProfileTests : IDisposable
         Assert.Equal(3, user.SharedLists.Count);
     }
 
+    /// <summary>Exporté d'un poste sans PSMP ni composant Windows : n'efface pas ceux du poste qui l'importe.</summary>
+    [Fact]
+    public void EmptySettingsAreNotExported()
+    {
+        var profile = EnvironmentProfile.FromSettings(new AppSettings { PvwaUrl = "pvwa.corp.com", AuthMethod = AuthMethod.LDAP }, null);
+        Assert.Equal((null, null, null, null), (profile.PsmpAddress, profile.PsmpPort, profile.PsmpServers, profile.WindowsComponent));
+
+        var changes = profile.Diff(Team());
+        Assert.DoesNotContain(changes, c => c.Setting is EnvironmentSetting.DefaultPsmp or EnvironmentSetting.PsmpServers
+            or EnvironmentSetting.WindowsComponent or EnvironmentSetting.CentralFile);
+    }
+
     /// <summary>Même PVWA écrit autrement : pas de changement.</summary>
     [Fact]
     public void SamePvwaWrittenDifferentlyIsNoChange()
@@ -131,6 +143,12 @@ public sealed class EnvironmentProfileTests : IDisposable
     [InlineData("""{ "HostKeys": { "psmp.corp.com:22": "ssh-ed25519 AAAA" } }""", EnvironmentProblem.InvalidHostKey)]
     [InlineData("""{ "SharedLists": [ "listes\\prod.json" ] }""", EnvironmentProblem.InvalidPath)]
     [InlineData("""{ "CentralFile": "env.json" }""", EnvironmentProblem.InvalidPath)]
+    [InlineData("""{ "CentralFile": "C:env.json" }""", EnvironmentProblem.InvalidPath)]
+    [InlineData("""{ "SharedLists": [ null ] }""", EnvironmentProblem.InvalidPath)]
+    [InlineData("""{ "AuthMethod": 1 }""", EnvironmentProblem.InvalidJson)]
+    [InlineData("""{ "AuthMethod": "7" }""", EnvironmentProblem.InvalidJson)]
+    [InlineData("""{ "AuthMethod": "LDAP, RADIUS" }""", EnvironmentProblem.InvalidJson)]
+    [InlineData("""{ "UploadProtocol": "Ftp" }""", EnvironmentProblem.InvalidJson)]
     [InlineData("""{ "PvwaUrl": """, EnvironmentProblem.InvalidJson)]
     public void InvalidFilesAreRefused(string json, EnvironmentProblem problem)
     {

@@ -690,7 +690,9 @@ Ogni volta una finestra mostra cosa cambierà («valore precedente → nuovo val
 il loro indirizzo o aggiunge una chiave di server, bisogna spuntare «Ho verificato…» prima di applicare. Una chiave di
 server già accettata sul computer non viene mai sostituita da un file (viene segnalata). Un file non valido
 (indirizzo in http, nome di componente errato…) viene rifiutato per intero. Un file già proposto viene riproposto solo
-se è cambiato. Il tuo nome utente, «I miei server» e le tue sessioni recenti non vengono mai toccati; gli elenchi
+se è cambiato. Un'impostazione vuota sul computer che esporta non viene esportata: non cancella nulla su quello che
+importa. I percorsi (elenchi condivisi, file centrale) sono completi: `C:\…` o `\\server\…`.
+Il tuo nome utente, «I miei server» e le tue sessioni recenti non vengono mai toccati; gli elenchi
 condivisi si aggiungono senza togliere i tuoi.
 
 Tutte le preferenze sono salvate in `%APPDATA%\CyberArkTerm\settings.json`: lingua, indirizzo del PVWA, metodo e

@@ -649,7 +649,9 @@ Each time, a window shows what will change ("old value → new value") and the S
 apply" is the default. The PVWA and the PSMPs receive your CyberArk password: when the file changes their address or
 adds a server key, "I have checked…" must be ticked before applying. A server key already accepted on the computer is
 never replaced by a file (it is reported). An invalid file (http address, wrong component name…) is refused as a
-whole. A file already offered is offered again only when it has changed. Your user name, "My servers" and your
+whole. A file already offered is offered again only when it has changed. A setting left empty on the exporting PC is
+not exported: it clears nothing on the importing one. Paths (shared lists, central file) are full: `C:\…` or
+`\\server\…`. Your user name, "My servers" and your
 recent sessions are never touched; shared lists are added without removing yours.
 
 All preferences are saved in `%APPDATA%\CyberArkTerm\settings.json`: language, PVWA address, sign-in method and user

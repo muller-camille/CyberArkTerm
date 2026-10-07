@@ -93,7 +93,7 @@ internal static class EnvironmentImport
             applied = ConfirmDialog.Confirm(owner, new ConfirmRequest
             {
                 Title = Strings.EnvTitle,
-                Heading = string.IsNullOrWhiteSpace(file.Profile.Name) ? Strings.EnvHeading : Text.Format(Strings.EnvHeadingNamed, file.Profile.Name.Trim()),
+                Heading = string.IsNullOrWhiteSpace(file.Profile.Name) ? Strings.EnvHeading : Text.Format(Strings.EnvHeadingNamed, ShortName(file.Profile.Name)),
                 Subject = full,
                 Message = Strings.EnvMessage,
                 Items = applicable.Select(Line).ToList(),
@@ -159,6 +159,13 @@ internal static class EnvironmentImport
         return change.Current.Length == 0
             ? Text.Format(Strings.EnvLineNew, label, next)
             : Text.Format(Strings.EnvLineChange, label, Value(change.Current), next);
+    }
+
+    /// <summary>Nom de l'environnement sur une ligne, tronqué (il vient du fichier).</summary>
+    private static string ShortName(string name)
+    {
+        var line = string.Join(' ', name.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+        return line.Length <= 60 ? line : line[..60] + "…";
     }
 
     private static string Value(string value) => value switch

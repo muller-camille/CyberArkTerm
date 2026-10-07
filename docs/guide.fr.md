@@ -689,7 +689,9 @@ fichier ; « Ne pas appliquer » est le choix par défaut. Le PVWA et les PSMP r
 quand le fichier change leur adresse ou ajoute une clé de serveur, il faut cocher « J'ai vérifié… » avant
 d'appliquer. Une clé de serveur déjà acceptée sur le poste n'est jamais remplacée par un fichier (elle est signalée).
 Un fichier invalide (adresse en http, nom de composant incorrect…) est refusé en entier. Un fichier déjà proposé
-n'est reproposé que s'il a changé. Votre identifiant, « Mes serveurs » et vos sessions récentes ne sont jamais
+n'est reproposé que s'il a changé. Un réglage vide sur le poste qui exporte n'est pas exporté : il n'efface rien
+chez celui qui importe. Les chemins (listes partagées, fichier central) sont complets : `C:\…` ou `\\serveur\…`.
+Votre identifiant, « Mes serveurs » et vos sessions récentes ne sont jamais
 touchés ; les listes partagées s'ajoutent sans retirer les vôtres.
 
 Toutes les préférences sont enregistrées dans `%APPDATA%\CyberArkTerm\settings.json` : langue, adresse du PVWA,

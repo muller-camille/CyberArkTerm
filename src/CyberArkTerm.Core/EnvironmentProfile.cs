@@ -79,7 +79,7 @@ public sealed class EnvironmentProfile
         WriteIndented = true,
         PropertyNameCaseInsensitive = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        Converters = { new JsonStringEnumConverter() },
+        Converters = { new ExactEnumConverter() },
     };
 
     public int Format { get; set; } = CurrentFormat;
@@ -133,10 +133,12 @@ public sealed class EnvironmentProfile
             Name = string.IsNullOrWhiteSpace(name) ? null : name.Trim(),
             PvwaUrl = NullIfEmpty(settings.PvwaUrl),
             AuthMethod = settings.AuthMethod,
-            PsmpAddress = settings.PsmpAddress.Trim(),
-            PsmpPort = settings.PsmpPort,
-            PsmpServers = settings.PsmpServers.Select(p => new PsmpServer { Address = p.Address, Port = p.Port, Domain = p.Domain }).ToList(),
-            WindowsComponent = settings.WindowsComponent.Trim(),
+            PsmpAddress = NullIfEmpty(settings.PsmpAddress),
+            PsmpPort = string.IsNullOrWhiteSpace(settings.PsmpAddress) ? null : settings.PsmpPort,
+            PsmpServers = settings.PsmpServers.Count == 0
+                ? null
+                : settings.PsmpServers.Select(p => new PsmpServer { Address = p.Address, Port = p.Port, Domain = p.Domain }).ToList(),
+            WindowsComponent = NullIfEmpty(settings.WindowsComponent),
             ComponentByPlatform = settings.ComponentByPlatform.Count == 0 ? null : new Dictionary<string, string>(settings.ComponentByPlatform),
             SharedLists = settings.SharedLists.Count == 0 ? null : [.. settings.SharedLists],
             HostKeys = hostKeys.Count == 0 ? null : hostKeys,
@@ -158,6 +160,11 @@ public sealed class EnvironmentProfile
         }
 
         var bytes = File.ReadAllBytes(path);
+        if (bytes.LongLength > MaxFileSize)
+        {
+            throw new EnvironmentFileException(EnvironmentProblem.TooLarge, path);
+        }
+
         EnvironmentProfile profile;
         try
         {
@@ -181,6 +188,12 @@ public sealed class EnvironmentProfile
         if (Format is < 1 or > CurrentFormat)
         {
             Fail(EnvironmentProblem.UnsupportedFormat, Format.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+
+        // Envoi par le PSMP : SCP ou SFTP seulement (FTP est réservé aux entrées KeePass, après confirmation).
+        if ((AuthMethod is { } method && !Enum.IsDefined(method)) || UploadProtocol is not (null or TransferProtocol.Scp or TransferProtocol.Sftp))
+        {
+            Fail(EnvironmentProblem.InvalidJson, $"{AuthMethod} {UploadProtocol}".Trim());
         }
 
         if (PvwaUrl is not null)
@@ -249,7 +262,7 @@ public sealed class EnvironmentProfile
             }
         }
 
-        foreach (var path in (SharedLists ?? []).Append(CentralFile).Where(p => p is not null))
+        foreach (var path in CentralFile is null ? SharedLists ?? [] : (SharedLists ?? []).Append(CentralFile))
         {
             if (!IsFullPath(path))
             {
@@ -427,13 +440,14 @@ public sealed class EnvironmentProfile
                && parts[1][7..].All(c => char.IsAsciiLetterOrDigit(c) || c is '+' or '/' or '=');
     }
 
-    /// <summary>Chemin complet (lecteur ou partage UNC) : jamais relatif au dossier courant.</summary>
-    public static bool IsFullPath(string? path) =>
-        !string.IsNullOrWhiteSpace(path)
-        && (path.Trim().StartsWith(@"\\", StringComparison.Ordinal) || (path.Trim().Length > 2 && path.Trim()[1] == ':'
-                                                                        && char.IsAsciiLetter(path.Trim()[0]))
-            || path.Trim().StartsWith('/'))
-        && path.IndexOfAny(Path.GetInvalidPathChars()) < 0;
+    /// <summary>Chemin complet (« C:\… » ou partage UNC « \\serveur\… ») : jamais relatif au dossier ou au lecteur courant.</summary>
+    public static bool IsFullPath(string? path)
+    {
+        var p = (path ?? "").Trim();
+        return p.IndexOfAny(Path.GetInvalidPathChars()) < 0
+               && ((p.Length > 2 && p.StartsWith(@"\\", StringComparison.Ordinal) && p[2] is not ('\\' or '/'))
+                   || (p.Length > 3 && char.IsAsciiLetter(p[0]) && p[1] == ':' && p[2] is ('\\' or '/')));
+    }
 
     private static bool SamePvwa(string current, string next)
     {
@@ -467,4 +481,27 @@ public sealed class EnvironmentProfile
     private static void Fail(EnvironmentProblem problem, string detail) => throw new EnvironmentFileException(problem, detail);
 
     private static string? NullIfEmpty(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    /// <summary>Énumérations par leur nom exact (casse ignorée) : ni nombre ni combinaison « LDAP, RADIUS ».</summary>
+    private sealed class ExactEnumConverter : JsonConverterFactory
+    {
+        public override bool CanConvert(Type typeToConvert) => typeToConvert.IsEnum;
+
+        public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) =>
+            (JsonConverter)Activator.CreateInstance(typeof(Converter<>).MakeGenericType(typeToConvert))!;
+
+        private sealed class Converter<T> : JsonConverter<T>
+            where T : struct, Enum
+        {
+            public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                var text = reader.TokenType == JsonTokenType.String ? reader.GetString() : null;
+                var name = Enum.GetNames<T>().FirstOrDefault(n => string.Equals(n, text?.Trim(), StringComparison.OrdinalIgnoreCase));
+                return name is null ? throw new JsonException($"{typeof(T).Name} : {text}") : Enum.Parse<T>(name);
+            }
+
+            public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) =>
+                writer.WriteStringValue(value.ToString());
+        }
+    }
 }
