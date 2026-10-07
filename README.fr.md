@@ -34,23 +34,24 @@ avez accès et ouvre vos sessions en un double-clic : bureau à distance via **P
 | | |
 | --- | --- |
 | **Connexion CyberArk** | Authentification CyberArk, LDAP, RADIUS (challenge / OTP compris) ou Windows (session courante). |
-| **Disponibles** | Tous les comptes visibles dans le coffre, groupés par safe, plateforme ou type de cible, avec recherche instantanée ; mot de passe (CPM, copie), membres d'un safe, ajout, modification et import de comptes. |
-| **Courants** | Vos serveurs de travail, rangés en dossiers et sous-dossiers, chacun avec sa propre configuration ; export, import et **listes partagées** sur un partage réseau (chacun ajoute ou retire, historique des modifications et des versions). |
+| **Disponibles** | Tous les comptes visibles dans le coffre CyberArk, groupés par safe, plateforme ou type de cible, avec recherche instantanée ; mot de passe (CPM, copie), membres d'un safe, ajout, modification et import de comptes. |
+| **Mes serveurs** | Vos serveurs de travail, rangés en dossiers et sous-dossiers, chacun avec sa propre configuration ; export, import et **listes partagées** sur un partage réseau (chacun ajoute ou retire, historique des modifications et des versions). |
 | **Sessions PSM** | Bureau à distance via le PSM (comme le bouton « Connect » du PVWA), dans la Connexion Bureau à distance de Windows : composant, machine cible, motif, ticket. |
-| **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), MFA, menu du clic droit, recherche, fenêtres séparées. Fichiers seuls (SFTP, sans terminal) pour les plateformes « SFTP » ou à la demande. |
-| **Onglet Fichiers** | Navigateur SFTP du serveur : dépôt (SFTP, ou SCP, l'autre prenant le relais si le serveur refuse) et téléchargement par glisser-déposer, vérification SHA-256 de chaque fichier, file d'attente et historique des transferts, tri par colonne, modification dans votre éditeur de texte, droits, suivi en direct (`tail -f`), comparaison, envoi vers plusieurs serveurs. |
-| **Vue parallèle** | Jusqu'à 8 sessions SSH côte à côte (un dossier « Courants » s'ouvre d'un clic), saisie simultanée en option. |
-| **Accès d'urgence (KeePass)** | Sans CyberArk : coffres KeePass (.kdbx) dans « Courants », connexions SSH, bureau à distance et VNC directes, fichiers en SFTP, FTP ou FTPS dans l'onglet Fichiers, journal local. |
+| **Sessions SSH (PSMP)** | Terminal intégré en onglet (compatible xterm : couleurs, vim, less, top…), MFA, menu du clic droit, recherche, fenêtres séparées, « Reconnecter » en fin de session. Fichiers seuls (SFTP, sans terminal) pour les plateformes « SFTP » ou à la demande. |
+| **Onglet Fichiers** | Navigateur SFTP du serveur : dépôt (SFTP, ou SCP, l'autre prenant le relais si le serveur refuse) et téléchargement par glisser-déposer, vérification SHA-256 de chaque fichier, file d'attente (résultats gardés) et historique des transferts, tri par colonne, renommage, modification dans votre éditeur de texte, droits, suivi en direct (`tail -f`), comparaison, envoi vers plusieurs serveurs. |
+| **Vue parallèle** | Jusqu'à 8 sessions SSH côte à côte (un dossier de « Mes serveurs » s'ouvre d'un clic), saisie simultanée en option. |
+| **Accès d'urgence (KeePass)** | Sans CyberArk : bases KeePass (.kdbx) dans « Mes serveurs », connexions SSH, bureau à distance et VNC directes, fichiers en SFTP, FTP ou FTPS dans l'onglet Fichiers, journal local. |
+| **Clavier et accessibilité** | Raccourcis pour les onglets, le panneau de gauche et la connexion rapide, confirmations aux boutons explicites, lecteurs d'écran, contraste élevé. |
 | **Langues** | Français, anglais et italien : langue de Windows par défaut, modifiable à tout moment. |
 
 <table>
 <tr>
-<td width="50%"><img src="docs/captures/fr/available.png" alt="Onglet Disponibles"><br><sub>« Disponibles » : tous les comptes du coffre, recherche instantanée</sub></td>
-<td width="50%"><img src="docs/captures/fr/my-servers.png" alt="Onglet Courants"><br><sub>« Courants » : vos serveurs en dossiers, coffres KeePass en tête</sub></td>
+<td width="50%"><img src="docs/captures/fr/available.png" alt="Onglet Disponibles"><br><sub>« Disponibles » : tous les comptes du coffre CyberArk, recherche instantanée</sub></td>
+<td width="50%"><img src="docs/captures/fr/my-servers.png" alt="Onglet Mes serveurs"><br><sub>« Mes serveurs » : vos serveurs en dossiers, bases KeePass en tête</sub></td>
 </tr>
 <tr>
 <td><img src="docs/captures/fr/terminal-menu.png" alt="Menu du clic droit dans le terminal"><br><sub>Clic droit dans le terminal : copier, coller, rechercher, actions de l'onglet</sub></td>
-<td><img src="docs/captures/fr/keepass-vault.png" alt="Accès d'urgence avec KeePass"><br><sub>Accès d'urgence : SSH direct depuis un coffre KeePass</sub></td>
+<td><img src="docs/captures/fr/keepass-vault.png" alt="Accès d'urgence avec KeePass"><br><sub>Accès d'urgence : SSH direct depuis une base KeePass</sub></td>
 </tr>
 </table>
 
@@ -76,8 +77,8 @@ Bouton Paramètres → **« À propos de CyberArkTerm… »** : version, liens d
 « Rechercher maintenant ». Si une version plus récente existe, « Télécharger et vérifier » enregistre l'archive dans
 le dossier Téléchargements puis la compare à `SHA256SUMS.txt` de la même version (gardée seulement si elle est
 identique). Rien n'est installé automatiquement : fermez CyberArkTerm et remplacez l'exécutable ; vos paramètres sont
-conservés. L'option « Rechercher une nouvelle version au démarrage » (désactivée par défaut) fait cette recherche au
-plus une fois par jour et affiche un lien dans la barre d'état.
+conservés. L'option « Rechercher une nouvelle version au démarrage » (Paramètres › Général, désactivée par défaut)
+fait cette recherche au plus une fois par jour et affiche un lien dans la barre d'état.
 
 ### Prérequis
 
@@ -85,7 +86,7 @@ plus une fois par jour et affiche un lien dans la barre d'état.
 
 - Windows 10 ou 11 (x64).
 - Le client Bureau à distance de Windows (présent par défaut) : la Connexion Bureau à distance (`mstsc`) pour les
-  sessions PSM, son contrôle intégré pour le bureau à distance direct des coffres KeePass.
+  sessions PSM, son contrôle intégré pour le bureau à distance direct des bases KeePass.
 - Facultatif : Windows Terminal et le « Client OpenSSH » de Windows, uniquement si vous choisissez d'ouvrir
   le SSH hors de CyberArkTerm.
 
@@ -111,12 +112,12 @@ plus une fois par jour et affiche un lien dans la barre d'état.
    pour copier, coller, rechercher et les actions de l'onglet.
 4. **Onglet Fichiers** (à côté d'une session SSH) : parcourez le serveur, glissez des fichiers depuis l'Explorateur
    pour les déposer, vers l'Explorateur pour les télécharger. Chaque fichier est vérifié (SHA-256) ; le bouton
-   **Historique** de la barre d'outils garde chaque transfert et ses sommes de contrôle. Un clic sur l'en-tête d'une
+   **Transferts** de la barre d'outils garde chaque transfert et ses sommes de contrôle. Un clic sur l'en-tête d'une
    colonne trie la liste.
-5. **Courants** : rangez vos serveurs de travail en dossiers, chacun avec sa configuration (PSM ou SSH, composant,
+5. **Mes serveurs** : rangez vos serveurs de travail en dossiers, chacun avec sa configuration (PSM ou SSH, composant,
    machine cible, dossier de départ) ; ouvrez tout un dossier dans la **vue parallèle**.
 6. **Accès d'urgence** : quand CyberArk est indisponible, « Accès d'urgence (KeePass) » dans la fenêtre de connexion
-   ouvre vos coffres KeePass et se connecte directement en SSH, en bureau à distance ou en VNC, ou aux fichiers en
+   ouvre vos bases KeePass et se connecte directement en SSH, en bureau à distance ou en VNC, ou aux fichiers en
    SFTP, FTP ou FTPS (sans enregistrement par le PSM, noté dans un journal sur ce poste).
 
 Le **[guide d'utilisation](docs/guide.fr.md)** décrit chaque onglet en détail, les
@@ -138,7 +139,7 @@ Le **[guide d'utilisation](docs/guide.fr.md)** décrit chaque onglet en détail,
   serveurs SSH et les certificats FTPS des entrées KeePass).
 - **Protocoles non chiffrés** (VNC, FTP sans TLS) signalés par un bandeau permanent ; FTP ne passe en clair qu'après
   votre accord.
-- **Coffres KeePass** : le mot de passe maître n'est jamais enregistré, sauf dans le coffre local si vous le demandez
+- **Bases KeePass** : le mot de passe maître n'est jamais enregistré, sauf dans le coffre local si vous le demandez
   (Argon2id, AES-256-GCM, protégé par votre compte Windows) ; chaque ouverture et connexion est notée dans un journal
   local.
 - **Aucune requête vers Internet** sans votre action ou l'option de mise à jour (désactivée par défaut) ; une mise à jour
@@ -156,7 +157,7 @@ Tous les détails : [guide d'utilisation → Sécurité](docs/guide.fr.md#sécur
 
 | Projet | Rôle |
 | --- | --- |
-| `src/CyberArkTerm.Core` | Logique sans interface, multiplateforme : client de l'API PVWA, classement des comptes, émulateur de terminal xterm, connexions PSMP et navigateur SFTP/SCP (SSH.NET), navigateur FTP/FTPS (FluentFTP), client VNC, serveurs « Courants » en dossiers, coffres KeePass (KDBX), coffre local, préférences. |
+| `src/CyberArkTerm.Core` | Logique sans interface, multiplateforme : client de l'API PVWA, classement des comptes, émulateur de terminal xterm, connexions PSMP et navigateur SFTP/SCP (SSH.NET), navigateur FTP/FTPS (FluentFTP), client VNC, « Mes serveurs » en dossiers, bases KeePass (KDBX), coffre local, préférences. |
 | `src/CyberArkTerm.App` | Application WPF : fenêtres, onglets, contrôle terminal, contrôle Bureau à distance (onglets RDP), lancement de `mstsc`, icône (`Assets`). |
 | `tests/CyberArkTerm.Core.Tests` | Tests xUnit de Core (faux PVWA HTTP, terminal, PSMP, dossiers…). |
 | `tests/CyberArkTerm.App.Tests` | Tests Windows de l'application (vrai contrôle Bureau à distance, DPAPI). |
@@ -216,7 +217,7 @@ fichier existe.
 - **Privilege Cloud** (connexion via CyberArk Identity) et **SAML** ne sont pas gérés.
 - L'API Accounts n'indique pas quels composants PSM une plateforme propose : le composant est déduit, puis
   mémorisable.
-- Coffres KeePass : chiffrement Twofish et clés YubiKey non pris en charge ; pas de création de coffre (créez-le
+- Bases KeePass : chiffrement Twofish et clés YubiKey non pris en charge ; pas de création de base (créez-la
   avec KeePass ou KeePassXC) ; pièces jointes gardées mais non affichées.
 - Le suivi du dossier du terminal nécessite bash, zsh ou tcsh sur le serveur.
 - VNC : mot de passe VNC ou aucune authentification seulement (ni authentification propre à un éditeur, ni

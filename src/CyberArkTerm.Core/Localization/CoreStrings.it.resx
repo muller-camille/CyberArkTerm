@@ -124,7 +124,7 @@
     <value>L'account non ha un indirizzo di destinazione.</value>
   </data>
   <data name="VaultUserUnknown" xml:space="preserve">
-    <value>Utente del vault sconosciuto.</value>
+    <value>Utente del vault CyberArk sconosciuto.</value>
   </data>
   <data name="InvalidFolderName" xml:space="preserve">
     <value>Nome della cartella non valido.</value>
@@ -136,19 +136,19 @@
     <value>La radice non può essere eliminata.</value>
   </data>
   <data name="KeePassNotKdbx" xml:space="preserve">
-    <value>Questo file non è un archivio KeePass 2 (.kdbx).</value>
+    <value>Questo file non è un database KeePass 2 (.kdbx).</value>
   </data>
   <data name="KeePassUnsupportedVersion" xml:space="preserve">
     <value>Il formato KeePass {0} non è supportato (KDBX 3.1 e 4.x lo sono).</value>
   </data>
   <data name="KeePassUnsupportedCipher" xml:space="preserve">
-    <value>Questo archivio usa una cifratura non supportata ({0}); AES-256 e ChaCha20 lo sono.</value>
+    <value>Questo database KeePass usa una cifratura non supportata ({0}); AES-256 e ChaCha20 lo sono.</value>
   </data>
   <data name="KeePassUnsupportedKdf" xml:space="preserve">
-    <value>Questo archivio usa una derivazione della chiave non supportata ({0}).</value>
+    <value>Questo database KeePass usa una derivazione della chiave non supportata ({0}).</value>
   </data>
   <data name="KeePassKdfTooCostly" xml:space="preserve">
-    <value>I parametri di derivazione della chiave dell'archivio sono troppo elevati per essere calcolati qui ({0}).</value>
+    <value>I parametri di derivazione della chiave del database KeePass sono troppo elevati per essere calcolati qui ({0}).</value>
   </data>
   <data name="KeePassInvalidKey" xml:space="preserve">
     <value>Password principale o file chiave errati.</value>
@@ -163,16 +163,16 @@
     <value>Questo file è troppo grande per essere usato come file chiave.</value>
   </data>
   <data name="KeePassCorrupted" xml:space="preserve">
-    <value>Il file dell'archivio è danneggiato ({0}).</value>
+    <value>Il file del database KeePass è danneggiato ({0}).</value>
   </data>
   <data name="KeePassConflict" xml:space="preserve">
-    <value>La voce «{0}» è stata modificata o eliminata nell'archivio nel frattempo. Aggiorna la cartella e riprova.</value>
+    <value>La voce «{0}» è stata modificata o eliminata nel database KeePass nel frattempo. Aggiorna la cartella e riprova.</value>
   </data>
   <data name="KeePassBusy" xml:space="preserve">
-    <value>Il file dell'archivio continua a cambiare (un altro programma lo sta salvando). Riprova tra poco.</value>
+    <value>Il file del database KeePass continua a cambiare (un altro programma lo sta salvando). Riprova tra poco.</value>
   </data>
   <data name="KeePassVerifyFailed" xml:space="preserve">
-    <value>L'archivio non è stato salvato: il nuovo file non ha superato la verifica, l'originale è intatto.</value>
+    <value>Il database KeePass non è stato salvato: il nuovo file non ha superato la verifica, l'originale è intatto.</value>
   </data>
   <data name="LocalStoreWrongPassword" xml:space="preserve">
     <value>Password del vault locale errata.</value>
