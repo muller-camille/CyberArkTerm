@@ -84,6 +84,10 @@ identique). Rien n'est installé automatiquement : fermez ZillaTerm et remplacez
 conservés. L'option « Rechercher une nouvelle version au démarrage » (Paramètres › Général, désactivée par défaut)
 fait cette recherche au plus une fois par jour et affiche un lien dans la barre d'état.
 
+**Depuis CyberArkTerm** : téléchargez ZillaTerm une fois depuis la page des versions (CyberArkTerm le signale mais ne
+peut pas le télécharger lui-même) ; vos réglages sont repris au premier démarrage, puis vous pouvez supprimer
+`CyberArkTerm.exe`.
+
 ### Prérequis
 
 **Poste de travail**
@@ -107,7 +111,9 @@ fait cette recherche au plus une fois par jour et affiche un lien dans la barre 
 ## Prise en main
 
 1. **Se connecter** : adresse du PVWA (`pvwa.mondomaine.local` suffit), méthode d'authentification, utilisateur et mot
-   de passe. L'adresse, la méthode et l'utilisateur sont mémorisés ; le mot de passe jamais.
+   de passe. L'adresse, la méthode et l'utilisateur sont mémorisés ; le mot de passe jamais. Pour reprendre la
+   configuration de votre équipe : « Importer un environnement… » sur le même écran, ou un fichier `ZillaTerm.env.json`
+   posé à côté de l'exécutable.
 2. **Trouver un compte** dans l'onglet « Disponibles » : la recherche porte sur tous les champs (`prd sql`). Clic droit
    sur un compte pour son mot de passe (vérifier, changer, réconcilier, copier), les membres de son safe, ou pour
    ajouter, modifier et importer des comptes.
@@ -220,8 +226,8 @@ fichier existe.
 **Limites actuelles**
 
 - **Privilege Cloud** (connexion via CyberArk Identity) et **SAML** ne sont pas gérés.
-- L'API Accounts n'indique pas quels composants PSM une plateforme propose : le composant est déduit, puis
-  mémorisable.
+- L'API Accounts n'indique pas quels composants PSM une plateforme propose : le composant est déduit de la plateforme,
+  puis réglable par plateforme dans les Paramètres.
 - Bases KeePass : chiffrement Twofish et clés YubiKey non pris en charge ; pas de création de base (créez-la
   avec KeePass ou KeePassXC) ; pièces jointes gardées mais non affichées.
 - Le suivi du dossier du terminal nécessite bash, zsh ou tcsh sur le serveur.

@@ -84,6 +84,9 @@ automaticamente: chiudi ZillaTerm e sostituisci l'eseguibile; le impostazioni ve
 una nuova versione all'avvio» (Impostazioni › Generale, disattivata per impostazione predefinita) fa questa ricerca al
 massimo una volta al giorno e mostra un link nella barra di stato.
 
+**Da CyberArkTerm**: scarica ZillaTerm una volta dalla pagina delle versioni (CyberArkTerm lo segnala ma non può
+scaricarlo da solo); le impostazioni vengono riprese al primo avvio, poi puoi eliminare `CyberArkTerm.exe`.
+
 ### Requisiti
 
 **Postazione di lavoro**
@@ -107,7 +110,8 @@ massimo una volta al giorno e mostra un link nella barra di stato.
 ## Primi passi
 
 1. **Accedere**: indirizzo del PVWA (basta `pvwa.miodominio.local`), metodo di autenticazione, utente e password.
-   Indirizzo, metodo e utente vengono memorizzati; la password mai.
+   Indirizzo, metodo e utente vengono memorizzati; la password mai. Per riprendere la configurazione del team:
+   «Importa un ambiente…» nella stessa finestra, oppure un file `ZillaTerm.env.json` accanto all'eseguibile.
 2. **Trovare un account** nella scheda «Disponibili»: la ricerca riguarda tutti i campi (`prd sql`). Clic destro su un
    account per la sua password (verifica, cambia, riconcilia, copia), i membri del suo safe, o per aggiungere,
    modificare e importare account.
@@ -217,8 +221,8 @@ e `SHA256SUMS.txt`. Le note di versione vengono lette da `docs/releases/vX.Y.Z.m
 **Limiti attuali**
 
 - **Privilege Cloud** (accesso tramite CyberArk Identity) e **SAML** non sono supportati.
-- L'API Accounts non indica quali componenti PSM offre una piattaforma: il componente viene dedotto, poi può
-  essere memorizzato.
+- L'API Accounts non indica quali componenti PSM offre una piattaforma: il componente viene dedotto dalla piattaforma,
+  poi si può impostare per piattaforma nelle Impostazioni.
 - Database KeePass: cifratura Twofish e chiavi YubiKey non supportate; nessuna creazione di database (crealo con
   KeePass o KeePassXC); allegati conservati ma non mostrati.
 - Il monitoraggio della cartella del terminale richiede bash, zsh o tcsh sul server.
