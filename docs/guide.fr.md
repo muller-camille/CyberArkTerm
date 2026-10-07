@@ -139,6 +139,9 @@ application distante (RemoteApp) ouvre ses fenêtres sur le bureau du poste.
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Cochez « Mémoriser ce composant » pour le conserver pour toute la
   plateforme. Votre PVWA peut nommer ses composants autrement (par exemple `WIN-PSM`) : saisissez le nom que propose
   son bouton « Connect » ; la liste propose ensuite les composants déjà utilisés, celui de la plateforme en premier.
+  Si votre compte CyberArk a le droit de lire les plateformes, CyberArkTerm demande au PVWA les composants activés pour
+  la plateforme du compte (ceux du bouton « Connect ») : le premier est pris par défaut, et la liste ne propose
+  qu'eux. Sinon (lecture refusée, cas le plus courant), rien ne change ; le journal de débogage note le refus.
 - **Comptes de domaine** : un compte enregistré pour son domaine n'a pas de serveur. Il est reconnu par sa plateforme
   de domaine, ses machines autorisées, ou son adresse : son domaine de connexion, un domaine sous lequel se trouvent
   d'autres serveurs (`corp.local` quand un compte vise `srv01.corp.local`), ou le domaine du PVWA ou du poste. Jamais

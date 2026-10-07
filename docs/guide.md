@@ -132,7 +132,10 @@ PVWA "Connect" button: the PVWA's RDP file is handed over as is. A component tha
 - **PSM component**: deduced from the platform (`PSM-RDP` for Windows, `PSM-SSH` for Unix and network,
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Tick "Remember this component" to keep it for the whole platform. Your
   PVWA may name its components differently (for example `WIN-PSM`): enter the name its "Connect" button offers; the
-  list then offers the components already used, the platform's first.
+  list then offers the components already used, the platform's first. If your CyberArk account may read platforms,
+  CyberArkTerm asks the PVWA for the components enabled on the account's platform (those of the "Connect" button):
+  the first one is used by default, and the list offers only them. Otherwise (reading refused, the most common case),
+  nothing changes; the debug log notes the refusal.
 - **Domain accounts**: an account registered for its domain has no server. It is recognized by its domain platform,
   its allowed machines, or its address: its logon domain, a domain with other servers below it (`corp.local` when an
   account targets `srv01.corp.local`), or the domain of the PVWA or of the workstation. Never a session to the domain

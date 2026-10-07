@@ -432,7 +432,7 @@
     <value>Connection type</value>
   </data>
   <data name="TargetMachineTip" xml:space="preserve">
-    <value>Server to open the session on (domain accounts). Empty: the account address.</value>
+    <value>Server to open the session on: required for a domain account (never the domain itself); for another account, empty means the account address.</value>
   </data>
   <data name="ReasonLabel" xml:space="preserve">
     <value>_Reason:</value>

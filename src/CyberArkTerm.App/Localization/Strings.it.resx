@@ -432,7 +432,7 @@
     <value>Tipo di connessione</value>
   </data>
   <data name="TargetMachineTip" xml:space="preserve">
-    <value>Server su cui aprire la sessione (account di dominio). Vuoto: indirizzo dell'account.</value>
+    <value>Server su cui aprire la sessione: obbligatorio per un account di dominio (mai il dominio stesso); per un altro account, vuoto = indirizzo dell'account.</value>
   </data>
   <data name="ReasonLabel" xml:space="preserve">
     <value>Moti_vo:</value>

@@ -9022,7 +9022,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Server to open the session on (domain accounts). Empty: the account address..
+        ///   Looks up a localized string similar to Server to open the session on: required for a domain account (never the domain itself); for another account, empty means the account address..
         /// </summary>
         public static string TargetMachineTip {
             get {

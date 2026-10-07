@@ -432,7 +432,7 @@
     <value>Type de connexion</value>
   </data>
   <data name="TargetMachineTip" xml:space="preserve">
-    <value>Serveur sur lequel ouvrir la session (comptes de domaine). Vide : adresse du compte.</value>
+    <value>Serveur sur lequel ouvrir la session : obligatoire pour un compte de domaine (jamais le domaine lui-même) ; pour un autre compte, vide = adresse du compte.</value>
   </data>
   <data name="ReasonLabel" xml:space="preserve">
     <value>Moti_f :</value>
