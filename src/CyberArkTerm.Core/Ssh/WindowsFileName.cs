@@ -54,7 +54,4 @@ public static class WindowsFileName
 
         return clean;
     }
-
-    /// <summary>Chemin relatif Windows (« dossier\sous-dossier\fichier ») fait d'éléments nettoyés.</summary>
-    public static string RelativePath(IEnumerable<string> components) => string.Join('\\', components.Select(Sanitize));
 }

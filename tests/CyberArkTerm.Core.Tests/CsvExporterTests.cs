@@ -13,6 +13,22 @@ public class CsvExporterTests
     public void Escape(string value, string expected) => Assert.Equal(expected, CsvExporter.Escape(value));
 
     [Fact]
+    public void EscapeQuotesTheSeparatorInUse() => Assert.Equal("\"a|b\"", CsvExporter.Escape("a|b", '|'));
+
+    [Theory]
+    [InlineData("|", '|')]
+    [InlineData("a", ';')]
+    [InlineData(" ", ';')]
+    [InlineData("\"", ';')]
+    [InlineData(";;", ';')]
+    public void DefaultSeparatorIsTheRegionalOneWhenUsable(string listSeparator, char expected)
+    {
+        var culture = (System.Globalization.CultureInfo)System.Globalization.CultureInfo.InvariantCulture.Clone();
+        culture.TextInfo.ListSeparator = listSeparator;
+        Assert.Equal(expected, CsvExporter.DefaultSeparator(culture));
+    }
+
+    [Fact]
     public void Write_ProducesHeaderAndOneLinePerAccount()
     {
         using var _ = UiCulture.Use("fr-FR");

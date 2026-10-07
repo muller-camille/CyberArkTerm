@@ -1,8 +1,8 @@
 using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 using System.Windows;
 using CyberArkTerm.App.Localization;
+using CyberArkTerm.App.Services;
 using CyberArkTerm.App.Services.KeePass;
 using CyberArkTerm.Core.KeePass;
 using Microsoft.Win32;
@@ -80,7 +80,7 @@ public partial class KeePassUnlockDialog : Window
             return;
         }
 
-        var password = Encoding.UTF8.GetBytes(PasswordBox.Password);
+        var password = SecretInput.ReadUtf8(PasswordBox);
         bool remember = _folder.UsesPassword && RememberBox.IsChecked == true;
         SetBusy(true);
         _unlocking = new CancellationTokenSource();
@@ -149,6 +149,7 @@ public partial class KeePassUnlockDialog : Window
     protected override void OnClosed(EventArgs e)
     {
         _closed = true;
+        PasswordBox.Clear();
         base.OnClosed(e);
     }
 

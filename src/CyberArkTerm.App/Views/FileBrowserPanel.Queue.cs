@@ -93,13 +93,19 @@ public partial class FileBrowserPanel
         var terminal = session as SshSession;
         if (_settings.OfferArchive && terminal is not null)
         {
-            var (files, bytes) = TarGzPacker.Measure(paths);
-            if (files >= _settings.ArchiveThreshold && TarGzPacker.UstarProblem(paths) is { } tooLong)
+            // Parcours de toute l'arborescence déposée (partage réseau possible) : hors du fil de l'interface.
+            int threshold = _settings.ArchiveThreshold;
+            var (files, bytes, tooLong) = await Task.Run(() =>
+            {
+                var (count, size) = TarGzPacker.Measure(paths);
+                return (count, size, count >= threshold ? TarGzPacker.UstarProblem(paths) : null);
+            });
+            if (tooLong is not null)
             {
                 // Nom trop long ou fichier trop gros pour le format tar standard : envoi un par un.
                 SetStatus(Text.Format(Strings.ArchiveNotPossible, tooLong));
             }
-            else if (files >= _settings.ArchiveThreshold)
+            else if (files >= threshold)
             {
                 SetStatus(Strings.ArchiveLookingForGzip);
                 gzip = await _gzip.GetValue(browser, b => TarGzPacker.FindGzipAsync(b.ExistsAsync, CancellationToken.None));
@@ -197,7 +203,8 @@ public partial class FileBrowserPanel
             try
             {
                 var archive = Path.Combine(folder, archiveName);
-                await TarGzPacker.CreateAsync(paths, archive, compress: gzip is not null, progress, ct);
+                // Parcours et compression hors du fil de l'interface (la progression y revient d'elle-même).
+                await Task.Run(() => TarGzPacker.CreateAsync(paths, archive, compress: gzip is not null, progress, ct), ct);
                 await browser.UploadAsync(archive, directory, protocol, item.Checks, progress, background: true, ct);
                 item.ExtractCommand = TarGzPacker.ExtractCommand(directory, archiveName, gzip);
             }
@@ -402,8 +409,10 @@ public partial class FileBrowserPanel
             }
         }
 
-        // Archives envoyées : il reste à les extraire, la commande est affichée dans un encadré.
-        foreach (var item in run.Where(i => i.State == TransferState.Done && i.ExtractCommand is not null))
+        // Archives envoyées : il reste à les extraire, la commande est affichée dans un encadré. Session fermée entre-temps :
+        // plus de terminal où la taper, rien n'est gardé (la session fermée ne reste pas en mémoire).
+        foreach (var item in run.Where(i => i.State == TransferState.Done && i.ExtractCommand is not null
+                                            && i.Owner is SshSession { IsDisposed: false }))
         {
             _extracts.Add(new PendingExtract(item.Owner as SshSession, item.Destination, item.ExtractCommand!));
         }

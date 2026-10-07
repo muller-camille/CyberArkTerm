@@ -134,16 +134,6 @@ public sealed class AppSettings
 
     public const int MaxRecent = 15;
 
-    public bool IsFavorite(string accountId) => Favorites.Contains(accountId, StringComparer.Ordinal);
-
-    public void ToggleFavorite(string accountId)
-    {
-        if (Favorites.RemoveAll(id => id == accountId) == 0)
-        {
-            Favorites.Add(accountId);
-        }
-    }
-
     public void AddRecent(RecentSession session)
     {
         Recent.RemoveAll(r => r.AccountId == session.AccountId && r.Mode == session.Mode

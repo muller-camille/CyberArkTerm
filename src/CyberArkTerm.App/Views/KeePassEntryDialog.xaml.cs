@@ -108,4 +108,12 @@ public partial class KeePassEntryDialog : Window
         PasswordText.Clear();
         DialogResult = true;
     }
+
+    /// <summary>Fenêtre fermée sans enregistrer : le mot de passe saisi (ou affiché en clair) n'y reste pas.</summary>
+    protected override void OnClosed(EventArgs e)
+    {
+        PasswordBox.Clear();
+        PasswordText.Clear();
+        base.OnClosed(e);
+    }
 }

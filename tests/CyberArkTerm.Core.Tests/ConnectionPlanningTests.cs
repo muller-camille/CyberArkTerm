@@ -148,15 +148,10 @@ public class ConnectionPlanningTests
     }
 
     [Fact]
-    public void Settings_FavoritesRecentAndRememberedComponents()
+    public void Settings_RecentAndRememberedComponents()
     {
         var settings = new AppSettings();
         var account = Account("UnixSSH");
-
-        settings.ToggleFavorite("1_1");
-        Assert.True(settings.IsFavorite("1_1"));
-        settings.ToggleFavorite("1_1");
-        Assert.False(settings.IsFavorite("1_1"));
 
         Assert.Equal("PSM-SSH", settings.ResolveComponent(account));
         settings.RememberComponent("unixssh", "PSM-WinSCP");

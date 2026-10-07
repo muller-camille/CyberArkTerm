@@ -1125,5 +1125,14 @@ namespace CyberArkTerm.Core.Localization {
                 return ResourceManager.GetString("ChangedDuringChmod", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA did not send the password but an unexpected response ({0}): a sign-in page (SSO) or a maintenance page may be in the way. Log on again, then try again..
+        /// </summary>
+        public static string PvwaUnexpectedSecretResponse {
+            get {
+                return ResourceManager.GetString("PvwaUnexpectedSecretResponse", resourceCulture);
+            }
+        }
     }
 }

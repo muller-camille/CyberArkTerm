@@ -37,7 +37,7 @@ public sealed class VncFramebuffer
     public const int MaxSide = 8192;
     public const int MaxPixels = 40_000_000;
 
-    internal VncFramebuffer(int width, int height) => Resize(width, height);
+    internal VncFramebuffer(int width, int height) => Resize(width, height, Allocate(width, height));
 
     public int Width { get; private set; }
 
@@ -50,16 +50,23 @@ public sealed class VncFramebuffer
     /// <summary>Verrou à tenir pour lire <see cref="Pixels"/> : le décodage l'écrit depuis un autre fil.</summary>
     public object Sync { get; } = new();
 
-    internal void Resize(int width, int height)
+    /// <summary>Image vide pour une taille d'écran ; refusée au-delà des limites.</summary>
+    internal static byte[] Allocate(int width, int height)
     {
         if (width is < 1 or > MaxSide || height is < 1 or > MaxSide || (long)width * height > MaxPixels)
         {
             throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, CoreStrings.VncScreenTooLarge, width, height));
         }
 
+        return new byte[width * height * 4];
+    }
+
+    /// <summary>Remplace l'image (allouée par <see cref="Allocate"/>, hors du verrou : l'affichage n'attend pas).</summary>
+    internal void Resize(int width, int height, byte[] pixels)
+    {
         Width = width;
         Height = height;
-        Pixels = new byte[width * height * 4];
+        Pixels = pixels;
     }
 }
 
@@ -86,8 +93,14 @@ public sealed class RfbClient : IDisposable
     private readonly BufferedStream _reader;
     private readonly Channel<byte[]> _outgoing = Channel.CreateUnbounded<byte[]>(new UnboundedChannelOptions { SingleReader = true });
     private readonly CancellationTokenSource _closing = new();
+    private readonly Queue<long> _resizes = new();
     private byte _buttons;
     private int _disposed;
+
+    /// <summary>Changements de taille d'écran acceptés au plus pendant <see cref="ResizeWindow"/>.</summary>
+    internal const int MaxResizes = 10;
+
+    private static readonly TimeSpan ResizeWindow = TimeSpan.FromSeconds(10);
 
     private RfbClient(TcpClient tcp, NetworkStream network, BufferedStream reader, int minor, string name, int width, int height)
     {
@@ -415,25 +428,30 @@ public sealed class RfbClient : IDisposable
             int encoding = BinaryPrimitives.ReadInt32BigEndian(r.AsSpan(8));
             if (encoding == EncodingDesktopSize)
             {
-                lock (Framebuffer.Sync)
+                if (rect.Width != Framebuffer.Width || rect.Height != Framebuffer.Height)
                 {
-                    try
-                    {
-                        Framebuffer.Resize(rect.Width, rect.Height);
-                    }
-                    catch (InvalidDataException e)
-                    {
-                        throw new RfbException(e.Message);
-                    }
+                    Resize(rect);
+                    Resized?.Invoke();
                 }
 
-                Resized?.Invoke();
                 dirty = new VncRect(0, 0, rect.Width, rect.Height);
                 continue;
             }
 
+            if (encoding is not (EncodingRaw or EncodingCopyRect or EncodingHextile))
+            {
+                throw new RfbException(CoreStrings.VncProtocolError);
+            }
+
             if (rect.IsEmpty)
             {
+                // Rien à dessiner, mais CopyRect porte toujours la position de sa source (4 octets) : à lire, sans quoi
+                // la suite du flux serait décalée.
+                if (encoding == EncodingCopyRect)
+                {
+                    await ReadBytesAsync(_reader, 4, ct).ConfigureAwait(false);
+                }
+
                 continue;
             }
 
@@ -487,29 +505,69 @@ public sealed class RfbClient : IDisposable
         }
     }
 
+    /// <summary>
+    /// Nouvelle taille d'écran : l'image est allouée hors du verrou (l'affichage n'attend pas). Un serveur qui en change
+    /// sans cesse (chaque changement réalloue jusqu'à 160 Mo) est déconnecté.
+    /// </summary>
+    private void Resize(VncRect rect)
+    {
+        long now = Environment.TickCount64;
+        while (_resizes.Count > 0 && now - _resizes.Peek() > (long)ResizeWindow.TotalMilliseconds)
+        {
+            _resizes.Dequeue();
+        }
+
+        if (_resizes.Count >= MaxResizes)
+        {
+            throw new RfbException(CoreStrings.VncProtocolError);
+        }
+
+        _resizes.Enqueue(now);
+        byte[] pixels;
+        try
+        {
+            pixels = VncFramebuffer.Allocate(rect.Width, rect.Height);
+        }
+        catch (InvalidDataException e)
+        {
+            throw new RfbException(e.Message);
+        }
+
+        lock (Framebuffer.Sync)
+        {
+            Framebuffer.Resize(rect.Width, rect.Height, pixels);
+        }
+    }
+
+    /// <summary>
+    /// Copie d'une zone de l'image vers une autre, sur place : ligne par ligne, dans le sens qui ne relit jamais une
+    /// ligne déjà écrasée (source et destination peuvent se chevaucher), par bandes pour ne pas garder le verrou de
+    /// l'image longtemps.
+    /// </summary>
     private async Task ReadCopyRectAsync(VncRect rect, CancellationToken ct)
     {
         var source = await ReadBytesAsync(_reader, 4, ct).ConfigureAwait(false);
         int sx = BinaryPrimitives.ReadUInt16BigEndian(source), sy = BinaryPrimitives.ReadUInt16BigEndian(source.AsSpan(2));
-        lock (Framebuffer.Sync)
+        var fb = Framebuffer;
+        if (sx + rect.Width > fb.Width || sy + rect.Height > fb.Height)
         {
-            var fb = Framebuffer;
-            if (sx + rect.Width > fb.Width || sy + rect.Height > fb.Height)
-            {
-                throw new RfbException(CoreStrings.VncProtocolError);
-            }
+            throw new RfbException(CoreStrings.VncProtocolError);
+        }
 
-            // Copie par une zone intermédiaire : source et destination peuvent se chevaucher.
-            int rowBytes = rect.Width * 4;
-            var copy = new byte[rowBytes * rect.Height];
-            for (int r = 0; r < rect.Height; r++)
+        int rowBytes = rect.Width * 4;
+        int rowsPerBand = Math.Max(1, 256 * 1024 / rowBytes);
+        bool upward = rect.Y > sy;
+        for (int done = 0; done < rect.Height; done += rowsPerBand)
+        {
+            lock (fb.Sync)
             {
-                Buffer.BlockCopy(fb.Pixels, (sy + r) * fb.Stride + sx * 4, copy, r * rowBytes, rowBytes);
-            }
-
-            for (int r = 0; r < rect.Height; r++)
-            {
-                Buffer.BlockCopy(copy, r * rowBytes, fb.Pixels, (rect.Y + r) * fb.Stride + rect.X * 4, rowBytes);
+                for (int i = done; i < Math.Min(done + rowsPerBand, rect.Height); i++)
+                {
+                    int r = upward ? rect.Height - 1 - i : i;
+                    // Une même ligne peut se chevaucher elle-même (décalage horizontal) : CopyTo le gère.
+                    fb.Pixels.AsSpan((sy + r) * fb.Stride + sx * 4, rowBytes)
+                        .CopyTo(fb.Pixels.AsSpan((rect.Y + r) * fb.Stride + rect.X * 4, rowBytes));
+                }
             }
         }
     }

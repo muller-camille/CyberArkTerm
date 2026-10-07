@@ -205,12 +205,10 @@ public class TerminalEmulatorTests
     }
 
     [Fact]
-    public void ReportsTitleAndWorkingDirectory()
+    public void ReportsTheWorkingDirectoryAndIgnoresTheTitle()
     {
         var t = new TerminalEmulator();
-        string? title = null;
         var dirs = new List<string>();
-        t.TitleChanged += s => title = s;
         t.WorkingDirectoryChanged += dirs.Add;
 
         t.Feed("\x1b]0;root@srv: ~\a");
@@ -218,9 +216,37 @@ public class TerminalEmulatorTests
         t.Feed("\x1b]7;/opt/app\a");
         t.Feed("\x1b]7;relative\a");
 
-        Assert.Equal("root@srv: ~", title);
         Assert.Equal(["/var/log/my app", "/opt/app"], dirs);
         Assert.Equal("", Row(t, 0));
+    }
+
+    [Theory]
+    [InlineData("file://h/tmp/a%0Ab")]
+    [InlineData("file://h/tmp/a%1B[31m")]
+    [InlineData("file://h/tmp/%E2%80%AEtxt.exe")]
+    [InlineData("file://h/tmp/a%E2%80%8Bb")]
+    [InlineData("/tmp/a\u0085b")]
+    public void WorkingDirectoryWithHiddenCharactersIsIgnored(string value)
+    {
+        var t = new TerminalEmulator();
+        var dirs = new List<string>();
+        t.WorkingDirectoryChanged += dirs.Add;
+
+        t.Feed($"\x1b]7;{value}\a");
+
+        Assert.Empty(dirs);
+    }
+
+    [Fact]
+    public void LinePositionCountsFromTheScrollRegionInOriginMode()
+    {
+        var t = new TerminalEmulator(10, 10);
+
+        t.Feed("\x1b[3;8r\x1b[?6h\x1b[2dX");
+
+        Assert.Equal("X", Row(t, 3));
+        t.Feed("\x1b[?6l\x1b[2dY");
+        Assert.Equal("Y", Row(t, 1).Trim());
     }
 
     [Fact]

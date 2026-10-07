@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Windows;
 using System.Windows.Controls;
 using CyberArkTerm.App.Localization;
+using CyberArkTerm.App.Services;
 using CyberArkTerm.Core;
 
 namespace CyberArkTerm.App.Views;
@@ -114,8 +115,8 @@ public partial class AccountDialog : Window
             return;
         }
 
-        var secret = ReadPassword(PasswordBox);
-        var confirm = ReadPassword(ConfirmBox);
+        var secret = SecretInput.Read(PasswordBox);
+        var confirm = SecretInput.Read(ConfirmBox);
         try
         {
             if (!secret.AsSpan().SequenceEqual(confirm))
@@ -206,24 +207,6 @@ public partial class AccountDialog : Window
         {
             SetBusy(false);
         }
-    }
-
-    /// <summary>Contenu d'un champ masqué, copié directement de sa mémoire protégée (pas de chaîne non effaçable).</summary>
-    private static char[] ReadPassword(PasswordBox box)
-    {
-        using var secure = box.SecurePassword;
-        var chars = new char[secure.Length];
-        var pointer = Marshal.SecureStringToGlobalAllocUnicode(secure);
-        try
-        {
-            Marshal.Copy(pointer, chars, 0, chars.Length);
-        }
-        finally
-        {
-            Marshal.ZeroFreeGlobalAllocUnicode(pointer);
-        }
-
-        return chars;
     }
 
     private void SetBusy(bool busy)

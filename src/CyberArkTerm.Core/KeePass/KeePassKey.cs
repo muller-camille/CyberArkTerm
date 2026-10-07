@@ -23,7 +23,7 @@ public sealed class KeePassKey : IDisposable
     /// Clé à partir d'un mot de passe et/ou du contenu d'un fichier clé. Un mot de passe vide accompagné d'un fichier
     /// clé est ignoré (coffre protégé par le seul fichier clé).
     /// </summary>
-    public static KeePassKey Create(string? password, byte[]? keyFile)
+    internal static KeePassKey Create(string? password, byte[]? keyFile)
     {
         var bytes = password is null ? null : Encoding.UTF8.GetBytes(password);
         try
@@ -99,7 +99,7 @@ public sealed class KeePassKey : IDisposable
     }
 
     /// <summary>Clé à partir d'un mot de passe et/ou d'un chemin de fichier clé.</summary>
-    public static KeePassKey Create(string? password, string? keyFilePath)
+    internal static KeePassKey Create(string? password, string? keyFilePath)
     {
         var keyFile = ReadKeyFile(keyFilePath);
         try

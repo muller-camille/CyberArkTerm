@@ -193,7 +193,8 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   item (waiting, progress and file n/N, check, result): ✕ removes a waiting item, "Cancel" stops the running one,
   "Cancel all" empties the queue. A stopped transfer deletes the file being transferred, which is incomplete (on the
   server for an upload, on this computer for a download); files already transferred stay. Beware: if the upload was
-  replacing an existing file, its old content is lost. Over SCP, stopping ends only that transfer: the next items go
+  replacing an existing file and had started writing it, its old content is lost; stopped before any content, the
+  server file stays as it was. Over SCP, stopping ends only that transfer: the next items go
   on over the same connection; a transfer that no longer moves (server not reading) stops 2 s after "Cancel" and the next
   ones go on over a new connection. A file sent over SCP gets the upload date on the server (as `scp` without `-p`, and as over SFTP). An error is shown in the queue
   and the queue goes on; at the end, a single summary. Browsing, deleting, permissions, the editor and dragging to
@@ -478,17 +479,22 @@ instances would overwrite each other's settings. The transfer history of the Fil
 - PVWA session opened with `concurrentSession`: your PVWA web session, if any, is not closed.
 - **Copying a password**: the PVWA response is read into a buffer wiped afterwards and decoded without going through
   a string; the password goes straight to the Windows clipboard, marked to be excluded from the history (`Win+V`),
-  from cross-device sync and from clipboard monitoring tools, then cleared after 20 s if it is still there, and on
-  sign-out, exit and Windows lock. It is never shown nor written to the debug log.
+  from cross-device sync and from clipboard monitoring tools, then cleared after 20 s if it is still there (tried
+  again every second if another application keeps the clipboard open), and on sign-out, exit and Windows lock. It is
+  never shown nor written to the debug log. A response that is not the password (HTML maintenance page, redirect to
+  an SSO sign-in page, empty response) is refused instead of being copied.
 - **Adding an account**: the password is read from the masked box without going through a string, sent once to the
   PVWA over HTTPS, then wiped from memory; it is neither saved nor written to the debug log.
-- **PSM sessions**: the PVWA's RDP file (one-time PSM token) is written to `%TEMP%\CyberArkTerm` for `mstsc`, which
+- **Temporary folder**: `%TEMP%\CyberArkTerm`, reserved for your Windows account (permissions limited to you alone);
+  if it belongs to another account (TEMP pointing to a shared folder), `%LOCALAPPDATA%\CyberArkTerm\Temp` is used
+  instead. The paths below are relative to this folder.
+- **PSM sessions**: the PVWA's RDP file (one-time PSM token) is written to the temporary folder for `mstsc`, which
   checks its signature, then deleted after 60 s or on exit.
 - **Simultaneous typing** (parallel view): off every time the view opens, shown by an orange banner and frame that
   name the sessions concerned; an added session is not included by default, and pasting several lines into several
   sessions asks first. Each session stays a separate PSMP session, recorded as usual.
 - **File comparison**: contents read in memory and wiped when the window closes; only the copies given to an
-  external tool go through the disk (`%TEMP%\CyberArkTerm\compare`), deleted when the window closes and at the next
+  external tool go through the disk (temporary folder, `compare`), deleted when the window closes and at the next
   start.
 - **New version**: no request to the Internet without your action or the Settings option (off by default); only the
   addresses of the project repository are followed, the archive is kept only when its SHA-256 checksum is the one of
@@ -516,7 +522,9 @@ instances would overwrite each other's settings. The transfer history of the Fil
     the first agreement (like an SSH host key), a change is reported; refused, the connection stops before the
     user name is sent;
   - file names with control characters are refused (no FTP command injection);
-  - `urgence.log`: date, Windows account, computer, action, vault, entry, target; never a password.
+  - `urgence.log`: date, Windows account, computer, action, vault, entry, target; never a password. Every read of an
+    entry's password is written there, reconnections and the Files tab's SFTP / SCP connections included; if the
+    log cannot be written, the connection is not opened.
 - **Debug log**, off by default (Settings button menu): `%LOCALAPPDATA%\CyberArkTerm\debug.log`, 5 MB at most plus
   one `.1` generation. It records how PVWA, PSM, remote desktop and SSH connections unfold: request addresses and
   statuses, .rdp file settings, Remote Desktop control events and codes, SSH server version and algorithms, errors;
@@ -524,7 +532,7 @@ instances would overwrite each other's settings. The transfer history of the Fil
   the protocol that took over. It contains server and account names, but **never** a password, session token, PSM session request (`PSM@…` masked), signature, request header or
   body, nor session content. The status bar shows it while it is on. Read it before passing it on, and delete it
   once the problem is solved.
-- **Edited files**: the local copy opened in the editor is stored in `%TEMP%\CyberArkTerm\edit` and deleted when the
+- **Edited files**: the local copy opened in the editor is stored in the temporary folder (`edit`) and deleted when the
   SSH tab closes; a warning shows if changes were not sent back.
 - **No command injection**: SCP paths and start folders are quoted for the remote shell; `ssh` / Windows Terminal
   arguments are validated and passed without a shell.
@@ -575,7 +583,8 @@ servers" export has the same format with `"format": "CyberArkTerm.Servers"`, wit
 Native reading and writing (no KeePass installed) of the **KDBX 3.1 and 4.x** formats: AES-256 or ChaCha20
 encryption, AES-KDF (processor AES instructions) or Argon2d / Argon2id key derivation, XML 1.0 / 2.0 key files, 32
 bytes, 64 hexadecimal characters or any file. The rewritten file keeps the original version, encryption and key
-derivation, with new seeds on every save. The test vaults (`tests/CyberArkTerm.Core.Tests/KeePass/Vaults`) come from
+derivation, with new seeds on every save, the key derivation one included (as KeePass does: a derived key captured
+once does not decrypt later versions). The test vaults (`tests/CyberArkTerm.Core.Tests/KeePass/Vaults`) come from
 KeePassXC and pykeepass, and files written by CyberArkTerm were checked in both tools.
 
 ### VNC sessions
@@ -588,7 +597,9 @@ characters are sent as characters), the wheel as buttons 4 and 5.
 
 ### FTP / FTPS files sessions
 
-FluentFTP library (MIT licence). Passive mode (`EPSV` / `PASV`), binary, `PBSZ 0` and `PROT P` under TLS; certificate
+FluentFTP library (MIT licence). Passive mode: `PASV` over IPv4, the data connection always going to the server
+itself (the address given in the reply is ignored: a server cannot point it at another machine), `EPSV` over IPv6;
+binary, `PBSZ 0` and `PROT P` under TLS; certificate
 checked by Windows, otherwise pinned (`ftps://server:port` among the accepted server keys, in the Settings). FTP has
 no standard checksum: each upload is read back from the server and compared by SHA-256. Partial reads (`REST`) for
 compare and live follow. After an interrupted transfer, the connection is reopened and the incomplete file deleted.

@@ -19,7 +19,7 @@ public sealed class RemoteEditor : IDisposable
     /// <summary>Au-delà, on demande confirmation avant d'ouvrir le fichier dans un éditeur de texte.</summary>
     private const long LargeFile = 20L * 1024 * 1024;
 
-    private static readonly string Root = Path.Combine(Path.GetTempPath(), "CyberArkTerm", "edit");
+    private static string Root => PrivateTemp.Combine("edit");
 
     private readonly RemoteSession _session;
     private readonly Window _owner;
@@ -28,6 +28,7 @@ public sealed class RemoteEditor : IDisposable
     private readonly Action<string> _remoteChanged;
     private readonly string _directory = Path.Combine(Root, Guid.NewGuid().ToString("N"));
     private readonly List<EditedFile> _files = [];
+    private readonly HashSet<string> _opening = new(StringComparer.Ordinal);
     private readonly HashSet<EditedFile> _busy = [];
     private readonly HashSet<EditedFile> _savedAgain = [];
     private bool _disposed;
@@ -56,6 +57,24 @@ public sealed class RemoteEditor : IDisposable
             return;
         }
 
+        // Double-clic puis Entrée (ou F4) pendant la copie : une seule copie locale, ouverte par la première demande.
+        if (!_opening.Add(entry.FullPath))
+        {
+            return;
+        }
+
+        try
+        {
+            await OpenNewAsync(entry);
+        }
+        finally
+        {
+            _opening.Remove(entry.FullPath);
+        }
+    }
+
+    private async Task OpenNewAsync(RemoteEntry entry)
+    {
         if (entry.Length > LargeFile && MessageBox.Show(_owner, Text.Format(Strings.EditLargeFile, entry.Name, entry.SizeText),
                 Strings.FileEdit.Replace("_", ""), MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
         {

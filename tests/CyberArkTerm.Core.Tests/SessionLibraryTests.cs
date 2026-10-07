@@ -226,4 +226,15 @@ public class SessionLibraryTests
             File.Delete(path);
         }
     }
+
+    /// <summary>Sans PSMP renseigné, un compte Unix ajouté à « Mes serveurs » s'ouvre par PSM, comme dans la liste des comptes.</summary>
+    [Fact]
+    public void AddedServerUsesPsmWithoutAPsmp()
+    {
+        var settings = new AppSettings();
+        var unix = new PvwaAccount { Id = "9", Address = "lnx01", UserName = "root", PlatformId = "UnixSSH" };
+
+        Assert.Equal(ConnectMode.Ssh, SessionLibrary.AddSession(settings, unix, "pvwa", "").Mode);
+        Assert.Equal(ConnectMode.Psm, SessionLibrary.AddSession(settings, unix, "pvwa", "", hasPsmp: false).Mode);
+    }
 }

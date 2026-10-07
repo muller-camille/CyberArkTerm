@@ -44,13 +44,16 @@ public partial class RemoteFileDialog : Window
     /// <summary>Fichier choisi.</summary>
     public string? SelectedPath { get; private set; }
 
-    /// <summary>Dossier du chemin proposé, sinon son plus proche parent lisible, sinon le dossier personnel.</summary>
+    /// <summary>
+    /// Dossier du chemin proposé, sinon son plus proche parent lisible, sinon le dossier personnel. S'arrête dès que la
+    /// lecture est abandonnée : l'utilisateur a navigué ailleurs entre-temps, ou la fenêtre est fermée.
+    /// </summary>
     internal async Task StartAsync()
     {
         var name = RemotePath.Name(StartPath);
         foreach (var directory in RemotePath.Ancestors(RemotePath.Parent(StartPath)).Append(RemotePath.Normalize(_home)).Distinct())
         {
-            if (await ShowAsync(directory, select: name))
+            if (await ShowAsync(directory, select: name) is not Shown.Failed)
             {
                 return;
             }
@@ -77,14 +80,26 @@ public partial class RemoteFileDialog : Window
     internal async Task GoToAsync(string typed)
     {
         var path = RemotePath.ResolveHome(typed, _home);
-        if (!await ShowAsync(path, reportError: false))
+        if (await ShowAsync(path, reportError: false) == Shown.Failed)
         {
             await ShowAsync(RemotePath.Parent(path), select: RemotePath.Name(path));
         }
     }
 
-    /// <summary>Lit et affiche un dossier ; faux s'il est illisible (le dossier affiché ne change pas).</summary>
-    private async Task<bool> ShowAsync(string directory, string? select = null, bool reportError = true)
+    private enum Shown
+    {
+        /// <summary>Dossier affiché.</summary>
+        Yes,
+
+        /// <summary>Illisible : le dossier affiché ne change pas.</summary>
+        Failed,
+
+        /// <summary>Lecture abandonnée (autre dossier demandé, fenêtre fermée).</summary>
+        Abandoned,
+    }
+
+    /// <summary>Lit et affiche un dossier (le dossier affiché ne change pas s'il est illisible).</summary>
+    private async Task<Shown> ShowAsync(string directory, string? select = null, bool reportError = true)
     {
         _loading?.Cancel();
         var loading = _loading = new CancellationTokenSource();
@@ -95,7 +110,7 @@ public partial class RemoteFileDialog : Window
             var entries = await _list(directory, HiddenBox.IsChecked == true, loading.Token);
             if (loading.IsCancellationRequested)
             {
-                return false;
+                return Shown.Abandoned;
             }
 
             CurrentDirectory = directory;
@@ -117,16 +132,21 @@ public partial class RemoteFileDialog : Window
             }
 
             SetStatus(Text.Format(Strings.RemotePickCount, entries.Count));
-            return true;
+            return Shown.Yes;
         }
         catch (Exception e) when (e is not OutOfMemoryException)
         {
-            if (!loading.IsCancellationRequested && reportError)
+            if (loading.IsCancellationRequested)
+            {
+                return Shown.Abandoned;
+            }
+
+            if (reportError)
             {
                 SetStatus(Text.Format(Strings.RemotePickError, directory, Describe(e)), error: true);
             }
 
-            return false;
+            return Shown.Failed;
         }
     }
 

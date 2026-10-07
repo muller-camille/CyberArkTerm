@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
@@ -42,6 +43,9 @@ public sealed class KeePassDatabase : IDisposable
     /// <summary>Pièces jointes (KDBX 4, en-tête interne), dans leur ordre d'origine.</summary>
     internal List<(byte Flags, SecretBytes Data)> Binaries { get; } = [];
 
+    /// <summary>Champs de l'en-tête interne inconnus (version future du format), réécrits tels quels.</summary>
+    internal List<(byte Id, SecretBytes Data)> OtherInnerFields { get; } = [];
+
     internal SecretBytes TransformedKey { get; set; } = new([]);
 
     /// <summary>Empreinte de l'en-tête enregistrée dans le XML (KDBX 3.1).</summary>
@@ -81,7 +85,7 @@ public sealed class KeePassDatabase : IDisposable
     public string? RevealPassword(string entryId) => FindEntry(entryId) is { } entry ? GetField(entry, "Password") : null;
 
     /// <summary>Valeur d'un champ (« Title », « UserName », champ personnalisé...) ; les champs protégés sont révélés.</summary>
-    public string? GetField(string entryId, string field) => FindEntry(entryId) is { } entry ? GetField(entry, field) : null;
+    internal string? GetField(string entryId, string field) => FindEntry(entryId) is { } entry ? GetField(entry, field) : null;
 
     /// <summary>Ajoute une entrée dans le dossier <paramref name="groupPath"/> (créé si besoin) ; renvoie son identifiant.</summary>
     public string AddEntry(KeePassEntryData data, string groupPath = "")
@@ -178,6 +182,7 @@ public sealed class KeePassDatabase : IDisposable
         }
 
         entry.Remove();
+        DisposeSecrets(entry);
         var root = _xml.Root!.Element("Root")!;
         var deleted = root.Element("DeletedObjects");
         if (deleted is null)
@@ -196,20 +201,29 @@ public sealed class KeePassDatabase : IDisposable
             value.Dispose();
         }
 
-        foreach (var (_, data) in Binaries)
+        foreach (var (_, data) in Binaries.Concat(OtherInnerFields.Select(f => (f.Id, f.Data))))
         {
             data.Dispose();
         }
 
         Binaries.Clear();
+        OtherInnerFields.Clear();
         TransformedKey.Dispose();
         _xml = new XDocument();
     }
 
+    /// <summary>Profondeur de dossiers acceptée (KeePass n'en fixe pas ; au-delà, le fichier est tenu pour corrompu).</summary>
+    internal const int MaxGroupDepth = 256;
+
     internal void LoadXml(ReadOnlyMemory<byte> xml, StreamCipher protection)
     {
         var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = 0 };
-        using (var reader = XmlReader.Create(new MemoryStream(xml.ToArray(), writable: false), settings))
+        // Lu directement dans le tableau déchiffré (effacé ensuite par l'appelant) : pas de copie du XML en clair.
+        var stream = MemoryMarshal.TryGetArray(xml, out var segment)
+            ? new MemoryStream(segment.Array!, segment.Offset, segment.Count, writable: false)
+            : new MemoryStream(xml.ToArray(), writable: false);
+        using (stream)
+        using (var reader = XmlReader.Create(stream, settings))
         {
             _xml = XDocument.Load(reader, LoadOptions.PreserveWhitespace);
         }
@@ -217,6 +231,12 @@ public sealed class KeePassDatabase : IDisposable
         if (_xml.Root?.Name.LocalName != "KeePassFile")
         {
             throw new FormatException("KeePassFile");
+        }
+
+        // Dossiers imbriqués sans fin (fichier forgé) : refusés avant tout parcours récursif (pile épuisée sinon).
+        if (RootGroup is { } root && GroupDepth(root) > MaxGroupDepth)
+        {
+            throw new FormatException("Group depth");
         }
 
         // Les valeurs protégées sont masquées par le flot interne dans l'ordre du document, historique compris.
@@ -245,7 +265,7 @@ public sealed class KeePassDatabase : IDisposable
                 CryptographicOperations.ZeroMemory(bytes);
             }
 
-            var output = new MemoryStream();
+            using var output = new SecretMemoryStream();
             var settings = new XmlWriterSettings
             {
                 Encoding = new UTF8Encoding(false),
@@ -275,6 +295,30 @@ public sealed class KeePassDatabase : IDisposable
         {
             SetChild(meta, "HeaderHash", Convert.ToBase64String(hash), after: "Generator");
         }
+    }
+
+    /// <summary>Profondeur du dossier le plus imbriqué, calculée sans récursion.</summary>
+    private static int GroupDepth(XElement root)
+    {
+        int deepest = 0;
+        var pending = new Stack<(XElement Group, int Depth)>();
+        pending.Push((root, 1));
+        while (pending.Count > 0)
+        {
+            var (group, depth) = pending.Pop();
+            deepest = Math.Max(deepest, depth);
+            if (depth > MaxGroupDepth)
+            {
+                break;
+            }
+
+            foreach (var child in group.Elements("Group"))
+            {
+                pending.Push((child, depth + 1));
+            }
+        }
+
+        return deepest;
     }
 
     private static bool IsProtected(XElement element) =>
@@ -468,7 +512,11 @@ public sealed class KeePassDatabase : IDisposable
     private void AddToHistory(XElement entry)
     {
         var copy = CloneWithSecrets(entry);
-        copy.Element("History")?.Remove();
+        if (copy.Element("History") is { } nested)
+        {
+            DisposeSecrets(nested);
+            nested.Remove();
+        }
         var history = entry.Element("History");
         if (history is null)
         {

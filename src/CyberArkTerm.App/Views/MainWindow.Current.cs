@@ -163,7 +163,15 @@ public partial class MainWindow
 
     // ===================== Sélection et connexion =====================
 
-    private void OnSavedSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e) => SetCurrentFrom(e.NewValue);
+    private void OnSavedSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+    {
+        // Arbre reconstruit en arrière-plan (liste partagée modifiée par un collègue, Paramètres, verrouillage de
+        // Windows) : sa sélection disparaît, mais la cible choisie dans une autre liste reste.
+        if (e.NewValue is not null || SavedTree.IsKeyboardFocusWithin)
+        {
+            SetCurrentFrom(e.NewValue);
+        }
+    }
 
     private void OnSavedItemDoubleClick(object sender, MouseButtonEventArgs e)
     {
@@ -314,7 +322,7 @@ public partial class MainWindow
     };
 
     private void AddToCurrent(PvwaAccount account, string folder) =>
-        ShowAddedToCurrent(SessionLibrary.AddSession(_settings, account, PvwaHost, folder));
+        ShowAddedToCurrent(SessionLibrary.AddSession(_settings, account, PvwaHost, folder, HasPsmp));
 
     /// <summary>Connexion récente ajoutée aux « Courants » avec son mode, son composant et sa machine cible.</summary>
     private void AddToCurrent(PvwaAccount account, RecentSession recent, string folder) =>
@@ -367,10 +375,8 @@ public partial class MainWindow
 
     // ===================== Dossiers =====================
 
+    /// <summary>Nouveau dossier dans le dossier sélectionné (menu « Nouveau sous-dossier », bouton, menu de la liste).</summary>
     private void OnNewFolder(object sender, RoutedEventArgs e) =>
-        CreateFolder(SavedTree.SelectedItem is SavedFolderNode folder ? folder.Path : "");
-
-    private void OnNewSubFolder(object sender, RoutedEventArgs e) =>
         CreateFolder(SavedTree.SelectedItem is SavedFolderNode folder ? folder.Path : "");
 
     private void CreateFolder(string parent)
@@ -443,14 +449,17 @@ public partial class MainWindow
             case SavedFolderNode folder:
                 if (AskFolderName(Strings.RenameFolderTitle, SessionFolders.Parent(folder.Path), folder.Name, except: folder.Path) is { } path)
                 {
-                    bool collapsed = _collapsedFolders.Contains(folder.Path);
+                    // Dossiers repliés : ils le restent sous leur nouveau nom (sous-dossiers compris).
+                    RememberSavedExpansion();
                     SessionLibrary.RenameFolder(_settings, folder.Path, SessionFolders.Name(path));
-                    if (!collapsed)
+                    foreach (var collapsed in _collapsedFolders.Where(p => SessionFolders.IsWithin(p, folder.Path)).ToList())
                     {
-                        Expand(path);
+                        _collapsedFolders.Remove(collapsed);
+                        _collapsedFolders.Add(SessionFolders.Rebase(collapsed, folder.Path, path));
                     }
 
-                    SaveAndRefreshSaved();
+                    SaveSettings();
+                    RefreshSaved();
                 }
 
                 break;

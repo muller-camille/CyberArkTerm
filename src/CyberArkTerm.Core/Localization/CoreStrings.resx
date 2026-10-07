@@ -369,4 +369,7 @@
   <data name="ChangedDuringChmod" xml:space="preserve">
     <value>replaced by a symbolic link while the rights were being changed: left as is</value>
   </data>
+  <data name="PvwaUnexpectedSecretResponse" xml:space="preserve">
+    <value>The PVWA did not send the password but an unexpected response ({0}): a sign-in page (SSO) or a maintenance page may be in the way. Log on again, then try again.</value>
+  </data>
 </root>

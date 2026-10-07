@@ -562,9 +562,16 @@ public partial class FileBrowserPanel : UserControl
         }
     }
 
+    /// <summary>
+    /// Vrai si <paramref name="browser"/> est toujours la connexion affichée : une opération longue qui se termine après
+    /// un changement de session n'actualise pas l'autre session et n'écrit pas dans sa barre d'état.
+    /// </summary>
+    private bool StillShowing(IRemoteFiles browser, int generation) => generation == _generation && ReferenceEquals(_browser, browser);
+
     private async void OnNewFolder(object sender, RoutedEventArgs e)
     {
         var browser = _browser;
+        int generation = _generation;
         if (browser is null)
         {
             return;
@@ -580,11 +587,17 @@ public partial class FileBrowserPanel : UserControl
         try
         {
             await browser.CreateDirectoryAsync(RemotePath.Combine(browser.CurrentDirectory, dialog.Value), CancellationToken.None);
-            await NavigateAsync(browser.CurrentDirectory);
+            if (StillShowing(browser, generation))
+            {
+                await NavigateAsync(browser.CurrentDirectory);
+            }
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            SetStatus(Text.Format(Strings.CreateFailed, Describe(ex)), error: true);
+            if (StillShowing(browser, generation))
+            {
+                SetStatus(Text.Format(Strings.CreateFailed, Describe(ex)), error: true);
+            }
         }
     }
 
@@ -612,6 +625,7 @@ public partial class FileBrowserPanel : UserControl
     private async Task ChangePermissionsAsync()
     {
         var browser = _browser;
+        int generation = _generation;
         var selected = SelectedEntries();
         if (browser is null || selected.Count == 0 || _busy > 0)
         {
@@ -661,9 +675,19 @@ public partial class FileBrowserPanel : UserControl
         {
             foreach (var entry in selected)
             {
-                SetStatus(Text.Format(Strings.PermissionsApplying, entry.Name));
+                if (StillShowing(browser, generation))
+                {
+                    SetStatus(Text.Format(Strings.PermissionsApplying, entry.Name));
+                }
+
                 int before = changed;
-                var progress = new Progress<int>(n => SetStatus(Text.Format(Strings.PermissionsProgress, before + n)));
+                var progress = new Progress<int>(n =>
+                {
+                    if (StillShowing(browser, generation))
+                    {
+                        SetStatus(Text.Format(Strings.PermissionsProgress, before + n));
+                    }
+                });
                 try
                 {
                     // Pas de propagation à travers un lien symbolique sélectionné (seule sa cible change de droits).
@@ -684,6 +708,11 @@ public partial class FileBrowserPanel : UserControl
             Interlocked.Decrement(ref _busy);
         }
 
+        if (!StillShowing(browser, generation))
+        {
+            return;
+        }
+
         await NavigateAsync(browser.CurrentDirectory);
         if (errors.Count > 0)
         {
@@ -700,6 +729,7 @@ public partial class FileBrowserPanel : UserControl
     private async Task DeleteAsync()
     {
         var browser = _browser;
+        int generation = _generation;
         var selected = SelectedEntries();
         if (browser is null || selected.Count == 0 || _busy > 0)
         {
@@ -726,7 +756,11 @@ public partial class FileBrowserPanel : UserControl
         {
             foreach (var entry in selected)
             {
-                SetStatus(Text.Format(Strings.Deleting, entry.Name));
+                if (StillShowing(browser, generation))
+                {
+                    SetStatus(Text.Format(Strings.Deleting, entry.Name));
+                }
+
                 try
                 {
                     await browser.DeleteAsync(entry, CancellationToken.None);
@@ -740,6 +774,11 @@ public partial class FileBrowserPanel : UserControl
         finally
         {
             Interlocked.Decrement(ref _busy);
+        }
+
+        if (!StillShowing(browser, generation))
+        {
+            return;
         }
 
         await NavigateAsync(browser.CurrentDirectory);

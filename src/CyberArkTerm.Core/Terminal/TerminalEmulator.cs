@@ -88,16 +88,11 @@ public sealed class TerminalEmulator
         IgnoreStringEscape,
     }
 
-    /// <summary>Titre de la fenêtre (OSC 0 / 2).</summary>
-    public event Action<string>? TitleChanged;
-
     /// <summary>Dossier courant signalé par le shell (OSC 7), déjà décodé en chemin Unix.</summary>
     public event Action<string>? WorkingDirectoryChanged;
 
     /// <summary>Réponse à renvoyer au serveur (rapport de position du curseur, attributs du terminal...).</summary>
     public event Action<string>? Response;
-
-    public event Action? Bell;
 
     public int Columns { get; private set; }
 
@@ -120,8 +115,6 @@ public sealed class TerminalEmulator
     public bool OriginMode { get; private set; }
 
     public bool IsAlternateScreen => _alt is not null && ReferenceEquals(_screen, _alt);
-
-    public string Title { get; private set; } = "";
 
     /// <summary>Nombre de lignes d'historique consultables (aucune en écran alternatif : vim, less...).</summary>
     public int ScrollbackCount => IsAlternateScreen ? 0 : _scrollback.Count;
@@ -309,7 +302,7 @@ public sealed class TerminalEmulator
         switch (c)
         {
             case '\a':
-                Bell?.Invoke();
+                // Sonnerie : ignorée.
                 break;
             case '\b':
                 _wrapPending = false;
@@ -549,7 +542,8 @@ public sealed class TerminalEmulator
                 EraseChars(Param(0, 1));
                 break;
             case 'd':
-                CursorPosition(Param(0, 1) - 1 - (OriginMode ? _scrollTop : 0), CursorColumn);
+                // Ligne absolue, comptée depuis le haut de la zone de défilement en mode origine (CursorPosition).
+                CursorPosition(Param(0, 1) - 1, CursorColumn);
                 break;
             case 'h':
             case 'l':
@@ -613,13 +607,9 @@ public sealed class TerminalEmulator
 
         var code = text[..sep];
         var value = text[(sep + 1)..];
+        // Titre de la fenêtre (OSC 0 / 2) et autres codes : ignorés.
         switch (code)
         {
-            case "0":
-            case "2":
-                Title = value;
-                TitleChanged?.Invoke(value);
-                break;
             case "7":
                 if (WorkingDirectory.Parse(value) is { } path)
                 {

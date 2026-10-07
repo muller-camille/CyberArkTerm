@@ -3538,4 +3538,7 @@ Due istanze sovrascriverebbero a vicenda impostazioni, archivio locale e file in
 
 Sostituirli? Ognuno viene sostituito solo a download completato.</value>
   </data>
+  <data name="KeePassConnectNoLog" xml:space="preserve">
+    <value>Il registro degli accessi di emergenza non può essere scritto ({0}): la connessione non viene aperta.</value>
+  </data>
 </root>

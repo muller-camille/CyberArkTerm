@@ -156,9 +156,9 @@ public static class SessionLibrary
     private static bool InFolder(SavedSession session, string path) =>
         session.Folder.Length > 0 && SessionFolders.IsWithin(session.Folder, path);
 
-    public static SavedSession AddSession(AppSettings settings, PvwaAccount account, string pvwaHost, string folder)
+    public static SavedSession AddSession(AppSettings settings, PvwaAccount account, string pvwaHost, string folder, bool hasPsmp = true)
     {
-        var session = SavedSession.FromAccount(account, pvwaHost, folder);
+        var session = SavedSession.FromAccount(account, pvwaHost, folder, hasPsmp);
         AddFolder(settings, session.Folder);
         settings.Sessions.Add(session);
         return session;

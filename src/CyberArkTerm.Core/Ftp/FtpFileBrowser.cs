@@ -111,7 +111,10 @@ public sealed class FtpFileBrowser : IRemoteFiles
             EncryptionMode = mode,
             DataConnectionEncryption = true,
             ValidateAnyCertificate = false,
-            DataConnectionType = FtpDataConnectionType.AutoPassive,
+            // Mode passif sans suivre l'adresse donnée par le serveur dans sa réponse PASV : la connexion de données
+            // va toujours vers le serveur lui-même (un serveur malveillant ne peut pas viser une autre machine du
+            // réseau). En IPv6, EPSV, qui ne donne qu'un port.
+            DataConnectionType = FtpDataConnectionType.PASVEX,
             ConnectTimeout = 30_000,
             ReadTimeout = 30_000,
             DataConnectionConnectTimeout = 30_000,
@@ -373,7 +376,8 @@ public sealed class FtpFileBrowser : IRemoteFiles
 
     /// <summary>
     /// Un fichier : envoi en hachant le fichier local, puis relecture du fichier arrivé sur le serveur pour comparer les
-    /// sommes. Annulé pendant l'envoi : le fichier incomplet est supprimé du serveur.
+    /// sommes. Annulé pendant l'envoi : le fichier incomplet est supprimé du serveur (seulement s'il a pu être modifié,
+    /// voir <see cref="MayHaveWrittenAsync"/>).
     /// </summary>
     private async Task UploadFileAsync(string localPath, string remotePath, ICollection<TransferCheck> checks,
         IProgress<TransferProgress>? progress, bool background, CancellationToken ct)
@@ -382,6 +386,7 @@ public sealed class FtpFileBrowser : IRemoteFiles
         var name = Path.GetFileName(localPath);
         var protocol = UploadProtocol;
         bool started = false;
+        bool contentSent = false;
         (byte[] Hash, long Length) sent;
         try
         {
@@ -391,7 +396,7 @@ public sealed class FtpFileBrowser : IRemoteFiles
                 started = true;
                 try
                 {
-                    sent = await SendAsync(localPath, remotePath, name, progress, ct).ConfigureAwait(false);
+                    sent = await SendAsync(localPath, remotePath, name, () => contentSent = true, progress, ct).ConfigureAwait(false);
                 }
                 catch (Exception e) when (e is not OutOfMemoryException && NeedsRecovery(e))
                 {
@@ -402,7 +407,7 @@ public sealed class FtpFileBrowser : IRemoteFiles
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            if (started)
+            if (started && await MayHaveWrittenAsync(name, remotePath, contentSent).ConfigureAwait(false))
             {
                 checks.Add((await DiscardRemoteAsync(name, localPath, remotePath).ConfigureAwait(false)) with { Protocol = protocol });
             }
@@ -437,6 +442,44 @@ public sealed class FtpFileBrowser : IRemoteFiles
                 { Upload = true, Protocol = protocol });
             throw;
         }
+        catch (Exception e) when (e is not OutOfMemoryException)
+        {
+            // Envoyé, mais pas relu (connexion perdue…) : il est sur le serveur, non vérifié, et l'historique le montre.
+            checks.Add(new TransferCheck(name, localPath, remotePath, sent.Length, sent.Hash, -1, [], e.Message)
+                { Upload = true, Protocol = protocol });
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Envoi annulé : vrai si le fichier du serveur a pu être modifié, et doit donc être supprimé. Sans aucun contenu
+    /// parti (annulé avant que le serveur accepte STOR, ou juste après), un fichier non vide est resté tel quel : il est
+    /// gardé. Vide, il vient de l'envoi (créé ou vidé par STOR) : il est supprimé.
+    /// </summary>
+    private async Task<bool> MayHaveWrittenAsync(string name, string remotePath, bool contentSent)
+    {
+        if (contentSent)
+        {
+            return true;
+        }
+
+        try
+        {
+            using (await _gate.EnterAsync(background: false, CancellationToken.None).ConfigureAwait(false))
+            {
+                if (await _client.GetFileSize(remotePath, -1, CancellationToken.None).ConfigureAwait(false) > 0)
+                {
+                    Diagnostics.DebugLog.Write("ftp", $"Envoi de {name} annulé avant tout contenu : le fichier du serveur est resté tel quel");
+                    return false;
+                }
+            }
+        }
+        catch (Exception e) when (e is FtpException or IOException or ObjectDisposedException or InvalidOperationException or TimeoutException)
+        {
+            // État inconnu : la suppression est tentée, et son échec noté.
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -480,7 +523,8 @@ public sealed class FtpFileBrowser : IRemoteFiles
         }
     }
 
-    private async Task<(byte[] Hash, long Length)> SendAsync(string localPath, string remotePath, string name,
+    /// <param name="contentRead">Appelé dès que du contenu est lu du fichier local pour partir vers le serveur.</param>
+    private async Task<(byte[] Hash, long Length)> SendAsync(string localPath, string remotePath, string name, Action contentRead,
         IProgress<TransferProgress>? progress, CancellationToken ct)
     {
         await using var file = File.OpenRead(localPath);
@@ -490,7 +534,19 @@ public sealed class FtpFileBrowser : IRemoteFiles
         progress?.Report(new TransferProgress(name, 0, total, Protocol: protocol));
         var report = progress is null ? null : new Progress<FtpProgress>(
             p => progress.Report(new TransferProgress(name, p.TransferredBytes, total, Protocol: protocol)));
-        var status = await _client.UploadStream(hashing, remotePath, FtpRemoteExists.OverwriteInPlace, false, report, ct).ConfigureAwait(false);
+        FtpStatus status;
+        try
+        {
+            status = await _client.UploadStream(hashing, remotePath, FtpRemoteExists.OverwriteInPlace, false, report, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            if (hashing.Count > 0)
+            {
+                contentRead();
+            }
+        }
+
         if (status != FtpStatus.Success)
         {
             throw new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.FtpTransferFailed, remotePath));

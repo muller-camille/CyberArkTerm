@@ -10284,5 +10284,14 @@ namespace CyberArkTerm.App.Localization {
                 return ResourceManager.GetString("DownloadReplaceConfirm", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The emergency access log cannot be written ({0}): the connection is not opened..
+        /// </summary>
+        public static string KeePassConnectNoLog {
+            get {
+                return ResourceManager.GetString("KeePassConnectNoLog", resourceCulture);
+            }
+        }
     }
 }

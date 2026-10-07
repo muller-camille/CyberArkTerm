@@ -44,9 +44,17 @@ public class RdpSessionTests(ITestOutputHelper output)
         }
 
         var direct = new RdpConnectionRequest(RdpConnectionSettings.Direct("127.0.0.1", 1, @"TEST\user"), "not-a-password");
-        var psm = new RdpConnectionRequest(RdpConnectionSettings.FromRdpFile(Encoding.Unicode.GetBytes(
-            "full address:s:127.0.0.1:1\r\nusername:s:jdoe\r\nalternate shell:s:psm /u admin /a srv01 /c PSM-RDP\r\n" +
-            "authentication level:i:0\r\nenablecredsspsupport:i:0\r\nkeyboardhook:i:1\r\ndisable wallpaper:i:1\r\n")), null);
+        var psm = new RdpConnectionRequest(new RdpConnectionSettings
+        {
+            Server = "127.0.0.1",
+            Port = 1,
+            UserName = "jdoe",
+            StartProgram = "psm /u admin /a srv01 /c PSM-RDP",
+            AuthenticationLevel = 0,
+            EnableCredSsp = false,
+            KeyboardHookMode = 1,
+            PerformanceFlags = 0x01,
+        }, null);
 
         foreach (var request in new[] { direct, psm })
         {
@@ -75,8 +83,7 @@ public class RdpSessionTests(ITestOutputHelper output)
             return;
         }
 
-        var request = new RdpConnectionRequest(RdpConnectionSettings.FromRdpFile(Encoding.Unicode.GetBytes(
-            $"full address:s:127.0.0.2:3389\r\nusername:s:{account.User}\r\nauthentication level:i:0\r\nenablecredsspsupport:i:1\r\n")),
+        var request = new RdpConnectionRequest(RdpConnectionSettings.Direct("127.0.0.2", 3389, account.User) with { AuthenticationLevel = 0 },
             account.Password);
 
         await RunOnStaAsync(request, async session =>

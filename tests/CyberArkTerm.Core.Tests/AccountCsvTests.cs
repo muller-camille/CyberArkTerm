@@ -5,6 +5,34 @@ namespace CyberArkTerm.Core.Tests;
 
 public sealed class AccountCsvTests
 {
+    /// <summary>
+    /// Séparateur de liste régional inhabituel (« | ») : le modèle et l'export de ce poste le prennent, l'import le
+    /// reconnaît, et une valeur qui le contient est entre guillemets.
+    /// </summary>
+    [Fact]
+    public void RegionalSeparatorIsWrittenQuotedAndRecognised()
+    {
+        var previous = CultureInfo.CurrentCulture;
+        var culture = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+        culture.TextInfo.ListSeparator = "|";
+        CultureInfo.CurrentCulture = culture;
+        try
+        {
+            char separator = CsvExporter.DefaultSeparator(culture);
+            var import = AccountCsv.Parse(AccountCsv.Template(separator), null, null);
+            Assert.Null(import.Error);
+            Assert.Equal("srv-app01.corp.example", import.Rows[0].Address);
+
+            var writer = new StringWriter();
+            CsvExporter.Write(writer, [new PvwaAccount { Id = "1_1", Address = "a|b", UserName = "u" }], separator);
+            Assert.StartsWith("\"a|b\"|u|", writer.ToString().Split("\r\n")[1], StringComparison.Ordinal);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previous;
+        }
+    }
+
     /// <summary>Fichier fictif façon Excel français : « ; », guillemets, en-têtes en français, colonne inconnue ignorée.</summary>
     [Fact]
     public void ReadsAnExcelStyleFile()

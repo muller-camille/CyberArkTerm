@@ -22,6 +22,7 @@ public partial class MainWindow
 
     private readonly List<SharedServerList> _sharedLists = [];
     private readonly Dictionary<SharedServerList, FileSystemWatcher> _sharedWatchers = [];
+    private bool _sharedStopped;
     private readonly HashSet<string> _collapsedShared = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<SharedServerList> _sharedChanged = [];
 
@@ -187,6 +188,10 @@ public partial class MainWindow
 
     internal void StopWatchingSharedLists()
     {
+        // Fenêtre fermée : une liste encore en chargement, ou dont la surveillance se met en place sur un partage lent,
+        // ne s'ajoute plus après coup (son surveillant garderait la fenêtre fermée en vie).
+        _sharedStopped = true;
+        _sharedLists.Clear();
         foreach (var watcher in _sharedWatchers.Values)
         {
             watcher.Dispose();
@@ -221,6 +226,11 @@ public partial class MainWindow
         var list = new SharedServerList(dialog.FileName);
         SetStatus(Text.Format(Strings.SharedListLoading, list.Path));
         await Task.Run(list.Load);
+        if (_sharedStopped)
+        {
+            return;
+        }
+
         if (list.Content is not { } content)
         {
             SetStatus("");
@@ -279,6 +289,11 @@ public partial class MainWindow
         try
         {
             var list = await Task.Run(() => SharedServerList.Create(path, name, pvwa, who));
+            if (_sharedStopped)
+            {
+                return;
+            }
+
             AddSharedList(list);
             SetStatus(Text.Format(Strings.SharedListCreated, list.Name));
         }
@@ -341,7 +356,7 @@ public partial class MainWindow
         var before = lists.Select(l => (l.Content?.Revision, l.Error)).ToList();
         await Task.WhenAll(lists.Select(l => Task.Run(l.Load)));
         var after = lists.Select(l => (l.Content?.Revision, l.Error)).ToList();
-        if (force || !before.SequenceEqual(after))
+        if (!_sharedStopped && (force || !before.SequenceEqual(after)))
         {
             RefreshSaved();
         }

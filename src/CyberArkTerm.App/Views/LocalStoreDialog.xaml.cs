@@ -1,5 +1,6 @@
 using System.Windows;
 using CyberArkTerm.App.Localization;
+using CyberArkTerm.App.Services;
 using CyberArkTerm.Core.KeePass;
 
 namespace CyberArkTerm.App.Views;
@@ -16,12 +17,18 @@ public partial class LocalStoreDialog : Window
 
     private readonly LocalSecretStore _store;
     private readonly Mode _mode;
+    private readonly IEnumerable<string>? _remembered;
 
-    public LocalStoreDialog(LocalSecretStore store, Mode mode)
+    /// <param name="remembered">
+    /// Coffres KeePass dont le mot de passe doit rester mémorisé : au déverrouillage, les autres secrets (coffres retirés
+    /// ou « se souvenir » décoché pendant que le coffre local était verrouillé) sont oubliés.
+    /// </param>
+    public LocalStoreDialog(LocalSecretStore store, Mode mode, IEnumerable<string>? remembered = null)
     {
         InitializeComponent();
         _store = store;
         _mode = mode;
+        _remembered = remembered;
         IntroText.Text = mode switch
         {
             Mode.Create => Strings.LocalStoreCreateIntro,
@@ -45,22 +52,38 @@ public partial class LocalStoreDialog : Window
 
     private async void OnOk(object sender, RoutedEventArgs e)
     {
-        var password = PasswordBox.Password;
-        if (_mode != Mode.Unlock)
+        // Lu sans chaîne .NET (effaçable), et effacé dès que le coffre local en a dérivé sa clé.
+        var password = SecretInput.Read(PasswordBox);
+        try
         {
-            if (password.Length < LocalSecretStore.MinPasswordLength)
+            if (_mode != Mode.Unlock)
             {
-                ShowError(Text.Format(Core.Localization.CoreStrings.LocalStorePasswordTooShort, LocalSecretStore.MinPasswordLength));
-                return;
+                if (password.Length < LocalSecretStore.MinPasswordLength)
+                {
+                    ShowError(Text.Format(Core.Localization.CoreStrings.LocalStorePasswordTooShort, LocalSecretStore.MinPasswordLength));
+                    return;
+                }
+
+                var confirm = SecretInput.Read(ConfirmBox);
+                bool same = password.AsSpan().SequenceEqual(confirm);
+                SecretInput.Clear(confirm);
+                if (!same)
+                {
+                    ShowError(Strings.LocalStoreMismatch);
+                    return;
+                }
             }
 
-            if (password != ConfirmBox.Password)
-            {
-                ShowError(Strings.LocalStoreMismatch);
-                return;
-            }
+            await RunAsync(password);
         }
+        finally
+        {
+            SecretInput.Clear(password);
+        }
+    }
 
+    private async Task RunAsync(char[] password)
+    {
         IsEnabled = false;
         Progress.Visibility = Visibility.Visible;
         ErrorText.Visibility = Visibility.Collapsed;
@@ -76,6 +99,11 @@ public partial class LocalStoreDialog : Window
                         break;
                     case Mode.Unlock:
                         _store.Unlock(password);
+                        if (_remembered is not null)
+                        {
+                            _store.RemoveAllExcept(_remembered);
+                        }
+
                         break;
                     default:
                         _store.ChangePassword(password);
@@ -83,6 +111,11 @@ public partial class LocalStoreDialog : Window
                 }
             });
             DialogResult = true;
+        }
+        catch (OperationCanceledException)
+        {
+            // Session Windows verrouillée pendant le calcul : le coffre local reste verrouillé.
+            DialogResult = false;
         }
         catch (Exception ex) when (ex is KeePassException or ArgumentException or InvalidOperationException or System.IO.IOException
                                        or UnauthorizedAccessException)
@@ -93,6 +126,13 @@ public partial class LocalStoreDialog : Window
             PasswordBox.SelectAll();
             PasswordBox.Focus();
         }
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        PasswordBox.Clear();
+        ConfirmBox.Clear();
+        base.OnClosed(e);
     }
 
     private void ShowError(string message)

@@ -207,8 +207,9 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   panneau au-dessus de la barre d'état montre chaque élément (en attente, avancement et fichier n/N, vérification,
   résultat) : ✕ retire un élément en attente, « Annuler » arrête celui en cours, « Tout annuler » vide la file. Un
   transfert arrêté supprime le fichier en cours, incomplet (sur le serveur pour un envoi, sur le poste pour un
-  téléchargement) ; les fichiers déjà transférés restent. Attention : si l'envoi remplaçait un fichier existant, son
-  ancien contenu est perdu. En SCP, l'arrêt ne concerne que ce transfert : les éléments suivants continuent sur la
+  téléchargement) ; les fichiers déjà transférés restent. Attention : si l'envoi remplaçait un fichier existant et
+  avait commencé à l'écrire, son ancien contenu est perdu ; arrêté avant tout contenu, le fichier du serveur reste
+  tel quel. En SCP, l'arrêt ne concerne que ce transfert : les éléments suivants continuent sur la
   même connexion ; un transfert qui n'avance plus (serveur qui ne lit plus) s'arrête 2 s après « Annuler » et les
   suivants partent sur une nouvelle connexion. Un fichier envoyé par SCP prend sur le serveur la date de l'envoi (comme `scp` sans `-p`, et comme en SFTP). Une
   erreur est affichée dans la file et la file continue ; à la fin, un seul bilan. La navigation, la suppression, les
@@ -507,19 +508,24 @@ l'une l'autre leurs réglages. L'historique des transferts de l'onglet Fichiers 
 - **Copie d'un mot de passe** : la réponse du PVWA est lue dans un tampon effacé ensuite et décodée sans passer par
   une chaîne ; le mot de passe est copié directement dans le presse-papiers Windows, marqué pour être exclu de
   l'historique (`Win+V`), de la synchronisation entre appareils et des outils de surveillance du presse-papiers,
-  puis effacé après 20 s s'il y est encore, ainsi qu'à la déconnexion, à la fermeture et au verrouillage de Windows.
-  Il n'est jamais affiché ni écrit dans le journal de débogage.
+  puis effacé après 20 s s'il y est encore (nouvel essai chaque seconde si une autre application garde le
+  presse-papiers ouvert), ainsi qu'à la déconnexion, à la fermeture et au verrouillage de Windows. Il n'est jamais
+  affiché ni écrit dans le journal de débogage. Une réponse qui n'est pas le mot de passe (page HTML de maintenance,
+  redirection vers une page de connexion SSO, réponse vide) est refusée au lieu d'être copiée.
 - **Ajout d'un compte** : le mot de passe saisi est lu dans le champ masqué sans passer par une chaîne, envoyé une
   seule fois au PVWA en HTTPS, puis effacé de la mémoire ; il n'est ni enregistré ni écrit dans le journal de
   débogage.
-- **Sessions PSM** : le fichier RDP du PVWA (jeton PSM à usage unique) est écrit dans `%TEMP%\CyberArkTerm` pour
+- **Dossier temporaire** : `%TEMP%\CyberArkTerm`, réservé à votre compte Windows (droits limités à vous seul) ; s'il
+  appartient à un autre compte (variable TEMP pointant vers un dossier partagé), `%LOCALAPPDATA%\CyberArkTerm\Temp`
+  le remplace. Les chemins ci-dessous sont relatifs à ce dossier.
+- **Sessions PSM** : le fichier RDP du PVWA (jeton PSM à usage unique) est écrit dans le dossier temporaire pour
   `mstsc`, qui en vérifie la signature, puis supprimé après 60 s ou à la fermeture.
 - **Saisie simultanée** (vue parallèle) : désactivée à chaque ouverture de la vue, signalée par un bandeau et un
   cadre orange qui nomment les sessions concernées ; une session ajoutée n'y est pas incluse d'office, et un collage
   de plusieurs lignes vers plusieurs sessions demande confirmation. Chaque session reste une session PSMP distincte,
   enregistrée comme d'habitude.
 - **Comparaison de fichiers** : contenus lus en mémoire et effacés à la fermeture de la fenêtre ; seules les copies
-  données à un outil externe passent par le disque (`%TEMP%\CyberArkTerm\compare`), supprimées à la fermeture de la
+  données à un outil externe passent par le disque (dossier temporaire, `compare`), supprimées à la fermeture de la
   fenêtre et au lancement suivant.
 - **Nouvelle version** : aucune requête vers Internet sans votre action ou l'option des Paramètres (désactivée par
   défaut) ; seules les adresses du dépôt du projet sont suivies, l'archive n'est gardée que si sa somme SHA-256 est
@@ -548,6 +554,8 @@ l'une l'autre leurs réglages. L'historique des transferts de l'onglet Fichiers 
     l'envoi de l'identifiant ;
   - noms de fichiers avec des caractères de contrôle refusés (pas d'injection de commande FTP) ;
   - journal `urgence.log` : date, compte Windows, poste, action, coffre, entrée, cible ; jamais de mot de passe.
+    Chaque lecture du mot de passe d'une entrée y est notée, reconnexions et connexions SFTP / SCP de l'onglet
+    Fichiers comprises ; si le journal ne peut pas être écrit, la connexion n'est pas ouverte.
 - **Journal de débogage**, désactivé par défaut (menu du bouton Paramètres) :
   `%LOCALAPPDATA%\CyberArkTerm\debug.log`, 5 Mo au plus plus une génération `.1`. Il note le déroulement des
   connexions PVWA, PSM, Bureau à distance et SSH : adresses et statuts des requêtes, réglages du fichier .rdp,
@@ -557,7 +565,7 @@ l'une l'autre leurs réglages. L'historique des transferts de l'onglet Fichiers 
   **jamais** de mot de passe, de jeton de session, de demande de session PSM (`PSM@…` masqué), de signature,
   d'en-tête ou de corps de requête, ni le contenu des sessions. La barre d'état le signale tant qu'il est actif.
   Relisez-le avant de le transmettre, et supprimez-le une fois le problème résolu.
-- **Fichiers modifiés** : la copie locale ouverte dans l'éditeur est placée dans `%TEMP%\CyberArkTerm\edit` et
+- **Fichiers modifiés** : la copie locale ouverte dans l'éditeur est placée dans le dossier temporaire (`edit`) et
   supprimée à la fermeture de l'onglet SSH ; une alerte prévient si des modifications n'ont pas été renvoyées.
 - **Pas d'injection de commande** : chemins SCP et dossiers de départ protégés entre apostrophes pour le shell
   distant ; arguments `ssh` / Windows Terminal validés et passés sans shell.
@@ -608,7 +616,9 @@ de « Mes serveurs » a le même format avec `"format": "CyberArkTerm.Servers"`,
 Lecture et écriture natives (sans KeePass installé) des formats **KDBX 3.1 et 4.x** : chiffrement AES-256 ou
 ChaCha20, dérivation de clé AES-KDF (instructions AES du processeur) ou Argon2d / Argon2id, fichiers clés XML 1.0 /
 2.0, 32 octets, 64 caractères hexadécimaux ou fichier quelconque. Le fichier réécrit garde la version, le
-chiffrement et la dérivation de clé d'origine, avec de nouvelles graines à chaque enregistrement. Les coffres de
+chiffrement et la dérivation de clé d'origine, avec de nouvelles graines à chaque enregistrement, celle de la
+dérivation de clé comprise (comme KeePass : une clé dérivée capturée une fois ne déchiffre pas les versions
+suivantes). Les coffres de
 test (`tests/CyberArkTerm.Core.Tests/KeePass/Vaults`) viennent de KeePassXC et pykeepass, et les fichiers écrits par
 CyberArkTerm ont été vérifiés dans ces deux outils.
 
@@ -622,7 +632,9 @@ DES), encodages Raw, CopyRect et Hextile, changement de taille d'écran, pixels 
 
 ### Sessions de fichiers FTP / FTPS
 
-Bibliothèque FluentFTP (licence MIT). Mode passif (`EPSV` / `PASV`), binaire, `PBSZ 0` et `PROT P` sous TLS ;
+Bibliothèque FluentFTP (licence MIT). Mode passif : `PASV` en IPv4, la connexion de données allant toujours vers le
+serveur lui-même (l'adresse annoncée dans la réponse est ignorée : un serveur ne peut pas faire viser une autre
+machine), `EPSV` en IPv6 ; binaire, `PBSZ 0` et `PROT P` sous TLS ;
 certificat vérifié par Windows, sinon épinglé (`ftps://serveur:port` parmi les clés de serveurs acceptées, dans les
 Paramètres). FTP n'a
 pas de somme de contrôle standard : chaque envoi est relu depuis le serveur et comparé par SHA-256. Lecture partielle

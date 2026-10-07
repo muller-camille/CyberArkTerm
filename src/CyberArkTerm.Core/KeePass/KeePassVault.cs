@@ -21,17 +21,15 @@ public sealed class KeePassVault : IDisposable
     // Protège Database, _disposed et _operations : les mots de passe sont lus depuis d'autres threads (connexions
     // SSH) pendant qu'un enregistrement remplace la base, et le coffre peut être verrouillé pendant un enregistrement.
     private readonly object _state = new();
-    private byte[] _fileHash = [];
     private bool _disposed;
     private int _operations;
 
-    private KeePassVault(string path, KeePassKey key, TransformCache cache, KeePassDatabase database, byte[] fileHash)
+    private KeePassVault(string path, KeePassKey key, TransformCache cache, KeePassDatabase database)
     {
         FilePath = path;
         _key = key;
         _cache = cache;
         Database = database;
-        _fileHash = fileHash;
     }
 
     public string FilePath { get; }
@@ -60,8 +58,16 @@ public sealed class KeePassVault : IDisposable
         try
         {
             var bytes = await ReadSharedAsync(path, cancellation).ConfigureAwait(false);
-            var database = await Task.Run(() => KdbxFile.Read(bytes, key, cache, cancellation), cancellation).ConfigureAwait(false);
-            return new KeePassVault(path, key, cache, database, SHA256.HashData(bytes));
+            try
+            {
+                var database = await Task.Run(() => KdbxFile.Read(bytes, key, cache, cancellation), cancellation).ConfigureAwait(false);
+                return new KeePassVault(path, key, cache, database);
+            }
+            finally
+            {
+                // KDBX 3.1 : l'en-tête du fichier contient la clé qui masque les mots de passe en mémoire.
+                CryptographicOperations.ZeroMemory(bytes);
+            }
         }
         catch
         {
@@ -71,13 +77,6 @@ public sealed class KeePassVault : IDisposable
         }
     }
 
-    /// <summary>Vrai si le fichier a changé depuis le dernier chargement ou enregistrement (autre programme).</summary>
-    public async Task<bool> HasChangedOnDiskAsync(CancellationToken cancellation = default)
-    {
-        var bytes = await ReadSharedAsync(FilePath, cancellation).ConfigureAwait(false);
-        return !CryptographicOperations.FixedTimeEquals(SHA256.HashData(bytes), _fileHash);
-    }
-
     /// <summary>Relit le fichier (après une modification faite par un autre programme).</summary>
     public async Task ReloadAsync(CancellationToken cancellation = default)
     {
@@ -85,8 +84,15 @@ public sealed class KeePassVault : IDisposable
         try
         {
             var bytes = await ReadSharedAsync(FilePath, cancellation).ConfigureAwait(false);
-            var database = await Task.Run(() => KdbxFile.Read(bytes, _key, _cache, cancellation), cancellation).ConfigureAwait(false);
-            Replace(database, bytes);
+            try
+            {
+                var database = await Task.Run(() => KdbxFile.Read(bytes, _key, _cache, cancellation), cancellation).ConfigureAwait(false);
+                Replace(database);
+            }
+            finally
+            {
+                CryptographicOperations.ZeroMemory(bytes);
+            }
         }
         finally
         {
@@ -106,24 +112,37 @@ public sealed class KeePassVault : IDisposable
             for (int attempt = 0; attempt < SaveAttempts; attempt++)
             {
                 var original = await ReadSharedAsync(FilePath, cancellation).ConfigureAwait(false);
-                var (database, result, output) = await Task.Run(() => Prepare(original, change, cancellation), cancellation).ConfigureAwait(false);
+                byte[]? output = null;
                 try
                 {
-                    if (!await WriteAsync(original, output, cancellation).ConfigureAwait(false))
+                    (var database, var result, output) = await Task.Run(() => Prepare(original, change, cancellation), cancellation).ConfigureAwait(false);
+                    try
                     {
-                        // Un autre programme a enregistré entre-temps : on recommence sur sa version.
+                        if (!await WriteAsync(original, output, cancellation).ConfigureAwait(false))
+                        {
+                            // Un autre programme a enregistré entre-temps : on recommence sur sa version.
+                            database.Dispose();
+                            continue;
+                        }
+                    }
+                    catch
+                    {
                         database.Dispose();
-                        continue;
+                        throw;
+                    }
+
+                    Replace(database);
+                    return result;
+                }
+                finally
+                {
+                    // KDBX 3.1 : l'en-tête du fichier contient la clé qui masque les mots de passe en mémoire.
+                    CryptographicOperations.ZeroMemory(original);
+                    if (output is not null)
+                    {
+                        CryptographicOperations.ZeroMemory(output);
                     }
                 }
-                catch
-                {
-                    database.Dispose();
-                    throw;
-                }
-
-                Replace(database, output);
-                return result;
             }
 
             throw new KeePassException(KeePassError.Busy, CoreStrings.KeePassBusy);
@@ -197,7 +216,7 @@ public sealed class KeePassVault : IDisposable
     }
 
     /// <summary>Met en place la base qui vient d'être lue ou écrite ; si le coffre a été verrouillé entre-temps, elle est effacée.</summary>
-    private void Replace(KeePassDatabase database, byte[] file)
+    private void Replace(KeePassDatabase database)
     {
         KeePassDatabase old;
         lock (_state)
@@ -210,7 +229,6 @@ public sealed class KeePassVault : IDisposable
             {
                 old = Database;
                 Database = database;
-                _fileHash = SHA256.HashData(file);
             }
         }
 
@@ -234,6 +252,7 @@ public sealed class KeePassVault : IDisposable
         try
         {
             var result = change(database);
+            KdbxFile.RenewKdfSeed(database, _key, _cache, cancellation);
             var output = KdbxFile.Write(database);
             Verify(database, output, cancellation);
             return (database, result, output);
@@ -281,7 +300,9 @@ public sealed class KeePassVault : IDisposable
             }
 
             var current = await ReadSharedAsync(FilePath, cancellation).ConfigureAwait(false);
-            if (!current.AsSpan().SequenceEqual(original))
+            bool unchanged = current.AsSpan().SequenceEqual(original);
+            CryptographicOperations.ZeroMemory(current);
+            if (!unchanged)
             {
                 return false;
             }

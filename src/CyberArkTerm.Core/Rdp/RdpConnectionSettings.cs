@@ -4,25 +4,13 @@ using System.Text;
 namespace CyberArkTerm.Core.Rdp;
 
 /// <summary>
-/// Réglages d'une session Bureau à distance ouverte dans un onglet de l'application : construits pour une connexion
-/// directe, ou lus dans un fichier .rdp (bureau). Le mot de passe n'en fait pas partie. Les sessions PSM, elles,
-/// s'ouvrent avec le fichier du PVWA dans Connexion Bureau à distance (mstsc).
+/// Réglages d'une session Bureau à distance ouverte dans un onglet de l'application (connexion directe). Le mot de passe
+/// n'en fait pas partie. Les sessions PSM, elles, s'ouvrent avec le fichier du PVWA dans Connexion Bureau à distance
+/// (mstsc) ; ce fichier n'est lu ici que pour le journal de débogage (<see cref="ReadFile"/>).
 /// </summary>
 public sealed record RdpConnectionSettings
 {
     public const int DefaultPort = 3389;
-
-    // Bits de AdvancedSettings.PerformanceFlags (TS_PERF_*) activés par les clés du fichier .rdp.
-    private static readonly (string Key, int Flag)[] PerformanceKeys =
-    [
-        ("disable wallpaper", 0x01),
-        ("disable full window drag", 0x02),
-        ("disable menu anims", 0x04),
-        ("disable themes", 0x08),
-        ("disable cursor setting", 0x40),
-        ("allow font smoothing", 0x80),
-        ("allow desktop composition", 0x100),
-    ];
 
     /// <summary>Nom ou adresse du serveur.</summary>
     public required string Server { get; init; }
@@ -101,61 +89,6 @@ public sealed record RdpConnectionSettings
         Port = port is > 0 and <= 65535 ? port : DefaultPort,
         UserName = userName,
     };
-
-    /// <summary>
-    /// Lit un fichier .rdp. Les redirections absentes du fichier restent désactivées (sauf le presse-papiers) ;
-    /// une liste de lecteurs précise n'est pas reprise, seul « * » (tous les lecteurs) l'est.
-    /// </summary>
-    public static RdpConnectionSettings FromRdpFile(byte[] content)
-    {
-        var values = ReadFile(content);
-        string Text(string key, string fallback = "") => values.TryGetValue(key, out var v) ? v : fallback;
-        int Int(string key, int fallback) =>
-            values.TryGetValue(key, out var v) && int.TryParse(v.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var n) ? n : fallback;
-        bool Bool(string key, bool fallback) => Int(key, fallback ? 1 : 0) != 0;
-
-        var (server, port) = SplitAddress(Text("full address").Trim());
-        if (server.Length == 0)
-        {
-            throw new FormatException("full address");
-        }
-
-        int performance = PerformanceKeys.Where(k => Bool(k.Key, false)).Sum(k => k.Flag);
-
-        return new RdpConnectionSettings
-        {
-            Server = server,
-            Port = port ?? (Int("server port", DefaultPort) is var p and > 0 and <= 65535 ? p : DefaultPort),
-            UserName = Text("username"),
-            Domain = Text("domain"),
-            StartProgram = Text("alternate shell"),
-            WorkDir = Text("shell working directory"),
-            AuthenticationLevel = Math.Clamp(Int("authentication level", 2), 0, 3),
-            EnableCredSsp = Bool("enablecredsspsupport", true),
-            NegotiateSecurityLayer = Bool("negotiate security layer", true),
-            RedirectClipboard = Bool("redirectclipboard", true),
-            RedirectDrives = Text("drivestoredirect").Trim() == "*",
-            RedirectPrinters = Bool("redirectprinters", false),
-            RedirectPorts = Bool("redirectcomports", false),
-            RedirectSmartCards = Bool("redirectsmartcards", false),
-            RedirectPosDevices = Bool("redirectposdevices", false),
-            AudioMode = Math.Clamp(Int("audiomode", 0), 0, 2),
-            AudioCapture = Bool("audiocapturemode", false),
-            ColorDepth = Int("session bpp", 32) is var bpp and (8 or 15 or 16 or 24 or 32) ? bpp : 32,
-            LoadBalanceInfo = Text("loadbalanceinfo"),
-            GatewayHostname = Text("gatewayhostname"),
-            GatewayUsageMethod = Int("gatewayusagemethod", 0),
-            GatewayCredsSource = Int("gatewaycredentialssource", 0),
-            GatewayProfileUsageMethod = Int("gatewayprofileusagemethod", 0),
-            KeyboardHookMode = Math.Clamp(Int("keyboardhook", 2), 0, 2),
-            AutoReconnect = Bool("autoreconnection enabled", true),
-            Compress = Bool("compression", true),
-            BitmapPersistence = Bool("bitmapcachepersistenable", true),
-            PerformanceFlags = performance,
-            ConnectToAdministerServer = Bool("administrative session", false) || Bool("connect to console", false),
-            SmartSizing = Bool("smart sizing", false),
-        };
-    }
 
     /// <summary>Réglages d'un fichier .rdp (voir <see cref="Parse"/>), quel que soit son encodage.</summary>
     public static IReadOnlyDictionary<string, string> ReadFile(byte[] content) => Parse(Decode(content));

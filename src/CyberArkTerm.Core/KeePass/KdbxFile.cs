@@ -62,7 +62,61 @@ internal static class KdbxFile
         }
     }
 
-    /// <summary>Chiffre et met en forme le coffre ; seules les graines, le vecteur d'initialisation et la clé du flot interne changent.</summary>
+    /// <summary>
+    /// Nouvelle graine de dérivation de clé (KDBX 3.1 : TransformSeed ; KDBX 4 : sel « S » d'Argon2 ou graine d'AES-KDF),
+    /// et la clé dérivée qui va avec (une dérivation complète). Comme KeePass à chaque enregistrement : une clé dérivée
+    /// capturée une fois (vidage mémoire) ne déchiffre plus les versions suivantes du fichier. Paramètres d'une forme
+    /// inconnue : gardés tels quels.
+    /// </summary>
+    internal static void RenewKdfSeed(KeePassDatabase db, KeePassKey key, TransformCache cache, CancellationToken cancellation)
+    {
+        bool v4 = db.Version >= Kdbx4;
+        byte[]? kdf = null, seed = null;
+        if (v4)
+        {
+            kdf = db.KdfParameters.ToArray();
+            if (VariantDictionary.Parse(kdf).GetBytes("S") is not { Length: >= 16 } current
+                || !VariantDictionary.TryReplaceBytes(kdf, "S", RandomNumberGenerator.GetBytes(current.Length)))
+            {
+                return;
+            }
+        }
+        else
+        {
+            seed = RandomNumberGenerator.GetBytes(32);
+        }
+
+        var composite = key.RevealComposite();
+        try
+        {
+            var transformed = v4
+                ? KeyDerivation.Transform(composite, VariantDictionary.Parse(kdf), cancellation)
+                : KeyDerivation.AesTransform(composite, seed!, db.TransformRounds, cancellation);
+            var fingerprint = v4 ? SHA256.HashData(kdf!) : SHA256.HashData([.. seed!, .. BitConverter.GetBytes(db.TransformRounds)]);
+            cache.Set(fingerprint, composite, transformed);
+            if (v4)
+            {
+                db.KdfParameters = kdf!;
+            }
+            else
+            {
+                db.TransformSeed = seed!;
+            }
+
+            db.TransformedKey.Dispose();
+            db.TransformedKey = new SecretBytes(transformed);
+            CryptographicOperations.ZeroMemory(transformed);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(composite);
+        }
+    }
+
+    /// <summary>
+    /// Chiffre et met en forme le coffre ; la graine principale, le vecteur d'initialisation et la clé du flot interne
+    /// sont neufs à chaque fois (la graine de dérivation l'est par <see cref="RenewKdfSeed"/>).
+    /// </summary>
     public static byte[] Write(KeePassDatabase db)
     {
         var masterSeed = RandomNumberGenerator.GetBytes(32);
@@ -146,21 +200,24 @@ internal static class KdbxFile
                 db.SetHeaderHash(SHA256.HashData(headerBytes));
             }
 
-            var payload = new MemoryStream();
-            if (v4)
+            byte[] plain;
+            using (var payload = new SecretMemoryStream())
             {
-                WriteInnerHeader(payload, db, streamKey);
+                if (v4)
+                {
+                    WriteInnerHeader(payload, db, streamKey);
+                }
+
+                using (var stream = CreateInnerStream(db.InnerStreamId, streamKey))
+                {
+                    var xml = db.SerializeXml(stream);
+                    payload.Write(xml);
+                    CryptographicOperations.ZeroMemory(xml);
+                }
+
+                plain = db.Compressed ? Compress(payload.GetBuffer().AsSpan(0, (int)payload.Length)) : payload.ToArray();
             }
 
-            using (var stream = CreateInnerStream(db.InnerStreamId, streamKey))
-            {
-                var xml = db.SerializeXml(stream);
-                payload.Write(xml);
-                CryptographicOperations.ZeroMemory(xml);
-            }
-
-            var plain = db.Compressed ? Compress(payload.ToArray()) : payload.ToArray();
-            CryptographicOperations.ZeroMemory(payload.GetBuffer());
             var output = new MemoryStream();
             output.Write(headerBytes);
             if (v4)
@@ -172,11 +229,12 @@ internal static class KdbxFile
             }
             else
             {
-                var blocks = new MemoryStream();
+                var blocks = new SecretMemoryStream();
                 blocks.Write(streamStart);
                 WriteHashedBlocks(blocks, plain);
-                output.Write(Encrypt(db.CipherId, finalKey, iv, blocks.ToArray()));
-                CryptographicOperations.ZeroMemory(blocks.GetBuffer());
+                var clear = blocks.ToArrayAndClear();
+                output.Write(Encrypt(db.CipherId, finalKey, iv, clear));
+                CryptographicOperations.ZeroMemory(clear);
             }
 
             CryptographicOperations.ZeroMemory(plain);
@@ -420,6 +478,8 @@ internal static class KdbxFile
                     db.Binaries.Add((data[0], new SecretBytes(data[1..])));
                     break;
                 default:
+                    // Champ d'une version future du format : gardé pour être réécrit tel quel.
+                    db.OtherInnerFields.Add((id, new SecretBytes(data)));
                     break;
             }
         }
@@ -447,6 +507,13 @@ internal static class KdbxFile
         {
             var bytes = data.Reveal();
             Put(3, bytes, flags);
+            CryptographicOperations.ZeroMemory(bytes);
+        }
+
+        foreach (var (id, data) in db.OtherInnerFields)
+        {
+            var bytes = data.Reveal();
+            Put(id, bytes);
             CryptographicOperations.ZeroMemory(bytes);
         }
 
@@ -526,7 +593,7 @@ internal static class KdbxFile
 
     private static byte[] ReadHashedBlocks(ReadOnlySpan<byte> data)
     {
-        var output = new MemoryStream();
+        using var output = new SecretMemoryStream(data.Length);
         int pos = 0;
         while (true)
         {
@@ -661,31 +728,38 @@ internal static class KdbxFile
     private static byte[] Decompress(byte[] data)
     {
         using var gzip = new GZipStream(new MemoryStream(data), CompressionMode.Decompress);
-        var output = new MemoryStream();
+        // Taille prévue : le XML compressé fait souvent le dixième du XML (moins de copies en grandissant).
+        using var output = new SecretMemoryStream((int)Math.Min(16 * 1024 * 1024, (long)data.Length * 8));
         var buffer = new byte[81920];
-        int read;
-        while ((read = gzip.Read(buffer)) > 0)
+        try
         {
-            if (output.Length + read > MaxXmlSize)
+            int read;
+            while ((read = gzip.Read(buffer)) > 0)
             {
-                throw Corrupted("size");
+                if (output.Length + read > MaxXmlSize)
+                {
+                    throw Corrupted("size");
+                }
+
+                output.Write(buffer, 0, read);
             }
 
-            output.Write(buffer, 0, read);
+            return output.ToArray();
         }
-
-        return output.ToArray();
+        finally
+        {
+            CryptographicOperations.ZeroMemory(buffer);
+        }
     }
 
-    private static byte[] Compress(byte[] data)
+    private static byte[] Compress(ReadOnlySpan<byte> data)
     {
-        var output = new MemoryStream();
+        using var output = new SecretMemoryStream();
         using (var gzip = new GZipStream(output, CompressionLevel.Optimal, leaveOpen: true))
         {
             gzip.Write(data);
         }
 
-        CryptographicOperations.ZeroMemory(data);
         return output.ToArray();
     }
 

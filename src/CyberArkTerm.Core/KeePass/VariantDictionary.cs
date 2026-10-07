@@ -46,6 +46,44 @@ internal sealed class VariantDictionary
 
     public byte[]? GetBytes(string name) => _items.TryGetValue(name, out var item) ? item.Value : null;
 
+    /// <summary>
+    /// Remplace sur place, dans le dictionnaire sérialisé, la valeur d'octets <paramref name="name"/> par une autre de
+    /// même taille (le reste, y compris ce qui est inconnu, ne bouge pas). Faux si elle est absente ou d'une autre taille.
+    /// </summary>
+    public static bool TryReplaceBytes(byte[] data, string name, ReadOnlySpan<byte> value)
+    {
+        int pos = 2;
+        while (pos < data.Length)
+        {
+            byte type = data[pos++];
+            if (type == 0)
+            {
+                return false;
+            }
+
+            int nameLength = BinaryPrimitives.ReadInt32LittleEndian(data.AsSpan(pos));
+            pos += 4;
+            bool match = Encoding.UTF8.GetString(data, pos, nameLength) == name;
+            pos += nameLength;
+            int valueLength = BinaryPrimitives.ReadInt32LittleEndian(data.AsSpan(pos));
+            pos += 4;
+            if (match)
+            {
+                if (type != Bytes || valueLength != value.Length)
+                {
+                    return false;
+                }
+
+                value.CopyTo(data.AsSpan(pos, valueLength));
+                return true;
+            }
+
+            pos += valueLength;
+        }
+
+        return false;
+    }
+
     public ulong? GetUInt64(string name) => _items.TryGetValue(name, out var item) ? item.Type switch
     {
         UInt64 or Int64 when item.Value.Length == 8 => BinaryPrimitives.ReadUInt64LittleEndian(item.Value),

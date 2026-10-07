@@ -165,7 +165,7 @@
             </MenuItem>
             <MenuItem Tag="connectmany" Click="OnConnectFolder" />
             <Separator />
-            <MenuItem Header="{x:Static loc:Strings.MenuNewSubfolder}" Click="OnNewSubFolder">
+            <MenuItem Header="{x:Static loc:Strings.MenuNewSubfolder}" Click="OnNewFolder">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconNewFolder}" Width="16" Height="16" />
                 </MenuItem.Icon>

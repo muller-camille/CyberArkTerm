@@ -23,9 +23,6 @@ internal sealed class RdpThread
 
     public int ManagedThreadId => _thread.ManagedThreadId;
 
-    /// <summary>Faux une fois la boucle de messages terminée (<see cref="Exit"/>).</summary>
-    public bool IsAlive => _thread.IsAlive;
-
     /// <summary>Démarre le thread (STA, boucle de messages WinForms) et attend qu'il soit prêt à recevoir des actions.</summary>
     public static RdpThread Start(string name)
     {

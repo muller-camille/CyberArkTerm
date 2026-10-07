@@ -202,8 +202,8 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   Un pannello sopra la barra di stato mostra ogni elemento (in attesa, avanzamento e file n/N, verifica, risultato):
   ✕ rimuove un elemento in attesa, «Annulla» interrompe quello in corso, «Annulla tutto» svuota la coda. Un
   trasferimento interrotto elimina il file in corso, incompleto (sul server per un invio, sul computer per un
-  download); i file già trasferiti restano. Attenzione: se l'invio sostituiva un file esistente, il vecchio
-  contenuto è perso. In SCP, l'interruzione riguarda solo quel trasferimento: gli elementi successivi proseguono
+  download); i file già trasferiti restano. Attenzione: se l'invio sostituiva un file esistente e aveva iniziato a
+  scriverlo, il vecchio contenuto è perso; interrotto prima di qualsiasi contenuto, il file del server resta com'era. In SCP, l'interruzione riguarda solo quel trasferimento: gli elementi successivi proseguono
   sulla stessa connessione; un trasferimento che non avanza più (server che non legge più) si ferma 2 s dopo
   «Annulla» e i successivi partono su una nuova connessione. Un file inviato via SCP prende sul server la data dell'invio (come `scp` senza `-p`, e come in
   SFTP). Un errore viene mostrato nella coda e la coda prosegue; alla fine, un unico riepilogo. Navigazione,
@@ -506,18 +506,23 @@ loro contenuto).
 - **Copia di una password**: la risposta del PVWA viene letta in un buffer cancellato subito dopo e decodificata
   senza passare da una stringa; la password va direttamente negli appunti di Windows, contrassegnata per essere
   esclusa dalla cronologia (`Win+V`), dalla sincronizzazione tra dispositivi e dagli strumenti di monitoraggio degli
-  appunti, poi cancellata dopo 20 s se è ancora presente, oltre che alla disconnessione, alla chiusura e al blocco
-  di Windows. Non viene mai mostrata né scritta nel registro di debug.
+  appunti, poi cancellata dopo 20 s se è ancora presente (nuovo tentativo ogni secondo se un'altra applicazione
+  tiene aperti gli appunti), oltre che alla disconnessione, alla chiusura e al blocco di Windows. Non viene mai
+  mostrata né scritta nel registro di debug. Una risposta che non è la password (pagina HTML di manutenzione,
+  reindirizzamento verso una pagina di accesso SSO, risposta vuota) viene rifiutata invece di essere copiata.
 - **Aggiunta di un account**: la password viene letta dal campo mascherato senza passare da una stringa, inviata una
   sola volta al PVWA in HTTPS, poi cancellata dalla memoria; non viene né salvata né scritta nel registro di debug.
-- **Sessioni PSM**: il file RDP del PVWA (token PSM monouso) viene scritto in `%TEMP%\CyberArkTerm` per `mstsc`, che
+- **Cartella temporanea**: `%TEMP%\CyberArkTerm`, riservata al vostro account Windows (permessi limitati a voi
+  soli); se appartiene a un altro account (variabile TEMP che punta a una cartella condivisa), viene usata
+  `%LOCALAPPDATA%\CyberArkTerm\Temp`. I percorsi qui sotto sono relativi a questa cartella.
+- **Sessioni PSM**: il file RDP del PVWA (token PSM monouso) viene scritto nella cartella temporanea per `mstsc`, che
   ne verifica la firma, poi eliminato dopo 60 s o alla chiusura.
 - **Digitazione simultanea** (vista parallela): disattivata a ogni apertura della vista, segnalata da una fascia e
   una cornice arancioni che nominano le sessioni interessate; una sessione aggiunta non vi è inclusa d'ufficio, e
   incollare più righe in più sessioni chiede conferma. Ogni sessione resta una sessione PSMP distinta, registrata
   come di consueto.
 - **Confronto di file**: contenuti letti in memoria e cancellati alla chiusura della finestra; solo le copie date a
-  uno strumento esterno passano dal disco (`%TEMP%\CyberArkTerm\compare`), eliminate alla chiusura della finestra e
+  uno strumento esterno passano dal disco (cartella temporanea, `compare`), eliminate alla chiusura della finestra e
   all'avvio successivo.
 - **Nuova versione**: nessuna richiesta verso Internet senza una tua azione o l'opzione delle Impostazioni
   (disattivata per impostazione predefinita); vengono seguiti solo gli indirizzi del repository del progetto,
@@ -546,7 +551,9 @@ loro contenuto).
     fissata al primo consenso (come una chiave host SSH), un cambiamento è segnalato; rifiutato, la connessione si
     ferma prima dell'invio del nome utente;
   - nomi di file con caratteri di controllo rifiutati (nessuna iniezione di comandi FTP);
-  - `urgence.log`: data, account Windows, computer, azione, archivio, voce, destinazione; mai una password.
+  - `urgence.log`: data, account Windows, computer, azione, archivio, voce, destinazione; mai una password. Ogni
+    lettura della password di una voce vi è annotata, riconnessioni e connessioni SFTP / SCP della scheda File
+    comprese; se il registro non può essere scritto, la connessione non viene aperta.
 - **Registro di debug**, disattivato per impostazione predefinita (menu del pulsante Impostazioni):
   `%LOCALAPPDATA%\CyberArkTerm\debug.log`, al massimo 5 MB più una generazione `.1`. Registra lo svolgimento delle
   connessioni PVWA, PSM, desktop remoto e SSH: indirizzi e stati delle richieste, impostazioni del file .rdp, eventi
@@ -556,7 +563,7 @@ loro contenuto).
   sessione, richiesta di sessione PSM (`PSM@…` mascherata), firma, intestazione o corpo delle richieste, né il
   contenuto delle sessioni. La barra di stato lo segnala finché è attivo. Rileggilo prima di trasmetterlo, ed
   eliminalo una volta risolto il problema.
-- **File modificati**: la copia locale aperta nell'editor si trova in `%TEMP%\CyberArkTerm\edit` e viene eliminata
+- **File modificati**: la copia locale aperta nell'editor si trova nella cartella temporanea (`edit`) e viene eliminata
   alla chiusura della scheda SSH; un avviso segnala le modifiche non rinviate.
 - **Nessuna iniezione di comandi**: percorsi SCP e cartelle iniziali protetti tra apici per la shell remota;
   argomenti `ssh` / Windows Terminal convalidati e passati senza shell.
@@ -608,7 +615,8 @@ registro.
 Lettura e scrittura native (senza KeePass installato) dei formati **KDBX 3.1 e 4.x**: cifratura AES-256 o ChaCha20,
 derivazione della chiave AES-KDF (istruzioni AES del processore) o Argon2d / Argon2id, file chiave XML 1.0 / 2.0, 32
 byte, 64 caratteri esadecimali o file qualsiasi. Il file riscritto mantiene la versione, la cifratura e la
-derivazione della chiave originali, con nuovi semi a ogni salvataggio. Gli archivi di test
+derivazione della chiave originali, con nuovi semi a ogni salvataggio, compreso quello della derivazione della chiave
+(come KeePass: una chiave derivata catturata una volta non decifra le versioni successive). Gli archivi di test
 (`tests/CyberArkTerm.Core.Tests/KeePass/Vaults`) provengono da KeePassXC e pykeepass, e i file scritti da
 CyberArkTerm sono stati verificati in entrambi gli strumenti.
 
@@ -622,7 +630,9 @@ codifiche Raw, CopyRect e Hextile, cambio di dimensione dello schermo, pixel a 3
 
 ### Sessioni di file FTP / FTPS
 
-Libreria FluentFTP (licenza MIT). Modalità passiva (`EPSV` / `PASV`), binaria, `PBSZ 0` e `PROT P` con TLS;
+Libreria FluentFTP (licenza MIT). Modalità passiva: `PASV` in IPv4, con la connessione dati sempre verso il server
+stesso (l'indirizzo indicato nella risposta viene ignorato: un server non può farla puntare verso un'altra macchina),
+`EPSV` in IPv6; binaria, `PBSZ 0` e `PROT P` con TLS;
 certificato verificato da Windows, altrimenti fissato (`ftps://server:porta` tra le chiavi dei server accettate,
 nelle Impostazioni). FTP non ha una somma di controllo standard: ogni invio è riletto dal server e confrontato con
 SHA-256. Lettura parziale (`REST`) per il confronto e il monitoraggio in tempo reale. Dopo un trasferimento

@@ -3538,4 +3538,7 @@ Two instances would overwrite each other's settings, local vault and files being
 
 Replace them? Each one is replaced only once its download is complete.</value>
   </data>
+  <data name="KeePassConnectNoLog" xml:space="preserve">
+    <value>The emergency access log cannot be written ({0}): the connection is not opened.</value>
+  </data>
 </root>

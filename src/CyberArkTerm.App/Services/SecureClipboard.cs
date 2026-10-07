@@ -14,15 +14,21 @@ internal sealed class SecureClipboard : IDisposable
     private const uint CfUnicodeText = 13;
     private const uint GmemMoveable = 0x0002;
 
+    /// <summary>Nouvel essai quand le presse-papiers est occupé au moment de l'effacer.</summary>
+    private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(1);
+
     private readonly DispatcherTimer _timer;
+    private readonly TimeSpan _delay;
     private readonly nint _window;
     private uint _sequence;
+    private bool _disposed;
 
     /// <param name="window">Fenêtre propriétaire du presse-papiers (requise par Windows pour y écrire).</param>
     /// <param name="cleared">Appelé quand le mot de passe est effacé à la fin du délai.</param>
     public SecureClipboard(nint window, TimeSpan delay, Action cleared)
     {
         _window = window;
+        _delay = delay;
         _timer = new DispatcherTimer { Interval = delay };
         _timer.Tick += (_, _) =>
         {
@@ -33,7 +39,7 @@ internal sealed class SecureClipboard : IDisposable
         };
     }
 
-    public TimeSpan Delay => _timer.Interval;
+    public TimeSpan Delay => _delay;
 
     /// <summary>Copie <paramref name="secret"/> ; faux si une autre application garde le presse-papiers ouvert.</summary>
     public bool Copy(char[] secret)
@@ -85,12 +91,26 @@ internal sealed class SecureClipboard : IDisposable
 
         _sequence = GetClipboardSequenceNumber();
         _timer.Stop();
+        _timer.Interval = _delay;
         _timer.Start();
         return true;
     }
 
-    /// <summary>Vide le presse-papiers s'il contient encore le mot de passe copié ; vrai s'il a été vidé.</summary>
-    public bool Clear()
+    /// <summary>
+    /// Vide le presse-papiers s'il contient encore le mot de passe copié ; vrai s'il a été vidé. Occupé par une autre
+    /// application (gestionnaire de presse-papiers, bureau à distance) : nouvel essai une seconde plus tard, tant
+    /// qu'il contient ce mot de passe.
+    /// </summary>
+    public bool Clear() => Clear(attempts: 10);
+
+    /// <summary>À la fermeture : plus d'essai possible ensuite, on insiste davantage.</summary>
+    public void Dispose()
+    {
+        _disposed = true;
+        Clear(attempts: 100);
+    }
+
+    private bool Clear(int attempts)
     {
         _timer.Stop();
         if (_sequence == 0 || GetClipboardSequenceNumber() != _sequence)
@@ -100,28 +120,37 @@ internal sealed class SecureClipboard : IDisposable
             return false;
         }
 
-        _sequence = 0;
-        if (!Open())
+        bool emptied = false;
+        if (Open(attempts))
         {
-            return false;
+            try
+            {
+                emptied = EmptyClipboard();
+            }
+            finally
+            {
+                CloseClipboard();
+            }
         }
 
-        try
+        if (emptied)
         {
-            return EmptyClipboard();
+            _sequence = 0;
         }
-        finally
+        else if (!_disposed)
         {
-            CloseClipboard();
+            // Le mot de passe y est encore : le minuteur réessaiera.
+            _timer.Interval = RetryDelay;
+            _timer.Start();
         }
+
+        return emptied;
     }
 
-    public void Dispose() => Clear();
-
-    private bool Open()
+    private bool Open(int attempts = 10)
     {
         // Une autre application peut garder le presse-papiers ouvert un court instant.
-        for (int attempt = 0; attempt < 10; attempt++)
+        for (int attempt = 0; attempt < attempts; attempt++)
         {
             if (OpenClipboard(_window))
             {

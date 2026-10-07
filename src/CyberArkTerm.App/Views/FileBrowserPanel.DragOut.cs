@@ -28,10 +28,10 @@ public partial class FileBrowserPanel
     private List<TransferCheck> _dragChecks = [];
 
     /// <summary>Dossier des téléchargements par glisser-déposer (un sous-dossier par glissement).</summary>
-    private static string DragRoot => Path.Combine(Path.GetTempPath(), "CyberArkTerm", "drag");
+    private static string DragRoot => PrivateTemp.Combine("drag");
 
     /// <summary>Archives .tar.gz préparées pour un envoi, supprimées après l'envoi (ou au démarrage suivant).</summary>
-    private static string ArchiveRoot => Path.Combine(Path.GetTempPath(), "CyberArkTerm", "archives");
+    private static string ArchiveRoot => PrivateTemp.Combine("archives");
 
     /// <summary>Efface les dossiers temporaires d'anciens glissements (au démarrage).</summary>
     public static void CleanupDragFolders()
