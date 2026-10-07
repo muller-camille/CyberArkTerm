@@ -432,7 +432,7 @@
     <value>Tipo di connessione</value>
   </data>
   <data name="TargetMachineTip" xml:space="preserve">
-    <value>Server su cui aprire la sessione (account di dominio). Vuoto: indirizzo dell'account.</value>
+    <value>Server su cui aprire la sessione: obbligatorio per un account di dominio (mai il dominio stesso); per un altro account, vuoto = indirizzo dell'account.</value>
   </data>
   <data name="ReasonLabel" xml:space="preserve">
     <value>Moti_vo:</value>
@@ -504,7 +504,7 @@
     <value>Protocollo provato per primo per gli invii. Se il server lo rifiuta per un file (regola del PSMP, SFTP in sola lettura…), l'altro subentra subito, senza domande; il riepilogo riporta la risposta del server, la Cronologia lo indica.</value>
   </data>
   <data name="ComponentsSection" xml:space="preserve">
-    <value>Componenti PSM memorizzati</value>
+    <value>Componenti PSM</value>
   </data>
   <data name="Forget" xml:space="preserve">
     <value>_Dimentica</value>
@@ -513,7 +513,7 @@
     <value>Nessuna chiave di server memorizzata.</value>
   </data>
   <data name="NoComponents" xml:space="preserve">
-    <value>Nessuno: il componente è dedotto dalla piattaforma (PSM-RDP per Windows, PSM-SSH per Unix...).</value>
+    <value>Nessuno: il componente è dedotto dalla piattaforma (quello degli account Windows qui sopra, PSM-SSH per Unix...).</value>
   </data>
   <data name="ComponentEntry" xml:space="preserve">
     <value>{0}: {1}</value>
@@ -4342,5 +4342,17 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   </data>
   <data name="ServerPromptNotAllowed" xml:space="preserve">
     <value>{0} non è consentito per questo account: scegli uno dei server sopra.</value>
+  </data>
+  <data name="WindowsComponentLabel" xml:space="preserve">
+    <value>Account _Windows:</value>
+  </data>
+  <data name="WindowsComponentHelp" xml:space="preserve">
+    <value>Per gli account Windows (di dominio o locali) senza componente memorizzato per la loro piattaforma, ad esempio WIN-PSM. Vuoto: PSM-RDP.</value>
+  </data>
+  <data name="RememberedComponentsLabel" xml:space="preserve">
+    <value>Memorizzati per piattaforma:</value>
+  </data>
+  <data name="InvalidComponentName" xml:space="preserve">
+    <value>Componente PSM non valido: solo lettere, cifre, «-», «_» e «.» (ad esempio WIN-PSM).</value>
   </data>
 </root>

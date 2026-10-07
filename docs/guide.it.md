@@ -138,7 +138,8 @@ componente che apre un'applicazione remota (RemoteApp) apre le sue finestre sul 
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Seleziona «Memorizza questo componente» per conservarlo per tutta la
   piattaforma. Il tuo PVWA può chiamare i suoi componenti in un altro modo (ad esempio `WIN-PSM`): inserisci il nome
   proposto dal suo pulsante «Connect»; l'elenco propone poi i componenti già usati, quello della piattaforma per
-  primo.
+  primo. Per tutti i tuoi account Windows, imposta una volta il componente in **Impostazioni › CyberArk** («Account
+  Windows», ad esempio `WIN-PSM`); un componente memorizzato per una piattaforma resta prioritario.
 - **Account di dominio**: un account registrato per il suo dominio non ha un server. Viene riconosciuto dalla
   piattaforma di dominio, dalle macchine autorizzate o dall'indirizzo: il dominio di accesso, un dominio sotto cui si
   trovano altri server (`corp.local` quando un account punta a `srv01.corp.local`), o il dominio del PVWA o della
@@ -651,6 +652,7 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 | CyberArk | Mantenere aperta la sessione PVWA | Richiesta leggera ogni 4 minuti; sospesa quando Windows è bloccato; ⚠ la sessione PVWA non si chiude più da sola dopo l'inattività | sì |
 | CyberArk | PSMP predefinito, porta | Server PSM for SSH; se impostato (o un PSMP per dominio), gli account Unix si aprono in SSH per impostazione predefinita (in soli file per una piattaforma «SFTP»); senza alcun PSMP, SSH e SFTP sono disattivati | vuoto, 22 |
 | CyberArk | PSMP per dominio | Altri PSMP (indirizzo, porta, dominio servito); ogni server passa da quello del dominio più vicino al suo (vedi [PSMP per dominio](#psmp-per-dominio)); «Quale PSMP per il server» per verificare | nessuno |
+| CyberArk | Componente degli account Windows | Componente PSM degli account Windows (di dominio o locali) senza componente memorizzato per la loro piattaforma, ad esempio `WIN-PSM` | vuoto = `PSM-RDP` |
 | CyberArk | Componenti PSM memorizzati | Componente PSM scelto per piattaforma (pulsante «Dimentica») | — |
 | Terminale | SSH in CyberArkTerm | Terminale e scheda File integrati; altrimenti Windows Terminal | sì |
 | Terminale | Colori del terminale, carattere | Tavolozza (Campbell, One Half, Solarized…) e dimensione del carattere dei terminali SSH | Campbell, 14 |

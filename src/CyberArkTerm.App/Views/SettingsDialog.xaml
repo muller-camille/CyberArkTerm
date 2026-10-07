@@ -123,6 +123,17 @@
                         <TextBlock Style="{StaticResource OptionEffect}" Margin="0,0,0,16" Text="{x:Static loc:Strings.PsmpSecurityEffect}" />
 
                         <TextBlock Text="{x:Static loc:Strings.ComponentsSection}" Style="{StaticResource SectionTitle}" />
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" MinWidth="140" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Content="{x:Static loc:Strings.WindowsComponentLabel}" Target="{Binding ElementName=WindowsComponentBox}" />
+                            <ComboBox Grid.Column="1" x:Name="WindowsComponentBox" IsEditable="True" MaxWidth="320" HorizontalAlignment="Left"
+                                      MinWidth="220" VerticalAlignment="Center" />
+                        </Grid>
+                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,10" Text="{x:Static loc:Strings.WindowsComponentHelp}" />
+                        <TextBlock Text="{x:Static loc:Strings.RememberedComponentsLabel}" Margin="0,0,0,4" />
                         <DockPanel Margin="0,0,0,8">
                             <Button x:Name="ForgetComponentsButton" DockPanel.Dock="Right" Content="{x:Static loc:Strings.Forget}"
                                     Click="OnForgetComponents" VerticalAlignment="Top" />

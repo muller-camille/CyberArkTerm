@@ -202,6 +202,35 @@ public class ConnectionPlanningTests
         Assert.Equal(databases, AccountGrouping.Group(accounts, GroupBy.Kind).Single().Name);
     }
 
+    /// <summary>
+    /// Composant des comptes Windows (paramètre) : pour les comptes Windows, domaine ou locaux, sans composant mémorisé
+    /// pour leur plateforme ; les autres comptes gardent le leur, un composant mémorisé reste prioritaire.
+    /// </summary>
+    [Fact]
+    public void WindowsComponentAppliesToWindowsAccountsWithoutRememberedComponent()
+    {
+        var settings = new AppSettings { WindowsComponent = " WIN-PSM " };
+
+        Assert.Equal("WIN-PSM", settings.ResolveComponent(Account("WinDomain", address: "corp.local")));
+        Assert.Equal("WIN-PSM", settings.ResolveComponent(Account("WinServerLocal")));
+        Assert.Equal("PSM-SSH", settings.ResolveComponent(Account("UnixSSH")));
+        Assert.Equal("PSM-SQLPlus", settings.ResolveComponent(Account("Oracle")));
+        Assert.Equal("WIN-PSM", settings.KnownComponents("WinDomain")[0]);
+
+        settings.RememberComponent("WinServerLocal", "PSM-RDP-Local");
+        Assert.Equal("PSM-RDP-Local", settings.ResolveComponent(Account("WinServerLocal")));
+        Assert.Equal("PSM-RDP", new AppSettings().ResolveComponent(Account("WinDomain")));
+    }
+
+    [Theory]
+    [InlineData("WIN-PSM", true)]
+    [InlineData("PSM_RDP.2", true)]
+    [InlineData(" PSM-RDP ", true)]
+    [InlineData("PSM RDP", false)]
+    [InlineData("PSM;calc", false)]
+    [InlineData("", false)]
+    public void ComponentNames(string name, bool valid) => Assert.Equal(valid, AppSettings.IsValidComponentName(name));
+
     [Fact]
     public void Settings_RecentAndRememberedComponents()
     {

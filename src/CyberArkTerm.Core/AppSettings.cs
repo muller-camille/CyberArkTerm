@@ -162,6 +162,12 @@ public sealed class AppSettings
     /// <summary>Composant PSM choisi par l'utilisateur, par ID de plateforme.</summary>
     public Dictionary<string, string> ComponentByPlatform { get; set; } = [];
 
+    /// <summary>
+    /// Composant PSM des comptes Windows (domaine ou locaux) sans composant mémorisé pour leur plateforme, par ex. WIN-PSM ;
+    /// vide : PSM-RDP.
+    /// </summary>
+    public string WindowsComponent { get; set; } = "";
+
     public const int MaxRecent = 15;
 
     public void AddRecent(RecentSession session)
@@ -186,8 +192,17 @@ public sealed class AppSettings
             }
         }
 
+        if (!string.IsNullOrWhiteSpace(WindowsComponent) && AccountClassifier.Classify(account) == AccountKind.Windows)
+        {
+            return WindowsComponent.Trim();
+        }
+
         return AccountClassifier.DefaultComponent(account);
     }
+
+    /// <summary>Nom de composant PSM acceptable (lettres, chiffres, « - », « _ », « . »), par ex. PSM-RDP ou WIN-PSM.</summary>
+    public static bool IsValidComponentName(string? name) =>
+        (name ?? "").Trim() is { Length: > 0 and <= 100 } value && value.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_' or '.');
 
     /// <summary>
     /// Composants proposés dans les listes : celui mémorisé pour la plateforme <paramref name="platformId"/>, puis ceux
@@ -214,6 +229,7 @@ public sealed class AppSettings
             }
         }
 
+        Add(WindowsComponent);
         foreach (var component in ComponentByPlatform.Values)
         {
             Add(component);
@@ -337,6 +353,7 @@ public sealed class AppSettings
         settings.UserName ??= "";
         settings.PsmpAddress ??= "";
         settings.KeepChosenServerFolder ??= "";
+        settings.WindowsComponent ??= "";
         settings.PsmpServers ??= [];
         settings.PsmpServers.RemoveAll(p => p is null);
         foreach (var psmp in settings.PsmpServers)
