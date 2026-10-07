@@ -139,9 +139,8 @@ application distante (RemoteApp) ouvre ses fenêtres sur le bureau du poste.
   `PSM-SQLServerMgmtStudio`, `PSM-SQLPlus`…). Cochez « Mémoriser ce composant » pour le conserver pour toute la
   plateforme. Votre PVWA peut nommer ses composants autrement (par exemple `WIN-PSM`) : saisissez le nom que propose
   son bouton « Connect » ; la liste propose ensuite les composants déjà utilisés, celui de la plateforme en premier.
-  Si votre compte CyberArk a le droit de lire les plateformes, CyberArkTerm demande au PVWA les composants activés pour
-  la plateforme du compte (ceux du bouton « Connect ») : le premier est pris par défaut, et la liste ne propose
-  qu'eux. Sinon (lecture refusée, cas le plus courant), rien ne change ; le journal de débogage note le refus.
+  Pour tous vos comptes Windows, réglez une fois le composant dans **Paramètres › CyberArk** (« Comptes Windows »,
+  par exemple `WIN-PSM`) ; un composant mémorisé pour une plateforme reste prioritaire.
 - **Comptes de domaine** : un compte enregistré pour son domaine n'a pas de serveur. Il est reconnu par sa plateforme
   de domaine, ses machines autorisées, ou son adresse : son domaine de connexion, un domaine sous lequel se trouvent
   d'autres serveurs (`corp.local` quand un compte vise `srv01.corp.local`), ou le domaine du PVWA ou du poste. Jamais
@@ -652,6 +651,7 @@ disent sous leur case (« ⚠ Effet : … »).
 | CyberArk | Garder la session PVWA ouverte | Requête légère toutes les 4 minutes ; suspendue quand Windows est verrouillé ; ⚠ la session PVWA ne se ferme plus d'elle-même après inactivité | oui |
 | CyberArk | PSMP par défaut, port | Serveur PSM for SSH ; renseigné (ou un PSMP par domaine), les comptes Unix s'ouvrent en SSH par défaut (en fichiers seuls pour une plateforme « SFTP ») ; sans aucun PSMP, SSH et SFTP sont désactivés | vide, 22 |
 | CyberArk | PSMP par domaine | Autres PSMP (adresse, port, domaine servi) ; chaque serveur passe par celui du domaine le plus proche du sien (voir [PSMP par domaine](#psmp-par-domaine)) ; « Quel PSMP pour le serveur » pour vérifier | aucun |
+| CyberArk | Composant des comptes Windows | Composant PSM des comptes Windows (domaine ou locaux) sans composant mémorisé pour leur plateforme, par exemple `WIN-PSM` | vide = `PSM-RDP` |
 | CyberArk | Composants PSM mémorisés | Composant PSM choisi par plateforme (bouton « Oublier ») | — |
 | Terminal | SSH dans CyberArkTerm | Terminal et onglet Fichiers intégrés ; sinon Windows Terminal | oui |
 | Terminal | Couleurs du terminal, police | Palette (Campbell, One Half, Solarized…) et taille de police des terminaux SSH | Campbell, 14 |

@@ -468,14 +468,8 @@ public partial class MainWindow
         switch (SavedTree.SelectedItem)
         {
             case SavedSessionNode node:
-                var platform = node.Account?.PlatformId ?? node.Session.PlatformId;
-                var components = platform is not null && _platformComponents.GetValueOrDefault(platform) is { Count: > 0 } read
-                    ? read
-                    : _settings.KnownComponents(platform);
-                var dialog = new SessionPropertiesDialog(node.Session, node.Account, _settings.SessionFolderList, HasPsmp, components)
-                {
-                    Owner = this,
-                };
+                var dialog = new SessionPropertiesDialog(node.Session, node.Account, _settings.SessionFolderList, HasPsmp,
+                    _settings.KnownComponents(node.Account?.PlatformId ?? node.Session.PlatformId)) { Owner = this };
                 if (dialog.ShowDialog() == true)
                 {
                     SessionLibrary.AddFolder(_settings, node.Session.Folder);

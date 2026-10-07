@@ -843,6 +843,10 @@ public sealed class DialogTests
             Assert.Equal(("psmp.zzz.xxx.ss.com", 22, ""), (saved[0].Address, saved[0].Port, saved[0].Domain));
             Assert.Equal(("psmp02.infra.corp.com", 2022, "dmz.corp.com"), (saved[1].Address, saved[1].Port, saved[1].Domain));
 
+            // Composant des comptes Windows : proposé parmi les composants usuels, nom vérifié.
+            Assert.Equal("", dialog.WindowsComponentBox.Text);
+            Assert.Contains("PSM-RDP", dialog.WindowsComponentBox.Items.OfType<string>());
+
             // Même domaine que le PSMP par défaut : celui de la liste ne servirait jamais.
             row.Domain = "corp.com";
             Assert.Null(dialog.ReadPsmpServers("psmp.corp.com"));

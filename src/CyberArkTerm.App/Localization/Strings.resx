@@ -504,7 +504,7 @@
     <value>Protocol tried first for uploads. If the server refuses it for a file (rule of the PSMP, read-only SFTP…), the other one takes over at once, without any question; the summary gives the server's answer, the History shows it.</value>
   </data>
   <data name="ComponentsSection" xml:space="preserve">
-    <value>Remembered PSM components</value>
+    <value>PSM components</value>
   </data>
   <data name="Forget" xml:space="preserve">
     <value>F_orget</value>
@@ -513,7 +513,7 @@
     <value>No server key remembered.</value>
   </data>
   <data name="NoComponents" xml:space="preserve">
-    <value>None: the component is deduced from the platform (PSM-RDP for Windows, PSM-SSH for Unix...).</value>
+    <value>None: the component is deduced from the platform (the Windows accounts one above, PSM-SSH for Unix...).</value>
   </data>
   <data name="ComponentEntry" xml:space="preserve">
     <value>{0}: {1}</value>
@@ -4254,7 +4254,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Remo_ve</value>
   </data>
   <data name="PsmpTestLabel" xml:space="preserve">
-    <value>_Which PSMP for the server:</value>
+    <value>Which PS_MP for the server:</value>
   </data>
   <data name="PsmpTestPrompt" xml:space="preserve">
     <value>Type a server name to see which PSMP it goes through.</value>
@@ -4342,5 +4342,17 @@ Two instances would overwrite each other's settings, local vault and files being
   </data>
   <data name="ServerPromptNotAllowed" xml:space="preserve">
     <value>{0} is not allowed for this account: choose one of the servers above.</value>
+  </data>
+  <data name="WindowsComponentLabel" xml:space="preserve">
+    <value>_Windows accounts:</value>
+  </data>
+  <data name="WindowsComponentHelp" xml:space="preserve">
+    <value>For Windows accounts (domain or local) when no component is remembered for their platform, for example WIN-PSM. Empty: PSM-RDP.</value>
+  </data>
+  <data name="RememberedComponentsLabel" xml:space="preserve">
+    <value>Remembered per platform:</value>
+  </data>
+  <data name="InvalidComponentName" xml:space="preserve">
+    <value>Invalid PSM component: letters, digits, “-”, “_” and “.” only (for example WIN-PSM).</value>
   </data>
 </root>

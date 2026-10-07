@@ -43,10 +43,6 @@ public partial class MainWindow : Window
 
     /// <summary>Domaines connus (au-dessus des serveurs des comptes, du PVWA, du poste) : reconnaît les comptes de domaine.</summary>
     private KnownDomains _domains = KnownDomains.From([], WorkstationDomains());
-
-    // Composants PSM des plateformes lus sur le PVWA (null : aucun) ; lecture refusée : plus redemandée.
-    private readonly Dictionary<string, IReadOnlyList<string>?> _platformComponents = new(StringComparer.OrdinalIgnoreCase);
-    private bool _platformComponentsDenied;
     private string _query = "";
     private PvwaAccount? _current;
     private SavedSession? _currentSaved;
@@ -217,50 +213,6 @@ public partial class MainWindow : Window
 
     /// <summary>Vrai si la fenêtre a été fermée pour revenir à l'écran de connexion.</summary>
     public bool LogoutRequested { get; private set; }
-
-    /// <summary>
-    /// Composants PSM activés pour la plateforme du compte, lus sur le PVWA une fois par plateforme ; null si la lecture est
-    /// refusée (souvent réservée aux utilisateurs qui gèrent les plateformes) ou impossible : composants mémorisés ou
-    /// habituels. Un refus ne se redemande pas pendant la session.
-    /// </summary>
-    private async Task<IReadOnlyList<string>?> PlatformComponentsAsync(PvwaAccount account)
-    {
-        var platform = account.PlatformId?.Trim();
-        if (IsOffline || _platformComponentsDenied || string.IsNullOrEmpty(platform))
-        {
-            return null;
-        }
-
-        if (_platformComponents.TryGetValue(platform, out var known))
-        {
-            return known;
-        }
-
-        try
-        {
-            var components = await Client.GetPlatformConnectionComponentsAsync(platform, _lifetime.Token);
-            DebugLog.Write("psm", components.Count == 0
-                ? $"Plateforme {platform} : aucun composant PSM lu sur le PVWA"
-                : $"Composants PSM de la plateforme {platform} (PVWA) : {string.Join(", ", components)}");
-            var result = components.Count == 0 ? null : components;
-            _platformComponents[platform] = result;
-            return result;
-        }
-        catch (PvwaException ex) when (ex.StatusCode is System.Net.HttpStatusCode.Forbidden or System.Net.HttpStatusCode.Unauthorized
-                                           or System.Net.HttpStatusCode.NotFound or System.Net.HttpStatusCode.MethodNotAllowed
-                                           or System.Net.HttpStatusCode.BadRequest)
-        {
-            _platformComponentsDenied = true;
-            DebugLog.Write("psm", $"Composants PSM des plateformes non lus ({ex.Message}) : composant mémorisé ou habituel");
-            return null;
-        }
-        catch (Exception ex) when (ex is PvwaException or HttpRequestException or System.Text.Json.JsonException or NotSupportedException
-                                       || (ex is TaskCanceledException && !_lifetime.IsCancellationRequested))
-        {
-            DebugLog.Write("psm", "Composants PSM de la plateforme non lus", ex);
-            return null;
-        }
-    }
 
     /// <summary>
     /// Domaines du poste de travail : nom DNS de l'utilisateur et de la machine, nom NetBIOS du domaine (sauf sur un poste
@@ -944,26 +896,11 @@ public partial class MainWindow : Window
         UpdateActions();
         try
         {
-            // Composants de la plateforme lus sur le PVWA (si l'utilisateur en a le droit) : un composant que la plateforme
-            // n'a pas serait refusé (EPVWA093E), le premier qu'elle propose est pris à la place.
-            IReadOnlyList<string>? platformComponents = null;
-            if (request.Mode == ConnectMode.Psm || showDialog)
-            {
-                platformComponents = await PlatformComponentsAsync(account);
-                if (request.Mode == ConnectMode.Psm && platformComponents is { Count: > 0 }
-                    && !platformComponents.Contains(request.Component, StringComparer.OrdinalIgnoreCase))
-                {
-                    DebugLog.Write("psm", $"Composant {request.Component} absent de la plateforme {account.PlatformId} : {platformComponents[0]} à la place");
-                    request = request with { Component = platformComponents[0] };
-                }
-            }
-
             while (true)
             {
                 if (showDialog)
                 {
-                    var dialog = new ConnectDialog(account, request, _settings, _vaultUser, error, componentError, needsMachine,
-                        platformComponents)
+                    var dialog = new ConnectDialog(account, request, _settings, _vaultUser, error, componentError, needsMachine)
                     {
                         Owner = this,
                     };

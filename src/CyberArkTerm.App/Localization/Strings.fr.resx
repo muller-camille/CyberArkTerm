@@ -504,7 +504,7 @@
     <value>Protocole essayé d'abord pour les envois. Si le serveur le refuse pour un fichier (règle du PSMP, SFTP en lecture seule…), l'autre prend le relais aussitôt, sans question ; le bilan donne la réponse du serveur, l'Historique l'indique.</value>
   </data>
   <data name="ComponentsSection" xml:space="preserve">
-    <value>Composants PSM mémorisés</value>
+    <value>Composants PSM</value>
   </data>
   <data name="Forget" xml:space="preserve">
     <value>_Oublier</value>
@@ -513,7 +513,7 @@
     <value>Aucune clé de serveur mémorisée.</value>
   </data>
   <data name="NoComponents" xml:space="preserve">
-    <value>Aucun : le composant est déduit de la plateforme (PSM-RDP pour Windows, PSM-SSH pour Unix...).</value>
+    <value>Aucun : le composant est déduit de la plateforme (celui des comptes Windows ci-dessus, PSM-SSH pour Unix...).</value>
   </data>
   <data name="ComponentEntry" xml:space="preserve">
     <value>{0} : {1}</value>
@@ -4342,5 +4342,17 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   </data>
   <data name="ServerPromptNotAllowed" xml:space="preserve">
     <value>{0} n'est pas autorisé pour ce compte : choisissez l'un des serveurs ci-dessus.</value>
+  </data>
+  <data name="WindowsComponentLabel" xml:space="preserve">
+    <value>Comptes _Windows :</value>
+  </data>
+  <data name="WindowsComponentHelp" xml:space="preserve">
+    <value>Pour les comptes Windows (domaine ou locaux) sans composant mémorisé pour leur plateforme, par exemple WIN-PSM. Vide : PSM-RDP.</value>
+  </data>
+  <data name="RememberedComponentsLabel" xml:space="preserve">
+    <value>Mémorisés par plateforme :</value>
+  </data>
+  <data name="InvalidComponentName" xml:space="preserve">
+    <value>Composant PSM invalide : lettres, chiffres, « - », « _ » et « . » seulement (par exemple WIN-PSM).</value>
   </data>
 </root>

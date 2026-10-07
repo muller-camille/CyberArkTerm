@@ -62,6 +62,8 @@ public partial class SettingsDialog : Window
         ArchiveThresholdBox.Text = settings.ArchiveThreshold.ToString(CultureInfo.InvariantCulture);
         TailSessionBox.IsChecked = settings.TailIndependentSession;
         ShowHostKeys();
+        WindowsComponentBox.ItemsSource = AccountClassifier.CommonComponents;
+        WindowsComponentBox.Text = settings.WindowsComponent;
         ComponentsText.Text = settings.ComponentByPlatform.Count == 0
             ? Strings.NoComponents
             : string.Join(", ", settings.ComponentByPlatform.Select(kv => Text.Format(Strings.ComponentEntry, kv.Key, kv.Value)));
@@ -162,6 +164,13 @@ public partial class SettingsDialog : Window
             return;
         }
 
+        var windowsComponent = WindowsComponentBox.Text.Trim();
+        if (windowsComponent.Length > 0 && !AppSettings.IsValidComponentName(windowsComponent))
+        {
+            ShowError(Strings.InvalidComponentName, WindowsComponentBox);
+            return;
+        }
+
         if (!int.TryParse(ArchiveThresholdBox.Text.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var threshold) || threshold < 2)
         {
             ShowError(Strings.InvalidArchiveThreshold, ArchiveThresholdBox);
@@ -192,6 +201,7 @@ public partial class SettingsDialog : Window
         _settings.PsmpAddress = host;
         _settings.PsmpPort = port;
         _settings.PsmpServers = psmpServers;
+        _settings.WindowsComponent = windowsComponent;
         _settings.SshInApp = SshInAppBox.IsChecked == true;
         _settings.FollowTerminalFolder = FollowBox.IsChecked == true;
         _settings.KeepPvwaSessionAlive = KeepAliveBox.IsChecked == true;

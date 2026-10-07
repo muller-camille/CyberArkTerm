@@ -1541,7 +1541,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Remembered PSM components.
+        ///   Looks up a localized string similar to PSM components.
         /// </summary>
         public static string ComponentsSection {
             get {
@@ -5242,7 +5242,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to None: the component is deduced from the platform (PSM-RDP for Windows, PSM-SSH for Unix...)..
+        ///   Looks up a localized string similar to None: the component is deduced from the platform (the Windows accounts one above, PSM-SSH for Unix...)..
         /// </summary>
         public static string NoComponents {
             get {
@@ -12657,7 +12657,7 @@ namespace CyberArkTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Which PSMP for the server:.
+        ///   Looks up a localized string similar to Which PS_MP for the server:.
         /// </summary>
         public static string PsmpTestLabel {
             get {
@@ -12923,6 +12923,42 @@ namespace CyberArkTerm.App.Localization {
         public static string ServerPromptNotAllowed {
             get {
                 return ResourceManager.GetString("ServerPromptNotAllowed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Windows accounts:.
+        /// </summary>
+        public static string WindowsComponentLabel {
+            get {
+                return ResourceManager.GetString("WindowsComponentLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to For Windows accounts (domain or local) when no component is remembered for their platform, for example WIN-PSM. Empty: PSM-RDP..
+        /// </summary>
+        public static string WindowsComponentHelp {
+            get {
+                return ResourceManager.GetString("WindowsComponentHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remembered per platform:.
+        /// </summary>
+        public static string RememberedComponentsLabel {
+            get {
+                return ResourceManager.GetString("RememberedComponentsLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid PSM component: letters, digits, “-”, “_” and “.” only (for example WIN-PSM)..
+        /// </summary>
+        public static string InvalidComponentName {
+            get {
+                return ResourceManager.GetString("InvalidComponentName", resourceCulture);
             }
         }
     }

@@ -14,45 +14,6 @@ public class PsmConnectTests
     private static HttpResponseMessage RdpResponse(byte[] body) =>
         new(HttpStatusCode.OK) { Content = new ByteArrayContent(body) { Headers = { { "Content-Type", "application/octet-stream" } } } };
 
-    /// <summary>
-    /// Composants de la plateforme : la plateforme cible est retrouvée par son nom, puis ses composants activés sont lus
-    /// dans leur ordre (ceux du bouton « Connect » du PVWA) ; une plateforme inconnue n'en a pas.
-    /// </summary>
-    [Fact]
-    public async Task PlatformComponents_ListsEnabledConnectorsOfThePlatform()
-    {
-        var pvwa = Pvwa(req => req.RequestUri!.AbsolutePath switch
-        {
-            "/PasswordVault/API/Platforms/Targets" => FakePvwa.Json("""
-                {"Total":2,"Platforms":[{"ID":6,"PlatformID":"WinDomain","Name":"Windows Domain"},
-                                        {"ID":40,"PlatformID":"WIN-ADM-T1","Name":"Admins T1","PrivilegedSessionManagement":{"PSMServerId":"PSM01"}}]}
-                """),
-            "/PasswordVault/API/Platforms/Targets/40/PrivilegedSessionManagement" => FakePvwa.Json("""
-                {"PSMServerId":"PSM01","PSMConnectors":[{"PSMConnectorID":"PSM-RDP","Enabled":false},
-                  {"PSMConnectorID":"WIN-PSM","Enabled":true},{"PSMConnectorID":"PSM-WinSCP"},{"PSMConnectorID":" ","Enabled":true}]}
-                """),
-            _ => FakePvwa.Json("{}", HttpStatusCode.NotFound),
-        });
-        using var client = await pvwa.CreateLoggedOnClientAsync();
-
-        Assert.Equal(["WIN-PSM", "PSM-WinSCP"], await client.GetPlatformConnectionComponentsAsync("win-adm-t1"));
-        Assert.Equal("/PasswordVault/API/Platforms/Targets", pvwa.Requests[1].PathAndQuery);
-        Assert.Equal("/PasswordVault/API/Platforms/Targets/40/PrivilegedSessionManagement", pvwa.Requests[2].PathAndQuery);
-        Assert.Empty(await client.GetPlatformConnectionComponentsAsync("UnixSSH"));
-    }
-
-    /// <summary>Lecture des plateformes réservée (droit de gestion des plateformes) : refus du PVWA, à traiter par l'appelant.</summary>
-    [Fact]
-    public async Task PlatformComponents_RefusalIsReported()
-    {
-        var pvwa = Pvwa(_ => FakePvwa.Json("""{"ErrorCode":"PASWS041E","ErrorMessage":"You are not authorized to perform this action."}""",
-            HttpStatusCode.Forbidden));
-        using var client = await pvwa.CreateLoggedOnClientAsync();
-
-        var ex = await Assert.ThrowsAsync<PvwaException>(() => client.GetPlatformConnectionComponentsAsync("WinDomain"));
-        Assert.Equal(HttpStatusCode.Forbidden, ex.StatusCode);
-    }
-
     [Fact]
     public async Task PsmConnect_PostsComponentAndAsksForRdpFile()
     {

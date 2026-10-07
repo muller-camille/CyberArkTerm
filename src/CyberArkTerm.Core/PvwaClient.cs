@@ -442,32 +442,6 @@ public sealed class PvwaClient : IDisposable
     }
 
     /// <summary>
-    /// Composants de connexion PSM activés pour la plateforme <paramref name="platformId"/> (son nom, par ex. WinDomain),
-    /// dans l'ordre de la plateforme : ceux que propose le bouton « Connect » du PVWA. Lecture des plateformes cibles
-    /// (PVWA 11.5 et plus), souvent réservée aux utilisateurs qui gèrent les plateformes. Liste vide si la plateforme
-    /// est introuvable.
-    /// </summary>
-    /// <exception cref="PvwaException">Lecture refusée (droit manquant) ou API absente de cette version.</exception>
-    public async Task<IReadOnlyList<string>> GetPlatformConnectionComponentsAsync(string platformId, CancellationToken ct = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(platformId);
-        var targets = await GetAsync<TargetPlatformList>("API/Platforms/Targets", ct).ConfigureAwait(false);
-        var platform = targets.Platforms?.FirstOrDefault(p => string.Equals(p.PlatformId, platformId.Trim(), StringComparison.OrdinalIgnoreCase));
-        if (platform is null)
-        {
-            return [];
-        }
-
-        var psm = await GetAsync<PlatformSessionManagement>(
-            $"API/Platforms/Targets/{platform.Id}/PrivilegedSessionManagement", ct).ConfigureAwait(false);
-        return (psm.PsmConnectors ?? [])
-            .Where(c => c.Enabled != false && !string.IsNullOrWhiteSpace(c.PsmConnectorId))
-            .Select(c => c.PsmConnectorId!.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-    }
-
-    /// <summary>
     /// Demande une clé SSH temporaire « MFA caching » pour s'authentifier au PSMP sans ressaisir
     /// mot de passe et MFA. Renvoie null si la fonctionnalité n'est pas activée sur le PVWA.
     /// </summary>
@@ -602,32 +576,6 @@ public sealed class PvwaClient : IDisposable
 
         DebugLog.Write("pvwa", $"Erreur renvoyée par le PVWA : {text}");
         return new PvwaException(response.StatusCode, code, text, message);
-    }
-
-    /// <summary>Plateformes cibles (<c>API/Platforms/Targets</c>) : ID numérique et nom de chacune.</summary>
-    private sealed class TargetPlatformList
-    {
-        public List<TargetPlatform>? Platforms { get; set; }
-    }
-
-    private sealed class TargetPlatform
-    {
-        public int Id { get; set; }
-
-        public string? PlatformId { get; set; }
-    }
-
-    /// <summary>Réglages PSM d'une plateforme cible : ses composants de connexion (<c>PSMConnectors</c>).</summary>
-    private sealed class PlatformSessionManagement
-    {
-        public List<PsmConnector>? PsmConnectors { get; set; }
-    }
-
-    private sealed class PsmConnector
-    {
-        public string? PsmConnectorId { get; set; }
-
-        public bool? Enabled { get; set; }
     }
 
     /// <summary>Page d'une liste du PVWA (<c>value</c>, <c>count</c> = total, <c>nextLink</c>).</summary>
