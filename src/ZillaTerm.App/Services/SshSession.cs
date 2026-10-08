@@ -181,6 +181,12 @@ public sealed class SshSession : RemoteSession
     public void SendInput(string text)
     {
         _userTyped = true;
+        if (text.AsSpan().IndexOfAny('\r', '\n') >= 0)
+        {
+            // Commande validée : ce qu'elle affichera ne doit pas pouvoir effacer l'écran (marque du suivi du dossier).
+            Emulator.CancelEraseMark();
+        }
+
         Send(text);
     }
 

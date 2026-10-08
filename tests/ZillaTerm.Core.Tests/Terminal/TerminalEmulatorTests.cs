@@ -418,6 +418,29 @@ public class TerminalEmulatorTests
     }
 
     [Fact]
+    public void EraseMarkerIsIgnoredOnceTheMarkExpiredOrWasCancelled()
+    {
+        long now = 1_000;
+        var t = new TerminalEmulator(10, 3) { Clock = () => now };
+
+        t.Feed("$ ");
+        t.MarkEraseFromCursorLine();
+        now += TerminalEmulator.EraseMarkLifetimeMs + 1;
+        t.Feed("cmd\r\n" + WorkingDirectory.EraseMarker);
+        Assert.Equal(["$ cmd", "", ""], Screen(t));
+
+        t.MarkEraseFromCursorLine();
+        t.CancelEraseMark();
+        t.Feed("out" + WorkingDirectory.EraseMarker);
+        Assert.Equal(["$ cmd", "out", ""], Screen(t));
+
+        t.MarkEraseFromCursorLine();
+        now += TerminalEmulator.EraseMarkLifetimeMs;
+        t.Feed("\r\n" + WorkingDirectory.EraseMarker);
+        Assert.Equal(["$ cmd", "", ""], Screen(t));
+    }
+
+    [Fact]
     public void EraseMarkerActsOnlyOnceAfterAMarkOnTheMainScreen()
     {
         var t = new TerminalEmulator(10, 3);

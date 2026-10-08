@@ -927,7 +927,7 @@ already started typing; the command can be sent again without duplicate effect (
 - if a start folder is configured, a `cd` to that folder;
 - ends with a private marker (`ESC ] 6973 ; BEL`): when it arrives, ZillaTerm itself erases the typed command and its
   echo, from the prompt line on, however many lines the server used for them. The marker has no effect unless
-  ZillaTerm has just sent the command. The PSM recording still shows the command, like everything typed in the
+  ZillaTerm has just sent the command: it is ignored after 10 seconds, or once you have validated a command. The PSM recording still shows the command, like everything typed in the
   session.
 
 The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that folder.

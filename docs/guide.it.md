@@ -984,7 +984,8 @@ effetti doppi (casella «Segui»):
 - se è configurata una cartella iniziale, un `cd` verso quella cartella;
 - un marcatore privato alla fine (`ESC ] 6973 ; BEL`): quando arriva, ZillaTerm cancella da sé il comando digitato e
   la sua eco, dalla riga del prompt in giù, qualunque sia il numero di righe che il server ha usato. Il marcatore non
-  ha effetto se ZillaTerm non ha appena inviato il comando. La registrazione PSM mostra comunque il comando, come
+  ha effetto se ZillaTerm non ha appena inviato il comando: viene ignorato dopo 10 secondi, o appena hai confermato un
+  comando. La registrazione PSM mostra comunque il comando, come
   tutto ciò che viene digitato nella sessione.
 
 Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posiziona nella cartella indicata.
