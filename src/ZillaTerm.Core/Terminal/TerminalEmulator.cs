@@ -51,6 +51,11 @@ public sealed class TerminalEmulator
     private char _intermediate;
     private bool _charsetForG1;
     private bool _wrapPending;
+
+    // Lignes de l'écran principal sorties par le haut depuis le début (historique plein ou non) : numéro absolu d'une
+    // ligne = _scrolledOff + rang à l'écran, stable quand l'écran défile.
+    private long _scrolledOff;
+    private long? _eraseFrom;
     private int _scrollTop;
     private int _scrollBottom;
     private int _fg = TerminalColor.Default;
@@ -87,6 +92,13 @@ public sealed class TerminalEmulator
         IgnoreString,
         IgnoreStringEscape,
     }
+
+    /// <summary>
+    /// Marque la ligne du curseur : le prochain <see cref="WorkingDirectory.EraseMarker"/> reçu efface l'écran depuis le
+    /// début de cette ligne. Sert à masquer une commande tapée par ZillaTerm (suivi du dossier) et son écho, sur autant de
+    /// lignes que le serveur en a affiché, quelle que soit la largeur qu'il suppose. Sans effet en écran alternatif.
+    /// </summary>
+    public void MarkEraseFromCursorLine() => _eraseFrom = IsAlternateScreen ? null : _scrolledOff + CursorRow;
 
     /// <summary>Dossier courant signalé par le shell (OSC 7), déjà décodé en chemin Unix.</summary>
     public event Action<string>? WorkingDirectoryChanged;
@@ -617,7 +629,27 @@ public sealed class TerminalEmulator
                 }
 
                 break;
+            case WorkingDirectory.EraseOscCode:
+                EraseFromMark();
+                break;
         }
+    }
+
+    /// <summary>
+    /// Fin d'une commande tapée par ZillaTerm : écran effacé depuis la ligne marquée par <see cref="MarkEraseFromCursorLine"/>
+    /// (une seule fois ; ignoré sans marque, ce qu'un programme du serveur ne peut donc pas déclencher de lui-même).
+    /// </summary>
+    private void EraseFromMark()
+    {
+        var mark = _eraseFrom;
+        _eraseFrom = null;
+        if (mark is not long line || IsAlternateScreen)
+        {
+            return;
+        }
+
+        SetCursor((int)Math.Clamp(line - _scrolledOff, 0, Rows - 1), 0);
+        EraseInDisplay(0);
     }
 
     // ===================== Écriture et déplacements =====================
@@ -855,7 +887,11 @@ public sealed class TerminalEmulator
         }
     }
 
-    private void PushScrollback(Cell[] line) => _scrollback.Add(line);
+    private void PushScrollback(Cell[] line)
+    {
+        _scrollback.Add(line);
+        _scrolledOff++;
+    }
 
     /// <summary>
     /// Historique en anneau : une fois plein, chaque nouvelle ligne remplace la plus ancienne sans déplacer les autres (une
@@ -1105,6 +1141,7 @@ public sealed class TerminalEmulator
         _scrollback.Clear();
         CursorRow = CursorColumn = 0;
         _wrapPending = false;
+        _eraseFrom = null;
     }
 
     // ===================== Utilitaires =====================

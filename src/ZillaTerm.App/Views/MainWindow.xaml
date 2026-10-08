@@ -547,7 +547,7 @@
                     <DockPanel TextElement.Foreground="{DynamicResource SidePanelForeground}">
                         <StackPanel DockPanel.Dock="Top" Margin="8,8,8,6">
                             <Grid>
-                                <TextBox x:Name="SearchBox" TextChanged="OnSearchChanged" Padding="24,4,4,4"
+                                <TextBox x:Name="SearchBox" TextChanged="OnSearchChanged" Padding="24,4,22,4"
                                          AutomationProperties.Name="{x:Static loc:Strings.SearchPlaceholder}"
                                          PreviewKeyDown="OnSearchKeyDown"
                                          ToolTip="{x:Static loc:Strings.SearchTip}" />
@@ -555,6 +555,7 @@
                                        Margin="6,0,0,0" IsHitTestVisible="False" />
                                 <TextBlock Style="{StaticResource Placeholder}" Tag="{Binding ElementName=SearchBox}"
                                            Text="{x:Static loc:Strings.SearchPlaceholder}" Margin="26,0,0,0" />
+                                <views:ClearFieldButton Target="{Binding ElementName=SearchBox}" />
                             </Grid>
                             <DockPanel Margin="0,6,0,0">
                                 <Label Content="{x:Static loc:Strings.GroupBy}" Target="{Binding ElementName=GroupByBox}" Foreground="{DynamicResource MutedBrush}"
@@ -652,7 +653,7 @@
                                        TextTrimming="CharacterEllipsis" />
                         </DockPanel>
                         <Grid DockPanel.Dock="Top" Margin="8,2,8,6">
-                            <TextBox x:Name="SavedSearchBox" TextChanged="OnSavedSearchChanged" Padding="24,4,4,4"
+                            <TextBox x:Name="SavedSearchBox" TextChanged="OnSavedSearchChanged" Padding="24,4,22,4"
                                      AutomationProperties.Name="{x:Static loc:Strings.SavedSearchPlaceholder}"
                                      PreviewKeyDown="OnSavedSearchKeyDown"
                                      ToolTip="{x:Static loc:Strings.SavedSearchTip}" />
@@ -660,11 +661,13 @@
                                    Margin="6,0,0,0" IsHitTestVisible="False" />
                             <TextBlock Style="{StaticResource Placeholder}" Tag="{Binding ElementName=SavedSearchBox}"
                                        Text="{x:Static loc:Strings.SavedSearchPlaceholder}" Margin="26,0,0,0" />
+                            <views:ClearFieldButton Target="{Binding ElementName=SavedSearchBox}" />
                         </Grid>
                         <TextBlock DockPanel.Dock="Top" x:Name="NoSavedText" Margin="10,4,10,0" TextWrapping="Wrap"
                                    Foreground="{DynamicResource MutedBrush}"
                                    Text="{x:Static loc:Strings.NoSavedHelp}" />
                         <TreeView x:Name="SavedTree" BorderThickness="0" Background="Transparent" Padding="2,0,0,0" AllowDrop="True"
+                                  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                                   SelectedItemChanged="OnSavedSelectionChanged" KeyDown="OnSavedKeyDown" IsKeyboardFocusWithinChanged="OnSelectorFocusChanged"
                                   PreviewMouseLeftButtonDown="OnSavedMouseDown" PreviewMouseMove="OnSavedDragMove"
                                   DragOver="OnSavedDragOver" Drop="OnSavedDrop" ContextMenu="{StaticResource SavedBackgroundMenu}">
@@ -817,13 +820,14 @@
                             <Border Grid.Row="1" x:Name="QuickPanel" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1.5" CornerRadius="4"
                                     Background="{DynamicResource ContentBrush}" Margin="0,0,0,4">
                                 <Grid>
-                                    <TextBox x:Name="QuickBox" BorderThickness="0" FontSize="15" Padding="36,8,8,8"
+                                    <TextBox x:Name="QuickBox" BorderThickness="0" FontSize="15" Padding="36,8,30,8"
                                              AutomationProperties.Name="{x:Static loc:Strings.QuickPlaceholder}"
                                              TextChanged="OnQuickChanged" PreviewKeyDown="OnQuickKeyDown" />
                                     <Image Source="{StaticResource IconSearch}" Width="18" Height="18" HorizontalAlignment="Left"
                                            Margin="10,0,0,0" IsHitTestVisible="False" />
                                     <TextBlock Style="{StaticResource Placeholder}" Tag="{Binding ElementName=QuickBox}" FontSize="15"
                                                Text="{x:Static loc:Strings.QuickPlaceholder}" Margin="38,0,0,0" />
+                                    <views:ClearFieldButton Target="{Binding ElementName=QuickBox}" Margin="0,0,8,0" />
                                 </Grid>
                             </Border>
                             <Border Grid.Row="2" x:Name="QuickResultsPanel" BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="1"

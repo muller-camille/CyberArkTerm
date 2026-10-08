@@ -46,6 +46,8 @@
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Bottom">
                     <Button x:Name="ImportButton" Content="{x:Static loc:Strings.SessionImportButton}" IsDefault="True" IsEnabled="False" Click="OnImport" />
                     <Button x:Name="ExportButton" Content="{x:Static loc:Strings.SessionImportExport}" IsEnabled="False" Margin="8,0,0,0" Click="OnExport" />
+                    <Button x:Name="MissingAccountsButton" Content="{x:Static loc:Strings.SessionImportMissingAccounts}" IsEnabled="False" Margin="8,0,0,0"
+                            Click="OnMissingAccounts" ToolTip="{x:Static loc:Strings.SessionImportMissingAccountsTip}" ToolTipService.ShowOnDisabled="True" />
                     <Button Content="{x:Static loc:Strings.CloseButton}" IsCancel="True" Margin="8,0,0,0" />
                 </StackPanel>
                 <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">

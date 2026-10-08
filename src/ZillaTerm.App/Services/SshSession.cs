@@ -195,7 +195,7 @@ public sealed class SshSession : RemoteSession
             return false;
         }
 
-        Send(WorkingDirectory.InjectionFor(Emulator.CursorColumn, Emulator.Columns));
+        SendFolderTracking(null);
         return true;
     }
 
@@ -324,12 +324,29 @@ public sealed class SshSession : RemoteSession
 
             if (_lastData != default && DateTime.UtcNow - _lastData > TimeSpan.FromMilliseconds(400) && IsAtPrompt())
             {
-                Send(_followTerminal
-                    ? WorkingDirectory.InjectionFor(Emulator.CursorColumn, Emulator.Columns, startDirectory)
-                    : WorkingDirectory.ChangeDirectoryCommand(startDirectory!));
+                if (_followTerminal)
+                {
+                    SendFolderTracking(startDirectory);
+                }
+                else
+                {
+                    Send(WorkingDirectory.ChangeDirectoryCommand(startDirectory!));
+                }
+
                 return;
             }
         }
+    }
+
+    /// <summary>
+    /// Tape la commande de suivi du dossier : la ligne de l'invite est marquée d'abord, et la commande se termine par un
+    /// marqueur à la réception duquel l'émulateur efface la commande et son écho à partir de cette ligne.
+    /// </summary>
+    private void SendFolderTracking(string? startDirectory)
+    {
+        var command = WorkingDirectory.InjectionCommand(startDirectory);
+        Emulator.MarkEraseFromCursorLine();
+        Send(command);
     }
 
     private bool IsAtPrompt() =>

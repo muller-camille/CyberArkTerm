@@ -265,6 +265,43 @@ public partial class SessionImportWindow : Window
         }
     }
 
+    /// <summary>
+    /// Serveurs sans compte dans le PVWA : fichier au format de « Importer des comptes (CSV) », à compléter puis à
+    /// importer pour créer leurs comptes dans un safe.
+    /// </summary>
+    private void OnMissingAccounts(object sender, RoutedEventArgs e)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = Strings.SessionImportMissingAccounts.Replace("_", ""),
+            Filter = Strings.ExportFilter,
+            FileName = $"{Strings.SessionImportMissingAccountsFileName}-{DateTime.Now:yyyyMMdd-HHmm}.csv",
+        };
+        if (dialog.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        try
+        {
+            int count = WriteMissingAccounts(dialog.FileName);
+            ErrorMessage.Visibility = Visibility.Collapsed;
+            StatusText.Text = Text.Format(Strings.SessionImportMissingAccountsSaved, count, dialog.FileName);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            ErrorMessage.Text = Text.Format(Strings.ExportFailed, ex.Message);
+            ErrorMessage.Visibility = Visibility.Visible;
+        }
+    }
+
+    /// <summary>Comptes à créer en CSV (BOM UTF-8 pour Excel, séparateur de la région Windows) ; renvoie leur nombre.</summary>
+    internal int WriteMissingAccounts(string path)
+    {
+        using var writer = new StreamWriter(path, false, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+        return _import?.WriteMissingAccounts(writer, CsvExporter.DefaultSeparator(CultureInfo.CurrentCulture)) ?? 0;
+    }
+
     /// <summary>Résultat de chaque session en CSV (BOM UTF-8 pour Excel, séparateur de la région Windows).</summary>
     internal void WriteResult(string path)
     {
@@ -298,6 +335,7 @@ public partial class SessionImportWindow : Window
         bool pending = _import is { Applied: false };
         ImportButton.IsEnabled = !_reading && pending && _import!.Items.Any(i => i.CanImport && i.Include);
         ExportButton.IsEnabled = !_reading && _import is { Items.Count: > 0 };
+        MissingAccountsButton.IsEnabled = !_reading && _import is { MissingAccounts: > 0 };
         ProblemsBox.IsEnabled = _import is { Items.Count: > 0 };
         _allBox.IsEnabled = pending && _rows.Any(r => r.CanInclude);
     }

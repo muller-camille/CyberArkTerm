@@ -32,6 +32,7 @@ public partial class MainWindow : Window
     private readonly string _vaultUser;
     private readonly SessionLauncher _launcher = new();
     private readonly DispatcherTimer _searchDebounce;
+    private readonly DispatcherTimer _savedSearchDebounce;
     // Dernière erreur de chargement des comptes, montrée dans la liste avec « Réessayer » ; null après un chargement réussi.
     private string? _loadError;
     private readonly CancellationTokenSource _lifetime = new();
@@ -77,6 +78,12 @@ public partial class MainWindow : Window
         {
             _searchDebounce.Stop();
             ApplyFilter();
+        };
+        _savedSearchDebounce = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+        _savedSearchDebounce.Tick += (_, _) =>
+        {
+            _savedSearchDebounce.Stop();
+            RefreshSaved();
         };
 
         GroupByBox.DisplayMemberPath = "Key";
@@ -127,8 +134,14 @@ public partial class MainWindow : Window
         RefreshSaved();
         UpdateWelcome();
         UpdateActions();
-        // « Parallèle » n'est actif qu'avec au moins une session SSH ouverte.
-        ((System.Collections.Specialized.INotifyCollectionChanged)MainTabs.Items).CollectionChanged += (_, _) => UpdateActions();
+        UpdateFilesTabVisibility();
+        // « Parallèle » n'est actif qu'avec au moins une session SSH ouverte, l'onglet Fichiers n'est là qu'avec une
+        // session SSH ou de fichiers.
+        ((System.Collections.Specialized.INotifyCollectionChanged)MainTabs.Items).CollectionChanged += (_, _) =>
+        {
+            UpdateActions();
+            UpdateFilesTabVisibility();
+        };
         StartKeepAlive();
         RestoreLayout();
         Loaded += async (_, _) =>
@@ -1118,7 +1131,7 @@ public partial class MainWindow : Window
         }
         else if (mods == ModifierKeys.Control && key is Key.D1 or Key.NumPad1 or Key.D2 or Key.NumPad2 or Key.D3 or Key.NumPad3)
         {
-            if (key is Key.D1 or Key.NumPad1 && IsOffline)
+            if ((key is Key.D1 or Key.NumPad1 && IsOffline) || (key is Key.D3 or Key.NumPad3 && FilesTab.Visibility != Visibility.Visible))
             {
                 return;
             }
@@ -1612,6 +1625,7 @@ public partial class MainWindow : Window
         await FilesPanel.CancelTransfersAsync(null);
         _lifetime.Cancel();
         _searchDebounce.Stop();
+        _savedSearchDebounce.Stop();
         try
         {
             if (_client is not null)

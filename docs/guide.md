@@ -33,8 +33,8 @@ away in the chosen language, keeping the address and user name you typed.
 
 ### Main window
 
-- **Side panel**: "Available", "My servers" and "Files" tabs (`Ctrl+1`, `Ctrl+2`, `Ctrl+3`). Drag the splitter to
-  change its width; `Ctrl+B` or a double-click on the splitter collapses it (the strip of tabs stays: a click on a
+- **Side panel**: "Available", "My servers" and "Files" tabs (`Ctrl+1`, `Ctrl+2`, `Ctrl+3`); the "Files" tab only
+  shows while an SSH or files session is open. Drag the splitter to change its width; `Ctrl+B` or a double-click on the splitter collapses it (the strip of tabs stays: a click on a
   tab opens it again). `F6` moves from the panel to the session. The window position and size, the panel width and
   whether it is collapsed are remembered.
 - **Session tabs**: a dot shows the state of the session by its colour and by its shape: orange ring while
@@ -62,7 +62,8 @@ away in the chosen language, keeping the address and user name you typed.
 ![“Available” tab filtered on several servers](captures/en/available.png)
 
 - The search box ("Filter accounts…", `Ctrl+F`) filters on every field (server, user, safe, platform, domain…),
-  several words allowed (`prd sql`).
+  several words allowed (`prd sql`). The ✕ at the end of the box (as in every search or filter box) or `Esc` empties
+  it.
 - Instead of an empty list, the tab says what is going on: accounts loading, loading failed with its message and
   "Retry", no account available to your CyberArk user, or no account matching the filter, with "Clear the filter".
 - "Group by" sorts accounts by safe, platform or target type.
@@ -256,7 +257,7 @@ each PSMP is checked on its first connection. The tab tooltip names the PSMP use
 ## 5. Browse and upload files: "Files" tab
 
 The **Files** tab of the side panel (`Ctrl+3`) follows the active SSH tab and comes to the front when an SSH session
-opens. It also serves the files-only sessions, which show it when they open: CyberArk accounts over
+opens; it only shows while an SSH or files session is open. It also serves the files-only sessions, which show it when they open: CyberArk accounts over
 SFTP through the PSMP ([section 4](#4-open-an-ssh-session-through-the-psmp))
 and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyberark-keepass-databases)).
 
@@ -437,7 +438,8 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   is selected.
 - **Search**: box at the top of the tab (or `Ctrl+F` in the tab). It filters servers by name, server, user, folder,
   component, target machine, and the entries of unlocked KeePass databases; the folders of the results are expanded.
-  `Enter` or `↓` selects the first result, `Esc` clears.
+  `Enter` or `↓` selects the first result, `Esc` or the ✕ at the end of the box clears. With thousands of servers,
+  the list is filtered once you stop typing.
 - **Several servers at once**: `Ctrl+click` adds or removes a server (or all those of a folder), `Shift+click` picks
   a range of servers; `Esc` or a plain click cancels. Right-click one of them → "Open the N servers in the parallel
   view" or "Connect to the N servers" (one tab each). Right-click a folder → "Open in the parallel view" or "Connect
@@ -543,6 +545,11 @@ another tool…". The PVWA accounts must be loaded.
    the table.
 6. **Export the result…** saves this table as CSV (Windows regional separator): the list of servers without an
    account, to have added to CyberArk.
+7. **Missing accounts file…** saves the accounts to create for the servers left without an account, ready for
+   "Import accounts (CSV)" ([section 2](#2-find-an-account-available-tab)): one line per server and user for a local
+   account (platform `WinServerLocal` for Remote Desktop, `UnixSSH` for SSH and SFTP), one line per domain user
+   (platform `WinDomain`, the servers in the allowed machines). Fill in the safe, check the platforms (names of your
+   Vault), then import it. No password in it.
 
 No password is read, neither in the registry nor in the files: only the server, port, protocol, user and folder are.
 The passwords kept by the other tool stay where they are: once the migration is done, delete them from that tool so
@@ -621,7 +628,7 @@ says its master password was not remembered. Manage it in the **Settings**, Secu
 | Outside the terminal | Collapse / expand the side panel | `Ctrl+B` (or double-click the splitter) |
 | Lists and trees | Open the session | Double-click or `Enter` |
 | Lists, trees, tabs | Right-click menu | Menu key or `Shift+F10` |
-| Search | Clear the filter | `Esc` |
+| Search | Clear the filter | `Esc` or ✕ at the end of the box |
 | Home | Remove a recent session from the list | `Del` |
 | My servers | Rename / remove or delete | `F2` / `Del` |
 | My servers | Pick several servers (then right-click to open them together) | `Ctrl+click`, `Shift+click`; `Esc` cancels |
@@ -918,7 +925,10 @@ already started typing; the command can be sent again without duplicate effect (
 - with tcsh, the `cwdcmd` alias (only if it is not already defined), which emits the same sequence at each folder
   change;
 - if a start folder is configured, a `cd` to that folder;
-- erases the typed command so it does not stay on screen.
+- ends with a private marker (`ESC ] 6973 ; BEL`): when it arrives, ZillaTerm itself erases the typed command and its
+  echo, from the prompt line on, however many lines the server used for them. The marker has no effect unless
+  ZillaTerm has just sent the command. The PSM recording still shows the command, like everything typed in the
+  session.
 
 The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that folder.
 

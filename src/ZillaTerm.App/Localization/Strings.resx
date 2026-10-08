@@ -4655,4 +4655,19 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="SourceRdpFolder" xml:space="preserve">
     <value>Remote Desktop files (folder of .rdp files)</value>
   </data>
+  <data name="ClearField" xml:space="preserve">
+    <value>Empty this field</value>
+  </data>
+  <data name="SessionImportMissingAccounts" xml:space="preserve">
+    <value>Missing _accounts file…</value>
+  </data>
+  <data name="SessionImportMissingAccountsTip" xml:space="preserve">
+    <value>CSV file of the servers without an account in the PVWA, in the format of “Import accounts (CSV)”: fill in the safe, check the platform, then import it to create the accounts. No password.</value>
+  </data>
+  <data name="SessionImportMissingAccountsFileName" xml:space="preserve">
+    <value>accounts-to-create</value>
+  </data>
+  <data name="SessionImportMissingAccountsSaved" xml:space="preserve">
+    <value>Accounts to create: {0}, saved to {1}: fill in the safe, check the platform, then import the file with “Import accounts (CSV)” (right-click in Available).</value>
+  </data>
 </root>

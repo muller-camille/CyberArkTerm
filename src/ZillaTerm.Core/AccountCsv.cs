@@ -116,9 +116,12 @@ public static class AccountCsv
         ["manualmanagementreason"] = Column.Reason, ["reason"] = Column.Reason, ["motif"] = Column.Reason, ["motivo"] = Column.Reason,
     };
 
+    /// <summary>En-tête du modèle de fichier (reconnu quelle que soit la langue de l'interface).</summary>
+    public static readonly IReadOnlyList<string> TemplateColumns =
+        ["safe", "platform", "address", "userName", "name", "logonDomain", "password", "remoteMachines", "cpm", "manualManagementReason"];
+
     /// <summary>Modèle de fichier : en-tête et un exemple fictif.</summary>
-    public static string Template(char separator) => string.Join(separator, "safe", "platform", "address", "userName", "name", "logonDomain",
-            "password", "remoteMachines", "cpm", "manualManagementReason") + "\r\n"
+    public static string Template(char separator) => string.Join(separator, TemplateColumns) + "\r\n"
         + string.Join(separator, "Prod-Windows", "WinDomain", "srv-app01.corp.example", "svc_app01", "", "CORP", "", "", "yes", "") + "\r\n";
 
     /// <summary>
