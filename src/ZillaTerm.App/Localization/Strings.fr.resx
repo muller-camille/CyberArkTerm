@@ -4688,4 +4688,13 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   <data name="ReconnectDone" xml:space="preserve">
     <value>Session CyberArk rouverte : relancez l'action si besoin.</value>
   </data>
+  <data name="FilesFilterPlaceholder" xml:space="preserve">
+    <value>Filtrer : nom ou *.log</value>
+  </data>
+  <data name="FilesFilterTip" xml:space="preserve">
+    <value>N'affiche que les éléments de ce dossier dont le nom contient ce texte, ou répond à un masque avec * et ? (plusieurs séparés par ;). Vidé quand vous changez de dossier. Ctrl+F ; Échap vide.</value>
+  </data>
+  <data name="FilesFilterSummary" xml:space="preserve">
+    <value>{0} éléments affichés sur {1} (filtre)</value>
+  </data>
 </root>

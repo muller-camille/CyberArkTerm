@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using ZillaTerm.App.Localization;
 using ZillaTerm.App.Services;
@@ -22,6 +23,10 @@ public partial class FileBrowserPanel : UserControl
     private RemoteSession? _session;
     private IRemoteFiles? _browser;
     private int _generation;
+    // Filtre du dossier affiché (null : tout est affiché) et dossier auquel il s'applique.
+    private FileNameFilter? _filter;
+    private string? _shownDirectory;
+    private bool _resettingFilter;
     private int _busy;
 
     public FileBrowserPanel()
@@ -67,6 +72,7 @@ public partial class FileBrowserPanel : UserControl
         _browser = null;
         _generation++;
         FileList.ItemsSource = null;
+        ResetFilter();
         PathBox.Text = "";
         StatusText.Text = "";
         UpdateExtractPanel();
@@ -183,7 +189,14 @@ public partial class FileBrowserPanel : UserControl
             }
 
             items.AddRange(RemoteEntry.Sort(entries, _settings.FileSortColumn, _settings.FileSortDescending));
-            FileList.ItemsSource = items;
+            if (directory != _shownDirectory)
+            {
+                // Autre dossier : son contenu s'affiche en entier.
+                ResetFilter();
+            }
+
+            _shownDirectory = directory;
+            ShowEntries(items);
             PathBox.Text = directory;
             if (_session is not null)
             {
@@ -192,8 +205,7 @@ public partial class FileBrowserPanel : UserControl
 
             if (!quiet)
             {
-                int folders = entries.Count(e => e.IsDirectory);
-                SetStatus(Text.Format(Strings.FolderSummary, folders, entries.Count - folders));
+                ShowListSummary();
             }
 
             return true;
@@ -382,9 +394,9 @@ public partial class FileBrowserPanel : UserControl
 
         var selected = FileList.SelectedItems.Cast<RemoteEntry>().ToList();
         var entries = shown.ToList();
-        FileList.ItemsSource = entries.Where(e => e.IsParentLink)
+        ShowEntries(entries.Where(e => e.IsParentLink)
             .Concat(RemoteEntry.Sort(entries.Where(e => !e.IsParentLink), column, descending))
-            .ToList();
+            .ToList());
         foreach (var entry in selected)
         {
             FileList.SelectedItems.Add(entry);
@@ -434,6 +446,107 @@ public partial class FileBrowserPanel : UserControl
                 Children = { new TextBlock { Text = text }, arrow },
             };
         }
+    }
+
+    /// <summary>Contenu du dossier (avec « .. » en tête), affiché à travers le filtre de nom.</summary>
+    private void ShowEntries(List<RemoteEntry> items)
+    {
+        FileList.ItemsSource = items;
+        ApplyFilter();
+    }
+
+    /// <summary>« .. » reste toujours affiché, pour remonter même quand rien ne répond au filtre.</summary>
+    private void ApplyFilter()
+    {
+        if (FileList.ItemsSource is null)
+        {
+            return;
+        }
+
+        var filter = _filter;
+        CollectionViewSource.GetDefaultView(FileList.ItemsSource).Filter = filter is null
+            ? null
+            : item => item is RemoteEntry entry && (entry.IsParentLink || filter.Matches(entry.Name));
+    }
+
+    /// <summary>Bilan du dossier dans la barre d'état ; avec un filtre, combien d'éléments il laisse affichés.</summary>
+    private void ShowListSummary()
+    {
+        if (FileList.ItemsSource is not IEnumerable<RemoteEntry> shown)
+        {
+            return;
+        }
+
+        var entries = shown.Where(e => !e.IsParentLink).ToList();
+        if (_filter is { } filter)
+        {
+            SetStatus(Text.Format(Strings.FilesFilterSummary, entries.Count(e => filter.Matches(e.Name)), entries.Count));
+            return;
+        }
+
+        int folders = entries.Count(e => e.IsDirectory);
+        SetStatus(Text.Format(Strings.FolderSummary, folders, entries.Count - folders));
+    }
+
+    private void OnFilterChanged(object sender, TextChangedEventArgs e)
+    {
+        if (_resettingFilter)
+        {
+            return;
+        }
+
+        _filter = FileNameFilter.Parse(FilterBox.Text);
+        ApplyFilter();
+        ShowListSummary();
+    }
+
+    /// <summary>Filtre vidé sans message : changement de dossier ou de session.</summary>
+    private void ResetFilter()
+    {
+        _resettingFilter = true;
+        try
+        {
+            FilterBox.Clear();
+        }
+        finally
+        {
+            _resettingFilter = false;
+        }
+
+        _filter = null;
+        ApplyFilter();
+    }
+
+    /// <summary>Échap vide le filtre ; Entrée ou ↓ passe au premier élément affiché.</summary>
+    private void OnFilterKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape && FilterBox.Text.Length > 0)
+        {
+            FilterBox.Clear();
+            e.Handled = true;
+        }
+        else if (e.Key is Key.Enter or Key.Down && FileList.Items.Count > 0)
+        {
+            var first = FileList.Items.OfType<RemoteEntry>().FirstOrDefault(i => !i.IsParentLink) ?? FileList.Items[0];
+            FileList.SelectedItem = first;
+            FileList.ScrollIntoView(first);
+            FileList.UpdateLayout();
+            (FileList.ItemContainerGenerator.ContainerFromItem(first) as ListViewItem)?.Focus();
+            e.Handled = true;
+        }
+    }
+
+    /// <summary>Ctrl+F dans l'onglet Fichiers : curseur dans le filtre du dossier ; faux sans dossier affiché.</summary>
+    public bool FocusFilter()
+    {
+        if (!FilterBox.IsEnabled || !FilterBox.IsVisible)
+        {
+            return false;
+        }
+
+        FilterBox.Focus();
+        FilterBox.SelectAll();
+        return true;
     }
 
     private void OnHiddenChanged(object sender, RoutedEventArgs e)
@@ -1201,6 +1314,7 @@ public partial class FileBrowserPanel : UserControl
         bool ready = _browser is not null;
         Toolbar.IsEnabled = ready;
         PathBox.IsEnabled = ready;
+        FilterBox.IsEnabled = ready;
         HiddenBox.IsEnabled = ready;
         UpdateSelectionButtons();
     }

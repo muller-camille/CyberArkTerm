@@ -529,6 +529,12 @@ public partial class MainWindow : Window
 
     private void OnFind(object sender, ExecutedRoutedEventArgs e)
     {
+        // Dans l'onglet Fichiers, Ctrl+F filtre le dossier affiché.
+        if (SideTabs.SelectedItem == FilesTab && FilesPanel.FocusFilter())
+        {
+            return;
+        }
+
         // Dans « Mes serveurs », Ctrl+F cherche parmi les serveurs courants ; ailleurs, parmi tous les comptes.
         var box = SideTabs.SelectedItem == CurrentTab ? SavedSearchBox : SearchBox;
         if (box == SearchBox)

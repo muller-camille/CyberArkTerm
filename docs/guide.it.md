@@ -447,6 +447,11 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   diventa allora «Applica ricorsivamente…» e una conferma ricorda cosa succederà; durante la propagazione,
   «Interrompi» nella scheda File la ferma (gli elementi già trattati mantengono i nuovi permessi). I link
   simbolici non vengono seguiti e il proprietario non viene modificato.
+- **Filtrare**: il campo sotto il percorso mostra solo gli elementi della cartella il cui nome contiene il testo
+  (`nginx`), o corrisponde a una maschera con `*` e `?` (`*.log`, `app?.conf`; più maschere separate da `;`:
+  `*.log;*.gz`), senza distinguere maiuscole e minuscole. `..` resta per risalire; la barra di stato dice quanti
+  elementi sono visualizzati. Si svuota quando cambi cartella; `Ctrl+F` nella scheda File, `Esc` o ✕ lo svuota,
+  `Invio` o `↓` passa al primo elemento.
 - Inoltre: nuova cartella, download, copia del percorso, visualizzazione dei file nascosti.
 - **Segui la cartella del terminale**: se la casella è selezionata, ogni `cd` nel terminale sposta il browser nella
   stessa cartella (vedi [Funzionamento tecnico](#funzionamento-tecnico)). Dopo `sudo -i` o `su`, riseleziona la
@@ -664,7 +669,7 @@ non riapre mai i database memorizzati senza password), alla chiusura e al blocco
 | Dove | Azione | Scorciatoia |
 | --- | --- | --- |
 | Ovunque | Ricaricare gli account dal PVWA | `F5` |
-| Ovunque | Filtrare gli account (in «I miei server»: cercare un server) | `Ctrl+F` |
+| Ovunque | Filtrare gli account (in «I miei server»: cercare un server; in «File»: filtrare la cartella) | `Ctrl+F` |
 | Ovunque | Scheda di sessione successiva / precedente | `Ctrl+Tab` / `Ctrl+Maiusc+Tab` |
 | Ovunque | Chiudere la scheda di sessione | `Ctrl+F4` o `Ctrl+Maiusc+W` |
 | Ovunque | Schede «Disponibili», «I miei server», «File» del pannello laterale | `Ctrl+1`, `Ctrl+2`, `Ctrl+3` |

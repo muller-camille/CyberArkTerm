@@ -4688,4 +4688,13 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   <data name="ReconnectDone" xml:space="preserve">
     <value>Sessione CyberArk riaperta: ripeti l'azione se necessario.</value>
   </data>
+  <data name="FilesFilterPlaceholder" xml:space="preserve">
+    <value>Filtra: nome o *.log</value>
+  </data>
+  <data name="FilesFilterTip" xml:space="preserve">
+    <value>Mostra solo gli elementi di questa cartella il cui nome contiene questo testo, o corrisponde a una maschera con * e ? (più maschere separate da ;). Svuotato quando cambi cartella. Ctrl+F; Esc svuota.</value>
+  </data>
+  <data name="FilesFilterSummary" xml:space="preserve">
+    <value>{0} elementi visualizzati su {1} (filtro)</value>
+  </data>
 </root>
