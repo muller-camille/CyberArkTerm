@@ -418,26 +418,28 @@ public class TerminalEmulatorTests
     }
 
     [Fact]
-    public void EraseMarkerIsIgnoredOnceTheMarkExpiredOrWasCancelled()
+    public void EraseMarkerIsIgnoredOnceTheMarkWasCancelledAndReportsOnlyArmedMarks()
     {
-        long now = 1_000;
-        var t = new TerminalEmulator(10, 3) { Clock = () => now };
+        var t = new TerminalEmulator(10, 3);
+        int received = 0;
+        t.EraseMarkerReceived += () => received++;
 
         t.Feed("$ ");
         t.MarkEraseFromCursorLine();
-        now += TerminalEmulator.EraseMarkLifetimeMs + 1;
+        t.CancelEraseMark();
         t.Feed("cmd\r\n" + WorkingDirectory.EraseMarker);
         Assert.Equal(["$ cmd", "", ""], Screen(t));
+        Assert.Equal(0, received);
 
         t.MarkEraseFromCursorLine();
-        t.CancelEraseMark();
-        t.Feed("out" + WorkingDirectory.EraseMarker);
-        Assert.Equal(["$ cmd", "out", ""], Screen(t));
-
-        t.MarkEraseFromCursorLine();
-        now += TerminalEmulator.EraseMarkLifetimeMs;
-        t.Feed("\r\n" + WorkingDirectory.EraseMarker);
+        t.Feed("x\r\n" + WorkingDirectory.EraseMarker + WorkingDirectory.EraseMarker);
         Assert.Equal(["$ cmd", "", ""], Screen(t));
+        Assert.Equal(1, received);
+
+        // En écran alternatif, rien n'est effacé, mais la fin de l'attente est signalée.
+        t.MarkEraseFromCursorLine();
+        t.Feed("\x1b[?1049hvi" + WorkingDirectory.EraseMarker);
+        Assert.Equal(2, received);
     }
 
     [Fact]

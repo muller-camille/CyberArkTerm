@@ -982,8 +982,8 @@ Rien n'est envoyé si vous avez déjà commencé à taper ; la commande peut êt
 - si un dossier de départ est configuré, un `cd` vers ce dossier ;
 - un marqueur privé à la fin (`ESC ] 6973 ; BEL`) : à sa réception, ZillaTerm efface lui-même la commande tapée et
   son écho, depuis la ligne de l'invite, quel que soit le nombre de lignes que le serveur leur a données. Le marqueur
-  est sans effet si ZillaTerm ne vient pas d'envoyer la commande : il est ignoré au bout de 10 secondes, ou dès que
-  vous avez validé une commande. L'enregistrement PSM montre quand même la commande,
+  est sans effet si ZillaTerm ne vient pas d'envoyer la commande. Pendant que ZillaTerm l'attend (3 secondes au plus),
+  ce que vous tapez est retenu, puis envoyé juste après l'effacement : ce que vous tapez reste toujours affiché. L'enregistrement PSM montre quand même la commande,
   comme tout ce qui est tapé dans la session.
 
 Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place dans le dossier indiqué.

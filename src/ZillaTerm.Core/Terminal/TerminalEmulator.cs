@@ -56,7 +56,6 @@ public sealed class TerminalEmulator
     // ligne = _scrolledOff + rang à l'écran, stable quand l'écran défile.
     private long _scrolledOff;
     private long? _eraseFrom;
-    private long _eraseUntil;
     private int _scrollTop;
     private int _scrollBottom;
     private int _fg = TerminalColor.Default;
@@ -94,27 +93,20 @@ public sealed class TerminalEmulator
         IgnoreStringEscape,
     }
 
-    /// <summary>Durée pendant laquelle une marque attend le marqueur, en millisecondes.</summary>
-    public const int EraseMarkLifetimeMs = 10_000;
-
-    /// <summary>Horloge en millisecondes (remplacée par les tests).</summary>
-    internal Func<long> Clock { get; set; } = () => Environment.TickCount64;
-
     /// <summary>
     /// Marque la ligne du curseur : le prochain <see cref="WorkingDirectory.EraseMarker"/> reçu efface l'écran depuis le
     /// début de cette ligne. Sert à masquer une commande tapée par ZillaTerm (suivi du dossier) et son écho, sur autant de
     /// lignes que le serveur en a affiché, quelle que soit la largeur qu'il suppose. Sans effet en écran alternatif.
-    /// La marque ne vaut que <see cref="EraseMarkLifetimeMs"/> ms, et <see cref="CancelEraseMark"/> la retire avant : si
-    /// la commande ne s'exécute pas (shell non Unix), aucune sortie ultérieure ne peut plus effacer l'écran.
+    /// La marque reste posée jusqu'au marqueur (<see cref="EraseMarkerReceived"/>) ou jusqu'à <see cref="CancelEraseMark"/> :
+    /// si la commande ne s'exécute pas (shell non Unix), l'appelant la retire après un délai.
     /// </summary>
-    public void MarkEraseFromCursorLine()
-    {
-        _eraseFrom = IsAlternateScreen ? null : _scrolledOff + CursorRow;
-        _eraseUntil = Clock() + EraseMarkLifetimeMs;
-    }
+    public void MarkEraseFromCursorLine() => _eraseFrom = IsAlternateScreen ? null : _scrolledOff + CursorRow;
 
-    /// <summary>Retire la marque posée par <see cref="MarkEraseFromCursorLine"/> (commande validée par l'utilisateur).</summary>
+    /// <summary>Retire la marque posée par <see cref="MarkEraseFromCursorLine"/> : un marqueur reçu ensuite est sans effet.</summary>
     public void CancelEraseMark() => _eraseFrom = null;
+
+    /// <summary>Marqueur reçu alors qu'une marque était posée (écran effacé, sauf en écran alternatif) ; la marque est retirée.</summary>
+    public event Action? EraseMarkerReceived;
 
     /// <summary>Dossier courant signalé par le shell (OSC 7), déjà décodé en chemin Unix.</summary>
     public event Action<string>? WorkingDirectoryChanged;
@@ -653,20 +645,24 @@ public sealed class TerminalEmulator
 
     /// <summary>
     /// Fin d'une commande tapée par ZillaTerm : écran effacé depuis la ligne marquée par <see cref="MarkEraseFromCursorLine"/>
-    /// (une seule fois ; ignoré sans marque ou marque expirée, ce qu'un programme du serveur ne peut donc pas déclencher
-    /// de lui-même).
+    /// (une seule fois ; ignoré sans marque, ce qu'un programme du serveur ne peut donc pas déclencher de lui-même).
     /// </summary>
     private void EraseFromMark()
     {
         var mark = _eraseFrom;
         _eraseFrom = null;
-        if (mark is not long line || IsAlternateScreen || Clock() > _eraseUntil)
+        if (mark is not long line)
         {
             return;
         }
 
-        SetCursor((int)Math.Clamp(line - _scrolledOff, 0, Rows - 1), 0);
-        EraseInDisplay(0);
+        if (!IsAlternateScreen)
+        {
+            SetCursor((int)Math.Clamp(line - _scrolledOff, 0, Rows - 1), 0);
+            EraseInDisplay(0);
+        }
+
+        EraseMarkerReceived?.Invoke();
     }
 
     // ===================== Écriture et déplacements =====================
