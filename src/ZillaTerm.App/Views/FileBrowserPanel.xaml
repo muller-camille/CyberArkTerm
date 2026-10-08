@@ -228,6 +228,18 @@
                          ToolTip="{x:Static loc:Strings.PathTip}" />
             </Grid>
 
+            <!-- Filtre sur le nom des éléments du dossier affiché (vidé au changement de dossier). -->
+            <Grid Margin="0,6,0,0">
+                <TextBox x:Name="FilterBox" Padding="24,3,22,3" TextChanged="OnFilterChanged" PreviewKeyDown="OnFilterKeyDown"
+                         AutomationProperties.Name="{x:Static loc:Strings.FilesFilterPlaceholder}"
+                         ToolTip="{x:Static loc:Strings.FilesFilterTip}" />
+                <Image Source="{StaticResource IconSearch}" Width="14" Height="14" HorizontalAlignment="Left"
+                       Margin="6,0,0,0" IsHitTestVisible="False" />
+                <TextBlock Style="{StaticResource Placeholder}" Tag="{Binding ElementName=FilterBox}"
+                           Text="{x:Static loc:Strings.FilesFilterPlaceholder}" Margin="26,0,0,0" />
+                <views:ClearFieldButton Target="{Binding ElementName=FilterBox}" />
+            </Grid>
+
             <DockPanel Margin="0,6,0,0">
                 <CheckBox x:Name="HiddenBox" DockPanel.Dock="Right" Content="{x:Static loc:Strings.Hidden}" Click="OnHiddenChanged"
                           ToolTip="{x:Static loc:Strings.HiddenTip}" />

@@ -4688,4 +4688,13 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="ReconnectDone" xml:space="preserve">
     <value>CyberArk session reopened: run the action again if needed.</value>
   </data>
+  <data name="FilesFilterPlaceholder" xml:space="preserve">
+    <value>Filter: name or *.log</value>
+  </data>
+  <data name="FilesFilterTip" xml:space="preserve">
+    <value>Shows only the items of this folder whose name contains this text, or matches a mask with * and ? (several separated by ;). Cleared when you change folder. Ctrl+F; Esc clears.</value>
+  </data>
+  <data name="FilesFilterSummary" xml:space="preserve">
+    <value>{0} of {1} items shown (filter)</value>
+  </data>
 </root>

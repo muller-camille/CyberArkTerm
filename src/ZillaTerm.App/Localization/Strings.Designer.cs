@@ -13960,5 +13960,32 @@ namespace ZillaTerm.App.Localization {
                 return ResourceManager.GetString("ReconnectDone", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Filter: name or *.log.
+        /// </summary>
+        public static string FilesFilterPlaceholder {
+            get {
+                return ResourceManager.GetString("FilesFilterPlaceholder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shows only the items of this folder whose name contains this text, or matches a mask with * and ? (several separated by ;). Cleared when you change folder. Ctrl+F; Esc clears..
+        /// </summary>
+        public static string FilesFilterTip {
+            get {
+                return ResourceManager.GetString("FilesFilterTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} of {1} items shown (filter).
+        /// </summary>
+        public static string FilesFilterSummary {
+            get {
+                return ResourceManager.GetString("FilesFilterSummary", resourceCulture);
+            }
+        }
     }
 }

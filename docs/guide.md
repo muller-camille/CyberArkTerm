@@ -417,6 +417,10 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   default, execute (x) is only given to folders and to files that are already executable. The button then becomes
   "Apply recursively…" and a confirmation says what will happen; while it runs, "Stop" in the Files tab interrupts it
   (items already done keep their new permissions). Symbolic links are not followed and the owner is not changed.
+- **Filter**: the box under the path keeps only the items of the folder whose name contains the text (`nginx`), or
+  matches a mask with `*` and `?` (`*.log`, `app?.conf`; several separated by `;`: `*.log;*.gz`), ignoring case.
+  `..` stays to go up; the status bar says how many items are shown. It is cleared when you change folder; `Ctrl+F`
+  in the Files tab, `Esc` or ✕ clears, `Enter` or `↓` goes to the first item.
 - Also: new folder, download, copy path, show hidden files.
 - **Follow the terminal folder**: when ticked, every `cd` in the terminal moves the browser to the same folder (see
   [How it works](#how-it-works)). After `sudo -i` or `su`, tick the box again at the shell prompt to re-enable
@@ -624,7 +628,7 @@ says its master password was not remembered. Manage it in the **Settings**, Secu
 | Where | Action | Shortcut |
 | --- | --- | --- |
 | Everywhere | Reload the accounts from the PVWA | `F5` |
-| Everywhere | Filter the accounts (in "My servers": search a server) | `Ctrl+F` |
+| Everywhere | Filter the accounts (in "My servers": search a server; in "Files": filter the folder) | `Ctrl+F` |
 | Everywhere | Next / previous session tab | `Ctrl+Tab` / `Ctrl+Shift+Tab` |
 | Everywhere | Close the session tab | `Ctrl+F4` or `Ctrl+Shift+W` |
 | Everywhere | "Available", "My servers", "Files" tabs of the side panel | `Ctrl+1`, `Ctrl+2`, `Ctrl+3` |

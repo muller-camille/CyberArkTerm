@@ -509,6 +509,15 @@ public sealed class DialogTests
             panel.SortBy(RemoteSortColumn.Size, descending: false);
             Assert.Equal(["..", "app", "a.log", "z.conf", "big.tar"],
                 panel.FileList.Items.Cast<RemoteEntry>().Select(e => e.Name));
+
+            // Filtre du dossier : « .. » reste affiché, le tri garde le filtre, le vider rend tout le dossier.
+            panel.FilterBox.Text = "*.log;app";
+            Assert.Equal(["..", "app", "a.log"], panel.FileList.Items.Cast<RemoteEntry>().Select(e => e.Name));
+            Assert.Equal(Text.Format(Strings.FilesFilterSummary, 2, 4), panel.StatusText.Text);
+            panel.SortBy(RemoteSortColumn.Name, descending: true);
+            Assert.Equal(["..", "app", "a.log"], panel.FileList.Items.Cast<RemoteEntry>().Select(e => e.Name));
+            panel.FilterBox.Text = "";
+            Assert.Equal(5, panel.FileList.Items.Count);
         });
     }
 

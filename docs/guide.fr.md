@@ -444,6 +444,11 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   exécutables. Le bouton devient alors « Appliquer récursivement… » et une confirmation rappelle ce qui va se
   passer ; pendant la propagation, « Arrêter » dans l'onglet Fichiers l'interrompt (les éléments déjà traités gardent
   leurs nouveaux droits). Les liens symboliques ne sont pas suivis, le propriétaire n'est pas modifié.
+- **Filtrer** : le champ sous le chemin ne garde que les éléments du dossier dont le nom contient le texte (`nginx`),
+  ou répond à un masque avec `*` et `?` (`*.log`, `app?.conf` ; plusieurs séparés par `;` : `*.log;*.gz`), sans tenir
+  compte des majuscules. `..` reste pour remonter ; la barre d'état dit combien d'éléments sont affichés. Il est vidé
+  quand vous changez de dossier ; `Ctrl+F` dans l'onglet Fichiers, `Échap` ou ✕ le vide, `Entrée` ou `↓` passe au
+  premier élément.
 - Aussi : nouveau dossier, téléchargement, copie du chemin, affichage des fichiers cachés.
 - **Suivre le dossier du terminal** : quand la case est cochée, chaque `cd` dans le terminal déplace le navigateur
   dans le même dossier (voir [Fonctionnement technique](#fonctionnement-technique)). Après un `sudo -i` ou un `su`,
@@ -661,7 +666,7 @@ bases mémorisées sans mot de passe), à la fermeture et au verrouillage de Win
 | Où | Action | Raccourci |
 | --- | --- | --- |
 | Partout | Recharger les comptes depuis le PVWA | `F5` |
-| Partout | Filtrer les comptes (dans « Mes serveurs » : rechercher un serveur) | `Ctrl+F` |
+| Partout | Filtrer les comptes (dans « Mes serveurs » : rechercher un serveur ; dans « Fichiers » : filtrer le dossier) | `Ctrl+F` |
 | Partout | Onglet de session suivant / précédent | `Ctrl+Tab` / `Ctrl+Maj+Tab` |
 | Partout | Fermer l'onglet de session | `Ctrl+F4` ou `Ctrl+Maj+W` |
 | Partout | Onglets « Disponibles », « Mes serveurs », « Fichiers » du panneau de gauche | `Ctrl+1`, `Ctrl+2`, `Ctrl+3` |
