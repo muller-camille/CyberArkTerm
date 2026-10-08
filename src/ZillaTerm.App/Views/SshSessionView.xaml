@@ -56,6 +56,9 @@
                 <Image Source="{StaticResource IconSsh}" Width="44" Height="44" Margin="0,0,0,12" />
                 <TextBlock x:Name="OverlayText" Foreground="White" FontSize="15" TextAlignment="Center" TextWrapping="Wrap" />
                 <TextBlock x:Name="OverlayDetail" Foreground="#9AA5B1" TextAlignment="Center" TextWrapping="Wrap" Margin="0,6,0,0" />
+                <!-- Pendant la connexion (clé MFA du PVWA, PSMP, serveur cible) : quelque chose est en cours. -->
+                <ProgressBar x:Name="OverlayProgress" IsIndeterminate="True" Height="4" Width="260" Margin="0,16,0,0" Visibility="Collapsed"
+                             AutomationProperties.LabeledBy="{Binding ElementName=OverlayText}" />
                 <Button x:Name="ReconnectButton" Content="{x:Static loc:Strings.Reconnect}" Margin="0,16,0,0" HorizontalAlignment="Center"
                         Click="OnReconnect" Visibility="Collapsed" />
             </StackPanel>

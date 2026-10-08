@@ -69,6 +69,9 @@ public partial class LoginWindow : Window
     /// <summary>Nom d'utilisateur du coffre (utilisé pour se connecter au PSMP).</summary>
     public string VaultUser { get; private set; } = "";
 
+    /// <summary>Méthode d'authentification de la session ouverte (reprise pour se reconnecter après expiration).</summary>
+    public AuthMethod Method { get; private set; }
+
     /// <summary>Vrai si la fenêtre a été fermée pour être rouverte dans une autre langue.</summary>
     public bool LanguageChanged { get; private set; }
 
@@ -181,6 +184,7 @@ public partial class LoginWindow : Window
             Client = _pending;
             SessionUser = method == AuthMethod.Windows ? Environment.UserDomainName + "\\" + Environment.UserName : userName;
             VaultUser = method == AuthMethod.Windows ? Environment.UserName : userName;
+            Method = method;
             DialogResult = true;
         }
         catch (PvwaException ex) when (!_closed && ex.IsRadiusChallenge)

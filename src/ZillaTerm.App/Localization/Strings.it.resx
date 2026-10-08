@@ -338,14 +338,8 @@
   <data name="PreferencesNotSaved" xml:space="preserve">
     <value>Preferenze non salvate: {0}</value>
   </data>
-  <data name="SessionExpired" xml:space="preserve">
-    <value>La sessione CyberArk è scaduta. Accedi di nuovo.</value>
-  </data>
   <data name="AccountMachines" xml:space="preserve">
     <value>Macchine: {0}</value>
-  </data>
-  <data name="SshOpening" xml:space="preserve">
-    <value>Apertura della sessione SSH {0} tramite {1}…</value>
   </data>
   <data name="SshOpened" xml:space="preserve">
     <value>Sessione SSH aperta: {0} (PSMP {1})</value>
@@ -2366,7 +2360,7 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>Mantieni aperta la sessione PVWA mentre ZillaTerm è in esecuzione (una richiesta leggera ogni 4 minuti, sospesa quando Windows è bloccato)</value>
   </data>
   <data name="KeepAliveExpired" xml:space="preserve">
-    <value>La sessione CyberArk è scaduta: accedi di nuovo per raggiungere gli account CyberArk.</value>
+    <value>La sessione CyberArk è scaduta: F5, o qualsiasi azione CyberArk, propone di accedere di nuovo.</value>
   </data>
   <data name="NoKeePassHelp" xml:space="preserve">
     <value>Aggiungi un database KeePass con il pulsante cassaforte qui sopra (o clic destro qui).</value>
@@ -3266,9 +3260,6 @@ Revisione attuale: {1} · {2} server</value>
   </data>
   <data name="SftpUnavailable" xml:space="preserve">
     <value>Connessione SFTP non disponibile: imposta l'indirizzo del PSMP nelle impostazioni.</value>
-  </data>
-  <data name="SftpFilesOpening" xml:space="preserve">
-    <value>Apertura dei file di {0} tramite {1}…</value>
   </data>
   <data name="SharedOtherPvwaConnect" xml:space="preserve">
     <value>«{0}» viene da un elenco condiviso creato per il PVWA {1}: i suoi account non sono quelli di {2}. Accedi a {1} per usarlo.</value>
@@ -4669,5 +4660,32 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   </data>
   <data name="SessionImportMissingAccountsSaved" xml:space="preserve">
     <value>Account da creare: {0}, salvati in {1}: completa il safe, verifica la piattaforma, poi importa il file con «Importa account (CSV)» (clic destro in Disponibili).</value>
+  </data>
+  <data name="ReconnectTitle" xml:space="preserve">
+    <value>Sessione CyberArk scaduta</value>
+  </data>
+  <data name="ReconnectIntro" xml:space="preserve">
+    <value>Accedi di nuovo per continuare. Schede, sessioni aperte e trasferimenti restano come sono.</value>
+  </data>
+  <data name="ReconnectWho" xml:space="preserve">
+    <value>{0} su {1} · {2}</value>
+  </data>
+  <data name="ReconnectButton" xml:space="preserve">
+    <value>_Accedi di nuovo</value>
+  </data>
+  <data name="ReconnectLater" xml:space="preserve">
+    <value>Più _tardi</value>
+  </data>
+  <data name="ReconnectLaterTip" xml:space="preserve">
+    <value>Continua senza CyberArk: F5, o la prossima azione CyberArk, propone di accedere di nuovo.</value>
+  </data>
+  <data name="ReconnectPasswordMissing" xml:space="preserve">
+    <value>Inserisci la password.</value>
+  </data>
+  <data name="ReconnectAnswerMissing" xml:space="preserve">
+    <value>Inserisci la risposta.</value>
+  </data>
+  <data name="ReconnectDone" xml:space="preserve">
+    <value>Sessione CyberArk riaperta: ripeti l'azione se necessario.</value>
   </data>
 </root>

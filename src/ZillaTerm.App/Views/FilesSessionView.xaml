@@ -8,6 +8,8 @@
             <TextBlock x:Name="TitleText" FontSize="17" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" Foreground="{DynamicResource HeadingBrush}" />
             <TextBlock x:Name="DetailText" TextAlignment="Center" TextWrapping="Wrap" Margin="0,4,0,0" Foreground="{DynamicResource MutedBrush}" />
             <TextBlock x:Name="StateText" TextAlignment="Center" TextWrapping="Wrap" Margin="0,14,0,0" FontSize="13" />
+            <ProgressBar x:Name="StateProgress" IsIndeterminate="True" Height="4" Width="260" Margin="0,12,0,0" Visibility="Collapsed"
+                         AutomationProperties.LabeledBy="{Binding ElementName=StateText}" />
             <!-- FTP sans TLS, accepté par l'utilisateur : rappel permanent. -->
             <Border x:Name="CleartextBanner" Background="{DynamicResource WarningBackgroundBrush}" BorderBrush="{DynamicResource WarningBorderBrush}" BorderThickness="1" CornerRadius="3" Padding="10,6"
                     Margin="0,12,0,0" Visibility="Collapsed">

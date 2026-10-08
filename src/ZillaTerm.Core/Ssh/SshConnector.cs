@@ -25,16 +25,19 @@ public interface ISshInteraction
 public sealed class SshConnector
 {
     private readonly ISshInteraction _ui;
-    private readonly PrivateKeyFile? _key;
+    private readonly Func<CancellationToken, Task<PrivateKeyFile?>>? _key;
     private readonly Func<string?>? _password;
     private readonly Dictionary<string, string> _cachedAnswers = new(StringComparer.Ordinal);
     private readonly object _cacheLock = new();
 
-    /// <param name="key">Clé SSH « MFA caching » fournie par le PVWA, si disponible.</param>
+    /// <param name="key">
+    /// Clé SSH « MFA caching » fournie par le PVWA, demandée au début de chaque connexion (la demande peut prendre du
+    /// temps : l'onglet est déjà ouvert et montre la progression) ; null si elle n'est pas disponible.
+    /// </param>
     /// <param name="password">
     /// Mot de passe connu (coffre KeePass), lu au moment de chaque connexion ; s'il est refusé, il est demandé.
     /// </param>
-    public SshConnector(string host, int port, string login, ISshInteraction ui, PrivateKeyFile? key = null,
+    public SshConnector(string host, int port, string login, ISshInteraction ui, Func<CancellationToken, Task<PrivateKeyFile?>>? key = null,
         Func<string?>? password = null, string? addressWhat = null)
     {
         PsmpTarget.Validate(host, addressWhat ?? CoreStrings.PsmpAddressWhat);
@@ -82,6 +85,7 @@ public sealed class SshConnector
         where T : BaseClient
     {
         purpose ??= typeof(T).Name;
+        var key = _key is null ? null : await _key(ct).ConfigureAwait(false);
         // 1er essai : clé MFA (ou mot de passe connu) + keyboard-interactive. Ensuite, selon les méthodes que le
         // serveur annonce dans son refus : keyboard-interactive à nouveau (mauvais mot de passe) ou « password ».
         bool usePassword = false;
@@ -90,9 +94,9 @@ public sealed class SshConnector
             bool cancelled = false;
             var known = attempt == 0 ? _password?.Invoke() : null;
             var methods = new List<AuthenticationMethod>();
-            if (_key is not null && attempt == 0)
+            if (key is not null && attempt == 0)
             {
-                methods.Add(new PrivateKeyAuthenticationMethod(Login, _key));
+                methods.Add(new PrivateKeyAuthenticationMethod(Login, key));
             }
 
             if (known is not null)

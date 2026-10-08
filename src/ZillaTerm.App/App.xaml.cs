@@ -125,7 +125,8 @@ public partial class App : Application
         }
 
         // Client null : accès d'urgence, sans CyberArk (coffres KeePass seulement).
-        var main = new MainWindow(login.EmergencyRequested ? null : login.Client, _settings, login.SessionUser, login.VaultUser, _keePass!);
+        var main = new MainWindow(login.EmergencyRequested ? null : login.Client, _settings, login.SessionUser, login.VaultUser, _keePass!,
+            login.Method);
         MainWindow = main;
         main.Closed += (_, _) =>
         {

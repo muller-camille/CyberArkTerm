@@ -56,6 +56,11 @@ aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant saisis.
   d'urgence, les boutons propres à CyberArk sont masqués.
 - **Barre d'état** : un message ordinaire s'efface après 10 secondes ; une erreur reste affichée jusqu'au message
   suivant. Le nombre de comptes ne s'y affiche qu'avec l'onglet « Disponibles ».
+- **Session CyberArk expirée** (délai d'inactivité du PVWA) : une fenêtre demande votre mot de passe (et la réponse
+  RADIUS si besoin) pour vous reconnecter, avec la même adresse, le même utilisateur et la même méthode. Onglets,
+  sessions ouvertes et transferts restent en place ; l'action qui a rencontré l'expiration est relancée (chargement
+  des comptes, connexion). « Plus tard » laisse travailler sans CyberArk : F5, ou la prochaine action CyberArk, le
+  repropose. Si la session expire pendant que ZillaTerm est en arrière-plan, la fenêtre s'affiche quand vous y revenez.
 
 ## 2. Trouver un compte : onglet « Disponibles »
 
@@ -177,8 +182,10 @@ direct, droits), sauf ce qui a besoin d'un terminal (suivi du dossier du termina
 `.tar.gz`). Utile pour simplement déposer ou récupérer des fichiers, ou quand la plateforme autorise PSMP-SFTP mais
 pas le shell. Comme toute session PSMP, elle est enregistrée et auditée par CyberArk.
 
-La session s'ouvre **dans un onglet de ZillaTerm**, avec l'identifiant PSMP standard `<vous>@<compte
-cible>[#domaine]@<serveur cible>`. Les noms d'utilisateur contenant des espaces (`Jean Dupont`, `Admin Local`) sont
+La session s'ouvre **dans un onglet de ZillaTerm**, tout de suite : une barre de progression s'affiche pendant que
+ZillaTerm demande la clé MFA au PVWA et se connecte au PSMP (les questions de clé du serveur, de mot de passe ou de
+code arrivent entre-temps). L'identifiant est l'identifiant PSMP standard `<vous>@<compte cible>[#domaine]@<serveur
+cible>`. Les noms d'utilisateur contenant des espaces (`Jean Dupont`, `Admin Local`) sont
 acceptés. Le panneau de gauche passe sur l'onglet « Fichiers » du serveur (s'il est replié, il le reste).
 
 ### PSMP par domaine
@@ -998,7 +1005,7 @@ laquelle elle est destinée. Avec csh, ksh, sh ou fish, le suivi n'est pas insta
 | « Connexion TLS refusée : le certificat du PVWA n'est pas approuvé » | Le certificat (ou l'autorité qui l'a émis) n'est pas dans le magasin Windows du poste. |
 | « Le PVWA doit être joint en HTTPS » | Saisissez l'adresse sans `http://` (ou avec `https://`). |
 | « Le PVWA n'a pas de composant de connexion « PSM-RDP » pour ce compte » (`EPVWA093E Failed to get the relevant connection component`) | La plateforme du compte utilise un composant d'un autre nom (par exemple `WIN-PSM`) : celui que propose le bouton « Connect » du PVWA, ou le nom après `/c` dans une commande `psm /u … /a … /c …`. Saisissez-le dans « Composant » ; « Mémoriser ce composant pour la plateforme » est coché pour les connexions suivantes. |
-| « Votre session CyberArk a expiré » | Délai d'inactivité du PVWA dépassé : reconnectez-vous. |
+| Fenêtre « Session CyberArk expirée » | Délai d'inactivité du PVWA dépassé : saisissez votre mot de passe pour vous reconnecter ; onglets, sessions et transferts restent ouverts. |
 | « Mot de passe » → « Copier le mot de passe… » : « Le PVWA refuse : … « Récupérer les comptes » … » | Droit manquant sur le safe, ou motif / ticket exigé par la plateforme : saisissez-le. Avec une double validation, faites la demande dans le PVWA. |
 | « Vérifier / Changer / Réconcilier » : « Le PVWA refuse : … « Lancer les opérations CPM » … » | Demandez ce droit sur le safe ; « Membres du safe » montre vos droits. |
 | « Ajouter un compte » : « Le PVWA refuse : votre compte doit avoir le droit « Ajouter des comptes »… » | Demandez ce droit sur le safe (et « Modifier le contenu des comptes » pour fournir le mot de passe), ou créez le compte sans mot de passe. « Membres du safe » montre vos droits. |

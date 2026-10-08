@@ -17,6 +17,9 @@ public partial class MainWindow
     private DispatcherTimer? _keepAlive;
     private bool _windowsLocked;
     private bool _keepAliveRunning;
+    // Fenêtre de reconnexion ouverte, ou à ouvrir dès que la fenêtre principale redevient active.
+    private bool _reconnecting;
+    private bool _reconnectWhenActive;
 
     private void StartKeepAlive()
     {
@@ -29,6 +32,14 @@ public partial class MainWindow
         var timer = new DispatcherTimer { Interval = KeepAliveInterval };
         timer.Tick += async (_, _) => await KeepAliveAsync();
         Closed += (_, _) => timer.Stop();
+        Activated += (_, _) =>
+        {
+            if (_reconnectWhenActive)
+            {
+                _reconnectWhenActive = false;
+                Dispatcher.BeginInvoke(() => Reconnect(userAction: false));
+            }
+        };
         return timer;
     }
 
@@ -46,9 +57,18 @@ public partial class MainWindow
         }
         catch (PvwaException ex) when (ex.IsUnauthorized)
         {
-            // Session déjà expirée (poste verrouillé longtemps, délai très court côté PVWA...) : on arrête et on le dit.
+            // Session déjà expirée (poste verrouillé longtemps, délai très court côté PVWA...) : fenêtre de reconnexion,
+            // tout de suite si ZillaTerm est au premier plan, sinon dès qu'il y revient. Rien n'est fermé.
             _keepAlive?.Stop();
             SetStatus(Strings.KeepAliveExpired, isError: true);
+            if (IsActive)
+            {
+                Reconnect(userAction: false);
+            }
+            else
+            {
+                _reconnectWhenActive = true;
+            }
         }
         catch (Exception ex) when (ex is PvwaException or HttpRequestException or TaskCanceledException)
         {

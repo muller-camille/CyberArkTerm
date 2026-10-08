@@ -57,6 +57,12 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
   «Parallelo»…). In accesso di emergenza, i pulsanti propri di CyberArk sono nascosti.
 - **Barra di stato**: un messaggio ordinario si cancella dopo 10 secondi; un errore resta visibile fino al messaggio
   successivo. Il numero di account compare solo con la scheda «Disponibili».
+- **Sessione CyberArk scaduta** (timeout di inattività del PVWA): una finestra chiede la password (e la risposta
+  RADIUS se serve) per accedere di nuovo, con lo stesso indirizzo, lo stesso utente e lo stesso metodo. Schede,
+  sessioni aperte e trasferimenti restano come sono; l'azione che ha incontrato la scadenza viene ripetuta
+  (caricamento degli account, connessione). «Più tardi» permette di lavorare senza CyberArk: F5, o la prossima azione
+  CyberArk, lo propone di nuovo. Se la sessione scade mentre ZillaTerm è in secondo piano, la finestra compare quando
+  ci torni.
 
 ## 2. Trovare un account: scheda «Disponibili»
 
@@ -178,8 +184,10 @@ permessi), tranne ciò che richiede un terminale (monitoraggio della cartella de
 `.tar.gz`). Utile per depositare o recuperare file, o quando la piattaforma consente PSMP-SFTP ma non la shell. Come
 ogni sessione PSMP, è registrata e verificata da CyberArk.
 
-La sessione si apre **in una scheda di ZillaTerm**, con l'identificativo PSMP standard `<tu>@<account di
-destinazione>[#dominio]@<server di destinazione>`. I nomi utente che contengono spazi (`Mario Rossi`, `Admin
+La sessione si apre **in una scheda di ZillaTerm**, subito: una barra di avanzamento compare mentre ZillaTerm chiede
+la chiave MFA al PVWA e si connette al PSMP (le domande su chiave del server, password o codice arrivano nel
+frattempo). L'identificativo è quello PSMP standard `<tu>@<account di destinazione>[#dominio]@<server di
+destinazione>`. I nomi utente che contengono spazi (`Mario Rossi`, `Admin
 Locale`) sono accettati. Il pannello laterale passa alla scheda «File» del server (se è ridotto, resta ridotto).
 
 ### PSMP per dominio
@@ -1000,7 +1008,7 @@ destinata. Con csh, ksh, sh o fish il monitoraggio non viene installato e sullo 
 | «Il PVWA non ha un componente di connessione «PSM-RDP» per questo account» (`EPVWA093E Failed to get the relevant connection component`) | La piattaforma dell'account usa un componente con un altro nome (ad esempio `WIN-PSM`): quello proposto dal pulsante «Connect» del PVWA, o il nome dopo `/c` in un comando `psm /u … /a … /c …`. Inseriscilo in «Componente»; «Memorizza questo componente per la piattaforma» è selezionata per le connessioni successive. |
 | «Connessione TLS rifiutata: il certificato del PVWA non è considerato attendibile» | Il certificato (o l'autorità che lo ha emesso) non è nell'archivio Windows della postazione. |
 | «Il PVWA deve essere raggiunto in HTTPS» | Inserisci l'indirizzo senza `http://` (o con `https://`). |
-| «La sessione CyberArk è scaduta» | Timeout di inattività del PVWA superato: accedi di nuovo. |
+| Finestra «Sessione CyberArk scaduta» | Timeout di inattività del PVWA superato: inserisci la password per accedere di nuovo; schede, sessioni e trasferimenti restano aperti. |
 | «Password» → «Copia la password…»: «Il PVWA rifiuta: … «Recuperare gli account» …» | Diritto mancante sul safe, o motivo / ticket richiesto dalla piattaforma: inseriscilo. Con la doppia convalida, fai la richiesta nel PVWA. |
 | «Verifica / Cambia / Riconcilia»: «Il PVWA rifiuta: … «Avviare le operazioni CPM» …» | Chiedi questo diritto sul safe; «Membri del safe» mostra i tuoi diritti. |
 | «Aggiungi un account»: «Il PVWA rifiuta: il tuo account deve avere il diritto «Aggiungere account»…» | Chiedi questo diritto sul safe (e «Aggiornare il contenuto degli account» per fornire la password), oppure crea l'account senza password. «Membri del safe» mostra i tuoi diritti. |

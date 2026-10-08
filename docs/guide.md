@@ -56,6 +56,11 @@ away in the chosen language, keeping the address and user name you typed.
   emergency access, the buttons specific to CyberArk are hidden.
 - **Status bar**: an ordinary message clears after 10 seconds; an error stays until the next message. The number of
   accounts only shows with the "Available" tab.
+- **CyberArk session expired** (PVWA inactivity timeout): a window asks for your password (and the RADIUS response if
+  needed) to sign in again, with the same address, user and method. Tabs, open sessions and transfers stay as they
+  are; the action that hit the expiry is run again (accounts reload, connection). "Later" keeps working without
+  CyberArk: F5, or the next CyberArk action, offers it again. When the session expires while ZillaTerm is in the
+  background, the window shows when you come back to it.
 
 ## 2. Find an account: "Available" tab
 
@@ -171,8 +176,9 @@ a terminal (following the terminal folder, extracting a `.tar.gz` archive). Usef
 when the platform allows PSMP-SFTP but not the shell. Like every PSMP session, it is recorded and audited by
 CyberArk.
 
-The session opens **in a ZillaTerm tab**, with the standard PSMP login `<you>@<target account>[#domain]@<target
-server>`. User names containing spaces (`John Smith`, `Local Admin`) are accepted. The side panel switches to the
+The session opens **in a ZillaTerm tab**, at once: a progress bar shows while ZillaTerm asks the PVWA for the MFA key
+and connects to the PSMP (server key, password or code questions show up meanwhile). It uses the standard PSMP login
+`<you>@<target account>[#domain]@<target server>`. User names containing spaces (`John Smith`, `Local Admin`) are accepted. The side panel switches to the
 server's "Files" tab (a collapsed panel stays collapsed).
 
 ### PSMP by domain
@@ -943,7 +949,7 @@ ksh, sh or fish, following is not set up and nothing stays on screen.
 | "The PVWA has no connection component “PSM-RDP” for this account" (`EPVWA093E Failed to get the relevant connection component`) | The account's platform uses a component with another name (for example `WIN-PSM`): the one offered by the PVWA "Connect" button, or the name after `/c` in a `psm /u … /a … /c …` command. Enter it in "Component"; "Remember this component for platform" is ticked for the next connections. |
 | "TLS connection refused: this computer does not trust the PVWA certificate" | The certificate (or its issuing authority) is not in the workstation's Windows store. |
 | "The PVWA must be reached over HTTPS" | Type the address without `http://` (or with `https://`). |
-| "Your CyberArk session has expired" | PVWA inactivity timeout reached: sign in again. |
+| "CyberArk session expired" window | PVWA inactivity timeout reached: type your password to sign in again; tabs, sessions and transfers stay open. |
 | "Password" → "Copy the password…": "The PVWA refused: … “Retrieve accounts” …" | Missing right on the safe, or reason / ticket required by the platform: type it. With dual control, make the request in the PVWA. |
 | "Verify / Change / Reconcile": "The PVWA refused: … “Initiate CPM account management operations” …" | Ask for this right on the safe; "Safe members" shows your rights. |
 | "Add an account": "The PVWA refused: your account needs the “Add accounts” right…" | Ask for this right on the safe (and "Update account content" to give the password), or create the account without a password. "Safe members" shows your rights. |

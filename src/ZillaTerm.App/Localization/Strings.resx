@@ -338,14 +338,8 @@
   <data name="PreferencesNotSaved" xml:space="preserve">
     <value>Preferences not saved: {0}</value>
   </data>
-  <data name="SessionExpired" xml:space="preserve">
-    <value>Your CyberArk session has expired. Please sign in again.</value>
-  </data>
   <data name="AccountMachines" xml:space="preserve">
     <value>Machines: {0}</value>
-  </data>
-  <data name="SshOpening" xml:space="preserve">
-    <value>Opening SSH session {0} via {1}…</value>
   </data>
   <data name="SshOpened" xml:space="preserve">
     <value>SSH session open: {0} (PSMP {1})</value>
@@ -2366,7 +2360,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>Keep the PVWA session open while ZillaTerm runs (a light request every 4 minutes, paused while Windows is locked)</value>
   </data>
   <data name="KeepAliveExpired" xml:space="preserve">
-    <value>The CyberArk session has expired: log in again to reach the CyberArk accounts.</value>
+    <value>The CyberArk session has expired: F5, or any CyberArk action, offers to sign in again.</value>
   </data>
   <data name="NoKeePassHelp" xml:space="preserve">
     <value>Add a KeePass database with the safe button above (or right-click here).</value>
@@ -3266,9 +3260,6 @@ Current revision: {1} · {2} server(s)</value>
   </data>
   <data name="SftpUnavailable" xml:space="preserve">
     <value>SFTP connection unavailable: set the PSMP address in the settings.</value>
-  </data>
-  <data name="SftpFilesOpening" xml:space="preserve">
-    <value>Opening the files of {0} via {1}…</value>
   </data>
   <data name="SharedOtherPvwaConnect" xml:space="preserve">
     <value>"{0}" comes from a shared list created for the PVWA {1}: its accounts are not those of {2}. Sign in to {1} to use it.</value>
@@ -4669,5 +4660,32 @@ Two instances would overwrite each other's settings, local vault and files being
   </data>
   <data name="SessionImportMissingAccountsSaved" xml:space="preserve">
     <value>Accounts to create: {0}, saved to {1}: fill in the safe, check the platform, then import the file with “Import accounts (CSV)” (right-click in Available).</value>
+  </data>
+  <data name="ReconnectTitle" xml:space="preserve">
+    <value>CyberArk session expired</value>
+  </data>
+  <data name="ReconnectIntro" xml:space="preserve">
+    <value>Sign in again to continue. Your tabs, open sessions and transfers stay as they are.</value>
+  </data>
+  <data name="ReconnectWho" xml:space="preserve">
+    <value>{0} on {1} · {2}</value>
+  </data>
+  <data name="ReconnectButton" xml:space="preserve">
+    <value>_Sign in again</value>
+  </data>
+  <data name="ReconnectLater" xml:space="preserve">
+    <value>_Later</value>
+  </data>
+  <data name="ReconnectLaterTip" xml:space="preserve">
+    <value>Keep working without CyberArk: F5, or the next CyberArk action, offers to sign in again.</value>
+  </data>
+  <data name="ReconnectPasswordMissing" xml:space="preserve">
+    <value>Enter your password.</value>
+  </data>
+  <data name="ReconnectAnswerMissing" xml:space="preserve">
+    <value>Enter the response.</value>
+  </data>
+  <data name="ReconnectDone" xml:space="preserve">
+    <value>CyberArk session reopened: run the action again if needed.</value>
   </data>
 </root>

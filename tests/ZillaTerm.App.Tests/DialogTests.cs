@@ -1597,6 +1597,100 @@ public sealed class DialogTests
         public void Dispose() => Disposed = true;
     }
 
+    /// <summary>
+    /// Session PVWA expirée : reconnexion sur le même client, avec le même utilisateur, challenge RADIUS compris ; rien
+    /// n'est envoyé au PVWA sans mot de passe (Entrée tapée par erreur).
+    /// </summary>
+    [Fact]
+    public void ReconnectDialogSignsInAgainWithTheSameUser()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            UseDispatcherContext();
+            var pvwa = new LogonPvwa();
+            using var client = new PvwaClient(new Uri("https://pvwa.test"), pvwa);
+            var dialog = new ReconnectDialog(client, AuthMethod.RADIUS, "jdoe", "jdoe", focusPassword: true);
+            void Click() => dialog.ReconnectButton.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+            Exception? failure = null;
+            // Garde-fou : la fenêtre se ferme d'elle-même si le scénario se bloque.
+            var guard = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(20) };
+            guard.Tick += (_, _) => dialog.Close();
+            dialog.Dispatcher.BeginInvoke(() =>
+            {
+                try
+                {
+                    Assert.Contains("jdoe", dialog.WhoText.Text);
+                    Assert.Contains("pvwa.test", dialog.WhoText.Text);
+                    Assert.Equal(Visibility.Visible, dialog.CredentialsPanel.Visibility);
+
+                    Click();
+                    Assert.Equal(Strings.ReconnectPasswordMissing, dialog.ErrorMessage.Text);
+                    Assert.Empty(pvwa.Logons);
+
+                    dialog.PasswordBox.Password = "secret";
+                    Click();
+                    PumpUntil(() => dialog.ChallengePanel.Visibility == Visibility.Visible);
+                    Assert.Equal("Enter the code", dialog.ChallengeText.Text);
+                    Assert.Equal(Visibility.Collapsed, dialog.CredentialsPanel.Visibility);
+
+                    dialog.ChallengeBox.Password = "123456";
+                    Click();
+                }
+                catch (Exception e)
+                {
+                    failure = e;
+                    dialog.Close();
+                }
+            });
+            guard.Start();
+            var result = dialog.ShowDialog();
+            guard.Stop();
+
+            if (failure is not null)
+            {
+                ExceptionDispatchInfo.Throw(failure);
+            }
+
+            Assert.True(result);
+            Assert.True(client.IsAuthenticated);
+            Assert.Equal(["jdoe:secret", "jdoe:123456"], pvwa.Logons);
+            Assert.All(pvwa.Paths, path => Assert.Equal("/API/auth/RADIUS/Logon", path));
+
+            // Méthode Windows : pas de mot de passe à saisir.
+            var windows = new ReconnectDialog(client, AuthMethod.Windows, "jdoe", @"CORP\jdoe", focusPassword: false);
+            Assert.Equal(Visibility.Collapsed, windows.CredentialsPanel.Visibility);
+            windows.Close();
+        });
+    }
+
+    /// <summary>Faux PVWA pour la reconnexion : challenge RADIUS à la première tentative, jeton à la suivante.</summary>
+    private sealed class LogonPvwa : System.Net.Http.HttpMessageHandler
+    {
+        public List<string> Logons { get; } = [];
+
+        public List<string> Paths { get; } = [];
+
+        protected override async Task<System.Net.Http.HttpResponseMessage> SendAsync(System.Net.Http.HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            Paths.Add(request.RequestUri!.AbsolutePath);
+            using var body = JsonDocument.Parse(await request.Content!.ReadAsStringAsync(cancellationToken));
+            Logons.Add($"{body.RootElement.GetProperty("username").GetString()}:{body.RootElement.GetProperty("password").GetString()}");
+            var (status, json) = Logons.Count == 1
+                ? (HttpStatusCode.InternalServerError, "{\"ErrorCode\":\"ITATS542I\",\"ErrorMessage\":\"Enter the code\"}")
+                : (HttpStatusCode.OK, "\"token-2\"");
+            return new System.Net.Http.HttpResponseMessage(status)
+            {
+                Content = new System.Net.Http.StringContent(json, System.Text.Encoding.UTF8, "application/json"),
+            };
+        }
+    }
+
     /// <summary>Les suites des tâches attendues reviennent sur le fil de la fenêtre, comme dans l'application.</summary>
     private static void UseDispatcherContext() =>
         SynchronizationContext.SetSynchronizationContext(new System.Windows.Threading.DispatcherSynchronizationContext(
