@@ -31,6 +31,12 @@ public sealed class SshSession : RemoteSession
     private DateTime _lastData;
     private bool _userTyped;
 
+    // Attente du marqueur de la commande de suivi du dossier : au plus ce délai, pendant lequel la saisie de
+    // l'utilisateur est retenue (null hors de l'attente). Voir SendFolderTracking.
+    private static readonly TimeSpan FolderTrackingWait = TimeSpan.FromSeconds(3);
+    private readonly DispatcherTimer _holdTimer;
+    private StringBuilder? _heldInput;
+
     // Numéro de la connexion en cours : la préparation du shell d'une connexion précédente s'arrête à la reconnexion.
     private int _connection;
 
@@ -42,6 +48,9 @@ public sealed class SshSession : RemoteSession
         _connector = connector;
         _followTerminal = followTerminal;
         Emulator.Response += Send;
+        Emulator.EraseMarkerReceived += ReleaseHeldInput;
+        _holdTimer = new DispatcherTimer(DispatcherPriority.Normal, dispatcher) { Interval = FolderTrackingWait };
+        _holdTimer.Tick += (_, _) => ReleaseHeldInput();
         Emulator.WorkingDirectoryChanged += dir =>
         {
             TerminalDirectory = dir;
@@ -78,6 +87,7 @@ public sealed class SshSession : RemoteSession
         _client = null;
         int connection = ++_connection;
         _userTyped = false;
+        DropHeldInput();
         _lastData = default;
         try
         {
@@ -181,6 +191,12 @@ public sealed class SshSession : RemoteSession
     public void SendInput(string text)
     {
         _userTyped = true;
+        if (_heldInput is not null)
+        {
+            _heldInput.Append(text);
+            return;
+        }
+
         Send(text);
     }
 
@@ -195,7 +211,7 @@ public sealed class SshSession : RemoteSession
             return false;
         }
 
-        Send(WorkingDirectory.InjectionFor(Emulator.CursorColumn, Emulator.Columns));
+        SendFolderTracking(null);
         return true;
     }
 
@@ -270,6 +286,7 @@ public sealed class SshSession : RemoteSession
 
     protected override void CloseConnections()
     {
+        DropHeldInput();
         DisposeInBackground(_shell, _client);
         _shell = null;
         _client = null;
@@ -324,12 +341,58 @@ public sealed class SshSession : RemoteSession
 
             if (_lastData != default && DateTime.UtcNow - _lastData > TimeSpan.FromMilliseconds(400) && IsAtPrompt())
             {
-                Send(_followTerminal
-                    ? WorkingDirectory.InjectionFor(Emulator.CursorColumn, Emulator.Columns, startDirectory)
-                    : WorkingDirectory.ChangeDirectoryCommand(startDirectory!));
+                if (_followTerminal)
+                {
+                    SendFolderTracking(startDirectory);
+                }
+                else
+                {
+                    Send(WorkingDirectory.ChangeDirectoryCommand(startDirectory!));
+                }
+
                 return;
             }
         }
+    }
+
+    /// <summary>
+    /// Tape la commande de suivi du dossier : la ligne de l'invite est marquée d'abord, et la commande se termine par un
+    /// marqueur à la réception duquel l'émulateur efface la commande et son écho à partir de cette ligne. En attendant le
+    /// marqueur, ce que tape l'utilisateur est retenu : envoyé plus tôt, son écho pourrait précéder le marqueur et être
+    /// effacé avec la commande (avec un shell sans édition de ligne, il resterait invisible mais serait exécuté).
+    /// </summary>
+    private void SendFolderTracking(string? startDirectory)
+    {
+        var command = WorkingDirectory.InjectionCommand(startDirectory);
+        Emulator.MarkEraseFromCursorLine();
+        _heldInput ??= new StringBuilder();
+        _holdTimer.Stop();
+        _holdTimer.Start();
+        Send(command);
+    }
+
+    /// <summary>
+    /// Fin de l'attente (marqueur reçu, ou délai écoulé sans lui) : la marque est retirée, puis la saisie retenue part.
+    /// Tout ce que l'utilisateur tape arrive donc au serveur après l'effacement, et reste affiché.
+    /// </summary>
+    private void ReleaseHeldInput()
+    {
+        _holdTimer.Stop();
+        Emulator.CancelEraseMark();
+        var held = _heldInput;
+        _heldInput = null;
+        if (held is { Length: > 0 })
+        {
+            Send(held.ToString());
+        }
+    }
+
+    /// <summary>Connexion fermée ou remplacée : la saisie retenue n'est envoyée à aucune autre connexion.</summary>
+    private void DropHeldInput()
+    {
+        _holdTimer.Stop();
+        Emulator.CancelEraseMark();
+        _heldInput = null;
     }
 
     private bool IsAtPrompt() =>

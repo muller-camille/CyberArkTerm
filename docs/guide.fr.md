@@ -33,8 +33,8 @@ aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant saisis.
 
 ### Fenêtre principale
 
-- **Panneau de gauche** : onglets « Disponibles », « Mes serveurs » et « Fichiers » (`Ctrl+1`, `Ctrl+2`, `Ctrl+3`).
-  Glissez le séparateur pour changer sa largeur ; `Ctrl+B` ou un double-clic sur le séparateur le replie (la bande
+- **Panneau de gauche** : onglets « Disponibles », « Mes serveurs » et « Fichiers » (`Ctrl+1`, `Ctrl+2`, `Ctrl+3`) ;
+  l'onglet « Fichiers » n'apparaît que lorsqu'une session SSH ou de fichiers est ouverte. Glissez le séparateur pour changer sa largeur ; `Ctrl+B` ou un double-clic sur le séparateur le replie (la bande
   des onglets reste : un clic sur un onglet le rouvre). `F6` passe du panneau à la session. La position et la
   taille de la fenêtre, la largeur du panneau et son état replié sont mémorisés.
 - **Onglets de session** : une pastille donne l'état de la session par sa couleur et par sa forme : anneau orange
@@ -62,7 +62,8 @@ aussitôt dans la langue choisie, sans perdre l'adresse ni l'identifiant saisis.
 ![Onglet « Disponibles » filtré sur plusieurs serveurs](captures/fr/available.png)
 
 - La zone de recherche (« Filtrer les comptes… », `Ctrl+F`) filtre sur tous les champs (serveur, utilisateur, safe,
-  plateforme, domaine…), plusieurs mots possibles (`prd sql`).
+  plateforme, domaine…), plusieurs mots possibles (`prd sql`). Le ✕ au bout de la zone (comme dans chaque zone de
+  recherche ou de filtre) ou `Échap` la vide.
 - À la place d'une liste vide, l'onglet dit ce qui se passe : chargement des comptes, échec du chargement avec son
   message et « Réessayer », aucun compte accessible à votre utilisateur CyberArk, ou aucun compte ne correspondant
   au filtre, avec « Effacer le filtre ».
@@ -268,7 +269,7 @@ utilisé.
 ## 5. Parcourir et déposer des fichiers : onglet « Fichiers »
 
 L'onglet **Fichiers** du panneau de gauche (`Ctrl+3`) suit l'onglet SSH actif et s'affiche à l'ouverture d'une session
-SSH. Il sert aussi aux sessions de fichiers seuls, qui l'affichent à leur ouverture : comptes CyberArk en
+SSH ; il n'apparaît que lorsqu'une session SSH ou de fichiers est ouverte. Il sert aussi aux sessions de fichiers seuls, qui l'affichent à leur ouverture : comptes CyberArk en
 SFTP via le PSMP ([section 4](#4-ouvrir-une-session-ssh-via-le-psmp)) et
 entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--bases-keepass)).
 
@@ -463,7 +464,8 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   le dossier », en haut de l'onglet, sont grisés tant que rien n'est sélectionné.
 - **Rechercher** : champ en haut de l'onglet (ou `Ctrl+F` dans l'onglet). Il filtre les serveurs par nom, serveur,
   utilisateur, dossier, composant, machine cible, ainsi que les entrées des bases KeePass déverrouillées ; les
-  dossiers des résultats sont dépliés. `Entrée` ou `↓` sélectionne le premier résultat, `Échap` efface.
+  dossiers des résultats sont dépliés. `Entrée` ou `↓` sélectionne le premier résultat, `Échap` ou le ✕ au bout du
+  champ efface. Avec des milliers de serveurs, la liste est filtrée dès que vous arrêtez de taper.
 - **Plusieurs serveurs à la fois** : `Ctrl+clic` ajoute ou retire un serveur (ou tous ceux d'un dossier), `Maj+clic`
   choisit une suite de serveurs ; `Échap` ou un clic simple annule. Clic droit sur l'un d'eux → « Ouvrir les N
   serveurs en vue parallèle » ou « Se connecter aux N serveurs » (un onglet chacun). Clic droit sur un dossier →
@@ -572,6 +574,11 @@ les sessions d'un autre logiciel… ». Les comptes du PVWA doivent être charg�
    une seconde fois. « Seulement les problèmes » filtre le tableau.
 6. **Exporter le résultat…** enregistre ce tableau en CSV (séparateur de la région Windows) : c'est la liste des
    serveurs sans compte, à faire ajouter dans CyberArk.
+7. **Fichier des comptes manquants…** enregistre les comptes à créer pour les serveurs restés sans compte, prêts pour
+   « Importer des comptes (CSV) » ([section 2](#2-trouver-un-compte--onglet--disponibles-)) : une ligne par serveur et
+   utilisateur pour un compte local (plateforme `WinServerLocal` pour le bureau à distance, `UnixSSH` pour SSH et
+   SFTP), une ligne par utilisateur de domaine (plateforme `WinDomain`, les serveurs dans les machines autorisées).
+   Complétez le safe, vérifiez les plateformes (noms de votre coffre), puis importez-le. Aucun mot de passe dedans.
 
 Aucun mot de passe n'est lu, ni dans le registre ni dans les fichiers : seuls le serveur, le port, le protocole,
 l'utilisateur et le dossier le sont. Les mots de passe gardés par l'autre logiciel restent où ils sont : une fois la
@@ -657,7 +664,7 @@ bases mémorisées sans mot de passe), à la fermeture et au verrouillage de Win
 | Hors terminal | Replier / déplier le panneau de gauche | `Ctrl+B` (ou double-clic sur le séparateur) |
 | Listes et arbres | Ouvrir la session | Double-clic ou `Entrée` |
 | Listes, arbres, onglets | Menu du clic droit | Touche Menu ou `Maj+F10` |
-| Recherche | Effacer le filtre | `Échap` |
+| Recherche | Effacer le filtre | `Échap` ou ✕ au bout du champ |
 | Accueil | Retirer une session récente de la liste | `Suppr` |
 | Mes serveurs | Renommer / retirer ou supprimer | `F2` / `Suppr` |
 | Mes serveurs | Choisir plusieurs serveurs (puis clic droit pour les ouvrir ensemble) | `Ctrl+clic`, `Maj+clic` ; `Échap` annule |
@@ -973,7 +980,11 @@ Rien n'est envoyé si vous avez déjà commencé à taper ; la commande peut êt
 - avec tcsh, l'alias `cwdcmd` (seulement s'il n'est pas déjà défini), qui émet la même séquence à chaque changement
   de dossier ;
 - si un dossier de départ est configuré, un `cd` vers ce dossier ;
-- effacement de la commande tapée, pour qu'elle ne reste pas à l'écran.
+- un marqueur privé à la fin (`ESC ] 6973 ; BEL`) : à sa réception, ZillaTerm efface lui-même la commande tapée et
+  son écho, depuis la ligne de l'invite, quel que soit le nombre de lignes que le serveur leur a données. Le marqueur
+  est sans effet si ZillaTerm ne vient pas d'envoyer la commande. Pendant que ZillaTerm l'attend (3 secondes au plus),
+  ce que vous tapez est retenu, puis envoyé juste après l'effacement : ce que vous tapez reste toujours affiché. L'enregistrement PSM montre quand même la commande,
+  comme tout ce qui est tapé dans la session.
 
 Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place dans le dossier indiqué.
 

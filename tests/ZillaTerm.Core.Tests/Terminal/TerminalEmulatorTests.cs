@@ -385,6 +385,79 @@ public class TerminalEmulatorTests
         Assert.False(t.ApplicationCursorKeys);
         Assert.Equal(TerminalColor.Default, t.GetLine(0)[0].Foreground);
     }
+
+    [Theory]
+    [InlineData(25)]
+    [InlineData(28)]
+    public void EraseMarkerErasesTheTypedCommandFromTheMarkedLine(int length)
+    {
+        // Le serveur peut couper l'écho sur plus de lignes que ZillaTerm ne le prévoirait : tout part quand même.
+        var t = new TerminalEmulator(10, 6);
+        t.Feed("out1\r\nout2\r\n$ ");
+        t.MarkEraseFromCursorLine();
+
+        t.Feed(new string('x', length) + "\r\n" + WorkingDirectory.EraseMarker + "$ ");
+
+        Assert.Equal(["out1", "out2", "$", "", "", ""], Screen(t));
+        Assert.Equal((2, 2), (t.CursorRow, t.CursorColumn));
+    }
+
+    [Fact]
+    public void EraseMarkerFollowsTheMarkedLineWhenTheEchoScrolls()
+    {
+        var t = new TerminalEmulator(10, 4);
+        t.Feed("out1\r\nout2\r\nout3\r\n$ ");
+        t.MarkEraseFromCursorLine();
+
+        t.Feed(new string('y', 15) + "\r\n");
+        Assert.Equal(2, t.ScrollbackCount);
+        t.Feed(WorkingDirectory.EraseMarker + "$ ");
+
+        Assert.Equal(["out3", "$", "", ""], Screen(t));
+        Assert.Equal("out2", Row(t, -1));
+    }
+
+    [Fact]
+    public void EraseMarkerIsIgnoredOnceTheMarkWasCancelledAndReportsOnlyArmedMarks()
+    {
+        var t = new TerminalEmulator(10, 3);
+        int received = 0;
+        t.EraseMarkerReceived += () => received++;
+
+        t.Feed("$ ");
+        t.MarkEraseFromCursorLine();
+        t.CancelEraseMark();
+        t.Feed("cmd\r\n" + WorkingDirectory.EraseMarker);
+        Assert.Equal(["$ cmd", "", ""], Screen(t));
+        Assert.Equal(0, received);
+
+        t.MarkEraseFromCursorLine();
+        t.Feed("x\r\n" + WorkingDirectory.EraseMarker + WorkingDirectory.EraseMarker);
+        Assert.Equal(["$ cmd", "", ""], Screen(t));
+        Assert.Equal(1, received);
+
+        // En écran alternatif, rien n'est effacé, mais la fin de l'attente est signalée.
+        t.MarkEraseFromCursorLine();
+        t.Feed("\x1b[?1049hvi" + WorkingDirectory.EraseMarker);
+        Assert.Equal(2, received);
+    }
+
+    [Fact]
+    public void EraseMarkerActsOnlyOnceAfterAMarkOnTheMainScreen()
+    {
+        var t = new TerminalEmulator(10, 3);
+
+        t.Feed("abc" + WorkingDirectory.EraseMarker);
+        Assert.Equal(["abc", "", ""], Screen(t));
+
+        t.MarkEraseFromCursorLine();
+        t.Feed("\r\n" + WorkingDirectory.EraseMarker + "def\r\n" + WorkingDirectory.EraseMarker);
+        Assert.Equal(["def", "", ""], Screen(t));
+
+        t.MarkEraseFromCursorLine();
+        t.Feed("\x1b[?1049hvim" + WorkingDirectory.EraseMarker);
+        Assert.Equal(["", "vim", ""], Screen(t));
+    }
 }
 
 public class TerminalSupportTests
@@ -440,19 +513,19 @@ public class TerminalSupportTests
     [Fact]
     public void InjectionCommandIsSingleLineStartingWithSpace()
     {
-        var command = WorkingDirectory.InjectionCommand(2);
+        var command = WorkingDirectory.InjectionCommand();
 
         Assert.StartsWith(" ", command);
         Assert.EndsWith("\r", command);
         Assert.DoesNotContain('\n', command);
-        Assert.Contains("\\033[2A", command);
+        Assert.EndsWith(WorkingDirectory.EraseMarker.Replace("\x1b", "\\033").Replace("\a", "\\007") + "'\r", command);
         Assert.Contains("PROMPT_COMMAND=", command);
     }
 
     [Fact]
     public void InjectionCommandIsIdempotent()
     {
-        var command = WorkingDirectory.InjectionCommand(1);
+        var command = WorkingDirectory.InjectionCommand();
 
         Assert.Contains("case \";$PROMPT_COMMAND;\" in *\";__catosc7;\"*)", command);
         Assert.Contains("precmd_functions[(I)__catosc7]", command);
@@ -462,11 +535,11 @@ public class TerminalSupportTests
     public void InjectionCommandRunsEachPartOnlyInItsShellFamily()
     {
         // csh refuse toute la ligne s'il y lit du code bash : chaque partie passe entre apostrophes à eval.
-        var command = WorkingDirectory.InjectionCommand(3);
+        var command = WorkingDirectory.InjectionCommand();
 
         Assert.StartsWith(" test -n \"$shell\" || test -n \"$FISH_VERSION\" || eval '", command);
         Assert.Contains(";test -n \"$shell\" && eval '", command);
-        Assert.Contains("printf '\\033[3A\\r\\033[J'\r", command);
+        Assert.EndsWith(";printf '\\033]6973;\\007'\r", command);
 
         var words = ShellWords(command, fish: false);
         var posix = words[words.IndexOf("eval") + 1];
@@ -483,7 +556,7 @@ public class TerminalSupportTests
     [InlineData("-dash")]
     public void InjectionCommandQuotesTheStartDirectoryForEveryShell(string directory)
     {
-        var command = WorkingDirectory.InjectionCommand(2, directory);
+        var command = WorkingDirectory.InjectionCommand(directory);
 
         // Même découpage pour les shells POSIX et csh que pour fish (« \ » entre apostrophes) ; chaque « ! » est
         // précédé de « \ », sinon bash, zsh et csh y verraient l'historique.

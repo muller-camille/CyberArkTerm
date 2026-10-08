@@ -13861,5 +13861,50 @@ namespace ZillaTerm.App.Localization {
                 return ResourceManager.GetString("SourceRdpFolder", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Empty this field.
+        /// </summary>
+        public static string ClearField {
+            get {
+                return ResourceManager.GetString("ClearField", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Missing _accounts file….
+        /// </summary>
+        public static string SessionImportMissingAccounts {
+            get {
+                return ResourceManager.GetString("SessionImportMissingAccounts", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CSV file of the servers without an account in the PVWA, in the format of “Import accounts (CSV)”: fill in the safe, check the platform, then import it to create the accounts. No password..
+        /// </summary>
+        public static string SessionImportMissingAccountsTip {
+            get {
+                return ResourceManager.GetString("SessionImportMissingAccountsTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to accounts-to-create.
+        /// </summary>
+        public static string SessionImportMissingAccountsFileName {
+            get {
+                return ResourceManager.GetString("SessionImportMissingAccountsFileName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Accounts to create: {0}, saved to {1}: fill in the safe, check the platform, then import the file with “Import accounts (CSV)” (right-click in Available)..
+        /// </summary>
+        public static string SessionImportMissingAccountsSaved {
+            get {
+                return ResourceManager.GetString("SessionImportMissingAccountsSaved", resourceCulture);
+            }
+        }
     }
 }

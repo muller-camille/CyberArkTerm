@@ -22,7 +22,8 @@ public sealed record ImportCandidate(PvwaAccount Account, string? RemoteMachine)
 /// <item>comptes du serveur lui-même : même adresse, ou même nom court (srv01 et srv01.corp.local) ;</item>
 /// <item>avec le même utilisateur s'il est indiqué (domaine compris : CORP\admin ne désigne pas le compte local admin) ;</item>
 /// <item>d'un type adapté (Windows pour le Bureau à distance, Unix ou réseau pour SSH), sinon de tout type sauf base de données ;</item>
-/// <item>à défaut, comptes de domaine du même utilisateur, autorisés sur ce serveur, avec le serveur pour machine cible.</item>
+/// <item>à défaut, comptes de domaine du même utilisateur (domaine indiqué, ou session Bureau à distance), autorisés sur ce
+/// serveur, avec le serveur pour machine cible.</item>
 /// </list>
 /// Les comptes trouvés sont classés du plus probable au moins probable. Aucune résolution DNS : seuls les noms comptent.
 /// </summary>
@@ -106,7 +107,10 @@ public sealed class SessionMatcher
             .ToList();
 
         // Comptes de domaine : utilisateur indiqué, sans compte du serveur lui-même (ou domaine explicitement indiqué).
-        if (user is not null && !local && (found.Count == 0 || domain is not null))
+        // Sans domaine indiqué, seulement pour le Bureau à distance : « admin » sur un équipement SSH ou Telnet n'est pas
+        // le compte de domaine « admin ».
+        if (user is not null && !local && (found.Count == 0 || domain is not null)
+            && (domain is not null || session.Protocol == ImportProtocol.Rdp))
         {
             found.AddRange(_domainAccounts
                 .Where(a => SameUser(a, user) && (domain is null || SameDomain(AccountDomain(a), domain)) && AllowedOn(a, host))

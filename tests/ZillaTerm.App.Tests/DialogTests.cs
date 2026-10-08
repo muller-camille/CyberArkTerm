@@ -299,6 +299,7 @@ public sealed class DialogTests
         }
 
         var path = Path.Combine(Path.GetTempPath(), $"zt-sessions-{Guid.NewGuid():N}.csv");
+        var missing = Path.Combine(Path.GetTempPath(), $"zt-missing-{Guid.NewGuid():N}.csv");
         try
         {
             RunWithTheme(() =>
@@ -341,14 +342,22 @@ public sealed class DialogTests
                 Assert.False(window.FolderBox.IsEnabled);
                 Assert.True(window.ExportButton.IsEnabled);
                 window.WriteResult(path);
+
+                // Serveur sans compte (gone) : un compte à créer, au format de l'import de comptes.
+                Assert.True(window.MissingAccountsButton.IsEnabled);
+                Assert.Equal(1, window.WriteMissingAccounts(missing));
                 window.Close();
             });
 
             Assert.Equal(5, File.ReadAllLines(path).Length);
+            var accounts = File.ReadAllLines(missing);
+            Assert.Equal(2, accounts.Length);
+            Assert.Contains("old01", accounts[1]);
         }
         finally
         {
             File.Delete(path);
+            File.Delete(missing);
         }
     }
 

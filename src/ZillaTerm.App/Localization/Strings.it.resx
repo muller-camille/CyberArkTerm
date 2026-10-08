@@ -4655,4 +4655,19 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   <data name="SourceRdpFolder" xml:space="preserve">
     <value>File Desktop remoto (cartella di file .rdp)</value>
   </data>
+  <data name="ClearField" xml:space="preserve">
+    <value>Svuota questo campo</value>
+  </data>
+  <data name="SessionImportMissingAccounts" xml:space="preserve">
+    <value>File degli _account mancanti…</value>
+  </data>
+  <data name="SessionImportMissingAccountsTip" xml:space="preserve">
+    <value>File CSV dei server senza account nel PVWA, nel formato di «Importa account (CSV)»: completa il safe, verifica la piattaforma, poi importalo per creare gli account. Nessuna password.</value>
+  </data>
+  <data name="SessionImportMissingAccountsFileName" xml:space="preserve">
+    <value>account-da-creare</value>
+  </data>
+  <data name="SessionImportMissingAccountsSaved" xml:space="preserve">
+    <value>Account da creare: {0}, salvati in {1}: completa il safe, verifica la piattaforma, poi importa il file con «Importa account (CSV)» (clic destro in Disponibili).</value>
+  </data>
 </root>

@@ -132,17 +132,13 @@ public class SshSupportTests
     [InlineData("not json", false)]
     public void ParsesOtherShapes(string json, bool found) => Assert.Equal(found, MfaSshKey.Parse(json) is not null);
 
-    [Theory]
-    [InlineData(20, 100)]
-    [InlineData(0, 80)]
-    [InlineData(95, 100)]
-    [InlineData(10, 40)]
-    public void InjectionErasesExactlyItsOwnEcho(int column, int columns)
+    [Fact]
+    public void InjectionEndsWithTheEraseMarkerWhateverTheWidth()
     {
-        var command = WorkingDirectory.InjectionFor(column, columns);
-        int occupied = (column + command.Length - 1 - 1) / columns + 1;
+        var command = WorkingDirectory.InjectionCommand();
 
-        Assert.Contains($"\\033[{occupied}A", command);
+        Assert.EndsWith(";printf '\\033]6973;\\007'\r", command);
+        Assert.DoesNotContain("\\033[", command);
     }
 
     [Theory]
@@ -156,18 +152,17 @@ public class SshSupportTests
         Assert.Throws<ArgumentException>(() => WorkingDirectory.ShellQuote("/tmp/a\nreboot"));
 
     [Fact]
-    public void InjectionWithStartDirectoryChangesDirectoryFirstAndStillErasesItsEcho()
+    public void InjectionWithStartDirectoryChangesDirectoryFirstAndStillEndsWithTheMarker()
     {
-        var command = WorkingDirectory.InjectionFor(20, 80, "/opt/appli/logs");
-        int occupied = (20 + command.Length - 1 - 1) / 80 + 1;
+        var command = WorkingDirectory.InjectionCommand("/opt/appli/logs");
 
         Assert.StartsWith(" test -n \"$shell\" || test -n \"$FISH_VERSION\" || eval 'cd -- '\\''/opt/appli/logs'\\'' 2>/dev/null;", command);
-        Assert.Contains($"\\033[{occupied}A", command);
+        Assert.EndsWith("printf '\\033]6973;\\007'\r", command);
         Assert.Equal(" cd '/srv/x y'\r", WorkingDirectory.ChangeDirectoryCommand("/srv/x y"));
         Assert.Equal(" cd './-x'\r", WorkingDirectory.ChangeDirectoryCommand("-x"));
         Assert.Equal(" cd 'it'\\''s a'\\!'b'\r", WorkingDirectory.ChangeDirectoryCommand("it's a!b"));
         Assert.Throws<ArgumentException>(() => WorkingDirectory.ChangeDirectoryCommand("/tmp\rrm -rf ~"));
-        Assert.Throws<ArgumentException>(() => WorkingDirectory.InjectionFor(20, 80, "/tmp\nid"));
+        Assert.Throws<ArgumentException>(() => WorkingDirectory.InjectionCommand("/tmp\nid"));
     }
 
     [Theory]

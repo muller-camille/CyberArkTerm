@@ -73,7 +73,10 @@
                 BorderThickness="1" Padding="6,4" Margin="0,2,0,4">
             <StackPanel Orientation="Horizontal">
                 <Label Content="{x:Static loc:Strings.TailSearch}" Target="{Binding ElementName=SearchBox}" Padding="0,0,6,0" VerticalAlignment="Center" />
-                <TextBox x:Name="SearchBox" Width="240" VerticalAlignment="Center" KeyDown="OnSearchKeyDown" />
+                <Grid Width="240" VerticalAlignment="Center">
+                    <TextBox x:Name="SearchBox" Padding="1,1,20,1" KeyDown="OnSearchKeyDown" />
+                    <views:ClearFieldButton Target="{Binding ElementName=SearchBox}" Margin="0,0,1,0" />
+                </Grid>
                 <CheckBox x:Name="SearchRegexBox" VerticalAlignment="Center" Margin="10,0,0,0" Click="OnSearchOption">
                     <AccessText Text="{x:Static loc:Strings.TailSearchRegex}" />
                 </CheckBox>

@@ -787,6 +787,35 @@
         </Setter>
     </Style>
 
+    <!-- « ✕ » d'un champ de recherche ou de filtre (ClearFieldButton), par-dessus le champ, à droite. -->
+    <Style x:Key="ClearFieldButton" TargetType="Button">
+        <Setter Property="Width" Value="18" />
+        <Setter Property="Height" Value="18" />
+        <Setter Property="Margin" Value="0,0,3,0" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="Transparent" CornerRadius="9">
+                        <Path x:Name="Cross" Data="M5,5 L13,13 M13,5 L5,13" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.6"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ToolHoverBrush}" />
+                            <Setter TargetName="Cross" Property="Stroke" Value="{DynamicResource HeadingBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ToolPressedBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Bouton icône seule : son infobulle lui sert de nom pour les lecteurs d'écran. -->
     <Style x:Key="SmallToolButton" TargetType="Button" BasedOn="{StaticResource ToolButton}">
         <Setter Property="MinWidth" Value="0" />

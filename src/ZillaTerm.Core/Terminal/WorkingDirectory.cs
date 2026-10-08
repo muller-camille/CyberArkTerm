@@ -9,12 +9,20 @@ namespace ZillaTerm.Core.Terminal;
 /// </summary>
 public static class WorkingDirectory
 {
+    /// <summary>Code OSC privé du marqueur de fin de commande (voir <see cref="TerminalEmulator.MarkEraseFromCursorLine"/>).</summary>
+    public const string EraseOscCode = "6973";
+
+    /// <summary>Marqueur affiché par le shell à la fin de la commande injectée : ZillaTerm efface alors son écho.</summary>
+    public const string EraseMarker = "\u001b]" + EraseOscCode + ";\u0007";
+
     /// <summary>
     /// Commande injectée dans le shell à l'ouverture de la session pour qu'il annonce son dossier courant :
     /// à chaque invite pour bash et zsh, à chaque changement de dossier pour tcsh (alias <c>cwdcmd</c>, seulement
-    /// s'il n'est pas déjà défini). Préfixée d'une espace pour ne pas entrer dans l'historique. Sans effet en double
-    /// si elle est renvoyée dans le même shell. <paramref name="linesToErase"/> lignes sont ensuite effacées pour
-    /// masquer la commande tapée.
+    /// s'il n'est pas déjà défini). Préfixée d'une espace pour ne pas entrer dans l'historique (si HISTCONTROL l'ignore).
+    /// Sans effet en double si elle est renvoyée dans le même shell. Elle se termine par le marqueur
+    /// <see cref="EraseMarker"/> : ZillaTerm efface alors lui-même la commande tapée et son écho depuis la ligne marquée
+    /// avant l'envoi, quel que soit le nombre de lignes que le serveur leur a données (largeur supposée, invite mal
+    /// mesurée par le shell…).
     /// </summary>
     /// <remarks>
     /// La ligne doit être lisible par toutes les familles de shell, sinon csh refuse la ligne entière et l'affiche
@@ -23,9 +31,9 @@ public static class WorkingDirectory
     /// shells POSIX aucune des deux (csh ne remplace pas les variables d'une commande qu'il n'exécute pas).
     /// ksh, sh, csh et fish n'annoncent rien (fish change seulement de dossier), mais rien ne reste affiché.
     /// </remarks>
-    public static string InjectionCommand(int linesToErase, string? startDirectory = null)
+    public static string InjectionCommand(string? startDirectory = null)
     {
-        var erase = linesToErase > 0 ? $"printf '\\033[{linesToErase}A\\r\\033[J'" : "true";
+        var erase = $"printf '\\033]{EraseOscCode};\\007'";
         var posix = (startDirectory is null ? "" : $"cd -- {ShellQuote(startDirectory)} 2>/dev/null;") +
                     "__catosc7(){ printf '\\033]7;%s\\007' \"$PWD\";};" +
                     "case \";$PROMPT_COMMAND;\" in *\";__catosc7;\"*);;*)PROMPT_COMMAND=\"__catosc7${PROMPT_COMMAND:+;$PROMPT_COMMAND}\";;esac;" +
@@ -76,30 +84,6 @@ public static class WorkingDirectory
     {
         var text = textBeforeCursor.TrimEnd();
         return text.Length > 0 && text[^1] is '$' or '#' or '>' or '%';
-    }
-
-    /// <summary>
-    /// Commande d'injection qui efface exactement les lignes occupées par son propre écho :
-    /// l'invite occupe <paramref name="cursorColumn"/> colonnes avant la commande, sur un terminal
-    /// de <paramref name="columns"/> colonnes.
-    /// </summary>
-    public static string InjectionFor(int cursorColumn, int columns, string? startDirectory = null)
-    {
-        columns = Math.Max(columns, 1);
-        int lines = 1;
-        for (int i = 0; i < 4; i++)
-        {
-            int length = InjectionCommand(lines, startDirectory).Length - 1; // sans le \r final
-            int needed = (cursorColumn + length - 1) / columns + 1;
-            if (needed == lines)
-            {
-                break;
-            }
-
-            lines = needed;
-        }
-
-        return InjectionCommand(lines, startDirectory);
     }
 
     /// <summary>

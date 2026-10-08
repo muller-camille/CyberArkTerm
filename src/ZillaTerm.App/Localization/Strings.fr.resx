@@ -4655,4 +4655,19 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   <data name="SourceRdpFolder" xml:space="preserve">
     <value>Fichiers Bureau à distance (dossier de fichiers .rdp)</value>
   </data>
+  <data name="ClearField" xml:space="preserve">
+    <value>Vider ce champ</value>
+  </data>
+  <data name="SessionImportMissingAccounts" xml:space="preserve">
+    <value>Fichier des _comptes manquants…</value>
+  </data>
+  <data name="SessionImportMissingAccountsTip" xml:space="preserve">
+    <value>Fichier CSV des serveurs sans compte dans le PVWA, au format de « Importer des comptes (CSV) » : complétez le safe, vérifiez la plateforme, puis importez-le pour créer les comptes. Aucun mot de passe.</value>
+  </data>
+  <data name="SessionImportMissingAccountsFileName" xml:space="preserve">
+    <value>comptes-a-creer</value>
+  </data>
+  <data name="SessionImportMissingAccountsSaved" xml:space="preserve">
+    <value>Comptes à créer : {0}, enregistrés dans {1} : complétez le safe, vérifiez la plateforme, puis importez le fichier avec « Importer des comptes (CSV) » (clic droit dans Disponibles).</value>
+  </data>
 </root>

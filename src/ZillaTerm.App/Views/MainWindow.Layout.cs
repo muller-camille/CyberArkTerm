@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using ZillaTerm.App.Localization;
+using ZillaTerm.App.Services;
 using ZillaTerm.Core;
 
 namespace ZillaTerm.App.Views;
@@ -151,6 +152,21 @@ public partial class MainWindow
             : problems > 0 ? System.Windows.Shell.TaskbarItemProgressState.Error
             : System.Windows.Shell.TaskbarItemProgressState.None;
         TaskbarItemInfo.ProgressValue = problems > 0 && active == 0 ? 1 : 0;
+    }
+
+    /// <summary>
+    /// Onglet « Fichiers » : seulement quand une session SSH ou de fichiers (via le PSMP, ou en accès d'urgence) est
+    /// ouverte ; sans elle il n'a rien à montrer (l'historique des transferts reste dans la barre d'outils). S'il était
+    /// affiché, « Mes serveurs » prend sa place.
+    /// </summary>
+    private void UpdateFilesTabVisibility()
+    {
+        bool any = MainTabs.Items.OfType<TabItem>().Any(t => t.Tag is RemoteSession);
+        FilesTab.Visibility = any ? Visibility.Visible : Visibility.Collapsed;
+        if (!any && FilesTab.IsSelected)
+        {
+            SideTabs.SelectedItem = CurrentTab;
+        }
     }
 
     private void ToggleSidePanel() => SetSidePanelCollapsed(!SidePanelCollapsed);

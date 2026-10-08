@@ -33,8 +33,8 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
 
 ### Finestra principale
 
-- **Pannello laterale**: schede «Disponibili», «I miei server» e «File» (`Ctrl+1`, `Ctrl+2`, `Ctrl+3`). Trascina
-  il separatore per cambiarne la larghezza; `Ctrl+B` o un doppio clic sul separatore lo chiude (la striscia delle
+- **Pannello laterale**: schede «Disponibili», «I miei server» e «File» (`Ctrl+1`, `Ctrl+2`, `Ctrl+3`); la scheda
+  «File» compare solo quando è aperta una sessione SSH o di file. Trascina il separatore per cambiarne la larghezza; `Ctrl+B` o un doppio clic sul separatore lo chiude (la striscia delle
   schede resta: un clic su una scheda lo riapre). `F6` passa dal pannello alla sessione. Posizione e dimensione
   della finestra, larghezza del pannello e il suo stato chiuso vengono memorizzati.
 - **Schede di sessione**: un pallino indica lo stato della sessione con il colore e con la forma: anello arancione
@@ -63,7 +63,8 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
 ![Scheda «Disponibili» filtrata su più server](captures/it/available.png)
 
 - La casella di ricerca («Filtra gli account…», `Ctrl+F`) filtra su tutti i campi (server, utente, safe,
-  piattaforma, dominio…), anche con più parole (`prd sql`).
+  piattaforma, dominio…), anche con più parole (`prd sql`). La ✕ in fondo alla casella (come in ogni casella di
+  ricerca o di filtro) o `Esc` la svuota.
 - Al posto di un elenco vuoto, la scheda dice cosa succede: caricamento degli account, caricamento non riuscito con
   il suo messaggio e «Riprova», nessun account disponibile per il tuo utente CyberArk, o nessun account
   corrispondente al filtro, con «Cancella il filtro».
@@ -269,7 +270,7 @@ usato.
 ## 5. Sfogliare e inviare file: scheda «File»
 
 La scheda **File** del pannello laterale (`Ctrl+3`) segue la scheda SSH attiva e passa in primo piano all'apertura di
-una sessione SSH. Serve anche alle sessioni di soli file, che la mostrano alla loro apertura: account CyberArk
+una sessione SSH; compare solo quando è aperta una sessione SSH o di file. Serve anche alle sessioni di soli file, che la mostrano alla loro apertura: account CyberArk
 in SFTP tramite il PSMP ([sezione 4](#4-aprire-una-sessione-ssh-tramite-il-psmp))
 e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyberark-database-keepass)).
 
@@ -465,7 +466,8 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   in cima alla scheda, sono disattivati finché non è selezionato nulla.
 - **Cercare**: campo in cima alla scheda (o `Ctrl+F` nella scheda). Filtra i server per nome, server, utente,
   cartella, componente, macchina di destinazione, e le voci dei database KeePass sbloccati; le cartelle dei
-  risultati vengono espanse. `Invio` o `↓` seleziona il primo risultato, `Esc` cancella.
+  risultati vengono espanse. `Invio` o `↓` seleziona il primo risultato, `Esc` o la ✕ in fondo al campo cancella.
+  Con migliaia di server, l'elenco viene filtrato appena smetti di scrivere.
 - **Più server alla volta**: `Ctrl+clic` aggiunge o toglie un server (o tutti quelli di una cartella), `Maiusc+clic`
   sceglie una serie di server; `Esc` o un clic semplice annulla. Clic destro su uno di essi → «Apri i N server nella
   vista parallela» o «Connettiti ai N server» (una scheda ciascuno). Clic destro su una cartella → «Apri nella vista
@@ -576,6 +578,11 @@ le sessioni di un altro programma…». Gli account del PVWA devono essere caric
    aggiunto due volte. «Solo i problemi» filtra la tabella.
 6. **Esporta il risultato…** salva questa tabella in CSV (separatore delle impostazioni internazionali di Windows): è
    l'elenco dei server senza account, da far aggiungere in CyberArk.
+7. **File degli account mancanti…** salva gli account da creare per i server rimasti senza account, pronti per
+   «Importa account (CSV)» ([sezione 2](#2-trovare-un-account-scheda-disponibili)): una riga per server e utente per
+   un account locale (piattaforma `WinServerLocal` per il desktop remoto, `UnixSSH` per SSH e SFTP), una riga per
+   utente di dominio (piattaforma `WinDomain`, i server nelle macchine autorizzate). Completa il safe, verifica le
+   piattaforme (nomi del tuo Vault), poi importalo. Nessuna password nel file.
 
 Nessuna password viene letta, né nel registro né nei file: solo il server, la porta, il protocollo, l'utente e la
 cartella. Le password conservate dall'altro programma restano dove sono: a migrazione terminata, eliminale da quello
@@ -659,7 +666,7 @@ non riapre mai i database memorizzati senza password), alla chiusura e al blocco
 | Fuori dal terminale | Chiudere / riaprire il pannello laterale | `Ctrl+B` (o doppio clic sul separatore) |
 | Elenchi e alberi | Aprire la sessione | Doppio clic o `Invio` |
 | Elenchi, alberi, schede | Menu del clic destro | Tasto Menu o `Maiusc+F10` |
-| Ricerca | Cancellare il filtro | `Esc` |
+| Ricerca | Cancellare il filtro | `Esc` o ✕ in fondo al campo |
 | Home | Togliere una sessione recente dall'elenco | `Canc` |
 | I miei server | Rinominare / rimuovere o eliminare | `F2` / `Canc` |
 | I miei server | Scegliere più server (poi clic destro per aprirli insieme) | `Ctrl+clic`, `Maiusc+clic`; `Esc` annulla |
@@ -975,7 +982,11 @@ effetti doppi (casella «Segui»):
   corrente a ogni prompt;
 - con tcsh, l'alias `cwdcmd` (solo se non è già definito), che emette la stessa sequenza a ogni cambio di cartella;
 - se è configurata una cartella iniziale, un `cd` verso quella cartella;
-- cancellazione del comando digitato, perché non resti sullo schermo.
+- un marcatore privato alla fine (`ESC ] 6973 ; BEL`): quando arriva, ZillaTerm cancella da sé il comando digitato e
+  la sua eco, dalla riga del prompt in giù, qualunque sia il numero di righe che il server ha usato. Il marcatore non
+  ha effetto se ZillaTerm non ha appena inviato il comando. Mentre ZillaTerm lo attende (al massimo 3 secondi), ciò che
+  digiti viene trattenuto, poi inviato subito dopo la cancellazione: ciò che digiti resta sempre visibile. La registrazione PSM mostra comunque il comando, come
+  tutto ciò che viene digitato nella sessione.
 
 Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posiziona nella cartella indicata.
 

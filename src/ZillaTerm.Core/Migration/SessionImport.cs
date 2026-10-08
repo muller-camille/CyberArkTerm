@@ -233,6 +233,69 @@ public sealed class SessionImport
         }
     }
 
+    /// <summary>Plateformes standard de CyberArk proposées dans le fichier des comptes manquants (à vérifier).</summary>
+    public const string WindowsLocalPlatform = "WinServerLocal";
+    public const string WindowsDomainPlatform = "WinDomain";
+    public const string UnixPlatform = "UnixSSH";
+
+    /// <summary>Sessions non importées faute de compte dans le PVWA.</summary>
+    public int MissingAccounts => Count(ImportState.NoAccount);
+
+    /// <summary>
+    /// Fichier d'import de comptes (format de « Importer des comptes (CSV) ») pour les sessions sans compte dans le PVWA,
+    /// à compléter (safe, plateforme) puis à importer pour créer les comptes dans un safe. Un compte local par serveur et
+    /// utilisateur ; un compte de domaine par domaine et utilisateur, avec ses serveurs pour machines autorisées. Les
+    /// colonnes safe et mot de passe restent vides (le safe peut être choisi à l'import) ; la plateforme proposée est
+    /// une plateforme standard. Renvoie le nombre de comptes écrits.
+    /// </summary>
+    public int WriteMissingAccounts(TextWriter writer, char separator)
+    {
+        var accounts = new List<(string Address, string User, string Domain, string Platform, List<string> Machines)>();
+        foreach (var item in Items.Where(i => i.State == ImportState.NoAccount))
+        {
+            var s = item.Session;
+            var user = s.User ?? "";
+            var shortHost = PsmpRouting.NormalizeHost(s.Host).Split('.')[0];
+            bool domainAccount = s.Domain is { } d && d != "." && !string.Equals(PsmpRouting.NormalizeHost(d), shortHost, StringComparison.Ordinal);
+            if (domainAccount)
+            {
+                var existing = accounts.FindIndex(a => a.Platform == WindowsDomainPlatform
+                                                       && string.Equals(a.Address, s.Domain, StringComparison.OrdinalIgnoreCase)
+                                                       && string.Equals(a.User, user, StringComparison.OrdinalIgnoreCase));
+                if (existing < 0)
+                {
+                    accounts.Add((s.Domain!, user, s.Domain!, WindowsDomainPlatform, [s.Host]));
+                }
+                else if (!accounts[existing].Machines.Contains(s.Host, StringComparer.OrdinalIgnoreCase))
+                {
+                    accounts[existing].Machines.Add(s.Host);
+                }
+
+                continue;
+            }
+
+            var platform = s.Protocol switch
+            {
+                ImportProtocol.Rdp => WindowsLocalPlatform,
+                ImportProtocol.Ssh or ImportProtocol.Sftp => UnixPlatform,
+                _ => "",
+            };
+            if (!accounts.Any(a => a.Machines.Count == 0 && string.Equals(a.Address, s.Host, StringComparison.OrdinalIgnoreCase)
+                                   && string.Equals(a.User, user, StringComparison.OrdinalIgnoreCase)))
+            {
+                accounts.Add((s.Host, user, "", platform, []));
+            }
+        }
+
+        CsvExporter.WriteLine(writer, separator, [.. AccountCsv.TemplateColumns]);
+        foreach (var (address, user, domain, platform, machines) in accounts)
+        {
+            CsvExporter.WriteLine(writer, separator, ["", platform, address, user, "", domain, "", string.Join(';', machines), "", ""]);
+        }
+
+        return accounts.Count;
+    }
+
     private void Refresh()
     {
         if (Applied)

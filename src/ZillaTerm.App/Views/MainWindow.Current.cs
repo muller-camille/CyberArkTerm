@@ -111,12 +111,38 @@ public partial class MainWindow
 
     // ===================== Recherche =====================
 
-    private void OnSavedSearchChanged(object sender, TextChangedEventArgs e) => RefreshSaved();
+    /// <summary>
+    /// Recherche dans « Mes serveurs » : appliquée quand la frappe marque une pause (comme dans « Disponibles »), pour ne
+    /// pas reconstruire l'arbre à chaque lettre quand il y a beaucoup de serveurs ; tout de suite quand le champ est vidé.
+    /// </summary>
+    private void OnSavedSearchChanged(object sender, TextChangedEventArgs e)
+    {
+        _savedSearchDebounce.Stop();
+        if (SavedSearchBox.Text.Length == 0)
+        {
+            RefreshSaved();
+        }
+        else
+        {
+            _savedSearchDebounce.Start();
+        }
+    }
+
+    /// <summary>Recherche en attente appliquée maintenant (Entrée, flèche vers le bas).</summary>
+    private void FlushSavedSearch()
+    {
+        if (_savedSearchDebounce.IsEnabled)
+        {
+            _savedSearchDebounce.Stop();
+            RefreshSaved();
+        }
+    }
 
     private void OnSavedSearchKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key is Key.Down or Key.Enter)
         {
+            FlushSavedSearch();
             // Comme dans « Disponibles » : premier résultat sélectionné, Entrée une seconde fois pour se connecter.
             SavedTree.UpdateLayout();
             if (FirstSavedLeaf(SavedTree) is { } item)

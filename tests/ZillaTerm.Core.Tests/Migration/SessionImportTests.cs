@@ -90,6 +90,11 @@ public sealed class SessionImportTests
         Assert.Equal(["4"], Ids(Rdp("dc01.corp.local", "CORP\\admin")));
         Assert.Equal(["4"], Ids(Rdp("dc01.corp.local", "admin@corp.local")));
 
+        // Sans domaine indiqué, pas de compte de domaine pour SSH ou Telnet ; avec le domaine, oui.
+        Assert.Empty(Ids(ImportedSession.Terminal("", "sw", ImportProtocol.Telnet, "sw99", null, "admin")));
+        Assert.Empty(Ids(Ssh("lnx77", "admin")));
+        Assert.Equal(["4"], Ids(Ssh("lnx77", "admin@corp.local")));
+
         // Compte de domaine limité à ses machines.
         Assert.Empty(Ids(Rdp("srv-c", "svc")));
         Assert.Equal(["7"], Ids(Rdp("srv-a", "svc")));
@@ -188,6 +193,48 @@ public sealed class SessionImportTests
         Assert.Equal(2, import.Apply());
         Assert.Equal([ImportState.Imported, ImportState.AlreadyPresent, ImportState.Imported], import.Items.Select(i => i.State));
         Assert.Equal(["A", "B"], settings.Sessions.Select(s => s.Folder));
+    }
+
+    /// <summary>
+    /// Serveurs sans compte : fichier au format de « Importer des comptes (CSV) », relu tel quel par l'import (safe choisi
+    /// à l'import) ; un compte local par serveur et utilisateur, un compte de domaine avec ses serveurs autorisés.
+    /// </summary>
+    [Fact]
+    public void WritesTheAccountsToCreateForServersWithoutAccount()
+    {
+        var import = new SessionImport(new AppSettings(), Pvwa, Matcher(),
+        [
+            Ssh("web01.corp.local", "root", "Prod", "imported"),
+            Ssh("unknown01", "root", "A", "one"),
+            Ssh("unknown01", "root", "B", "same account"),
+            Rdp("srv99.corp.local", "CORP\\svcapp"),
+            Rdp("srv98.corp.local", "CORP\\svcapp"),
+            Rdp("oldwin", "Administrator"),
+            Ssh("lnx99"),
+            ImportedSession.Terminal("", "switch", ImportProtocol.Telnet, "sw99", null, "admin"),
+            ImportedSession.Unsupported("", "vnc", "VNC", "vnc01"),
+        ]);
+        import.Apply();
+        Assert.Equal(7, import.MissingAccounts);
+
+        using var writer = new StringWriter();
+        Assert.Equal(5, import.WriteMissingAccounts(writer, ';'));
+        var lines = writer.ToString().Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+        Assert.Equal(string.Join(';', AccountCsv.TemplateColumns), lines[0]);
+        Assert.Equal(";UnixSSH;unknown01;root;;;;;;", lines[1]);
+        Assert.Equal(";WinDomain;CORP;svcapp;;CORP;;\"srv99.corp.local;srv98.corp.local\";;", lines[2]);
+        Assert.Equal(";WinServerLocal;oldwin;Administrator;;;;;;", lines[3]);
+        Assert.Equal(";UnixSSH;lnx99;;;;;;;", lines[4]);
+        Assert.Equal(";;sw99;admin;;;;;;", lines[5]);
+
+        // Relu par « Importer des comptes » : prêt une fois le safe choisi, sauf plateforme ou utilisateur manquant.
+        var parsed = AccountCsv.Parse(writer.ToString(), "Safe-Migration", null);
+        Assert.Null(parsed.Error);
+        Assert.Equal(3, parsed.Ready);
+        var domain = parsed.Rows[1].Account!;
+        Assert.Equal(("Safe-Migration", "WinDomain", "CORP", "svcapp"), (domain.SafeName, domain.PlatformId, domain.Address, domain.UserName));
+        Assert.NotNull(parsed.Rows[3].Error);
+        Assert.NotNull(parsed.Rows[4].Error);
     }
 
     [Fact]
