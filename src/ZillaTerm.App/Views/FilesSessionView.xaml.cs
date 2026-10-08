@@ -57,6 +57,7 @@ public partial class FilesSessionView : UserControl
         var state = Session.State;
         ReconnectButton.Visibility = state is RemoteSessionState.Failed or RemoteSessionState.Closed ? Visibility.Visible : Visibility.Collapsed;
         ShowFilesButton.IsEnabled = state == RemoteSessionState.Connected;
+        StateProgress.Visibility = state == RemoteSessionState.Connecting ? Visibility.Visible : Visibility.Collapsed;
         StateText.SetResourceReference(TextBlock.ForegroundProperty, state is RemoteSessionState.Failed or RemoteSessionState.Closed ? "ErrorBrush" : "MutedBrush");
         var browser = Session.OpenedBrowser;
         CleartextBanner.Visibility = state == RemoteSessionState.Connected && browser is FtpFileBrowser { IsEncrypted: false }

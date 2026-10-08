@@ -21,14 +21,17 @@ public partial class MainWindow
     // Sessions des onglets terminal et fichiers seuls.
     private readonly List<RemoteSession> _remoteSessions = [];
     private MfaSshKey? _mfaKey;
+    private Task<MfaSshKey?>? _mfaFetch;
     private DateTime _mfaRetryAfter;
 
-    private async Task OpenSshTabAsync(PvwaAccount account, PsmpEndpoint psmp, string login, string label, SavedSession? saved,
+    /// <summary>
+    /// Onglet terminal d'une session via le PSMP, ouvert tout de suite : la clé MFA du PVWA puis la connexion au PSMP se
+    /// font dans l'onglet, qui montre leur progression.
+    /// </summary>
+    private void OpenSshTab(PvwaAccount account, PsmpEndpoint psmp, string login, string label, SavedSession? saved,
         Func<Task>? duplicate, ConnectRequest request)
     {
-        SetStatus(Text.Format(Strings.SshOpening, label, psmp.Host));
-        var key = await GetPsmpKeyAsync();
-        var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), key);
+        var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), PsmpKeyAsync);
         var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved)
         {
             Psmp = psmp.Host,
@@ -594,28 +597,35 @@ public partial class MainWindow
         }
     }
 
+    /// <summary>Clé MFA du PVWA pour une connexion au PSMP, demandée sur le fil de l'interface (appel de n'importe quel fil).</summary>
+    private Task<PrivateKeyFile?> PsmpKeyAsync(CancellationToken ct) => Dispatcher.InvokeAsync(() => GetPsmpKeyAsync(ct)).Task.Unwrap();
+
     /// <summary>
     /// Clé « MFA caching » du PVWA : évite de ressaisir mot de passe et MFA à chaque connexion au PSMP.
     /// Si le PVWA ne la fournit pas, le PSMP posera ses questions (mot de passe, code) dans une fenêtre.
     /// </summary>
-    private async Task<PrivateKeyFile?> GetPsmpKeyAsync()
+    private async Task<PrivateKeyFile?> GetPsmpKeyAsync(CancellationToken ct)
     {
         if (_mfaKey is null || _mfaKey.IsExpired(DateTimeOffset.Now))
         {
             _mfaKey = null;
-            if (DateTime.UtcNow < _mfaRetryAfter)
+            if (DateTime.UtcNow < _mfaRetryAfter || IsOffline)
             {
                 return null;
             }
 
+            // Plusieurs onglets ouverts ensemble (dossier, vue parallèle) : une seule demande au PVWA.
+            var fetch = _mfaFetch ??= FetchMfaKeyAsync();
             try
             {
-                _mfaKey = await Client.GetMfaCachingSshKeyAsync(_lifetime.Token);
+                _mfaKey = await fetch.WaitAsync(ct);
             }
-            catch (Exception ex) when (ex is HttpRequestException or (PvwaException and not PvwaException { IsUnauthorized: true })
-                                           || (ex is TaskCanceledException && !_lifetime.IsCancellationRequested))
+            finally
             {
-                _mfaKey = null;
+                if (fetch.IsCompleted && ReferenceEquals(_mfaFetch, fetch))
+                {
+                    _mfaFetch = null;
+                }
             }
 
             if (_mfaKey is null)
@@ -634,6 +644,33 @@ public partial class MainWindow
             _mfaKey = null;
             _mfaRetryAfter = DateTime.UtcNow.AddMinutes(15);
             return null;
+        }
+    }
+
+    /// <summary>
+    /// Demande de la clé au PVWA ; null s'il ne la fournit pas ou ne répond pas. Session PVWA expirée : la reconnexion
+    /// est proposée, puis la demande refaite ; sans reconnexion, le PSMP demandera mot de passe et code.
+    /// </summary>
+    private async Task<MfaSshKey?> FetchMfaKeyAsync()
+    {
+        for (int attempt = 0; ; attempt++)
+        {
+            try
+            {
+                return await Client.GetMfaCachingSshKeyAsync(_lifetime.Token);
+            }
+            catch (PvwaException ex) when (ex.IsUnauthorized && attempt == 0)
+            {
+                if (!Reconnect(userAction: true))
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex) when (ex is HttpRequestException or PvwaException
+                                           || (ex is TaskCanceledException && !_lifetime.IsCancellationRequested))
+            {
+                return null;
+            }
         }
     }
 }

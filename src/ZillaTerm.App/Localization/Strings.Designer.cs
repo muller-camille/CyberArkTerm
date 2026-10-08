@@ -3802,7 +3802,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The CyberArk session has expired: log in again to reach the CyberArk accounts..
+        ///   Looks up a localized string similar to The CyberArk session has expired: F5, or any CyberArk action, offers to sign in again..
         /// </summary>
         public static string KeepAliveExpired {
             get {
@@ -7330,15 +7330,6 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Your CyberArk session has expired. Please sign in again..
-        /// </summary>
-        public static string SessionExpired {
-            get {
-                return ResourceManager.GetString("SessionExpired", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Runs with the rights of the file's group; on a folder, new files inherit its group.
         /// </summary>
         public static string SetGidTip {
@@ -8136,15 +8127,6 @@ namespace ZillaTerm.App.Localization {
         public static string SshOpened {
             get {
                 return ResourceManager.GetString("SshOpened", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Opening SSH session {0} via {1}….
-        /// </summary>
-        public static string SshOpening {
-            get {
-                return ResourceManager.GetString("SshOpening", resourceCulture);
             }
         }
 
@@ -9711,15 +9693,6 @@ namespace ZillaTerm.App.Localization {
         public static string SftpUnavailable {
             get {
                 return ResourceManager.GetString("SftpUnavailable", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Opening the files of {0} via {1}….
-        /// </summary>
-        public static string SftpFilesOpening {
-            get {
-                return ResourceManager.GetString("SftpFilesOpening", resourceCulture);
             }
         }
 
@@ -13904,6 +13877,87 @@ namespace ZillaTerm.App.Localization {
         public static string SessionImportMissingAccountsSaved {
             get {
                 return ResourceManager.GetString("SessionImportMissingAccountsSaved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CyberArk session expired.
+        /// </summary>
+        public static string ReconnectTitle {
+            get {
+                return ResourceManager.GetString("ReconnectTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Sign in again to continue. Your tabs, open sessions and transfers stay as they are..
+        /// </summary>
+        public static string ReconnectIntro {
+            get {
+                return ResourceManager.GetString("ReconnectIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} on {1} · {2}.
+        /// </summary>
+        public static string ReconnectWho {
+            get {
+                return ResourceManager.GetString("ReconnectWho", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Sign in again.
+        /// </summary>
+        public static string ReconnectButton {
+            get {
+                return ResourceManager.GetString("ReconnectButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Later.
+        /// </summary>
+        public static string ReconnectLater {
+            get {
+                return ResourceManager.GetString("ReconnectLater", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Keep working without CyberArk: F5, or the next CyberArk action, offers to sign in again..
+        /// </summary>
+        public static string ReconnectLaterTip {
+            get {
+                return ResourceManager.GetString("ReconnectLaterTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter your password..
+        /// </summary>
+        public static string ReconnectPasswordMissing {
+            get {
+                return ResourceManager.GetString("ReconnectPasswordMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the response..
+        /// </summary>
+        public static string ReconnectAnswerMissing {
+            get {
+                return ResourceManager.GetString("ReconnectAnswerMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CyberArk session reopened: run the action again if needed..
+        /// </summary>
+        public static string ReconnectDone {
+            get {
+                return ResourceManager.GetString("ReconnectDone", resourceCulture);
             }
         }
     }

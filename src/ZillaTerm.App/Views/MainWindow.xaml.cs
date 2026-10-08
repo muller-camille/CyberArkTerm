@@ -30,6 +30,7 @@ public partial class MainWindow : Window
     private readonly AppSettings _settings;
     private readonly string _sessionUser;
     private readonly string _vaultUser;
+    private readonly AuthMethod _authMethod;
     private readonly SessionLauncher _launcher = new();
     private readonly DispatcherTimer _searchDebounce;
     private readonly DispatcherTimer _savedSearchDebounce;
@@ -61,13 +62,16 @@ public partial class MainWindow : Window
     private bool _closeConfirmed;
 
     /// <param name="client">Client du PVWA connecté ; null pour l'accès d'urgence sans CyberArk.</param>
-    internal MainWindow(PvwaClient? client, AppSettings settings, string sessionUser, string vaultUser, KeePassManager keePass)
+    /// <param name="authMethod">Méthode de la connexion, reprise pour se reconnecter si la session PVWA expire.</param>
+    internal MainWindow(PvwaClient? client, AppSettings settings, string sessionUser, string vaultUser, KeePassManager keePass,
+        AuthMethod authMethod = AuthMethod.CyberArk)
     {
         InitializeComponent();
         _client = client;
         _settings = settings;
         _sessionUser = sessionUser;
         _vaultUser = vaultUser;
+        _authMethod = authMethod;
         _keePass = keePass;
         Title = client is null ? Strings.EmergencyTitle : $"ZillaTerm — {client.BaseUri.Host}";
         SessionText.Text = client is null ? Strings.EmergencySession : $"{sessionUser} @ {client.BaseUri.Host}";
@@ -270,6 +274,7 @@ public partial class MainWindow : Window
         _loadError = null;
         UpdateAvailableState();
 
+        bool reload = false;
         var progress = new Progress<(int Loaded, int Total)>(p =>
         {
             LoadProgress.IsIndeterminate = false;
@@ -311,7 +316,15 @@ public partial class MainWindow : Window
         }
         catch (PvwaException ex) when (ex.IsUnauthorized)
         {
-            OnSessionExpired();
+            reload = Reconnect(userAction: true);
+            if (!reload)
+            {
+                // Plus tard : la liste le dit, « Réessayer » (ou F5) propose à nouveau de se reconnecter.
+                CountText.Text = Strings.LoadFailedShort;
+                _loadFailed = true;
+                RefreshRecent();
+                _loadError = Strings.KeepAliveExpired;
+            }
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -330,6 +343,11 @@ public partial class MainWindow : Window
             CommandManager.InvalidateRequerySuggested();
             UpdateAvailableState();
             UpdateCountVisibility();
+        }
+
+        if (reload)
+        {
+            await LoadAccountsAsync();
         }
     }
 
@@ -945,8 +963,13 @@ public partial class MainWindow : Window
                 }
                 catch (PvwaException ex) when (ex.IsUnauthorized)
                 {
-                    OnSessionExpired();
-                    return;
+                    if (!Reconnect(userAction: true))
+                    {
+                        return;
+                    }
+
+                    // Session rouverte : la même connexion est relancée.
+                    continue;
                 }
                 catch (OperationCanceledException) when (_lifetime.IsCancellationRequested)
                 {
@@ -1024,12 +1047,12 @@ public partial class MainWindow : Window
             if (request.Mode == ConnectMode.Sftp)
             {
                 // Fichiers seuls : une session PSMP SFTP, sans terminal, toujours dans l'application.
-                await OpenPsmpFilesTabAsync(account, psmp, login, label, saved, duplicate, request);
+                OpenPsmpFilesTab(account, psmp, login, label, saved, duplicate, request);
                 AddRecent(account, label, RecentModes.Sftp, request.RemoteMachine);
             }
             else if (_settings.SshInApp)
             {
-                await OpenSshTabAsync(account, psmp, login, label, saved, duplicate, request);
+                OpenSshTab(account, psmp, login, label, saved, duplicate, request);
                 AddRecent(account, label, RecentModes.Ssh, request.RemoteMachine);
             }
             else
@@ -1567,12 +1590,51 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnSessionExpired()
+    /// <summary>Action CyberArk refusée, session PVWA expirée : proposition de se reconnecter, sans rien fermer.</summary>
+    private void OnSessionExpired() => Reconnect(userAction: true);
+
+    /// <summary>
+    /// Session PVWA expirée : fenêtre de reconnexion (même adresse, même utilisateur, même méthode). Les onglets, les
+    /// sessions et les transferts en cours restent en place ; seul le jeton du PVWA est renouvelé. Renvoie vrai si la
+    /// session est rouverte ; « Plus tard » laisse l'application telle quelle, sans CyberArk jusqu'à la prochaine action.
+    /// </summary>
+    /// <param name="userAction">
+    /// Vrai si l'expiration vient d'une action de l'utilisateur (curseur dans le mot de passe) ; faux quand la fenêtre
+    /// s'ouvre d'elle-même (maintien de session).
+    /// </param>
+    private bool Reconnect(bool userAction)
     {
-        MessageBox.Show(this, Strings.SessionExpired,
-            "ZillaTerm", MessageBoxButton.OK, MessageBoxImage.Information);
-        LogoutRequested = true;
-        Close();
+        if (_client is null || _loggedOff || _reconnecting)
+        {
+            return false;
+        }
+
+        _reconnecting = true;
+        _reconnectWhenActive = false;
+        _keepAlive?.Stop();
+        try
+        {
+            if (WindowState == WindowState.Minimized)
+            {
+                WindowState = WindowState.Normal;
+            }
+
+            var dialog = new ReconnectDialog(_client, _authMethod, _vaultUser, _sessionUser, focusPassword: userAction) { Owner = this };
+            if (dialog.ShowDialog() != true)
+            {
+                SetStatus(Strings.KeepAliveExpired, isError: true);
+                return false;
+            }
+
+            DebugLog.Write("login", "Session PVWA rouverte depuis la fenêtre principale.");
+            StartKeepAlive();
+            SetStatus(Strings.ReconnectDone);
+            return true;
+        }
+        finally
+        {
+            _reconnecting = false;
+        }
     }
 
     private void OnLogout(object sender, RoutedEventArgs e)

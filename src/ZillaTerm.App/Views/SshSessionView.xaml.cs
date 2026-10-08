@@ -266,6 +266,7 @@ public partial class SshSessionView : UserControl
                 Overlay.Visibility = Visibility.Visible;
                 OverlayText.Text = _connectingText;
                 OverlayDetail.Text = Target;
+                OverlayProgress.Visibility = Visibility.Visible;
                 ReconnectButton.Visibility = Visibility.Collapsed;
                 break;
             default:
@@ -282,6 +283,7 @@ public partial class SshSessionView : UserControl
                     Overlay.Visibility = Visibility.Visible;
                     OverlayText.Text = title;
                     OverlayDetail.Text = Session.Error ?? "";
+                    OverlayProgress.Visibility = Visibility.Collapsed;
                     ReconnectButton.Visibility = Visibility.Visible;
                 }
 

@@ -113,6 +113,27 @@ public class PvwaClientTests
     }
 
     [Fact]
+    public async Task Logon_AgainOnTheSameClient_ReplacesTheExpiredToken()
+    {
+        // Session expirée : la fenêtre de reconnexion rouvre la session sur le même client, que tout le reste garde.
+        int logons = 0;
+        var pvwa = new FakePvwa(r => FakePvwa.IsLogon(r)
+            ? FakePvwa.Json($"\"tok{++logons}\"")
+            : r.Headers.GetValues("Authorization").Single() == "tok1"
+                ? FakePvwa.Json("{\"ErrorCode\":\"PASWS006E\",\"ErrorMessage\":\"Session expired\"}", HttpStatusCode.Unauthorized)
+                : FakePvwa.Json("{\"value\":[],\"count\":0}"));
+        using var client = await pvwa.CreateLoggedOnClientAsync();
+
+        var ex = await Assert.ThrowsAsync<PvwaException>(() => client.KeepAliveAsync());
+        Assert.True(ex.IsUnauthorized);
+
+        await client.LogonAsync(AuthMethod.CyberArk, "jdoe", "pw2");
+        await client.KeepAliveAsync();
+
+        Assert.Equal("tok2", pvwa.Requests[^1].Authorization);
+    }
+
+    [Fact]
     public async Task Logon_RadiusChallenge_CanBeAnsweredOnSameClient()
     {
         int call = 0;

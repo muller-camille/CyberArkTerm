@@ -338,14 +338,8 @@
   <data name="PreferencesNotSaved" xml:space="preserve">
     <value>Préférences non enregistrées : {0}</value>
   </data>
-  <data name="SessionExpired" xml:space="preserve">
-    <value>Votre session CyberArk a expiré. Veuillez vous reconnecter.</value>
-  </data>
   <data name="AccountMachines" xml:space="preserve">
     <value>Machines : {0}</value>
-  </data>
-  <data name="SshOpening" xml:space="preserve">
-    <value>Ouverture de la session SSH {0} via {1}…</value>
   </data>
   <data name="SshOpened" xml:space="preserve">
     <value>Session SSH ouverte : {0} (PSMP {1})</value>
@@ -2366,7 +2360,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>Garder la session PVWA ouverte tant que ZillaTerm tourne (une requête légère toutes les 4 minutes, suspendue quand Windows est verrouillé)</value>
   </data>
   <data name="KeepAliveExpired" xml:space="preserve">
-    <value>La session CyberArk a expiré : reconnectez-vous pour accéder aux comptes CyberArk.</value>
+    <value>La session CyberArk a expiré : F5, ou toute action CyberArk, propose de vous reconnecter.</value>
   </data>
   <data name="NoKeePassHelp" xml:space="preserve">
     <value>Ajoutez une base KeePass avec le bouton coffre-fort ci-dessus (ou clic droit ici).</value>
@@ -3266,9 +3260,6 @@ Révision actuelle : {1} · {2} serveur(s)</value>
   </data>
   <data name="SftpUnavailable" xml:space="preserve">
     <value>Connexion SFTP indisponible : renseignez l'adresse du PSMP dans les paramètres.</value>
-  </data>
-  <data name="SftpFilesOpening" xml:space="preserve">
-    <value>Ouverture des fichiers de {0} via {1}…</value>
   </data>
   <data name="SharedOtherPvwaConnect" xml:space="preserve">
     <value>« {0} » vient d'une liste partagée créée pour le PVWA {1} : ses comptes ne sont pas ceux de {2}. Connectez-vous à {1} pour l'utiliser.</value>
@@ -4669,5 +4660,32 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   </data>
   <data name="SessionImportMissingAccountsSaved" xml:space="preserve">
     <value>Comptes à créer : {0}, enregistrés dans {1} : complétez le safe, vérifiez la plateforme, puis importez le fichier avec « Importer des comptes (CSV) » (clic droit dans Disponibles).</value>
+  </data>
+  <data name="ReconnectTitle" xml:space="preserve">
+    <value>Session CyberArk expirée</value>
+  </data>
+  <data name="ReconnectIntro" xml:space="preserve">
+    <value>Reconnectez-vous pour continuer. Vos onglets, sessions ouvertes et transferts restent en place.</value>
+  </data>
+  <data name="ReconnectWho" xml:space="preserve">
+    <value>{0} sur {1} · {2}</value>
+  </data>
+  <data name="ReconnectButton" xml:space="preserve">
+    <value>_Se reconnecter</value>
+  </data>
+  <data name="ReconnectLater" xml:space="preserve">
+    <value>Plus _tard</value>
+  </data>
+  <data name="ReconnectLaterTip" xml:space="preserve">
+    <value>Continuer sans CyberArk : F5, ou la prochaine action CyberArk, propose de vous reconnecter.</value>
+  </data>
+  <data name="ReconnectPasswordMissing" xml:space="preserve">
+    <value>Saisissez votre mot de passe.</value>
+  </data>
+  <data name="ReconnectAnswerMissing" xml:space="preserve">
+    <value>Saisissez la réponse.</value>
+  </data>
+  <data name="ReconnectDone" xml:space="preserve">
+    <value>Session CyberArk rouverte : relancez l'action si besoin.</value>
   </data>
 </root>
