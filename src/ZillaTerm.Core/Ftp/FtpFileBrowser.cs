@@ -287,7 +287,9 @@ public sealed class FtpFileBrowser : IRemoteFiles
             isLink,
             isDirectory ? 0 : Math.Max(0, item.Size),
             item.Modified == DateTime.MinValue ? default : item.Modified,
-            mode > 0 ? RemoteEntry.FormatPermissions(isDirectory, isLink, mode) : "");
+            mode > 0 ? RemoteEntry.FormatPermissions(isDirectory, isLink, mode) : "",
+            RemoteEntry.CleanName(item.RawOwner),
+            RemoteEntry.CleanName(item.RawGroup));
     }
 
     public async Task DeleteAsync(RemoteEntry entry, CancellationToken ct)

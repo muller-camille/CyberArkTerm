@@ -4700,4 +4700,7 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   <data name="KeePassTitleRequired" xml:space="preserve">
     <value>Renseignez un titre pour cette entrée.</value>
   </data>
+  <data name="ColumnOwner" xml:space="preserve">
+    <value>Propriétaire</value>
+  </data>
 </root>

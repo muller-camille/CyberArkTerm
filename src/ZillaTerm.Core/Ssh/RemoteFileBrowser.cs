@@ -1094,5 +1094,13 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         f.IsSymbolicLink,
         f.Length,
         f.LastWriteTime,
-        RemoteEntry.FormatPermissions(isDirectory, f.IsSymbolicLink, UnixPermissions.FromAttributes(f.Attributes)));
+        RemoteEntry.FormatPermissions(isDirectory, f.IsSymbolicLink, UnixPermissions.FromAttributes(f.Attributes)),
+        IdText(f.Attributes.UserId),
+        IdText(f.Attributes.GroupId));
+
+    /// <summary>
+    /// UID ou GID en clair (non signé, comme le serveur l'envoie : 4294967294 et non -2) ; vide si le serveur ne l'a
+    /// pas envoyé (-1). SSH.NET ne garde pas les noms que le serveur envoie dans la ligne « longname » de la liste.
+    /// </summary>
+    internal static string IdText(int id) => id == -1 ? "" : unchecked((uint)id).ToString(CultureInfo.InvariantCulture);
 }

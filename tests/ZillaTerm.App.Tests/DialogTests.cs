@@ -510,6 +510,17 @@ public sealed class DialogTests
             Assert.Equal(["..", "app", "a.log", "z.conf", "big.tar"],
                 panel.FileList.Items.Cast<RemoteEntry>().Select(e => e.Name));
 
+            // Propriétaire : dossiers en tête, puis par propriétaire et groupe ; flèche dans l'en-tête de la colonne.
+            panel.FileList.ItemsSource = panel.FileList.Items.Cast<RemoteEntry>()
+                .Select(e => e.IsParentLink ? e : e with { Owner = e.Name == "z.conf" ? "apache" : "root", Group = "root" })
+                .ToList();
+            panel.SortBy(RemoteSortColumn.Owner, descending: false);
+            Assert.Equal(["..", "app", "z.conf", "a.log", "big.tar"],
+                panel.FileList.Items.Cast<RemoteEntry>().Select(e => e.Name));
+            Assert.Equal(false, (panel.OwnerColumn.Header as FrameworkElement)?.Tag);
+            Assert.Equal(Strings.ColumnSize, panel.SizeColumn.Header);
+            panel.SortBy(RemoteSortColumn.Size, descending: false);
+
             // Filtre du dossier : « .. » reste affiché, le tri garde le filtre, le vider rend tout le dossier.
             panel.FilterBox.Text = "*.log;app";
             Assert.Equal(["..", "app", "a.log"], panel.FileList.Items.Cast<RemoteEntry>().Select(e => e.Name));

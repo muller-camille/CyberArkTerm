@@ -294,11 +294,14 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
 - **Barre de navigation** : chemin courant, modifiable (tapez un chemin puis Entrée). Double-clic sur un dossier
   pour y entrer, `..` pour remonter, boutons « dossier parent » (icône distincte de celle d'« Envoyer ») et
   « dossier personnel ».
-- **Colonnes et tri** : cliquez sur l'en-tête d'une colonne (Nom, Taille, Modifié, Droits) ; un second clic inverse
-  l'ordre (une flèche l'indique). La taille et la date commencent par les plus gros et les plus récents. Les dossiers
-  restent en tête ; le tri est gardé d'un dossier et d'une session à l'autre. La colonne Nom prend la largeur
-  laissée par les autres ; quand le panneau est étroit, la colonne Droits est masquée plutôt que coupée (elle
-  revient en élargissant le panneau).
+- **Colonnes et tri** : cliquez sur l'en-tête d'une colonne (Nom, Taille, Modifié, Droits, Propriétaire) ; un second
+  clic inverse l'ordre (une flèche l'indique). La taille et la date commencent par les plus gros et les plus récents.
+  Les dossiers restent en tête ; le tri est gardé d'un dossier et d'une session à l'autre. La colonne Nom prend la
+  largeur laissée par les autres ; quand le panneau est étroit, la colonne Propriétaire, puis la colonne Droits, sont
+  masquées plutôt que coupées (elles reviennent en élargissant le panneau).
+- **Propriétaire** : le groupe s'affiche au survol (`propriétaire:groupe`, comme pour `chown`). En FTP, ce sont les
+  noms donnés par le serveur (colonne vide s'il ne les donne pas). En SFTP, ce sont pour l'instant les numéros (UID et
+  GID, comme `ls -n`) : la bibliothèque SSH utilisée ne garde pas encore les noms envoyés par le serveur.
 - **Boutons de la barre** : Télécharger, Modifier, Renommer, Droits et Supprimer sont grisés, comme dans le menu,
   tant que la sélection ne convient pas ; leur infobulle dit quoi choisir (« Choisissez un seul fichier (pas un
   dossier). »…).

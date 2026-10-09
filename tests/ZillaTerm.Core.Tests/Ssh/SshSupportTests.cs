@@ -91,6 +91,46 @@ public class SshSupportTests
     }
 
     [Fact]
+    public void SortsByOwnerThenGroupWithNumbersInNumericOrder()
+    {
+        RemoteEntry E(string name, string owner, string group) =>
+            new(name, "/" + name, false, false, 0, default, "-rw-r--r--", owner, group);
+        string[] Names(bool descending, params RemoteEntry[] entries) =>
+            RemoteEntry.Sort(entries, RemoteSortColumn.Owner, descending).Select(e => e.Name).ToArray();
+
+        // Noms (FTP) : sans tenir compte de la casse (« Oracle » et « oracle », deux comptes, restent distincts), puis
+        // par groupe.
+        RemoteEntry[] named =
+            [E("d", "root", "sys"), E("c", "Oracle", "dba"), E("f", "oracle", "dba"), E("b", "oracle", "asm"), E("a", "apache", "www"), E("e", "", "")];
+        Assert.Equal(["e", "a", "c", "b", "f", "d"], Names(false, named));
+        Assert.Equal(["d", "f", "b", "c", "a", "e"], Names(true, named));
+
+        // Numéros (SFTP) : 33 avant 1000, et non dans l'ordre des caractères.
+        Assert.Equal(["root", "www", "user"], Names(false, E("user", "1000", "1000"), E("root", "0", "0"), E("www", "33", "33")));
+    }
+
+    [Fact]
+    public void ShowsOwnerAndGroupAsForChownAndCleansNamesFromTheServer()
+    {
+        var entry = new RemoteEntry("a", "/a", false, false, 0, default, "", "oracle", "dba");
+
+        Assert.Equal("oracle:dba", entry.OwnerAndGroup);
+        Assert.Equal("oracle", (entry with { Group = "" }).OwnerAndGroup);
+        Assert.Null((entry with { Owner = "", Group = "" }).OwnerAndGroup);
+        Assert.Null(RemoteEntry.ParentLink("/opt").OwnerAndGroup);
+
+        // Caractères de contrôle et inversion du sens d'écriture retirés : le nom s'affiche tel qu'il s'écrit.
+        Assert.Equal("rootevil", RemoteEntry.CleanName("root\u202Eevil\r\n"));
+        Assert.Equal("svc web", RemoteEntry.CleanName(" svc web\u200B "));
+        Assert.Equal("", RemoteEntry.CleanName(null));
+
+        // SFTP : UID et GID non signés, comme sur le serveur ; rien si le serveur ne les a pas envoyés.
+        Assert.Equal("1000", RemoteFileBrowser.IdText(1000));
+        Assert.Equal("4294967294", RemoteFileBrowser.IdText(-2));
+        Assert.Equal("", RemoteFileBrowser.IdText(-1));
+    }
+
+    [Fact]
     public void KnownHostsTrustOnFirstUseAndDetectChanges()
     {
         var store = new Dictionary<string, string>();
