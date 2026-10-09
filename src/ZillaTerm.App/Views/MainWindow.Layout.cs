@@ -146,6 +146,11 @@ public partial class MainWindow
 
         FilesBadge.Visibility = tip is null ? Visibility.Collapsed : Visibility.Visible;
         FilesTab.ToolTip = tip is null ? Strings.TabFilesTip : Strings.TabFilesTip + "\n" + tip;
+        // Onglet Fichiers caché (plus aucune session) : l'échec se signale sur l'historique des transferts, qui l'efface
+        // une fois ouvert.
+        bool historyProblem = problems > 0 && active == 0 && FilesTab.Visibility != Visibility.Visible;
+        HistoryBadge.Visibility = historyProblem ? Visibility.Visible : Visibility.Collapsed;
+        HistoryButton.ToolTip = historyProblem ? Strings.HistoryTip + "\n" + tip : Strings.HistoryTip;
         System.Windows.Automation.AutomationProperties.SetHelpText(FilesTab, tip ?? "");
         TaskbarItemInfo ??= new System.Windows.Shell.TaskbarItemInfo();
         TaskbarItemInfo.ProgressState = active > 0 ? System.Windows.Shell.TaskbarItemProgressState.Indeterminate
@@ -165,8 +170,11 @@ public partial class MainWindow
         FilesTab.Visibility = any ? Visibility.Visible : Visibility.Collapsed;
         if (!any && FilesTab.IsSelected)
         {
-            SideTabs.SelectedItem = CurrentTab;
+            // Choix de l'application : un panneau replié par l'utilisateur le reste.
+            SelectSideTab(CurrentTab, expand: false);
         }
+
+        UpdateFilesBadge();
     }
 
     private void ToggleSidePanel() => SetSidePanelCollapsed(!SidePanelCollapsed);

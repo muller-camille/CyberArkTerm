@@ -32,8 +32,10 @@ public partial class ConnectDialog : Window
         ComponentBox.ItemsSource = settings.KnownComponents(account.PlatformId);
         ComponentBox.Text = initial.Component;
         MachineBox.ItemsSource = AccountClassifier.RemoteMachineList(account);
-        // Compte de domaine : on propose la première machine autorisée, modifiable.
-        MachineBox.Text = initial.RemoteMachine ?? AccountClassifier.RemoteMachineList(account).FirstOrDefault() ?? "";
+        // Machine obligatoire : on propose la première machine autorisée, modifiable. Sinon, vide : la session s'ouvre
+        // sur l'adresse du compte.
+        MachineBox.Text = initial.RemoteMachine
+                          ?? (_requireMachine ? AccountClassifier.RemoteMachineList(account).FirstOrDefault() : null) ?? "";
         ReasonBox.Text = initial.Reason ?? "";
         TicketSystemBox.Text = initial.TicketingSystem ?? "";
         TicketIdBox.Text = initial.TicketId ?? "";

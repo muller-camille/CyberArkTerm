@@ -51,12 +51,18 @@ internal static class EnvironmentImport
         EnvironmentFile file;
         try
         {
-            if (automatic && !File.Exists(full))
+            if (!automatic)
+            {
+                file = EnvironmentProfile.Load(full);
+            }
+            else if (LoadAtStartup(full) is { } loaded)
+            {
+                file = loaded;
+            }
+            else
             {
                 return false;
             }
-
-            file = EnvironmentProfile.Load(full);
         }
         catch (EnvironmentFileException ex)
         {
@@ -145,6 +151,28 @@ internal static class EnvironmentImport
         settings.EnvironmentFileHashes[key] = file.Sha256;
         Save(settings);
         return applied;
+    }
+
+    /// <summary>Attente maximale d'un fichier d'environnement au démarrage.</summary>
+    internal static readonly TimeSpan StartupWait = TimeSpan.FromSeconds(5);
+
+    /// <summary>
+    /// Lecture au démarrage, hors du fil de l'interface et limitée à <see cref="StartupWait"/> : un partage réseau
+    /// injoignable (poste hors VPN) ferait sinon attendre l'ouverture de ZillaTerm pendant des dizaines de secondes.
+    /// Null si le fichier est absent ou trop lent à lire (on réessaiera au prochain démarrage).
+    /// </summary>
+    private static EnvironmentFile? LoadAtStartup(string path)
+    {
+        var load = Task.Run(() => File.Exists(path) ? EnvironmentProfile.Load(path) : null);
+        if (!((IAsyncResult)load).AsyncWaitHandle.WaitOne(StartupWait))
+        {
+            DebugLog.Write("env", $"Fichier d'environnement trop lent à lire, ignoré à ce démarrage : {path}");
+            // Lecture abandonnée : son éventuelle erreur est observée, sans autre suite.
+            load.ContinueWith(t => t.Exception, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
+            return null;
+        }
+
+        return load.GetAwaiter().GetResult();
     }
 
     /// <summary>Une ligne du récapitulatif : « Réglage : ancienne valeur → nouvelle valeur ».</summary>

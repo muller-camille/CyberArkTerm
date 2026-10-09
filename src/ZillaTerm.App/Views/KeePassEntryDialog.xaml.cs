@@ -9,6 +9,9 @@ namespace ZillaTerm.App.Views;
 public partial class KeePassEntryDialog : Window
 {
     private readonly bool _editing;
+    // Entrée modifiée qui avait déjà une adresse : elle doit la garder. Une entrée sans adresse (mot de passe seul,
+    // commande) reste modifiable telle quelle.
+    private readonly bool _hadHost;
     // Champs personnalisés de l'entrée modifiée (« Host », « Port »…) : ils comptent pour l'adresse du serveur.
     private readonly IReadOnlyDictionary<string, string> _customFields;
     private bool _syncing;
@@ -19,6 +22,7 @@ public partial class KeePassEntryDialog : Window
         InitializeComponent();
         _editing = entry is not null;
         _customFields = entry?.CustomFields ?? new Dictionary<string, string>();
+        _hadHost = entry is not null && HostOf(entry.Url).Length > 0;
         Title = _editing ? Strings.KeePassEditEntryTitle : Strings.KeePassNewEntryTitle;
         VaultText.Text = vaultName;
         GroupBox.ItemsSource = groups.Where(g => g.Length > 0).Order(StringComparer.OrdinalIgnoreCase).ToList();
@@ -95,14 +99,19 @@ public partial class KeePassEntryDialog : Window
         }
     }
 
+    /// <summary>Adresse donnée par l'URL ou les champs personnalisés (pas par le titre, qui n'en est pas une).</summary>
+    private string HostOf(string url) =>
+        KeePassTarget.From(new KeePassEntry { Id = "", Url = url, CustomFields = _customFields }).Host.Trim();
+
     private void UpdateHint() =>
         PasswordHint.Visibility = _editing && Password.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
 
     private void OnSave(object sender, RoutedEventArgs e)
     {
-        // Sans adresse, l'entrée ne servirait à rien : l'erreur est dite ici plutôt qu'à la connexion.
-        var host = KeePassTarget.From(new KeePassEntry { Id = "", Url = UrlBox.Text, CustomFields = _customFields }).Host;
-        if (string.IsNullOrWhiteSpace(host))
+        // Nouvelle entrée sans adresse : elle ne servirait pas à se connecter, l'erreur est dite ici plutôt qu'à la
+        // connexion. Une entrée existante sans adresse se modifie quand même (changer son mot de passe ou son titre).
+        var host = HostOf(UrlBox.Text);
+        if (host.Length == 0 && (!_editing || _hadHost))
         {
             ErrorText.Text = Strings.KeePassAddressRequired;
             ErrorText.Visibility = Visibility.Visible;
@@ -114,6 +123,15 @@ public partial class KeePassEntryDialog : Window
         if (title.Length == 0)
         {
             title = host;
+        }
+
+        if (title.Length == 0)
+        {
+            // Ni titre ni adresse (entrée existante sans adresse) : l'entrée ne se reconnaîtrait plus dans la liste.
+            ErrorText.Text = Strings.KeePassTitleRequired;
+            ErrorText.Visibility = Visibility.Visible;
+            TitleBox.Focus();
+            return;
         }
 
         var password = Password;

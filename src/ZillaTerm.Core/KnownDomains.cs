@@ -4,15 +4,18 @@ namespace ZillaTerm.Core;
 
 /// <summary>
 /// Noms de domaine connus, pour reconnaître un compte enregistré pour son domaine plutôt que pour un serveur : un nom sous
-/// lequel il y a des serveurs (corp.local, pour srv01.corp.local) n'est pas un serveur.
+/// lequel il y a des serveurs (corp.local, pour srv01.corp.local) n'est pas un serveur. Et serveurs certains : l'adresse
+/// d'un compte local ou Unix est un serveur, pas un domaine.
 /// </summary>
 public sealed class KnownDomains
 {
     private readonly HashSet<string> _names = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _servers = new(StringComparer.Ordinal);
 
     /// <param name="hosts">Serveurs connus (adresses des comptes, PVWA) : leurs domaines parents sont des domaines.</param>
     /// <param name="domains">Domaines eux-mêmes (domaine du poste de travail, nom DNS ou NetBIOS).</param>
-    public static KnownDomains From(IEnumerable<string?> hosts, IEnumerable<string?> domains)
+    /// <param name="servers">Noms qui sont sûrement des serveurs (voir <see cref="AccountClassifier.TargetsServer"/>).</param>
+    public static KnownDomains From(IEnumerable<string?> hosts, IEnumerable<string?> domains, IEnumerable<string?>? servers = null)
     {
         var known = new KnownDomains();
         foreach (var host in hosts)
@@ -23,6 +26,14 @@ public sealed class KnownDomains
         foreach (var domain in domains)
         {
             known.Add(domain);
+        }
+
+        foreach (var server in servers ?? [])
+        {
+            if (PsmpRouting.NormalizeHost(server) is { Length: > 0 } name)
+            {
+                known._servers.Add(name);
+            }
         }
 
         return known;
@@ -53,4 +64,6 @@ public sealed class KnownDomains
     }
 
     public bool Contains(string? name) => _names.Contains(PsmpRouting.NormalizeHost(name));
+
+    public bool IsServer(string? name) => _servers.Contains(PsmpRouting.NormalizeHost(name));
 }

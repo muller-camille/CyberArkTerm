@@ -412,18 +412,12 @@ public partial class SettingsDialog : Window
     internal List<PsmpServer>? ReadPsmpServers(string defaultHost)
     {
         var servers = new List<PsmpServer>();
-        var domains = new HashSet<string>(StringComparer.Ordinal);
-        if (PsmpRouting.DomainOf(defaultHost) is { Length: > 0 } defaultDomain)
-        {
-            domains.Add(defaultDomain);
-        }
-
+        var domains = new PsmpDomainCheck(defaultHost);
         for (int i = 0; i < _psmpRows.Count; i++)
         {
             var row = _psmpRows[i];
             var address = row.Address.Trim();
-            var domain = PsmpRouting.NormalizeDomain(row.Domain);
-            if (address.Length == 0 && domain.Length == 0)
+            if (address.Length == 0 && PsmpRouting.NormalizeDomain(row.Domain).Length == 0)
             {
                 continue;
             }
@@ -432,11 +426,7 @@ public partial class SettingsDialog : Window
             string? error = null;
             var port = ParsePort(row.Port);
             var deduced = PsmpRouting.DomainOf(address);
-            if (domain.Length == 0)
-            {
-                domain = deduced;
-            }
-
+            string domain = "";
             if (Uri.CheckHostName(address) == UriHostNameType.Unknown)
             {
                 error = Text.Format(Strings.InvalidPsmpRowAddress, line);
@@ -445,17 +435,15 @@ public partial class SettingsDialog : Window
             {
                 error = Text.Format(Strings.InvalidPsmpRowPort, line);
             }
-            else if (domain.Length == 0)
+            else
             {
-                error = Text.Format(Strings.PsmpRowDomainMissing, line);
-            }
-            else if (!PsmpRouting.IsValidDomain(domain))
-            {
-                error = Text.Format(Strings.InvalidPsmpRowDomain, line);
-            }
-            else if (!domains.Add(domain))
-            {
-                error = Text.Format(Strings.PsmpDuplicateDomain, domain);
+                error = domains.Check(address, row.Domain, out domain) switch
+                {
+                    PsmpDomainProblem.Missing => Text.Format(Strings.PsmpRowDomainMissing, line),
+                    PsmpDomainProblem.Invalid => Text.Format(Strings.InvalidPsmpRowDomain, line),
+                    PsmpDomainProblem.Duplicate => Text.Format(Strings.PsmpDuplicateDomain, domain),
+                    _ => null,
+                };
             }
 
             if (error is not null)

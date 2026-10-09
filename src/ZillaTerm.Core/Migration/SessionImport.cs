@@ -121,6 +121,9 @@ public sealed class SessionImport
     private readonly AppSettings _settings;
     private readonly string _pvwaHost;
     private string _rootFolder = "";
+    // Serveurs de « Mes serveurs » par compte : un serveur déjà présent se cherche parmi ceux de son compte seulement
+    // (des milliers de sessions importées face à des milliers de serveurs enregistrés).
+    private Dictionary<string, List<SavedSession>> _savedByAccount = new(StringComparer.Ordinal);
 
     public SessionImport(AppSettings settings, string pvwaHost, SessionMatcher matcher, IEnumerable<ImportedSession> sessions, string rootFolder = "")
     {
@@ -157,6 +160,7 @@ public sealed class SessionImport
         }
 
         item.Chosen = candidate;
+        IndexSaved();
         Refresh(item);
     }
 
@@ -196,6 +200,7 @@ public sealed class SessionImport
 
             item.Created = session;
             item.State = ImportState.Imported;
+            Index(session);
             added++;
         }
 
@@ -303,10 +308,30 @@ public sealed class SessionImport
             return;
         }
 
+        IndexSaved();
         foreach (var item in Items)
         {
             Refresh(item);
         }
+    }
+
+    private void IndexSaved()
+    {
+        _savedByAccount = new Dictionary<string, List<SavedSession>>(StringComparer.Ordinal);
+        foreach (var session in _settings.Sessions)
+        {
+            Index(session);
+        }
+    }
+
+    private void Index(SavedSession session)
+    {
+        if (!_savedByAccount.TryGetValue(session.AccountId, out var list))
+        {
+            _savedByAccount[session.AccountId] = list = [];
+        }
+
+        list.Add(session);
     }
 
     private void Refresh(ImportItem item)
@@ -357,14 +382,11 @@ public sealed class SessionImport
         };
     }
 
-    /// <summary>Serveur de « Mes serveurs » avec le même compte, la même machine cible, dans le dossier visé.</summary>
+    /// <summary>Même serveur de « Mes serveurs » (voir <see cref="SessionLibrary.IsSameServer"/>), dans le dossier visé.</summary>
     private SavedSession? Existing(ImportItem item) =>
-        item.Chosen is not { } chosen
+        item.Chosen is not { } chosen || !_savedByAccount.TryGetValue(chosen.Account.Id, out var saved)
             ? null
-            : _settings.Sessions.FirstOrDefault(s => s.AccountId == chosen.Account.Id
-                                                     && SessionLibrary.IsForHost(s, _pvwaHost)
-                                                     && string.Equals((s.RemoteMachine ?? "").Trim(), (chosen.RemoteMachine ?? "").Trim(),
-                                                         StringComparison.OrdinalIgnoreCase)
-                                                     && string.Equals(SessionFolders.Normalize(s.Folder), item.TargetFolder,
-                                                         StringComparison.OrdinalIgnoreCase));
+            : saved.FirstOrDefault(s => SessionLibrary.IsSameServer(s, chosen.Account.Id, _pvwaHost, chosen.RemoteMachine)
+                                        && string.Equals(SessionFolders.Normalize(s.Folder), item.TargetFolder,
+                                            StringComparison.OrdinalIgnoreCase));
 }

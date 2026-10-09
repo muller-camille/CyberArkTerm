@@ -143,8 +143,12 @@ PVWA "Connect" button: the PVWA's RDP file is handed over as is. A component tha
   platform still comes first. Per-platform components are shown and edited in the same place ("Component per
   platform").
 - **Domain accounts**: an account registered for its domain has no server. It is recognized by its domain platform,
-  its allowed machines, or its address: its logon domain, a domain with other servers below it (`corp.local` when an
-  account targets `srv01.corp.local`), or the domain of the PVWA or of the workstation. Never a session to the domain
+  being restricted to its allowed machines, or its address: its logon domain, a domain with other servers below it
+  (`corp.local` when an account targets `srv01.corp.local`), or the domain of the PVWA or of the workstation. A local
+  account whose logon domain is the server name (`srv01.corp.local`, `SRV01`) stays an account of that server when
+  another account in the vault targets it (local account, Unix account) or when its platform is a server or desktop
+  platform ("Server", "Srv", "Desktop", "Workstation"). An account that only lists machines, without being restricted
+  to them, opens on its own address; the target machine stays optional. Never a session to the domain
   itself: the server is always asked, "Advanced connection" included. The "Choose the server" window asks which one to open the session on: the list offers
   the servers already used with this account (recent sessions, "My servers"), then its allowed machines; an account
   restricted to its machines refuses the others. "Keep this server in “My servers”", with the folder you want, adds
@@ -271,7 +275,8 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
 
 - **Tab badge**: on the "Files" tab, a badge gives the number of transfers running or waiting, or "!" for a failed
   or differing transfer you have not seen yet (showing the tab marks it as seen). The ZillaTerm button in the
-  Windows taskbar also shows the activity or the failure.
+  Windows taskbar also shows the activity or the failure. With no session open, the tab is hidden: the "!" moves to
+  the "Transfers" toolbar button, and opening the transfer history marks it as seen.
 - **Path bar**: current path, editable (type a path, then Enter). Double-click a folder to enter it, `..` to go up,
   "parent folder" (its icon differs from the "Upload" one) and "home folder" buttons.
 - **Columns and sort**: click a column header (Name, Size, Modified, Permissions); click it again to reverse the
@@ -714,6 +719,8 @@ with nothing personal and no password:
 3. **Import**: "Settings" button → "Import an environment…", or "Import an environment…" on the sign-in screen.
 4. **Central file**: Settings › General › "Central file" (a file on a network share, which can also be set in the
    environment itself). It is read at each start: when you change it, everyone sees the changes at their next start.
+   An unreachable share (workstation off VPN) does not slow down the start: after 5 seconds the file is skipped and
+   read again at the next start.
 
 Each time, a window shows what will change ("old value → new value") and the SHA-256 fingerprint of the file; "Do not
 apply" is the default. The PVWA and the PSMPs receive your CyberArk password: when the file changes their address or
@@ -943,8 +950,9 @@ already started typing; the command can be sent again without duplicate effect (
 
 The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that folder.
 
-Every shell reads the command without error: each part runs only in the shell family it is written for. With csh,
-ksh, sh or fish, following is not set up and nothing stays on screen.
+Every shell reads the command without error: each part runs only in the shell family it is written for. It reads no
+variable that might not exist, so a profile that turns on `set -u` (`set -o nounset`) does not stop it. With csh, ksh,
+sh or fish, following is not set up and nothing stays on screen.
 
 ## Troubleshooting
 

@@ -126,4 +126,24 @@ public sealed class PsmpRoutingTests
             }
         }
     }
+
+    /// <summary>
+    /// Domaines des PSMP, dans l'ordre : saisi sinon celui de l'adresse ; manquant, invalide, ou déjà servi (par le PSMP par
+    /// défaut ou un PSMP précédent). Même règle pour les Paramètres et le fichier d'environnement.
+    /// </summary>
+    [Fact]
+    public void DomainCheckIsSharedBySettingsAndEnvironmentFile()
+    {
+        var check = new PsmpDomainCheck("psmp.corp.com");
+
+        Assert.Equal(PsmpDomainProblem.None, check.Check("psmp.paris.corp.com", null, out var paris));
+        Assert.Equal("paris.corp.com", paris);
+        Assert.Equal(PsmpDomainProblem.None, check.Check("10.0.0.5", "*.Lyon.Corp.com.", out var lyon));
+        Assert.Equal("lyon.corp.com", lyon);
+        Assert.Equal(PsmpDomainProblem.Duplicate, check.Check("psmp2.corp.com", "", out var duplicate));
+        Assert.Equal("corp.com", duplicate);
+        Assert.Equal(PsmpDomainProblem.Duplicate, check.Check("psmp9.corp.com", "paris.corp.com", out _));
+        Assert.Equal(PsmpDomainProblem.Missing, check.Check("10.0.0.6", " ", out _));
+        Assert.Equal(PsmpDomainProblem.Invalid, check.Check("10.0.0.7", "bad domain", out _));
+    }
 }

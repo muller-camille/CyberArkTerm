@@ -217,12 +217,7 @@ public sealed class EnvironmentProfile
         }
 
         CheckPort(PsmpPort);
-        var domains = new HashSet<string>(StringComparer.Ordinal);
-        if (PsmpRouting.DomainOf(PsmpAddress) is { Length: > 0 } defaultDomain)
-        {
-            domains.Add(defaultDomain);
-        }
-
+        var domains = new PsmpDomainCheck(PsmpAddress);
         foreach (var psmp in PsmpServers ?? [])
         {
             if (psmp is null || Uri.CheckHostName((psmp.Address ?? "").Trim()) == UriHostNameType.Unknown)
@@ -231,16 +226,14 @@ public sealed class EnvironmentProfile
             }
 
             CheckPort(psmp!.Port);
-            var domain = PsmpRouting.NormalizeDomain(psmp.Domain);
-            domain = domain.Length > 0 ? domain : PsmpRouting.DomainOf(psmp.Address);
-            if (!PsmpRouting.IsValidDomain(domain))
+            switch (domains.Check(psmp.Address, psmp.Domain, out var domain))
             {
-                Fail(EnvironmentProblem.InvalidDomain, psmp.Address ?? "");
-            }
-
-            if (!domains.Add(domain))
-            {
-                Fail(EnvironmentProblem.DuplicateDomain, domain);
+                case PsmpDomainProblem.Missing or PsmpDomainProblem.Invalid:
+                    Fail(EnvironmentProblem.InvalidDomain, psmp.Address ?? "");
+                    break;
+                case PsmpDomainProblem.Duplicate:
+                    Fail(EnvironmentProblem.DuplicateDomain, domain);
+                    break;
             }
         }
 

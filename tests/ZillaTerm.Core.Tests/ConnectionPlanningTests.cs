@@ -61,8 +61,13 @@ public class ConnectionPlanningTests
     public void DomainAndRestrictedAccountsNeedRemoteMachine()
     {
         Assert.True(AccountClassifier.NeedsRemoteMachine(Account("WinDomain", address: "corp.local")));
-        Assert.True(AccountClassifier.NeedsRemoteMachine(Account("WinServerLocal", remoteMachines: "a;b")));
         Assert.False(AccountClassifier.NeedsRemoteMachine(Account("WinServerLocal")));
+
+        // Une liste de machines sans y être limité : la session peut aussi s'ouvrir sur l'adresse du compte.
+        var listed = Account("WinServerLocal", remoteMachines: "a;b");
+        Assert.False(AccountClassifier.NeedsRemoteMachine(listed));
+        listed.RemoteMachinesAccess!.AccessRestrictedToRemoteMachines = true;
+        Assert.True(AccountClassifier.NeedsRemoteMachine(listed));
         Assert.Equal(["jump01", "jump02", "jump03"], AccountClassifier.RemoteMachineList(Account("X", remoteMachines: " jump01; jump02 ,jump03;")));
     }
 
@@ -82,6 +87,9 @@ public class ConnectionPlanningTests
     [InlineData("WIN-ADMINS-T1", "10.0.0.1", "CORP", false)]
     [InlineData("WinServerLocal", "srv01", "SRV01", false)]
     [InlineData("WinServerLocal", "srv01.corp.local", "SRV01", false)]
+    [InlineData("WIN-SRV-ADMIN", "srv01.corp.local", "SRV01", false)]
+    [InlineData("Windows-Servers", "srv01.corp.local", "SRV01", false)]
+    [InlineData("WIN-WORKSTATIONS", "pc01.corp.local", "PC01", false)]
     [InlineData("UnixSSH", "corp.local", null, false)]
     public void AccountRegisteredForItsDomainNeedsRemoteMachine(string platform, string address, string? domain, bool expected) =>
         Assert.Equal(expected, AccountClassifier.NeedsRemoteMachine(Account(platform, address: address, domain: domain)));
@@ -105,6 +113,28 @@ public class ConnectionPlanningTests
         Assert.False(AccountClassifier.NeedsRemoteMachine(Account("UnixSSH", address: "corp.example.com"), domains));
         Assert.False(AccountClassifier.NeedsRemoteMachine(Account("Oracle", address: "corp.example.com"), domains));
         Assert.False(AccountClassifier.NeedsRemoteMachine(Account("WinServerLocal", address: "corp.example.com"), domains));
+    }
+
+    /// <summary>
+    /// « srv01.corp.local » pour SRV01 a la forme de « corp.example.com » pour CORP : un autre compte du coffre qui vise ce
+    /// serveur (compte local, compte Unix) en fait un compte local. Sans indice, le serveur reste demandé.
+    /// </summary>
+    [Fact]
+    public void ServerKnownFromAnotherAccountIsNotADomain()
+    {
+        PvwaAccount[] vault =
+        [
+            new() { Id = "1", UserName = "root", Address = "srv01.corp.local", PlatformId = "UnixSSH" },
+            new() { Id = "2", UserName = "admin", Address = "srv02.corp.local", PlatformId = "WinServerLocal" },
+            new() { Id = "3", UserName = "svc", Address = "corp.example.com", PlatformId = "WinDomain" },
+        ];
+        var domains = KnownDomains.From(vault.Select(a => a.Address), [], vault.Where(AccountClassifier.TargetsServer).Select(a => a.Address));
+
+        Assert.Equal([true, true, false], vault.Select(AccountClassifier.TargetsServer));
+        Assert.False(AccountClassifier.IsDomainAccount(Account("WIN-ADMINS-T1", address: "srv01.corp.local", domain: "SRV01"), domains));
+        Assert.False(AccountClassifier.IsDomainAccount(Account("WIN-ADMINS-T1", address: "SRV02.corp.local.", domain: "srv02"), domains));
+        Assert.True(AccountClassifier.IsDomainAccount(Account("WIN-ADMINS-T1", address: "srv03.corp.local", domain: "SRV03"), domains));
+        Assert.True(AccountClassifier.IsDomainAccount(Account("WIN-ADMINS-T1", address: "corp.example.com", domain: "CORP"), domains));
     }
 
     [Fact]

@@ -292,7 +292,8 @@ public partial class MainWindow : Window
                 return c != 0 ? c : StringComparer.OrdinalIgnoreCase.Compare(a.UserName, b.UserName);
             });
             _accounts = accounts;
-            _domains = KnownDomains.From(accounts.Select(a => a.Address).Append(PvwaHost), WorkstationDomains());
+            _domains = KnownDomains.From(accounts.Select(a => a.Address).Append(PvwaHost), WorkstationDomains(),
+                accounts.Where(AccountClassifier.TargetsServer).Select(a => a.Address).Append(PvwaHost));
             _byId = [];
             foreach (var a in accounts)
             {
@@ -957,8 +958,8 @@ public partial class MainWindow : Window
 
                 try
                 {
-                    await LaunchAsync(account, request, saved);
-                    if (keepFolder is not null && request.RemoteMachine is { } machine
+                    // Rien d'ouvert (aucun PSMP pour ce serveur) : rien à garder dans « Mes serveurs ».
+                    if (await LaunchAsync(account, request, saved) && keepFolder is not null && request.RemoteMachine is { } machine
                         && SessionLibrary.FindSession(_settings, account, PvwaHost, machine) is null)
                     {
                         ShowAddedToCurrent(SessionLibrary.AddConnection(_settings, account, PvwaHost, keepFolder, request.Mode,
@@ -1003,7 +1004,8 @@ public partial class MainWindow : Window
         }
     }
 
-    private async Task LaunchAsync(PvwaAccount account, ConnectRequest request, SavedSession? saved)
+    /// <returns>Faux si rien n'a été ouvert (aucun PSMP pour ce serveur, erreur affichée).</returns>
+    private async Task<bool> LaunchAsync(PvwaAccount account, ConnectRequest request, SavedSession? saved)
     {
         var target = string.IsNullOrWhiteSpace(request.RemoteMachine) ? account.Address : request.RemoteMachine.Trim();
         var label = $"{account.UserName}@{target}";
@@ -1044,7 +1046,7 @@ public partial class MainWindow : Window
             if (psmp is null)
             {
                 SetStatus(Text.Format(Strings.PsmpNoRoute, target), isError: true);
-                return;
+                return false;
             }
 
             DebugLog.Write("ssh", $"{label} : PSMP {psmp.Host}:{psmp.Port} ({(psmp.Domain is null ? "repli" : $"domaine {psmp.Domain}")})");
@@ -1068,6 +1070,8 @@ public partial class MainWindow : Window
                 AddRecent(account, label, RecentModes.Ssh, request.RemoteMachine);
             }
         }
+
+        return true;
     }
 
     /// <summary>Fichier .rdp renvoyé par le PVWA, dans le journal de débogage (jetons et signature masqués).</summary>
@@ -1503,7 +1507,13 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Bouton Historique : envois et téléchargements de l'onglet Fichiers, même sans session.</summary>
-    private void OnTransferHistory(object sender, RoutedEventArgs e) => FilesPanel.ShowHistory();
+    private void OnTransferHistory(object sender, RoutedEventArgs e)
+    {
+        // L'historique montre les transferts en échec : ils sont vus.
+        FilesPanel.MarkTransfersSeen();
+        UpdateFilesBadge();
+        FilesPanel.ShowHistory();
+    }
 
     /// <summary>Affiche le terminal d'une session : son onglet, la vue parallèle ou sa fenêtre séparée.</summary>
     private void ShowTerminal(SshSession session)
@@ -1633,6 +1643,7 @@ public partial class MainWindow : Window
             }
 
             DebugLog.Write("login", "Session PVWA rouverte depuis la fenêtre principale.");
+            ForgetMfaRetryDelay();
             StartKeepAlive();
             SetStatus(Strings.ReconnectDone);
             return true;

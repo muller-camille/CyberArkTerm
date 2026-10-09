@@ -19,7 +19,7 @@
 
         <DockPanel DockPanel.Dock="Bottom" Margin="16,4,16,16">
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Bottom">
-                <Button Content="{x:Static loc:Strings.Save}" IsDefault="True" Click="OnSave" />
+                <Button x:Name="SaveButton" Content="{x:Static loc:Strings.Save}" IsDefault="True" Click="OnSave" />
                 <Button Content="{x:Static loc:Strings.Cancel}" IsCancel="True" Margin="8,0,0,0" />
             </StackPanel>
             <views:ErrorLine x:Name="ErrorText" Visibility="Collapsed" VerticalAlignment="Center" Margin="0,0,12,0" />

@@ -27,37 +27,35 @@ public static class WorkingDirectory
     /// <remarks>
     /// La ligne doit être lisible par toutes les familles de shell, sinon csh refuse la ligne entière et l'affiche
     /// (« Bad : modifier in $ »). Chaque partie est donc passée entre apostrophes à <c>eval</c>, et seule la famille
-    /// concernée l'exécute. La famille se reconnaît sans lire de variable absente, que refuse un shell POSIX en
-    /// <c>set -u</c> (« shell: parameter not set », qui abandonnait toute la ligne avec ksh) : <c>"$?shell"</c> vaut
-    /// « 1 » pour csh et tcsh (qui définissent toujours <c>shell</c>), le code de retour suivi de « shell » pour les
-    /// shells POSIX, et fish refuse <c>$?</c> : l'<c>eval</c> du test échoue alors sans arrêter la ligne (son message
-    /// est effacé avec la commande). Le code POSIX lit de même ses variables par <c>${…-}</c>.
+    /// concernée l'exécute : <see cref="NotPosix"/> sépare les shells POSIX des autres, puis la variable <c>shell</c>,
+    /// toujours définie par csh et tcsh, sépare csh de fish (csh ne remplace pas les variables d'une commande qu'il
+    /// n'exécute pas). Un shell POSIX ne lit aucune variable non définie : un profil avec <c>set -u</c> interromprait
+    /// la ligne avant le marqueur (« shell: parameter not set ») et elle resterait affichée.
     /// ksh, sh, csh et fish n'annoncent rien (fish change seulement de dossier), mais rien ne reste affiché.
     /// </remarks>
     public static string InjectionCommand(string? startDirectory = null)
     {
         var erase = $"printf '\\033]{EraseOscCode};\\007'";
-        var posix = (startDirectory is null ? "" : $"cd -- {ShellQuote(startDirectory)} 2>/dev/null;") +
+        var posix = (startDirectory is null ? "" : $"cd -- {ShellQuote(startDirectory)} 2>/dev/null||:;") +
                     "__catosc7(){ printf '\\033]7;%s\\007' \"$PWD\";};" +
                     "case \";${PROMPT_COMMAND-};\" in *\";__catosc7;\"*);;*)PROMPT_COMMAND=\"__catosc7${PROMPT_COMMAND:+;$PROMPT_COMMAND}\";;esac;" +
-                    "[ -n \"${ZSH_VERSION-}\" ]&&eval '(( ${precmd_functions[(I)__catosc7]} ))||precmd_functions+=(__catosc7)'";
+                    "[ -z \"${ZSH_VERSION-}\" ]||eval '(( ${precmd_functions[(I)__catosc7]-0} ))||precmd_functions+=(__catosc7)'";
         var csh = "if ($?tcsh && ! $?__catosc7 && `alias cwdcmd | wc -c` == 0) set __catosc7;" +
                   "if ($?__catosc7) alias cwdcmd '" + CshAnnounce + "';" +
                   (startDirectory is null ? "" : CshChangeDirectory(startDirectory)) +
                   // L'alias défini sur cette ligne ne sert qu'à partir de la suivante : première annonce en direct.
                   "if ($?__catosc7) " + CshAnnounce;
-        // Seul fish échoue à ce test, quel que soit son résultat ailleurs (« $?shell » n'est jamais vide).
         var fish = startDirectory is null ? "" :
-            $"eval {TypedQuote(IsShellTest(""))} || cd {TypedQuote(NotAnOption(startDirectory))} 2>/dev/null;";
-        return $" eval {TypedQuote(IsShellTest(" != 1"))} && eval {TypedQuote(posix)} 2>/dev/null;" +
-               $"eval {TypedQuote(IsShellTest(" = 1"))} && eval {TypedQuote(csh)};{fish}{erase}\r";
+            $"{NotPosix} && test -z \"$shell\" && cd {TypedQuote(NotAnOption(startDirectory))} 2>/dev/null;";
+        return $" {NotPosix} || eval {TypedQuote(posix)} 2>/dev/null;" +
+               $"{NotPosix} && test -n \"$shell\" && eval {TypedQuote(csh)};{fish}{erase}\r";
     }
 
     /// <summary>
-    /// Test de <c>"$?shell"</c> : « 1 » pour csh et tcsh, « 0shell » (ou un autre code de retour) pour les shells POSIX,
-    /// erreur de syntaxe pour fish. Aucun shell ne le refuse en <c>set -u</c>.
+    /// Faux seulement dans un shell POSIX, sans lire de variable : « \\ » entre guillemets y devient « \ », alors que
+    /// csh le garde tel quel et que fish lit aussi « \ » entre apostrophes.
     /// </summary>
-    private static string IsShellTest(string comparison) => $"test \"$?shell\"{comparison}";
+    private const string NotPosix = "test \"\\\\\" = '\\\\'";
 
     private const string CshAnnounce = "printf \"\\033]7;%s\\007\" \"$cwd\"";
 

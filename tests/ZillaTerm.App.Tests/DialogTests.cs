@@ -1075,6 +1075,79 @@ public sealed class DialogTests
             Assert.True(direct.Accept());
             Assert.Null(direct.Result?.RemoteMachine);
             direct.Close();
+
+            // Liste de machines sans y être limité : rien de proposé d'office, la session peut viser l'adresse du compte.
+            server.RemoteMachinesAccess = new RemoteMachinesAccess { RemoteMachines = "srv03.corp.example.com;srv04.corp.example.com" };
+            var listed = new ConnectDialog(server, new ConnectRequest(ConnectMode.Psm, "PSM-RDP"), new AppSettings(), "jdupont", null);
+            Assert.Equal("", listed.MachineBox.Text);
+            Assert.True(listed.Accept());
+            Assert.Null(listed.Result?.RemoteMachine);
+            listed.Close();
+
+            // Limité à ces machines : la première est proposée, et il en faut une.
+            server.RemoteMachinesAccess.AccessRestrictedToRemoteMachines = true;
+            var restricted = new ConnectDialog(server, new ConnectRequest(ConnectMode.Psm, "PSM-RDP"), new AppSettings(), "jdupont", null);
+            Assert.Equal("srv03.corp.example.com", restricted.MachineBox.Text);
+            restricted.MachineBox.Text = "";
+            Assert.False(restricted.Accept());
+            restricted.Close();
+        });
+    }
+
+    /// <summary>
+    /// Entrée KeePass : une nouvelle entrée sans adresse est refusée, une entrée qui avait une adresse la garde ; une entrée
+    /// existante sans adresse (mot de passe seul) se modifie, avec un titre.
+    /// </summary>
+    [Fact]
+    public void KeePassEntryWithoutAddressStaysEditable()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            (bool? Saved, string Error) Save(ZillaTerm.Core.KeePass.KeePassEntry? entry, Action<KeePassEntryDialog> edit)
+            {
+                var dialog = new KeePassEntryDialog("Coffre", [], entry, "");
+                string error = "";
+                Exception? failure = null;
+                dialog.Dispatcher.BeginInvoke(() =>
+                {
+                    try
+                    {
+                        edit(dialog);
+                        dialog.SaveButton.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+                        if (dialog.IsVisible)
+                        {
+                            error = dialog.ErrorText.Text;
+                            dialog.Close();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        failure = e;
+                        dialog.Close();
+                    }
+                });
+                var saved = dialog.ShowDialog();
+                if (failure is not null)
+                {
+                    ExceptionDispatchInfo.Throw(failure);
+                }
+
+                return (saved, error);
+            }
+
+            var passwordOnly = new ZillaTerm.Core.KeePass.KeePassEntry { Id = "a", Title = "Partage", HasPassword = true };
+            var server = new ZillaTerm.Core.KeePass.KeePassEntry { Id = "b", Title = "srv01", Url = "ssh://srv01" };
+
+            Assert.Equal((false, Strings.KeePassAddressRequired), Save(null, d => d.TitleBox.Text = "Nouveau"));
+            Assert.Equal((true, ""), Save(passwordOnly, d => d.TitleBox.Text = "Partage équipe"));
+            Assert.Equal((false, Strings.KeePassTitleRequired), Save(passwordOnly, d => d.TitleBox.Text = ""));
+            Assert.Equal((false, Strings.KeePassAddressRequired), Save(server, d => d.UrlBox.Text = ""));
+            Assert.Equal((true, ""), Save(server, d => d.UrlBox.Text = "ssh://srv02"));
         });
     }
 

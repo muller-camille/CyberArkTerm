@@ -149,9 +149,13 @@ componente che apre un'applicazione remota (RemoteApp) apre le sue finestre sul 
   Windows», ad esempio `WIN-PSM`); un componente memorizzato per una piattaforma resta prioritario. I componenti per
   piattaforma si vedono e si modificano nello stesso punto («Componente per piattaforma»).
 - **Account di dominio**: un account registrato per il suo dominio non ha un server. Viene riconosciuto dalla
-  piattaforma di dominio, dalle macchine autorizzate o dall'indirizzo: il dominio di accesso, un dominio sotto cui si
-  trovano altri server (`corp.local` quando un account punta a `srv01.corp.local`), o il dominio del PVWA o della
-  postazione. Mai una sessione verso il dominio stesso: il server viene sempre chiesto, «Connessione avanzata» compresa. La finestra «Scegli il server» chiede su quale aprire la sessione:
+  piattaforma di dominio, dalla limitazione alle sue macchine autorizzate o dall'indirizzo: il dominio di accesso, un
+  dominio sotto cui si trovano altri server (`corp.local` quando un account punta a `srv01.corp.local`), o il dominio
+  del PVWA o della postazione. Un account locale il cui dominio di accesso è il nome del server (`srv01.corp.local`,
+  `SRV01`) resta un account di quel server quando un altro account della cassaforte lo punta (account locale, account
+  Unix) o quando la sua piattaforma è una piattaforma di server o di postazioni («Server», «Srv», «Desktop»,
+  «Workstation»). Un account che ha solo un elenco di macchine, senza esservi limitato, si apre sul proprio
+  indirizzo; la macchina di destinazione resta facoltativa. Mai una sessione verso il dominio stesso: il server viene sempre chiesto, «Connessione avanzata» compresa. La finestra «Scegli il server» chiede su quale aprire la sessione:
   l'elenco propone i server già usati con questo account (sessioni recenti, «I miei server»), poi le sue macchine
   autorizzate; un account limitato alle sue macchine rifiuta le altre. «Mantieni questo server in «I miei server»»,
   con la cartella desiderata, lo aggiunge dopo una connessione riuscita, con il nome `account@server` (la scelta
@@ -287,7 +291,8 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
 - **Contrassegno della scheda**: sulla scheda «File», un contrassegno indica il numero di trasferimenti in corso o
   in attesa, oppure «!» per un trasferimento non riuscito o diverso che non hai ancora visto (mostrare la scheda lo
   segna come visto). Anche il pulsante di ZillaTerm nella barra delle applicazioni di Windows mostra l'attività o
-  l'errore.
+  l'errore. Senza sessioni aperte la scheda è nascosta: il «!» passa sul pulsante «Trasferimenti» della barra
+  degli strumenti, e aprire la cronologia dei trasferimenti lo segna come visto.
 - **Barra del percorso**: percorso corrente, modificabile (digita un percorso e premi Invio). Doppio clic su una
   cartella per entrarvi, `..` per risalire, pulsanti «cartella superiore» (icona diversa da quella di «Invia») e
   «cartella home».
@@ -758,7 +763,8 @@ dei PSMP, alcune opzioni), senza niente di personale né alcuna password:
    accesso.
 4. **File centrale**: Impostazioni › Generale › «File centrale» (un file su una condivisione di rete, che si può anche
    indicare nell'ambiente stesso). Viene riletto a ogni avvio: quando lo modifichi, ognuno vede le modifiche
-   all'avvio successivo.
+   all'avvio successivo. Una condivisione irraggiungibile (postazione fuori VPN) non rallenta l'avvio: oltre 5
+   secondi il file viene ignorato e riletto all'avvio successivo.
 
 Ogni volta una finestra mostra cosa cambierà («valore precedente → nuovo valore») e l'impronta SHA-256 del file;
 «Non applicare» è la scelta predefinita. Il PVWA e i PSMP ricevono la tua password CyberArk: quando il file cambia
@@ -1004,7 +1010,8 @@ effetti doppi (casella «Segui»):
 Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posiziona nella cartella indicata.
 
 Tutte le shell leggono il comando senza errori: ogni parte viene eseguita solo dalla famiglia di shell a cui è
-destinata. Con csh, ksh, sh o fish il monitoraggio non viene installato e sullo schermo non resta nulla.
+destinata. Non legge nessuna variabile che potrebbe non esistere: un profilo che attiva `set -u` (`set -o nounset`)
+non lo interrompe. Con csh, ksh, sh o fish il monitoraggio non viene installato e sullo schermo non resta nulla.
 
 ## Risoluzione dei problemi
 

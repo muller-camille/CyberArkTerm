@@ -56,6 +56,29 @@ public sealed class AppSettingsTests : IDisposable
         Assert.Equal("pvwa.corp.com", AppSettings.Load(Path.Combine(target, "settings.json")).PvwaUrl);
     }
 
+    /// <summary>
+    /// Réglages ZillaTerm illisibles mis de côté, sauvegarde reprise en mémoire, puis fermeture sans enregistrer : au
+    /// démarrage suivant, les anciens réglages CyberArkTerm ne reviennent pas à leur place.
+    /// </summary>
+    [Fact]
+    public void ImportLegacyFolder_NeverReplacesSettingsSetAside()
+    {
+        var legacy = Path.Combine(_dir, "CyberArkTerm");
+        var target = Path.Combine(_dir, "ZillaTerm");
+        var path = Path.Combine(target, "settings.json");
+        new AppSettings { PvwaUrl = "ancien.corp.com" }.Save(Path.Combine(legacy, "settings.json"));
+        new AppSettings { PvwaUrl = "pvwa.corp.com" }.Save(path);
+        new AppSettings { PvwaUrl = "pvwa.corp.com" }.Save(path);
+        File.WriteAllText(path, "{ abîmé");
+
+        var loaded = AppSettings.Load(path);
+
+        Assert.True(loaded.RestoredFromBackup);
+        Assert.False(File.Exists(path));
+        Assert.False(AppSettings.ImportLegacyFolder(legacy, target));
+        Assert.False(File.Exists(path));
+    }
+
     [Fact]
     public void SaveThenLoad_RoundTrips()
     {

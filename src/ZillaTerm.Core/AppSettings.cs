@@ -295,14 +295,16 @@ public sealed class AppSettings
     /// Premier démarrage sous le nom ZillaTerm : copie le dossier de CyberArkTerm (réglages et leur sauvegarde, coffre local,
     /// historique des transferts…) quand <paramref name="directory"/> n'a pas encore de réglages. L'ancien dossier est gardé
     /// (retour possible à l'ancienne version) et un fichier déjà présent n'est jamais remplacé. <c>settings.json</c> est
-    /// copié en dernier : une copie interrompue est reprise au démarrage suivant.
+    /// copié en dernier : une copie interrompue est reprise au démarrage suivant. Des réglages ZillaTerm illisibles mis de
+    /// côté (voir <see cref="Load"/>) ne sont jamais remplacés par les anciens : ZillaTerm a déjà servi.
     /// </summary>
     /// <returns>Vrai si les réglages ont été repris.</returns>
     public static bool ImportLegacyFolder(string legacyDirectory, string directory)
     {
         var settings = Path.Combine(directory, "settings.json");
         var legacySettings = Path.GetFullPath(Path.Combine(legacyDirectory, "settings.json"));
-        if (File.Exists(settings) || !File.Exists(legacySettings))
+        if (File.Exists(settings) || !File.Exists(legacySettings)
+            || (Directory.Exists(directory) && Directory.EnumerateFiles(directory, "settings.json" + SetAsideSuffix + "*").Any()))
         {
             return false;
         }
@@ -355,7 +357,7 @@ public sealed class AppSettings
         catch (JsonException)
         {
             // Fichier abîmé : mis de côté (jamais écrasé), puis la sauvegarde précédente si elle se lit.
-            var aside = $"{path}.illisible-{DateTime.Now:yyyyMMdd-HHmmss}";
+            var aside = $"{path}{SetAsideSuffix}{DateTime.Now:yyyyMMdd-HHmmss}";
             try
             {
                 File.Move(path, aside);
@@ -436,6 +438,9 @@ public sealed class AppSettings
 
     private static string BackupPath(string path) => path + ".bak";
 
+    /// <summary>Suffixe d'un fichier de réglages illisible mis de côté (suivi de la date).</summary>
+    private const string SetAsideSuffix = ".illisible-";
+
     /// <summary>
     /// Écrit dans un fichier temporaire puis le met à la place de l'ancien (gardé en <c>.bak</c>) : une écriture interrompue
     /// ne laisse jamais un fichier de réglages à moitié écrit.
@@ -461,7 +466,6 @@ public sealed class AppSettings
     }
 }
 
-/// <summary>Connexion lancée récemment, affichée sur l'écran d'accueil.</summary>
 /// <summary>Position et taille d'une fenêtre (pixels indépendants), et si elle était agrandie.</summary>
 public sealed record WindowPlacement(double Left, double Top, double Width, double Height, bool Maximized)
 {
@@ -485,6 +489,7 @@ public sealed record WindowPlacement(double Left, double Top, double Width, doub
     }
 }
 
+/// <summary>Connexion lancée récemment, affichée sur l'écran d'accueil.</summary>
 public sealed class RecentSession
 {
     public string AccountId { get; set; } = "";
