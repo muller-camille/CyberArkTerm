@@ -1001,7 +1001,9 @@ Rien n'est envoyé si vous avez déjà commencé à taper ; la commande peut êt
 Le terminal intégré décode la séquence OSC 7 et l'onglet Fichiers se place dans le dossier indiqué.
 
 La commande est lisible sans erreur par tous les shells : chaque partie n'est exécutée que par la famille de shell à
-laquelle elle est destinée. Avec csh, ksh, sh ou fish, le suivi n'est pas installé et rien ne reste à l'écran.
+laquelle elle est destinée. Elle ne lit aucune variable qui pourrait ne pas exister : un profil qui active `set -u`
+(`set -o nounset`) ne l'interrompt pas. Avec csh, ksh, sh ou fish, le suivi n'est pas installé et rien ne reste à
+l'écran.
 
 ## Dépannage
 

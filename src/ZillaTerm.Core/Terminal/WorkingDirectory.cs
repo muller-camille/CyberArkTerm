@@ -27,28 +27,35 @@ public static class WorkingDirectory
     /// <remarks>
     /// La ligne doit être lisible par toutes les familles de shell, sinon csh refuse la ligne entière et l'affiche
     /// (« Bad : modifier in $ »). Chaque partie est donc passée entre apostrophes à <c>eval</c>, et seule la famille
-    /// concernée l'exécute : csh et tcsh définissent toujours la variable <c>shell</c>, fish <c>FISH_VERSION</c>, les
-    /// shells POSIX aucune des deux (csh ne remplace pas les variables d'une commande qu'il n'exécute pas).
+    /// concernée l'exécute : <see cref="NotPosix"/> sépare les shells POSIX des autres, puis la variable <c>shell</c>,
+    /// toujours définie par csh et tcsh, sépare csh de fish (csh ne remplace pas les variables d'une commande qu'il
+    /// n'exécute pas). Un shell POSIX ne lit aucune variable non définie : un profil avec <c>set -u</c> interromprait
+    /// la ligne avant le marqueur (« shell: parameter not set ») et elle resterait affichée.
     /// ksh, sh, csh et fish n'annoncent rien (fish change seulement de dossier), mais rien ne reste affiché.
     /// </remarks>
     public static string InjectionCommand(string? startDirectory = null)
     {
         var erase = $"printf '\\033]{EraseOscCode};\\007'";
-        var posix = (startDirectory is null ? "" : $"cd -- {ShellQuote(startDirectory)} 2>/dev/null;") +
+        var posix = (startDirectory is null ? "" : $"cd -- {ShellQuote(startDirectory)} 2>/dev/null||:;") +
                     "__catosc7(){ printf '\\033]7;%s\\007' \"$PWD\";};" +
-                    "case \";$PROMPT_COMMAND;\" in *\";__catosc7;\"*);;*)PROMPT_COMMAND=\"__catosc7${PROMPT_COMMAND:+;$PROMPT_COMMAND}\";;esac;" +
-                    "[ -n \"$ZSH_VERSION\" ]&&eval '(( ${precmd_functions[(I)__catosc7]} ))||precmd_functions+=(__catosc7)'";
+                    "case \";${PROMPT_COMMAND-};\" in *\";__catosc7;\"*);;*)PROMPT_COMMAND=\"__catosc7${PROMPT_COMMAND:+;$PROMPT_COMMAND}\";;esac;" +
+                    "[ -z \"${ZSH_VERSION-}\" ]||eval '(( ${precmd_functions[(I)__catosc7]-0} ))||precmd_functions+=(__catosc7)'";
         var csh = "if ($?tcsh && ! $?__catosc7 && `alias cwdcmd | wc -c` == 0) set __catosc7;" +
                   "if ($?__catosc7) alias cwdcmd '" + CshAnnounce + "';" +
                   (startDirectory is null ? "" : CshChangeDirectory(startDirectory)) +
                   // L'alias défini sur cette ligne ne sert qu'à partir de la suivante : première annonce en direct.
                   "if ($?__catosc7) " + CshAnnounce;
-        // csh doit sauter ce « cd » sans lire FISH_VERSION, qu'il ne connaît pas : d'où le test de « shell » en tête.
         var fish = startDirectory is null ? "" :
-            $"test -n \"$shell\" || test -z \"$FISH_VERSION\" || cd {TypedQuote(NotAnOption(startDirectory))} 2>/dev/null;";
-        return $" test -n \"$shell\" || test -n \"$FISH_VERSION\" || eval {TypedQuote(posix)} 2>/dev/null;" +
-               $"test -n \"$shell\" && eval {TypedQuote(csh)};{fish}{erase}\r";
+            $"{NotPosix} && test -z \"$shell\" && cd {TypedQuote(NotAnOption(startDirectory))} 2>/dev/null;";
+        return $" {NotPosix} || eval {TypedQuote(posix)} 2>/dev/null;" +
+               $"{NotPosix} && test -n \"$shell\" && eval {TypedQuote(csh)};{fish}{erase}\r";
     }
+
+    /// <summary>
+    /// Faux seulement dans un shell POSIX, sans lire de variable : « \\ » entre guillemets y devient « \ », alors que
+    /// csh le garde tel quel et que fish lit aussi « \ » entre apostrophes.
+    /// </summary>
+    private const string NotPosix = "test \"\\\\\" = '\\\\'";
 
     private const string CshAnnounce = "printf \"\\033]7;%s\\007\" \"$cwd\"";
 

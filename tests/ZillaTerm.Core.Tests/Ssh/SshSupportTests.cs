@@ -156,7 +156,7 @@ public class SshSupportTests
     {
         var command = WorkingDirectory.InjectionCommand("/opt/appli/logs");
 
-        Assert.StartsWith(" test -n \"$shell\" || test -n \"$FISH_VERSION\" || eval 'cd -- '\\''/opt/appli/logs'\\'' 2>/dev/null;", command);
+        Assert.StartsWith(" test \"\\\\\" = '\\\\' || eval 'cd -- '\\''/opt/appli/logs'\\'' 2>/dev/null||:;", command);
         Assert.EndsWith("printf '\\033]6973;\\007'\r", command);
         Assert.Equal(" cd '/srv/x y'\r", WorkingDirectory.ChangeDirectoryCommand("/srv/x y"));
         Assert.Equal(" cd './-x'\r", WorkingDirectory.ChangeDirectoryCommand("-x"));

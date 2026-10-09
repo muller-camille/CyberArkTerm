@@ -1004,7 +1004,8 @@ effetti doppi (casella «Segui»):
 Il terminale integrato decodifica la sequenza OSC 7 e la scheda File si posiziona nella cartella indicata.
 
 Tutte le shell leggono il comando senza errori: ogni parte viene eseguita solo dalla famiglia di shell a cui è
-destinata. Con csh, ksh, sh o fish il monitoraggio non viene installato e sullo schermo non resta nulla.
+destinata. Non legge nessuna variabile che potrebbe non esistere: un profilo che attiva `set -u` (`set -o nounset`)
+non lo interrompe. Con csh, ksh, sh o fish il monitoraggio non viene installato e sullo schermo non resta nulla.
 
 ## Risoluzione dei problemi
 

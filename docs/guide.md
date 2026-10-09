@@ -943,8 +943,9 @@ already started typing; the command can be sent again without duplicate effect (
 
 The built-in terminal decodes the OSC 7 sequence and the Files tab moves to that folder.
 
-Every shell reads the command without error: each part runs only in the shell family it is written for. With csh,
-ksh, sh or fish, following is not set up and nothing stays on screen.
+Every shell reads the command without error: each part runs only in the shell family it is written for. It reads no
+variable that might not exist, so a profile that turns on `set -u` (`set -o nounset`) does not stop it. With csh, ksh,
+sh or fish, following is not set up and nothing stays on screen.
 
 ## Troubleshooting
 
