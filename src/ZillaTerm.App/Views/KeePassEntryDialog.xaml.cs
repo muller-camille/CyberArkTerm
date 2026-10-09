@@ -22,7 +22,7 @@ public partial class KeePassEntryDialog : Window
         InitializeComponent();
         _editing = entry is not null;
         _customFields = entry?.CustomFields ?? new Dictionary<string, string>();
-        _hadHost = entry is not null && !string.IsNullOrWhiteSpace(KeePassTarget.From(entry).Host);
+        _hadHost = entry is not null && HostOf(entry.Url).Length > 0;
         Title = _editing ? Strings.KeePassEditEntryTitle : Strings.KeePassNewEntryTitle;
         VaultText.Text = vaultName;
         GroupBox.ItemsSource = groups.Where(g => g.Length > 0).Order(StringComparer.OrdinalIgnoreCase).ToList();
@@ -99,6 +99,10 @@ public partial class KeePassEntryDialog : Window
         }
     }
 
+    /// <summary>Adresse donnée par l'URL ou les champs personnalisés (pas par le titre, qui n'en est pas une).</summary>
+    private string HostOf(string url) =>
+        KeePassTarget.From(new KeePassEntry { Id = "", Url = url, CustomFields = _customFields }).Host.Trim();
+
     private void UpdateHint() =>
         PasswordHint.Visibility = _editing && Password.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
 
@@ -106,8 +110,8 @@ public partial class KeePassEntryDialog : Window
     {
         // Nouvelle entrée sans adresse : elle ne servirait pas à se connecter, l'erreur est dite ici plutôt qu'à la
         // connexion. Une entrée existante sans adresse se modifie quand même (changer son mot de passe ou son titre).
-        var host = KeePassTarget.From(new KeePassEntry { Id = "", Url = UrlBox.Text, CustomFields = _customFields }).Host;
-        if (string.IsNullOrWhiteSpace(host) && (!_editing || _hadHost))
+        var host = HostOf(UrlBox.Text);
+        if (host.Length == 0 && (!_editing || _hadHost))
         {
             ErrorText.Text = Strings.KeePassAddressRequired;
             ErrorText.Visibility = Visibility.Visible;
