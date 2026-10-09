@@ -4703,4 +4703,7 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="ColumnOwner" xml:space="preserve">
     <value>Owner</value>
   </data>
+  <data name="ColumnGroup" xml:space="preserve">
+    <value>Group</value>
+  </data>
 </root>

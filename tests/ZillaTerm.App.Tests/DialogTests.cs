@@ -512,12 +512,17 @@ public sealed class DialogTests
 
             // Propriétaire : dossiers en tête, puis par propriétaire et groupe ; flèche dans l'en-tête de la colonne.
             panel.FileList.ItemsSource = panel.FileList.Items.Cast<RemoteEntry>()
-                .Select(e => e.IsParentLink ? e : e with { Owner = e.Name == "z.conf" ? "apache" : "root", Group = "root" })
+                .Select(e => e.IsParentLink ? e : e.Name == "z.conf" ? e with { Owner = "apache", Group = "www" } : e with { Owner = "root", Group = "root" })
                 .ToList();
             panel.SortBy(RemoteSortColumn.Owner, descending: false);
             Assert.Equal(["..", "app", "z.conf", "a.log", "big.tar"],
                 panel.FileList.Items.Cast<RemoteEntry>().Select(e => e.Name));
             Assert.Equal(false, (panel.OwnerColumn.Header as FrameworkElement)?.Tag);
+            panel.SortBy(RemoteSortColumn.Group, descending: false);
+            Assert.Equal(["..", "app", "a.log", "big.tar", "z.conf"],
+                panel.FileList.Items.Cast<RemoteEntry>().Select(e => e.Name));
+            Assert.Equal(false, (panel.GroupColumn.Header as FrameworkElement)?.Tag);
+            Assert.Equal(Strings.ColumnOwner, panel.OwnerColumn.Header);
             Assert.Equal(Strings.ColumnSize, panel.SizeColumn.Header);
             panel.SortBy(RemoteSortColumn.Size, descending: false);
 

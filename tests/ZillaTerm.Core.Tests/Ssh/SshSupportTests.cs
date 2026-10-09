@@ -91,7 +91,7 @@ public class SshSupportTests
     }
 
     [Fact]
-    public void SortsByOwnerThenGroupWithNumbersInNumericOrder()
+    public void SortsByOwnerOrGroupWithNumbersInNumericOrder()
     {
         RemoteEntry E(string name, string owner, string group) =>
             new(name, "/" + name, false, false, 0, default, "-rw-r--r--", owner, group);
@@ -104,6 +104,9 @@ public class SshSupportTests
             [E("d", "root", "sys"), E("c", "Oracle", "dba"), E("f", "oracle", "dba"), E("b", "oracle", "asm"), E("a", "apache", "www"), E("e", "", "")];
         Assert.Equal(["e", "a", "c", "b", "f", "d"], Names(false, named));
         Assert.Equal(["d", "f", "b", "c", "a", "e"], Names(true, named));
+        // Groupe : puis par propriétaire.
+        Assert.Equal(["e", "b", "c", "f", "d", "a"],
+            RemoteEntry.Sort(named, RemoteSortColumn.Group).Select(e => e.Name));
 
         // Numéros (SFTP) : 33 avant 1000, et non dans l'ordre des caractères.
         Assert.Equal(["root", "www", "user"], Names(false, E("user", "1000", "1000"), E("root", "0", "0"), E("www", "33", "33")));
