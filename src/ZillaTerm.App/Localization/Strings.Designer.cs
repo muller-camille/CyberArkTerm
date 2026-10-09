@@ -13987,5 +13987,14 @@ namespace ZillaTerm.App.Localization {
                 return ResourceManager.GetString("FilesFilterSummary", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fill in a title for this entry..
+        /// </summary>
+        public static string KeePassTitleRequired {
+            get {
+                return ResourceManager.GetString("KeePassTitleRequired", resourceCulture);
+            }
+        }
     }
 }

@@ -21,7 +21,7 @@ public partial class MainWindow
     // Sessions des onglets terminal et fichiers seuls.
     private readonly List<RemoteSession> _remoteSessions = [];
     private MfaSshKey? _mfaKey;
-    private Task<MfaSshKey?>? _mfaFetch;
+    private Task<MfaKeyFetch>? _mfaFetch;
     private DateTime _mfaRetryAfter;
 
     /// <summary>
@@ -614,23 +614,25 @@ public partial class MainWindow
                 return null;
             }
 
-            // Plusieurs onglets ouverts ensemble (dossier, vue parallèle) : une seule demande au PVWA.
+            // Plusieurs onglets ouverts ensemble (dossier, vue parallèle) : une seule demande au PVWA. Elle s'oublie
+            // d'elle-même une fois finie, même si l'onglet qui l'a lancée a été fermé entre-temps.
             var fetch = _mfaFetch ??= FetchMfaKeyAsync();
-            try
+            if (fetch.IsCompleted && ReferenceEquals(_mfaFetch, fetch))
             {
-                _mfaKey = await fetch.WaitAsync(ct);
-            }
-            finally
-            {
-                if (fetch.IsCompleted && ReferenceEquals(_mfaFetch, fetch))
-                {
-                    _mfaFetch = null;
-                }
+                _mfaFetch = null;
             }
 
+            var result = await fetch.WaitAsync(ct);
+            _mfaKey = result.Key;
             if (_mfaKey is null)
             {
-                _mfaRetryAfter = DateTime.UtcNow.AddMinutes(15);
+                // Le PVWA ne fournit pas de clé : on ne redemande pas avant 15 minutes. Reconnexion refusée (« Plus
+                // tard ») : rien de tel, la prochaine connexion redemandera.
+                if (result.NotProvided)
+                {
+                    _mfaRetryAfter = DateTime.UtcNow.AddMinutes(15);
+                }
+
                 return null;
             }
         }
@@ -648,29 +650,43 @@ public partial class MainWindow
     }
 
     /// <summary>
-    /// Demande de la clé au PVWA ; null s'il ne la fournit pas ou ne répond pas. Session PVWA expirée : la reconnexion
-    /// est proposée, puis la demande refaite ; sans reconnexion, le PSMP demandera mot de passe et code.
+    /// Demande de la clé au PVWA ; sans clé s'il ne la fournit pas ou ne répond pas. Session PVWA expirée : la
+    /// reconnexion est proposée, puis la demande refaite ; sans reconnexion, le PSMP demandera mot de passe et code.
     /// </summary>
-    private async Task<MfaSshKey?> FetchMfaKeyAsync()
+    private async Task<MfaKeyFetch> FetchMfaKeyAsync()
     {
-        for (int attempt = 0; ; attempt++)
+        try
         {
-            try
+            for (int attempt = 0; ; attempt++)
             {
-                return await Client.GetMfaCachingSshKeyAsync(_lifetime.Token);
-            }
-            catch (PvwaException ex) when (ex.IsUnauthorized && attempt == 0)
-            {
-                if (!Reconnect(userAction: true))
+                try
                 {
-                    return null;
+                    var key = await Client.GetMfaCachingSshKeyAsync(_lifetime.Token);
+                    return new MfaKeyFetch(key, NotProvided: key is null);
+                }
+                catch (PvwaException ex) when (ex.IsUnauthorized && attempt == 0)
+                {
+                    if (!Reconnect(userAction: true))
+                    {
+                        return new MfaKeyFetch(null, NotProvided: false);
+                    }
+                }
+                catch (Exception ex) when (ex is HttpRequestException or PvwaException
+                                               || (ex is TaskCanceledException && !_lifetime.IsCancellationRequested))
+                {
+                    return new MfaKeyFetch(null, NotProvided: true);
                 }
             }
-            catch (Exception ex) when (ex is HttpRequestException or PvwaException
-                                           || (ex is TaskCanceledException && !_lifetime.IsCancellationRequested))
-            {
-                return null;
-            }
+        }
+        finally
+        {
+            _mfaFetch = null;
         }
     }
+
+    /// <param name="NotProvided">Le PVWA n'a pas fourni de clé (et non : session expirée, reconnexion refusée).</param>
+    private sealed record MfaKeyFetch(MfaSshKey? Key, bool NotProvided);
+
+    /// <summary>Session PVWA rouverte : la clé MFA peut de nouveau être demandée tout de suite.</summary>
+    private void ForgetMfaRetryDelay() => _mfaRetryAfter = default;
 }

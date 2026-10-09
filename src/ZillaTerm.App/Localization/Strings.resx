@@ -4697,4 +4697,7 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="FilesFilterSummary" xml:space="preserve">
     <value>{0} of {1} items shown (filter)</value>
   </data>
+  <data name="KeePassTitleRequired" xml:space="preserve">
+    <value>Fill in a title for this entry.</value>
+  </data>
 </root>

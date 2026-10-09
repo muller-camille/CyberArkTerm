@@ -30,6 +30,9 @@ public partial class SessionImportWindow : Window
     private List<SessionImportRow> _rows = [];
     private string _source = "";
     private bool _reading;
+    // Dossier saisi appliqué après une pause dans la frappe : chaque changement recalcule toutes les sessions.
+    private readonly System.Windows.Threading.DispatcherTimer _folderTimer = new() { Interval = TimeSpan.FromMilliseconds(300) };
+    private bool _includingAll;
 
     /// <param name="imported">Appelé après l'import (enregistrer les préférences, rafraîchir « Mes serveurs »).</param>
     public SessionImportWindow(AppSettings settings, string pvwaHost, IEnumerable<PvwaAccount> accounts, KnownDomains domains,
@@ -53,6 +56,8 @@ public partial class SessionImportWindow : Window
         SourceBox.ItemsSource = Sources;
         SourceBox.SelectedIndex = 0;
         FolderBox.Text = Strings.SessionImportDefaultFolder;
+        _folderTimer.Tick += (_, _) => ApplyFolder();
+        Closed += (_, _) => _folderTimer.Stop();
     }
 
     /// <summary>Source proposée dans la liste.</summary>
@@ -183,7 +188,8 @@ public partial class SessionImportWindow : Window
     {
         _source = source;
         _import = new SessionImport(_settings, _pvwaHost, _matcher, sessions, FolderBox.Text);
-        _rows = _import.Items.Select(i => new SessionImportRow(_import, i, Refresh)).ToList();
+        _folderTimer.Stop();
+        _rows = _import.Items.Select(i => new SessionImportRow(_import, i, OnRowIncludeChanged, OnRowChosen)).ToList();
         RowsGrid.ItemsSource = _rows;
         ApplyFilter();
         FolderBox.IsEnabled = true;
@@ -196,6 +202,17 @@ public partial class SessionImportWindow : Window
     {
         if (_import is { Applied: false })
         {
+            _folderTimer.Stop();
+            _folderTimer.Start();
+        }
+    }
+
+    /// <summary>Dossier saisi appliqué aux sessions (sans attendre la fin de la pause avant un import ou un export).</summary>
+    private void ApplyFolder()
+    {
+        _folderTimer.Stop();
+        if (_import is { Applied: false } && _import.RootFolder != SessionFolders.Normalize(FolderBox.Text))
+        {
             _import.RootFolder = FolderBox.Text;
             Refresh();
         }
@@ -204,11 +221,37 @@ public partial class SessionImportWindow : Window
     private void OnIncludeAll(object sender, RoutedEventArgs e)
     {
         bool include = _allBox.IsChecked == true;
-        foreach (var row in _rows.Where(r => r.CanInclude))
+        // Boutons mis à jour une fois à la fin, pas pour chacune des milliers de lignes.
+        _includingAll = true;
+        try
         {
-            row.Include = include;
+            foreach (var row in _rows.Where(r => r.CanInclude))
+            {
+                row.Include = include;
+            }
+        }
+        finally
+        {
+            _includingAll = false;
         }
 
+        UpdateButtons();
+    }
+
+    /// <summary>Une session cochée ou décochée : seuls les boutons en dépendent (pas les états ni le bilan).</summary>
+    private void OnRowIncludeChanged()
+    {
+        if (!_includingAll)
+        {
+            UpdateButtons();
+        }
+    }
+
+    /// <summary>Autre compte choisi : seule cette session change d'état, puis le bilan.</summary>
+    private void OnRowChosen(SessionImportRow row)
+    {
+        row.Refresh();
+        UpdateSummary();
         UpdateButtons();
     }
 
@@ -231,6 +274,7 @@ public partial class SessionImportWindow : Window
             return;
         }
 
+        ApplyFolder();
         _import.Apply();
         _imported(_import);
         FolderBox.IsEnabled = false;
@@ -298,6 +342,7 @@ public partial class SessionImportWindow : Window
     /// <summary>Comptes à créer en CSV (BOM UTF-8 pour Excel, séparateur de la région Windows) ; renvoie leur nombre.</summary>
     internal int WriteMissingAccounts(string path)
     {
+        ApplyFolder();
         using var writer = new StreamWriter(path, false, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
         return _import?.WriteMissingAccounts(writer, CsvExporter.DefaultSeparator(CultureInfo.CurrentCulture)) ?? 0;
     }
@@ -305,6 +350,7 @@ public partial class SessionImportWindow : Window
     /// <summary>Résultat de chaque session en CSV (BOM UTF-8 pour Excel, séparateur de la région Windows).</summary>
     internal void WriteResult(string path)
     {
+        ApplyFolder();
         using var writer = new StreamWriter(path, false, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
         _import?.WriteCsv(writer, CsvExporter.DefaultSeparator(CultureInfo.CurrentCulture));
     }
@@ -317,6 +363,12 @@ public partial class SessionImportWindow : Window
             row.Refresh();
         }
 
+        UpdateSummary();
+        UpdateButtons();
+    }
+
+    private void UpdateSummary()
+    {
         if (_import is null)
         {
             return;
@@ -327,7 +379,6 @@ public partial class SessionImportWindow : Window
                 _import.Items.Count - _import.Count(ImportState.Imported))
             : Text.Format(Strings.SessionImportSummary, _import.Count(ImportState.Ready), _import.Count(ImportState.Check),
                 _import.Count(ImportState.NoAccount), _import.Count(ImportState.Unsupported), _import.Count(ImportState.AlreadyPresent));
-        UpdateButtons();
     }
 
     private void UpdateButtons()
@@ -341,7 +392,8 @@ public partial class SessionImportWindow : Window
     }
 
     /// <summary>Ligne de l'aperçu, puis du résultat.</summary>
-    internal sealed class SessionImportRow(SessionImport import, ImportItem item, Action changed) : INotifyPropertyChanged
+    internal sealed class SessionImportRow(SessionImport import, ImportItem item, Action includeChanged, Action<SessionImportRow> chosen)
+        : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -357,7 +409,7 @@ public partial class SessionImportWindow : Window
                 {
                     item.Include = value;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Include)));
-                    changed();
+                    includeChanged();
                 }
             }
         }
@@ -385,7 +437,7 @@ public partial class SessionImportWindow : Window
                 if (value is not null && !ReferenceEquals(value, item.Chosen))
                 {
                     import.Choose(item, value);
-                    changed();
+                    chosen(this);
                 }
             }
         }

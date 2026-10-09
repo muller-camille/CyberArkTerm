@@ -4697,4 +4697,7 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   <data name="FilesFilterSummary" xml:space="preserve">
     <value>{0} elementi visualizzati su {1} (filtro)</value>
   </data>
+  <data name="KeePassTitleRequired" xml:space="preserve">
+    <value>Compila un titolo per questa voce.</value>
+  </data>
 </root>

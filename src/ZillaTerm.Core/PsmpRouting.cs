@@ -109,3 +109,41 @@ public static class PsmpRouting
                                                && part.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_'));
     }
 }
+
+/// <summary>Problème du domaine d'un PSMP par domaine (voir <see cref="PsmpDomainCheck"/>).</summary>
+public enum PsmpDomainProblem
+{
+    None,
+    Missing,
+    Invalid,
+    Duplicate,
+}
+
+/// <summary>
+/// Domaines des PSMP par domaine, vérifiés dans l'ordre : celui saisi, sinon celui de l'adresse ; valide, et pas déjà
+/// servi par le PSMP par défaut ou un PSMP précédent (le second ne servirait jamais). Règle commune aux Paramètres et au
+/// fichier d'environnement.
+/// </summary>
+public sealed class PsmpDomainCheck
+{
+    private readonly HashSet<string> _domains = new(StringComparer.Ordinal);
+
+    /// <param name="defaultPsmpAddress">Adresse du PSMP par défaut : son domaine est déjà servi.</param>
+    public PsmpDomainCheck(string? defaultPsmpAddress)
+    {
+        if (PsmpRouting.DomainOf(defaultPsmpAddress) is { Length: > 0 } domain)
+        {
+            _domains.Add(domain);
+        }
+    }
+
+    /// <param name="domain">Domaine retenu : celui saisi (normalisé), sinon celui de l'adresse.</param>
+    public PsmpDomainProblem Check(string? address, string? given, out string domain)
+    {
+        domain = PsmpRouting.NormalizeDomain(given) is { Length: > 0 } typed ? typed : PsmpRouting.DomainOf(address);
+        return domain.Length == 0 ? PsmpDomainProblem.Missing
+            : !PsmpRouting.IsValidDomain(domain) ? PsmpDomainProblem.Invalid
+            : !_domains.Add(domain) ? PsmpDomainProblem.Duplicate
+            : PsmpDomainProblem.None;
+    }
+}

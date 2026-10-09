@@ -149,8 +149,12 @@ application distante (RemoteApp) ouvre ses fenêtres sur le bureau du poste.
   par exemple `WIN-PSM`) ; un composant mémorisé pour une plateforme reste prioritaire. Les composants par
   plateforme se voient et se modifient au même endroit (« Composant par plateforme »).
 - **Comptes de domaine** : un compte enregistré pour son domaine n'a pas de serveur. Il est reconnu par sa plateforme
-  de domaine, ses machines autorisées, ou son adresse : son domaine de connexion, un domaine sous lequel se trouvent
-  d'autres serveurs (`corp.local` quand un compte vise `srv01.corp.local`), ou le domaine du PVWA ou du poste. Jamais
+  de domaine, la limitation à ses machines autorisées, ou son adresse : son domaine de connexion, un domaine sous lequel
+  se trouvent d'autres serveurs (`corp.local` quand un compte vise `srv01.corp.local`), ou le domaine du PVWA ou du
+  poste. Un compte local dont le domaine de connexion est le nom du serveur (`srv01.corp.local`, `SRV01`) reste un
+  compte de ce serveur quand un autre compte du coffre le vise (compte local, compte Unix) ou que sa plateforme est une
+  plateforme de serveurs ou de postes (« Server », « Srv », « Desktop », « Workstation »). Un compte qui a seulement
+  une liste de machines, sans y être limité, s'ouvre sur son adresse ; la machine cible reste facultative. Jamais
   de session vers le domaine lui-même : le serveur est toujours demandé, « Connexion avancée » compris. La fenêtre « Choisir le serveur » demande sur lequel ouvrir la session :
   la liste propose les serveurs déjà utilisés avec ce compte (sessions récentes, « Mes serveurs ») puis ses machines
   autorisées ; un compte limité à ses machines refuse les autres. « Garder ce serveur dans « Mes serveurs » », avec
@@ -284,7 +288,9 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
 
 - **Pastille de l'onglet** : sur l'onglet « Fichiers », une pastille donne le nombre de transferts en cours ou en
   attente, ou « ! » pour un transfert en échec ou différent que vous n'avez pas encore vu (afficher l'onglet le
-  marque vu). Le bouton de ZillaTerm dans la barre des tâches de Windows montre aussi l'activité ou l'échec.
+  marque vu). Le bouton de ZillaTerm dans la barre des tâches de Windows montre aussi l'activité ou l'échec. Sans
+  session ouverte, l'onglet est caché : le « ! » passe sur le bouton « Transferts » de la barre d'outils, et ouvrir
+  l'historique des transferts le marque vu.
 - **Barre de navigation** : chemin courant, modifiable (tapez un chemin puis Entrée). Double-clic sur un dossier
   pour y entrer, `..` pour remonter, boutons « dossier parent » (icône distincte de celle d'« Envoyer ») et
   « dossier personnel ».
@@ -755,7 +761,8 @@ des PSMP, quelques options), sans rien de personnel ni aucun mot de passe :
    l'écran de connexion.
 4. **Fichier central** : Paramètres › Général › « Fichier central » (un fichier sur un partage réseau, qu'il est
    aussi possible d'indiquer dans l'environnement lui-même). Il est relu à chaque démarrage : quand vous le modifiez,
-   chacun voit les changements au démarrage suivant.
+   chacun voit les changements au démarrage suivant. Un partage injoignable (poste hors VPN) ne retarde pas le
+   démarrage : au-delà de 5 secondes, le fichier est ignoré et relu au démarrage suivant.
 
 Chaque fois, une fenêtre montre ce qui va changer (« ancienne valeur → nouvelle valeur ») et l'empreinte SHA-256 du
 fichier ; « Ne pas appliquer » est le choix par défaut. Le PVWA et les PSMP reçoivent votre mot de passe CyberArk :

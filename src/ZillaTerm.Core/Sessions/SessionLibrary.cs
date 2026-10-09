@@ -204,9 +204,15 @@ public static class SessionLibrary
 
     /// <summary>Serveur de « Mes serveurs » pour ce compte et cette machine cible (aucune : le compte seul).</summary>
     public static SavedSession? FindSession(AppSettings settings, PvwaAccount account, string pvwaHost, string? remoteMachine) =>
-        settings.Sessions.FirstOrDefault(s => s.AccountId == account.Id && IsForHost(s, pvwaHost)
-                                              && string.Equals((s.RemoteMachine ?? "").Trim(), (remoteMachine ?? "").Trim(),
-                                                  StringComparison.OrdinalIgnoreCase));
+        settings.Sessions.FirstOrDefault(s => IsSameServer(s, account.Id, pvwaHost, remoteMachine));
+
+    /// <summary>
+    /// Même serveur de « Mes serveurs » : même compte du même PVWA, même machine cible (aucune : le compte seul). Règle
+    /// partagée par la connexion et l'import des sessions.
+    /// </summary>
+    public static bool IsSameServer(SavedSession session, string accountId, string pvwaHost, string? remoteMachine) =>
+        session.AccountId == accountId && IsForHost(session, pvwaHost)
+        && string.Equals((session.RemoteMachine ?? "").Trim(), (remoteMachine ?? "").Trim(), StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// Serveurs à proposer pour un compte de domaine : ceux déjà utilisés avec lui (connexions récentes, la plus récente
