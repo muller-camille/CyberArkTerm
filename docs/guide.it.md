@@ -297,13 +297,13 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   cartella per entrarvi, `..` per risalire, pulsanti «cartella superiore» (icona diversa da quella di «Invia») e
   «cartella home».
 - **Colonne e ordinamento**: clic sull'intestazione di una colonna (Nome, Dimensione, Modificato, Permessi,
-  Proprietario); un secondo clic inverte l'ordine (lo indica una freccia). Dimensione e data partono dai più grandi e
-  dai più recenti. Le cartelle restano in cima; l'ordinamento è mantenuto da una cartella e da una sessione all'altra.
-  La colonna Nome prende la larghezza lasciata dalle altre; quando il pannello è stretto, la colonna Proprietario, poi
-  la colonna Permessi, vengono nascoste invece di essere tagliate (ricompaiono allargando il pannello).
-- **Proprietario**: passando il mouse compare anche il gruppo (`proprietario:gruppo`, come per `chown`). In FTP sono
-  i nomi forniti dal server (colonna vuota se non li fornisce). In SFTP sono per ora i numeri (UID e GID, come
-  `ls -n`): la libreria SSH utilizzata non conserva ancora i nomi inviati dal server.
+  Proprietario, Gruppo); un secondo clic inverte l'ordine (lo indica una freccia). Dimensione e data partono dai più
+  grandi e dai più recenti. Le cartelle restano in cima; l'ordinamento è mantenuto da una cartella e da una sessione
+  all'altra. La colonna Nome prende la larghezza lasciata dalle altre; quando il pannello è stretto, le colonne Gruppo,
+  Proprietario e poi Permessi vengono nascoste invece di essere tagliate (ricompaiono allargando il pannello).
+- **Proprietario e Gruppo**: passando il mouse compare `proprietario:gruppo` (come per `chown`). In FTP sono i nomi
+  forniti dal server (colonne vuote se non li fornisce). In SFTP sono per ora i numeri (UID e GID, come `ls -n`): la
+  libreria SSH utilizzata non conserva ancora i nomi inviati dal server.
 - **Pulsanti della barra**: Scarica, Modifica, Rinomina, Permessi ed Elimina sono disattivati, come nel menu, finché
   la selezione non è adatta; la loro descrizione comandi dice cosa scegliere («Seleziona un solo file (non una
   cartella).»…).

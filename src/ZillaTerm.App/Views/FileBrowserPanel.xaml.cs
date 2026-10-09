@@ -330,13 +330,13 @@ public partial class FileBrowserPanel : UserControl
         }
     }
 
-    /// <summary>Largeur des colonnes « Droits » et « Propriétaire » quand elles sont affichées.</summary>
-    private double _permissionsWidth = 84, _ownerWidth = 90;
+    /// <summary>Largeur des colonnes « Droits », « Propriétaire » et « Groupe » quand elles sont affichées.</summary>
+    private double _permissionsWidth = 84, _ownerWidth = 90, _groupWidth = 90;
 
     /// <summary>
     /// Colonne « Nom » élastique : elle prend la largeur laissée par les autres colonnes (panneau élargi ou rétréci).
-    /// Panneau trop étroit : la colonne « Propriétaire », puis la colonne « Droits », sont masquées (elles reviennent en
-    /// élargissant) plutôt que coupées.
+    /// Panneau trop étroit : les colonnes « Groupe », « Propriétaire » puis « Droits » sont masquées, dans cet ordre
+    /// (elles reviennent en élargissant), plutôt que coupées.
     /// </summary>
     private void FitNameColumn()
     {
@@ -351,6 +351,11 @@ public partial class FileBrowserPanel : UserControl
             _ownerWidth = OwnerColumn.ActualWidth;
         }
 
+        if (GroupColumn.ActualWidth > 0)
+        {
+            _groupWidth = GroupColumn.ActualWidth;
+        }
+
         double available = FileList.ActualWidth - SystemParameters.VerticalScrollBarWidth - 8;
         double fixedWidth = SizeColumn.ActualWidth + ModifiedColumn.ActualWidth;
         if (available <= 0)
@@ -361,10 +366,12 @@ public partial class FileBrowserPanel : UserControl
         double room = available - fixedWidth - MinName;
         bool permissions = room >= _permissionsWidth;
         bool owner = permissions && room >= _permissionsWidth + _ownerWidth;
+        bool group = owner && room >= _permissionsWidth + _ownerWidth + _groupWidth;
         PermissionsColumn.Width = permissions ? _permissionsWidth : 0;
         OwnerColumn.Width = owner ? _ownerWidth : 0;
-        NameColumn.Width = Math.Max(MinName,
-            available - fixedWidth - (permissions ? _permissionsWidth : 0) - (owner ? _ownerWidth : 0));
+        GroupColumn.Width = group ? _groupWidth : 0;
+        NameColumn.Width = Math.Max(MinName, available - fixedWidth - (permissions ? _permissionsWidth : 0) -
+            (owner ? _ownerWidth : 0) - (group ? _groupWidth : 0));
     }
 
     // ===================== Tri (clic sur un en-tête de colonne) =====================
@@ -426,6 +433,7 @@ public partial class FileBrowserPanel : UserControl
         (ModifiedColumn, Strings.ColumnModified, RemoteSortColumn.Modified),
         (PermissionsColumn, Strings.ColumnPermissions, RemoteSortColumn.Permissions),
         (OwnerColumn, Strings.ColumnOwner, RemoteSortColumn.Owner),
+        (GroupColumn, Strings.ColumnGroup, RemoteSortColumn.Group),
     ];
 
     /// <summary>
