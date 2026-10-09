@@ -19,6 +19,18 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      # Version de test : SSH.NET patché (ligne « longname » de SFTP), compilé depuis le fork au commit fixé ci-dessous,
+      # hors du dossier de ZillaTerm (il a ses propres nuget.config et Directory.Build.props). Historique complet :
+      # Nerdbank.GitVersioning en tire le numéro de version (2026.0.1-prerelease.7.gb0079ae326).
+      - name: SSH.NET patché (fork, commit b0079ae)
+        shell: bash
+        run: |
+          git clone --quiet https://github.com/muller-camille/SSH.NET "$RUNNER_TEMP/sshnet"
+          git -C "$RUNNER_TEMP/sshnet" checkout --quiet --detach b0079ae326b256c0a5f806c14597153011629f42
+          test "$(git -C "$RUNNER_TEMP/sshnet" rev-parse HEAD)" = b0079ae326b256c0a5f806c14597153011629f42
+          dotnet pack "$RUNNER_TEMP/sshnet/src/Renci.SshNet" -c Release -o local-packages
+          ls local-packages
+
       - name: Tests
         run: dotnet test ZillaTerm.sln -c Release
 
@@ -32,5 +44,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ZillaTerm-win-x64
+          name: ZillaTerm-win-x64-test-sshnet-longname
           path: publish/ZillaTerm.exe
