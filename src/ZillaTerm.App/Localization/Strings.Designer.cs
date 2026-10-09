@@ -14005,5 +14005,14 @@ namespace ZillaTerm.App.Localization {
                 return ResourceManager.GetString("ColumnOwner", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Group.
+        /// </summary>
+        public static string ColumnGroup {
+            get {
+                return ResourceManager.GetString("ColumnGroup", resourceCulture);
+            }
+        }
     }
 }

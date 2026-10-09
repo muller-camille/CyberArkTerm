@@ -56,6 +56,7 @@ public sealed record RemoteEntry(
                 RemoteSortColumn.Modified => a.LastWriteTime.CompareTo(b.LastWriteTime),
                 RemoteSortColumn.Permissions => string.CompareOrdinal(a.Permissions, b.Permissions),
                 RemoteSortColumn.Owner => ByOwner(a.Owner, b.Owner) is var owner and not 0 ? owner : ByOwner(a.Group, b.Group),
+                RemoteSortColumn.Group => ByOwner(a.Group, b.Group) is var group and not 0 ? group : ByOwner(a.Owner, b.Owner),
                 _ => ByName(a, b),
             };
             if (descending && !(column == RemoteSortColumn.Size && a.IsDirectory))
@@ -109,6 +110,7 @@ public enum RemoteSortColumn
     Modified,
     Permissions,
     Owner,
+    Group,
 }
 
 /// <summary>Élément à télécharger avec son chemin relatif (noms Unix, depuis l'élément choisi).</summary>
