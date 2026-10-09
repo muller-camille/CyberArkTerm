@@ -3,7 +3,10 @@ using ZillaTerm.Core.Localization;
 
 namespace ZillaTerm.Core.Ssh;
 
-/// <summary>Fichier ou dossier distant listé par le navigateur SFTP.</summary>
+/// <summary>
+/// Fichier ou dossier distant listé par le navigateur SFTP. <paramref name="Owner"/> et <paramref name="Group"/> :
+/// noms (FTP) ou numéros (UID et GID en SFTP) du propriétaire et du groupe ; vides si le serveur ne les donne pas.
+/// </summary>
 public sealed record RemoteEntry(
     string Name,
     string FullPath,
@@ -11,9 +14,15 @@ public sealed record RemoteEntry(
     bool IsSymbolicLink,
     long Length,
     DateTime LastWriteTime,
-    string Permissions)
+    string Permissions,
+    string Owner = "",
+    string Group = "")
 {
     public string SizeText => IsDirectory ? "" : RemotePath.FormatSize(Length);
+
+    /// <summary>« propriétaire:groupe », comme pour chown ; null si le serveur ne donne ni l'un ni l'autre.</summary>
+    public string? OwnerAndGroup => Owner.Length == 0 && Group.Length == 0 ? null
+        : Group.Length == 0 ? Owner : $"{Owner}:{Group}";
 
     /// <summary>Date courte et heure selon les réglages régionaux (01/10/2026 21:05, 10/1/2026 9:05 PM...).</summary>
     public string ModifiedText => LastWriteTime == default ? "" : LastWriteTime.ToString("g", CultureInfo.CurrentCulture);
@@ -46,6 +55,8 @@ public sealed record RemoteEntry(
                 RemoteSortColumn.Size => 0,
                 RemoteSortColumn.Modified => a.LastWriteTime.CompareTo(b.LastWriteTime),
                 RemoteSortColumn.Permissions => string.CompareOrdinal(a.Permissions, b.Permissions),
+                RemoteSortColumn.Owner => ByOwner(a.Owner, b.Owner) is var owner and not 0 ? owner : ByOwner(a.Group, b.Group),
+                RemoteSortColumn.Group => ByOwner(a.Group, b.Group) is var group and not 0 ? group : ByOwner(a.Owner, b.Owner),
                 _ => ByName(a, b),
             };
             if (descending && !(column == RemoteSortColumn.Size && a.IsDirectory))
@@ -64,6 +75,28 @@ public sealed record RemoteEntry(
         return order != 0 ? order : string.CompareOrdinal(a.Name, b.Name);
     }
 
+    /// <summary>Numéros (UID, GID) dans l'ordre des nombres, noms sans tenir compte de la casse.</summary>
+    private static int ByOwner(string a, string b)
+    {
+        if (long.TryParse(a, NumberStyles.None, CultureInfo.InvariantCulture, out long x) &&
+            long.TryParse(b, NumberStyles.None, CultureInfo.InvariantCulture, out long y))
+        {
+            return x.CompareTo(y);
+        }
+
+        int order = StringComparer.OrdinalIgnoreCase.Compare(a, b);
+        return order != 0 ? order : string.CompareOrdinal(a, b);
+    }
+
+    /// <summary>
+    /// Nom de propriétaire ou de groupe envoyé par le serveur, sans caractère de contrôle ni de mise en forme invisible
+    /// (inversion du sens d'écriture…) qui fausserait l'affichage de la liste.
+    /// </summary>
+    public static string CleanName(string? name) =>
+        name is null ? "" : string.Concat(name.Where(c => !char.IsControl(c) &&
+            char.GetUnicodeCategory(c) is not (UnicodeCategory.Format or UnicodeCategory.LineSeparator
+                or UnicodeCategory.ParagraphSeparator))).Trim();
+
     /// <summary>Droits au format <c>ls -l</c>, bits spéciaux compris (ex. <c>drwxrwxrwt</c>, <c>-rwsr-xr-x</c>).</summary>
     public static string FormatPermissions(bool isDirectory, bool isSymbolicLink, int mode) =>
         (isSymbolicLink ? 'l' : isDirectory ? 'd' : '-') + UnixPermissions.ToSymbolic(mode);
@@ -76,6 +109,8 @@ public enum RemoteSortColumn
     Size,
     Modified,
     Permissions,
+    Owner,
+    Group,
 }
 
 /// <summary>Élément à télécharger avec son chemin relatif (noms Unix, depuis l'élément choisi).</summary>

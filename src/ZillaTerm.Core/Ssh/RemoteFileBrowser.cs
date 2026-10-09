@@ -1087,12 +1087,28 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         }
     }
 
-    private static RemoteEntry ToEntry(ISftpFile f, bool isDirectory) => new(
-        f.Name,
-        f.FullName,
-        isDirectory,
-        f.IsSymbolicLink,
-        f.Length,
-        f.LastWriteTime,
-        RemoteEntry.FormatPermissions(isDirectory, f.IsSymbolicLink, UnixPermissions.FromAttributes(f.Attributes)));
+    /// <summary>
+    /// Propriétaire et groupe : les noms de la ligne « longname » envoyée par le serveur (SFTP version 3), sinon les
+    /// numéros UID et GID des attributs.
+    /// </summary>
+    private static RemoteEntry ToEntry(ISftpFile f, bool isDirectory)
+    {
+        var names = SftpLongName.Parse((f as SftpFile)?.LongName, f.Length);
+        return new(
+            f.Name,
+            f.FullName,
+            isDirectory,
+            f.IsSymbolicLink,
+            f.Length,
+            f.LastWriteTime,
+            RemoteEntry.FormatPermissions(isDirectory, f.IsSymbolicLink, UnixPermissions.FromAttributes(f.Attributes)),
+            names?.Owner ?? IdText(f.Attributes.UserId),
+            names?.Group ?? IdText(f.Attributes.GroupId));
+    }
+
+    /// <summary>
+    /// UID ou GID en clair (non signé, comme le serveur l'envoie : 4294967294 et non -2) ; vide si le serveur ne l'a
+    /// pas envoyé (-1).
+    /// </summary>
+    internal static string IdText(int id) => id == -1 ? "" : unchecked((uint)id).ToString(CultureInfo.InvariantCulture);
 }

@@ -4700,4 +4700,10 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   <data name="KeePassTitleRequired" xml:space="preserve">
     <value>Compila un titolo per questa voce.</value>
   </data>
+  <data name="ColumnOwner" xml:space="preserve">
+    <value>Proprietario</value>
+  </data>
+  <data name="ColumnGroup" xml:space="preserve">
+    <value>Gruppo</value>
+  </data>
 </root>

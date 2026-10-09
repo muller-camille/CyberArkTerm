@@ -22,7 +22,9 @@ against GitHub releases (SHA-256 verified download).
    - terminal output: escape sequences parsed by `src/ZillaTerm.Core/Terminal/TerminalEmulator.cs`, including
      replies the emulator sends back (DA, DSR), OSC 7 (current folder) and the private OSC 6973 erase marker;
    - SFTP/SCP/FTP directory listings, file names, symlinks and file contents (`src/ZillaTerm.Core/Ssh/`,
-     `src/ZillaTerm.Core/Ftp/`), used to build local paths for downloads and drag-and-drop to Explorer;
+     `src/ZillaTerm.Core/Ftp/`), used to build local paths for downloads and drag-and-drop to Explorer; the owner and
+     group names of SFTP listings, parsed from the server's free-form `ls -l` style "longname"
+     (`Ssh/SftpLongName.cs`) and shown in the Files tab;
    - the RFB stream of VNC servers (`src/ZillaTerm.Core/Vnc/RfbClient.cs`).
 2. **The PVWA's JSON responses** (`src/ZillaTerm.Core/PvwaClient.cs`): account addresses, user names, platform and
    component names, remote machines and safe names end up in RDP/SSH parameters, PSMP login strings, file names and
@@ -63,7 +65,8 @@ against GitHub releases (SHA-256 verified download).
 ## Less important / out of scope
 
 - `tests/`, `docs/`, `tools/`.
-- Bugs inside third-party packages (SSH.NET, FluentFTP, Argon2) unless ZillaTerm uses them unsafely.
+- Bugs inside third-party packages (SSH.NET, FluentFTP, Argon2) unless ZillaTerm uses them unsafely. The one patch
+  ZillaTerm carries on SSH.NET (keeping the SFTP "longname", built by `tools/sshnet-patched.sh`) is in scope.
 - The CyberArk servers themselves (PVWA, PSM, PSMP) are trusted for authentication; a malicious PVWA is in scope
   only for what it can do to the workstation beyond what CyberArk already lets it do.
 - Attacks that need the local Windows session to be already compromised (malware running as the user can read the

@@ -4700,4 +4700,10 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="KeePassTitleRequired" xml:space="preserve">
     <value>Fill in a title for this entry.</value>
   </data>
+  <data name="ColumnOwner" xml:space="preserve">
+    <value>Owner</value>
+  </data>
+  <data name="ColumnGroup" xml:space="preserve">
+    <value>Group</value>
+  </data>
 </root>

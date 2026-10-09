@@ -279,10 +279,15 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   the "Transfers" toolbar button, and opening the transfer history marks it as seen.
 - **Path bar**: current path, editable (type a path, then Enter). Double-click a folder to enter it, `..` to go up,
   "parent folder" (its icon differs from the "Upload" one) and "home folder" buttons.
-- **Columns and sort**: click a column header (Name, Size, Modified, Permissions); click it again to reverse the
-  order (an arrow shows it). Size and date start with the largest and the newest. Folders stay on top; the sort is
-  kept from one folder and one session to the next. The Name column takes the width left by the others; when the
-  panel is narrow, the Permissions column is hidden rather than cut (it comes back when the panel is widened).
+- **Columns and sort**: click a column header (Name, Size, Modified, Permissions, Owner, Group); click it again to
+  reverse the order (an arrow shows it). Size and date start with the largest and the newest. Folders stay on top; the
+  sort is kept from one folder and one session to the next. The Name column takes the width left by the others; when
+  the panel is narrow, the Group, Owner and then Permissions columns are hidden rather than cut (they come back when
+  the panel is widened).
+- **Owner and Group**: hovering shows `owner:group` (as for `chown`). These are the names that the server sends with
+  the file list, as shown by `ls -l`. Over SFTP, if the line that holds them does not have the usual shape (a name with
+  a space…), ZillaTerm shows the numbers instead (UID and GID, as `ls -n`); over FTP, the columns stay empty if the
+  server gives no names.
 - **Toolbar buttons**: Download, Edit, Rename, Permissions and Delete are greyed out, as in the menu, while the
   selection does not fit; their tooltip says what to select ("Select a single file (not a folder)."…).
 - **Upload files**: drag them from Explorer onto the list (or the "Upload" button). Sent over **SFTP** by default
