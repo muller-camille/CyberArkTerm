@@ -284,9 +284,10 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   sort is kept from one folder and one session to the next. The Name column takes the width left by the others; when
   the panel is narrow, the Group, Owner and then Permissions columns are hidden rather than cut (they come back when
   the panel is widened).
-- **Owner and Group**: hovering shows `owner:group` (as for `chown`). Over FTP, these are the names given by the
-  server (empty if it gives none). Over SFTP, they are the numbers for now (UID and GID, as `ls -n`): the SSH library
-  in use does not keep the names that the server sends yet.
+- **Owner and Group**: hovering shows `owner:group` (as for `chown`). These are the names that the server sends with
+  the file list, as shown by `ls -l`. Over SFTP, if the line that holds them does not have the usual shape (a name with
+  a space…), ZillaTerm shows the numbers instead (UID and GID, as `ls -n`); over FTP, the columns stay empty if the
+  server gives no names.
 - **Toolbar buttons**: Download, Edit, Rename, Permissions and Delete are greyed out, as in the menu, while the
   selection does not fit; their tooltip says what to select ("Select a single file (not a folder)."…).
 - **Upload files**: drag them from Explorer onto the list (or the "Upload" button). Sent over **SFTP** by default

@@ -179,7 +179,9 @@ Tous les détails : [guide d'utilisation → Sécurité](docs/guide.fr.md#sécur
 
 Dépendances externes : [SSH.NET](https://github.com/sshnet/SSH.NET), [FluentFTP](https://github.com/robinrodricks/FluentFTP)
 et [Konscious.Security.Cryptography](https://github.com/kmaragon/Konscious.Security.Cryptography) (Argon2), toutes
-sous licence MIT.
+sous licence MIT. SSH.NET est la version 2026.0.0 plus un correctif qui garde les noms du propriétaire et du groupe
+des listes SFTP, compilée depuis [un fork](https://github.com/muller-camille/SSH.NET) à un commit figé par
+`tools/sshnet-patched.sh`, en attendant une version de SSH.NET qui l'intègre.
 
 ### Traductions
 
@@ -192,9 +194,11 @@ code à `UiLanguage.Supported`.
 
 ### Compiler et tester
 
-Avec le [SDK .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) :
+Avec le [SDK .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0) et Git (Git Bash sous Windows) ; la première
+commande compile le paquet SSH.NET patché dans `local-packages` (une fois suffit) :
 
 ```powershell
+bash tools/sshnet-patched.sh
 dotnet test ZillaTerm.sln
 dotnet run --project src/ZillaTerm.App
 ```

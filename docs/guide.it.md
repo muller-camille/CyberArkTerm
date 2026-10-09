@@ -301,9 +301,10 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   grandi e dai più recenti. Le cartelle restano in cima; l'ordinamento è mantenuto da una cartella e da una sessione
   all'altra. La colonna Nome prende la larghezza lasciata dalle altre; quando il pannello è stretto, le colonne Gruppo,
   Proprietario e poi Permessi vengono nascoste invece di essere tagliate (ricompaiono allargando il pannello).
-- **Proprietario e Gruppo**: passando il mouse compare `proprietario:gruppo` (come per `chown`). In FTP sono i nomi
-  forniti dal server (colonne vuote se non li fornisce). In SFTP sono per ora i numeri (UID e GID, come `ls -n`): la
-  libreria SSH utilizzata non conserva ancora i nomi inviati dal server.
+- **Proprietario e Gruppo**: passando il mouse compare `proprietario:gruppo` (come per `chown`). Sono i nomi che il
+  server invia con l'elenco dei file, come quelli di `ls -l`. In SFTP, se la riga che li contiene non ha la forma
+  abituale (un nome con uno spazio…), ZillaTerm mostra invece i numeri (UID e GID, come `ls -n`); in FTP, le colonne
+  restano vuote se il server non fornisce i nomi.
 - **Pulsanti della barra**: Scarica, Modifica, Rinomina, Permessi ed Elimina sono disattivati, come nel menu, finché
   la selezione non è adatta; la loro descrizione comandi dice cosa scegliere («Seleziona un solo file (non una
   cartella).»…).

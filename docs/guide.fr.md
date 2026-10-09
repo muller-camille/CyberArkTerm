@@ -299,9 +299,10 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   récents. Les dossiers restent en tête ; le tri est gardé d'un dossier et d'une session à l'autre. La colonne Nom
   prend la largeur laissée par les autres ; quand le panneau est étroit, les colonnes Groupe, Propriétaire puis Droits
   sont masquées plutôt que coupées (elles reviennent en élargissant le panneau).
-- **Propriétaire et Groupe** : au survol, `propriétaire:groupe` (comme pour `chown`). En FTP, ce sont les noms donnés
-  par le serveur (colonnes vides s'il ne les donne pas). En SFTP, ce sont pour l'instant les numéros (UID et GID, comme
-  `ls -n`) : la bibliothèque SSH utilisée ne garde pas encore les noms envoyés par le serveur.
+- **Propriétaire et Groupe** : au survol, `propriétaire:groupe` (comme pour `chown`). Ce sont les noms que le serveur
+  envoie avec la liste des fichiers, comme ceux de `ls -l`. En SFTP, si la ligne qui les contient n'a pas la forme
+  habituelle (nom avec une espace…), ZillaTerm affiche à la place les numéros (UID et GID, comme `ls -n`) ; en FTP, les
+  colonnes restent vides si le serveur ne donne pas les noms.
 - **Boutons de la barre** : Télécharger, Modifier, Renommer, Droits et Supprimer sont grisés, comme dans le menu,
   tant que la sélection ne convient pas ; leur infobulle dit quoi choisir (« Choisissez un seul fichier (pas un
   dossier). »…).
