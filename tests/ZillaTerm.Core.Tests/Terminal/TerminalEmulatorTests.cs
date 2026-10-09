@@ -527,7 +527,7 @@ public class TerminalSupportTests
     {
         var command = WorkingDirectory.InjectionCommand();
 
-        Assert.Contains("case \";$PROMPT_COMMAND;\" in *\";__catosc7;\"*)", command);
+        Assert.Contains("case \";${PROMPT_COMMAND-};\" in *\";__catosc7;\"*)", command);
         Assert.Contains("precmd_functions[(I)__catosc7]", command);
     }
 
@@ -537,13 +537,18 @@ public class TerminalSupportTests
         // csh refuse toute la ligne s'il y lit du code bash : chaque partie passe entre apostrophes à eval.
         var command = WorkingDirectory.InjectionCommand();
 
-        Assert.StartsWith(" test -n \"$shell\" || test -n \"$FISH_VERSION\" || eval '", command);
-        Assert.Contains(";test -n \"$shell\" && eval '", command);
+        // Aucune variable lue hors des apostrophes : un shell POSIX en « set -u » abandonnerait toute la ligne.
+        Assert.StartsWith(" eval 'test \"$?shell\" '\\!'= 1' && eval '", command);
+        Assert.Contains(";eval 'test \"$?shell\" = 1' && eval '", command);
         Assert.EndsWith(";printf '\\033]6973;\\007'\r", command);
 
         var words = ShellWords(command, fish: false);
-        var posix = words[words.IndexOf("eval") + 1];
+        Assert.Equal(["eval", "test \"$?shell\" != 1", "&&", "eval"], words[..4]);
+        var posix = words[4];
         var csh = words[words.LastIndexOf("eval") + 1];
+        Assert.DoesNotMatch(@"\$[A-Za-z_]", string.Concat(words.Where(w => w is not ("eval" or "&&") && w != posix && w != csh)));
+        Assert.DoesNotContain("\"$PROMPT_COMMAND", posix);
+        Assert.DoesNotContain("\"$ZSH_VERSION", posix);
         Assert.StartsWith("__catosc7(){ printf '\\033]7;%s\\007' \"$PWD\";};", posix);
         Assert.Contains("PROMPT_COMMAND=\"__catosc7${PROMPT_COMMAND:+;$PROMPT_COMMAND}\"", posix);
         Assert.StartsWith("if ($?tcsh && ! $?__catosc7 && `alias cwdcmd | wc -c` == 0) set __catosc7;", csh);
@@ -564,16 +569,16 @@ public class TerminalSupportTests
         Assert.Equal(words, ShellWords(command, fish: true));
         Assert.DoesNotMatch(@"(?<!\\)!", command);
 
-        var posix = words[words.IndexOf("eval") + 1];
+        var posix = words[4];
         Assert.StartsWith($"cd -- {WorkingDirectory.ShellQuote(directory)} 2>/dev/null;", posix);
-        var csh = words[words.LastIndexOf("eval") + 1];
+        var csh = words[words.LastIndexOf("eval") - 1];
         var cshPath = WorkingDirectory.ShellQuote(directory.StartsWith('-') ? "./" + directory : directory).Replace("!", "\\!");
         Assert.Contains($"if (-d {cshPath}) cd {cshPath};", csh);
 
-        // fish : « cd » seul, après le test de « shell » pour que csh ne lise jamais FISH_VERSION.
-        var fish = words.LastIndexOf("\"$FISH_VERSION\"");
-        Assert.Equal(["test", "-n", "\"$shell\"", "||", "test", "-z", "\"$FISH_VERSION\"", "||", "cd"], words[(fish - 6)..(fish + 3)]);
-        Assert.Equal(directory.StartsWith('-') ? "./" + directory : directory, words[fish + 3]);
+        // fish : « cd » seul, quand le test de « $?shell » échoue, ce qui n'arrive qu'avec lui.
+        var fish = words.LastIndexOf("eval");
+        Assert.Equal(["eval", "test \"$?shell\"", "||", "cd"], words[fish..(fish + 4)]);
+        Assert.Equal(directory.StartsWith('-') ? "./" + directory : directory, words[fish + 4]);
     }
 
     /// <summary>Mots d'une ligne de commande : apostrophes, et « \ » hors apostrophes (fish : « \' » et « \\ » aussi dedans).</summary>
