@@ -6,7 +6,8 @@
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <DockPanel Margin="16">
         <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-            <ComboBox x:Name="FilterBox" DockPanel.Dock="Left" MinWidth="180" Margin="0,0,12,0" SelectedIndex="0">
+            <ComboBox x:Name="FilterBox" DockPanel.Dock="Left" MinWidth="180" Margin="0,0,12,0" SelectedIndex="0"
+                      AutomationProperties.Name="{x:Static loc:Strings.A11yHistoryFilter}">
                 <ComboBoxItem Content="{x:Static loc:Strings.HistoryFilterAll}" />
                 <ComboBoxItem Content="{x:Static loc:Strings.HistoryFilterUploads}" />
                 <ComboBoxItem Content="{x:Static loc:Strings.HistoryFilterDownloads}" />

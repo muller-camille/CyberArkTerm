@@ -111,7 +111,7 @@ peut pas le télécharger lui-même) ; vos réglages sont repris au premier dém
 
 ## Prise en main
 
-1. **Se connecter** : adresse du PVWA (`pvwa.mondomaine.local` suffit), méthode d'authentification, utilisateur et mot
+1. **S'identifier** : adresse du PVWA (`pvwa.mondomaine.local` suffit), méthode d'authentification, utilisateur et mot
    de passe. L'adresse, la méthode et l'utilisateur sont mémorisés ; le mot de passe jamais. Pour reprendre la
    configuration de votre équipe : « Importer un environnement… » sur le même écran, ou un fichier `ZillaTerm.env.json`
    posé à côté de l'exécutable.

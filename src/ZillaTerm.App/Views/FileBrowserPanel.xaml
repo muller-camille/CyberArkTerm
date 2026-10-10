@@ -41,8 +41,9 @@
                     </TextBlock>
                     <ProgressBar x:Name="Bar" Height="4" Margin="0,2,0,0" Maximum="100" Value="{Binding Percent, Mode=OneWay}" Visibility="Collapsed" />
                 </StackPanel>
+                <!-- « ✕ » n'a pas de nom lisible : celui de l'action, qui suit l'état (retirer, annuler, détails). -->
                 <Button x:Name="ItemButton" Grid.Column="2" Content="✕" ToolTip="{x:Static loc:Strings.QueueRemoveTip}" Click="OnCancelTransfer"
-                        Margin="6,0,0,0" Padding="6,0" VerticalAlignment="Top" />
+                        Margin="6,0,0,0" Padding="6,0" VerticalAlignment="Top" AutomationProperties.Name="{x:Static loc:Strings.QueueRemoveTip}" />
             </Grid>
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding Upload}" Value="False">
@@ -52,6 +53,7 @@
                     <Setter TargetName="Bar" Property="Visibility" Value="Visible" />
                     <Setter TargetName="ItemButton" Property="Content" Value="{x:Static loc:Strings.QueueCancel}" />
                     <Setter TargetName="ItemButton" Property="ToolTip" Value="{x:Static loc:Strings.QueueCancelTip}" />
+                    <Setter TargetName="ItemButton" Property="AutomationProperties.Name" Value="{x:Static loc:Strings.QueueCancel}" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding CancelRequested}" Value="True">
                     <Setter TargetName="ItemButton" Property="IsEnabled" Value="False" />
@@ -60,14 +62,17 @@
                 <DataTrigger Binding="{Binding State}" Value="Done">
                     <Setter TargetName="ItemButton" Property="Content" Value="{x:Static loc:Strings.QueueDetails}" />
                     <Setter TargetName="ItemButton" Property="ToolTip" Value="{x:Static loc:Strings.QueueDetailsTip}" />
+                    <Setter TargetName="ItemButton" Property="AutomationProperties.Name" Value="{x:Static loc:Strings.QueueDetails}" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding State}" Value="Failed">
                     <Setter TargetName="ItemButton" Property="Content" Value="{x:Static loc:Strings.QueueDetails}" />
                     <Setter TargetName="ItemButton" Property="ToolTip" Value="{x:Static loc:Strings.QueueDetailsTip}" />
+                    <Setter TargetName="ItemButton" Property="AutomationProperties.Name" Value="{x:Static loc:Strings.QueueDetails}" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding State}" Value="Cancelled">
                     <Setter TargetName="ItemButton" Property="Content" Value="{x:Static loc:Strings.QueueDetails}" />
                     <Setter TargetName="ItemButton" Property="ToolTip" Value="{x:Static loc:Strings.QueueDetailsTip}" />
+                    <Setter TargetName="ItemButton" Property="AutomationProperties.Name" Value="{x:Static loc:Strings.QueueDetails}" />
                 </DataTrigger>
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
@@ -179,7 +184,9 @@
             </DockPanel>
 
             <!-- Barre d'outils du navigateur -->
-            <StackPanel x:Name="Toolbar" Orientation="Horizontal" Margin="-2,6,0,0">
+            <!-- Un seul arrêt de tabulation pour la barre ; les flèches passent d'un bouton à l'autre. -->
+            <StackPanel x:Name="Toolbar" Orientation="Horizontal" Margin="-2,6,0,0" KeyboardNavigation.TabNavigation="Once"
+                        KeyboardNavigation.DirectionalNavigation="Cycle">
                 <Button Style="{StaticResource SmallToolButton}" Click="OnParent" ToolTip="{x:Static loc:Strings.ParentTip}">
                     <Image Source="{StaticResource IconParentFolder}" Style="{StaticResource SmallIcon}" />
                 </Button>
@@ -225,7 +232,7 @@
             <!-- Barre de navigation : chemin courant, modifiable -->
             <Grid Margin="0,6,0,0">
                 <TextBox x:Name="PathBox" FontFamily="Consolas, Courier New" Padding="4,4" KeyDown="OnPathKeyDown"
-                         ToolTip="{x:Static loc:Strings.PathTip}" />
+                         ToolTip="{x:Static loc:Strings.PathTip}" AutomationProperties.Name="{x:Static loc:Strings.A11yFolderPath}" />
             </Grid>
 
             <!-- Filtre sur le nom des éléments du dossier affiché (vidé au changement de dossier). -->
@@ -240,12 +247,17 @@
                 <views:ClearFieldButton Target="{Binding ElementName=FilterBox}" />
             </Grid>
 
-            <DockPanel Margin="0,6,0,0">
-                <CheckBox x:Name="HiddenBox" DockPanel.Dock="Right" Content="{x:Static loc:Strings.Hidden}" Click="OnHiddenChanged"
-                          ToolTip="{x:Static loc:Strings.HiddenTip}" />
+            <!-- Ordre de tabulation = ordre visuel : « Suivre le dossier » à gauche, puis « Cachés » à droite. -->
+            <Grid Margin="0,6,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
                 <CheckBox x:Name="FollowBox" Content="{x:Static loc:Strings.FollowTerminal}" Click="OnFollowChanged"
                           ToolTip="{x:Static loc:Strings.FollowTip}" />
-            </DockPanel>
+                <CheckBox Grid.Column="1" x:Name="HiddenBox" Content="{x:Static loc:Strings.Hidden}" Click="OnHiddenChanged"
+                          ToolTip="{x:Static loc:Strings.HiddenTip}" />
+            </Grid>
         </StackPanel>
 
         <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource ToolbarBorderBrush}" BorderThickness="0,1,0,0" Padding="8,4">
@@ -263,7 +275,7 @@
                         </DockPanel>
                         <TextBlock Text="{x:Static loc:Strings.ArchiveExtractHelp}" TextWrapping="Wrap" Margin="0,4,0,4" />
                         <TextBox x:Name="ExtractCommandBox" IsReadOnly="True" FontFamily="Consolas, Courier New" TextWrapping="Wrap"
-                                 Padding="4" Background="{DynamicResource ContentBrush}" />
+                                 Padding="4" Background="{DynamicResource ContentBrush}" AutomationProperties.Name="{x:Static loc:Strings.A11yExtractCommand}" />
                         <WrapPanel Margin="0,6,0,0">
                             <Button Padding="10,3" Margin="0,0,6,0" FontWeight="SemiBold" Click="OnCopyExtractCommand"
                                     Content="{x:Static loc:Strings.ArchiveCopyCommand}" />

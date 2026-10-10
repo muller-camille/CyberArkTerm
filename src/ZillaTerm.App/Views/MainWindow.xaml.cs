@@ -124,8 +124,9 @@ public partial class MainWindow : Window
             QuickPanel.Visibility = HomeLists.Visibility = NewFolderButton.Visibility = Visibility.Collapsed;
             // Boutons propres à CyberArk masqués plutôt que grisés : ils ne serviraient jamais dans ce mode.
             SshButton.Visibility = AdvancedButton.Visibility = AddCurrentButton.Visibility = RefreshButton.Visibility = Visibility.Collapsed;
-            ImportServersButton.Visibility = ExportServersButton.Visibility = ImportSessionsButton.Visibility = Visibility.Collapsed;
-            SharedListsButton.Visibility = SharedSeparator.Visibility = Visibility.Collapsed;
+            // Menus « Importer » et « Partager » de « Mes serveurs » aussi ; la base KeePass s'ajoute alors par son bouton.
+            ImportMenuButton.Visibility = ShareMenuButton.Visibility = SharedSeparator.Visibility = Visibility.Collapsed;
+            AddKeePassButton.Visibility = Visibility.Visible;
             SideTabs.SelectedItem = CurrentTab;
             CountText.Text = "";
         }
@@ -365,8 +366,13 @@ public partial class MainWindow : Window
     {
         var groups = AccountGrouping.Group(_shown, _settings.GroupBy);
         bool expand = _query.Trim().Length > 0 || groups.Count == 1;
+        // Comptes du même nom dans un dossier : ce qui les distingue ; pendant une recherche, le champ caché qui correspond.
         SessionTree.ItemsSource = groups
-            .Select(g => new FolderNode(g.Name, g.Accounts.Select(a => new AccountNode(a)).ToList(), expand))
+            .Select(g =>
+            {
+                var distinctions = AccountGrouping.Distinctions(g.Accounts);
+                return new FolderNode(g.Name, g.Accounts.Select(a => new AccountNode(a, distinctions.GetValueOrDefault(a), _query, g.Name)).ToList(), expand);
+            })
             .ToList();
     }
 

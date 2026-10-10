@@ -88,7 +88,7 @@ public partial class CompareDialog : Window
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
-            ShowError(Text.Format(Strings.SftpFailed, ex.Message));
+            ShowError(Text.Format(Strings.SftpFailed, global::ZillaTerm.App.ErrorText.Describe(ex)));
             return;
         }
         finally

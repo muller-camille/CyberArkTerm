@@ -1111,6 +1111,32 @@ public sealed class DialogTests
     }
 
     /// <summary>
+    /// « Options avancées » : les deux champs du ticket ont chacun un nom pour les lecteurs d'écran, et la colonne des
+    /// étiquettes suit la longueur des textes (italien) au lieu d'une largeur fixe.
+    /// </summary>
+    [Fact]
+    public void AdvancedOptionsNameTheTicketFieldsAndFitTheLabels()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var account = new PvwaAccount { Id = "5_3", UserName = "admin", Address = "srv01.corp.local", PlatformId = "WinServerLocal" };
+            var dialog = new ConnectDialog(account, new ConnectRequest(ConnectMode.Psm, "PSM-RDP"), new AppSettings(), "jdoe", null);
+            Assert.Equal(Strings.TicketSystemTip, System.Windows.Automation.AutomationProperties.GetName(dialog.TicketSystemBox));
+            Assert.Equal(Strings.TicketIdTip, System.Windows.Automation.AutomationProperties.GetName(dialog.TicketIdBox));
+            var fields = Assert.IsType<System.Windows.Controls.Grid>(dialog.ComponentBox.Parent);
+            Assert.Equal(GridUnitType.Auto, fields.ColumnDefinitions[0].Width.GridUnitType);
+            Assert.Same(fields, dialog.RememberBox.Parent);
+            Assert.Equal(1, System.Windows.Controls.Grid.GetColumn(dialog.RememberBox));
+            dialog.Close();
+        });
+    }
+
+    /// <summary>
     /// Entrée KeePass : une nouvelle entrée sans adresse est refusée, une entrée qui avait une adresse la garde ; une entrée
     /// existante sans adresse (mot de passe seul) se modifie, avec un titre.
     /// </summary>
@@ -1545,7 +1571,8 @@ public sealed class DialogTests
 
     /// <summary>
     /// Fenêtre principale avant le chargement des comptes : connexions récentes grisées, liste partagée lue en
-    /// arrière-plan et affichée avant « Mes serveurs », boutons d'import et d'export dans l'onglet.
+    /// arrière-plan et affichée avant « Mes serveurs », menus « Importer » et « Partager » dans l'onglet, aucun serveur
+    /// signalé introuvable tant que les comptes ne sont pas chargés.
     /// </summary>
     [Fact]
     public void MainWindowShowsSharedListsAndWaitsForTheAccounts()
@@ -1575,8 +1602,14 @@ public sealed class DialogTests
                 Assert.False(window.RecentList.IsEnabled);
                 Assert.Equal("root@web01", Assert.Single(Assert.IsAssignableFrom<IEnumerable<RecentSession>>(window.RecentList.ItemsSource)).Label);
                 Assert.Equal(Visibility.Visible, window.RecentLoadingText.Visibility);
-                Assert.Equal(Visibility.Visible, window.ImportServersButton.Visibility);
-                Assert.Equal(Visibility.Visible, window.SharedListsButton.Visibility);
+                Assert.Equal(Visibility.Visible, window.ImportMenuButton.Visibility);
+                Assert.Equal(Visibility.Visible, window.ShareMenuButton.Visibility);
+                Assert.Equal(Visibility.Collapsed, window.AddKeePassButton.Visibility);
+                // Imports distingués par leur libellé : fichier ZillaTerm, autre logiciel, liste partagée, base KeePass.
+                Assert.Equal([Strings.MenuImportServerFile, Strings.MenuImportOtherTool, Strings.MenuOpenSharedList, Strings.MenuKeePassAdd],
+                    window.ImportMenuButton.ContextMenu.Items.OfType<System.Windows.Controls.MenuItem>().Select(i => (string)i.Header));
+                Assert.Equal([Strings.MenuExportMyServers, Strings.MenuCreateSharedList],
+                    window.ShareMenuButton.ContextMenu.Items.OfType<System.Windows.Controls.MenuItem>().Select(i => (string)i.Header));
 
                 PumpUntil(() => window.SavedTree.ItemsSource is IEnumerable<object> items && items.OfType<SharedListNode>().Any(n => n.IsReadable));
                 var nodes = ((IEnumerable<object>)window.SavedTree.ItemsSource).ToList();
@@ -1584,7 +1617,9 @@ public sealed class DialogTests
                 Assert.Equal(("Équipe", " (2)"), (shared.Name, shared.StateText));
                 Assert.Equal("Prod", Assert.IsType<SharedFolderNode>(shared.Children[0]).Name);
                 var db = Assert.IsType<SharedServerNode>(shared.Children[1]);
-                Assert.Equal(("db01", 0.5), (db.Title, db.Opacity));
+                Assert.Equal("db01", db.Title);
+                Assert.False(db.IsMissing);
+                Assert.DoesNotContain(Strings.MissingInCyberArk, db.ToString());
                 Assert.Contains("alice", db.Details);
                 Assert.Equal("root@app01", Assert.IsType<SavedSessionNode>(nodes[1]).Title);
                 window.StopWatchingSharedLists();

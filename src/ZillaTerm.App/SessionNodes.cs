@@ -23,19 +23,50 @@ public sealed class FolderNode(string name, IReadOnlyList<AccountNode> children,
     public override string ToString() => $"{Name} ({Count})";
 }
 
-/// <summary>Compte affiché dans l'arbre des sessions.</summary>
-public sealed class AccountNode(PvwaAccount account)
+/// <summary>
+/// Compte affiché dans l'arbre des sessions. <paramref name="distinction"/> le distingue des comptes du même nom dans
+/// son dossier (voir <see cref="AccountGrouping.Distinctions"/>) ; pendant une recherche, <paramref name="query"/> et
+/// <paramref name="folder"/> (nom du dossier, déjà visible) font dire quel champ caché correspond.
+/// </summary>
+public sealed class AccountNode(PvwaAccount account, string? distinction = null, string? query = null, string? folder = null)
 {
     public PvwaAccount Account { get; } = account;
 
     public string Title => $"{Account.UserName}@{Account.Address}";
 
+    /// <summary>
+    /// Texte discret après le nom : ce qui distingue le compte d'un autre du même nom, et pourquoi il correspond à la
+    /// recherche quand le nom ne le montre pas (« correspond : machine prd-jump01 »). Vide sinon.
+    /// </summary>
+    public string Hint { get; } = HintFor(account, distinction, query, folder);
+
     /// <summary>La dernière opération du CPM (changement, vérification, réconciliation) a échoué.</summary>
     public bool CpmFailed => Account.SecretManagement?.Failed == true;
 
-    /// <summary>Nom lu par les lecteurs d'écran : compte, plateforme, safe, et l'échec du CPM (signalé à l'écran par un triangle).</summary>
+    /// <summary>
+    /// Nom lu par les lecteurs d'écran : compte, plateforme, safe, ce qui le distingue ou fait correspondre la recherche,
+    /// et l'échec du CPM (signalé à l'écran par un triangle).
+    /// </summary>
     public override string ToString() =>
-        $"{Title}, {Account.PlatformId}, {Account.SafeName}" + (CpmFailed ? ", " + Strings.A11yCpmFailed : "");
+        $"{Title}, {Account.PlatformId}, {Account.SafeName}" + (Hint.Length > 0 ? ", " + Hint : "") + (CpmFailed ? ", " + Strings.A11yCpmFailed : "");
+
+    private static string HintFor(PvwaAccount account, string? distinction, string? query, string? folder)
+    {
+        var shown = $"{account.UserName}@{account.Address} {distinction} {folder}";
+        var matches = AccountFilter.HiddenMatches(account, query, shown);
+        var parts = new List<string>();
+        if (!string.IsNullOrEmpty(distinction))
+        {
+            parts.Add(distinction);
+        }
+
+        if (matches.Count > 0)
+        {
+            parts.Add(Text.Format(Strings.MatchReason, string.Join(", ", matches)));
+        }
+
+        return string.Join(" · ", parts);
+    }
 
     public string Details
     {
@@ -154,8 +185,11 @@ public sealed class SavedFolderNode(string path, List<object> children, bool isE
     public override string ToString() => $"{Name} ({Count})";
 }
 
-/// <summary>Serveur de « Mes serveurs » ; <see cref="Account"/> est null si le compte n'est plus visible dans CyberArk.</summary>
-public sealed class SavedSessionNode(SavedSession session, PvwaAccount? account) : System.ComponentModel.INotifyPropertyChanged
+/// <summary>
+/// Serveur de « Mes serveurs » ; <see cref="Account"/> est null si le compte n'est plus visible dans CyberArk, ou tant que
+/// la liste des comptes n'est pas chargée (<paramref name="accountsKnown"/> faux : rien n'est alors signalé).
+/// </summary>
+public sealed class SavedSessionNode(SavedSession session, PvwaAccount? account, bool accountsKnown = true) : System.ComponentModel.INotifyPropertyChanged
 {
     private bool _isMarked;
 
@@ -183,12 +217,13 @@ public sealed class SavedSessionNode(SavedSession session, PvwaAccount? account)
 
     public string ModeText => Session.Mode == ConnectMode.Psm ? Session.Component ?? "PSM" : SessionLibrary.ModeName(Session.Mode);
 
-    public double Opacity => Account is null ? 0.5 : 1;
+    /// <summary>Compte introuvable dans CyberArk : « ⚠ introuvable dans CyberArk » après le nom, en clair (pas d'opacité).</summary>
+    public bool IsMissing => accountsKnown && Account is null;
 
     public bool IsExpanded { get; set; }
 
     public override string ToString() =>
-        $"{Title}, {ModeText}" + (IsMarked ? ", " + Strings.A11yMarked : "") + (Account is null ? ", " + Strings.A11yUnavailable : "");
+        $"{Title}, {ModeText}" + (IsMarked ? ", " + Strings.A11yMarked : "") + (IsMissing ? ", " + Strings.MissingInCyberArk : "");
 
     public string Details
     {
@@ -205,11 +240,11 @@ public sealed class SavedSessionNode(SavedSession session, PvwaAccount? account)
                 lines.Add(Text.Format(Strings.SavedSftpFolder, Session.StartDirectory));
             }
 
-            if (Account is null)
+            if (IsMissing)
             {
                 lines.Add(Strings.SavedAccountMissing);
             }
-            else
+            else if (Account is not null)
             {
                 lines.AddRange(CpmText.Describe(Account.SecretManagement));
             }
@@ -257,4 +292,17 @@ public sealed class RecentDateConverter : IValueConverter
             _ => $"{when.ToString("d", CultureInfo.CurrentCulture)} {time}",
         };
     }
+}
+
+/// <summary>
+/// Texte traduit mis en forme avec la valeur liée (ConverterParameter : le texte), comme StringFormat mais avec l'accord
+/// des mots avec un nombre (« {0:# ligne|# lignes} »).
+/// </summary>
+public sealed class TextFormatConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        parameter is string format ? Text.Format(format, value) : value?.ToString();
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
 }

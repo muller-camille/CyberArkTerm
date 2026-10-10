@@ -47,7 +47,7 @@
             </CheckBox>
             <Label Grid.Row="3" Content="{x:Static loc:Strings.KeePassKeyFileLabel}" Target="{Binding ElementName=KeyFileBox}" />
             <TextBox Grid.Row="3" Grid.Column="1" x:Name="KeyFileBox" VerticalContentAlignment="Center" />
-            <Button Grid.Row="3" Grid.Column="2" Content="{x:Static loc:Strings.Browse}" Click="OnBrowseKeyFile" Margin="8,0,0,0" />
+            <Button Grid.Row="3" Grid.Column="2" Content="{x:Static loc:Strings.BrowseOther}" Click="OnBrowseKeyFile" Margin="8,0,0,0" />
             <TextBlock Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Text="{x:Static loc:Strings.KeePassKeyFileHint}"
                        Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,4,0,8" />
             <views:ErrorLine Grid.Row="5" Grid.ColumnSpan="3" x:Name="ErrorText" Visibility="Collapsed" />

@@ -153,7 +153,7 @@ public partial class RemoteFileDialog : Window
     {
         Renci.SshNet.Common.SftpPermissionDeniedException => Strings.PermissionDenied,
         Renci.SshNet.Common.SftpPathNotFoundException => Strings.PathNotFound,
-        _ => e.Message,
+        _ => ErrorText.Describe(e),
     };
 
     private void SetStatus(string text, bool error = false)

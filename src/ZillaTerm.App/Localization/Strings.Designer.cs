@@ -56,7 +56,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Look for a new version when ZillaTerm starts (at most once a day; a request to GitHub).
+        ///   Looks up a localized string similar to _Look for a new version when ZillaTerm starts (at most once a day; a request to GitHub).
         /// </summary>
         public static string AboutAutoCheck {
             get {
@@ -353,7 +353,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} account(s) imported.
+        ///   Looks up a localized string similar to {0:# account|# accounts} imported.
         /// </summary>
         public static string AccountsImported {
             get {
@@ -848,7 +848,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ✓ The {0} file(s) are identical on both sides..
+        ///   Looks up a localized string similar to {0:✓ The file is identical on both sides.|✓ The # files are identical on both sides.}.
         /// </summary>
         public static string ChecksAllOk {
             get {
@@ -911,7 +911,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Copied: {0} line(s).
+        ///   Looks up a localized string similar to Copied: {0:# line|# lines}.
         /// </summary>
         public static string ChecksCopied {
             get {
@@ -1001,7 +1001,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ✗ {0} file(s) out of {1} differ: transfer them again..
+        ///   Looks up a localized string similar to ✗ {0:# file|# files} out of {1} {0:differs|differ}: transfer {0:it|them} again..
         /// </summary>
         public static string ChecksSomeDiffer {
             get {
@@ -1010,7 +1010,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ✗ {0} file(s) out of {1} failed..
+        ///   Looks up a localized string similar to ✗ {0:# file|# files} out of {1} failed..
         /// </summary>
         public static string ChecksSomeFailed {
             get {
@@ -1019,7 +1019,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ⏹ {0} file(s) out of {1} interrupted by a cancellation: incomplete copy deleted..
+        ///   Looks up a localized string similar to ⏹ {0:# file|# files} out of {1} interrupted by a cancellation: incomplete copy deleted..
         /// </summary>
         public static string ChecksSomeInterrupted {
             get {
@@ -1028,7 +1028,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ⚠ {0} file(s) out of {1} could not be read again: transferred but not checked..
+        ///   Looks up a localized string similar to ⚠ {0:# file|# files} out of {1} could not be read again: transferred but not checked..
         /// </summary>
         public static string ChecksSomeUnverified {
             get {
@@ -1199,7 +1199,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ··· {0} identical line(s) ···.
+        ///   Looks up a localized string similar to ··· {0:# identical line|# identical lines} ···.
         /// </summary>
         public static string CompareHiddenLines {
             get {
@@ -1442,7 +1442,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} difference(s) · {1} line(s) removed, {2} added.
+        ///   Looks up a localized string similar to {0:# difference|# differences} · {1:# line|# lines} removed, {2} added.
         /// </summary>
         public static string CompareSummary {
             get {
@@ -1550,7 +1550,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Session connection.
+        ///   Looks up a localized string similar to Advanced connection options.
         /// </summary>
         public static string ConnectTitle {
             get {
@@ -1613,7 +1613,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} server(s) copied into My servers ({1} already present).
+        ///   Looks up a localized string similar to {0:# server|# servers} copied into My servers ({1} already present).
         /// </summary>
         public static string CopiedToMyServers {
             get {
@@ -1622,7 +1622,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Already in My servers ({0} server(s))..
+        ///   Looks up a localized string similar to Already in My servers ({0:# server|# servers})..
         /// </summary>
         public static string CopiedToMyServersNone {
             get {
@@ -2027,7 +2027,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} item(s) downloaded by drag and drop..
+        ///   Looks up a localized string similar to {0:# item|# items} downloaded by drag and drop..
         /// </summary>
         public static string DragDownloaded {
             get {
@@ -2612,7 +2612,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Let the file browser follow the terminal folder (sets PROMPT_COMMAND in the shell when the sessio[rest of string was truncated].
+        ///   Looks up a localized string similar to _Let the file browser follow the terminal folder (sets PROMPT__COMMAND in the shell when the session opens).
         /// </summary>
         public static string FollowSetting {
             get {
@@ -3062,7 +3062,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Creating {0} account(s) in CyberArk, one line at a time..
+        ///   Looks up a localized string similar to Creating {0:# account|# accounts} in CyberArk, one line at a time..
         /// </summary>
         public static string ImportRunning {
             get {
@@ -3080,7 +3080,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Import {0} server(s) into My servers from “{1}”?.
+        ///   Looks up a localized string similar to Import {0:# server|# servers} into My servers from “{1}”?.
         /// </summary>
         public static string ImportServersConfirm {
             get {
@@ -3089,7 +3089,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} server(s) already in My servers will be skipped..
+        ///   Looks up a localized string similar to {0:# server already in My servers will be skipped.|# servers already in My servers will be skipped.}.
         /// </summary>
         public static string ImportServersDuplicates {
             get {
@@ -3116,7 +3116,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Nothing to import: the {0} server(s) of this file are already in My servers..
+        ///   Looks up a localized string similar to Nothing to import: this file only has servers already in My servers ({0:# server|# servers})..
         /// </summary>
         public static string ImportServersNothing {
             get {
@@ -3143,7 +3143,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Import a list of servers (file exported from My servers, or shared list).
+        ///   Looks up a localized string similar to Import the servers of a file exported from My servers (on this computer or by a colleague), or of a shared list.
         /// </summary>
         public static string ImportServersTip {
             get {
@@ -3161,7 +3161,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The PVWA session has expired: import stopped, {0} created, {1} refused; the other lines were not [rest of string was truncated].
+        ///   Looks up a localized string similar to The CyberArk session has expired: import stopped, {0} created, {1} refused; the other lines were not sent..
         /// </summary>
         public static string ImportSessionExpired {
             get {
@@ -3206,7 +3206,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} account(s) to create, {1} line(s) with an error (not imported)..
+        ///   Looks up a localized string similar to {0:# account|# accounts} to create, {1:# line|# lines} with an error (not imported)..
         /// </summary>
         public static string ImportSummary {
             get {
@@ -3296,20 +3296,11 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} items.
+        ///   Looks up a localized string similar to {0:# item|# items}.
         /// </summary>
         public static string ItemsCount {
             get {
                 return ResourceManager.GetString("ItemsCount", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to {0} items in {1}.
-        /// </summary>
-        public static string ItemsIn {
-            get {
-                return ResourceManager.GetString("ItemsIn", resourceCulture);
             }
         }
 
@@ -3739,7 +3730,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to KeePass database {0} unlocked ({1} entries).
+        ///   Looks up a localized string similar to KeePass database {0} unlocked ({1:# entry|# entries}).
         /// </summary>
         public static string KeePassUnlocked {
             get {
@@ -3793,7 +3784,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Keep the PVWA session open while ZillaTerm runs (a light request every 4 minutes, paused while[rest of string was truncated].
+        ///   Looks up a localized string similar to _Keep the CyberArk session open while ZillaTerm runs (a light request every 4 minutes, paused while Windows is locked).
         /// </summary>
         public static string KeepAlive {
             get {
@@ -3811,7 +3802,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Applied after signing out or at the next start..
+        ///   Looks up a localized string similar to Applied after signing out of CyberArk or at the next start..
         /// </summary>
         public static string LanguageHelp {
             get {
@@ -3982,7 +3973,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Local vault unlocked: {0} remembered password(s)..
+        ///   Looks up a localized string similar to Local vault unlocked: {0:# remembered password|# remembered passwords}..
         /// </summary>
         public static string LocalStoreStateUnlocked {
             get {
@@ -4180,7 +4171,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Advanced connection….
+        ///   Looks up a localized string similar to _Advanced options….
         /// </summary>
         public static string MenuConnectAdvanced {
             get {
@@ -4189,7 +4180,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Connect to the {0} servers (one tab each).
+        ///   Looks up a localized string similar to {0:Connect (# server)|Connect to the # servers (one tab each)}.
         /// </summary>
         public static string MenuConnectMany {
             get {
@@ -4558,7 +4549,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Open in the _parallel view ({0} SSH servers).
+        ///   Looks up a localized string similar to Open in the _parallel view ({0:# SSH server|# SSH servers}).
         /// </summary>
         public static string MenuOpenFolderInParallel {
             get {
@@ -5314,7 +5305,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ⚠ Simultaneous typing: what you type is sent to {0} session(s): {1}. Untick a session to exclude it..
+        ///   Looks up a localized string similar to ⚠ Simultaneous typing: what you type is sent to {0:# session|# sessions}: {1}. Untick a session to exclude it..
         /// </summary>
         public static string ParallelBroadcastBanner {
             get {
@@ -5485,7 +5476,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} session(s) opened in the parallel view..
+        ///   Looks up a localized string similar to {0:# session|# sessions} opened in the parallel view..
         /// </summary>
         public static string ParallelOpenedStatus {
             get {
@@ -5566,7 +5557,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} Windows (PSM) server(s) left out..
+        ///   Looks up a localized string similar to {0:# Windows (PSM) server|# Windows (PSM) servers} left out..
         /// </summary>
         public static string ParallelSkippedPsm {
             get {
@@ -5710,7 +5701,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Permissions {0} applied: {1} items.
+        ///   Looks up a localized string similar to Permissions {0} applied: {1:# item|# items}.
         /// </summary>
         public static string PermissionsDoneCount {
             get {
@@ -5800,7 +5791,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Changing permissions… {0} items done.
+        ///   Looks up a localized string similar to Changing permissions… {0:# item|# items} done.
         /// </summary>
         public static string PermissionsProgress {
             get {
@@ -6124,7 +6115,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ✗ {0} file(s) differ.
+        ///   Looks up a localized string similar to ✗ {0:# file differs|# files differ}.
         /// </summary>
         public static string QueueStateDifferent {
             get {
@@ -6349,15 +6340,6 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Remote desktop.
-        /// </summary>
-        public static string RdpTitle {
-            get {
-                return ResourceManager.GetString("RdpTitle", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Reading {0}….
         /// </summary>
         public static string Reading {
@@ -6439,7 +6421,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} item(s).
+        ///   Looks up a localized string similar to {0:# item|# items}.
         /// </summary>
         public static string RemotePickCount {
             get {
@@ -6826,7 +6808,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} member(s).
+        ///   Looks up a localized string similar to {0:# member|# members}.
         /// </summary>
         public static string SafeMembersCount {
             get {
@@ -7186,7 +7168,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} server(s) selected: right-click one of them to open them together (Esc to cancel)..
+        ///   Looks up a localized string similar to {0:# server|# servers} selected: right-click one of them to open them together (Esc to cancel)..
         /// </summary>
         public static string SavedMarkedStatus {
             get {
@@ -7195,7 +7177,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} server(s) no longer found in CyberArk..
+        ///   Looks up a localized string similar to {0:# server|# servers} no longer found in CyberArk..
         /// </summary>
         public static string SavedMissingAccounts {
             get {
@@ -7204,7 +7186,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} connection(s) opened..
+        ///   Looks up a localized string similar to {0:# connection|# connections} opened..
         /// </summary>
         public static string SavedOpenedStatus {
             get {
@@ -7294,7 +7276,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} server(s) exported to {1}.
+        ///   Looks up a localized string similar to {0:# server|# servers} exported to {1}.
         /// </summary>
         public static string ServersExported {
             get {
@@ -7303,7 +7285,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} server(s) imported ({1} already present).
+        ///   Looks up a localized string similar to {0:# server|# servers} imported ({1} already present).
         /// </summary>
         public static string ServersImported {
             get {
@@ -7384,7 +7366,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Right-click in the terminal pastes the clipboard (Shift+right-click then opens the menu).
+        ///   Looks up a localized string similar to _Right-click in the terminal pastes the clipboard (Shift+right-click then opens the menu).
         /// </summary>
         public static string SettingsRightClickPastes {
             get {
@@ -7402,7 +7384,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Settings saved. The new language applies after signing out or at the next start..
+        ///   Looks up a localized string similar to Settings saved. The new language applies after signing out of CyberArk or at the next start..
         /// </summary>
         public static string SettingsSavedLanguage {
             get {
@@ -7411,7 +7393,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Unix accounts then open over SSH by default (PSM stays available in “Advanced connection”). Without any PSMP, SSH is disabled..
+        ///   Looks up a localized string similar to Unix accounts then open over SSH by default (PSM stays available in “Advanced options…”). Without any PSMP, SSH is disabled..
         /// </summary>
         public static string SettingsSshHelp {
             get {
@@ -7429,7 +7411,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Follow files (tail -f) in an independent session.
+        ///   Looks up a localized string similar to _Follow files (tail -f) in an independent session.
         /// </summary>
         public static string SettingsTailSession {
             get {
@@ -7609,7 +7591,8 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} Current revision: {1} · {2} server(s).
+        ///   Looks up a localized string similar to {0}
+        ///Current revision: {1} · {2:# server|# servers}.
         /// </summary>
         public static string SharedHistoryHeader {
             get {
@@ -7771,7 +7754,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Shared list “{0}” opened ({1} server(s))..
+        ///   Looks up a localized string similar to Shared list “{0}” opened ({1:# server|# servers})..
         /// </summary>
         public static string SharedListOpened {
             get {
@@ -7897,7 +7880,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} server(s) added to the shared list “{1}” ({2} already there).
+        ///   Looks up a localized string similar to {0:# server|# servers} added to the shared list “{1}” ({2} already there).
         /// </summary>
         public static string SharedServersAdded {
             get {
@@ -7906,7 +7889,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} server(s) removed from the shared list “{1}”.
+        ///   Looks up a localized string similar to {0:# server|# servers} removed from the shared list “{1}”.
         /// </summary>
         public static string SharedServersRemoved {
             get {
@@ -7951,7 +7934,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to : PSM, SSH, files (SFTP), advanced connection, My servers.
+        ///   Looks up a localized string similar to : PSM, SSH, files (SFTP), advanced options, My servers.
         /// </summary>
         public static string ShortcutMenu {
             get {
@@ -8104,7 +8087,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Open SSH sessions in ZillaTerm (terminal tab + “Files” tab), otherwise in Windows Terminal.
+        ///   Looks up a localized string similar to _Open SSH sessions in ZillaTerm (terminal tab + “Files” tab), otherwise in Windows Terminal.
         /// </summary>
         public static string SshInApp {
             get {
@@ -8275,7 +8258,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ⚠ {0} alerts.
+        ///   Looks up a localized string similar to ⚠ {0:# alert|# alerts}.
         /// </summary>
         public static string TailAlertCount {
             get {
@@ -8527,7 +8510,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} new alert line(s) in {1}.
+        ///   Looks up a localized string similar to {0:# new alert line|# new alert lines} in {1}.
         /// </summary>
         public static string TailNotificationText {
             get {
@@ -8770,7 +8753,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} lines saved to {1}.
+        ///   Looks up a localized string similar to {0:# line|# lines} saved to {1}.
         /// </summary>
         public static string TailSaved {
             get {
@@ -8860,7 +8843,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} lines.
+        ///   Looks up a localized string similar to {0:# line|# lines}.
         /// </summary>
         public static string TailSearchTotal {
             get {
@@ -8977,7 +8960,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Font:.
+        ///   Looks up a localized string similar to _Font size:.
         /// </summary>
         public static string TerminalFontLabel {
             get {
@@ -9148,7 +9131,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Advanced….
+        ///   Looks up a localized string similar to Advanced options….
         /// </summary>
         public static string ToolAdvanced {
             get {
@@ -9220,7 +9203,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Sign out.
+        ///   Looks up a localized string similar to Sign out of CyberArk.
         /// </summary>
         public static string ToolLogout {
             get {
@@ -9229,7 +9212,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Close the CyberArk session and return to the sign-in screen.
+        ///   Looks up a localized string similar to Close the CyberArk session and all the tabs, then return to the sign-in screen.
         /// </summary>
         public static string ToolLogoutTip {
             get {
@@ -9301,7 +9284,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ✗ {0} file(s) differ from the original: transfer them again.
+        ///   Looks up a localized string similar to ✗ {0:# file differs|# files differ} from the original: transfer {0:it|them} again.
         /// </summary>
         public static string TransferMismatch {
             get {
@@ -9319,7 +9302,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ⚠ {0} file(s) could not be checked.
+        ///   Looks up a localized string similar to ⚠ {0:# file|# files} could not be checked.
         /// </summary>
         public static string TransferNotVerified {
             get {
@@ -9328,7 +9311,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ✓ {0} file(s) identical on both sides (SHA-256).
+        ///   Looks up a localized string similar to ✓ {0:# file|# files} identical on both sides (SHA-256).
         /// </summary>
         public static string TransferVerified {
             get {
@@ -9360,15 +9343,6 @@ namespace ZillaTerm.App.Localization {
         public static string UploadFailed {
             get {
                 return ResourceManager.GetString("UploadFailed", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Upload of {0} failed:  {1}.
-        /// </summary>
-        public static string UploadFailedDetails {
-            get {
-                return ResourceManager.GetString("UploadFailedDetails", resourceCulture);
             }
         }
 
@@ -9445,7 +9419,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} character(s) copied from the server..
+        ///   Looks up a localized string similar to {0:# character|# characters} copied from the server..
         /// </summary>
         public static string VncClipboardCopied {
             get {
@@ -9463,7 +9437,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Text copied on the server ({0} characters): “Copy remote text” to get it..
+        ///   Looks up a localized string similar to Text copied on the server ({0:# character|# characters}): “Copy remote text” to get it..
         /// </summary>
         public static string VncClipboardReceived {
             get {
@@ -9472,7 +9446,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} character(s) sent to the server's clipboard: paste them there..
+        ///   Looks up a localized string similar to {0:# character|# characters} sent to the server's clipboard: paste {0:it|them} there..
         /// </summary>
         public static string VncClipboardSent {
             get {
@@ -10335,7 +10309,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Sign out and close the open sessions?.
+        ///   Looks up a localized string similar to Sign out of CyberArk and close the open sessions?.
         /// </summary>
         public static string CloseAllLogoutHeading {
             get {
@@ -10407,7 +10381,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Sign out.
+        ///   Looks up a localized string similar to Sign out of CyberArk.
         /// </summary>
         public static string ActionSignOut {
             get {
@@ -10920,7 +10894,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Paste {0} lines in {1} sessions?.
+        ///   Looks up a localized string similar to Paste {0} lines in {1:# session|# sessions}?.
         /// </summary>
         public static string ParallelPasteHeading {
             get {
@@ -11280,7 +11254,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Confirm before closing a connected session (SSH, remote desktop, VNC).
+        ///   Looks up a localized string similar to Co_nfirm before closing a connected session (SSH, remote desktop, VNC).
         /// </summary>
         public static string SettingsConfirmClose {
             get {
@@ -11289,7 +11263,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Warn before pasting several lines when the shell would run them one by one.
+        ///   Looks up a localized string similar to _Warn before pasting several lines when the shell would run them one by one.
         /// </summary>
         public static string SettingsConfirmPaste {
             get {
@@ -11379,7 +11353,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Stopped: {0} items changed.
+        ///   Looks up a localized string similar to Stopped: {0:# item|# items} changed.
         /// </summary>
         public static string PermissionsStopped {
             get {
@@ -11649,15 +11623,6 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to account no longer visible in CyberArk.
-        /// </summary>
-        public static string A11yUnavailable {
-            get {
-                return ResourceManager.GetString("A11yUnavailable", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Toolbar.
         /// </summary>
         public static string A11yToolbar {
@@ -11721,7 +11686,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Quit.
+        ///   Looks up a localized string similar to Exit.
         /// </summary>
         public static string LoginQuit {
             get {
@@ -11955,7 +11920,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ⚠ Effect: the PVWA session no longer closes by itself after inactivity while ZillaTerm runs..
+        ///   Looks up a localized string similar to ⚠ Effect: the CyberArk session no longer closes by itself after inactivity while ZillaTerm runs..
         /// </summary>
         public static string SettingsKeepAliveEffect {
             get {
@@ -12207,7 +12172,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Create {0} accounts.
+        ///   Looks up a localized string similar to _Create {0:# account|# accounts}.
         /// </summary>
         public static string ImportCreateAccounts {
             get {
@@ -12450,7 +12415,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} transfer(s) running or waiting.
+        ///   Looks up a localized string similar to {0:# transfer|# transfers} running or waiting.
         /// </summary>
         public static string FilesBadgeActive {
             get {
@@ -12459,7 +12424,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} transfer(s) failed or differ: see the Files tab.
+        ///   Looks up a localized string similar to {0:# transfer|# transfers} failed or different: see the Files tab.
         /// </summary>
         public static string FilesBadgeProblem {
             get {
@@ -12468,7 +12433,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Filter: {0} / {1} lines shown.
+        ///   Looks up a localized string similar to Filter: {0} / {1:# line|# lines} shown.
         /// </summary>
         public static string TailFilterActive {
             get {
@@ -12810,7 +12775,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to _Advanced….
+        ///   Looks up a localized string similar to _Advanced options….
         /// </summary>
         public static string ServerPromptAdvanced {
             get {
@@ -13071,7 +13036,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Keep the PVWA session open.
+        ///   Looks up a localized string similar to Keep the CyberArk session open.
         /// </summary>
         public static string EnvKeepAlive {
             get {
@@ -13539,7 +13504,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} sessions read from {1}.
+        ///   Looks up a localized string similar to {0:# session|# sessions} read from {1}.
         /// </summary>
         public static string SessionImportReadFrom {
             get {
@@ -13710,7 +13675,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} servers imported into My servers.
+        ///   Looks up a localized string similar to {0:# server|# servers} imported into My servers.
         /// </summary>
         public static string SessionImportDone {
             get {
@@ -13980,7 +13945,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} of {1} items shown (filter).
+        ///   Looks up a localized string similar to {0} of {1:# item|# items} shown (filter).
         /// </summary>
         public static string FilesFilterSummary {
             get {
@@ -14012,6 +13977,141 @@ namespace ZillaTerm.App.Localization {
         public static string ColumnGroup {
             get {
                 return ResourceManager.GetString("ColumnGroup", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to not found in CyberArk.
+        /// </summary>
+        public static string MissingInCyberArk {
+            get {
+                return ResourceManager.GetString("MissingInCyberArk", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to matches: {0}.
+        /// </summary>
+        public static string MatchReason {
+            get {
+                return ResourceManager.GetString("MatchReason", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Folder path.
+        /// </summary>
+        public static string A11yFolderPath {
+            get {
+                return ResourceManager.GetString("A11yFolderPath", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Folder or file path.
+        /// </summary>
+        public static string A11yRemotePath {
+            get {
+                return ResourceManager.GetString("A11yRemotePath", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Transfers shown.
+        /// </summary>
+        public static string A11yHistoryFilter {
+            get {
+                return ResourceManager.GetString("A11yHistoryFilter", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to T_ype:.
+        /// </summary>
+        public static string ConnectionTypeLabel {
+            get {
+                return ResourceManager.GetString("ConnectionTypeLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Import.
+        /// </summary>
+        public static string MyServersImport {
+            get {
+                return ResourceManager.GetString("MyServersImport", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add servers to My servers: ZillaTerm file, sessions of another tool, shared list or KeePass database.
+        /// </summary>
+        public static string MyServersImportTip {
+            get {
+                return ResourceManager.GetString("MyServersImportTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Share.
+        /// </summary>
+        public static string MyServersShare {
+            get {
+                return ResourceManager.GetString("MyServersShare", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Export My servers to a file, or create a shared list on a network share.
+        /// </summary>
+        public static string MyServersShareTip {
+            get {
+                return ResourceManager.GetString("MyServersShareTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _ZillaTerm file (export of My servers)….
+        /// </summary>
+        public static string MenuImportServerFile {
+            get {
+                return ResourceManager.GetString("MenuImportServerFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Sessions of another _tool….
+        /// </summary>
+        public static string MenuImportOtherTool {
+            get {
+                return ResourceManager.GetString("MenuImportOtherTool", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Export My servers to a file….
+        /// </summary>
+        public static string MenuExportMyServers {
+            get {
+                return ResourceManager.GetString("MenuExportMyServers", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Br_owse….
+        /// </summary>
+        public static string BrowseOther {
+            get {
+                return ResourceManager.GetString("BrowseOther", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Extraction command.
+        /// </summary>
+        public static string A11yExtractCommand {
+            get {
+                return ResourceManager.GetString("A11yExtractCommand", resourceCulture);
             }
         }
     }
