@@ -1579,9 +1579,9 @@ public partial class MainWindow : Window
 
         try
         {
-            System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"")?.Dispose();
+            WindowsExplorer.ShowFile(path);
         }
-        catch (System.ComponentModel.Win32Exception ex)
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or ArgumentException)
         {
             SetStatus(ex.Message, isError: true);
         }
@@ -1728,12 +1728,15 @@ public partial class MainWindow : Window
             _lifetime.Dispose();
         }
 
-        if (!await CloseAllRdpSessionsAsync() && !LogoutRequested)
+        // Au plus 3 s ; une session bloquée est ensuite sortie de la fenêtre, qui peut alors être détruite sans attendre
+        // son thread (déconnexion : l'écran de connexion revient).
+        bool released = await CloseAllRdpSessionsAsync();
+        if (!LogoutRequested && (!released || RdpSession.ControlWindowsLeft))
         {
-            // Un contrôle Bureau à distance bloqué garde sa fenêtre dans celle-ci : la détruire attendrait son thread.
-            // Tout le reste est déjà fermé (session PVWA, coffres) : on quitte directement.
-            DebugLog.Write("app", "Session Bureau à distance bloquée à la fermeture : arrêt immédiat de l'application.");
-            Environment.Exit(0);
+            // Quitter : la fenêtre d'un contrôle bloqué (de cette fenêtre ou d'avant une déconnexion) serait détruite
+            // avec l'application, en attendant son thread. Tout le reste est déjà fermé (session PVWA, coffres) : on
+            // quitte directement.
+            App.ExitNow();
         }
 
         _closeConfirmed = true;

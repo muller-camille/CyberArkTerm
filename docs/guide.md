@@ -214,7 +214,11 @@ each PSMP is checked on its first connection. The tab tooltip names the PSMP use
   default button). The fingerprint is then remembered on this computer. If the key changes, a red banner warns of a
   possible interception, the remembered and the new fingerprints are shown, and "Replace the key and connect" is
   only possible after ticking "I confirmed this change with the CyberArk team". A refused key stops the connection
-  ("Connection cancelled: the server key was not accepted.").
+  ("Connection cancelled: the server key was not accepted."). A PSMP can have keys of several types (RSA,
+  ed25519…): each one is remembered separately, and ZillaTerm asks for the known type first. A key of a type never
+  seen for this PSMP is neither accepted silently nor taken for a change: the "New key of the PSMP, of another type"
+  window shows the fingerprints already accepted and the new one, and "Accept this key and connect" is only possible
+  after ticking "I checked this fingerprint with the CyberArk team".
 - **Terminal**: selecting copies, the mouse wheel or the scroll bar on the right goes through the history; once you
   have scrolled up, "↓ Back to the end" (or typing) takes you back to the end. AltGr works on international
   keyboards. Close the tab with its cross, a middle click or `Ctrl+F4` (confirmation if the session is connected).
@@ -602,13 +606,20 @@ servers, over SSH, remote desktop or VNC, or to their files only (SFTP, FTP, FTP
     with the one given by its administrator, in the same window as for the PSMP (see
     [section 4](#4-open-an-ssh-session-through-the-psmp)).
   - **Remote desktop**: the tab follows its size (remote desktop resolution) and offers "Full screen"
-    (`Ctrl+Alt+Break` to come back), "Disconnect" and "Reconnect".
+    (`Ctrl+Alt+Break` to come back), "Disconnect" and "Reconnect". Before each connection, ZillaTerm reads the
+    server's certificate. If Windows does not trust it (self-signed…), its subject, its issuer, its dates and its
+    SHA-256 fingerprint are shown on the first connection, then it is remembered for that server; if it changes later,
+    the remembered and the new fingerprints are shown, and you must tick "I confirmed this change with the server's
+    administrator". The password is only read and handed to the Remote Desktop control after this check; a server
+    that does not accept TLS encryption is refused. No image of the session is kept on the computer's disk.
   - **VNC** (`vnc://server`, port 5900; `vnc://server:1` means display 1, port 5901): desktop in a tab, fitted to
     the window or at real size ("Fit"), "Ctrl+Alt+Del" (after confirmation: depending on the machine, it opens the
     security screen or restarts some virtual machine consoles), "Send clipboard" and "Copy remote text" buttons: the
     clipboard is only exchanged through these buttons. VNC password authentication (8 characters at most, a limit
     of the protocol) or no authentication. **VNC encrypts nothing**: a banner says so; keep it for a trusted
-    network.
+    network. Before the VNC password is first sent, ZillaTerm asks for your agreement ("Send the password and
+    connect", once per tab, reconnections included): VNC does not check the identity of the server, and a fake server
+    or an interceptor can recover the first 8 characters of the password. Server beeps are limited to one per second.
   - **Files** (`sftp://`, `ftp://`, `ftpes://` for FTP with explicit TLS, `ftps://` for implicit TLS, port 990): a
     status tab, without a terminal, and the files in the "Files" tab with the same functions (transfers checked by
     SHA-256, queue, history, editor, compare, live follow, permissions if the server accepts `SITE CHMOD`).
@@ -618,11 +629,16 @@ servers, over SSH, remote desktop or VNC, or to their files only (SFTP, FTP, FTP
     back to clear text. An FTPS certificate that Windows does not trust (self-signed…) is shown with its subject, its
     issuer, its validity dates and its SHA-256 fingerprint (with "Copy"), then remembered for that server if you
     accept it; if it changes later, the remembered and the new fingerprints are shown, and you must tick "I confirmed
-    this change with the server's administrator".
+    this change with the server's administrator". A server that has already encrypted a connection is remembered:
+    if it later comes without TLS (which an interceptor can cause), it is no longer the plain question but the "This
+    FTP server no longer offers encryption" warning, which only lets you continue after ticking "I confirmed with the
+    server's administrator that encryption was removed"; otherwise the connection stops without sending the password.
 - **Edit the database**: right-click → "New entry…", "Edit…" (`F2`), "Delete" (`Del`, into the database's recycle
   bin, after confirmation). The server address is required: an entry without an address (neither in the Address
   box nor in its custom fields) is not saved. The rest of the database (attachments, fields, settings) is kept; the
-  previous version of an entry goes to its history, like in KeePass.
+  previous version of an entry goes to its history, like in KeePass. While saving, the previous version of the file
+  is kept as `database.kdbx.bak`, then deleted as soon as the new file reads back identical: no old copy, which
+  would still open with an old master password, stays next to the database (shared or not).
 - **Lock**: right-click → "Lock". Databases also lock on sign-out, on exit and when **Windows is locked**.
 
 **Local vault**: the master passwords you choose to remember are kept in `%APPDATA%\ZillaTerm\coffre-local.dat`,
@@ -709,7 +725,7 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 | Files | Text editor | Program opened by "Edit" in the Files tab | Notepad |
 | Files | Comparison tool | Program offered in the comparison window, with its arguments (`{0}` = left file, `{1}` = right file) | none |
 | Security | Local vault | Remembered KeePass master passwords: "Create…", "Unlock…", "Change password…", "Delete now…"; these actions apply at once, without "Save" | — |
-| Security | Accepted server keys | Table of the fingerprints checked and accepted (server, type, fingerprint): PSMP, direct SSH and FTPS certificates of KeePass entries. "Forget the selected keys" removes the selected rows on save; the key will be asked again at the next connection | — |
+| Security | Accepted server keys | Table of the fingerprints checked and accepted (server, type, fingerprint): PSMP, direct SSH, FTPS and Remote Desktop certificates of KeePass entries (one row per key type). "Forget the selected keys" removes the selected rows on save; the key will be asked again at the next connection | — |
 | Settings button menu | Debug log | How connections unfold, in a file, without secrets (see [Security](#security)); "Show the debug log file" opens it in Explorer | no |
 
 ### Shared environment
@@ -794,8 +810,10 @@ first ZillaTerm version but cannot download it itself (renamed repository): down
   `SHA256SUMS.txt`, and nothing is installed or started.
 - **PSMP host keys pinned** on first use: the fingerprint is to be compared before accepting ("Cancel connection" by
   default); a changed key is flagged by a banner and only replaces the old one after a confirmation box is ticked
-  (the same for servers reached in emergency access and for FTPS certificates). Accepted keys can be reviewed and
-  forgotten in Settings › Security.
+  (the same for servers reached in emergency access and for FTPS and Remote Desktop certificates). One key is
+  remembered per server and per type: a key of a type never seen for that server is shown with the ones already
+  accepted and is only added after a check box is ticked, never silently. Accepted keys can be reviewed and forgotten
+  in Settings › Security.
 - **PVWA session keep-alive**: it avoids the idle timeout; nothing is sent while Windows is locked, and the option
   can be turned off in the Settings if your policy requires it.
 - **KeePass databases**:
@@ -804,15 +822,23 @@ first ZillaTerm version but cannot download it itself (renamed repository): down
   - in memory, the database key and the entry passwords stay masked and are only revealed when connecting;
     databases lock on sign-out, on exit and when Windows is locked;
   - safe saving: the file is read again, the change is applied to its current version (changes made elsewhere are
-    kept), the decrypted result is checked, a `.bak` copy is kept and the file is replaced in one step; an entry
-    changed elsewhere in the meantime is not overwritten;
+    kept), the decrypted result is checked and the file is replaced in one step (a `.bak` copy during the
+    replacement, deleted once the file reads back identical); an entry changed elsewhere in the meantime is not
+    overwritten;
   - direct remote desktop: the password is only passed to the Remote Desktop control (no file, no credential
-    manager), with network level authentication (NLA) and a warning if the server is not recognized;
+    manager), with network level authentication (NLA) and a warning if the server is not recognized; the server
+    certificate is read before the password is sent and pinned on first use (a change is reported and blocked until
+    it is confirmed), a server without TLS is refused, the persistent bitmap cache is off. Limit: the control then
+    runs its own TLS negotiation, and the pinned fingerprint cannot be imposed on it; for a certificate that Windows
+    does not trust, it still shows its own warning;
   - VNC: the protocol encrypts neither the screen, nor the keystrokes, nor the clipboard (permanent banner); the
-    password is not sent as is (challenge-response of the protocol); the clipboard is only exchanged on a click;
+    password is not sent as is (challenge-response of the protocol), and only after your agreement: the server is
+    not authenticated and can recover its first 8 characters; the clipboard is only exchanged on a click; beeps are
+    limited to one per second;
     the screen size announced by the server is bounded (8,192 pixels per side);
   - FTP: TLS is tried first, clear text only after your agreement (permanent banner), never for `ftpes://` and
-    `ftps://`; under TLS, transfers are encrypted too (`PROT P`);
+    `ftps://`; under TLS, transfers are encrypted too (`PROT P`); a server already seen with TLS that no longer
+    offers it is reported as a possible interception, and nothing is sent without confirmation;
   - FTPS certificate: one that Windows trusts is accepted; otherwise its SHA-256 fingerprint is shown and pinned on
     the first agreement (like an SSH host key), a change is reported; refused, the connection stops before the
     user name is sent;
@@ -892,14 +918,16 @@ Built-in client (RFB protocol 3.3, 3.7 and 3.8, RFC 6143; a newer server, such a
 3.8), nothing to install: "none" or "VNC password" authentication (when the server offers both, the password if the
 entry has one, otherwise none) (the protocol's DES, implemented in ZillaTerm because the Windows FIPS mode can forbid DES), Raw,
 CopyRect and Hextile encodings, screen size changes, 32-bit pixels. The keyboard is sent as X11 "keysyms" (AltGr
-characters are sent as characters), the wheel as buttons 4 and 5.
+characters are sent as characters), the wheel as buttons 4 and 5. The VNC password is only sent after your agreement
+(once per tab); server beeps are limited to one per second.
 
 ### FTP / FTPS files sessions
 
 FluentFTP library (MIT licence). Passive mode: `PASV` over IPv4, the data connection always going to the server
 itself (the address given in the reply is ignored: a server cannot point it at another machine), `EPSV` over IPv6;
 binary, `PBSZ 0` and `PROT P` under TLS; certificate
-checked by Windows, otherwise pinned (`ftps://server:port` among the accepted server keys, in Settings › Security). FTP has
+checked by Windows, otherwise pinned (`ftps://server:port` among the accepted server keys, in Settings › Security);
+servers that encrypted a connection are noted (`FtpTlsServers` in the settings) to report a removal of TLS. FTP has
 no standard checksum: each upload is read back from the server and compared by SHA-256. Partial reads (`REST`) for
 compare and live follow. After an interrupted transfer, the connection is reopened and the incomplete file deleted.
 Overwriting a file writes it in place: it keeps its permissions. Symbolic links: the first 40 of a folder are
@@ -915,7 +943,11 @@ the return to `mstsc`.
 
 Remote desktop tabs (direct remote desktop from KeePass databases) host the Windows ActiveX control (`mstscax.dll`, the
 most recent `MsRdpClient` class available), set up as a direct connection: network level authentication (NLA),
-warning if the server is not recognized, redirections off except the clipboard. The remote desktop resolution
+warning if the server is not recognized, redirections off except the clipboard, persistent bitmap cache off. Before
+each connection, ZillaTerm reads the server's TLS certificate itself (X.224 connection request, then a TLS negotiation
+stopped as soon as the certificate is received: neither user name nor password is sent) to pin it
+(`rdp://server:port` among the accepted server keys); the ActiveX control does not allow imposing this fingerprint
+on it. The remote desktop resolution
 follows the tab size. Session ends and connection errors are explained in the tab with the Windows message and codes
 (reason, extended reason). An integration test (`rdp-integration` workflow) opens a real session on the CI machine.
 
@@ -925,7 +957,9 @@ which that thread places the control's window. Before releasing the control, it 
 disconnection or release no longer freezes the application. If the thread stops responding for 5 s, the tab bar says
 so, and the rest of the application stays usable. Limit: Windows shares keyboard and mouse input between a window
 and the windows it contains, even from another thread; a control that is stuck for good can still hold up a click in
-its area or a focus change.
+its area or a focus change. On sign-out or exit, ZillaTerm waits at most 3 s for the remote desktop sessions to end;
+a session whose control stays stuck is then taken out of the window (its slot is set aside), and the application
+signs out anyway, or exits directly.
 
 ### PSMP sessions
 
@@ -980,6 +1014,7 @@ sh or fish, following is not set up and nothing stays on screen.
 | The browser does not follow `cd` | The remote shell is not bash, zsh or tcsh (or tcsh already has its own `cwdcmd` alias), the option is off in Settings, or the prompt was not recognized: tick "Follow the terminal folder" again at the shell prompt. |
 | "The key of the PSMP has changed" warning | Only continue ("I confirmed this change with the CyberArk team" box, then "Replace the key and connect") if your CyberArk team confirms a server change; otherwise, cancel and alert them. |
 | "Connection cancelled: the server key was not accepted." | The fingerprint window was cancelled or closed: connect again and accept the key after comparing its fingerprint. |
+| "New key of the PSMP, of another type" window | The PSMP presents a key type (ed25519, RSA…) never seen on this computer: compare the fingerprint with the one published by your CyberArk team before ticking the box and accepting it; otherwise, cancel and alert them. |
 | "Wrong master password or key file." | Check the password and the key file; a database protected by a YubiKey is not supported. |
 | The KeePass database asks for the password despite "Remember" | Local vault locked ("Later" when unlocking) or master password changed elsewhere: type it, it is remembered again. |
 | "The local vault file is damaged or was created by another Windows account." | The local vault does not follow a change of computer or account: delete it in the Settings and create it again. |
@@ -994,4 +1029,6 @@ sh or fish, following is not set up and nothing stays on screen.
 | VNC: "The VNC server offers no authentication supported by ZillaTerm…" | The server requires its vendor's own authentication (Windows account, VeNCrypt encryption…): enable "VNC password" authentication on the server. |
 | VNC: "No VNC answer from the server within 30 seconds" | Wrong port (5900 + display number) or a service other than VNC at this address. |
 | FTP: "The FTP server does not offer encryption (TLS), required by this entry" | The server does not accept TLS: use `ftp://` (clear-text connection after confirmation) or SFTP if available. |
+| FTP: "This FTP server no longer offers encryption" warning | The server used to encrypt its connections and no longer does: only continue if its administrator confirms that TLS was removed; otherwise the connection may be intercepted. |
+| Direct remote desktop: "The Remote Desktop server does not accept TLS encryption…" | The server only accepts the old "RDP security", which cannot prove its identity: ask its administrator to enable TLS or NLA. |
 | FTPS: the file list does not show or a transfer times out | A firewall blocks the server's passive ports, or the server requires TLS session reuse on data connections (`522`, for example vsftpd's `require_ssl_reuse`): see the server's administrator. |

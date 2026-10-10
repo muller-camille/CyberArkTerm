@@ -320,14 +320,16 @@ public sealed class EnvironmentProfile
         foreach (var (host, key) in HostKeys ?? [])
         {
             var id = host.Trim().ToLowerInvariant();
-            if (!settings.KnownHosts.TryGetValue(id, out var known))
+            var known = KnownHosts.KnownKeys(settings.KnownHosts, id).Select(k => KnownHosts.Format(k.Algorithm, k.Sha256)).ToList();
+            if (known.Count == 0)
             {
                 changes.Add(new EnvironmentChange(EnvironmentSetting.HostKey, id, "", key.Trim(), true));
             }
-            else if (!string.Equals(known, key.Trim(), StringComparison.Ordinal))
+            else if (!known.Contains(key.Trim(), StringComparer.Ordinal))
             {
-                // Une clé déjà acceptée n'est jamais remplacée par un fichier : son changement se vérifie à la connexion.
-                changes.Add(new EnvironmentChange(EnvironmentSetting.HostKey, id, known, key.Trim(), true, Ignored: true));
+                // Un serveur dont une clé est déjà acceptée n'en reçoit jamais d'un fichier (ni à la place, ni d'un autre
+                // type) : le changement se vérifie à la connexion.
+                changes.Add(new EnvironmentChange(EnvironmentSetting.HostKey, id, string.Join(", ", known), key.Trim(), true, Ignored: true));
             }
         }
 
@@ -406,7 +408,11 @@ public sealed class EnvironmentProfile
 
         foreach (var (host, key) in HostKeys ?? [])
         {
-            settings.KnownHosts.TryAdd(host.Trim().ToLowerInvariant(), key.Trim());
+            var id = host.Trim().ToLowerInvariant();
+            if (KnownHosts.KnownKeys(settings.KnownHosts, id).Count == 0)
+            {
+                settings.KnownHosts[id] = key.Trim();
+            }
         }
 
         if (CentralFile is not null)

@@ -2250,7 +2250,7 @@ Le modifiche restano nell'editor: salva di nuovo per riprovare.</value>
     <value>Salvataggio del database KeePass {0}…</value>
   </data>
   <data name="KeePassSaved" xml:space="preserve">
-    <value>Database KeePass {0} salvato (versione precedente conservata in {1})</value>
+    <value>Database KeePass {0} salvato e verificato</value>
   </data>
   <data name="KeePassSaveFailed" xml:space="preserve">
     <value>Il database KeePass {0} non è stato salvato:
@@ -4035,7 +4035,7 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
     <value>Chiavi dei server accettate</value>
   </data>
   <data name="HostKeysHelp" xml:space="preserve">
-    <value>Impronte verificate e accettate (PSMP, SSH diretto, certificati FTPS). Una chiave dimenticata sarà richiesta di nuovo alla prossima connessione.</value>
+    <value>Impronte verificate e accettate (PSMP, SSH diretto, certificati FTPS e Desktop remoto), una riga per tipo di chiave. Una chiave dimenticata sarà richiesta di nuovo alla prossima connessione.</value>
   </data>
   <data name="HostKeyServer" xml:space="preserve">
     <value>Server</value>
@@ -4705,5 +4705,65 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   </data>
   <data name="ColumnGroup" xml:space="preserve">
     <value>Gruppo</value>
+  </data>
+  <data name="HostKeyNewTypePsmpHeading" xml:space="preserve">
+    <value>Nuova chiave del PSMP, di un altro tipo</value>
+  </data>
+  <data name="HostKeyNewTypeServerHeading" xml:space="preserve">
+    <value>Nuova chiave del server, di un altro tipo</value>
+  </data>
+  <data name="HostKeyNewTypePsmpMessage" xml:space="preserve">
+    <value>Questo computer conosce già una chiave di questo PSMP, di un altro tipo. Una nuova chiave è normale se il PSMP ne ha appena ricevuta una (aggiornamento), ma può anche indicare un'intercettazione della connessione. Confronta la sua impronta con quella pubblicata dal team CyberArk prima di considerarla attendibile.</value>
+  </data>
+  <data name="HostKeyNewTypeServerMessage" xml:space="preserve">
+    <value>Questo computer conosce già una chiave di questo server, di un altro tipo. Una nuova chiave è normale se il server ne ha appena ricevuta una (aggiornamento), ma può anche indicare un'intercettazione della connessione. Confronta la sua impronta con quella fornita dall'amministratore del server prima di considerarla attendibile.</value>
+  </data>
+  <data name="HostKeyBothKept" xml:space="preserve">
+    <value>Entrambe le chiavi sono poi accettate per questo server.</value>
+  </data>
+  <data name="HostKeyAddKey" xml:space="preserve">
+    <value>Accetta questa chiave e connetti</value>
+  </data>
+  <data name="HostKeyAckNewPsmp" xml:space="preserve">
+    <value>Ho verificato questa impronta con il team CyberArk</value>
+  </data>
+  <data name="HostKeyAckNewServer" xml:space="preserve">
+    <value>Ho verificato questa impronta con l'amministratore del server</value>
+  </data>
+  <data name="FtpTlsRemovedHeading" xml:space="preserve">
+    <value>Questo server FTP non propone più la cifratura</value>
+  </data>
+  <data name="FtpTlsRemovedMessage" xml:space="preserve">
+    <value>Le connessioni precedenti a questo server erano cifrate (TLS). Senza cifratura, la password della voce e i file viaggerebbero in chiaro sulla rete. Continua solo se l'amministratore del server ha confermato la rimozione della cifratura; altrimenti annulla e avvisalo.</value>
+  </data>
+  <data name="FtpTlsRemovedAck" xml:space="preserve">
+    <value>Ho confermato con l'amministratore del server la rimozione della cifratura</value>
+  </data>
+  <data name="VncPasswordTitle" xml:space="preserve">
+    <value>VNC senza cifratura</value>
+  </data>
+  <data name="VncPasswordHeading" xml:space="preserve">
+    <value>Inviare la password VNC su una connessione non cifrata?</value>
+  </data>
+  <data name="VncPasswordMessage" xml:space="preserve">
+    <value>VNC non cifra la connessione e non verifica l'identità del server. La password della voce viene inviata in una forma che un falso server, o chiunque intercetti la connessione, può decifrare offline (i primi 8 caratteri). Continua solo su una rete fidata.</value>
+  </data>
+  <data name="VncPasswordOnce" xml:space="preserve">
+    <value>Domanda posta una sola volta per questa scheda, riconnessioni comprese.</value>
+  </data>
+  <data name="VncPasswordSend" xml:space="preserve">
+    <value>Invia la password e connetti</value>
+  </data>
+  <data name="RdpCertificateTitle" xml:space="preserve">
+    <value>Certificato del server Desktop remoto</value>
+  </data>
+  <data name="RdpCertVerifyHeading" xml:space="preserve">
+    <value>Verifica il certificato del server Desktop remoto</value>
+  </data>
+  <data name="RdpCertChangedHeading" xml:space="preserve">
+    <value>Il certificato del server Desktop remoto è cambiato</value>
+  </data>
+  <data name="RdpCertificateDeclined" xml:space="preserve">
+    <value>Certificato del server rifiutato: connessione interrotta, la password non è stata inviata.</value>
   </data>
 </root>

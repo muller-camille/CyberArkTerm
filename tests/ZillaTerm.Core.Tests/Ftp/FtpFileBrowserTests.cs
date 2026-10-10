@@ -38,6 +38,9 @@ public sealed class FtpFileBrowserTests
 
         public int Connections;
 
+        /// <summary>AUTH TLS refusé alors que le serveur a un certificat (intermédiaire qui retire TLS).</summary>
+        public bool TlsRemoved { get; set; }
+
         public bool Received(string verb) =>
             Commands.Any(c => c.StartsWith(verb + " ", StringComparison.OrdinalIgnoreCase) || c.Equals(verb, StringComparison.OrdinalIgnoreCase));
 
@@ -73,7 +76,7 @@ public sealed class FtpFileBrowserTests
                     var verb = line.Split(' ')[0].ToUpperInvariant();
                     switch (verb)
                     {
-                        case "AUTH" when _certificate is null:
+                        case "AUTH" when _certificate is null || TlsRemoved:
                             await WriteAsync(stream, "500 AUTH not understood.");
                             break;
                         case "AUTH":
@@ -292,6 +295,86 @@ public sealed class FtpFileBrowserTests
         Assert.Equal("/home/fake", browser.HomeDirectory);
         // Les transferts aussi sont chiffrés.
         Assert.Contains("PROT P", server.Commands);
+    }
+
+    /// <summary>
+    /// Serveur vu une fois avec TLS : mémorisé ; s'il se présente ensuite sans TLS (AUTH TLS effacé), ce n'est plus la
+    /// simple question « en clair » mais l'alerte de retrait, et sans accord ni l'identifiant ni le mot de passe ne
+    /// partent. Le retrait confirmé est oublié : la question habituelle revient.
+    /// </summary>
+    [Fact]
+    public async Task ServerSeenWithTlsIsFlaggedWhenTlsDisappears()
+    {
+        using var certificate = SelfSigned();
+        using var server = new FakeFtp(certificate);
+        var settings = new AppSettings();
+        int cleartextAsked = 0, removalAsked = 0;
+        bool acceptRemoval = false;
+        FtpConnection Make() => new()
+        {
+            Host = "127.0.0.1",
+            Port = server.Port,
+            UserName = "alice",
+            Password = () => "secret-pw",
+            Security = FtpSecurity.Opportunistic,
+            TrustCertificate = _ => true,
+            AllowCleartext = () =>
+            {
+                cleartextAsked++;
+                return true;
+            },
+            TlsSeenBefore = () => FtpTlsMemory.Seen(settings, "127.0.0.1", server.Port),
+            AllowTlsRemoved = () =>
+            {
+                removalAsked++;
+                return acceptRemoval;
+            },
+        };
+
+        using (var first = await FtpFileBrowser.ConnectAsync(Make(), CancellationToken.None))
+        {
+            Assert.True(first.IsEncrypted);
+        }
+
+        Assert.False(FtpTlsMemory.Seen(settings, "127.0.0.1", server.Port));
+        Assert.True(FtpTlsMemory.Remember(settings, "127.0.0.1", server.Port));
+        Assert.False(FtpTlsMemory.Remember(settings, "127.0.0.1", server.Port));
+        Assert.True(FtpTlsMemory.Seen(settings, "127.0.0.1", server.Port));
+
+        server.TlsRemoved = true;
+        server.Commands.Clear();
+        var error = await Assert.ThrowsAsync<FtpRefusedException>(() => FtpFileBrowser.ConnectAsync(Make(), CancellationToken.None));
+        Assert.Equal(CoreStrings.FtpTlsRemoved, error.Message);
+        Assert.Equal((0, 1), (cleartextAsked, removalAsked));
+        Assert.False(server.Received("USER"));
+        Assert.False(server.Received("PASS"));
+
+        acceptRemoval = true;
+        using (var accepted = await FtpFileBrowser.ConnectAsync(Make(), CancellationToken.None))
+        {
+            Assert.False(accepted.IsEncrypted);
+        }
+
+        Assert.Equal((0, 2), (cleartextAsked, removalAsked));
+        FtpTlsMemory.Forget(settings, "127.0.0.1", server.Port);
+        using var later = await FtpFileBrowser.ConnectAsync(Make(), CancellationToken.None);
+        Assert.Equal((1, 2), (cleartextAsked, removalAsked));
+    }
+
+    /// <summary>Un certificat FTPS épinglé vaut mémoire de TLS (réglages d'avant cette mémoire) ; l'oubli le retire aussi.</summary>
+    [Fact]
+    public void PinnedCertificateCountsAsTlsSeen()
+    {
+        var settings = new AppSettings();
+        KnownHosts.Remember(settings.KnownHosts, "ftps://FTP01.corp.local", 21, "X.509", "AB12");
+        settings.KnownHosts["psmp.corp.local:22"] = "ssh-ed25519 SHA256:AAAA";
+
+        Assert.True(FtpTlsMemory.Seen(settings, "ftp01.corp.local", 21));
+        Assert.False(FtpTlsMemory.Seen(settings, "ftp01.corp.local", 2121));
+
+        FtpTlsMemory.Forget(settings, "ftp01.corp.local", 21);
+        Assert.False(FtpTlsMemory.Seen(settings, "ftp01.corp.local", 21));
+        Assert.Equal(["psmp.corp.local:22"], settings.KnownHosts.Keys);
     }
 
     [Theory]

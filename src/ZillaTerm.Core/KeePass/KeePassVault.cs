@@ -6,7 +6,8 @@ namespace ZillaTerm.Core.KeePass;
 /// <summary>
 /// Coffre KeePass ouvert depuis un fichier, en lecture et en écriture. Chaque modification relit le fichier, s'applique
 /// à son contenu du moment (les changements faits ailleurs entre-temps sont gardés), est vérifiée en relisant le
-/// résultat, puis remplace le fichier d'un coup ; la version précédente est gardée dans « fichier.kdbx.bak ».
+/// résultat, puis remplace le fichier d'un coup ; la version précédente, gardée dans « fichier.kdbx.bak » le temps du
+/// remplacement, est supprimée dès que le fichier en place est relu à l'identique.
 /// </summary>
 public sealed class KeePassVault : IDisposable
 {
@@ -284,8 +285,8 @@ public sealed class KeePassVault : IDisposable
     }
 
     /// <summary>
-    /// Écrit dans un fichier temporaire du même dossier puis le substitue à l'original (gardé en .bak) ; faux si
-    /// l'original a changé depuis <paramref name="original"/>.
+    /// Écrit dans un fichier temporaire du même dossier puis le substitue à l'original (gardé en .bak le temps du
+    /// remplacement) ; faux si l'original a changé depuis <paramref name="original"/>.
     /// </summary>
     private async Task<bool> WriteAsync(byte[] original, byte[] output, CancellationToken cancellation)
     {
@@ -308,6 +309,7 @@ public sealed class KeePassVault : IDisposable
             }
 
             Install(temp, FilePath, BackupPath);
+            await RemoveBackupAsync(FilePath, BackupPath, output).ConfigureAwait(false);
             return true;
         }
         finally
@@ -351,6 +353,35 @@ public sealed class KeePassVault : IDisposable
                 File.Copy(backup, path);
                 throw;
             }
+        }
+    }
+
+    /// <summary>
+    /// Supprime la copie de sécurité si le fichier en place est bien <paramref name="written"/> (déjà vérifié) : elle ne
+    /// protège que d'un remplacement interrompu, et resterait sinon sur le partage, où elle s'ouvre avec l'ancien mot de
+    /// passe maître. Fichier différent (modifié entre-temps) ou illisible : elle est gardée.
+    /// </summary>
+    internal static async Task RemoveBackupAsync(string path, string backup, byte[] written)
+    {
+        try
+        {
+            // Le fichier est déjà en place : la suppression de la copie ne dépend plus de l'annulation.
+            var current = await ReadSharedAsync(path, CancellationToken.None).ConfigureAwait(false);
+            bool installed = current.AsSpan().SequenceEqual(written);
+            CryptographicOperations.ZeroMemory(current);
+            if (installed)
+            {
+                File.Delete(backup);
+            }
+            else
+            {
+                Diagnostics.DebugLog.Write("keepass", $"{path} relu différent après l'enregistrement : copie de sécurité {backup} gardée");
+            }
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            // Enregistrement réussi ; la copie sera remplacée puis supprimée au prochain.
+            Diagnostics.DebugLog.Write("keepass", $"Copie de sécurité {backup} non supprimée : {e.Message}");
         }
     }
 

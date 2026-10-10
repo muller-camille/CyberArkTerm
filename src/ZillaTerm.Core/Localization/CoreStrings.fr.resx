@@ -441,4 +441,25 @@
   <data name="MigrationColResult" xml:space="preserve">
     <value>Résultat</value>
   </data>
+  <data name="FtpTlsRemoved" xml:space="preserve">
+    <value>Ce serveur FTP chiffrait ses connexions (TLS) et ne le propose plus : connexion arrêtée, le mot de passe n'a pas été envoyé.</value>
+  </data>
+  <data name="VncPasswordNotSent" xml:space="preserve">
+    <value>Connexion annulée : le mot de passe VNC n'a pas été envoyé.</value>
+  </data>
+  <data name="RdpNoTls" xml:space="preserve">
+    <value>Le serveur Bureau à distance n'accepte pas le chiffrement TLS : son identité ne peut pas être vérifiée, le mot de passe de l'entrée ne lui est pas envoyé.</value>
+  </data>
+  <data name="RdpNotRdp" xml:space="preserve">
+    <value>Le serveur n'a pas répondu comme un serveur Bureau à distance : vérifiez l'adresse et le port (3389 par défaut).</value>
+  </data>
+  <data name="RdpNegotiationRefused" xml:space="preserve">
+    <value>Le serveur Bureau à distance a refusé la connexion (code {0}).</value>
+  </data>
+  <data name="RdpProbeTimeout" xml:space="preserve">
+    <value>Pas de réponse du serveur Bureau à distance en 30 secondes : vérifiez l'adresse et le port (3389 par défaut).</value>
+  </data>
+  <data name="RdpTlsFailed" xml:space="preserve">
+    <value>Échec de la négociation TLS avec le serveur Bureau à distance : {0}</value>
+  </data>
 </root>

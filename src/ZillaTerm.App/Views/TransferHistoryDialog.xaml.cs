@@ -121,9 +121,9 @@ public partial class TransferHistoryDialog : Window
 
         try
         {
-            Process.Start(new ProcessStartInfo("explorer.exe") { ArgumentList = { record.Destination }, UseShellExecute = false })?.Dispose();
+            Services.WindowsExplorer.OpenFolder(record.Destination);
         }
-        catch (System.ComponentModel.Win32Exception ex)
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or ArgumentException)
         {
             MessageBox.Show(this, ex.Message, Strings.HistoryTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
         }

@@ -2250,7 +2250,7 @@ Vos modifications restent dans l'éditeur : enregistrez à nouveau pour réessay
     <value>Enregistrement de la base KeePass {0}…</value>
   </data>
   <data name="KeePassSaved" xml:space="preserve">
-    <value>Base KeePass {0} enregistrée (version précédente gardée dans {1})</value>
+    <value>Base KeePass {0} enregistrée et vérifiée</value>
   </data>
   <data name="KeePassSaveFailed" xml:space="preserve">
     <value>La base KeePass {0} n'a pas été enregistrée :
@@ -4035,7 +4035,7 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
     <value>Clés de serveurs acceptées</value>
   </data>
   <data name="HostKeysHelp" xml:space="preserve">
-    <value>Empreintes vérifiées et acceptées (PSMP, SSH direct, certificats FTPS). Une clé oubliée sera redemandée à la prochaine connexion.</value>
+    <value>Empreintes vérifiées et acceptées (PSMP, SSH direct, certificats FTPS et Bureau à distance), une ligne par type de clé. Une clé oubliée sera redemandée à la prochaine connexion.</value>
   </data>
   <data name="HostKeyServer" xml:space="preserve">
     <value>Serveur</value>
@@ -4705,5 +4705,65 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   </data>
   <data name="ColumnGroup" xml:space="preserve">
     <value>Groupe</value>
+  </data>
+  <data name="HostKeyNewTypePsmpHeading" xml:space="preserve">
+    <value>Nouvelle clé du PSMP, d'un autre type</value>
+  </data>
+  <data name="HostKeyNewTypeServerHeading" xml:space="preserve">
+    <value>Nouvelle clé du serveur, d'un autre type</value>
+  </data>
+  <data name="HostKeyNewTypePsmpMessage" xml:space="preserve">
+    <value>Ce poste connaît déjà une clé de ce PSMP, d'un autre type. Une nouvelle clé est normale si le PSMP vient d'en recevoir une (mise à jour), mais elle peut aussi indiquer une interception de la connexion. Comparez son empreinte avec celle publiée par votre équipe CyberArk avant de lui faire confiance.</value>
+  </data>
+  <data name="HostKeyNewTypeServerMessage" xml:space="preserve">
+    <value>Ce poste connaît déjà une clé de ce serveur, d'un autre type. Une nouvelle clé est normale si le serveur vient d'en recevoir une (mise à jour), mais elle peut aussi indiquer une interception de la connexion. Comparez son empreinte avec celle que donne l'administrateur du serveur avant de lui faire confiance.</value>
+  </data>
+  <data name="HostKeyBothKept" xml:space="preserve">
+    <value>Les deux clés sont ensuite acceptées pour ce serveur.</value>
+  </data>
+  <data name="HostKeyAddKey" xml:space="preserve">
+    <value>Accepter cette clé et se connecter</value>
+  </data>
+  <data name="HostKeyAckNewPsmp" xml:space="preserve">
+    <value>J'ai vérifié cette empreinte avec l'équipe CyberArk</value>
+  </data>
+  <data name="HostKeyAckNewServer" xml:space="preserve">
+    <value>J'ai vérifié cette empreinte avec l'administrateur du serveur</value>
+  </data>
+  <data name="FtpTlsRemovedHeading" xml:space="preserve">
+    <value>Ce serveur FTP ne propose plus de chiffrement</value>
+  </data>
+  <data name="FtpTlsRemovedMessage" xml:space="preserve">
+    <value>Les connexions précédentes à ce serveur étaient chiffrées (TLS). Sans chiffrement, le mot de passe de l'entrée et les fichiers circuleraient en clair sur le réseau. Ne continuez que si l'administrateur du serveur a confirmé le retrait du chiffrement ; sinon, annulez et prévenez-le.</value>
+  </data>
+  <data name="FtpTlsRemovedAck" xml:space="preserve">
+    <value>J'ai confirmé avec l'administrateur du serveur le retrait du chiffrement</value>
+  </data>
+  <data name="VncPasswordTitle" xml:space="preserve">
+    <value>VNC sans chiffrement</value>
+  </data>
+  <data name="VncPasswordHeading" xml:space="preserve">
+    <value>Envoyer le mot de passe VNC sur une connexion non chiffrée ?</value>
+  </data>
+  <data name="VncPasswordMessage" xml:space="preserve">
+    <value>VNC ne chiffre pas la connexion et ne vérifie pas l'identité du serveur. Le mot de passe de l'entrée est envoyé sous une forme qu'un faux serveur, ou quiconque intercepte la connexion, peut casser hors ligne (ses 8 premiers caractères). Ne continuez que sur un réseau de confiance.</value>
+  </data>
+  <data name="VncPasswordOnce" xml:space="preserve">
+    <value>Question posée une fois pour cet onglet, reconnexions comprises.</value>
+  </data>
+  <data name="VncPasswordSend" xml:space="preserve">
+    <value>Envoyer le mot de passe et se connecter</value>
+  </data>
+  <data name="RdpCertificateTitle" xml:space="preserve">
+    <value>Certificat du serveur Bureau à distance</value>
+  </data>
+  <data name="RdpCertVerifyHeading" xml:space="preserve">
+    <value>Vérifier le certificat du serveur Bureau à distance</value>
+  </data>
+  <data name="RdpCertChangedHeading" xml:space="preserve">
+    <value>Le certificat du serveur Bureau à distance a changé</value>
+  </data>
+  <data name="RdpCertificateDeclined" xml:space="preserve">
+    <value>Certificat du serveur refusé : connexion arrêtée, le mot de passe n'a pas été envoyé.</value>
   </data>
 </root>

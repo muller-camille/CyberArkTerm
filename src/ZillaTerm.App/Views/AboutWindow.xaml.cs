@@ -145,7 +145,7 @@ public partial class AboutWindow : Window
     {
         if (_downloaded is not null && File.Exists(_downloaded))
         {
-            Start("explorer.exe", $"/select,\"{_downloaded}\"");
+            ShowInExplorer(() => WindowsExplorer.ShowFile(_downloaded));
         }
     }
 
@@ -159,7 +159,7 @@ public partial class AboutWindow : Window
     {
         if (Directory.Exists(SettingsFolder))
         {
-            Start("explorer.exe", $"\"{SettingsFolder}\"");
+            ShowInExplorer(() => WindowsExplorer.OpenFolder(SettingsFolder));
         }
     }
 
@@ -169,6 +169,18 @@ public partial class AboutWindow : Window
         if (url.StartsWith(UpdateChecker.ProjectUrl, StringComparison.Ordinal))
         {
             Start(url, null);
+        }
+    }
+
+    private void ShowInExplorer(Action show)
+    {
+        try
+        {
+            show();
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or ArgumentException)
+        {
+            MessageBox.Show(this, ex.Message, Title, MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

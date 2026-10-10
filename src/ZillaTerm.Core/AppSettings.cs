@@ -169,6 +169,9 @@ public sealed class AppSettings
     /// <summary>Empreintes des clés d'hôte PSMP acceptées (« hôte:port » → « algorithme SHA256:... »).</summary>
     public Dictionary<string, string> KnownHosts { get; set; } = [];
 
+    /// <summary>Serveurs FTP (« hôte:port ») déjà vus avec TLS (voir <see cref="Ftp.FtpTlsMemory"/>).</summary>
+    public List<string> FtpTlsServers { get; set; } = [];
+
     public List<RecentSession> Recent { get; set; } = [];
 
     /// <summary>Composant PSM choisi par l'utilisateur, par ID de plateforme.</summary>
@@ -406,6 +409,7 @@ public sealed class AppSettings
         settings.KeePassFolders.RemoveAll(f => f is null);
         settings.SharedLists ??= [];
         settings.KnownHosts ??= [];
+        settings.FtpTlsServers ??= [];
         settings.Language ??= "";
         settings.PvwaUrl ??= "";
         settings.UserName ??= "";

@@ -473,7 +473,7 @@ public partial class MainWindow
         RefreshSaved();
         bool logged = _keePass.Log.TryWrite(action, ("vault", folder.FilePath), ("entry", entryTitle));
         SetStatus(logged
-                ? Text.Format(Strings.KeePassSaved, folder.DisplayName, Path.GetFileName(vault.BackupPath))
+                ? Text.Format(Strings.KeePassSaved, folder.DisplayName)
                 : Text.Format(Strings.KeePassSavedNoLog, folder.DisplayName),
             isError: !logged);
     }
@@ -599,8 +599,13 @@ public partial class MainWindow
             else if (RdpClientHost.IsAvailable)
             {
                 var settings = RdpConnectionSettings.Direct(target.Host, target.Port, target.UserName);
-                await OpenRdpTabAsync(label, _ => Task.FromResult(new RdpConnectionRequest(settings, Password())),
-                    duplicate: () => ConnectKeePassAsync(node, target.Protocol));
+                await OpenRdpTabAsync(label, async ct =>
+                {
+                    // Certificat du serveur vérifié (épinglé au premier usage) avant que le mot de passe soit lu et confié
+                    // au contrôle ; à chaque connexion, reconnexions comprises.
+                    await CheckRdpCertificateAsync(target.Address, settings, ct);
+                    return new RdpConnectionRequest(settings, Password());
+                }, duplicate: () => ConnectKeePassAsync(node, target.Protocol));
             }
             else
             {

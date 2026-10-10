@@ -225,7 +225,11 @@ usato.
   Se la chiave cambia, una fascia rossa avverte di una possibile intercettazione, vengono mostrate l'impronta
   memorizzata e quella nuova, e «Sostituisci la chiave e connetti» è possibile solo dopo aver selezionato «Ho
   confermato la modifica con il team CyberArk». Una chiave rifiutata ferma la connessione («Connessione annullata:
-  la chiave del server non è stata accettata.»).
+  la chiave del server non è stata accettata.»). Un PSMP può avere chiavi di più tipi (RSA, ed25519…): ognuna è
+  memorizzata a parte, e ZillaTerm chiede per primo il tipo già noto. Una chiave di un tipo mai visto per questo PSMP
+  non è né accettata d'ufficio né presa per una modifica: la finestra «Nuova chiave del PSMP, di un altro tipo»
+  mostra le impronte già accettate e quella nuova, e «Accetta questa chiave e connetti» è possibile solo dopo aver
+  selezionato «Ho verificato questa impronta con il team CyberArk».
 - **Terminale**: la selezione copia, la rotellina o la barra di scorrimento a destra percorre la cronologia; dopo
   essere risaliti, «↓ Torna alla fine» (o digitare) riporta alla fine. AltGr funziona sulle tastiere
   internazionali. Chiudi la scheda con la croce, con un clic centrale o con `Ctrl+F4` (conferma se la sessione è
@@ -640,13 +644,22 @@ contengono.
     quella fornita dal suo amministratore, nella stessa finestra usata per il PSMP (vedi
     [sezione 4](#4-aprire-una-sessione-ssh-tramite-il-psmp)).
   - **Desktop remoto**: la scheda ne segue la dimensione (risoluzione del desktop remoto) e propone «Schermo intero»
-    (`Ctrl+Alt+Pausa` per tornare), «Disconnetti» e «Riconnetti».
+    (`Ctrl+Alt+Pausa` per tornare), «Disconnetti» e «Riconnetti». Prima di ogni connessione, ZillaTerm legge il
+    certificato del server. Se Windows non lo approva (autofirmato…), il soggetto, l'emittente, le date e l'impronta
+    SHA-256 sono mostrati alla prima connessione, poi è memorizzato per quel server; se in seguito cambia, vengono
+    mostrate l'impronta memorizzata e quella nuova, e occorre selezionare «Ho confermato la modifica con
+    l'amministratore del server». La password è letta e passata al controllo Desktop remoto solo dopo questa
+    verifica; un server che non accetta la cifratura TLS è rifiutato. Nessuna immagine della sessione resta sul disco
+    del computer.
   - **VNC** (`vnc://server`, porta 5900; `vnc://server:1` indica lo schermo 1, porta 5901): desktop in una scheda,
     adattato alla finestra o a dimensione reale («Adatta»), pulsanti «Ctrl+Alt+Canc» (dopo conferma: a seconda della
     macchina, apre la schermata di sicurezza o riavvia alcune console di macchine virtuali), «Invia gli appunti» e
     «Copia il testo remoto»: gli appunti sono scambiati solo tramite questi pulsanti. Autenticazione con password VNC (8
     caratteri al massimo, limite del protocollo) o senza autenticazione. **VNC non cifra nulla**: un banner lo
-    ricorda; riservalo a una rete fidata.
+    ricorda; riservalo a una rete fidata. Prima del primo invio della password VNC, ZillaTerm chiede il tuo consenso
+    («Invia la password e connetti», una sola volta per scheda, riconnessioni comprese): VNC non verifica l'identità
+    del server, e un falso server o chi intercetta la connessione può recuperare i primi 8 caratteri della password.
+    I segnali acustici del server sono limitati a uno al secondo.
   - **File** (`sftp://`, `ftp://`, `ftpes://` per FTP con TLS esplicito, `ftps://` per TLS implicito, porta 990):
     una scheda di stato, senza terminale, e i file nella scheda «File» con le stesse funzioni (trasferimenti
     verificati con SHA-256, coda, cronologia, editor, confronto, monitoraggio in tempo reale, permessi se il server
@@ -656,11 +669,18 @@ contengono.
     `ftps://` non passano mai in chiaro. Un certificato FTPS che Windows non approva (autofirmato…) è mostrato con il
     soggetto, l'emittente, le date di validità e l'impronta SHA-256 (con «Copia»), poi memorizzato per quel server
     se lo accetti; se in seguito cambia, vengono mostrate l'impronta memorizzata e quella nuova, e occorre
-    selezionare «Ho confermato la modifica con l'amministratore del server».
+    selezionare «Ho confermato la modifica con l'amministratore del server». Un server che ha già cifrato una
+    connessione viene memorizzato: se poi si presenta senza TLS (cosa che un intermediario può ottenere), non è più la
+    semplice domanda ma l'avviso «Questo server FTP non propone più la cifratura», che lascia proseguire solo dopo
+    aver selezionato «Ho confermato con l'amministratore del server la rimozione della cifratura»; altrimenti la
+    connessione si ferma senza inviare la password.
 - **Modificare il database**: clic destro → «Nuova voce…», «Modifica…» (`F2`), «Elimina» (`Canc`, nel cestino
   del database, dopo conferma). L'indirizzo del server è obbligatorio: una voce senza indirizzo (né nel campo
   Indirizzo, né nei suoi campi personalizzati) non viene salvata. Il resto del database (allegati, campi,
-  impostazioni) è conservato; la versione precedente di una voce va nella sua cronologia, come in KeePass.
+  impostazioni) è conservato; la versione precedente di una voce va nella sua cronologia, come in KeePass. Durante
+  il salvataggio, la versione precedente del file è conservata in `database.kdbx.bak`, poi eliminata appena il nuovo
+  file viene riletto identico: nessuna vecchia copia, che si aprirebbe ancora con una vecchia password principale,
+  resta accanto al database (condiviso o no).
 - **Bloccare**: clic destro → «Blocca». I database si bloccano anche alla disconnessione, alla chiusura e al
   **blocco di Windows**.
 
@@ -751,7 +771,7 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 | File | Editor di testo | Programma aperto da «Modifica» nella scheda File | Blocco note |
 | File | Strumento di confronto | Programma proposto nella finestra di confronto, con i suoi argomenti (`{0}` = file di sinistra, `{1}` = di destra) | nessuno |
 | Sicurezza | Vault locale | Password principali KeePass memorizzate: «Crea…», «Sblocca…», «Cambia password…», «Elimina ora…»; queste azioni si applicano subito, senza «Salva» | — |
-| Sicurezza | Chiavi dei server accettate | Tabella delle impronte verificate e accettate (server, tipo, impronta): PSMP, SSH diretto e certificati FTPS delle voci KeePass. «Dimentica le chiavi scelte» rimuove le righe selezionate al salvataggio; la chiave verrà richiesta di nuovo alla prossima connessione | — |
+| Sicurezza | Chiavi dei server accettate | Tabella delle impronte verificate e accettate (server, tipo, impronta): PSMP, SSH diretto, certificati FTPS e Desktop remoto delle voci KeePass (una riga per tipo di chiave). «Dimentica le chiavi scelte» rimuove le righe selezionate al salvataggio; la chiave verrà richiesta di nuovo alla prossima connessione | — |
 | Menu del pulsante Impostazioni | Registro di debug | Svolgimento delle connessioni in un file, senza segreti (vedi [Sicurezza](#sicurezza)); «Mostra il file del registro» lo apre in Esplora risorse | no |
 
 ### Ambiente condiviso
@@ -847,7 +867,9 @@ può scaricarla da solo (repository rinominato): scaricala una volta dalla pagin
 - **Chiavi host del PSMP fissate** al primo utilizzo: l'impronta va confrontata prima di accettare («Annulla la
   connessione» predefinito); una chiave cambiata è segnalata da una fascia e sostituisce la vecchia solo dopo aver
   selezionato una casella di conferma (lo stesso per i server raggiunti in accesso di emergenza e per i certificati
-  FTPS). Le chiavi accettate si consultano e si dimenticano in Impostazioni › Sicurezza.
+  FTPS e Desktop remoto). Una chiave è memorizzata per server e per tipo: una chiave di un tipo mai visto per quel
+  server è mostrata con quelle già accettate e si aggiunge solo dopo una casella di verifica, mai d'ufficio. Le
+  chiavi accettate si consultano e si dimenticano in Impostazioni › Sicurezza.
 - **Mantenimento della sessione PVWA**: evita la scadenza per inattività; non viene inviato nulla mentre Windows è
   bloccato, e l'opzione si disattiva nelle Impostazioni se la tua politica lo richiede.
 - **Database KeePass**:
@@ -856,15 +878,22 @@ può scaricarla da solo (repository rinominato): scaricala una volta dalla pagin
   - in memoria, la chiave del database e le password delle voci restano mascherate e sono rivelate solo al momento
     della connessione; database bloccati alla disconnessione, alla chiusura e al blocco di Windows;
   - salvataggio sicuro: il file viene riletto, la modifica è applicata alla sua versione attuale (le modifiche fatte
-    altrove sono conservate), il risultato decifrato è verificato, una copia `.bak` è conservata e il file è
-    sostituito in un solo passo; una voce modificata altrove nel frattempo non viene sovrascritta;
+    altrove sono conservate), il risultato decifrato è verificato e il file è sostituito in un solo passo (una copia
+    `.bak` durante la sostituzione, eliminata una volta riletto il file identico); una voce modificata altrove nel
+    frattempo non viene sovrascritta;
   - desktop remoto diretto: la password è passata solo al controllo Desktop remoto (nessun file, nessun gestore
-    credenziali), con autenticazione a livello di rete (NLA) e avviso se il server non è riconosciuto;
+    credenziali), con autenticazione a livello di rete (NLA) e avviso se il server non è riconosciuto; certificato
+    del server letto prima dell'invio della password e fissato al primo utilizzo (una modifica è segnalata e bloccata
+    finché non è confermata), server senza TLS rifiutato, cache persistente delle immagini disattivata. Limite: il
+    controllo esegue poi la propria negoziazione TLS, senza che gli si possa imporre l'impronta fissata; per un
+    certificato che Windows non approva, mostra ancora il proprio avviso;
   - VNC: il protocollo non cifra né lo schermo, né i tasti, né gli appunti (banner permanente); la password non è
-    inviata così com'è (sfida-risposta del protocollo); gli appunti sono scambiati solo con un clic; la dimensione
-    dello schermo annunciata dal server è limitata (8.192 pixel per lato);
+    inviata così com'è (sfida-risposta del protocollo), e solo dopo il tuo consenso: il server non è autenticato e
+    può recuperarne i primi 8 caratteri; segnali acustici limitati a uno al secondo; gli appunti sono scambiati solo
+    con un clic; la dimensione dello schermo annunciata dal server è limitata (8.192 pixel per lato);
   - FTP: TLS tentato per primo, connessione in chiaro solo dopo il tuo consenso (banner permanente), mai per
-    `ftpes://` e `ftps://`; con TLS, anche i trasferimenti sono cifrati (`PROT P`);
+    `ftpes://` e `ftps://`; con TLS, anche i trasferimenti sono cifrati (`PROT P`); un server già visto con TLS
+    che non lo propone più è segnalato come possibile intercettazione, e nulla viene inviato senza conferma;
   - certificato FTPS: quello che Windows approva è accettato; altrimenti la sua impronta SHA-256 è mostrata e
     fissata al primo consenso (come una chiave host SSH), un cambiamento è segnalato; rifiutato, la connessione si
     ferma prima dell'invio del nome utente;
@@ -948,7 +977,8 @@ Client integrato (protocollo RFB 3.3, 3.7 e 3.8, RFC 6143; a un server più rece
 in 3.8), nulla da installare: autenticazione «nessuna» o «password VNC» (se il server le propone entrambe: la password
 se la voce ne ha una, altrimenti nessuna) (DES del protocollo, implementato in ZillaTerm perché la modalità FIPS di Windows può vietare DES),
 codifiche Raw, CopyRect e Hextile, cambio di dimensione dello schermo, pixel a 32 bit. La tastiera è inviata come
-«keysym» X11 (i caratteri AltGr sono inviati come caratteri), la rotellina come pulsanti 4 e 5.
+«keysym» X11 (i caratteri AltGr sono inviati come caratteri), la rotellina come pulsanti 4 e 5. La password VNC è
+inviata solo dopo il tuo consenso (una volta per scheda); i segnali acustici del server sono limitati a uno al secondo.
 
 ### Sessioni di file FTP / FTPS
 
@@ -956,7 +986,9 @@ Libreria FluentFTP (licenza MIT). Modalità passiva: `PASV` in IPv4, con la conn
 stesso (l'indirizzo indicato nella risposta viene ignorato: un server non può farla puntare verso un'altra macchina),
 `EPSV` in IPv6; binaria, `PBSZ 0` e `PROT P` con TLS;
 certificato verificato da Windows, altrimenti fissato (`ftps://server:porta` tra le chiavi dei server accettate,
-in Impostazioni › Sicurezza). FTP non ha una somma di controllo standard: ogni invio è riletto dal server e confrontato con
+in Impostazioni › Sicurezza); i server che hanno cifrato una connessione sono annotati (`FtpTlsServers` delle
+impostazioni) per segnalare una rimozione di TLS. FTP non ha una somma di controllo standard: ogni invio è riletto
+dal server e confrontato con
 SHA-256. Lettura parziale (`REST`) per il confronto e il monitoraggio in tempo reale. Dopo un trasferimento
 interrotto, la connessione è riaperta e il file incompleto eliminato. Un file sostituito viene riscritto sul posto:
 conserva i suoi permessi. Collegamenti simbolici: i primi 40 di una cartella vengono risolti (un'andata e ritorno
@@ -973,7 +1005,11 @@ dimensione delle finestre sul server, mouse), da qui il ritorno a `mstsc`.
 Le schede Desktop remoto (desktop remoto diretto dei database KeePass) ospitano il controllo ActiveX di Windows
 (`mstscax.dll`, la classe `MsRdpClient` più recente disponibile), impostato come una connessione diretta:
 autenticazione a livello di rete (NLA), avviso se il server non è riconosciuto, reindirizzamenti disattivati tranne
-gli appunti. La risoluzione del desktop remoto segue la dimensione della scheda. Le chiusure di sessione e gli
+gli appunti, cache persistente delle immagini disattivata. Prima di ogni connessione, ZillaTerm legge da sé il
+certificato TLS del server (richiesta di connessione X.224, poi negoziazione TLS interrotta appena ricevuto il
+certificato: né nome utente né password inviati) per fissarlo (`rdp://server:porta` tra le chiavi dei server
+accettate); il controllo ActiveX non permette di imporgli questa impronta. La risoluzione del desktop remoto segue
+la dimensione della scheda. Le chiusure di sessione e gli
 errori di connessione sono spiegati nella scheda con il messaggio e i codici di Windows (motivo, motivo esteso). Un
 test di integrazione (workflow `rdp-integration`) apre una vera sessione sul computer di CI.
 
@@ -983,7 +1019,10 @@ thread dell'interfaccia, in cui quel thread colloca la finestra del controllo. P
 la toglie: una disconnessione o un rilascio lento non blocca più l'applicazione. Se il thread non risponde per 5 s,
 la barra della scheda lo segnala, e il resto dell'applicazione resta utilizzabile. Limite: Windows condivide
 tastiera e mouse tra una finestra e quelle che contiene, anche di un altro thread; un controllo bloccato
-definitivamente può ancora trattenere un clic nella sua area o un cambio di focus.
+definitivamente può ancora trattenere un clic nella sua area o un cambio di focus. Alla disconnessione o alla
+chiusura, ZillaTerm attende al massimo 3 s la fine delle sessioni desktop remoto; una sessione il cui controllo resta
+bloccato viene allora tolta dalla finestra (il suo spazio è messo da parte), e l'applicazione si disconnette comunque,
+o si chiude direttamente.
 
 ### Sessioni PSMP
 
@@ -1038,6 +1077,7 @@ non lo interrompe. Con csh, ksh, sh o fish il monitoraggio non viene installato 
 | Il browser non segue i `cd` | La shell remota non è bash, zsh o tcsh (o tcsh ha già un proprio alias `cwdcmd`), l'opzione è disattivata nelle Impostazioni, oppure il prompt non è stato riconosciuto: riseleziona «Segui la cartella del terminale» al prompt della shell. |
 | Avviso «La chiave del PSMP è cambiata» | Prosegui (casella «Ho confermato la modifica con il team CyberArk», poi «Sostituisci la chiave e connetti») solo se il team CyberArk conferma una modifica del server; altrimenti annulla e avvisalo. |
 | «Connessione annullata: la chiave del server non è stata accettata.» | La finestra dell'impronta è stata annullata o chiusa: riconnettiti e accetta la chiave dopo averne confrontato l'impronta. |
+| Finestra «Nuova chiave del PSMP, di un altro tipo» | Il PSMP presenta un tipo di chiave (ed25519, RSA…) mai visto su questo computer: confronta l'impronta con quella pubblicata dal team CyberArk prima di selezionare la casella e accettarla; altrimenti annulla e avvisalo. |
 | «Password principale o file chiave errati.» | Controlla la password e il file chiave; un database protetto da YubiKey non è supportato. |
 | Il database KeePass chiede la password nonostante «Memorizza» | Vault locale bloccato («Più tardi» allo sblocco) o password principale cambiata altrove: digitala, viene memorizzata di nuovo. |
 | «Il file del vault locale è danneggiato o è stato creato da un altro account Windows.» | Il vault locale non segue un cambio di computer o di account: eliminalo nelle Impostazioni e ricrealo. |
@@ -1052,4 +1092,6 @@ non lo interrompe. Con csh, ksh, sh o fish il monitoraggio non viene installato 
 | VNC: «Il server VNC non propone alcuna autenticazione supportata da ZillaTerm…» | Il server richiede un'autenticazione propria del suo produttore (account Windows, cifratura VeNCrypt…): attiva l'autenticazione «password VNC» sul server. |
 | VNC: «Nessuna risposta VNC dal server entro 30 secondi» | Porta sbagliata (5900 + numero dello schermo) o servizio diverso da VNC a questo indirizzo. |
 | FTP: «Il server FTP non propone la cifratura (TLS), richiesta da questa voce» | Il server non accetta TLS: usa `ftp://` (connessione in chiaro dopo conferma) o SFTP se disponibile. |
+| FTP: avviso «Questo server FTP non propone più la cifratura» | Il server cifrava le connessioni e non lo fa più: prosegui solo se il suo amministratore conferma la rimozione di TLS; altrimenti la connessione potrebbe essere intercettata. |
+| Desktop remoto diretto: «Il server Desktop remoto non accetta la cifratura TLS…» | Il server accetta solo la vecchia «sicurezza RDP», che non permette di verificarne l'identità: chiedi al suo amministratore di attivare TLS o NLA. |
 | FTPS: l'elenco dei file non appare o un trasferimento scade | Un firewall blocca le porte passive del server, o il server esige la ripresa della sessione TLS sulle connessioni dati (`522`, per esempio `require_ssl_reuse` di vsftpd): rivolgiti all'amministratore del server. |

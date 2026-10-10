@@ -239,7 +239,17 @@ internal sealed class RdpConnection
         Optional(() => Dispatch.Set(advanced, "SmartSizing", s.SmartSizing));
         Optional(() => Dispatch.Set(advanced, "EnableAutoReconnect", s.AutoReconnect));
         Optional(() => Dispatch.Set(advanced, "Compress", s.Compress ? 1 : 0));
-        Optional(() => Dispatch.Set(advanced, "BitmapPersistence", s.BitmapPersistence ? 1 : 0));
+        if (s.BitmapPersistence)
+        {
+            Optional(() => Dispatch.Set(advanced, "BitmapPersistence", 1));
+        }
+        else
+        {
+            // Pas de cache d'images sur disque (connexion directe) : réglage de sécurité, il doit passer.
+            Dispatch.Set(advanced, "BitmapPersistence", 0);
+            Optional(() => Dispatch.Set(advanced, "CachePersistenceActive", 0));
+        }
+
         Optional(() => Dispatch.Set(advanced, "PerformanceFlags", s.PerformanceFlags));
         Optional(() => Dispatch.Set(advanced, "AudioRedirectionMode", (uint)s.AudioMode));
         Optional(() => Dispatch.Set(advanced, "AudioCaptureRedirectionMode", s.AudioCapture));

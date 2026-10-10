@@ -110,6 +110,32 @@ public sealed class EnvironmentProfileTests : IDisposable
         Assert.Equal(3, user.SharedLists.Count);
     }
 
+    /// <summary>
+    /// Clés de plusieurs types : un fichier n'ajoute pas de clé à un serveur qui en a déjà une (ni d'un autre type, ni du
+    /// même type à côté d'une clé gardée à part), et une clé déjà acceptée, quel que soit son type, n'est pas un changement.
+    /// </summary>
+    [Fact]
+    public void FilesNeverAddKeysToAKnownServer()
+    {
+        var user = new AppSettings();
+        KnownHosts.Remember(user.KnownHosts, "psmp.corp.com", 22, "rsa-sha2-512", "RSA1");
+        KnownHosts.Remember(user.KnownHosts, "psmp.corp.com", 22, "ssh-ed25519", "ED1");
+        user.KnownHosts.Remove("psmp.corp.com:22");
+        var profile = new EnvironmentProfile
+        {
+            HostKeys = new() { ["psmp.corp.com:22"] = "ssh-ed25519 SHA256:EVIL", ["psmp.lyon.corp.com:22"] = "ssh-rsa SHA256:CCCC" },
+        };
+
+        var changes = profile.Diff(user);
+        Assert.Contains(changes, c => c is { Setting: EnvironmentSetting.HostKey, Detail: "psmp.corp.com:22", Ignored: true });
+        profile.ApplyTo(user);
+        Assert.Equal(HostKeyStatus.Changed, KnownHosts.Check(user.KnownHosts, "psmp.corp.com", 22, "ssh-ed25519", "EVIL"));
+        Assert.False(user.KnownHosts.ContainsKey("psmp.corp.com:22"));
+
+        var same = new EnvironmentProfile { HostKeys = new() { ["psmp.corp.com:22"] = "ssh-ed25519 SHA256:ED1" } };
+        Assert.Empty(same.Diff(user));
+    }
+
     /// <summary>Exporté d'un poste sans PSMP ni composant Windows : n'efface pas ceux du poste qui l'importe.</summary>
     [Fact]
     public void EmptySettingsAreNotExported()

@@ -441,4 +441,25 @@
   <data name="MigrationColResult" xml:space="preserve">
     <value>Result</value>
   </data>
+  <data name="FtpTlsRemoved" xml:space="preserve">
+    <value>This FTP server used to encrypt its connections (TLS) and no longer offers it: connection stopped, the password was not sent.</value>
+  </data>
+  <data name="VncPasswordNotSent" xml:space="preserve">
+    <value>Connection cancelled: the VNC password was not sent.</value>
+  </data>
+  <data name="RdpNoTls" xml:space="preserve">
+    <value>The Remote Desktop server does not accept TLS encryption: its identity cannot be checked, the password of the entry is not sent to it.</value>
+  </data>
+  <data name="RdpNotRdp" xml:space="preserve">
+    <value>The server did not answer like a Remote Desktop server: check the address and the port (3389 by default).</value>
+  </data>
+  <data name="RdpNegotiationRefused" xml:space="preserve">
+    <value>The Remote Desktop server refused the connection (code {0}).</value>
+  </data>
+  <data name="RdpProbeTimeout" xml:space="preserve">
+    <value>No answer from the Remote Desktop server within 30 seconds: check the address and the port (3389 by default).</value>
+  </data>
+  <data name="RdpTlsFailed" xml:space="preserve">
+    <value>TLS negotiation with the Remote Desktop server failed: {0}</value>
+  </data>
 </root>

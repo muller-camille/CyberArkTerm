@@ -3586,7 +3586,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to KeePass database {0} saved (previous version kept in {1}).
+        ///   Looks up a localized string similar to KeePass database {0} saved and checked.
         /// </summary>
         public static string KeePassSaved {
             get {
@@ -12000,7 +12000,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Fingerprints checked and accepted (PSMP, direct SSH, FTPS certificates). A forgotten key is asked again at the next connection..
+        ///   Looks up a localized string similar to Fingerprints checked and accepted (PSMP, direct SSH, FTPS and Remote Desktop certificates), one row per key type. A forgotten key is asked again at the next connection..
         /// </summary>
         public static string HostKeysHelp {
             get {
@@ -14012,6 +14012,186 @@ namespace ZillaTerm.App.Localization {
         public static string ColumnGroup {
             get {
                 return ResourceManager.GetString("ColumnGroup", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to New key of the PSMP, of another type.
+        /// </summary>
+        public static string HostKeyNewTypePsmpHeading {
+            get {
+                return ResourceManager.GetString("HostKeyNewTypePsmpHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to New key of the server, of another type.
+        /// </summary>
+        public static string HostKeyNewTypeServerHeading {
+            get {
+                return ResourceManager.GetString("HostKeyNewTypeServerHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This computer already knows a key of this PSMP, of another type. A new key is expected if the PSMP has just received one (update), but it may also mean that the connection is being intercepted. Compare its fingerprint with the one published by your CyberArk team before you trust it..
+        /// </summary>
+        public static string HostKeyNewTypePsmpMessage {
+            get {
+                return ResourceManager.GetString("HostKeyNewTypePsmpMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This computer already knows a key of this server, of another type. A new key is expected if the server has just received one (update), but it may also mean that the connection is being intercepted. Compare its fingerprint with the one given by the server's administrator before you trust it..
+        /// </summary>
+        public static string HostKeyNewTypeServerMessage {
+            get {
+                return ResourceManager.GetString("HostKeyNewTypeServerMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Both keys are then accepted for this server..
+        /// </summary>
+        public static string HostKeyBothKept {
+            get {
+                return ResourceManager.GetString("HostKeyBothKept", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Accept this key and connect.
+        /// </summary>
+        public static string HostKeyAddKey {
+            get {
+                return ResourceManager.GetString("HostKeyAddKey", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to I checked this fingerprint with the CyberArk team.
+        /// </summary>
+        public static string HostKeyAckNewPsmp {
+            get {
+                return ResourceManager.GetString("HostKeyAckNewPsmp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to I checked this fingerprint with the server's administrator.
+        /// </summary>
+        public static string HostKeyAckNewServer {
+            get {
+                return ResourceManager.GetString("HostKeyAckNewServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This FTP server no longer offers encryption.
+        /// </summary>
+        public static string FtpTlsRemovedHeading {
+            get {
+                return ResourceManager.GetString("FtpTlsRemovedHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Earlier connections to this server were encrypted (TLS). Without encryption, the password of the entry and the files would travel in clear on the network. Only continue if the server's administrator confirmed that encryption was removed; otherwise, cancel and alert them..
+        /// </summary>
+        public static string FtpTlsRemovedMessage {
+            get {
+                return ResourceManager.GetString("FtpTlsRemovedMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to I confirmed with the server's administrator that encryption was removed.
+        /// </summary>
+        public static string FtpTlsRemovedAck {
+            get {
+                return ResourceManager.GetString("FtpTlsRemovedAck", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to VNC without encryption.
+        /// </summary>
+        public static string VncPasswordTitle {
+            get {
+                return ResourceManager.GetString("VncPasswordTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send the VNC password over an unencrypted connection?.
+        /// </summary>
+        public static string VncPasswordHeading {
+            get {
+                return ResourceManager.GetString("VncPasswordHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to VNC does not encrypt the connection and does not check the identity of the server. The password of the entry is sent in a form that a fake server, or anyone intercepting the connection, can crack offline (its first 8 characters). Only continue on a trusted network..
+        /// </summary>
+        public static string VncPasswordMessage {
+            get {
+                return ResourceManager.GetString("VncPasswordMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Asked once for this tab, reconnections included..
+        /// </summary>
+        public static string VncPasswordOnce {
+            get {
+                return ResourceManager.GetString("VncPasswordOnce", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send the password and connect.
+        /// </summary>
+        public static string VncPasswordSend {
+            get {
+                return ResourceManager.GetString("VncPasswordSend", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remote Desktop server certificate.
+        /// </summary>
+        public static string RdpCertificateTitle {
+            get {
+                return ResourceManager.GetString("RdpCertificateTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Verify the certificate of the Remote Desktop server.
+        /// </summary>
+        public static string RdpCertVerifyHeading {
+            get {
+                return ResourceManager.GetString("RdpCertVerifyHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The certificate of the Remote Desktop server has changed.
+        /// </summary>
+        public static string RdpCertChangedHeading {
+            get {
+                return ResourceManager.GetString("RdpCertChangedHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Certificate of the server refused: connection stopped, the password was not sent..
+        /// </summary>
+        public static string RdpCertificateDeclined {
+            get {
+                return ResourceManager.GetString("RdpCertificateDeclined", resourceCulture);
             }
         }
     }

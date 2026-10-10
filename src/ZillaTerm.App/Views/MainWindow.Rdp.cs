@@ -5,6 +5,7 @@ using ZillaTerm.App.Localization;
 using ZillaTerm.App.Services.Rdp;
 using ZillaTerm.Core.Diagnostics;
 using ZillaTerm.Core.Rdp;
+using ZillaTerm.Core.Ssh;
 
 namespace ZillaTerm.App.Views;
 
@@ -85,18 +86,72 @@ public partial class MainWindow
 
     /// <summary>
     /// Ferme toutes les sessions et attend (3 s au plus) que leurs fenêtres aient quitté les onglets : la fenêtre
-    /// principale ne doit pas être détruite avec des fenêtres d'un autre thread. Faux si l'une n'a pas répondu.
+    /// principale ne doit pas être détruite avec des fenêtres d'un autre thread. Les sessions sont ensuite retirées de
+    /// la fenêtre, comme à la fermeture d'un onglet : l'emplacement d'une session bloquée, avec la fenêtre de son
+    /// contrôle, est mis de côté par WPF hors de la fenêtre principale. Faux si l'une n'a pas répondu.
     /// </summary>
     private async Task<bool> CloseAllRdpSessionsAsync()
     {
-        var closed = _rdpViews.Select(v =>
-        {
-            v.Session.Dispose();
-            return v.Session.Closed;
-        }).ToList();
+        var views = _rdpViews.ToList();
         _rdpViews.Clear();
-        var all = Task.WhenAll(closed);
-        return await Task.WhenAny(all, Task.Delay(TimeSpan.FromSeconds(3))) == all;
+        foreach (var view in views)
+        {
+            view.Session.Dispose();
+        }
+
+        var all = Task.WhenAll(views.Select(v => v.Session.Closed));
+        bool closed = await Task.WhenAny(all, Task.Delay(TimeSpan.FromSeconds(3))) == all;
+        foreach (var view in views)
+        {
+            RdpLayer.Children.Remove(view);
+        }
+
+        // Emplacements sortis de la fenêtre avant qu'elle ne soit détruite.
+        await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Background);
+        return closed;
+    }
+
+    /// <summary>
+    /// Connexion directe : le certificat TLS du serveur est lu avant tout envoi (le contrôle Bureau à distance ne permet
+    /// pas d'épingler un certificat), puis vérifié par <see cref="TrustRdpCertificate"/>. Refusé : la connexion
+    /// s'arrête là, sans que le mot de passe soit lu.
+    /// </summary>
+    private async Task CheckRdpCertificateAsync(string address, RdpConnectionSettings settings, CancellationToken ct)
+    {
+        var certificate = await RdpCertificateProbe.GetAsync(settings.Server, settings.Port, ct);
+        DebugLog.Write("rdp", $"{settings.Server}:{settings.Port} : certificat SHA256 {certificate.Sha256}, « {certificate.Subject} », "
+            + $"{(certificate.Trusted ? "approuvé par Windows" : certificate.Problem)}");
+        if (!TrustRdpCertificate(address, settings, certificate))
+        {
+            throw new OperationCanceledException(Strings.RdpCertificateDeclined);
+        }
+    }
+
+    /// <summary>
+    /// Certificat épinglé par serveur (clé « rdp://hôte:port », comme les certificats FTPS). Approuvé par Windows : noté
+    /// sans question (un certificat non approuvé présenté ensuite est un changement). Sinon : accepté s'il est celui
+    /// épinglé, question au premier usage, alerte s'il a changé, qui ne s'accepte qu'après confirmation.
+    /// </summary>
+    private bool TrustRdpCertificate(string address, RdpConnectionSettings settings, RdpCertificate certificate)
+    {
+        var host = "rdp://" + settings.Server;
+        var status = KnownHosts.Check(_settings.KnownHosts, host, settings.Port, "X.509", certificate.Sha256);
+        if (status == HostKeyStatus.Trusted)
+        {
+            return true;
+        }
+
+        if (!certificate.Trusted
+            && !ConfirmCertificate(Strings.RdpCertificateTitle, Strings.RdpCertVerifyHeading, Strings.RdpCertChangedHeading, address,
+                (certificate.Subject, certificate.Issuer, certificate.NotBefore, certificate.NotAfter, certificate.Sha256, certificate.Problem),
+                status == HostKeyStatus.Unknown ? null : KnownHosts.Known(_settings.KnownHosts, host, settings.Port, "X.509")?.Sha256 ?? ""))
+        {
+            return false;
+        }
+
+        KnownHosts.Remember(_settings.KnownHosts, host, settings.Port, "X.509", certificate.Sha256);
+        SaveSettings();
+        return true;
     }
 
     /// <summary>Affiche la session Bureau à distance de l'onglet choisi et masque les autres.</summary>
