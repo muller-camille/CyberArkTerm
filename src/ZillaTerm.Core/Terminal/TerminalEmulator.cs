@@ -17,13 +17,26 @@ public enum CellFlags : byte
 /// <summary>Une case de l'écran : caractère et attributs.</summary>
 public struct Cell
 {
-    public char Char;
+    /// <summary>Valeur de <see cref="CodePoint"/> dans la case de droite d'un caractère large (chinois, emoji…).</summary>
+    public const int WideTail = -1;
+
+    /// <summary>Premier numéro d'un caractère accompagné de marques combinantes, gardé par l'émulateur.</summary>
+    internal const int FirstCluster = 0x110000;
+
+    /// <summary>
+    /// Caractère : point de code Unicode (hors BMP compris), <see cref="WideTail"/>, ou au-delà de U+10FFFF un caractère
+    /// accompagné de marques combinantes (accent décomposé…). Texte : <see cref="TerminalEmulator.CellText"/>.
+    /// </summary>
+    public int CodePoint;
     public int Foreground;
     public int Background;
     public CellFlags Flags;
 
+    /// <summary>Case de droite d'un caractère large : rien à dessiner ni à copier, il est dans la case de gauche.</summary>
+    public readonly bool IsWideTail => CodePoint == WideTail;
+
     public static Cell Blank(int background = TerminalColor.Default) =>
-        new() { Char = ' ', Foreground = TerminalColor.Default, Background = background };
+        new() { CodePoint = ' ', Foreground = TerminalColor.Default, Background = background };
 }
 
 /// <summary>
@@ -38,9 +51,18 @@ public sealed class TerminalEmulator
     // Paramètres d'une séquence CSI gardés au plus (xterm en garde 30) : « \e[1;1;1;…m » sans fin ne remplit pas la mémoire.
     private const int MaxParams = 32;
 
+    // Caractères accompagnés de marques combinantes : distincts au plus (au-delà, les nouvelles marques sont ignorées),
+    // et longueur de chacun (xterm garde lui aussi un nombre limité de marques par case).
+    private const int MaxClusters = 16384;
+    private const int MaxClusterLength = 32;
+
     private readonly LineRing _scrollback;
     private readonly List<int> _params = [];
     private readonly StringBuilder _osc = new();
+
+    // Texte de chaque caractère à marques combinantes (Cell.CodePoint - Cell.FirstCluster), et son numéro par texte.
+    private readonly List<string> _clusters = [];
+    private readonly Dictionary<string, int> _clusterIds = new(StringComparer.Ordinal);
 
     private Cell[][] _main;
     private Cell[][]? _alt;
@@ -51,6 +73,15 @@ public sealed class TerminalEmulator
     private char _intermediate;
     private bool _charsetForG1;
     private bool _wrapPending;
+
+    // Première moitié UTF-16 d'un caractère hors BMP, en attente de la seconde (éventuellement dans le texte suivant).
+    private char _highSurrogate;
+
+    // Un caractère large a déjà été écrit : sans lui (le cas courant), aucune case à vérifier avant d'écrire.
+    private bool _wideWritten;
+
+    // Ligne du curseur de l'écran principal pendant l'écran alternatif : un redimensionnement le traite comme affiché.
+    private int _mainCursorRow;
 
     // Lignes de l'écran principal sorties par le haut depuis le début (historique plein ou non) : numéro absolu d'une
     // ligne = _scrolledOff + rang à l'écran, stable quand l'écran défile.
@@ -64,7 +95,11 @@ public sealed class TerminalEmulator
     private bool _g0Graphics;
     private bool _g1Graphics;
     private bool _shiftOut;
-    private SavedCursor _saved;
+
+    // Curseur sauvegardé (DECSC), un par écran comme xterm : vim ou less qui sauvegardent le leur dans l'écran
+    // alternatif n'écrasent pas celui que « \e[?1049l » restaure.
+    private SavedCursor _savedMain;
+    private SavedCursor _savedAlt;
 
     public TerminalEmulator(int columns = 80, int rows = 24, int maxScrollback = 5000)
     {
@@ -74,7 +109,7 @@ public sealed class TerminalEmulator
         _main = NewScreen(Rows, Columns);
         _screen = _main;
         _scrollBottom = Rows - 1;
-        _saved = InitialCursor;
+        _savedMain = _savedAlt = InitialCursor;
     }
 
     private static SavedCursor InitialCursor =>
@@ -146,6 +181,34 @@ public sealed class TerminalEmulator
     public Cell[] GetLine(int row) =>
         row < 0 ? _scrollback[_scrollback.Count + row] : _screen[row];
 
+    /// <summary>
+    /// Numéro de la première ligne de l'écran, compté depuis le début : la ligne <c>row</c> (comme <see cref="GetLine"/>)
+    /// porte le numéro <c>FirstScreenLine + row</c>, qui ne change pas quand l'écran défile.
+    /// </summary>
+    public long FirstScreenLine => _scrolledOff;
+
+    /// <summary>Texte d'une case : son caractère et ses marques combinantes ; vide pour la case de droite d'un caractère large.</summary>
+    public string CellText(Cell cell) => cell.CodePoint switch
+    {
+        Cell.WideTail => "",
+        >= Cell.FirstCluster and var id => id - Cell.FirstCluster < _clusters.Count ? _clusters[id - Cell.FirstCluster] : "\uFFFD",
+        var c => Rune.TryCreate(c, out var rune) ? rune.ToString() : "\uFFFD",
+    };
+
+    /// <summary>Ajoute le texte d'une case (comme <see cref="CellText"/>, sans allocation pour un caractère simple).</summary>
+    internal void AppendText(StringBuilder text, Cell cell)
+    {
+        int c = cell.CodePoint;
+        if (c is >= 0 and < 0x10000)
+        {
+            text.Append((char)c);
+        }
+        else if (c != Cell.WideTail)
+        {
+            text.Append(CellText(cell));
+        }
+    }
+
     public void Feed(string text)
     {
         foreach (var c in text)
@@ -172,37 +235,48 @@ public sealed class TerminalEmulator
             return;
         }
 
-        // Si l'écran rétrécit sous le curseur, les lignes du haut partent dans l'historique.
-        int shift = Math.Max(0, CursorRow - rows + 1);
-        if (!IsAlternateScreen)
+        // Si l'écran rétrécit sous le curseur, les lignes du haut partent dans l'historique. Pendant vim, less ou top
+        // (écran alternatif), l'écran principal est redimensionné de même avec son propre curseur : il réapparaît
+        // intact en sortant, l'invite sur la bonne ligne.
+        bool alt = IsAlternateScreen;
+        int mainShift = Math.Max(0, (alt ? _mainCursorRow : CursorRow) - rows + 1);
+        for (int i = 0; i < mainShift; i++)
         {
-            for (int i = 0; i < shift; i++)
-            {
-                PushScrollback(_main[i]);
-            }
+            PushScrollback(_main[i]);
         }
 
-        _main = ResizeScreen(_main, IsAlternateScreen ? 0 : shift, rows, columns);
+        _main = ResizeScreen(_main, mainShift, rows, columns);
+        Shift(ref _savedMain, mainShift, rows, columns);
+        _mainCursorRow = Math.Clamp(_mainCursorRow - mainShift, 0, rows - 1);
+        int altShift = alt ? Math.Max(0, CursorRow - rows + 1) : 0;
         if (_alt is not null)
         {
-            _alt = ResizeScreen(_alt, IsAlternateScreen ? shift : 0, rows, columns);
+            _alt = ResizeScreen(_alt, altShift, rows, columns);
+            Shift(ref _savedAlt, altShift, rows, columns);
         }
 
-        bool alt = IsAlternateScreen;
         _screen = alt ? _alt! : _main;
         Columns = columns;
         Rows = rows;
-        CursorRow = Math.Clamp(CursorRow - shift, 0, rows - 1);
+        CursorRow = Math.Clamp(CursorRow - (alt ? altShift : mainShift), 0, rows - 1);
         CursorColumn = Math.Clamp(CursorColumn, 0, columns - 1);
-        _saved.Row = Math.Clamp(_saved.Row, 0, rows - 1);
-        _saved.Column = Math.Clamp(_saved.Column, 0, columns - 1);
         _scrollTop = 0;
         _scrollBottom = rows - 1;
         _wrapPending = false;
         Version++;
     }
 
-    /// <summary>Texte de la zone sélectionnée (coordonnées absolues, fin incluse), espaces de fin retirés.</summary>
+    /// <summary>Curseur sauvegardé d'un écran qui a perdu ses <paramref name="shift"/> premières lignes.</summary>
+    private static void Shift(ref SavedCursor saved, int shift, int rows, int columns)
+    {
+        saved.Row = Math.Clamp(saved.Row - shift, 0, rows - 1);
+        saved.Column = Math.Clamp(saved.Column, 0, columns - 1);
+    }
+
+    /// <summary>
+    /// Texte de la zone sélectionnée (coordonnées absolues, fin incluse), espaces de fin retirés. Un caractère large
+    /// dont une seule moitié est dans la zone est pris en entier, avec ses marques combinantes.
+    /// </summary>
     public string GetText(int startRow, int startColumn, int endRow, int endColumn)
     {
         if (startRow > endRow || (startRow == endRow && startColumn > endColumn))
@@ -211,18 +285,25 @@ public sealed class TerminalEmulator
         }
 
         var sb = new StringBuilder();
-        for (int row = Math.Max(startRow, -ScrollbackCount); row <= Math.Min(endRow, Rows - 1); row++)
+        var text = new StringBuilder();
+        int first = Math.Max(startRow, -ScrollbackCount);
+        for (int row = first; row <= Math.Min(endRow, Rows - 1); row++)
         {
             var line = GetLine(row);
             int from = row == startRow ? Math.Max(0, startColumn) : 0;
             int to = row == endRow ? Math.Min(endColumn, line.Length - 1) : line.Length - 1;
-            var text = new StringBuilder();
-            for (int col = from; col <= to; col++)
+            if (from > 0 && from < line.Length && line[from].IsWideTail)
             {
-                text.Append(line[col].Char);
+                from--;
             }
 
-            if (row != startRow)
+            text.Clear();
+            for (int col = from; col <= to; col++)
+            {
+                AppendText(text, line[col]);
+            }
+
+            if (row != first)
             {
                 sb.Append('\n');
             }
@@ -240,13 +321,14 @@ public sealed class TerminalEmulator
         switch (_state)
         {
             case State.Ground:
-                if (c < 0x20 || c == 0x7F)
+                if (c is >= ' ' and < '\x7F' && _highSurrogate == '\0')
                 {
-                    Control(c);
+                    // ASCII imprimable : le cas courant, sans autre test.
+                    Print(c);
                 }
                 else
                 {
-                    Print(c);
+                    Ground(c);
                 }
 
                 break;
@@ -314,6 +396,44 @@ public sealed class TerminalEmulator
             case State.IgnoreStringEscape:
                 _state = c == '\\' ? State.Ground : State.IgnoreString;
                 break;
+        }
+    }
+
+    /// <summary>
+    /// Caractère reçu hors séquence, autre que l'ASCII imprimable : contrôle, ou caractère à écrire. Un caractère hors BMP
+    /// (emoji, icônes de l'invite) arrive en deux moitiés UTF-16, réunies même reçues dans deux textes ; une moitié
+    /// seule est remplacée par U+FFFD.
+    /// </summary>
+    private void Ground(char c)
+    {
+        if (_highSurrogate != '\0')
+        {
+            char high = _highSurrogate;
+            _highSurrogate = '\0';
+            if (char.IsLowSurrogate(c))
+            {
+                Print(char.ConvertToUtf32(high, c));
+                return;
+            }
+
+            Print(0xFFFD);
+        }
+
+        if (char.IsHighSurrogate(c))
+        {
+            _highSurrogate = c;
+        }
+        else if (char.IsLowSurrogate(c))
+        {
+            Print(0xFFFD);
+        }
+        else if (c < 0x20 || c == 0x7F)
+        {
+            Control(c);
+        }
+        else
+        {
+            Print(c);
         }
     }
 
@@ -547,7 +667,7 @@ public sealed class TerminalEmulator
             case 'S':
                 if (_private == '\0')
                 {
-                    ScrollUp(_scrollTop, _scrollBottom, Param(0, 1));
+                    ScrollUp(_scrollTop, _scrollBottom, Param(0, 1), toHistory: true);
                 }
 
                 break;
@@ -667,11 +787,25 @@ public sealed class TerminalEmulator
 
     // ===================== Écriture et déplacements =====================
 
-    private void Print(char c)
+    /// <summary>
+    /// Écrit un caractère à la place du curseur, sur une case ou deux selon sa largeur (wcwidth) : un caractère large
+    /// occupe aussi la case suivante (<see cref="Cell.WideTail"/>), le curseur avance de deux.
+    /// </summary>
+    private void Print(int c)
     {
-        if (_shiftOut ? _g1Graphics : _g0Graphics)
+        int width = 1;
+        if (c >= 0x80)
         {
-            c = DecSpecialGraphics(c);
+            width = CharWidth.Of(c);
+            if (width == 0)
+            {
+                AddMark(c);
+                return;
+            }
+        }
+        else if (_shiftOut ? _g1Graphics : _g0Graphics)
+        {
+            c = DecSpecialGraphics((char)c);
         }
 
         if (_wrapPending)
@@ -684,20 +818,90 @@ public sealed class TerminalEmulator
             }
         }
 
-        if (InsertMode)
+        if (width == 2 && CursorColumn == Columns - 1)
         {
-            InsertChars(1);
+            // Une seule colonne libre : le caractère large passe à la ligne (xterm), ou recule d'une case sans retour
+            // automatique à la ligne.
+            if (AutoWrap)
+            {
+                CursorColumn = 0;
+                LineFeed();
+            }
+            else
+            {
+                CursorColumn--;
+            }
         }
 
-        _screen[CursorRow][CursorColumn] = new Cell { Char = c, Foreground = _fg, Background = _bg, Flags = _flags };
-        if (CursorColumn == Columns - 1)
+        if (InsertMode)
         {
+            InsertChars(width);
+        }
+
+        var line = _screen[CursorRow];
+        int col = CursorColumn;
+        if (_wideWritten)
+        {
+            SplitWide(line, col, col + width);
+        }
+
+        var cell = new Cell { CodePoint = c, Foreground = _fg, Background = _bg, Flags = _flags };
+        line[col] = cell;
+        if (width == 2)
+        {
+            _wideWritten = true;
+            cell.CodePoint = Cell.WideTail;
+            line[col + 1] = cell;
+        }
+
+        if (col + width >= Columns)
+        {
+            CursorColumn = Columns - 1;
             _wrapPending = AutoWrap;
         }
         else
         {
-            CursorColumn++;
+            CursorColumn = col + width;
         }
+    }
+
+    /// <summary>
+    /// Marque combinante ou caractère de format (accent décomposé, sélecteur de variante, liant d'emoji…), de largeur 0 :
+    /// jointe au caractère précédent, le curseur ne bouge pas (xterm). En début de ligne, sans caractère avant elle : ignorée.
+    /// </summary>
+    private void AddMark(int mark)
+    {
+        int col = _wrapPending ? CursorColumn : CursorColumn - 1;
+        if (col < 0)
+        {
+            return;
+        }
+
+        var line = _screen[CursorRow];
+        if (line[col].IsWideTail && col > 0)
+        {
+            col--;
+        }
+
+        var text = CellText(line[col]) + char.ConvertFromUtf32(mark);
+        if (line[col].IsWideTail || text.Length > MaxClusterLength)
+        {
+            return;
+        }
+
+        if (!_clusterIds.TryGetValue(text, out int id))
+        {
+            if (_clusters.Count >= MaxClusters)
+            {
+                return;
+            }
+
+            id = Cell.FirstCluster + _clusters.Count;
+            _clusters.Add(text);
+            _clusterIds.Add(text, id);
+        }
+
+        line[col].CodePoint = id;
     }
 
     private void LineFeed()
@@ -705,7 +909,7 @@ public sealed class TerminalEmulator
         _wrapPending = false;
         if (CursorRow == _scrollBottom)
         {
-            ScrollUp(_scrollTop, _scrollBottom, 1);
+            ScrollUp(_scrollTop, _scrollBottom, 1, toHistory: true);
         }
         else if (CursorRow < Rows - 1)
         {
@@ -762,14 +966,29 @@ public sealed class TerminalEmulator
         }
     }
 
+    /// <summary>Curseur sauvegardé de l'écran affiché.</summary>
+    private ref SavedCursor Saved
+    {
+        get
+        {
+            if (IsAlternateScreen)
+            {
+                return ref _savedAlt;
+            }
+
+            return ref _savedMain;
+        }
+    }
+
     private void SaveCursor() =>
-        _saved = new SavedCursor(CursorRow, CursorColumn, _fg, _bg, _flags, _g0Graphics, _g1Graphics, _shiftOut, OriginMode);
+        Saved = new SavedCursor(CursorRow, CursorColumn, _fg, _bg, _flags, _g0Graphics, _g1Graphics, _shiftOut, OriginMode);
 
     private void RestoreCursor()
     {
-        SetCursor(_saved.Row, _saved.Column);
+        var saved = Saved;
+        SetCursor(saved.Row, saved.Column);
         (_fg, _bg, _flags, _g0Graphics, _g1Graphics, _shiftOut, OriginMode) =
-            (_saved.Foreground, _saved.Background, _saved.Flags, _saved.G0Graphics, _saved.G1Graphics, _saved.ShiftOut, _saved.OriginMode);
+            (saved.Foreground, saved.Background, saved.Flags, saved.G0Graphics, saved.G1Graphics, saved.ShiftOut, saved.OriginMode);
     }
 
     // ===================== Effacement, insertion, défilement =====================
@@ -818,10 +1037,10 @@ public sealed class TerminalEmulator
         switch (mode)
         {
             case 0:
-                Fill(line, CursorColumn, Columns, Erased);
+                Erase(line, CursorColumn, Columns);
                 break;
             case 1:
-                Fill(line, 0, CursorColumn + 1, Erased);
+                Erase(line, 0, CursorColumn + 1);
                 break;
             case 2:
                 Fill(line, 0, Columns, Erased);
@@ -832,13 +1051,29 @@ public sealed class TerminalEmulator
     }
 
     private void EraseChars(int count) =>
-        Fill(_screen[CursorRow], CursorColumn, Math.Min(Columns, CursorColumn + count), Erased);
+        Erase(_screen[CursorRow], CursorColumn, Math.Min(Columns, CursorColumn + count));
+
+    /// <summary>Efface les cases [from, to) d'une ligne, et en entier un caractère large qui n'y est qu'à moitié.</summary>
+    private void Erase(Cell[] line, int from, int to)
+    {
+        SplitWide(line, from, to);
+        Fill(line, from, to, Erased);
+    }
 
     private void InsertChars(int count)
     {
         var line = _screen[CursorRow];
         count = Math.Min(count, Columns - CursorColumn);
-        Array.Copy(line, CursorColumn, line, CursorColumn + count, Columns - CursorColumn - count);
+        int kept = Columns - CursorColumn - count;
+        // Un caractère large coupé par l'insertion, ou dont la moitié droite sort de la ligne, est effacé.
+        SplitWide(line, CursorColumn, CursorColumn);
+        bool cutAtEnd = kept > 0 && line[CursorColumn + kept].IsWideTail;
+        Array.Copy(line, CursorColumn, line, CursorColumn + count, kept);
+        if (cutAtEnd)
+        {
+            line[Columns - 1] = Cell.Blank(line[Columns - 1].Background);
+        }
+
         Fill(line, CursorColumn, CursorColumn + count, Erased);
         _wrapPending = false;
     }
@@ -847,9 +1082,27 @@ public sealed class TerminalEmulator
     {
         var line = _screen[CursorRow];
         count = Math.Min(count, Columns - CursorColumn);
+        SplitWide(line, CursorColumn, CursorColumn + count);
         Array.Copy(line, CursorColumn + count, line, CursorColumn, Columns - CursorColumn - count);
         Fill(line, Columns - count, Columns, Erased);
         _wrapPending = false;
+    }
+
+    /// <summary>
+    /// Les cases [from, to) vont changer : un caractère large qui les déborde (moitié gauche avant <paramref name="from"/>,
+    /// ou moitié droite à <paramref name="to"/>) perd sa moitié restante, effacée comme dans xterm.
+    /// </summary>
+    private static void SplitWide(Cell[] line, int from, int to)
+    {
+        if (from > 0 && from < line.Length && line[from].IsWideTail)
+        {
+            line[from - 1] = Cell.Blank(line[from - 1].Background);
+        }
+
+        if (to > 0 && to < line.Length && line[to].IsWideTail)
+        {
+            line[to] = Cell.Blank(line[to].Background);
+        }
     }
 
     private void InsertLines(int count)
@@ -870,17 +1123,22 @@ public sealed class TerminalEmulator
             return;
         }
 
-        ScrollUp(CursorRow, _scrollBottom, count);
+        ScrollUp(CursorRow, _scrollBottom, count, toHistory: false);
         CursorColumn = 0;
     }
 
-    private void ScrollUp(int top, int bottom, int count)
+    /// <param name="toHistory">
+    /// Défilement du texte (saut de ligne, CSI S) : sur l'écran principal, les lignes qui sortent par le haut de l'écran
+    /// vont dans l'historique. Jamais pour une suppression de lignes (CSI M).
+    /// </param>
+    private void ScrollUp(int top, int bottom, int count, bool toHistory)
     {
         count = Math.Min(count, bottom - top + 1);
+        bool save = toHistory && top == 0 && !IsAlternateScreen;
         for (int i = 0; i < count; i++)
         {
             var removed = _screen[top];
-            if (top == 0 && !IsAlternateScreen)
+            if (save)
             {
                 PushScrollback(removed);
             }
@@ -1003,6 +1261,11 @@ public sealed class TerminalEmulator
     {
         if (alternate)
         {
+            if (!IsAlternateScreen)
+            {
+                _mainCursorRow = CursorRow;
+            }
+
             if (_alt is null || clear)
             {
                 _alt = NewScreen(Rows, Columns);
@@ -1141,7 +1404,7 @@ public sealed class TerminalEmulator
         _scrollTop = 0;
         _scrollBottom = Rows - 1;
         _g0Graphics = _g1Graphics = _shiftOut = false;
-        _saved = InitialCursor;
+        Saved = InitialCursor;
     }
 
     private void Reset()
@@ -1152,6 +1415,10 @@ public sealed class TerminalEmulator
         _alt = null;
         _screen = _main;
         _scrollback.Clear();
+        _savedMain = _savedAlt = InitialCursor;
+        // Plus aucune case ne garde de marques combinantes.
+        _clusters.Clear();
+        _clusterIds.Clear();
         CursorRow = CursorColumn = 0;
         _wrapPending = false;
         _eraseFrom = null;
@@ -1218,6 +1485,11 @@ public sealed class TerminalEmulator
             if (source < screen.Length)
             {
                 Array.Copy(screen[source], line, Math.Min(columns, screen[source].Length));
+                if (screen[source].Length > columns && screen[source][columns].IsWideTail)
+                {
+                    // Caractère large coupé par le bord droit : effacé.
+                    line[columns - 1] = Cell.Blank(line[columns - 1].Background);
+                }
             }
 
             result[r] = line;

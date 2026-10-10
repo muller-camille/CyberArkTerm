@@ -1851,6 +1851,85 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>
+    /// Taille de police des Paramètres : appliquée aux terminaux affichés, et à ceux des onglets en arrière-plan quand ils
+    /// réapparaissent ; la taille choisie pour un terminal (Ctrl+molette) reste si seule la palette change.
+    /// </summary>
+    [Fact]
+    public void TerminalFontSizeFromTheSettingsReachesHiddenTerminals()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var (shown, shownView) = NewSshView("root@srv01");
+            var (hidden, hiddenView) = NewSshView("root@srv02");
+            var window = new Window { Width = 800, Height = 500, ShowInTaskbar = false, ShowActivated = false, Content = shownView };
+            window.Show();
+            PumpUntil(() => shownView.Terminal.IsLoaded);
+            try
+            {
+                ZillaTerm.App.Terminal.TerminalAppearance.Apply(null, 18, rightClickPastes: false);
+                Assert.Equal(18.0, shownView.Terminal.TerminalFontSize);
+                Assert.Equal(14.0, hiddenView.Terminal.TerminalFontSize); // onglet en arrière-plan : pas chargé
+
+                window.Content = hiddenView;
+                PumpUntil(() => hiddenView.Terminal.IsLoaded);
+                Assert.Equal(18.0, hiddenView.Terminal.TerminalFontSize);
+
+                hiddenView.Terminal.SetFontSize(22);
+                ZillaTerm.App.Terminal.TerminalAppearance.Apply("one-half-dark", 18, rightClickPastes: false);
+                Assert.Equal(22.0, hiddenView.Terminal.TerminalFontSize);
+                Assert.Same(ZillaTerm.Core.Terminal.TerminalTheme.OneHalfDark, hiddenView.Terminal.Theme);
+            }
+            finally
+            {
+                ZillaTerm.App.Terminal.TerminalAppearance.Apply(null, 14, rightClickPastes: false);
+                window.Close();
+                shown.Dispose();
+                hidden.Dispose();
+            }
+        });
+    }
+
+    /// <summary>Caractères larges, hors BMP et combinants : dessinés sans erreur (sélection comprise), copiés tels quels.</summary>
+    [Fact]
+    public void TerminalDrawsAndCopiesWideAndCombinedCharacters()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var (session, view) = NewSshView("root@srv01");
+            var window = new Window { Width = 800, Height = 500, ShowInTaskbar = false, ShowActivated = false, Content = view };
+            window.Show();
+            PumpUntil(() => view.Terminal.IsLoaded);
+            try
+            {
+                session.Emulator.Feed("\x1b[2J\x1b[H日本語 e\u0301 😀 \U000F0001 ok\r\n[root@srv01 ~]# ");
+                view.Terminal.Focus();
+                var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(800, 500, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+                bitmap.Render(view.Terminal);
+
+                view.Terminal.BuildMenu(atCursor: false)!.Items.OfType<System.Windows.Controls.MenuItem>()
+                    .Single(i => i.Header as string == Strings.MenuTerminalSelectAll).RaiseEvent(new RoutedEventArgs(System.Windows.Controls.MenuItem.ClickEvent));
+                Assert.Equal("日本語 e\u0301 😀 \U000F0001 ok\n[root@srv01 ~]#", view.Terminal.SelectedText);
+                bitmap.Render(view.Terminal);
+            }
+            finally
+            {
+                window.Close();
+                session.Dispose();
+            }
+        });
+    }
+
     /// <summary>Menu du clic droit dans le terminal : actions selon l'état, effacer l'historique, actions de la session.</summary>
     [Fact]
     public void TerminalMenuOffersTheTerminalAndSessionActions()
