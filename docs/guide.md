@@ -11,6 +11,7 @@
 - [5. Browse and upload files: "Files" tab](#5-browse-and-upload-files-files-tab)
 - [6. Organize your servers: "My servers" tab](#6-organize-your-servers-my-servers-tab)
 - [7. Emergency access outside CyberArk: KeePass databases](#7-emergency-access-outside-cyberark-keepass-databases)
+- [8. On-call duty: team instructions and recording](#8-on-call-duty-team-instructions-and-recording)
 - [Shortcuts](#shortcuts)
 - [Settings and configuration file](#settings-and-configuration-file)
 - [Security](#security)
@@ -708,6 +709,37 @@ says its master password was not remembered. Manage it in the **Settings**, Secu
 "Change password…", "Delete now…"; these actions apply at once, without "Save". It locks on sign-out (so that
 "Emergency access" never reopens the remembered databases without a password), on exit and when Windows is locked.
 
+## 8. On-call duty: team instructions and recording
+
+The **"Duty"** button in the toolbar opens a window with:
+
+- **The team's instructions**: good practices, emergency numbers, contacts… The text is set in **Settings › General ›
+  Duty text** and shared with the whole team by the [environment file](#shared-environment). It shows as plain text
+  (selectable to copy a number): no link or formatting is interpreted.
+- **"Record the duty"**: from then on, ZillaTerm keeps everything that happens, until "Stop recording" or until
+  ZillaTerm closes. Recording goes on after signing out of CyberArk and in emergency access. A red dot on the button
+  and "● Duty recorded" in the status bar remind you of it. What is kept:
+  - the **text of the SSH terminals** (commands typed and their output, line by line, with the time; not the screen
+    of vim, less or top, nor the command ZillaTerm types itself to follow the folder);
+  - **connections**: SSH, files, remote desktop and VNC sessions opened, failed and closed, and PSM sessions with
+    the component, target machine, reason and ticket;
+  - **actions**: password copied (never the password), CPM requests, accounts added, changed, deleted or imported,
+    X11 windows, switch to emergency access, sign-out;
+  - **file transfers**, with the SHA-256 of each file;
+  - your **notes** ("Note for the journal" field: incident number, decision taken…);
+  - **captures**: "Capture a remote desktop…" takes an image of a Remote Desktop Connection window (PSM sessions; a
+    minimized window cannot be captured), and the "Capture" button of ZillaTerm's remote desktop tabs takes the
+    desktop shown.
+- **"Recorded duties"**: the list of recordings, newest first. **"Export the report…"** (or double-click) turns one
+  into an HTML page: summary, timeline, blocks of terminal text and captures, to attach to the on-call report.
+  **"Delete…"** erases a finished recording.
+
+The journal is **encrypted for your Windows account only** (DPAPI) in `%LOCALAPPDATA%\ZillaTerm\Astreintes`, block
+by block as recording goes (a crash only loses the last two seconds, and the report says so). A block removed, moved
+or changed is reported. ⚠ Passwords typed without echo are not in it, but **whatever a terminal shows is** (the
+contents of a configuration file, for example); the exported report is **not encrypted**: keep it in a safe place.
+Terminal text is capped at 64 million characters per duty (the other events are still kept beyond that).
+
 ## Shortcuts
 
 | Where | Action | Shortcut |
@@ -772,6 +804,7 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 | Page | Setting | Purpose | Default |
 | --- | --- | --- | --- |
 | General | Theme | Same as Windows, Light or Dark; applied right away (Windows high contrast takes precedence) | same as Windows |
+| General | Duty text | Instructions and emergency numbers shown by the "Duty" button; plain text, shared by the environment file (see [On-call duty](#8-on-call-duty-team-instructions-and-recording)) | empty |
 | General | Interface language | Français, English, Italiano or system language; applied after signing out of CyberArk or at the next start | Windows language (English if it is not translated) |
 | General | Central file | Team environment file on a network share, read at each start; its changes are shown before being applied (see [Shared environment](#shared-environment)) | empty |
 | General | Look for a new version at startup | One request to GitHub at most once a day; a link in the status bar when a newer version exists (the "About" window recalls this setting) | no |
@@ -799,7 +832,7 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 ### Shared environment
 
 To give ZillaTerm to a colleague with the team's configuration (PVWA address, sign-in method, default and
-by-domain PSMPs, Windows accounts component and per-platform components, shared lists, PSMP keys, a few options),
+by-domain PSMPs, Windows accounts component and per-platform components, shared lists, PSMP keys, duty text, a few options),
 with nothing personal and no password:
 
 1. **Export**: "Settings" button → "Export the environment…" saves `ZillaTerm.env.json`.
