@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using ZillaTerm.App.Localization;
 using ZillaTerm.App.Services;
 using ZillaTerm.App.Terminal;
+using ZillaTerm.Core;
 using ZillaTerm.Core.Terminal;
 
 namespace ZillaTerm.App.Views;
@@ -196,6 +197,15 @@ public partial class SshSessionView : UserControl
     private readonly string _connectingText;
 
     public SshSession Session { get; }
+
+    /// <summary>Étiquette du serveur (PROD, QA…), montrée en cadre de sa couleur autour du terminal.</summary>
+    public ServerTag? ServerTag { get; private set; }
+
+    public void ShowTag(ServerTag? tag)
+    {
+        ServerTag = tag;
+        ServerTagView.Frame(TagFrame, tag);
+    }
 
     /// <summary>« coffre@compte@cible via psmp », affiché pendant la connexion.</summary>
     public string Target { get; }

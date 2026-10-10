@@ -189,7 +189,12 @@ public partial class SessionImportWindow : Window
         _source = source;
         _import = new SessionImport(_settings, _pvwaHost, _matcher, sessions, FolderBox.Text);
         _folderTimer.Stop();
-        _rows = _import.Items.Select(i => new SessionImportRow(_import, i, OnRowIncludeChanged, OnRowChosen)).ToList();
+        List<TagChoice> tags =
+        [
+            .. _settings.ServerTags.Select(t => new TagChoice(t.Name, t.Name, ServerTagView.Background(t), ServerTagView.Foreground(t))),
+            new TagChoice("", Strings.TagNoneItem, null, null),
+        ];
+        _rows = _import.Items.Select(i => new SessionImportRow(_import, i, OnRowIncludeChanged, OnRowChosen, tags)).ToList();
         RowsGrid.ItemsSource = _rows;
         ApplyFilter();
         FolderBox.IsEnabled = true;
@@ -396,8 +401,12 @@ public partial class SessionImportWindow : Window
         _allBox.IsEnabled = pending && _rows.Any(r => r.CanInclude);
     }
 
+    /// <summary>Étiquette proposée dans la colonne « Étiquette » (<see cref="Value"/> vide : aucune).</summary>
+    internal sealed record TagChoice(string Value, string Text, System.Windows.Media.Brush? Background, System.Windows.Media.Brush? Foreground);
+
     /// <summary>Ligne de l'aperçu, puis du résultat.</summary>
-    internal sealed class SessionImportRow(SessionImport import, ImportItem item, Action includeChanged, Action<SessionImportRow> chosen)
+    internal sealed class SessionImportRow(SessionImport import, ImportItem item, Action includeChanged, Action<SessionImportRow> chosen,
+        IReadOnlyList<TagChoice> tagChoices)
         : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -455,6 +464,27 @@ public partial class SessionImportWindow : Window
         public string Account => item.State is ImportState.NoAccount or ImportState.Unsupported ? "" : item.Chosen?.Display ?? "";
 
         public string Connection => item.ConnectionText;
+
+        public IReadOnlyList<TagChoice> TagChoices => tagChoices;
+
+        /// <summary>Étiquette du serveur importé (vide : aucune) ; devinée, puis choisie si on la change.</summary>
+        public string Tag
+        {
+            get => item.Tag ?? "";
+            set
+            {
+                if (!string.Equals(value ?? "", item.Tag ?? "", StringComparison.Ordinal))
+                {
+                    import.SetTag(item, string.IsNullOrEmpty(value) ? null : value);
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Tag)));
+                }
+            }
+        }
+
+        /// <summary>Nom accessible de la liste des étiquettes : la session et son étiquette.</summary>
+        public string TagName => item.Tag is { } tag ? $"{Name}, {tag}" : Name;
+
+        public bool CanTag => item.CanImport && !import.Applied;
 
         public ImportState State => item.State;
 

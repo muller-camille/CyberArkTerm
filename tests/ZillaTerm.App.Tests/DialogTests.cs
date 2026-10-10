@@ -355,7 +355,7 @@ public sealed class DialogTests
                 SessionImport? done = null;
                 var window = new SessionImportWindow(settings, "pvwa.corp.local", accounts, KnownDomains.From([], []), i => done = i);
                 Assert.Equal(SessionImportWindow.Sources.Count, window.SourceBox.Items.Count);
-                Assert.Equal(9, window.RowsGrid.Columns.Count);
+                Assert.Equal(10, window.RowsGrid.Columns.Count);
                 Assert.False(window.ImportButton.IsEnabled);
 
                 window.Load(
@@ -366,6 +366,10 @@ public sealed class DialogTests
                     ImportedSession.Unsupported("", "vnc", "VNC", "vnc01"),
                 ], "test");
                 Assert.Equal([ImportState.Ready, ImportState.Check, ImportState.NoAccount, ImportState.Unsupported], window.Rows.Select(r => r.State));
+                // Étiquette proposée d'après le dossier « Prod » de l'autre logiciel, modifiable ; « aucune » en fin de liste.
+                Assert.Equal("PROD", window.Rows[0].Tag);
+                Assert.Equal(["PROD", "QA", "DEV", ""], window.Rows[0].TagChoices.Select(c => c.Value));
+                Assert.False(window.Rows[3].CanTag);
                 Assert.True(window.ImportButton.IsEnabled);
                 Assert.True(window.Rows[1].CanChoose);
                 Assert.False(window.Rows[2].CanInclude);
@@ -1295,6 +1299,91 @@ public sealed class DialogTests
             Assert.Null(dialog.ReadComponents());
             Assert.Equal(Text.Format(Strings.ComponentRowPlatformMissing, 3), dialog.ErrorText.Text);
             dialog.Close();
+        });
+    }
+
+    /// <summary>
+    /// Étiquettes des serveurs dans les Paramètres : renommer (les serveurs suivent), ajouter, supprimer (les serveurs la
+    /// perdent) ; nom vide ou en double refusé.
+    /// </summary>
+    [Fact]
+    public void SettingsEditServerTags()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var settings = new AppSettings
+            {
+                Sessions = [new SavedSession { Name = "a", Tag = "QA" }, new SavedSession { Name = "b", Tag = "DEV" }],
+            };
+            var dialog = new SettingsDialog(settings);
+            Assert.Equal(["PROD", "QA", "DEV"], dialog.TagRows.Select(r => r.Name));
+
+            dialog.TagRows[1].Name = "REC";
+            dialog.TagRows[1].Color = "#F9A825";
+            dialog.TagRows.RemoveAt(2);
+            dialog.TagRows.Add(new SettingsDialog.TagRow(null, "SANDBOX", "#00838F"));
+            var read = dialog.ReadTags();
+            Assert.NotNull(read);
+            Assert.Equal(["PROD", "REC", "SANDBOX"], read.Value.Tags.Select(t => t.Name));
+            Assert.Equal("#F9A825", read.Value.Tags[1].Color);
+            settings.ReplaceServerTags(read.Value.Tags, read.Value.Renamed);
+            Assert.Equal(["REC", null], settings.Sessions.Select(x => x.Tag));
+
+            dialog.TagRows[2].Name = "prod";
+            Assert.Null(dialog.ReadTags());
+            Assert.Equal(Strings.InvalidServerTag, dialog.ErrorText.Text);
+            dialog.TagRows[2].Name = " ";
+            Assert.Null(dialog.ReadTags());
+            dialog.Close();
+        });
+    }
+
+    /// <summary>
+    /// Ajout dans « Mes serveurs » : l'étiquette devinée est cochée et signalée ; une autre, ou aucune, peut être choisie.
+    /// Propriétés : l'étiquette se change, une étiquette absente des Paramètres reste proposée.
+    /// </summary>
+    [Fact]
+    public void ServerTagIsAskedAndEditable()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var tags = ServerTagRules.Defaults();
+            var prompt = new TagPromptDialog("root@prd-lnx01.corp.local", tags, "PROD", guessed: true);
+            Assert.Equal("PROD", prompt.ChosenTag);
+            Assert.Equal(Visibility.Visible, prompt.GuessText.Visibility);
+            var buttons = prompt.Choices.Children.OfType<System.Windows.Controls.RadioButton>().ToList();
+            Assert.Equal(4, buttons.Count);
+            buttons[3].IsChecked = true;
+            Assert.Null(prompt.ChosenTag);
+            buttons[1].IsChecked = true;
+            Assert.Equal("QA", prompt.ChosenTag);
+            prompt.Close();
+
+            var none = new TagPromptDialog("srv01", tags, null, guessed: false);
+            Assert.Null(none.ChosenTag);
+            Assert.Equal(Visibility.Collapsed, none.GuessText.Visibility);
+            none.Close();
+
+            var saved = new SavedSession { Name = "root@srv01", UserName = "root", Address = "srv01", Mode = ConnectMode.Ssh, Tag = "OLD" };
+            var properties = new SessionPropertiesDialog(saved, null, [], sshAvailable: true, [], tags: tags);
+            // PROD, QA, DEV, l'étiquette inconnue gardée, et « (aucune) ».
+            Assert.Equal(5, properties.TagBox.Items.Count);
+            Assert.Equal("OLD", properties.ChosenTag);
+            properties.TagBox.SelectedIndex = 0;
+            Assert.Equal("PROD", properties.ChosenTag);
+            properties.TagBox.SelectedIndex = 4;
+            Assert.Null(properties.ChosenTag);
+            properties.Close();
         });
     }
 

@@ -536,6 +536,7 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
 - **Aggiungere** un account: clic destro in «Disponibili» → «Aggiungi a «I miei server»» e poi la cartella desiderata,
   oppure trascina l'account sulla scheda «I miei server», oppure il pulsante «Aggiungi» della barra degli strumenti.
   Per un account di dominio viene chiesto il server (facoltativo: senza server, verrà chiesto a ogni connessione).
+  Viene poi chiesta la sua [etichetta](#etichette-prod-qa-dev), con una proposta in base al nome.
 - **Aggiungere una sessione aperta**: clic destro sulla scheda della sessione (o nel suo terminale) → «Aggiungi a
   «I miei server»» e poi la cartella desiderata. Il server mantiene il tipo di connessione e la macchina di destinazione;
   la voce è disattivata se è già presente.
@@ -555,11 +556,13 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   sceglie una serie di server; `Esc` o un clic semplice annulla. Clic destro su uno di essi → «Apri i N server nella
   vista parallela» o «Connettiti ai N server» (una scheda ciascuno). Clic destro su una cartella → «Apri nella vista
   parallela» o «Connettiti ai N server».
+- **Etichetta** (PROD, QA, DEV…): clic destro → «Etichetta ▸», vedi [più sotto](#etichette-prod-qa-dev).
 - **Configurazione propria di ogni server** (clic destro → «Proprietà…»):
 
 | Impostazione | Effetto |
 | --- | --- |
 | Nome, cartella | Visualizzazione e posizione nell'albero. |
+| Etichetta | Ambiente del server (PROD, QA, DEV…): il suo colore contrassegna l'albero, la scheda e il contorno della sessione. |
 | PSM, SSH tramite PSMP o solo file (SFTP tramite PSMP) | Tipo di connessione aperto con il doppio clic (all'inizio, in base alla piattaforma). |
 | Componente PSM | Componente da usare (vuoto: dedotto dalla piattaforma). |
 | Macchina di destinazione | Server su cui aprire la sessione per un account di dominio. |
@@ -574,13 +577,42 @@ viene segnalato nella finestra. Un server il cui account non è trovato in Cyber
 porta la dicitura «⚠ non trovato in CyberArk», letta anche dalle utilità per la lettura dello schermo; nulla viene
 segnalato mentre gli account si caricano.
 
+### Etichette (PROD, QA, DEV…)
+
+Ogni server di «I miei server» può avere un'etichetta di ambiente, con un colore: PROD in rosso, QA in blu, DEV
+in verde all'inizio. Ricorda a colpo d'occhio dove si lavora:
+
+- un'etichetta colorata davanti al nome nell'albero «I miei server» e negli elenchi condivisi;
+- un'etichetta colorata sulla scheda della sessione (e `[PROD]` all'inizio del titolo di una finestra staccata);
+- una cornice del suo colore attorno al terminale SSH o alla sessione di file (il nome resta sulla scheda, senza
+  togliere spazio al terminale); un'etichetta colorata nell'intestazione di ogni riquadro della vista parallela e in
+  quella della scheda File: si vede su quale ambiente si deposita un file.
+
+Una sessione aperta da «Disponibili» o dalle sessioni recenti prende l'etichetta del server di «I miei server» che ha
+lo stesso account (e la stessa macchina di destinazione). L'etichetta si applica all'apertura: dopo averla cambiata,
+riaprire la sessione per vedere il nuovo colore.
+
+- **All'aggiunta** di un server in «I miei server», viene chiesta l'etichetta. Un'etichetta viene proposta in base al
+  nome del server, al suo indirizzo, al suo safe e poi alle sue cartelle («prd», «prod», «production», «produzione» →
+  PROD; «rec», «recette», «qual», «uat», «preprod», «staging», «test», «collaudo» → QA; «dev», «sviluppo» → DEV;
+  un'etichetta aggiunta nelle Impostazioni si riconosce dal suo nome). Non viene proposto nulla quando il testo nomina
+  due ambienti. Verificatela: è solo una proposta. «Nessuna etichetta» è possibile; «Annulla» non aggiunge il server.
+- **Cambiare**: clic destro su un server o una selezione (`Ctrl+clic`) → «Etichetta ▸», oppure su una cartella →
+  «Etichetta i server della cartella ▸», poi l'etichetta, o «Nessuna». «Proponi in base al nome» etichetta in un colpo
+  solo i server che non ne hanno ancora una (quelli senza proposta restano senza etichetta). Anche in «Proprietà…».
+- **Elenco delle etichette**: Impostazioni › Generale › «Etichette dei server» (nome di 16 caratteri al massimo,
+  colore). Rinominare un'etichetta la rinomina sui server; eliminarla la toglie dai server.
+- L'etichetta segue il server nell'esportazione di «I miei server» e negli elenchi condivisi; un'etichetta assente
+  dalle proprie Impostazioni appare in grigio. L'elenco delle etichette (nomi e colori) si diffonde al team con il
+  [file di ambiente](#ambiente-condiviso).
+
 ### Esportare, importare, condividere
 
 Due menu in alto nella scheda, «Importa ▾» e «Condividi ▾», a sinistra dei pulsanti «Nuova cartella», «Proprietà /
 rinomina» e «Rimuovi il server o elimina la cartella» (`Tab` raggiunge questi pulsanti, le frecce passano dall'uno
 all'altro):
 
-- **Condividi › Esporta «I miei server» in un file…** salva «I miei server» in un file `.json`: cartelle (anche vuote), nome, account CyberArk (ID), tipo di
+- **Condividi › Esporta «I miei server» in un file…** salva «I miei server» in un file `.json`: cartelle (anche vuote), nome, account CyberArk (ID), etichetta, tipo di
   connessione, componente, macchina di destinazione, motivo predefinito, cartella SFTP iniziale. Nessuna password né
   file seguito. Utile per cambiare computer o passare il proprio elenco.
 - **Importa › File ZillaTerm (esportazione di «I miei server»)…** legge un file esportato (o un elenco condiviso) e
@@ -662,6 +694,10 @@ programma…». Gli account del PVWA devono essere caricati.
    Telnet tramite `PSM-Telnet`.
 4. **Cartella in «I miei server»**: le cartelle dell'altro programma vengono ricreate sotto questa cartella («Importati»
    per impostazione predefinita; vuoto: nella radice), e ogni server mantiene il suo nome.
+   **Etichetta**: la colonna «Etichetta» propone quella di ogni sessione in base al nome, al server, al safe
+   dell'account associato e poi alle cartelle nell'altro programma («Prod/Linux» → PROD, «Recette» → QA), come
+   [all'aggiunta di un server](#etichette-prod-qa-dev); vuota quando non si riconosce nulla. Cambiarla se necessario
+   prima di importare; compare anche nel risultato esportato.
 5. **Importa** aggiunge le sessioni selezionate e pronte. La tabella mostra poi il risultato di ogni server:
    «Importato», o «Non importato» con il motivo (nessun account nel PVWA, tipo di connessione non supportato come VNC,
    FTP o porta seriale, deselezionato). Un server già presente nella stessa cartella con lo stesso account non viene
@@ -870,6 +906,7 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 | Generale | Tema | Come Windows, Chiaro o Scuro; applicato subito (il contrasto elevato di Windows ha la precedenza) | come Windows |
 | Generale | Promemoria di reperibilità | Buone pratiche e numeri di emergenza mostrati nella finestra «Intervento»; testo semplice, diffuso dal file di ambiente (vedi [Intervento](#8-intervento-registrazione-e-promemoria-di-reperibilità)) | vuoto |
 | Generale | File del promemoria | File di testo (di solito su una condivisione di rete) riletto a ogni apertura della finestra «Intervento», mostrato al posto del promemoria qui sopra; diffuso dal file di ambiente | vuoto |
+| Generale | Etichette dei server | Etichette assegnate ai server di «I miei server» (nome, colore): «Aggiungi un'etichetta», «Elimina l'etichetta», celle modificabili; la ridenominazione si applica in «I miei server», l'eliminazione toglie l'etichetta dai server; diffuse dal file di ambiente (vedi [Etichette](#etichette-prod-qa-dev)) | PROD (rosso), QA (blu), DEV (verde) |
 | Generale | Lingua dell'interfaccia | Français, English, Italiano o lingua del sistema; applicata dopo la disconnessione da CyberArk o al prossimo avvio | lingua di Windows (inglese se non è tradotta) |
 | Generale | File centrale | File di ambiente del team su una condivisione di rete, riletto a ogni avvio; le sue modifiche vengono mostrate prima di essere applicate (vedi [Ambiente condiviso](#ambiente-condiviso)) | vuoto |
 | Generale | Cercare una nuova versione all'avvio | Una richiesta a GitHub al massimo una volta al giorno; un link nella barra di stato se esiste una versione più recente (la finestra «Informazioni» ricorda questa impostazione) | no |
@@ -898,7 +935,7 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 
 Per dare ZillaTerm a un collega con la configurazione del team (indirizzo del PVWA, metodo di accesso, PSMP
 predefinito e per dominio, componente degli account Windows e componenti per piattaforma, elenchi condivisi, chiavi
-dei PSMP, promemoria di reperibilità (testo o file), alcune opzioni), senza niente di personale né alcuna password:
+dei PSMP, promemoria di reperibilità (testo o file), etichette dei server, alcune opzioni), senza niente di personale né alcuna password:
 
 1. **Esportare**: pulsante «Impostazioni» → «Esporta l'ambiente…» salva `ZillaTerm.env.json`.
 2. **Accanto all'eseguibile**: metti questo file accanto a `ZillaTerm.exe` (ad esempio nello stesso zip).
@@ -921,7 +958,8 @@ verifica alla sua prima connessione. Un file non valido
 se è cambiato. Un'impostazione vuota sul computer che esporta non viene esportata: non cancella nulla su quello che
 importa. I percorsi (elenchi condivisi, file centrale) sono completi: `C:\…` o `\\server\…`.
 Il tuo nome utente, «I miei server» e le tue sessioni recenti non vengono mai toccati; gli elenchi
-condivisi si aggiungono senza togliere i tuoi.
+condivisi si aggiungono senza togliere i tuoi. Le etichette del file sostituiscono quelle del computer; i server
+mantengono la loro (un'etichetta assente dal file appare allora in grigio).
 
 Tutte le preferenze sono salvate in `%APPDATA%\ZillaTerm\settings.json`: lingua, indirizzo del PVWA, metodo e
 nome utente di accesso, impostazioni qui sopra, «I miei server», le loro cartelle e i file seguiti su di essi

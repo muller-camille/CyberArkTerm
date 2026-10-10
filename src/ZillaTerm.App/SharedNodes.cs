@@ -89,7 +89,17 @@ public sealed class SharedServerNode(SharedServerList list, ServerEntry entry, S
 
     public string ModeText => Session.Mode == ConnectMode.Psm ? Session.Component ?? "PSM" : SessionLibrary.ModeName(Session.Mode);
 
-    public override string ToString() => $"{Title}, {ModeText}" + (IsMissing ? ", " + Strings.MissingInCyberArk : "");
+    /// <summary>Étiquette d'environnement (PROD, QA, DEV…) avec sa couleur ; null : aucune.</summary>
+    public ServerTag? Tag { get; init; }
+
+    public bool HasTag => Tag is not null;
+
+    public System.Windows.Media.Brush? TagBackground => Tag is { } tag ? ServerTagView.Background(tag) : null;
+
+    public System.Windows.Media.Brush? TagForeground => Tag is { } tag ? ServerTagView.Foreground(tag) : null;
+
+    public override string ToString() =>
+        $"{Title}, {ModeText}" + (Tag is { } tag ? ", " + tag.Name : "") + (IsMissing ? ", " + Strings.MissingInCyberArk : "");
 
     /// <summary>Compte introuvable dans CyberArk : « ⚠ introuvable dans CyberArk » après le nom, en clair (pas d'opacité).</summary>
     public bool IsMissing => accountsKnown && Account is null;

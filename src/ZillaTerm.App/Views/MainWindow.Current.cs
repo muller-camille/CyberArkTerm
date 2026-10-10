@@ -66,7 +66,11 @@ public partial class MainWindow
 
         foreach (var session in node.Sessions)
         {
-            items.Add(new SavedSessionNode(session, _byId.GetValueOrDefault(session.AccountId), _accountsLoaded) { IsMarked = _savedMarks.Contains(session) });
+            items.Add(new SavedSessionNode(session, _byId.GetValueOrDefault(session.AccountId), _accountsLoaded)
+            {
+                IsMarked = _savedMarks.Contains(session),
+                Tag = ServerTagView.Resolve(_settings.ServerTags, session.Tag),
+            });
         }
 
         return items;
@@ -404,12 +408,42 @@ public partial class MainWindow
         return dialog;
     }
 
+    /// <summary>
+    /// Étiquette (PROD, QA, DEV…) d'un serveur ajouté à « Mes serveurs » : celle devinée d'après son nom, son adresse, son
+    /// safe ou son dossier est proposée. Faux si l'ajout est annulé ; sans étiquette dans les Paramètres, rien n'est demandé.
+    /// </summary>
+    private bool AskTag(SavedSession session)
+    {
+        if (_settings.ServerTags.Count == 0)
+        {
+            return true;
+        }
+
+        var guess = ServerTagGuess.ForServer(_settings.ServerTags, session.Name, session.RemoteMachine, session.Address,
+            session.SafeName, session.Folder);
+        var dialog = new TagPromptDialog(session.Name, _settings.ServerTags, session.Tag ?? guess?.Name, guess is not null) { Owner = this };
+        if (dialog.ShowDialog() != true)
+        {
+            return false;
+        }
+
+        session.Tag = dialog.ChosenTag;
+        return true;
+    }
+
     /// <summary>Connexion récente ajoutée à « Mes serveurs » avec son mode, son composant et sa machine cible.</summary>
     private void AddToCurrent(PvwaAccount account, RecentSession recent, string folder) =>
         ShowAddedToCurrent(SessionLibrary.AddFromRecent(_settings, account, recent, PvwaHost, folder));
 
     private void ShowAddedToCurrent(SavedSession session)
     {
+        if (!AskTag(session))
+        {
+            // Ajout annulé : le serveur, ajouté juste avant, est retiré.
+            _settings.Sessions.Remove(session);
+            return;
+        }
+
         Expand(session.Folder);
         SaveAndRefreshSaved();
         SetStatus(session.Folder.Length > 0
@@ -496,7 +530,7 @@ public partial class MainWindow
             case SavedSessionNode node:
                 var dialog = new SessionPropertiesDialog(node.Session, node.Account, _settings.SessionFolderList, HasPsmp,
                     _settings.KnownComponents(node.Account?.PlatformId ?? node.Session.PlatformId),
-                    _settings.X11Servers.Contains(node.Session.Id)) { Owner = this };
+                    _settings.X11Servers.Contains(node.Session.Id), _settings.ServerTags) { Owner = this };
                 if (dialog.ShowDialog() == true)
                 {
                     // Transfert X11 : réglage personnel, hors du serveur (jamais exporté ni partagé).

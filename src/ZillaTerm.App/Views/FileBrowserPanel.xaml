@@ -182,6 +182,8 @@
                     <Image Source="{DynamicResource IconTail}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Image Source="{DynamicResource IconFiles}" Width="18" Height="18" Margin="0,0,6,0" />
+                <!-- Étiquette du serveur (PROD, QA…) : on voit où l'on envoie les fichiers. -->
+                <ContentControl x:Name="HeaderTag" Focusable="False" Margin="0,0,6,0" VerticalAlignment="Center" Visibility="Collapsed" />
                 <TextBlock x:Name="HeaderText" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
             </DockPanel>
 

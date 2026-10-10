@@ -217,13 +217,23 @@ public sealed class SavedSessionNode(SavedSession session, PvwaAccount? account,
 
     public string ModeText => Session.Mode == ConnectMode.Psm ? Session.Component ?? "PSM" : SessionLibrary.ModeName(Session.Mode);
 
+    /// <summary>Étiquette d'environnement (PROD, QA, DEV…) avec sa couleur ; null : aucune.</summary>
+    public ServerTag? Tag { get; init; }
+
+    public bool HasTag => Tag is not null;
+
+    public System.Windows.Media.Brush? TagBackground => Tag is { } tag ? ServerTagView.Background(tag) : null;
+
+    public System.Windows.Media.Brush? TagForeground => Tag is { } tag ? ServerTagView.Foreground(tag) : null;
+
     /// <summary>Compte introuvable dans CyberArk : « ⚠ introuvable dans CyberArk » après le nom, en clair (pas d'opacité).</summary>
     public bool IsMissing => accountsKnown && Account is null;
 
     public bool IsExpanded { get; set; }
 
     public override string ToString() =>
-        $"{Title}, {ModeText}" + (IsMarked ? ", " + Strings.A11yMarked : "") + (IsMissing ? ", " + Strings.MissingInCyberArk : "");
+        $"{Title}, {ModeText}" + (Tag is { } tag ? ", " + tag.Name : "") + (IsMarked ? ", " + Strings.A11yMarked : "")
+        + (IsMissing ? ", " + Strings.MissingInCyberArk : "");
 
     public string Details
     {

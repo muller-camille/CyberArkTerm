@@ -1684,5 +1684,14 @@ namespace ZillaTerm.Core.Localization {
                 return ResourceManager.GetString("AnyMachine", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tag.
+        /// </summary>
+        public static string MigrationColTag {
+            get {
+                return ResourceManager.GetString("MigrationColTag", resourceCulture);
+            }
+        }
     }
 }

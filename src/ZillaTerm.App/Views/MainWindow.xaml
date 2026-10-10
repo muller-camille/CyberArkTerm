@@ -152,6 +152,8 @@
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuRename}" Click="OnRenameSelectedSaved" />
+            <!-- Étiquette (PROD, QA…) du serveur, ou de tous les serveurs choisis. -->
+            <MenuItem Tag="tag" Header="{x:Static loc:Strings.MenuTag}" />
             <MenuItem Tag="share" Header="{x:Static loc:Strings.MenuShareInList}" ToolTipService.ShowOnDisabled="True">
                 <MenuItem.Icon>
                     <Image Source="{DynamicResource IconShared}" Width="16" Height="16" />
@@ -194,6 +196,8 @@
                     <Image Source="{DynamicResource IconDelete}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <!-- Étiquette (PROD, QA…) de tous les serveurs du dossier et de ses sous-dossiers. -->
+            <MenuItem Tag="tag" Header="{x:Static loc:Strings.MenuTagFolder}" />
             <Separator />
             <MenuItem Tag="share" Header="{x:Static loc:Strings.MenuShareFolderInList}" ToolTipService.ShowOnDisabled="True">
                 <MenuItem.Icon>
@@ -799,6 +803,10 @@
                                 <DataTemplate DataType="{x:Type app:SharedServerNode}">
                                     <StackPanel Orientation="Horizontal" Margin="0,1" ToolTip="{Binding Details}" Background="Transparent">
                                         <Image Source="{Binding Converter={StaticResource KindIcon}}" Width="16" Height="16" Margin="0,0,6,0" />
+                                        <Border Background="{Binding TagBackground}" CornerRadius="3" Padding="5,0,5,1" Margin="0,0,6,0"
+                                                VerticalAlignment="Center" Visibility="{Binding HasTag, Converter={StaticResource BoolToVisibility}}">
+                                            <TextBlock Text="{Binding Tag.Name}" Foreground="{Binding TagForeground}" FontSize="10" FontWeight="SemiBold" />
+                                        </Border>
                                         <TextBlock Text="{Binding Title}" />
                                         <TextBlock Text="{Binding ModeText}" Foreground="{DynamicResource MutedBrush}" FontSize="11"
                                                    Margin="6,0,0,0" VerticalAlignment="Center" />
@@ -828,6 +836,10 @@
                                         <TextBlock Text="✓" Foreground="{DynamicResource AccentBrush}" FontWeight="Bold" Margin="0,0,4,0"
                                                    Visibility="{Binding IsMarked, Converter={StaticResource BoolToVisibility}}" />
                                         <Image Source="{Binding Converter={StaticResource KindIcon}}" Width="16" Height="16" Margin="0,0,6,0" />
+                                        <Border Background="{Binding TagBackground}" CornerRadius="3" Padding="5,0,5,1" Margin="0,0,6,0"
+                                                VerticalAlignment="Center" Visibility="{Binding HasTag, Converter={StaticResource BoolToVisibility}}">
+                                            <TextBlock Text="{Binding Tag.Name}" Foreground="{Binding TagForeground}" FontSize="10" FontWeight="SemiBold" />
+                                        </Border>
                                         <TextBlock Text="{Binding Title}" />
                                         <TextBlock Text="{Binding ModeText}" Foreground="{DynamicResource MutedBrush}" FontSize="11"
                                                    Margin="6,0,0,0" VerticalAlignment="Center" />

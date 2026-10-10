@@ -46,6 +46,12 @@ public sealed class SavedSession
     /// <summary>Dossier ouvert par le navigateur de fichiers à la connexion (SSH ou SFTP) ; vide = dossier personnel.</summary>
     public string? StartDirectory { get; set; }
 
+    /// <summary>
+    /// Étiquette d'environnement (nom d'une <see cref="ServerTag"/> : PROD, QA, DEV…) ; null = aucune. Sa couleur
+    /// marque l'onglet et la session.
+    /// </summary>
+    public string? Tag { get; set; }
+
     /// <summary>Fichiers suivis (tail -f) sur ce serveur, le plus récent en tête, pour les suivre à nouveau d'un clic.</summary>
     public List<string> TailFiles { get; set; } = [];
 

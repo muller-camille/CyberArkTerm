@@ -501,7 +501,8 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
 
 - **Add** an account: right-click in "Available" → "Add to My servers" then the folder you want, or drag the account
   onto the "My servers" tab, or the "Add" toolbar button. For a domain account, the server is asked (optional:
-  without a server, it is asked at each connection).
+  without a server, it is asked at each connection). Its [tag](#tags-prod-qa-dev) is then asked, with a suggestion
+  from its name.
 - **Add an open session**: right-click the session tab (or in its terminal) → "Add to My servers" then the folder
   you want. The server keeps the connection type and the target machine; the entry is greyed out when it is already
   there.
@@ -521,11 +522,13 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   a range of servers; `Esc` or a plain click cancels. Right-click one of them → "Open the N servers in the parallel
   view" or "Connect to the N servers" (one tab each). Right-click a folder → "Open in the parallel view" or "Connect
   to the N servers".
+- **Tag** (PROD, QA, DEV…): right-click → "Tag ▸", see [below](#tags-prod-qa-dev).
 - **Settings of each server** (right-click → "Properties…"):
 
 | Setting | Effect |
 | --- | --- |
 | Name, folder | Display and position in the tree. |
+| Tag | Environment of the server (PROD, QA, DEV…): its color marks the tree, the tab and the outline of the session. |
 | PSM, SSH via PSMP or files only (SFTP via PSMP) | Connection type opened on double-click (at first, from the platform). |
 | PSM component | Component to use (empty: deduced from the platform). |
 | Target machine | Server to open the session on, for a domain account. |
@@ -539,13 +542,42 @@ Without a PSMP in the Settings, the SSH and files-only types are greyed out, as 
 is reported in the window. A server whose account is not found in CyberArk (deleted or access removed) shows
 "⚠ not found in CyberArk", which screen readers read too; nothing is flagged while the accounts are loading.
 
+### Tags (PROD, QA, DEV…)
+
+Each server of "My servers" can carry an environment tag, with a color: PROD in red, QA in blue, DEV in green at
+first. It reminds you at a glance where you work:
+
+- a chip before the name in the "My servers" tree and in shared lists;
+- a chip on the session tab (and `[PROD]` at the start of the title of a detached window);
+- a frame of its color around the SSH terminal or the files session (the name stays on the tab, taking no room
+  from the terminal); a chip in the header of each pane of the parallel view and in that of the Files tab: you see
+  which environment you drop a file on.
+
+A session opened from "Available" or the recent sessions takes the tag of the "My servers" server that has the same
+account (and the same target machine). The tag applies when the session opens: change it, then reopen the session to
+see the new color.
+
+- **When adding** a server to "My servers", the tag is asked. A tag is suggested from the server name, its address,
+  its safe, then its folders ("prd", "prod", "production" → PROD; "rec", "recette", "qual", "uat", "preprod",
+  "staging", "test" → QA; "dev" → DEV; a tag added in the Settings is recognized by its name). Nothing is suggested
+  when the text names two environments. Check it: it is only a suggestion. "No tag" is possible; "Cancel" does not
+  add the server.
+- **Change**: right-click a server or a selection (`Ctrl+click`) → "Tag ▸", or a folder → "Tag the servers of the
+  folder ▸", then the tag, or "No tag". "Suggest from the name" tags at once the servers that have none yet (those
+  without a suggestion stay untagged). Also in "Properties…".
+- **List of tags**: Settings › General › "Server tags" (name of 16 characters at most, color). Renaming a tag renames
+  it on the servers; deleting it removes it from the servers.
+- The tag follows the server in the export of "My servers" and in shared lists; a tag missing from your Settings is
+  shown in gray. The list of tags (names and colors) is shared with the team by the
+  [environment file](#shared-environment).
+
 ### Export, import, share
 
 Two menus at the top of the tab, "Import ▾" and "Share ▾", left of the "New folder", "Properties / rename" and
 "Remove the server or delete the folder" buttons (`Tab` reaches these buttons, the arrow keys move from one to the
 other):
 
-- **Share › Export My servers to a file…** saves "My servers" to a `.json` file: folders (even empty ones), name, CyberArk account (ID), connection
+- **Share › Export My servers to a file…** saves "My servers" to a `.json` file: folders (even empty ones), name, CyberArk account (ID), tag, connection
   type, component, target machine, default reason, SFTP start folder. No password and no followed file. Handy to move
   to another computer or to pass your list on.
 - **Import › ZillaTerm file (export of My servers)…** reads an exported file (or a shared list) and sums up before
@@ -621,6 +653,10 @@ To move to ZillaTerm without typing your servers again, and stop connecting to t
    Telnet through `PSM-Telnet`.
 4. **Folder in My servers**: the folders of the other tool are recreated under this folder ("Imported" by default;
    empty: at the root), each server keeping its name.
+   **Tag**: the "Tag" column suggests the tag of each session from its name, its server, the safe of the matched
+   account, then its folders in the other tool ("Prod/Linux" → PROD, "Recette" → QA), as
+   [when adding a server](#tags-prod-qa-dev); empty when nothing is recognized. Change it if needed before importing;
+   it is also in the exported result.
 5. **Import** adds the checked, ready sessions. The table then shows the result for each server: "Imported", or "Not
    imported" with the reason (no account in the PVWA, connection type not handled such as VNC, FTP or serial port,
    unchecked). A server already in the same folder with the same account is not added twice. "Only problems" filters
@@ -814,6 +850,7 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 | General | Theme | Same as Windows, Light or Dark; applied right away (Windows high contrast takes precedence) | same as Windows |
 | General | Duty reminder | Good practices and emergency numbers shown in the "Intervention" window; plain text, shared by the environment file (see [Intervention](#8-intervention-recording-and-on-call-duty-reminder)) | empty |
 | General | Reminder file | Text file (usually on a network share) read again each time the "Intervention" window opens, shown instead of the reminder above; shared by the environment file | empty |
+| General | Server tags | Tags given to the servers of "My servers" (name, color): "Add a tag", "Remove the tag", editable cells; renaming follows in "My servers", deleting removes the tag from the servers; shared by the environment file (see [Tags](#tags-prod-qa-dev)) | PROD (red), QA (blue), DEV (green) |
 | General | Interface language | Français, English, Italiano or system language; applied after signing out of CyberArk or at the next start | Windows language (English if it is not translated) |
 | General | Central file | Team environment file on a network share, read at each start; its changes are shown before being applied (see [Shared environment](#shared-environment)) | empty |
 | General | Look for a new version at startup | One request to GitHub at most once a day; a link in the status bar when a newer version exists (the "About" window recalls this setting) | no |
@@ -841,7 +878,7 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 ### Shared environment
 
 To give ZillaTerm to a colleague with the team's configuration (PVWA address, sign-in method, default and
-by-domain PSMPs, Windows accounts component and per-platform components, shared lists, PSMP keys, on-call duty reminder (text or file), a few options),
+by-domain PSMPs, Windows accounts component and per-platform components, shared lists, PSMP keys, on-call duty reminder (text or file), server tags, a few options),
 with nothing personal and no password:
 
 1. **Export**: "Settings" button → "Export the environment…" saves `ZillaTerm.env.json`.
@@ -862,7 +899,8 @@ server, an emergency access one for example, is ignored and checked at its first
 whole. A file already offered is offered again only when it has changed. A setting left empty on the exporting PC is
 not exported: it clears nothing on the importing one. Paths (shared lists, central file) are full: `C:\…` or
 `\\server\…`. Your user name, "My servers" and your
-recent sessions are never touched; shared lists are added without removing yours.
+recent sessions are never touched; shared lists are added without removing yours. The tags of the file replace those
+of the computer; your servers keep theirs (a tag missing from the file is then shown in gray).
 
 All preferences are saved in `%APPDATA%\ZillaTerm\settings.json`: language, PVWA address, sign-in method and user
 name, the settings above, "My servers", their folders and the files followed on them (paths), recent sessions,

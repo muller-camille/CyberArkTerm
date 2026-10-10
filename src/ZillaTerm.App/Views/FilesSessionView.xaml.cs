@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using ZillaTerm.App.Localization;
 using ZillaTerm.App.Services;
+using ZillaTerm.Core;
 using ZillaTerm.Core.Ftp;
 
 namespace ZillaTerm.App.Views;
@@ -24,6 +25,9 @@ public partial class FilesSessionView : UserControl
     }
 
     public FilesSession Session { get; }
+
+    /// <summary>Étiquette du serveur (PROD, QA…) : cadre de sa couleur autour de la session.</summary>
+    public void ShowTag(ServerTag? tag) => ServerTagView.Frame(TagFrame, tag);
 
     /// <summary>« Afficher les fichiers » : la fenêtre ouvre l'onglet Fichiers, élargi au besoin pour toutes ses colonnes.</summary>
     public event Action? ShowFilesRequested;

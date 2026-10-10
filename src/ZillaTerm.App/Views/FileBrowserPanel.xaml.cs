@@ -64,6 +64,9 @@ public partial class FileBrowserPanel : UserControl
         FitNameColumn();
     }
 
+    /// <summary>Étiquette (PROD, QA…) du serveur d'une session, montrée dans l'en-tête du panneau.</summary>
+    public Func<RemoteSession, ServerTag?> TagOf { get; set; } = _ => null;
+
     /// <summary>Associe le panneau à la session de l'onglet actif (ou à aucune).</summary>
     public void Attach(RemoteSession? session)
     {
@@ -94,6 +97,7 @@ public partial class FileBrowserPanel : UserControl
         if (session is null)
         {
             UpdateTailFilesButton();
+            HeaderTag.Visibility = Visibility.Collapsed;
             HeaderText.Text = Strings.NoSshSession;
             ShowMessage(Strings.NoSshSessionHelp, retry: false);
             UpdateToolbar();
@@ -101,6 +105,9 @@ public partial class FileBrowserPanel : UserControl
         }
 
         HeaderText.Text = session.Label;
+        var tag = TagOf(session);
+        HeaderTag.Content = tag is null ? null : ServerTagView.Chip(tag);
+        HeaderTag.Visibility = tag is null ? Visibility.Collapsed : Visibility.Visible;
         UpdateTailFilesButton();
         // Session de fichiers seuls (SFTP, FTP) : pas de terminal à suivre.
         var ssh = session as SshSession;

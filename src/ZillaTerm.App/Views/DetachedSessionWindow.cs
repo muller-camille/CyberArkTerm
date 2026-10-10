@@ -14,7 +14,8 @@ public sealed class DetachedSessionWindow : Window
     public DetachedSessionWindow(SshSessionView view, string label, System.Windows.Media.ImageSource? icon = null)
     {
         View = view;
-        Title = Text.Format(Strings.DetachedTitle, label);
+        // L'étiquette du serveur en tête du titre : dans la barre des tâches aussi, on voit qu'on est en production.
+        Title = (view.ServerTag is { } tag ? $"[{tag.Name}] " : "") + Text.Format(Strings.DetachedTitle, label);
         Icon = icon;
         SetResourceReference(BackgroundProperty, "ContentBrush");
         ShowInTaskbar = true;

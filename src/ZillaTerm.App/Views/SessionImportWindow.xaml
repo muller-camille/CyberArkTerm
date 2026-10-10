@@ -144,6 +144,25 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTextColumn Header="{x:Static coreloc:CoreStrings.MigrationColConnection}" Binding="{Binding Connection}" IsReadOnly="True" Width="Auto" />
+                    <!-- Étiquette devinée d'après le nom, le serveur, le safe et les dossiers ; une autre peut être choisie. -->
+                    <DataGridTemplateColumn Header="{x:Static coreloc:CoreStrings.MigrationColTag}" Width="Auto" SortMemberPath="Tag">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ComboBox ItemsSource="{Binding TagChoices}" SelectedValuePath="Value"
+                                          SelectedValue="{Binding Tag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanTag}"
+                                          MinWidth="90" ToolTip="{x:Static loc:Strings.SessionImportTagTip}"
+                                          AutomationProperties.Name="{Binding TagName}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{Binding Background}" CornerRadius="3" Padding="5,0,5,1" HorizontalAlignment="Left">
+                                                <TextBlock Text="{Binding Text}" Foreground="{Binding Foreground}" FontSize="11" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTextColumn Header="{x:Static coreloc:CoreStrings.MigrationColResult}" Binding="{Binding Result}" IsReadOnly="True" Width="2*"
                                         ElementStyle="{StaticResource ResultText}" />
                 </DataGrid.Columns>

@@ -24,6 +24,7 @@ public enum EnvironmentSetting
     UploadProtocol,
     DutyText,
     DutyTextFile,
+    ServerTags,
 }
 
 /// <summary>
@@ -50,6 +51,7 @@ public enum EnvironmentProblem
     InvalidHostKey,
     InvalidPath,
     InvalidDutyText,
+    InvalidServerTag,
 }
 
 /// <summary>Fichier d'environnement refusé ; <see cref="Detail"/> nomme la valeur en cause.</summary>
@@ -138,6 +140,9 @@ public sealed class EnvironmentProfile
     /// </summary>
     public string? DutyTextFile { get; set; }
 
+    /// <summary>Étiquettes des serveurs (nom et couleur), à la place de celles du poste ; vide pour n'en garder aucune.</summary>
+    public List<ServerTag>? ServerTags { get; set; }
+
     /// <summary>Longueur maximale des consignes d'astreinte.</summary>
     public const int MaxDutyText = 8000;
 
@@ -172,6 +177,7 @@ public sealed class EnvironmentProfile
             UploadProtocol = settings.PreferredUploadProtocol,
             DutyText = string.IsNullOrWhiteSpace(settings.DutyText) ? null : NormalizeDutyText(settings.DutyText),
             DutyTextFile = NullIfEmpty(settings.DutyTextFile),
+            ServerTags = settings.ServerTags.Select(t => new ServerTag(t.Name, t.Color)).ToList(),
         };
     }
 
@@ -297,6 +303,23 @@ public sealed class EnvironmentProfile
         {
             Fail(EnvironmentProblem.InvalidPath, DutyTextFile);
         }
+
+        if (ServerTags is not null)
+        {
+            if (ServerTags.Count > ServerTagRules.MaxTags)
+            {
+                Fail(EnvironmentProblem.InvalidServerTag, ServerTags.Count.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            }
+
+            foreach (var tag in ServerTags)
+            {
+                if (tag is null || !ServerTagRules.IsValidName(tag.Name) || !ServerTagRules.IsValidColor(tag.Color)
+                    || ServerTags.Count(t => t is not null && string.Equals(t.Name?.Trim(), tag.Name.Trim(), StringComparison.OrdinalIgnoreCase)) > 1)
+                {
+                    Fail(EnvironmentProblem.InvalidServerTag, tag?.Name is { } name && name.Length > 40 ? name[..40] + "…" : tag?.Name ?? "");
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -420,6 +443,11 @@ public sealed class EnvironmentProfile
             Add(EnvironmentSetting.DutyTextFile, server, settings.DutyTextFile.Trim(), DutyTextFile.Trim(), server is not null);
         }
 
+        if (ServerTags is not null)
+        {
+            Add(EnvironmentSetting.ServerTags, null, Describe(settings.ServerTags), Describe(ServerTagRules.Sanitize(ServerTags)), false);
+        }
+
         return changes;
 
         void AddFlag(EnvironmentSetting setting, bool current, bool? next)
@@ -507,6 +535,12 @@ public sealed class EnvironmentProfile
         {
             settings.DutyTextFile = DutyTextFile.Trim();
         }
+
+        if (ServerTags is not null)
+        {
+            // Les serveurs gardent leur étiquette, même absente de la nouvelle liste (affichée alors en gris).
+            settings.ServerTags = ServerTagRules.Sanitize(ServerTags);
+        }
     }
 
     /// <summary>
@@ -587,6 +621,8 @@ public sealed class EnvironmentProfile
 
     private static string Endpoint(string address, int port) =>
         string.IsNullOrWhiteSpace(address) ? "" : $"{address.Trim()}:{port.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+
+    private static string Describe(IEnumerable<ServerTag> tags) => string.Join(", ", tags.Select(t => $"{t.Name} ({t.Color})"));
 
     private static string Describe(IEnumerable<PsmpServer> servers) => string.Join(", ", servers.Select(p =>
     {

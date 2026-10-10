@@ -195,6 +195,7 @@ internal static class EnvironmentImport
             EnvironmentSetting.CheckForUpdates => Strings.EnvCheckForUpdates,
             EnvironmentSetting.DutyText => Strings.EnvDutyText,
             EnvironmentSetting.DutyTextFile => change.Detail is { } dutyServer ? Text.Format(Strings.EnvDutyFileNetwork, dutyServer) : Strings.EnvDutyFile,
+            EnvironmentSetting.ServerTags => Strings.EnvServerTags,
             _ => Strings.EnvUploadProtocol,
         };
         if (change.Setting == EnvironmentSetting.DutyText)
@@ -239,6 +240,7 @@ internal static class EnvironmentImport
         EnvironmentProblem.InvalidComponent => Strings.EnvInvalidComponent,
         EnvironmentProblem.InvalidHostKey => Strings.EnvInvalidHostKey,
         EnvironmentProblem.InvalidDutyText => Strings.EnvInvalidDutyText,
+        EnvironmentProblem.InvalidServerTag => Strings.EnvInvalidServerTag,
         _ => Strings.EnvInvalidPath,
     }, ex.Detail);
 
