@@ -128,7 +128,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to ✓ Downloaded and checked (SHA-256 identical to SHA256SUMS.txt): {0}. Close ZillaTerm, then rep[rest of string was truncated].
+        ///   Looks up a localized string similar to ✓ Downloaded: {0}. Its SHA-256 is the one of SHA256SUMS.txt of the same release: the download is complete and intact (this does not prove who published it). Close ZillaTerm, then replace the executable with the one of the archive..
         /// </summary>
         public static string AboutDownloaded {
             get {
@@ -13566,7 +13566,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} ready · {1} to check · {2} without an account in the PVWA · {3} not handled · {4} already in My servers.
+        ///   Looks up a localized string similar to {0} ready · {1} to check (not ticked: choose the account) · {2} without an account in the PVWA · {3} not handled · {4} already in My servers.
         /// </summary>
         public static string SessionImportSummary {
             get {
@@ -14012,6 +14012,15 @@ namespace ZillaTerm.App.Localization {
         public static string ColumnGroup {
             get {
                 return ResourceManager.GetString("ColumnGroup", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Import ({0}).
+        /// </summary>
+        public static string SessionImportButtonCount {
+            get {
+                return ResourceManager.GetString("SessionImportButtonCount", resourceCulture);
             }
         }
     }

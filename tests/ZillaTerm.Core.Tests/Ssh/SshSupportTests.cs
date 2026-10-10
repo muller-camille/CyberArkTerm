@@ -127,6 +127,12 @@ public class SshSupportTests
         Assert.Equal("svc web", RemoteEntry.CleanName(" svc web\u200B "));
         Assert.Equal("", RemoteEntry.CleanName(null));
 
+        // Nom d'un fichier : affiché avec ses caractères invisibles rendus visibles, pour qu'il n'en imite pas un autre.
+        var spoof = new RemoteEntry("facture\u202Efdp.exe", "/tmp/facture\u202Efdp.exe", false, false, 1, default, "");
+        Assert.Equal("facture\uFFFDfdp.exe", spoof.DisplayName);
+        Assert.Equal("a\uFFFDb\uFFFD", RemoteEntry.Visible("a\u200Bb\n"));
+        Assert.Same("ordinaire.txt", RemoteEntry.Visible("ordinaire.txt"));
+
         // SFTP : UID et GID non signés, comme sur le serveur ; rien si le serveur ne les a pas envoyés.
         Assert.Equal("1000", RemoteFileBrowser.IdText(1000));
         Assert.Equal("4294967294", RemoteFileBrowser.IdText(-2));

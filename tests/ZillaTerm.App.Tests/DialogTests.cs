@@ -327,9 +327,15 @@ public sealed class DialogTests
                 Assert.True(window.ImportButton.IsEnabled);
                 Assert.True(window.Rows[1].CanChoose);
                 Assert.False(window.Rows[2].CanInclude);
+                // Session à vérifier : pas cochée d'office ; le bouton compte les sessions qui seront ajoutées.
+                Assert.False(window.Rows[1].Include);
+                Assert.EndsWith("(1)", (string)window.ImportButton.Content);
+                Assert.False(((System.Windows.Controls.CheckBox)window.IncludeColumn.Header).IsChecked);
 
                 // Même compte que la première session, dans le même dossier : ajouté une seule fois.
                 window.Rows[1].Chosen = window.Rows[1].Candidates.Single(c => c.Account.Id == "1");
+                Assert.True(window.Rows[1].Include);
+                Assert.EndsWith("(2)", (string)window.ImportButton.Content);
                 window.FolderBox.Text = "Migration";
                 window.OnImport(window, new RoutedEventArgs());
 
@@ -470,6 +476,36 @@ public sealed class DialogTests
         Assert.Equal(Strings.NameNoControl, FileBrowserPanel.ValidateName("a\r\nDELE b"));
         Assert.Equal(Strings.NameReserved, FileBrowserPanel.ValidateName(".."));
         Assert.Equal(Strings.NameReserved, FileBrowserPanel.ValidateName("."));
+    }
+
+    /// <summary>
+    /// F5 dans l'onglet Fichiers, hors de la liste aussi (chemin, filtre) : relit le dossier, sans atteindre le F5 de la
+    /// fenêtre principale qui recharge les comptes du PVWA.
+    /// </summary>
+    [Fact]
+    public void F5InTheFilesTabRefreshesTheFolderNotTheAccounts()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var panel = new FileBrowserPanel();
+            int reloads = 0;
+            var window = new Window { Content = panel };
+            window.CommandBindings.Add(new System.Windows.Input.CommandBinding(System.Windows.Input.NavigationCommands.Refresh, (_, _) => reloads++));
+
+            System.Windows.Input.NavigationCommands.Refresh.Execute(null, panel.PathBox);
+            System.Windows.Input.NavigationCommands.Refresh.Execute(null, panel.FilterBox);
+            System.Windows.Input.NavigationCommands.Refresh.Execute(null, panel.FileList);
+
+            Assert.Equal(0, reloads);
+            Assert.Contains(panel.InputBindings.OfType<System.Windows.Input.KeyBinding>(),
+                b => b.Key == System.Windows.Input.Key.F5 && b.Command == System.Windows.Input.NavigationCommands.Refresh);
+            window.Close();
+        });
     }
 
     /// <summary>Onglet Fichiers : tri par colonne (« .. » et dossiers en tête), flèche dans l'en-tête, réglage enregistré.</summary>
@@ -1672,7 +1708,7 @@ public sealed class DialogTests
         public Task<List<RemoteEntry>> BrowseAsync(string directory, bool showHidden, CancellationToken ct) => Task.FromResult(entries.ToList());
         public Task DeleteAsync(RemoteEntry entry, CancellationToken ct) => throw new NotSupportedException();
         public Task CreateDirectoryAsync(string path, CancellationToken ct) => throw new NotSupportedException();
-        public Task RenameAsync(string path, string newPath, CancellationToken ct) => throw new NotSupportedException();
+        public Task RenameAsync(RemoteEntry entry, string newPath, CancellationToken ct) => throw new NotSupportedException();
         public Task<bool> ExistsAsync(string path, CancellationToken ct) => Task.FromResult(true);
         public Task UploadAsync(string localPath, string remoteDirectory, TransferProtocol protocol, ICollection<TransferCheck> checks,
             IProgress<TransferProgress>? progress, bool background, CancellationToken ct) => throw new NotSupportedException();
@@ -1899,7 +1935,7 @@ public sealed class DialogTests
     {
         public bool CheckHostKey(string host, int port, string algorithm, string sha256Fingerprint) => false;
 
-        public string? Prompt(string instruction, string prompt, bool echo) => null;
+        public string? Prompt(string instruction, string prompt, bool echo, string? refused) => null;
     }
 
     private sealed class MemoryFile : ITailSource

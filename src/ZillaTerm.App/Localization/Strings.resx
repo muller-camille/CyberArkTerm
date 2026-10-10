@@ -1709,7 +1709,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>Downloading {0}…</value>
   </data>
   <data name="AboutDownloaded" xml:space="preserve">
-    <value>✓ Downloaded and checked (SHA-256 identical to SHA256SUMS.txt): {0}. Close ZillaTerm, then replace the executable with the one of the archive.</value>
+    <value>✓ Downloaded: {0}. Its SHA-256 is the one of SHA256SUMS.txt of the same release: the download is complete and intact (this does not prove who published it). Close ZillaTerm, then replace the executable with the one of the archive.</value>
   </data>
   <data name="AboutDownloadFailed" xml:space="preserve">
     <value>Download not kept: {0}</value>
@@ -4557,7 +4557,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Cannot read {0}: {1}</value>
   </data>
   <data name="SessionImportSummary" xml:space="preserve">
-    <value>{0} ready · {1} to check · {2} without an account in the PVWA · {3} not handled · {4} already in My servers</value>
+    <value>{0} ready · {1} to check (not ticked: choose the account) · {2} without an account in the PVWA · {3} not handled · {4} already in My servers</value>
   </data>
   <data name="SessionImportResult" xml:space="preserve">
     <value>{0} imported · {1} not imported</value>
@@ -4705,5 +4705,8 @@ Two instances would overwrite each other's settings, local vault and files being
   </data>
   <data name="ColumnGroup" xml:space="preserve">
     <value>Group</value>
+  </data>
+  <data name="SessionImportButtonCount" xml:space="preserve">
+    <value>_Import ({0})</value>
   </data>
 </root>

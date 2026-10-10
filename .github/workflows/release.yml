@@ -1,53 +1,59 @@
 name: release
 
-# Publie une version, au choix :
-# - en poussant un tag vX.Y.Z (sur un commit de main) ;
-# - depuis GitHub : Actions → release → Run workflow sur main, avec le numéro X.Y.Z (le tag est créé).
-# Compile l'exécutable et crée la Release GitHub avec le zip et son empreinte SHA256.
+# Publie une version depuis GitHub : Actions → release → Run workflow sur main, avec le numéro X.Y.Z (le tag vX.Y.Z est
+# créé sur le commit compilé). « Vérifier sans publier » fait toute la chaîne (tests, compilation, archive, passage d'un
+# job à l'autre) sans rien publier, depuis n'importe quelle branche.
+# Deux jobs : la compilation, qui exécute le code des paquets NuGet et du fork SSH.NET, n'a qu'un jeton en lecture ;
+# seule la publication, qui ne compile rien, peut écrire dans le dépôt. Les actions sont épinglées par commit.
 # Relancé pour une version déjà publiée, il met à jour les notes sans remplacer les fichiers.
 on:
-  push:
-    tags: ['v*.*.*']
   workflow_dispatch:
     inputs:
       version:
         description: 'Numéro de version X.Y.Z (le tag vX.Y.Z est créé sur main)'
         required: true
         type: string
+      dry_run:
+        description: 'Vérifier sans publier (depuis n''importe quelle branche)'
+        required: false
+        type: boolean
+        default: false
 
-permissions:
-  contents: write
+permissions: {}
 
 jobs:
-  release:
+  build:
     runs-on: windows-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           dotnet-version: 10.0.x
+
+      - name: Numéro de version
+        id: version
+        shell: pwsh
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          if ($env:DRY_RUN -ne 'true' -and $env:GITHUB_REF -ne 'refs/heads/main') { throw "Lancez la publication depuis main (et non $env:GITHUB_REF)." }
+          $version = $env:INPUT_VERSION.Trim().TrimStart('v')
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Version invalide : '$version' (attendu X.Y.Z)" }
+          "VERSION=$version" >> $env:GITHUB_ENV
+          "version=$version" >> $env:GITHUB_OUTPUT
 
       # SSH.NET 2026.0.0 patché (noms du propriétaire et du groupe en SFTP), compilé depuis le fork à un commit figé.
       - name: SSH.NET patché
         shell: bash
         run: bash tools/sshnet-patched.sh
-
-      - name: Numéro de version
-        shell: pwsh
-        env:
-          EVENT: ${{ github.event_name }}
-          INPUT_VERSION: ${{ inputs.version }}
-        run: |
-          if ($env:EVENT -eq 'workflow_dispatch') {
-            if ($env:GITHUB_REF -ne 'refs/heads/main') { throw "Lancez la publication depuis main (et non $env:GITHUB_REF)." }
-            $version = $env:INPUT_VERSION.Trim().TrimStart('v')
-          } else {
-            $version = $env:GITHUB_REF_NAME.Substring(1)
-          }
-          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Version invalide : '$version' (attendu X.Y.Z)" }
-          "VERSION=$version" >> $env:GITHUB_ENV
-          "TAG=v$version" >> $env:GITHUB_ENV
 
       - name: Tests
         run: dotnet test ZillaTerm.sln -c Release
@@ -70,7 +76,40 @@ jobs:
           "$hash  $zip" | Out-File -FilePath SHA256SUMS.txt -Encoding ascii
           Get-Content SHA256SUMS.txt
 
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release
+          path: |
+            ZillaTerm-${{ env.VERSION }}-win-x64.zip
+            SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+      TAG: v${{ needs.build.outputs.version }}
+    steps:
+      # Pour les notes de version seulement : rien n'est compilé ni exécuté depuis le dépôt dans ce job.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Fichiers compilés
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name release --dir .
+          sha256sum -c SHA256SUMS.txt
+          test -f "ZillaTerm-$VERSION-win-x64.zip"
+
       - name: Release GitHub
+        if: ${{ !inputs.dry_run }}
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -91,3 +130,8 @@ jobs:
             if (Test-Path $notes) { $options += @('--notes-file', $notes) } else { $options += '--generate-notes' }
             gh release create $env:TAG @files @options
           }
+
+      - name: Vérification sans publication
+        if: ${{ inputs.dry_run }}
+        run: |
+          echo "Vérification terminée pour $TAG ($GITHUB_SHA) : rien n'a été publié."

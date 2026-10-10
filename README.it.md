@@ -219,10 +219,11 @@ autonomo come artefatto `ZillaTerm-win-x64` per ogni pull request e ogni push su
 
 ### Pubblicare una versione
 
-Da GitHub: **Actions → release → Run workflow** su `main`, indicando il numero `X.Y.Z`; oppure invia un tag
-`vX.Y.Z` su `main`. Il workflow [`release.yml`](.github/workflows/release.yml) esegue i test, compila
-l'eseguibile con quel numero di versione, crea il tag se non esiste e pubblica la *Release* GitHub con lo zip
-e `SHA256SUMS.txt`. Le note di versione vengono lette da `docs/releases/vX.Y.Z.md` se il file esiste.
+Da GitHub: **Actions → release → Run workflow** su `main`, indicando il numero `X.Y.Z`. Il workflow
+[`release.yml`](.github/workflows/release.yml) esegue i test e compila l'eseguibile con quel numero di versione (con
+un token in sola lettura), poi un secondo job, che non compila nulla, crea il tag se non esiste e pubblica la
+*Release* GitHub con lo zip e `SHA256SUMS.txt`. Le note di versione vengono lette da `docs/releases/vX.Y.Z.md` se il
+file esiste. «Verificare senza pubblicare» esegue tutta la catena senza pubblicare nulla, da qualsiasi branch.
 
 ## Limiti e sviluppi futuri
 

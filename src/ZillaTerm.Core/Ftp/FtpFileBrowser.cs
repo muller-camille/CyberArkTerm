@@ -318,8 +318,9 @@ public sealed class FtpFileBrowser : IRemoteFiles
         return await ExistsCoreAsync(path, ct).ConfigureAwait(false);
     }
 
-    public async Task RenameAsync(string path, string newPath, CancellationToken ct)
+    public async Task RenameAsync(RemoteEntry entry, string newPath, CancellationToken ct)
     {
+        var path = entry.FullPath;
         using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
         // Jamais d'écrasement : RNTO remplace la cible sur la plupart des serveurs FTP.
         if (await ExistsCoreAsync(newPath, ct).ConfigureAwait(false))

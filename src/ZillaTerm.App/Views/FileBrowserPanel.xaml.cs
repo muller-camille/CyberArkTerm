@@ -35,6 +35,14 @@ public partial class FileBrowserPanel : UserControl
         InitializeQueue();
         FileList.SelectionChanged += (_, _) => UpdateSelectionButtons();
         FileList.SizeChanged += (_, _) => FitNameColumn();
+        // F5 partout dans l'onglet (liste, chemin, filtre, boutons) : relire le dossier, et non recharger les comptes du
+        // PVWA (raccourci de la fenêtre, que la commande atteindrait sinon). Aussi dans une fenêtre détachée.
+        CommandBindings.Add(new CommandBinding(NavigationCommands.Refresh, (_, e) =>
+        {
+            _ = RefreshAsync();
+            e.Handled = true;
+        }));
+        InputBindings.Add(new KeyBinding(NavigationCommands.Refresh, Key.F5, ModifierKeys.None));
         ShowMessage(Strings.NoSshSessionHelp, retry: false);
         HeaderText.Text = Strings.NoSshSession;
         UpdateToolbar();
@@ -221,6 +229,14 @@ public partial class FileBrowserPanel : UserControl
             if (!browser.IsConnected)
             {
                 _browser = null;
+                // Connexion remplacée entre-temps par une autre fonction de la session (envoi, comparaison, édition…) :
+                // le panneau reprend la nouvelle au lieu de rester sur l'ancienne, fermée.
+                if (_session?.OpenedBrowser is { } current && !ReferenceEquals(current, browser))
+                {
+                    _browser = current;
+                    return await NavigateAsync(path, quiet, silent);
+                }
+
                 ShowMessage(Text.Format(Strings.SftpLost, ErrorText.Describe(ex)), retry: true);
             }
             else if (!silent)
@@ -630,7 +646,7 @@ public partial class FileBrowserPanel : UserControl
                     return;
                 }
 
-                SetStatus(Text.Format(Strings.CannotOpen, entry.Name, Describe(ex)), error: true);
+                SetStatus(Text.Format(Strings.CannotOpen, entry.DisplayName, Describe(ex)), error: true);
                 return;
             }
 
@@ -673,10 +689,6 @@ public partial class FileBrowserPanel : UserControl
                 break;
             case Key.Back:
                 OnParent(sender, e);
-                e.Handled = true;
-                break;
-            case Key.F5:
-                _ = RefreshAsync();
                 e.Handled = true;
                 break;
         }
@@ -784,9 +796,11 @@ public partial class FileBrowserPanel : UserControl
         }
 
         var directory = RemotePath.Parent(entry.FullPath);
-        var dialog = new InputDialog(Strings.RenameTitle,
-            Text.Format(Strings.RenamePrompt, entry.Name, Text.Format(Strings.ServerPath, _session?.Label ?? "", directory)),
-            entry.Name, ValidateName) { Owner = Window.GetWindow(this) };
+        var where = Text.Format(Strings.ServerPath, _session?.Label ?? "", RemoteEntry.Visible(directory));
+        var dialog = new InputDialog(Strings.RenameTitle, Text.Format(Strings.RenamePrompt, entry.DisplayName, where), entry.Name, ValidateName)
+        {
+            Owner = Window.GetWindow(this),
+        };
         if (dialog.ShowDialog() != true || dialog.Value == entry.Name || !StillShowing(browser, generation))
         {
             return;
@@ -796,7 +810,7 @@ public partial class FileBrowserPanel : UserControl
         Interlocked.Increment(ref _busy);
         try
         {
-            await browser.RenameAsync(entry.FullPath, target, CancellationToken.None);
+            await browser.RenameAsync(entry, target, CancellationToken.None);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -820,7 +834,7 @@ public partial class FileBrowserPanel : UserControl
                 FileList.ScrollIntoView(renamed);
             }
 
-            SetStatus(Text.Format(Strings.Renamed, entry.Name, dialog.Value));
+            SetStatus(Text.Format(Strings.Renamed, entry.DisplayName, dialog.Value));
         }
     }
 
@@ -863,7 +877,7 @@ public partial class FileBrowserPanel : UserControl
             return;
         }
 
-        var target = selected.Count == 1 ? selected[0].Name : Text.Format(Strings.ItemsCount, selected.Count);
+        var target = selected.Count == 1 ? selected[0].DisplayName : Text.Format(Strings.ItemsCount, selected.Count);
         var modes = new List<int>();
         foreach (var entry in selected)
         {
@@ -888,7 +902,7 @@ public partial class FileBrowserPanel : UserControl
 
             if (targetMode is not { } resolved)
             {
-                SetStatus(Text.Format(Strings.PermissionsLinkUnknown, entry.Name), error: true);
+                SetStatus(Text.Format(Strings.PermissionsLinkUnknown, entry.DisplayName), error: true);
                 return;
             }
 
@@ -948,7 +962,7 @@ public partial class FileBrowserPanel : UserControl
             {
                 if (StillShowing(browser, generation))
                 {
-                    SetStatus(Text.Format(Strings.PermissionsApplying, entry.Name));
+                    SetStatus(Text.Format(Strings.PermissionsApplying, entry.DisplayName));
                 }
 
                 int before = changed;
@@ -975,7 +989,7 @@ public partial class FileBrowserPanel : UserControl
                 }
                 catch (Exception ex) when (ex is not OutOfMemoryException)
                 {
-                    errors.Add(Text.Format(Strings.ItemError, entry.Name, Describe(ex)));
+                    errors.Add(Text.Format(Strings.ItemError, entry.DisplayName, Describe(ex)));
                 }
             }
         }
@@ -1047,7 +1061,7 @@ public partial class FileBrowserPanel : UserControl
         }
 
         // Le serveur est nommé : l'onglet Fichiers change de serveur avec l'onglet de session actif.
-        static string Name(RemoteEntry entry) => entry.Name + (entry.IsDirectory ? "/" : "");
+        static string Name(RemoteEntry entry) => entry.DisplayName + (entry.IsDirectory ? "/" : "");
         if (!ConfirmDialog.Destructive(Window.GetWindow(this), Strings.DeleteTitle,
                 selected.Count == 1
                     ? Text.Format(Strings.FileDeleteHeadingOne, Name(selected[0]))
@@ -1068,7 +1082,7 @@ public partial class FileBrowserPanel : UserControl
             {
                 if (StillShowing(browser, generation))
                 {
-                    SetStatus(Text.Format(Strings.Deleting, entry.Name));
+                    SetStatus(Text.Format(Strings.Deleting, entry.DisplayName));
                 }
 
                 try
@@ -1077,7 +1091,7 @@ public partial class FileBrowserPanel : UserControl
                 }
                 catch (Exception ex) when (ex is not OutOfMemoryException)
                 {
-                    errors.Add(Text.Format(Strings.ItemError, entry.Name, Describe(ex, entry.IsDirectory)));
+                    errors.Add(Text.Format(Strings.ItemError, entry.DisplayName, Describe(ex, entry.IsDirectory)));
                 }
             }
         }
@@ -1117,7 +1131,7 @@ public partial class FileBrowserPanel : UserControl
         {
             // Sur un dossier : la ligne en surbrillance, la destination dans la barre d'état (le voile cacherait la ligne).
             DropHint.Visibility = Visibility.Collapsed;
-            SetStatus(Text.Format(Strings.DropIntoFolder, Text.Format(Strings.ServerPath, _session?.Label ?? "", folder.FullPath)));
+            SetStatus(Text.Format(Strings.DropIntoFolder, Text.Format(Strings.ServerPath, _session?.Label ?? "", RemoteEntry.Visible(folder.FullPath))));
         }
         else if (ok)
         {

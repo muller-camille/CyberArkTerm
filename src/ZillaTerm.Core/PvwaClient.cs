@@ -41,16 +41,17 @@ public sealed class PvwaClient : IDisposable
     /// Crée un client pour l'URL saisie par l'utilisateur. L'authentification Windows
     /// réutilise la session Windows courante (Kerberos/NTLM).
     /// </summary>
-    public static PvwaClient Create(string pvwaUrl, AuthMethod method)
-    {
-        var baseUri = NormalizeBaseUri(pvwaUrl);
-        var handler = new HttpClientHandler
+    public static PvwaClient Create(string pvwaUrl, AuthMethod method) => new(NormalizeBaseUri(pvwaUrl), CreateHandler(method));
+
+    internal static HttpClientHandler CreateHandler(AuthMethod method) =>
+        new()
         {
             UseDefaultCredentials = method == AuthMethod.Windows,
             UseCookies = true,
+            // Une redirection n'est jamais suivie : en 307/308, le mot de passe de la connexion serait renvoyé à
+            // l'adresse indiquée, et le jeton de session pourrait l'être aussi. Elle est signalée (CreateErrorAsync).
+            AllowAutoRedirect = false,
         };
-        return new PvwaClient(baseUri, handler);
-    }
 
     /// <summary>
     /// Transforme « pvwa.corp.local », « https://pvwa.corp.local/PasswordVault/v10/logon », etc.
@@ -64,6 +65,13 @@ public sealed class PvwaClient : IDisposable
             throw new ArgumentException(CoreStrings.PvwaAddressRequired);
         }
 
+        // Rien qui puisse faire passer une adresse pour une autre : espaces, caractères invisibles, « \ » ou lettres
+        // hors ASCII (d'apparence identique, d'un autre alphabet) ; un nom international s'écrit sous sa forme « xn-- ».
+        if (text.Any(c => c is < '!' or > '~' or '\\'))
+        {
+            throw new ArgumentException(CoreStrings.PvwaAddressSuspicious);
+        }
+
         if (!text.Contains("://", StringComparison.Ordinal))
         {
             text = "https://" + text;
@@ -72,6 +80,12 @@ public sealed class PvwaClient : IDisposable
         if (!Uri.TryCreate(text, UriKind.Absolute, out var uri) || string.IsNullOrEmpty(uri.Host))
         {
             throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, CoreStrings.PvwaAddressInvalid, input));
+        }
+
+        // « https://pvwa.corp.local:443@autre/ » joint « autre » : ce qui précède « @ » n'est qu'un nom d'utilisateur.
+        if (uri.UserInfo.Length > 0)
+        {
+            throw new ArgumentException(CoreStrings.PvwaAddressSuspicious);
         }
 
         if (uri.Scheme != Uri.UriSchemeHttps)
@@ -540,8 +554,23 @@ public sealed class PvwaClient : IDisposable
         return request;
     }
 
-    private static async Task<PvwaException> CreateErrorAsync(HttpResponseMessage response, CancellationToken ct)
+    private async Task<PvwaException> CreateErrorAsync(HttpResponseMessage response, CancellationToken ct)
     {
+        if ((int)response.StatusCode is >= 300 and < 400)
+        {
+            // Adresse indiquée sans ses paramètres : c'est elle qu'il faudra peut-être saisir comme adresse du PVWA.
+            var location = response.Headers.Location;
+            if (location is { IsAbsoluteUri: false })
+            {
+                location = new Uri(response.RequestMessage?.RequestUri is { IsAbsoluteUri: true } from ? from : BaseUri, location);
+            }
+
+            var where = location is { IsAbsoluteUri: true } ? location.GetLeftPart(UriPartial.Path) : "?";
+            DebugLog.Write("pvwa", $"Redirection non suivie ({(int)response.StatusCode}) vers {where}");
+            return new PvwaException(response.StatusCode, null,
+                string.Format(CultureInfo.CurrentCulture, CoreStrings.PvwaRedirectNotFollowed, (int)response.StatusCode, where));
+        }
+
         string? code = null;
         string? message = null;
         try

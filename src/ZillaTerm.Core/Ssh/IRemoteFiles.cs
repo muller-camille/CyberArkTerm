@@ -32,10 +32,11 @@ public interface IRemoteFiles : IDisposable
     Task CreateDirectoryAsync(string path, CancellationToken ct);
 
     /// <summary>
-    /// Renomme un fichier ou un dossier (<paramref name="newPath"/> dans le même dossier). Ne remplace jamais un élément
-    /// existant : <see cref="IOException"/> si <paramref name="newPath"/> existe déjà.
+    /// Renomme un fichier, un dossier ou un lien symbolique lui-même, jamais sa cible (<paramref name="newPath"/> dans le
+    /// même dossier). Ne remplace jamais un élément existant : <see cref="IOException"/> si <paramref name="newPath"/>
+    /// existe déjà.
     /// </summary>
-    Task RenameAsync(string path, string newPath, CancellationToken ct);
+    Task RenameAsync(RemoteEntry entry, string newPath, CancellationToken ct);
 
     Task<bool> ExistsAsync(string path, CancellationToken ct);
 

@@ -86,14 +86,14 @@ internal sealed class SshInteraction(Window owner, AppSettings settings, Action 
         });
     }
 
-    public string? Prompt(string instruction, string prompt, bool echo) =>
+    public string? Prompt(string instruction, string prompt, bool echo, string? refused) =>
         Dispatcher.Invoke(() =>
         {
             // Aide selon la question : mot de passe (gardé pour les fichiers de l'onglet) ou code MFA (redemandé).
             string? hint = SshConnector.IsPasswordPrompt(prompt) && !echo
                 ? (direct ? Strings.PromptHintPassword : Strings.PromptHintVaultPassword)
                 : !direct && LooksLikeOneTimeCode(prompt) ? Strings.PromptHintMfa : null;
-            var dialog = new PromptDialog(instruction, prompt, echo, context, hint, direct) { Owner = owner };
+            var dialog = new PromptDialog(instruction, prompt, echo, context, hint, direct, refused) { Owner = owner };
             if (direct)
             {
                 dialog.Title = Strings.PromptTitleServer;

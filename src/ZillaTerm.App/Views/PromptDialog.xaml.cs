@@ -11,9 +11,17 @@ public partial class PromptDialog : Window
     /// <param name="session">Session qui pose la question (« compte → cible ») ; null si inconnue.</param>
     /// <param name="hint">Aide selon la question (mot de passe CyberArk, code MFA…).</param>
     /// <param name="direct">Serveur joint directement (accès d'urgence) : pas de PSMP en jeu.</param>
-    public PromptDialog(string instruction, string prompt, bool echo, string? session = null, string? hint = null, bool direct = false)
+    /// <param name="refused">Réponse précédente refusée par le serveur (numéro de l'essai) ; null au premier essai.</param>
+    public PromptDialog(string instruction, string prompt, bool echo, string? session = null, string? hint = null, bool direct = false,
+        string? refused = null)
     {
         InitializeComponent();
+        if (!string.IsNullOrWhiteSpace(refused))
+        {
+            RefusedText.Text = refused;
+            RefusedText.Visibility = Visibility.Visible;
+        }
+
         _echo = echo;
         InstructionText.Text = string.IsNullOrWhiteSpace(instruction)
             ? (direct ? Strings.PromptDefaultInstructionServer : Strings.PromptDefaultInstruction)
@@ -35,6 +43,7 @@ public partial class PromptDialog : Window
         System.Windows.Automation.AutomationProperties.SetName(SecretBox, PromptText.Text);
         System.Windows.Automation.AutomationProperties.SetName(TextBox, PromptText.Text);
         SecretBox.Visibility = echo ? Visibility.Collapsed : Visibility.Visible;
+        CapsLockWarning.Attach(CapsLockText, SecretBox);
         TextBox.Visibility = echo ? Visibility.Visible : Visibility.Collapsed;
         Loaded += (_, _) =>
         {

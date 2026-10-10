@@ -1341,5 +1341,50 @@ namespace ZillaTerm.Core.Localization {
                 return ResourceManager.GetString("MigrationColResult", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Refused by the server: wrong password or code. Attempt {0} of {1}: check it (Caps Lock?) before sending, because too many failures can lock the account..
+        /// </summary>
+        public static string AuthenticationRefusedRetry {
+            get {
+                return ResourceManager.GetString("AuthenticationRefusedRetry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password or code refused {0} times: connection abandoned so that the account is not locked. Check the password, then connect again..
+        /// </summary>
+        public static string AuthenticationRefusedFinal {
+            get {
+                return ResourceManager.GetString("AuthenticationRefusedFinal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA address may only contain the server name, then a port and a path if needed: no “name@” before the server, no space or “\”, no accented letters or letters from another alphabet (an international name is written in its “xn--” form)..
+        /// </summary>
+        public static string PvwaAddressSuspicious {
+            get {
+                return ResourceManager.GetString("PvwaAddressSuspicious", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA answered with a redirection (HTTP {0}) to {1}. It is not followed, so that your password and session are never sent to another address: check the PVWA address in the Settings (exact server name and path to PasswordVault)..
+        /// </summary>
+        public static string PvwaRedirectNotFollowed {
+            get {
+                return ResourceManager.GetString("PvwaRedirectNotFollowed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to “{0}” is a special file (device, named pipe or socket): it can be neither opened nor downloaded, because reading it would never end or would block the server..
+        /// </summary>
+        public static string SpecialFileRefused {
+            get {
+                return ResourceManager.GetString("SpecialFileRefused", resourceCulture);
+            }
+        }
     }
 }

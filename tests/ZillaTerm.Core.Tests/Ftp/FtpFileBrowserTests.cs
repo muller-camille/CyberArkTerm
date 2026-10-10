@@ -248,14 +248,16 @@ public sealed class FtpFileBrowserTests
         using var browser = await FtpFileBrowser.ConnectAsync(
             Connection(server, FtpSecurity.Opportunistic, () => true), CancellationToken.None);
 
-        await Assert.ThrowsAsync<IOException>(() => browser.RenameAsync("/home/fake/a.txt", "/home/fake/taken.txt", CancellationToken.None));
+        await Assert.ThrowsAsync<IOException>(() => browser.RenameAsync(FileEntry("/home/fake/a.txt"), "/home/fake/taken.txt", CancellationToken.None));
         Assert.False(server.Received("RNFR"));
         Assert.False(server.Received("RNTO"));
 
-        await browser.RenameAsync("/home/fake/a.txt", "/home/fake/b.txt", CancellationToken.None);
+        await browser.RenameAsync(FileEntry("/home/fake/a.txt"), "/home/fake/b.txt", CancellationToken.None);
         Assert.Contains("RNFR /home/fake/a.txt", server.Commands);
         Assert.Contains("RNTO /home/fake/b.txt", server.Commands);
     }
+
+    private static RemoteEntry FileEntry(string path) => new(RemotePath.Name(path), path, false, false, 1, default, "");
 
     [Fact]
     public async Task UntrustedCertificateDeclinedBeforeTheLogin()

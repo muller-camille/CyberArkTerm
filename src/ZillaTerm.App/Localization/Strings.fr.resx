@@ -1709,7 +1709,7 @@ Les envoyer dans une seule archive {3} ? Un seul fichier à transférer et à v�
     <value>Téléchargement de {0}…</value>
   </data>
   <data name="AboutDownloaded" xml:space="preserve">
-    <value>✓ Téléchargée et vérifiée (SHA-256 identique à SHA256SUMS.txt) : {0}. Fermez ZillaTerm, puis remplacez l'exécutable par celui de l'archive.</value>
+    <value>✓ Téléchargée : {0}. Sa somme SHA-256 est celle de SHA256SUMS.txt de la même version : le téléchargement est complet et intact (cela ne prouve pas qui l'a publiée). Fermez ZillaTerm, puis remplacez l'exécutable par celui de l'archive.</value>
   </data>
   <data name="AboutDownloadFailed" xml:space="preserve">
     <value>Téléchargement non gardé : {0}</value>
@@ -4557,7 +4557,7 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
     <value>Lecture de {0} impossible : {1}</value>
   </data>
   <data name="SessionImportSummary" xml:space="preserve">
-    <value>{0} prêts · {1} à vérifier · {2} sans compte dans le PVWA · {3} non pris en charge · {4} déjà dans Mes serveurs</value>
+    <value>{0} prêts · {1} à vérifier (non cochés : choisissez le compte) · {2} sans compte dans le PVWA · {3} non pris en charge · {4} déjà dans Mes serveurs</value>
   </data>
   <data name="SessionImportResult" xml:space="preserve">
     <value>{0} importés · {1} non importés</value>
@@ -4705,5 +4705,8 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   </data>
   <data name="ColumnGroup" xml:space="preserve">
     <value>Groupe</value>
+  </data>
+  <data name="SessionImportButtonCount" xml:space="preserve">
+    <value>_Importer ({0})</value>
   </data>
 </root>

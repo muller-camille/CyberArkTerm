@@ -80,7 +80,7 @@ public sealed class RemoteEditor : IDisposable
             {
                 Title = Strings.FileEdit.Replace("_", ""),
                 Heading = Strings.EditLargeHeading,
-                Subject = $"{entry.Name} — {entry.SizeText}",
+                Subject = $"{entry.DisplayName} — {entry.SizeText}",
                 Message = Strings.EditLargeMessage,
                 Actions = [Strings.ActionOpen],
             }))
@@ -88,7 +88,7 @@ public sealed class RemoteEditor : IDisposable
             return;
         }
 
-        _status(Text.Format(Strings.EditOpening, entry.Name), false);
+        _status(Text.Format(Strings.EditOpening, entry.DisplayName), false);
         EditedFile file;
         var folder = Path.Combine(_directory, Guid.NewGuid().ToString("N")[..8]);
         try
@@ -112,7 +112,7 @@ public sealed class RemoteEditor : IDisposable
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             TryDeleteFolder(folder);
-            _status(Text.Format(Strings.CannotOpen, entry.Name, ErrorText.Describe(ex)), true);
+            _status(Text.Format(Strings.CannotOpen, entry.DisplayName, ErrorText.Describe(ex)), true);
             return;
         }
 
@@ -126,7 +126,7 @@ public sealed class RemoteEditor : IDisposable
         _files.Add(file);
         if (LaunchEditor(file.LocalPath))
         {
-            _status(Text.Format(Strings.EditOpened, entry.Name), false);
+            _status(Text.Format(Strings.EditOpened, entry.DisplayName), false);
         }
     }
 

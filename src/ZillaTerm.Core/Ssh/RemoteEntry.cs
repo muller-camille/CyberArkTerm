@@ -20,6 +20,12 @@ public sealed record RemoteEntry(
 {
     public string SizeText => IsDirectory ? "" : RemotePath.FormatSize(Length);
 
+    /// <summary>
+    /// Nom à afficher (liste, confirmations, messages) : les caractères invisibles y sont remplacés par « � », pour
+    /// qu'un nom ne puisse pas en imiter un autre (« facture » + U+202E + « fdp.exe » s'afficherait « factureexe.pdf »).
+    /// </summary>
+    public string DisplayName => Visible(Name);
+
     /// <summary>« propriétaire:groupe », comme pour chown ; null si le serveur ne donne ni l'un ni l'autre.</summary>
     public string? OwnerAndGroup => Owner.Length == 0 && Group.Length == 0 ? null
         : Group.Length == 0 ? Owner : $"{Owner}:{Group}";
@@ -93,9 +99,19 @@ public sealed record RemoteEntry(
     /// (inversion du sens d'écriture…) qui fausserait l'affichage de la liste.
     /// </summary>
     public static string CleanName(string? name) =>
-        name is null ? "" : string.Concat(name.Where(c => !char.IsControl(c) &&
-            char.GetUnicodeCategory(c) is not (UnicodeCategory.Format or UnicodeCategory.LineSeparator
-                or UnicodeCategory.ParagraphSeparator))).Trim();
+        name is null ? "" : string.Concat(name.Where(c => !IsInvisible(c))).Trim();
+
+    /// <summary>Texte venant du serveur, caractères invisibles remplacés par « � » (voir <see cref="DisplayName"/>).</summary>
+    public static string Visible(string text) =>
+        text.Any(IsInvisible) ? string.Concat(text.Select(c => IsInvisible(c) ? '\uFFFD' : c)) : text;
+
+    /// <summary>
+    /// Caractère de contrôle, de mise en forme invisible (inversion du sens d'écriture, espace sans largeur…) ou
+    /// séparateur de ligne ou de paragraphe.
+    /// </summary>
+    public static bool IsInvisible(char c) =>
+        char.IsControl(c) || char.GetUnicodeCategory(c) is UnicodeCategory.Format or UnicodeCategory.LineSeparator
+            or UnicodeCategory.ParagraphSeparator;
 
     /// <summary>Droits au format <c>ls -l</c>, bits spéciaux compris (ex. <c>drwxrwxrwt</c>, <c>-rwsr-xr-x</c>).</summary>
     public static string FormatPermissions(bool isDirectory, bool isSymbolicLink, int mode) =>

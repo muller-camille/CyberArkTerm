@@ -1709,7 +1709,7 @@ Inviarli in un unico archivio {3}? Un solo file da trasferire e verificare invec
     <value>Download di {0}…</value>
   </data>
   <data name="AboutDownloaded" xml:space="preserve">
-    <value>✓ Scaricato e verificato (SHA-256 identico a SHA256SUMS.txt): {0}. Chiudi ZillaTerm, poi sostituisci l'eseguibile con quello dell'archivio.</value>
+    <value>✓ Scaricato: {0}. Il suo SHA-256 è quello di SHA256SUMS.txt della stessa versione: il download è completo e integro (questo non prova chi l'ha pubblicato). Chiudi ZillaTerm, poi sostituisci l'eseguibile con quello dell'archivio.</value>
   </data>
   <data name="AboutDownloadFailed" xml:space="preserve">
     <value>Download non conservato: {0}</value>
@@ -4557,7 +4557,7 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
     <value>Impossibile leggere {0}: {1}</value>
   </data>
   <data name="SessionImportSummary" xml:space="preserve">
-    <value>{0} pronti · {1} da verificare · {2} senza account nel PVWA · {3} non supportati · {4} già in I miei server</value>
+    <value>{0} pronti · {1} da verificare (non selezionati: scegli l'account) · {2} senza account nel PVWA · {3} non supportati · {4} già in I miei server</value>
   </data>
   <data name="SessionImportResult" xml:space="preserve">
     <value>{0} importati · {1} non importati</value>
@@ -4705,5 +4705,8 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   </data>
   <data name="ColumnGroup" xml:space="preserve">
     <value>Gruppo</value>
+  </data>
+  <data name="SessionImportButtonCount" xml:space="preserve">
+    <value>_Importa ({0})</value>
   </data>
 </root>

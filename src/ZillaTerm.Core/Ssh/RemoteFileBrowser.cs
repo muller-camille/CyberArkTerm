@@ -37,7 +37,24 @@ public sealed class RemoteFileBrowser : IRemoteFiles
 
     public string CurrentDirectory { get; private set; }
 
-    public bool IsConnected => _sftp.IsConnected;
+    /// <summary>
+    /// Connexion ouverte ; faux une fois fermée, y compris par une autre fonction de la session qui l'a remplacée (le
+    /// client SSH.NET lève alors ObjectDisposedException au lieu de répondre).
+    /// </summary>
+    public bool IsConnected
+    {
+        get
+        {
+            try
+            {
+                return _sftp.IsConnected;
+            }
+            catch (ObjectDisposedException)
+            {
+                return false;
+            }
+        }
+    }
 
     public bool ChoosesUploadProtocol => true;
 
@@ -103,18 +120,10 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
         if (entry.IsSymbolicLink)
         {
-            // SSH.NET résout le chemin (realpath) avant de supprimer : sur un lien, c'est sa cible qui partirait. Le lien
-            // est donc pris dans la liste de son dossier, dont le chemin garde son nom tel quel, et supprimé lui-même.
-            await foreach (var file in _sftp.ListDirectoryAsync(RemotePath.Parent(entry.FullPath), ct).ConfigureAwait(false))
-            {
-                if (file.Name == entry.Name)
-                {
-                    await file.DeleteAsync(ct).ConfigureAwait(false);
-                    return;
-                }
-            }
-
-            throw new Renci.SshNet.Common.SftpPathNotFoundException(entry.FullPath);
+            // SSH.NET résout le chemin (realpath) avant de supprimer : sur un lien, c'est sa cible qui partirait.
+            var link = await LinkItselfAsync(entry, ct).ConfigureAwait(false);
+            await link.DeleteAsync(ct).ConfigureAwait(false);
+            return;
         }
 
         if (entry.IsDirectory)
@@ -139,7 +148,7 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         return await _sftp.ExistsAsync(path, ct).ConfigureAwait(false);
     }
 
-    public async Task RenameAsync(string path, string newPath, CancellationToken ct)
+    public async Task RenameAsync(RemoteEntry entry, string newPath, CancellationToken ct)
     {
         using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
         // Jamais d'écrasement : certains serveurs remplaceraient la cible sans rien dire.
@@ -148,7 +157,32 @@ public sealed class RemoteFileBrowser : IRemoteFiles
             throw new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.RenameTargetExists, newPath));
         }
 
-        await _sftp.RenameFileAsync(path, newPath, ct).ConfigureAwait(false);
+        if (entry.IsSymbolicLink)
+        {
+            // Comme pour la suppression : RenameFileAsync renommerait la cible du lien (realpath), pas le lien.
+            var link = await LinkItselfAsync(entry, ct).ConfigureAwait(false);
+            await Task.Run(() => link.MoveTo(newPath), ct).ConfigureAwait(false);
+            return;
+        }
+
+        await _sftp.RenameFileAsync(entry.FullPath, newPath, ct).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Le lien symbolique lui-même, pris dans la liste de son dossier : le chemin d'un élément listé garde son nom tel
+    /// quel, alors que les méthodes de SSH.NET qui prennent un chemin le résolvent (realpath) jusqu'à la cible du lien.
+    /// </summary>
+    private async Task<ISftpFile> LinkItselfAsync(RemoteEntry entry, CancellationToken ct)
+    {
+        await foreach (var file in _sftp.ListDirectoryAsync(RemotePath.Parent(entry.FullPath), ct).ConfigureAwait(false))
+        {
+            if (file.Name == entry.Name)
+            {
+                return file;
+            }
+        }
+
+        throw new Renci.SshNet.Common.SftpPathNotFoundException(entry.FullPath);
     }
 
     /// <summary>
@@ -186,16 +220,22 @@ public sealed class RemoteFileBrowser : IRemoteFiles
     public ITailSource TailSource(string path) => new SftpTailSource(this, path);
 
     /// <summary>Taille actuelle d'un fichier (lien symbolique suivi).</summary>
+    /// <exception cref="IOException">Fichier spécial (voir <see cref="EnsureNotSpecial"/>).</exception>
     public async Task<long> GetSizeAsync(string path, CancellationToken ct)
     {
         using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
-        return (await _sftp.GetAttributesAsync(path, ct).ConfigureAwait(false)).Size;
+        var attributes = await _sftp.GetAttributesAsync(path, ct).ConfigureAwait(false);
+        EnsureNotSpecial(path, attributes);
+        return attributes.Size;
     }
 
     /// <summary>Lit au plus <paramref name="count"/> octets d'un fichier à partir de <paramref name="offset"/>.</summary>
+    /// <exception cref="IOException">Fichier spécial (voir <see cref="EnsureNotSpecial"/>).</exception>
     public async Task<byte[]> ReadAsync(string path, long offset, int count, CancellationToken ct)
     {
         using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
+        // Avant l'ouverture : celle d'un tube nommé bloquerait déjà le serveur SFTP.
+        EnsureNotSpecial(path, await _sftp.GetAttributesAsync(path, ct).ConfigureAwait(false));
         await using var stream = await _sftp.OpenAsync(path, FileMode.Open, FileAccess.Read, ct).ConfigureAwait(false);
         stream.Seek(offset, SeekOrigin.Begin);
         var buffer = new byte[count];
@@ -222,6 +262,7 @@ public sealed class RemoteFileBrowser : IRemoteFiles
     {
         using var entered = await _gate.EnterAsync(background: false, ct).ConfigureAwait(false);
         var attributes = await _sftp.GetAttributesAsync(path, ct).ConfigureAwait(false);
+        EnsureNotSpecial(path, attributes);
         if (attributes.Size > maxBytes)
         {
             throw new FileTooLargeException(path, attributes.Size, maxBytes);
@@ -447,6 +488,12 @@ public sealed class RemoteFileBrowser : IRemoteFiles
                 continue;
             }
 
+            if (SpecialType(file.Attributes) is not null)
+            {
+                // Périphérique, tube nommé, socket : rien à copier sur le poste (et une lecture qui ne finirait pas).
+                continue;
+            }
+
             if (!file.IsSymbolicLink)
             {
                 children.Add(ToEntry(file, file.IsDirectory));
@@ -457,7 +504,7 @@ public sealed class RemoteFileBrowser : IRemoteFiles
             {
                 // Lien vers un dossier : pas suivi. Lien vers un fichier : téléchargé (le contenu et la taille de la cible).
                 var target = await _sftp.GetAttributesAsync(file.FullName, ct).ConfigureAwait(false);
-                if (!target.IsDirectory)
+                if (!target.IsDirectory && SpecialType(target) is null)
                 {
                     children.Add(ToEntry(file, false) with { Length = target.Size });
                 }
@@ -498,6 +545,17 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         {
             using (await _gate.EnterAsync(background, ct).ConfigureAwait(false))
             {
+                // Avant de créer la copie locale : un fichier spécial (ou disparu) est refusé sans rien laisser sur le poste.
+                try
+                {
+                    EnsureNotSpecial(entry.FullPath, await _sftp.GetAttributesAsync(entry.FullPath, ct).ConfigureAwait(false));
+                }
+                catch (Exception e) when (e is not (OutOfMemoryException or OperationCanceledException))
+                {
+                    checks?.Add(new TransferCheck(entry.Name, localPath, entry.FullPath, -1, [], -1, [], e.Message) { Failed = true });
+                    throw;
+                }
+
                 started = true;
                 await using var file = File.Create(partial);
                 using var hashing = new HashingStream(file);
@@ -1094,6 +1152,13 @@ public sealed class RemoteFileBrowser : IRemoteFiles
     private static RemoteEntry ToEntry(ISftpFile f, bool isDirectory)
     {
         var names = SftpLongName.Parse((f as SftpFile)?.LongName, f.Length);
+        var permissions = RemoteEntry.FormatPermissions(isDirectory, f.IsSymbolicLink, UnixPermissions.FromAttributes(f.Attributes));
+        if (SpecialType(f.Attributes) is { } type)
+        {
+            // Comme ls -l : « crw-rw-rw- » pour /dev/null, « prw-r--r-- » pour un tube nommé.
+            permissions = type + permissions[1..];
+        }
+
         return new(
             f.Name,
             f.FullName,
@@ -1101,9 +1166,29 @@ public sealed class RemoteFileBrowser : IRemoteFiles
             f.IsSymbolicLink,
             f.Length,
             f.LastWriteTime,
-            RemoteEntry.FormatPermissions(isDirectory, f.IsSymbolicLink, UnixPermissions.FromAttributes(f.Attributes)),
+            permissions,
             names?.Owner ?? IdText(f.Attributes.UserId),
             names?.Group ?? IdText(f.Attributes.GroupId));
+    }
+
+    /// <summary>
+    /// Type d'un fichier spécial, comme le premier caractère de ls -l : « c » (périphérique caractère : /dev/zero),
+    /// « b » (bloc), « p » (tube nommé), « s » (socket) ; null pour un fichier, un dossier ou un lien.
+    /// </summary>
+    internal static char? SpecialType(SftpFileAttributes attributes) =>
+        attributes.IsCharacterDevice ? 'c' : attributes.IsBlockDevice ? 'b' : attributes.IsNamedPipe ? 'p' : attributes.IsSocket ? 's' : null;
+
+    /// <summary>
+    /// Refuse de lire un fichier spécial (lien symbolique suivi) : /dev/zero ne finit jamais, un tube nommé bloque le
+    /// serveur SFTP jusqu'à ce qu'un autre programme y écrive.
+    /// </summary>
+    /// <exception cref="IOException">Fichier spécial.</exception>
+    private static void EnsureNotSpecial(string path, SftpFileAttributes attributes)
+    {
+        if (SpecialType(attributes) is not null)
+        {
+            throw new IOException(string.Format(CultureInfo.CurrentCulture, CoreStrings.SpecialFileRefused, RemoteEntry.Visible(path)));
+        }
     }
 
     /// <summary>

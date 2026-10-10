@@ -14,7 +14,8 @@ public interface ISshInteraction
     bool CheckHostKey(string host, int port, string algorithm, string sha256Fingerprint);
 
     /// <summary>Question posée par le serveur (mot de passe, code MFA...) ; null si l'utilisateur annule.</summary>
-    string? Prompt(string instruction, string prompt, bool echo);
+    /// <param name="refused">Réponse précédente refusée : le dire, avec le numéro de l'essai ; null au premier essai.</param>
+    string? Prompt(string instruction, string prompt, bool echo, string? refused);
 }
 
 /// <summary>
@@ -29,6 +30,12 @@ public sealed class SshConnector
     private readonly Func<string?>? _password;
     private readonly Dictionary<string, string> _cachedAnswers = new(StringComparer.Ordinal);
     private readonly object _cacheLock = new();
+
+    /// <summary>
+    /// Essais d'authentification par connexion : chaque mot de passe refusé compte pour le verrouillage du compte
+    /// (CyberArk, annuaire), on s'arrête donc avant le seuil habituel.
+    /// </summary>
+    public const int MaxAttempts = 3;
 
     /// <param name="key">
     /// Clé SSH « MFA caching » fournie par le PVWA, demandée au début de chaque connexion (la demande peut prendre du
@@ -89,10 +96,17 @@ public sealed class SshConnector
         // 1er essai : clé MFA (ou mot de passe connu) + keyboard-interactive. Ensuite, selon les méthodes que le
         // serveur annonce dans son refus : keyboard-interactive à nouveau (mauvais mot de passe) ou « password ».
         bool usePassword = false;
+        int refusals = 0;
         for (int attempt = 0; ; attempt++)
         {
             bool cancelled = false;
+            // Après un refus, la première question de l'essai le dit (et non en silence, ce qui pousserait à retaper
+            // le même mot de passe jusqu'au verrouillage du compte).
+            string? refused = refusals == 0 ? null
+                : string.Format(CultureInfo.CurrentCulture, CoreStrings.AuthenticationRefusedRetry, refusals + 1, MaxAttempts);
             var known = attempt == 0 ? _password?.Invoke() : null;
+            // Un mot de passe ou un code a été envoyé : un refus compte alors pour le verrouillage du compte.
+            bool answered = known is not null;
             var methods = new List<AuthenticationMethod>();
             if (key is not null && attempt == 0)
             {
@@ -109,8 +123,9 @@ public sealed class SshConnector
                 var password = _ui.Prompt(
                         string.Format(CultureInfo.CurrentCulture, CoreStrings.PasswordPromptTitle, Host),
                         string.Format(CultureInfo.CurrentCulture, CoreStrings.PasswordPrompt, Login),
-                        echo: false)
+                        echo: false, refused)
                     ?? throw new OperationCanceledException(CoreStrings.AuthenticationCancelled);
+                answered = true;
                 methods.Add(new PasswordAuthenticationMethod(Login, password));
             }
             else
@@ -124,11 +139,16 @@ public sealed class SshConnector
                         DebugLog.Write("ssh", $"{Host} : question du serveur « {prompt.Request.Trim()} » (saisie affichée {prompt.IsEchoed})");
                         var answer = known is not null && !prompt.IsEchoed && IsPasswordPrompt(prompt.Request)
                             ? known
-                            : Answer(e.Instruction, prompt);
+                            : Answer(e.Instruction, prompt, refused);
+                        refused = null;
                         if (answer is null)
                         {
                             cancelled = true;
                             answer = "";
+                        }
+                        else
+                        {
+                            answered = true;
                         }
 
                         prompt.Response = answer;
@@ -169,14 +189,31 @@ public sealed class SshConnector
                     + $"chiffrement {c.CurrentServerEncryption}/{c.CurrentClientEncryption}, compression {c.CurrentServerCompressionAlgorithm}");
                 return client;
             }
-            catch (SshAuthenticationException ex) when (!cancelled && attempt < 3)
+            catch (SshAuthenticationException ex) when (!cancelled && !keyRefused)
             {
                 DebugLog.Write("ssh", $"{Host}:{Port} : authentification refusée : {ex.Message}");
                 client.Dispose();
                 ClearCache();
                 var allowed = ex.Message;
-                usePassword = !allowed.Contains("keyboard-interactive", StringComparison.OrdinalIgnoreCase)
-                              && allowed.Contains("password", StringComparison.OrdinalIgnoreCase);
+                bool interactive = allowed.Contains("keyboard-interactive", StringComparison.OrdinalIgnoreCase);
+                usePassword = !interactive && allowed.Contains("password", StringComparison.OrdinalIgnoreCase);
+                if (!interactive && !usePassword)
+                {
+                    // Ni question ni mot de passe acceptés (clé seule) : un nouvel essai échouerait de la même façon.
+                    throw;
+                }
+
+                if (answered && ++refusals >= MaxAttempts)
+                {
+                    throw new SshAuthenticationException(
+                        string.Format(CultureInfo.CurrentCulture, CoreStrings.AuthenticationRefusedFinal, MaxAttempts), ex);
+                }
+
+                if (attempt >= MaxAttempts)
+                {
+                    // Garde-fou : refus répétés sans qu'aucune question n'ait été posée.
+                    throw;
+                }
             }
             catch (Exception ex)
             {
@@ -202,7 +239,7 @@ public sealed class SshConnector
     /// Le mot de passe est réutilisé pour les connexions suivantes de la même session (SFTP, SCP)
     /// tant qu'il est accepté ; les codes à usage unique (MFA) sont toujours redemandés.
     /// </summary>
-    private string? Answer(string instruction, AuthenticationPrompt prompt)
+    private string? Answer(string instruction, AuthenticationPrompt prompt, string? refused)
     {
         bool cacheable = !prompt.IsEchoed && IsPasswordPrompt(prompt.Request);
         lock (_cacheLock)
@@ -213,7 +250,7 @@ public sealed class SshConnector
             }
         }
 
-        var answer = _ui.Prompt(instruction, prompt.Request, prompt.IsEchoed);
+        var answer = _ui.Prompt(instruction, prompt.Request, prompt.IsEchoed, refused);
         if (answer is not null && cacheable)
         {
             lock (_cacheLock)

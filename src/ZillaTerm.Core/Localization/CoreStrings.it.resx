@@ -441,4 +441,19 @@
   <data name="MigrationColResult" xml:space="preserve">
     <value>Risultato</value>
   </data>
+  <data name="AuthenticationRefusedRetry" xml:space="preserve">
+    <value>Rifiutato dal server: password o codice errato. Tentativo {0} di {1}: verificalo (Bloc Maiusc?) prima di inviare, perché troppi errori possono bloccare l'account.</value>
+  </data>
+  <data name="AuthenticationRefusedFinal" xml:space="preserve">
+    <value>Password o codice rifiutato {0} volte: connessione interrotta per non bloccare l'account. Verifica la password, poi riconnettiti.</value>
+  </data>
+  <data name="PvwaAddressSuspicious" xml:space="preserve">
+    <value>L'indirizzo del PVWA può contenere solo il nome del server, poi una porta e un percorso se necessario: niente «nome@» davanti al server, niente spazi né «\», niente lettere accentate o di un altro alfabeto (un nome internazionale si scrive nella forma «xn--»).</value>
+  </data>
+  <data name="PvwaRedirectNotFollowed" xml:space="preserve">
+    <value>Il PVWA ha risposto con un reindirizzamento (HTTP {0}) verso {1}. Non viene seguito, perché la password e la sessione non vengano mai inviate a un altro indirizzo: verifica l'indirizzo del PVWA nelle Impostazioni (nome esatto del server e percorso di PasswordVault).</value>
+  </data>
+  <data name="SpecialFileRefused" xml:space="preserve">
+    <value>«{0}» è un file speciale (dispositivo, named pipe o socket): non può essere né aperto né scaricato, perché la lettura non finirebbe mai o bloccherebbe il server.</value>
+  </data>
 </root>

@@ -216,7 +216,9 @@ utilisé.
 - **Authentification** : si le PVWA fournit une clé « MFA caching », aucune question n'est posée. Sinon, les
   questions du PSMP (mot de passe, code MFA) s'affichent dans une fenêtre qui nomme la session concernée, avec une
   aide selon la question : sans doute le mot de passe de votre compte CyberArk (réutilisé pour les connexions SFTP
-  et SCP du même onglet, jamais enregistré), ou le code MFA (redemandé à chaque connexion).
+  et SCP du même onglet, jamais enregistré), ou le code MFA (redemandé à chaque connexion). Une réponse refusée est
+  signalée en rouge au-dessus du champ avec le numéro de l'essai (« Essai 2 sur 3 ») ; après trois refus, la
+  connexion s'arrête pour ne pas verrouiller votre compte. « Verr. Maj est activé. » s'affiche pendant la saisie.
 - **Clé du PSMP** : à la première connexion, une fenêtre montre son empreinte SHA-256 en police fixe, avec
   « Copier » : comparez-la avec celle publiée par votre équipe CyberArk avant « Faire confiance et se connecter »
   (« Annuler la connexion » est le bouton par défaut). L'empreinte est ensuite mémorisée sur le poste. Si la clé
@@ -402,7 +404,8 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   être vides. Un lien symbolique est supprimé lui-même, jamais le fichier ou le dossier vers lequel il pointe.
 - **Renommer** : `F2`, clic droit → « Renommer… » ou bouton de la barre. Un fichier n'est jamais écrasé : un nom déjà
   pris est refusé avant tout envoi au serveur (en SFTP comme en FTP). « / », « . », « .. » et les caractères de
-  contrôle (retour à la ligne, tabulation…) sont refusés, comme pour « Nouveau dossier ».
+  contrôle (retour à la ligne, tabulation…) sont refusés, comme pour « Nouveau dossier ». Un lien symbolique est
+  renommé lui-même, jamais le fichier ou le dossier vers lequel il pointe.
 - **Modifier un fichier** : **double-clic** sur le fichier (ou `Entrée`, `F4`, clic droit → « Modifier », bouton
   crayon). Le fichier s'ouvre dans l'éditeur de texte choisi dans les Paramètres (Bloc-notes par défaut). Au
   double-clic, une archive, une image, un exécutable ou un document bureautique est téléchargé plutôt qu'ouvert, de
@@ -583,8 +586,9 @@ les sessions d'un autre logiciel… ». Les comptes du PVWA doivent être charg�
    - Une session qui passait déjà par le PSMP (`coffre@cible@serveur@psmp`) ou par PSM (programme de démarrage
      `psm /u compte /a serveur /c composant` d'un fichier `.rdp`) est décodée : ce sont le compte et le serveur cibles
      qui comptent, et le composant PSM est gardé.
-   - Plusieurs comptes possibles : le plus probable est choisi (« à vérifier ») ; la liste de la colonne « Compte
-     PVWA » permet d'en prendre un autre.
+   - Plusieurs comptes possibles : le plus probable est proposé (« à vérifier »), mais la session n'est pas cochée ;
+     choisir un compte dans la liste de la colonne « Compte PVWA » la coche (ou cochez-la pour garder celui proposé).
+     Le bouton « Importer (n) » indique le nombre de sessions qui seront ajoutées.
 3. **Connexion enregistrée**, jamais directe : bureau à distance par PSM ; SSH et fichiers (SFTP, SCP) via le PSMP
    s'il y en a un pour ce serveur (fichiers seuls pour une plateforme « SFTP »), sinon par PSM (`PSM-WinSCP` pour les
    fichiers) ; Telnet par `PSM-Telnet`.
@@ -675,7 +679,7 @@ bases mémorisées sans mot de passe), à la fermeture et au verrouillage de Win
 
 | Où | Action | Raccourci |
 | --- | --- | --- |
-| Partout | Recharger les comptes depuis le PVWA | `F5` |
+| Partout (sauf l'onglet Fichiers) | Recharger les comptes depuis le PVWA | `F5` |
 | Partout | Filtrer les comptes (dans « Mes serveurs » : rechercher un serveur ; dans « Fichiers » : filtrer le dossier) | `Ctrl+F` |
 | Partout | Onglet de session suivant / précédent | `Ctrl+Tab` / `Ctrl+Maj+Tab` |
 | Partout | Fermer l'onglet de session | `Ctrl+F4` ou `Ctrl+Maj+W` |
@@ -802,7 +806,15 @@ renommé) : téléchargez-la une fois depuis la page des versions.
 
 ## Sécurité
 
-- **HTTPS obligatoire** vers le PVWA ; la validation des certificats n'est jamais désactivée.
+- **HTTPS obligatoire** vers le PVWA ; la validation des certificats n'est jamais désactivée. Une redirection du PVWA
+  n'est jamais suivie (votre mot de passe partirait vers l'adresse indiquée) : elle est signalée avec cette adresse.
+  L'adresse du PVWA ne peut contenir que le nom du serveur, un port et un chemin : un « nom@ » devant le serveur (qui
+  ferait joindre un autre serveur que celui affiché), une espace, un « \ » ou une lettre hors ASCII sont refusés.
+- **Noms de fichiers du serveur** : les caractères invisibles (inversion du sens d'écriture, espace sans largeur,
+  caractères de contrôle) s'affichent « � » dans la liste et les confirmations, et deviennent « _ » dans le nom du
+  fichier téléchargé, pour qu'un nom ne puisse pas en imiter un autre (« .exe » affiché « .pdf »). Les fichiers
+  spéciaux (périphérique comme `/dev/zero`, tube nommé, socket) ne sont ni ouverts ni téléchargés, et sont ignorés
+  dans le téléchargement d'un dossier.
 - **Aucun secret sur disque** : mot de passe CyberArk, jeton de session, clé MFA et mot de passe PSMP restent en
   mémoire, le temps de la session. Déconnexion du PVWA (`Logoff`) à la fermeture.
 - Session PVWA ouverte avec `concurrentSession` : votre session web PVWA éventuelle n'est pas fermée.
@@ -839,7 +851,8 @@ renommé) : téléchargez-la une fois depuis la page des versions.
   fenêtre et au lancement suivant.
 - **Nouvelle version** : aucune requête vers Internet sans votre action ou l'option des Paramètres (désactivée par
   défaut) ; seules les adresses du dépôt du projet sont suivies, l'archive n'est gardée que si sa somme SHA-256 est
-  celle de `SHA256SUMS.txt`, et rien n'est installé ni lancé.
+  celle de `SHA256SUMS.txt` de la même version (ce qui détecte un téléchargement incomplet ou abîmé, pas une version
+  publiée par un tiers qui aurait pris la main sur le dépôt), et rien n'est installé ni lancé.
 - **Clés d'hôte PSMP épinglées** au premier usage : l'empreinte est à comparer avant d'accepter (« Annuler la
   connexion » par défaut) ; une clé changée est signalée par un bandeau et ne remplace l'ancienne qu'après une case
   de confirmation (de même pour les serveurs joints en accès d'urgence et les certificats FTPS). Les clés acceptées

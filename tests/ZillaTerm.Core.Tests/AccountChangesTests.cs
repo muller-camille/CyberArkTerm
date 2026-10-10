@@ -4,7 +4,8 @@ namespace ZillaTerm.Core.Tests;
 
 public sealed class AccountChangesTests
 {
-    private static PvwaAccount Account(string? domain = null, string? machines = null, bool automatic = true, string? reason = null) =>
+    private static PvwaAccount Account(string? domain = null, string? machines = null, bool automatic = true, string? reason = null,
+        bool? restricted = null) =>
         JsonSerializer.Deserialize<PvwaAccount>(JsonSerializer.Serialize(new
         {
             id = "1_2",
@@ -14,7 +15,7 @@ public sealed class AccountChangesTests
             platformId = "WinDomain",
             safeName = "Prod",
             platformAccountProperties = domain is null ? new Dictionary<string, string>() : new Dictionary<string, string> { ["LogonDomain"] = domain },
-            remoteMachinesAccess = new { remoteMachines = machines, accessRestrictedToRemoteMachines = machines is not null },
+            remoteMachinesAccess = new { remoteMachines = machines, accessRestrictedToRemoteMachines = restricted ?? machines is not null },
             secretManagement = new { automaticManagementEnabled = automatic, manualManagementReason = reason },
         }), new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
 
@@ -27,6 +28,28 @@ public sealed class AccountChangesTests
         var account = Account("CORP", "srv01;srv02");
 
         Assert.Empty(AccountChanges.Diff(account, Same(account) with { Address = " srv01.corp.local ", RemoteMachines = "srv01, srv02" }));
+    }
+
+    /// <summary>
+    /// Liste de machines sans limitation : modifier le compte (autre champ, ou la liste elle-même) ne le limite pas.
+    /// </summary>
+    [Fact]
+    public void MachinesWithoutRestrictionStayUnrestricted()
+    {
+        var account = Account(machines: "srv01;srv02", restricted: false);
+
+        Assert.Empty(AccountChanges.Diff(account, Same(account)));
+        Assert.Equal([new PatchOperation("replace", "/name", "Op-srv01-b")],
+            AccountChanges.Diff(account, Same(account) with { Name = "Op-srv01-b" }));
+        Assert.Equal([new PatchOperation("replace", "/remoteMachinesAccess/remoteMachines", "srv01;srv03")],
+            AccountChanges.Diff(account, Same(account) with { RemoteMachines = "srv01;srv03" }));
+        Assert.Equal([new PatchOperation("remove", "/remoteMachinesAccess/remoteMachines")],
+            AccountChanges.Diff(account, Same(account) with { RemoteMachines = "" }));
+
+        // Compte limité : il le reste quand la liste change.
+        var limited = Account(machines: "srv01", restricted: true);
+        Assert.Equal([new PatchOperation("replace", "/remoteMachinesAccess/remoteMachines", "srv01;srv02")],
+            AccountChanges.Diff(limited, Same(limited) with { RemoteMachines = "srv01;srv02" }));
     }
 
     [Fact]

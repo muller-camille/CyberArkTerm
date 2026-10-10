@@ -18,8 +18,9 @@ public static class WindowsFileName
     };
 
     /// <summary>
-    /// Un seul élément de chemin, sans séparateur : caractères interdits et de contrôle remplacés par « _ », points et
-    /// espaces finaux retirés, « . » / « .. » / vide remplacés par « _ », nom réservé préfixé par « _ », 255 caractères
+    /// Un seul élément de chemin, sans séparateur : caractères interdits, de contrôle et invisibles (inversion du sens
+    /// d'écriture, qui ferait paraître « .exe » en « .pdf » dans l'Explorateur) remplacés par « _ », points et espaces
+    /// finaux retirés, « . » / « .. » / vide remplacés par « _ », nom réservé préfixé par « _ », 255 caractères
     /// au plus.
     /// </summary>
     public static string Sanitize(string name)
@@ -27,7 +28,7 @@ public static class WindowsFileName
         var text = new StringBuilder(name.Length);
         foreach (var c in name)
         {
-            text.Append(char.IsControl(c) || c is '\\' or '/' or ':' or '*' or '?' or '"' or '<' or '>' or '|' ? '_' : c);
+            text.Append(RemoteEntry.IsInvisible(c) || c is '\\' or '/' or ':' or '*' or '?' or '"' or '<' or '>' or '|' ? '_' : c);
         }
 
         var clean = text.ToString().TrimEnd(' ', '.');

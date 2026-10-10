@@ -218,7 +218,9 @@ usato.
 - **Autenticazione**: se il PVWA fornisce una chiave «MFA caching», non viene posta alcuna domanda. Altrimenti
   le domande del PSMP (password, codice MFA) compaiono in una finestra che nomina la sessione interessata, con un
   aiuto secondo la domanda: probabilmente la password del tuo account CyberArk (riutilizzata per le connessioni
-  SFTP e SCP della stessa scheda, mai salvata), o il codice MFA (richiesto a ogni connessione).
+  SFTP e SCP della stessa scheda, mai salvata), o il codice MFA (richiesto a ogni connessione). Una risposta
+  rifiutata viene segnalata in rosso sopra il campo con il numero del tentativo («Tentativo 2 di 3»); dopo tre rifiuti
+  la connessione si ferma per non bloccare il tuo account. «Bloc Maiusc è attivo.» compare durante la digitazione.
 - **Chiave del PSMP**: alla prima connessione, una finestra ne mostra l'impronta SHA-256 con un carattere a
   spaziatura fissa, con «Copia»: confrontala con quella pubblicata dal team CyberArk prima di «Considera attendibile
   e connetti» («Annulla la connessione» è il pulsante predefinito). L'impronta viene poi memorizzata sul computer.
@@ -405,7 +407,8 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   Un collegamento simbolico viene eliminato esso stesso, mai il file o la cartella a cui punta.
 - **Rinominare**: `F2`, clic destro → «Rinomina…» o il pulsante della barra. Un file non viene mai sovrascritto: un
   nome già usato viene rifiutato prima di qualsiasi invio al server (in SFTP come in FTP). «/», «.», «..» e i
-  caratteri di controllo (a capo, tabulazione…) sono rifiutati, come per «Nuova cartella».
+  caratteri di controllo (a capo, tabulazione…) sono rifiutati, come per «Nuova cartella». Un collegamento simbolico
+  viene rinominato esso stesso, mai il file o la cartella a cui punta.
 - **Modificare un file**: **doppio clic** sul file (o `Invio`, `F4`, clic destro → «Modifica», il pulsante matita).
   Il file si apre nell'editor di testo scelto nelle Impostazioni (Blocco note per impostazione predefinita). Con il
   doppio clic, un archivio, un'immagine, un eseguibile o un documento d'ufficio viene scaricato invece di essere
@@ -587,8 +590,9 @@ le sessioni di un altro programma…». Gli account del PVWA devono essere caric
    - Una sessione che passava già dal PSMP (`vault@destinazione@server@psmp`) o da PSM (programma di avvio
      `psm /u account /a server /c componente` di un file `.rdp`) viene decodificata: contano l'account e il server di
      destinazione, e il componente PSM viene mantenuto.
-   - Più account possibili: viene scelto il più probabile («da verificare»); l'elenco della colonna «Account PVWA»
-     permette di sceglierne un altro.
+   - Più account possibili: viene proposto il più probabile («da verificare»), ma la sessione non è selezionata;
+     scegliere un account nell'elenco della colonna «Account PVWA» la seleziona (oppure selezionala per tenere quello
+     proposto). Il pulsante «Importa (n)» indica quante sessioni verranno aggiunte.
 3. **Connessione salvata**, mai diretta: Desktop remoto tramite PSM; SSH e file (SFTP, SCP) tramite il PSMP se ce n'è
    uno per quel server (solo file per una piattaforma «SFTP»), altrimenti tramite PSM (`PSM-WinSCP` per i file);
    Telnet tramite `PSM-Telnet`.
@@ -677,7 +681,7 @@ non riapre mai i database memorizzati senza password), alla chiusura e al blocco
 
 | Dove | Azione | Scorciatoia |
 | --- | --- | --- |
-| Ovunque | Ricaricare gli account dal PVWA | `F5` |
+| Ovunque (tranne la scheda File) | Ricaricare gli account dal PVWA | `F5` |
 | Ovunque | Filtrare gli account (in «I miei server»: cercare un server; in «File»: filtrare la cartella) | `Ctrl+F` |
 | Ovunque | Scheda di sessione successiva / precedente | `Ctrl+Tab` / `Ctrl+Maiusc+Tab` |
 | Ovunque | Chiudere la scheda di sessione | `Ctrl+F4` o `Ctrl+Maiusc+W` |
@@ -805,7 +809,16 @@ può scaricarla da solo (repository rinominato): scaricala una volta dalla pagin
 
 ## Sicurezza
 
-- **HTTPS obbligatorio** verso il PVWA; la convalida dei certificati non viene mai disattivata.
+- **HTTPS obbligatorio** verso il PVWA; la convalida dei certificati non viene mai disattivata. Un reindirizzamento
+  del PVWA non viene mai seguito (la tua password partirebbe verso l'indirizzo indicato): viene segnalato con
+  quell'indirizzo. L'indirizzo del PVWA può contenere solo il nome del server, una porta e un percorso: un «nome@»
+  davanti al server (che farebbe raggiungere un server diverso da quello mostrato), uno spazio, una «\» o una lettera
+  non ASCII vengono rifiutati.
+- **Nomi dei file del server**: i caratteri invisibili (inversione della direzione di scrittura, spazio a larghezza
+  zero, caratteri di controllo) compaiono come «�» nell'elenco e nelle conferme, e diventano «_» nel nome del file
+  scaricato, perché un nome non possa imitarne un altro («.exe» mostrato come «.pdf»). I file speciali (un
+  dispositivo come `/dev/zero`, una named pipe, un socket) non vengono né aperti né scaricati, e vengono ignorati nel
+  download di una cartella.
 - **Nessun segreto su disco**: password CyberArk, token di sessione, chiave MFA e password PSMP restano in memoria
   per la durata della sessione. Disconnessione dal PVWA (`Logoff`) alla chiusura.
 - Sessione PVWA aperta con `concurrentSession`: l'eventuale sessione web del PVWA non viene chiusa.
@@ -842,8 +855,9 @@ può scaricarla da solo (repository rinominato): scaricala una volta dalla pagin
   all'avvio successivo.
 - **Nuova versione**: nessuna richiesta verso Internet senza una tua azione o l'opzione delle Impostazioni
   (disattivata per impostazione predefinita); vengono seguiti solo gli indirizzi del repository del progetto,
-  l'archivio viene conservato solo se il suo checksum SHA-256 è quello di `SHA256SUMS.txt`, e nulla viene installato
-  né avviato.
+  l'archivio viene conservato solo se il suo checksum SHA-256 è quello di `SHA256SUMS.txt` della stessa versione (il
+  che rileva un download incompleto o danneggiato, non una versione pubblicata da qualcuno che avesse preso il
+  controllo del repository), e nulla viene installato né avviato.
 - **Chiavi host del PSMP fissate** al primo utilizzo: l'impronta va confrontata prima di accettare («Annulla la
   connessione» predefinito); una chiave cambiata è segnalata da una fascia e sostituisce la vecchia solo dopo aver
   selezionato una casella di conferma (lo stesso per i server raggiunti in accesso di emergenza e per i certificati

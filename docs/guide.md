@@ -208,7 +208,9 @@ each PSMP is checked on its first connection. The tab tooltip names the PSMP use
 - **Authentication**: if the PVWA provides an "MFA caching" key, no question is asked. Otherwise the PSMP questions
   (password, MFA code) are shown in a window that names the session concerned, with help depending on the question:
   probably the password of your CyberArk account (reused for the SFTP and SCP connections of the same tab, never
-  saved), or the MFA code (asked again at each connection).
+  saved), or the MFA code (asked again at each connection). A refused answer is shown in red above the field with the
+  attempt number ("Attempt 2 of 3"); after three refusals the connection stops so that your account is not locked.
+  "Caps Lock is on." shows while you type.
 - **PSMP key**: on first connection, a window shows its SHA-256 fingerprint in a fixed-width font, with "Copy":
   compare it with the one published by your CyberArk team before "Trust and connect" ("Cancel connection" is the
   default button). The fingerprint is then remembered on this computer. If the key changes, a red banner warns of a
@@ -381,7 +383,8 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   link is deleted itself, never the file or folder it points to.
 - **Rename**: `F2`, right-click → "Rename…" or the toolbar button. A file is never overwritten: a name already taken
   is refused before anything is sent to the server (over SFTP as over FTP). "/", ".", ".." and control characters
-  (line break, tab…) are refused, as for "New folder".
+  (line break, tab…) are refused, as for "New folder". A symbolic link is renamed itself, never the file or folder
+  it points to.
 - **Edit a file**: **double-click** the file (or `Enter`, `F4`, right-click → "Edit", the pencil button). The file
   opens in the text editor chosen in Settings (Notepad by default). On double-click, an archive, an image, an
   executable or an office document is downloaded instead of opened, as is any file whose first bytes are binary. Every time you save, ZillaTerm offers to send it back to the
@@ -552,8 +555,9 @@ another tool…". The PVWA accounts must be loaded.
    - A session that already went through the PSMP (`vault@target@server@psmp`) or through PSM (start program
      `psm /u account /a server /c component` of an `.rdp` file) is decoded: the target account and server are what
      count, and the PSM component is kept.
-   - Several possible accounts: the most likely one is chosen ("to check"); the list in the "PVWA account" column lets
-     you pick another one.
+   - Several possible accounts: the most likely one is proposed ("to check"), but the session is not ticked; choosing
+     an account in the list of the "PVWA account" column ticks it (or tick it to keep the proposed one). The
+     "Import (n)" button shows how many sessions will be added.
 3. **Saved connection**, never direct: Remote Desktop through PSM; SSH and files (SFTP, SCP) through the PSMP when
    there is one for that server (files only for an "SFTP" platform), otherwise through PSM (`PSM-WinSCP` for files);
    Telnet through `PSM-Telnet`.
@@ -637,7 +641,7 @@ says its master password was not remembered. Manage it in the **Settings**, Secu
 
 | Where | Action | Shortcut |
 | --- | --- | --- |
-| Everywhere | Reload the accounts from the PVWA | `F5` |
+| Everywhere (except the Files tab) | Reload the accounts from the PVWA | `F5` |
 | Everywhere | Filter the accounts (in "My servers": search a server; in "Files": filter the folder) | `Ctrl+F` |
 | Everywhere | Next / previous session tab | `Ctrl+Tab` / `Ctrl+Shift+Tab` |
 | Everywhere | Close the session tab | `Ctrl+F4` or `Ctrl+Shift+W` |
@@ -758,7 +762,14 @@ first ZillaTerm version but cannot download it itself (renamed repository): down
 
 ## Security
 
-- **HTTPS required** to the PVWA; certificate validation is never disabled.
+- **HTTPS required** to the PVWA; certificate validation is never disabled. A redirection from the PVWA is never
+  followed (your password would go to the address given): it is reported with that address. The PVWA address may
+  only contain the server name, a port and a path: a "name@" before the server (which would reach another server than
+  the one shown), a space, a "\" or a non-ASCII letter are refused.
+- **File names from the server**: invisible characters (writing direction override, zero-width space, control
+  characters) are shown as "�" in the list and confirmations, and become "_" in the name of the downloaded file, so
+  that a name cannot imitate another one (".exe" shown as ".pdf"). Special files (a device such as `/dev/zero`, a
+  named pipe, a socket) are neither opened nor downloaded, and are skipped when a folder is downloaded.
 - **No secret on disk**: CyberArk password, session token, MFA key and PSMP password stay in memory for the session.
   The PVWA session is closed (`Logoff`) on exit.
 - PVWA session opened with `concurrentSession`: your PVWA web session, if any, is not closed.
@@ -791,7 +802,8 @@ first ZillaTerm version but cannot download it itself (renamed repository): down
   start.
 - **New version**: no request to the Internet without your action or the Settings option (off by default); only the
   addresses of the project repository are followed, the archive is kept only when its SHA-256 checksum is the one of
-  `SHA256SUMS.txt`, and nothing is installed or started.
+  `SHA256SUMS.txt` of the same release (which detects an incomplete or damaged download, not a release published by
+  someone who took over the repository), and nothing is installed or started.
 - **PSMP host keys pinned** on first use: the fingerprint is to be compared before accepting ("Cancel connection" by
   default); a changed key is flagged by a banner and only replaces the old one after a confirmation box is ticked
   (the same for servers reached in emergency access and for FTPS certificates). Accepted keys can be reviewed and
