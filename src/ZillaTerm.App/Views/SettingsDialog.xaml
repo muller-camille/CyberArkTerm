@@ -87,7 +87,7 @@
                             <TextBox Grid.Column="1" x:Name="CentralFileBox" VerticalContentAlignment="Center" />
                             <Button Grid.Column="2" Content="{x:Static loc:Strings.Browse}" Click="OnBrowseCentralFile" Margin="8,0,0,0" />
                         </Grid>
-                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,4" Text="{x:Static loc:Strings.CentralFileHelp}" />
+                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,16" Text="{x:Static loc:Strings.CentralFileHelp}" />
 
                         <!-- Astreinte : texte de l'équipe, diffusé par le fichier d'environnement. -->
                         <TextBlock Text="{x:Static loc:Strings.DutySection}" Style="{StaticResource SectionTitle}" />

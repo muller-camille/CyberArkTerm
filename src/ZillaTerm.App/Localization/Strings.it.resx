@@ -5196,4 +5196,7 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   <data name="EnvInvalidDutyText" xml:space="preserve">
     <value>Testo della reperibilità non valido (al massimo 8000 caratteri, senza caratteri invisibili): {0}</value>
   </data>
+  <data name="DutyStoppedHint" xml:space="preserve">
+    <value>Registrazione interrotta. Esporta il rapporto per rileggerlo o trasmetterlo.</value>
+  </data>
 </root>

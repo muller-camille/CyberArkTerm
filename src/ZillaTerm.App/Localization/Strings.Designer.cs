@@ -15495,5 +15495,14 @@ namespace ZillaTerm.App.Localization {
                 return ResourceManager.GetString("EnvInvalidDutyText", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Recording stopped. Export the report to read it again or pass it on..
+        /// </summary>
+        public static string DutyStoppedHint {
+            get {
+                return ResourceManager.GetString("DutyStoppedHint", resourceCulture);
+            }
+        }
     }
 }

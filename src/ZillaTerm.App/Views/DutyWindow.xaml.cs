@@ -136,7 +136,12 @@ public partial class DutyWindow : Window
     {
         if (_recorder.IsRecording)
         {
+            // L'astreinte arrêtée reste sélectionnée : son rapport s'exporte tout de suite.
+            var path = _recorder.JournalPath;
             _recorder.Stop(Strings.DutyStoppedByUser);
+            JournalList.SelectedItem = JournalList.Items.OfType<ListBoxItem>()
+                .FirstOrDefault(item => item.Tag is DutyFile file && string.Equals(file.Path, path, StringComparison.OrdinalIgnoreCase));
+            ShowMessage(Strings.DutyStoppedHint);
             return;
         }
 

@@ -5196,4 +5196,7 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="EnvInvalidDutyText" xml:space="preserve">
     <value>Invalid duty text (8000 characters at most, without invisible characters): {0}</value>
   </data>
+  <data name="DutyStoppedHint" xml:space="preserve">
+    <value>Recording stopped. Export the report to read it again or pass it on.</value>
+  </data>
 </root>

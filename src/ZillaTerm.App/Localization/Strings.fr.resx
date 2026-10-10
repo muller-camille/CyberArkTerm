@@ -5196,4 +5196,7 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   <data name="EnvInvalidDutyText" xml:space="preserve">
     <value>Texte de l'astreinte invalide (8000 caractères au plus, sans caractère invisible) : {0}</value>
   </data>
+  <data name="DutyStoppedHint" xml:space="preserve">
+    <value>Enregistrement arrêté. Exportez le rapport pour le relire ou le transmettre.</value>
+  </data>
 </root>
