@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using ZillaTerm.App.Localization;
 using ZillaTerm.App.Terminal;
 using ZillaTerm.Core;
@@ -20,6 +21,7 @@ public partial class SettingsDialog : Window
     private readonly HashSet<string> _forgottenKeys = new(StringComparer.Ordinal);
     private readonly ObservableCollection<PsmpRow> _psmpRows = [];
     private readonly ObservableCollection<ComponentRow> _componentRows = [];
+    private readonly ObservableCollection<TagRow> _tagRows = [];
 
     /// <param name="store">Coffre local des mots de passe maîtres KeePass, géré depuis cette fenêtre.</param>
     public SettingsDialog(AppSettings settings, LocalSecretStore? store = null)
@@ -83,6 +85,12 @@ public partial class SettingsDialog : Window
         }
 
         ComponentGrid.ItemsSource = _componentRows;
+        foreach (var tag in settings.ServerTags)
+        {
+            _tagRows.Add(new TagRow(tag.Name, tag.Name, tag.Color));
+        }
+
+        TagGrid.ItemsSource = _tagRows;
         Loaded += (_, _) => LanguageBox.Focus();
     }
 
@@ -159,6 +167,7 @@ public partial class SettingsDialog : Window
     {
         PsmpGrid.CommitEdit(DataGridEditingUnit.Row, true);
         ComponentGrid.CommitEdit(DataGridEditingUnit.Row, true);
+        TagGrid.CommitEdit(DataGridEditingUnit.Row, true);
         var host = PsmpBox.Text.Trim();
         if (host.Length > 0 && Uri.CheckHostName(host) == UriHostNameType.Unknown)
         {
@@ -215,6 +224,11 @@ public partial class SettingsDialog : Window
             return;
         }
 
+        if (ReadTags() is not { } tags)
+        {
+            return;
+        }
+
         var dutyFile = DutyFileBox.Text.Trim();
         if (dutyFile.Length > 0 && !DutyReminderFile.IsValidPath(dutyFile))
         {
@@ -259,6 +273,7 @@ public partial class SettingsDialog : Window
         _settings.X11Display = x11Display;
         _settings.DutyText = EnvironmentProfile.NormalizeDutyText(DutyTextBox.Text);
         _settings.DutyTextFile = dutyFile;
+        _settings.ReplaceServerTags(tags.Tags, tags.Renamed);
         _settings.KeepPvwaSessionAlive = KeepAliveBox.IsChecked == true;
         _settings.CheckForUpdates = UpdateCheckBox.IsChecked == true;
         _settings.PreferredUploadProtocol = ScpRadio.IsChecked == true ? TransferProtocol.Scp : TransferProtocol.Sftp;
@@ -513,6 +528,151 @@ public partial class SettingsDialog : Window
         }
 
         return servers;
+    }
+
+    // ===================== Étiquettes des serveurs =====================
+
+    /// <summary>Couleur proposée pour une étiquette : son code, son nom et sa pastille.</summary>
+    internal sealed record ColorChoice(string Hex, string Name, Brush Brush);
+
+    /// <summary>Couleurs proposées, dans l'ordre de <see cref="ServerTagRules.Palette"/>.</summary>
+    private static IReadOnlyList<ColorChoice> PaletteChoices() =>
+    [
+        .. ServerTagRules.Palette.Select((hex, i) => new ColorChoice(hex, i switch
+        {
+            0 => Strings.ColorRed,
+            1 => Strings.ColorPink,
+            2 => Strings.ColorPurple,
+            3 => Strings.ColorIndigo,
+            4 => Strings.ColorBlue,
+            5 => Strings.ColorTeal,
+            6 => Strings.ColorGreen,
+            7 => Strings.ColorLightGreen,
+            8 => Strings.ColorYellow,
+            9 => Strings.ColorOrange,
+            10 => Strings.ColorBrown,
+            _ => Strings.ColorGray,
+        }, ServerTagView.Background(new ServerTag("", hex)))),
+    ];
+
+    /// <summary>
+    /// Ligne du tableau des étiquettes : nom, couleur, et aperçu de la pastille ; <see cref="Original"/> est le nom à
+    /// l'ouverture, pour que les serveurs suivent un renommage.
+    /// </summary>
+    internal sealed class TagRow : INotifyPropertyChanged
+    {
+        private string _name;
+        private string _color;
+
+        public TagRow(string? original, string name, string color)
+        {
+            Original = original;
+            _name = name;
+            _color = color.ToUpperInvariant();
+            var palette = PaletteChoices();
+            // Couleur venue d'un fichier d'environnement, hors de la palette : proposée aussi, pour ne pas la perdre.
+            Colors = palette.Any(c => c.Hex == _color)
+                ? palette
+                : [.. palette, new ColorChoice(_color, Text.Format(Strings.ColorOther, _color), ServerTagView.Background(new ServerTag("", _color)))];
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public string? Original { get; }
+
+        public IReadOnlyList<ColorChoice> Colors { get; }
+
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                _name = value ?? "";
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
+            }
+        }
+
+        public string Color
+        {
+            get => _color;
+            set
+            {
+                _color = value ?? ServerTagRules.NeutralColor;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
+            }
+        }
+
+        public Brush Background => ServerTagView.Background(new ServerTag(_name, _color));
+
+        public Brush Foreground => ServerTagView.Foreground(new ServerTag(_name, _color));
+
+        /// <summary>Nom accessible de la liste des couleurs : l'étiquette et sa couleur.</summary>
+        public string ColorName => $"{_name}, {Colors.FirstOrDefault(c => c.Hex == _color)?.Name}";
+    }
+
+    internal IList<TagRow> TagRows => _tagRows;
+
+    /// <summary>Nouvelle étiquette : un nom libre et une couleur de la palette encore inutilisée, prête à être renommée.</summary>
+    private void OnAddTag(object sender, RoutedEventArgs e)
+    {
+        TagGrid.CommitEdit(DataGridEditingUnit.Row, true);
+        var name = Strings.ServerTagNewName;
+        for (int i = 2; _tagRows.Any(r => string.Equals(r.Name.Trim(), name, StringComparison.OrdinalIgnoreCase)); i++)
+        {
+            name = $"{Strings.ServerTagNewName} {i}";
+        }
+
+        var color = ServerTagRules.Palette.FirstOrDefault(p => _tagRows.All(r => r.Color != p)) ?? ServerTagRules.NeutralColor;
+        var row = new TagRow(null, name, color);
+        _tagRows.Add(row);
+        TagGrid.SelectedItem = row;
+        TagGrid.ScrollIntoView(row);
+        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Input, () =>
+        {
+            TagGrid.CurrentCell = new DataGridCellInfo(row, TagGrid.Columns[1]);
+            TagGrid.Focus();
+            TagGrid.BeginEdit();
+        });
+    }
+
+    private void OnRemoveTag(object sender, RoutedEventArgs e)
+    {
+        if (TagGrid.SelectedItem is TagRow row)
+        {
+            TagGrid.CancelEdit(DataGridEditingUnit.Row);
+            _tagRows.Remove(row);
+        }
+    }
+
+    private void OnTagSelected(object sender, SelectionChangedEventArgs e) => RemoveTagButton.IsEnabled = TagGrid.SelectedItem is TagRow;
+
+    /// <summary>
+    /// Étiquettes du tableau, vérifiées, et les renommages (ancien nom → nouveau) que les serveurs suivront ; null après
+    /// avoir montré la première erreur (nom vide, trop long, invisible ou en double).
+    /// </summary>
+    internal (List<ServerTag> Tags, Dictionary<string, string> Renamed)? ReadTags()
+    {
+        var tags = new List<ServerTag>();
+        var renamed = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var row in _tagRows)
+        {
+            var name = (row.Name ?? "").Trim();
+            if (!ServerTagRules.IsValidName(name) || ServerTagRules.Find(tags, name) is not null)
+            {
+                TagGrid.SelectedItem = row;
+                TagGrid.ScrollIntoView(row);
+                ShowError(Strings.InvalidServerTag, TagGrid);
+                return null;
+            }
+
+            tags.Add(new ServerTag(name, ServerTagRules.IsValidColor(row.Color) ? row.Color : ServerTagRules.NeutralColor));
+            if (row.Original is { } original && !string.Equals(original, name, StringComparison.Ordinal))
+            {
+                renamed[original] = name;
+            }
+        }
+
+        return (tags, renamed);
     }
 
     // ===================== Composant par plateforme =====================

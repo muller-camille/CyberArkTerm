@@ -15612,5 +15612,374 @@ namespace ZillaTerm.App.Localization {
                 return ResourceManager.GetString("DutyFileDenied", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Server tags.
+        /// </summary>
+        public static string EnvServerTags {
+            get {
+                return ResourceManager.GetString("EnvServerTags", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid server tag (name of 1 to 16 visible characters, color #RRGGBB, 20 tags at most, no duplicate): {0}.
+        /// </summary>
+        public static string EnvInvalidServerTag {
+            get {
+                return ResourceManager.GetString("EnvInvalidServerTag", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Server tag.
+        /// </summary>
+        public static string TagPromptTitle {
+            get {
+                return ResourceManager.GetString("TagPromptTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Which environment is {0} in?.
+        /// </summary>
+        public static string TagPromptHeading {
+            get {
+                return ResourceManager.GetString("TagPromptHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Its color marks the tab and the top of the session: you see at a glance where you work..
+        /// </summary>
+        public static string TagPromptHelp {
+            get {
+                return ResourceManager.GetString("TagPromptHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Suggested from its name, address, safe or folder: check it..
+        /// </summary>
+        public static string TagPromptGuessed {
+            get {
+                return ResourceManager.GetString("TagPromptGuessed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Add to My servers.
+        /// </summary>
+        public static string TagPromptAdd {
+            get {
+                return ResourceManager.GetString("TagPromptAdd", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _No tag.
+        /// </summary>
+        public static string TagNone {
+            get {
+                return ResourceManager.GetString("TagNone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ta_g:.
+        /// </summary>
+        public static string TagLabel {
+            get {
+                return ResourceManager.GetString("TagLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Environment of the server (PROD, QA, DEV…): its color marks the tab and the top of the session. The tags are set in Settings › General..
+        /// </summary>
+        public static string TagTip {
+            get {
+                return ResourceManager.GetString("TagTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to (not in the Settings).
+        /// </summary>
+        public static string TagUnknown {
+            get {
+                return ResourceManager.GetString("TagUnknown", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to (none).
+        /// </summary>
+        public static string TagNoneItem {
+            get {
+                return ResourceManager.GetString("TagNoneItem", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Tag.
+        /// </summary>
+        public static string MenuTag {
+            get {
+                return ResourceManager.GetString("MenuTag", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Tag the servers of the folder.
+        /// </summary>
+        public static string MenuTagFolder {
+            get {
+                return ResourceManager.GetString("MenuTagFolder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _No tag.
+        /// </summary>
+        public static string MenuTagNone {
+            get {
+                return ResourceManager.GetString("MenuTagNone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Suggest from the name ({0:# server without a tag|# servers without a tag}).
+        /// </summary>
+        public static string MenuTagGuess {
+            get {
+                return ResourceManager.GetString("MenuTagGuess", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tag {0} given to {1:# server|# servers}..
+        /// </summary>
+        public static string TagGivenStatus {
+            get {
+                return ResourceManager.GetString("TagGivenStatus", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tag removed from {0:# server|# servers}..
+        /// </summary>
+        public static string TagRemovedStatus {
+            get {
+                return ResourceManager.GetString("TagRemovedStatus", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0:# server tagged|# servers tagged} from the name; {1:# without a suggestion|# without a suggestion}..
+        /// </summary>
+        public static string TagGuessedStatus {
+            get {
+                return ResourceManager.GetString("TagGuessedStatus", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tag of the imported server, suggested from its name, server, safe and folders; check it..
+        /// </summary>
+        public static string SessionImportTagTip {
+            get {
+                return ResourceManager.GetString("SessionImportTagTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Server tags.
+        /// </summary>
+        public static string ServerTagsSection {
+            get {
+                return ResourceManager.GetString("ServerTagsSection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Environments given to the servers of My servers (asked when a server is added). Their color marks the session tabs and the top of each session. Removing a tag takes it off the servers. Shared with the team by the environment file..
+        /// </summary>
+        public static string ServerTagsHelp {
+            get {
+                return ResourceManager.GetString("ServerTagsHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        public static string ServerTagColName {
+            get {
+                return ResourceManager.GetString("ServerTagColName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Color.
+        /// </summary>
+        public static string ServerTagColColor {
+            get {
+                return ResourceManager.GetString("ServerTagColColor", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add a ta_g.
+        /// </summary>
+        public static string ServerTagAdd {
+            get {
+                return ResourceManager.GetString("ServerTagAdd", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remo_ve the tag.
+        /// </summary>
+        public static string ServerTagRemove {
+            get {
+                return ResourceManager.GetString("ServerTagRemove", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to NEW.
+        /// </summary>
+        public static string ServerTagNewName {
+            get {
+                return ResourceManager.GetString("ServerTagNewName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Server tags: name of 1 to 16 visible characters, no duplicate..
+        /// </summary>
+        public static string InvalidServerTag {
+            get {
+                return ResourceManager.GetString("InvalidServerTag", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Red.
+        /// </summary>
+        public static string ColorRed {
+            get {
+                return ResourceManager.GetString("ColorRed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pink.
+        /// </summary>
+        public static string ColorPink {
+            get {
+                return ResourceManager.GetString("ColorPink", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Purple.
+        /// </summary>
+        public static string ColorPurple {
+            get {
+                return ResourceManager.GetString("ColorPurple", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Indigo.
+        /// </summary>
+        public static string ColorIndigo {
+            get {
+                return ResourceManager.GetString("ColorIndigo", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Blue.
+        /// </summary>
+        public static string ColorBlue {
+            get {
+                return ResourceManager.GetString("ColorBlue", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Teal.
+        /// </summary>
+        public static string ColorTeal {
+            get {
+                return ResourceManager.GetString("ColorTeal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Green.
+        /// </summary>
+        public static string ColorGreen {
+            get {
+                return ResourceManager.GetString("ColorGreen", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Light green.
+        /// </summary>
+        public static string ColorLightGreen {
+            get {
+                return ResourceManager.GetString("ColorLightGreen", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Yellow.
+        /// </summary>
+        public static string ColorYellow {
+            get {
+                return ResourceManager.GetString("ColorYellow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Orange.
+        /// </summary>
+        public static string ColorOrange {
+            get {
+                return ResourceManager.GetString("ColorOrange", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Brown.
+        /// </summary>
+        public static string ColorBrown {
+            get {
+                return ResourceManager.GetString("ColorBrown", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Gray.
+        /// </summary>
+        public static string ColorGray {
+            get {
+                return ResourceManager.GetString("ColorGray", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Other ({0}).
+        /// </summary>
+        public static string ColorOther {
+            get {
+                return ResourceManager.GetString("ColorOther", resourceCulture);
+            }
+        }
     }
 }

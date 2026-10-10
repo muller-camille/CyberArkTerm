@@ -5235,4 +5235,127 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   <data name="DutyFileDenied" xml:space="preserve">
     <value>accès refusé</value>
   </data>
+  <data name="EnvServerTags" xml:space="preserve">
+    <value>Étiquettes des serveurs</value>
+  </data>
+  <data name="EnvInvalidServerTag" xml:space="preserve">
+    <value>Étiquette de serveur invalide (nom de 1 à 16 caractères visibles, couleur #RRGGBB, 20 étiquettes au plus, sans doublon) : {0}</value>
+  </data>
+  <data name="TagPromptTitle" xml:space="preserve">
+    <value>Étiquette du serveur</value>
+  </data>
+  <data name="TagPromptHeading" xml:space="preserve">
+    <value>Dans quel environnement est {0} ?</value>
+  </data>
+  <data name="TagPromptHelp" xml:space="preserve">
+    <value>Sa couleur marque l'onglet et le haut de la session : vous voyez d'un coup d'œil où vous travaillez.</value>
+  </data>
+  <data name="TagPromptGuessed" xml:space="preserve">
+    <value>Proposée d'après son nom, son adresse, son safe ou son dossier : vérifiez-la.</value>
+  </data>
+  <data name="TagPromptAdd" xml:space="preserve">
+    <value>_Ajouter à Mes serveurs</value>
+  </data>
+  <data name="TagNone" xml:space="preserve">
+    <value>Aucu_ne étiquette</value>
+  </data>
+  <data name="TagLabel" xml:space="preserve">
+    <value>Éti_quette :</value>
+  </data>
+  <data name="TagTip" xml:space="preserve">
+    <value>Environnement du serveur (PROD, QA, DEV…) : sa couleur marque l'onglet et le haut de la session. Les étiquettes se règlent dans Paramètres › Général.</value>
+  </data>
+  <data name="TagUnknown" xml:space="preserve">
+    <value>(absente des Paramètres)</value>
+  </data>
+  <data name="TagNoneItem" xml:space="preserve">
+    <value>(aucune)</value>
+  </data>
+  <data name="MenuTag" xml:space="preserve">
+    <value>Éti_quette</value>
+  </data>
+  <data name="MenuTagFolder" xml:space="preserve">
+    <value>É_tiqueter les serveurs du dossier</value>
+  </data>
+  <data name="MenuTagNone" xml:space="preserve">
+    <value>Aucu_ne</value>
+  </data>
+  <data name="MenuTagGuess" xml:space="preserve">
+    <value>_Proposer d'après le nom ({0:# serveur sans étiquette|# serveurs sans étiquette})</value>
+  </data>
+  <data name="TagGivenStatus" xml:space="preserve">
+    <value>Étiquette {0} donnée à {1:# serveur|# serveurs}.</value>
+  </data>
+  <data name="TagRemovedStatus" xml:space="preserve">
+    <value>Étiquette retirée de {0:# serveur|# serveurs}.</value>
+  </data>
+  <data name="TagGuessedStatus" xml:space="preserve">
+    <value>{0:# serveur étiqueté|# serveurs étiquetés} d'après le nom ; {1:# sans proposition|# sans proposition}.</value>
+  </data>
+  <data name="SessionImportTagTip" xml:space="preserve">
+    <value>Étiquette du serveur importé, proposée d'après son nom, son serveur, son safe et ses dossiers : vérifiez-la.</value>
+  </data>
+  <data name="ServerTagsSection" xml:space="preserve">
+    <value>Étiquettes des serveurs</value>
+  </data>
+  <data name="ServerTagsHelp" xml:space="preserve">
+    <value>Environnements donnés aux serveurs de « Mes serveurs » (demandés à l'ajout d'un serveur). Leur couleur marque l'onglet et le haut de chaque session. Supprimer une étiquette la retire des serveurs. Diffusées à l'équipe par le fichier d'environnement.</value>
+  </data>
+  <data name="ServerTagColName" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="ServerTagColColor" xml:space="preserve">
+    <value>Couleur</value>
+  </data>
+  <data name="ServerTagAdd" xml:space="preserve">
+    <value>Ajouter une éti_quette</value>
+  </data>
+  <data name="ServerTagRemove" xml:space="preserve">
+    <value>Supprimer l'étiq_uette</value>
+  </data>
+  <data name="ServerTagNewName" xml:space="preserve">
+    <value>NOUVELLE</value>
+  </data>
+  <data name="InvalidServerTag" xml:space="preserve">
+    <value>Étiquettes des serveurs : nom de 1 à 16 caractères visibles, sans doublon.</value>
+  </data>
+  <data name="ColorRed" xml:space="preserve">
+    <value>Rouge</value>
+  </data>
+  <data name="ColorPink" xml:space="preserve">
+    <value>Rose</value>
+  </data>
+  <data name="ColorPurple" xml:space="preserve">
+    <value>Violet</value>
+  </data>
+  <data name="ColorIndigo" xml:space="preserve">
+    <value>Indigo</value>
+  </data>
+  <data name="ColorBlue" xml:space="preserve">
+    <value>Bleu</value>
+  </data>
+  <data name="ColorTeal" xml:space="preserve">
+    <value>Bleu canard</value>
+  </data>
+  <data name="ColorGreen" xml:space="preserve">
+    <value>Vert</value>
+  </data>
+  <data name="ColorLightGreen" xml:space="preserve">
+    <value>Vert clair</value>
+  </data>
+  <data name="ColorYellow" xml:space="preserve">
+    <value>Jaune</value>
+  </data>
+  <data name="ColorOrange" xml:space="preserve">
+    <value>Orange</value>
+  </data>
+  <data name="ColorBrown" xml:space="preserve">
+    <value>Marron</value>
+  </data>
+  <data name="ColorGray" xml:space="preserve">
+    <value>Gris</value>
+  </data>
+  <data name="ColorOther" xml:space="preserve">
+    <value>Autre ({0})</value>
+  </data>
 </root>

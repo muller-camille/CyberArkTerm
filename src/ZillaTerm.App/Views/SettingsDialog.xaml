@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:views="clr-namespace:ZillaTerm.App.Views"
         xmlns:loc="clr-namespace:ZillaTerm.App.Localization"
+        xmlns:core="clr-namespace:ZillaTerm.Core;assembly=ZillaTerm.Core"
         Title="{x:Static loc:Strings.SettingsTitle}"
         Width="780" Height="560" MinWidth="640" MinHeight="420" ResizeMode="CanResize"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
@@ -105,7 +106,70 @@
                             <TextBox Grid.Column="1" x:Name="DutyFileBox" VerticalContentAlignment="Center" MaxLength="1024" />
                             <Button Grid.Column="2" Content="{x:Static loc:Strings.Browse}" Click="OnBrowseDutyFile" Margin="8,0,0,0" />
                         </Grid>
-                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,4" Text="{x:Static loc:Strings.DutyFileHelp}" />
+                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,16" Text="{x:Static loc:Strings.DutyFileHelp}" />
+
+                        <!-- Étiquettes des serveurs de « Mes serveurs » (PROD, QA, DEV…) : nom et couleur. -->
+                        <TextBlock Text="{x:Static loc:Strings.ServerTagsSection}" Style="{StaticResource SectionTitle}" />
+                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,6" Text="{x:Static loc:Strings.ServerTagsHelp}" />
+                        <DataGrid x:Name="TagGrid" AutoGenerateColumns="False" HeadersVisibility="Column" CanUserAddRows="False"
+                                  CanUserDeleteRows="False" CanUserReorderColumns="False" CanUserSortColumns="False" SelectionMode="Single"
+                                  SelectionUnit="FullRow" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{DynamicResource GridLineBrush}"
+                                  MinHeight="60" MaxHeight="220" SelectionChanged="OnTagSelected"
+                                  AutomationProperties.Name="{x:Static loc:Strings.ServerTagsSection}">
+                            <DataGrid.Columns>
+                                <!-- Aperçu : la pastille telle qu'elle apparaîtra sur l'onglet. -->
+                                <DataGridTemplateColumn Width="Auto" IsReadOnly="True">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{Binding Background}" CornerRadius="3" Padding="5,0,5,1" Margin="4,2"
+                                                    HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontSize="11" FontWeight="SemiBold" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="{x:Static loc:Strings.ServerTagColName}" Width="*"
+                                                    Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="VerticalAlignment" Value="Center" />
+                                            <Setter Property="Margin" Value="2,0" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                    <DataGridTextColumn.EditingElementStyle>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="MaxLength" Value="{x:Static core:ServerTagRules.MaxNameLength}" />
+                                        </Style>
+                                    </DataGridTextColumn.EditingElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTemplateColumn Header="{x:Static loc:Strings.ServerTagColColor}" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding Colors}" SelectedValuePath="Hex"
+                                                      SelectedValue="{Binding Color, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                      AutomationProperties.Name="{Binding ColorName}">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Rectangle Width="14" Height="14" Fill="{Binding Brush}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,8">
+                            <Button Click="OnAddTag">
+                                <AccessText Text="{x:Static loc:Strings.ServerTagAdd}" />
+                            </Button>
+                            <Button x:Name="RemoveTagButton" Click="OnRemoveTag" IsEnabled="False" Margin="8,0,0,0">
+                                <AccessText Text="{x:Static loc:Strings.ServerTagRemove}" />
+                            </Button>
+                        </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

@@ -56,6 +56,7 @@ public partial class MainWindow
         session.Editor = new RemoteEditor(session, this, _settings, (text, error) => SetStatus(text, error),
             directory => FilesPanel.OnRemoteChanged(session, directory));
         var view = new SshSessionView(session, target, connectingText) { PasteGuard = ConfirmMultiLinePaste };
+        view.ShowTag(TagOf(session));
         var tab = new TabItem { Content = view, Tag = session };
         tab.Header = TabHeader(tab, label, icon, duplicate);
         view.SessionMenu = items => AddTerminalSessionItems(items, tab, duplicate);
@@ -102,7 +103,7 @@ public partial class MainWindow
         var mode = tab.Tag is RemoteSession { Psmp: { } psmp } ? Text.Format(Strings.TabModePsmp, psmp) : Strings.TabModeDirect;
         var shown = SessionTabHeader.UniqueLabel(label, SessionTabs().Select(t => t.Header).OfType<SessionTabHeader>().Select(h => h.Label));
         var header = new SessionTabHeader(shown, icon, closeButton, mode,
-            tab.Tag is SshSession ? Strings.TabDetachTip : null);
+            tab.Tag is SshSession ? Strings.TabDetachTip : null, tab.Tag is RemoteSession remote ? TagOf(remote) : null);
         // Clic molette sur l'onglet : fermeture.
         header.MouseDown += (_, e) =>
         {
@@ -119,6 +120,22 @@ public partial class MainWindow
         }
 
         return header;
+    }
+
+    /// <summary>
+    /// Étiquette (PROD, QA…) du serveur d'une session : celle du serveur de « Mes serveurs » ouvert, ou, pour une session
+    /// ouverte depuis « Disponibles » ou les connexions récentes, celle du serveur enregistré pour ce compte et cette
+    /// machine cible.
+    /// </summary>
+    private ServerTag? TagOf(RemoteSession session)
+    {
+        var name = session.Saved?.Tag;
+        if (name is null && session.Saved is null && session.Account is { } account)
+        {
+            name = SessionLibrary.FindSession(_settings, account, PvwaHost, session.Request?.RemoteMachine)?.Tag;
+        }
+
+        return ServerTagView.Resolve(_settings.ServerTags, name);
     }
 
     /// <summary>La pastille de l'onglet suit l'état de sa session.</summary>

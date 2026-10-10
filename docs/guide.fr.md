@@ -533,7 +533,8 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
 
 - **Ajouter** un compte : clic droit dans « Disponibles » → « Ajouter à Mes serveurs » puis le dossier voulu,
   ou glissez le compte sur l'onglet « Mes serveurs », ou bouton « Ajouter » de la barre d'outils. Pour un compte de
-  domaine, le serveur est demandé (facultatif : sans serveur, il le sera à chaque connexion).
+  domaine, le serveur est demandé (facultatif : sans serveur, il le sera à chaque connexion). Son
+  [étiquette](#étiquettes-prod-qa-dev) est ensuite demandée, avec une proposition d'après son nom.
 - **Ajouter une session ouverte** : clic droit sur l'onglet de la session (ou dans son terminal) → « Ajouter à Mes
   serveurs » puis le dossier voulu. Le serveur garde le type de connexion et la machine cible ; l'entrée est grisée
   s'il y est déjà.
@@ -553,11 +554,13 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   choisit une suite de serveurs ; `Échap` ou un clic simple annule. Clic droit sur l'un d'eux → « Ouvrir les N
   serveurs en vue parallèle » ou « Se connecter aux N serveurs » (un onglet chacun). Clic droit sur un dossier →
   « Ouvrir en vue parallèle » ou « Se connecter aux N serveurs ».
+- **Étiquette** (PROD, QA, DEV…) : clic droit → « Étiquette ▸ », voir [ci-dessous](#étiquettes-prod-qa-dev).
 - **Configuration propre à chaque serveur** (clic droit → « Propriétés… ») :
 
 | Réglage | Effet |
 | --- | --- |
 | Nom, dossier | Affichage et rangement dans l'arbre. |
+| Étiquette | Environnement du serveur (PROD, QA, DEV…) : sa couleur marque l'arbre, l'onglet et le haut de la session. |
 | PSM, SSH via PSMP ou fichiers seuls (SFTP via PSMP) | Type de connexion ouvert au double-clic (au départ, d'après la plateforme). |
 | Composant PSM | Composant à utiliser (vide : déduit de la plateforme). |
 | Machine cible | Serveur sur lequel ouvrir la session pour un compte de domaine. |
@@ -572,6 +575,35 @@ incorrecte est signalée dans la fenêtre. Un serveur dont le compte est introuv
 retirés) porte la mention « ⚠ introuvable dans CyberArk », lue aussi par les lecteurs d'écran ; rien n'est signalé
 tant que les comptes se chargent.
 
+### Étiquettes (PROD, QA, DEV…)
+
+Chaque serveur de « Mes serveurs » peut porter une étiquette d'environnement, de couleur : PROD en rouge, QA en
+orange, DEV en vert au départ. Elle rappelle d'un coup d'œil où vous travaillez :
+
+- pastille devant le nom dans l'arbre « Mes serveurs » et les listes partagées ;
+- pastille sur l'onglet de la session (et `[PROD]` en tête du titre d'une fenêtre détachée) ;
+- bandeau de sa couleur au-dessus du terminal SSH ou de la session de fichiers, et pastille dans l'en-tête de
+  l'onglet Fichiers : vous voyez sur quel environnement vous déposez un fichier.
+
+Une session ouverte depuis « Disponibles » ou les sessions récentes prend l'étiquette du serveur de « Mes serveurs »
+qui a le même compte (et la même machine cible). L'étiquette s'applique à l'ouverture : changez-la, puis rouvrez la
+session pour voir la nouvelle couleur.
+
+- **À l'ajout** d'un serveur dans « Mes serveurs », l'étiquette est demandée. Une étiquette est proposée d'après le
+  nom du serveur, son adresse, son safe puis ses dossiers (« prd », « prod », « production » → PROD ; « rec »,
+  « recette », « qual », « uat », « preprod », « staging », « test » → QA ; « dev » → DEV ; une étiquette ajoutée dans
+  les Paramètres se reconnaît à son nom). Rien n'est proposé quand le texte nomme deux environnements. Vérifiez-la :
+  ce n'est qu'une proposition. « Aucune étiquette » est possible ; « Annuler » n'ajoute pas le serveur.
+- **Changer** : clic droit sur un serveur ou une sélection (`Ctrl+clic`) → « Étiquette ▸ », ou sur un dossier →
+  « Étiqueter les serveurs du dossier ▸ », puis l'étiquette, ou « Aucune ». « Proposer d'après le nom » étiquette
+  d'un coup les serveurs qui n'en ont pas encore (ceux sans proposition restent sans étiquette). Aussi dans
+  « Propriétés… ».
+- **Liste des étiquettes** : Paramètres › Général › « Étiquettes des serveurs » (nom de 16 caractères au plus,
+  couleur). Renommer une étiquette renomme celle des serveurs ; la supprimer la retire des serveurs.
+- L'étiquette suit le serveur dans l'export de « Mes serveurs » et dans les listes partagées ; une étiquette absente de
+  vos Paramètres s'affiche en gris. La liste des étiquettes (noms et couleurs) se diffuse à l'équipe par le
+  [fichier d'environnement](#environnement-partagé).
+
 ### Exporter, importer, partager
 
 Deux menus en haut de l'onglet, « Importer ▾ » et « Partager ▾ », à gauche des boutons « Nouveau dossier »,
@@ -579,7 +611,7 @@ Deux menus en haut de l'onglet, « Importer ▾ » et « Partager ▾ », à gau
 passent de l'un à l'autre) :
 
 - **Partager › Exporter Mes serveurs dans un fichier…** enregistre « Mes serveurs » dans un fichier `.json` : dossiers (même vides), nom, compte CyberArk
-  (ID), type de connexion, composant, machine cible, motif par défaut, dossier SFTP de départ. Aucun mot de passe ni
+  (ID), étiquette, type de connexion, composant, machine cible, motif par défaut, dossier SFTP de départ. Aucun mot de passe ni
   fichier suivi. Pratique pour changer de poste ou transmettre sa liste.
 - **Importer › Fichier ZillaTerm (export de Mes serveurs)…** lit un fichier exporté (ou une liste partagée) et
   résume avant d'ajouter : serveurs ajoutés, serveurs
@@ -658,6 +690,10 @@ logiciel… ». Les comptes du PVWA doivent être chargés.
    fichiers) ; Telnet par `PSM-Telnet`.
 4. **Dossier dans Mes serveurs** : l'arborescence de l'autre logiciel est recréée sous ce dossier (« Importés » par
    défaut ; vide : à la racine), chaque serveur gardant son nom.
+   **Étiquette** : la colonne « Étiquette » propose celle de chaque session d'après son nom, son serveur, le safe du
+   compte associé puis ses dossiers dans l'autre logiciel (« Prod/Linux » → PROD, « Recette » → QA), comme
+   [à l'ajout d'un serveur](#étiquettes-prod-qa-dev) ; vide quand rien n'est reconnu. Changez-la au besoin avant
+   d'importer ; elle figure aussi dans le résultat exporté.
 5. **Importer** ajoute les sessions cochées et prêtes. Le tableau montre ensuite le résultat de chaque serveur :
    « Importé », ou « Non importé » avec la raison (aucun compte dans le PVWA, type de connexion non pris en charge
    comme VNC, FTP ou port série, décoché). Un serveur déjà dans le même dossier avec le même compte n'est pas ajouté
@@ -866,6 +902,7 @@ disent sous leur case (« ⚠ Effet : … »).
 | Général | Thème | Comme Windows, Clair ou Sombre ; appliqué tout de suite (le contraste élevé de Windows l'emporte) | comme Windows |
 | Général | Consignes d'astreinte | Bonnes pratiques et numéros d'urgence affichés dans la fenêtre « Intervention » ; texte brut, diffusé par le fichier d'environnement (voir [Intervention](#8-intervention--enregistrement-et-consignes-dastreinte)) | vide |
 | Général | Fichier des consignes | Fichier texte (partage réseau en général) relu à chaque ouverture de la fenêtre « Intervention », affiché à la place des consignes ci-dessus ; diffusé par le fichier d'environnement | vide |
+| Général | Étiquettes des serveurs | Étiquettes données aux serveurs de « Mes serveurs » (nom, couleur) : « Ajouter une étiquette », « Supprimer l'étiquette », cellules modifiables ; renommer suit dans « Mes serveurs », supprimer retire l'étiquette des serveurs ; diffusées par le fichier d'environnement (voir [Étiquettes](#étiquettes-prod-qa-dev)) | PROD (rouge), QA (orange), DEV (vert) |
 | Général | Langue de l'interface | Français, English, Italiano ou langue du système ; appliquée après la déconnexion de CyberArk ou au prochain démarrage | langue de Windows (anglais si elle n'est pas traduite) |
 | Général | Fichier central | Fichier d'environnement de l'équipe sur un partage réseau, relu à chaque démarrage ; ses changements sont montrés avant d'être appliqués (voir [Environnement partagé](#environnement-partagé)) | vide |
 | Général | Rechercher une nouvelle version au démarrage | Une requête vers GitHub au plus une fois par jour ; lien dans la barre d'état si une version plus récente existe (la fenêtre « À propos » rappelle ce réglage) | non |
@@ -894,7 +931,7 @@ disent sous leur case (« ⚠ Effet : … »).
 
 Pour donner ZillaTerm à un collègue avec la configuration de l'équipe (adresse du PVWA, méthode de connexion,
 PSMP par défaut et par domaine, composant des comptes Windows et composants par plateforme, listes partagées, clés
-des PSMP, consignes d'astreinte (texte ou fichier), quelques options), sans rien de personnel ni aucun mot de passe :
+des PSMP, consignes d'astreinte (texte ou fichier), étiquettes des serveurs, quelques options), sans rien de personnel ni aucun mot de passe :
 
 1. **Exporter** : bouton « Paramètres » → « Exporter l'environnement… » enregistre `ZillaTerm.env.json`.
 2. **À côté de l'exécutable** : posez ce fichier à côté de `ZillaTerm.exe` (par exemple dans le même zip). Au
@@ -917,7 +954,8 @@ Un fichier invalide (adresse en http, nom de composant incorrect…) est refusé
 n'est reproposé que s'il a changé. Un réglage vide sur le poste qui exporte n'est pas exporté : il n'efface rien
 chez celui qui importe. Les chemins (listes partagées, fichier central) sont complets : `C:\…` ou `\\serveur\…`.
 Votre identifiant, « Mes serveurs » et vos sessions récentes ne sont jamais
-touchés ; les listes partagées s'ajoutent sans retirer les vôtres.
+touchés ; les listes partagées s'ajoutent sans retirer les vôtres. Les étiquettes du fichier remplacent celles du
+poste ; vos serveurs gardent la leur (une étiquette absente du fichier s'affiche alors en gris).
 
 Toutes les préférences sont enregistrées dans `%APPDATA%\ZillaTerm\settings.json` : langue, adresse du PVWA,
 méthode et identifiant de connexion, paramètres ci-dessus, serveurs de « Mes serveurs », leurs dossiers et les fichiers qui

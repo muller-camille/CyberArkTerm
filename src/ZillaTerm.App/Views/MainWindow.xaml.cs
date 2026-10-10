@@ -125,6 +125,7 @@ public partial class MainWindow : Window
         ZillaTerm.App.Terminal.TerminalAppearance.Apply(settings.TerminalTheme, settings.TerminalFontSize, settings.TerminalRightClickPastes);
         FilesPanel.Initialize(settings, SaveSettings);
         FilesPanel.OpenSessions = () => MainTabs.Items.OfType<TabItem>().Select(t => t.Tag).OfType<RemoteSession>().ToList();
+        FilesPanel.TagOf = TagOf;
         FilesPanel.ShowTerminalRequested += ShowTerminal;
         FilesPanel.TransfersChanged += UpdateFilesBadge;
         FilesPanel.WidenRequested += WidenSidePanel;

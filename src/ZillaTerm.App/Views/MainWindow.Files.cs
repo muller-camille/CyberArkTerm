@@ -107,6 +107,7 @@ public partial class MainWindow
             },
         };
         view.ShowFilesRequested += ShowFilesWide;
+        view.ShowTag(TagOf(session));
         var tab = new TabItem { Content = view, Tag = session };
         tab.Header = TabHeader(tab, session.Label, "IconFiles", duplicate);
         session.StateChanged += () =>

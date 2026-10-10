@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using ZillaTerm.App.Localization;
+using ZillaTerm.Core;
 
 namespace ZillaTerm.App.Views;
 
@@ -34,7 +35,8 @@ public sealed class SessionTabHeader : StackPanel
     /// <param name="mode">Ligne de l'infobulle qui dit par où passe la session.</param>
     /// <param name="hint">Dernière ligne de l'infobulle (ex. : glisser pour détacher), facultative.</param>
     /// <param name="icon">Clé de l'icône dans Theme.xaml.</param>
-    public SessionTabHeader(string label, string icon, Button close, string mode, string? hint)
+    /// <param name="tag">Étiquette du serveur (PROD, QA…) : pastille de sa couleur avant le nom.</param>
+    public SessionTabHeader(string label, string icon, Button close, string mode, string? hint, ServerTag? tag = null)
     {
         Label = label;
         _mode = mode;
@@ -52,10 +54,21 @@ public sealed class SessionTabHeader : StackPanel
         var image = Palette.Icon(icon, 16);
         image.Margin = new Thickness(0, 0, 6, 0);
         Children.Add(image);
+        if (tag is not null)
+        {
+            var chip = ServerTagView.Chip(tag);
+            chip.Margin = new Thickness(0, 0, 6, 0);
+            Children.Add(chip);
+            ServerTag = tag;
+        }
+
         Children.Add(Title);
         Children.Add(close);
         SetState(SessionTabState.Connecting);
     }
+
+    /// <summary>Étiquette du serveur, s'il en a une (dite aussi dans l'infobulle).</summary>
+    public ServerTag? ServerTag { get; }
 
     /// <summary>Nom affiché dans l'onglet (numéroté pour les doublons).</summary>
     public string Label { get; }
@@ -94,8 +107,9 @@ public sealed class SessionTabHeader : StackPanel
         }
 
         var text = StateText(state);
-        ToolTip = string.Join("\n", new[] { Label, text, _mode, _hint }.Where(l => !string.IsNullOrEmpty(l)));
-        System.Windows.Automation.AutomationProperties.SetName(this, $"{Label}, {text}");
+        var name = ServerTag is { } tag ? $"{tag.Name} · {Label}" : Label;
+        ToolTip = string.Join("\n", new[] { name, text, _mode, _hint }.Where(l => !string.IsNullOrEmpty(l)));
+        System.Windows.Automation.AutomationProperties.SetName(this, $"{name}, {text}");
     }
 
     public static string StateText(SessionTabState state) => state switch

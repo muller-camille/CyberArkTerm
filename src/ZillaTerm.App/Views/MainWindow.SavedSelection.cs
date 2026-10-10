@@ -198,6 +198,9 @@ public partial class MainWindow
                 case "share":
                     BuildShareMenu(item, () => servers);
                     break;
+                case "tag":
+                    BuildTagMenu(item, servers);
+                    break;
             }
         }
     }
@@ -222,8 +225,74 @@ public partial class MainWindow
                     BuildShareMenu(item, () => servers);
                     item.IsEnabled &= servers.Count > 0;
                     break;
+                case "tag":
+                    BuildTagMenu(item, servers);
+                    break;
             }
         }
+    }
+
+    /// <summary>
+    /// Sous-menu « Étiquette » : chaque étiquette (cochée si tous les serveurs l'ont), « Aucune », et une proposition
+    /// d'après le nom, l'adresse, le safe et le dossier pour les serveurs qui n'en ont pas encore.
+    /// </summary>
+    private void BuildTagMenu(MenuItem parent, List<SavedSession> servers)
+    {
+        parent.Items.Clear();
+        parent.IsEnabled = servers.Count > 0;
+        foreach (var tag in _settings.ServerTags)
+        {
+            var item = new MenuItem
+            {
+                Header = ServerTagView.Chip(tag, 11),
+                IsCheckable = false,
+                IsChecked = servers.Count > 0 && servers.All(s => string.Equals(s.Tag, tag.Name, StringComparison.OrdinalIgnoreCase)),
+            };
+            System.Windows.Automation.AutomationProperties.SetName(item, tag.Name);
+            item.Click += (_, _) => SetTags(servers, tag.Name);
+            parent.Items.Add(item);
+        }
+
+        var none = new MenuItem { Header = Strings.MenuTagNone, IsChecked = servers.Count > 0 && servers.All(s => s.Tag is null) };
+        none.Click += (_, _) => SetTags(servers, null);
+        parent.Items.Add(none);
+        var untagged = servers.Where(s => s.Tag is null).ToList();
+        if (_settings.ServerTags.Count > 0 && untagged.Count > 0)
+        {
+            parent.Items.Add(new Separator());
+            var guess = new MenuItem { Header = Text.Format(Strings.MenuTagGuess, untagged.Count) };
+            guess.Click += (_, _) => GuessTags(untagged);
+            parent.Items.Add(guess);
+        }
+    }
+
+    private void SetTags(List<SavedSession> servers, string? tag)
+    {
+        foreach (var server in servers)
+        {
+            server.Tag = tag;
+        }
+
+        SaveAndRefreshSaved();
+        SetStatus(tag is null ? Text.Format(Strings.TagRemovedStatus, servers.Count) : Text.Format(Strings.TagGivenStatus, tag, servers.Count));
+    }
+
+    /// <summary>Étiquette proposée pour chaque serveur qui n'en a pas ; ceux sans proposition restent sans étiquette.</summary>
+    private void GuessTags(List<SavedSession> servers)
+    {
+        int tagged = 0;
+        foreach (var server in servers)
+        {
+            if (ServerTagGuess.ForServer(_settings.ServerTags, server.Name, server.RemoteMachine, server.Address, server.SafeName,
+                    server.Folder) is { } tag)
+            {
+                server.Tag = tag.Name;
+                tagged++;
+            }
+        }
+
+        SaveAndRefreshSaved();
+        SetStatus(Text.Format(Strings.TagGuessedStatus, tagged, servers.Count - tagged));
     }
 
     private async void OnOpenSavedInParallel(object sender, RoutedEventArgs e) => await OpenSavedAsync(MenuServers(), parallel: true);

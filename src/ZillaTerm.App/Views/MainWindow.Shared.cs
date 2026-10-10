@@ -590,7 +590,10 @@ public partial class MainWindow
         foreach (var session in node.Sessions)
         {
             var account = SessionLibrary.IsForHost(session, PvwaHost) ? _byId.GetValueOrDefault(session.AccountId) : null;
-            var server = new SharedServerNode(list, entries[session], session, account, _accountsLoaded);
+            var server = new SharedServerNode(list, entries[session], session, account, _accountsLoaded)
+            {
+                Tag = ServerTagView.Resolve(_settings.ServerTags, session.Tag),
+            };
             _sharedSessions.AddOrUpdate(session, server);
             items.Add(server);
         }
