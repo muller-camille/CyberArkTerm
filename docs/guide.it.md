@@ -786,6 +786,11 @@ passano da un pulsante all'altro). Nelle Impostazioni, ogni casella ha il suo ta
 pagina mostrata. In contrasto elevato, l'interfaccia usa i colori
 di sistema di Windows e ne segue i cambiamenti.
 
+**Tema scuro**: Impostazioni → Generale → Aspetto → Tema: «Come Windows» (predefinito: la modalità delle app scelta in
+Windows, Personalizzazione → Colori, seguita anche quando cambia), «Chiaro» o «Scuro». La modifica si applica subito,
+alle finestre aperte e alla barra del titolo; il contrasto elevato di Windows ha sempre la precedenza. I colori dei
+terminali SSH si impostano a parte (pagina Terminale).
+
 ## Impostazioni e file di configurazione
 
 <img src="captures/it/settings.png" alt="Impostazioni" width="480">
@@ -797,6 +802,7 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 
 | Pagina | Impostazione | Ruolo | Predefinito |
 | --- | --- | --- | --- |
+| Generale | Tema | Come Windows, Chiaro o Scuro; applicato subito (il contrasto elevato di Windows ha la precedenza) | come Windows |
 | Generale | Lingua dell'interfaccia | Français, English, Italiano o lingua del sistema; applicata dopo la disconnessione da CyberArk o al prossimo avvio | lingua di Windows (inglese se non è tradotta) |
 | Generale | File centrale | File di ambiente del team su una condivisione di rete, riletto a ogni avvio; le sue modifiche vengono mostrate prima di essere applicate (vedi [Ambiente condiviso](#ambiente-condiviso)) | vuoto |
 | Generale | Cercare una nuova versione all'avvio | Una richiesta a GitHub al massimo una volta al giorno; un link nella barra di stato se esiste una versione più recente (la finestra «Informazioni» ricorda questa impostazione) | no |

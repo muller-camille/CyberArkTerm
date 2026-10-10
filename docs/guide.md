@@ -736,6 +736,11 @@ connection errors. The toolbars of "My servers" and of the Files tab are a singl
 from one button to the other). In the Settings, every box has its access key, without duplicates in the page shown. In high contrast mode, the
 interface takes the Windows system colours and follows their changes.
 
+**Dark theme**: Settings → General → Appearance → Theme: "Same as Windows" (default: the app mode chosen in Windows,
+Personalization → Colors, followed even when it changes), "Light" or "Dark". The change applies right away, to open
+windows and to the title bar; Windows high contrast always takes precedence. SSH terminal colours are set separately
+(Terminal page).
+
 ## Settings and configuration file
 
 <img src="captures/en/settings.png" alt="Settings" width="480">
@@ -746,6 +751,7 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 
 | Page | Setting | Purpose | Default |
 | --- | --- | --- | --- |
+| General | Theme | Same as Windows, Light or Dark; applied right away (Windows high contrast takes precedence) | same as Windows |
 | General | Interface language | Français, English, Italiano or system language; applied after signing out of CyberArk or at the next start | Windows language (English if it is not translated) |
 | General | Central file | Team environment file on a network share, read at each start; its changes are shown before being applied (see [Shared environment](#shared-environment)) | empty |
 | General | Look for a new version at startup | One request to GitHub at most once a day; a link in the status bar when a newer version exists (the "About" window recalls this setting) | no |

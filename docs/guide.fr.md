@@ -783,6 +783,11 @@ de « Mes serveurs » et de l'onglet Fichiers sont un seul arrêt de `Tab` (les 
 Dans les Paramètres, chaque case a sa touche d'accès, sans doublon dans la page affichée. En contraste élevé, l'interface prend les couleurs système de Windows et suit leurs
 changements.
 
+**Thème sombre** : Paramètres → Général → Apparence → Thème : « Comme Windows » (par défaut : le mode des applications
+choisi dans Windows, Personnalisation → Couleurs, suivi même quand il change), « Clair » ou « Sombre ». Le changement
+s'applique tout de suite, aux fenêtres ouvertes comme à la barre de titre ; le contraste élevé de Windows l'emporte
+toujours. Les couleurs des terminaux SSH se règlent à part (page Terminal).
+
 ## Paramètres et fichier de configuration
 
 <img src="captures/fr/settings.png" alt="Paramètres" width="480">
@@ -794,6 +799,7 @@ disent sous leur case (« ⚠ Effet : … »).
 
 | Page | Paramètre | Rôle | Défaut |
 | --- | --- | --- | --- |
+| Général | Thème | Comme Windows, Clair ou Sombre ; appliqué tout de suite (le contraste élevé de Windows l'emporte) | comme Windows |
 | Général | Langue de l'interface | Français, English, Italiano ou langue du système ; appliquée après la déconnexion de CyberArk ou au prochain démarrage | langue de Windows (anglais si elle n'est pas traduite) |
 | Général | Fichier central | Fichier d'environnement de l'équipe sur un partage réseau, relu à chaque démarrage ; ses changements sont montrés avant d'être appliqués (voir [Environnement partagé](#environnement-partagé)) | vide |
 | Général | Rechercher une nouvelle version au démarrage | Une requête vers GitHub au plus une fois par jour ; lien dans la barre d'état si une version plus récente existe (la fenêtre « À propos » rappelle ce réglage) | non |
