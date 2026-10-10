@@ -2466,6 +2466,76 @@ public sealed class DialogTests
     /// Thread STA avec l'objet <c>Application</c> et le thème (comme dans ZillaTerm), retiré ensuite pour que les
     /// autres tests ne trouvent pas de ressources liées à ce thread.
     /// </summary>
+    /// <summary>
+    /// Astreinte : le texte de l'équipe s'affiche tel quel (texte brut, sans mise en forme) ; enregistrer, ajouter une
+    /// note, arrêter ; l'astreinte en cours ne se supprime pas ; le journal se relit avec la note et sa fin.
+    /// </summary>
+    [Fact]
+    public void DutyWindowRecordsANoteAndListsTheDuty()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var dir = Path.Combine(Path.GetTempPath(), "zillaterm-duty-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            RunWithTheme(() =>
+            {
+                var click = new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent);
+                var recorder = new ZillaTerm.App.Services.DutyRecorder(dir, new XorProtector());
+                const string team = "Astreinte : 01 23 45 67 89\n<b>pas de HTML</b>";
+                var window = new DutyWindow(team, recorder, "jdoe", "session CyberArk (pvwa.corp.local)");
+                Assert.Equal(team, window.TeamText.Text);
+                Assert.Equal(Visibility.Collapsed, window.NoTeamText.Visibility);
+                Assert.False(window.NoteBox.IsEnabled);
+                Assert.False(window.CaptureButton.IsEnabled);
+
+                window.RecordButton.RaiseEvent(click);
+                Assert.True(recorder.IsRecording);
+                Assert.True(window.NoteBox.IsEnabled);
+                Assert.Equal(Strings.DutyStopRecording, window.RecordLabel.Text);
+                window.NoteBox.Text = "INC0012345 : redémarrage de httpd";
+                window.NoteButton.RaiseEvent(click);
+                Assert.Equal("", window.NoteBox.Text);
+
+                window.JournalList.SelectedIndex = 0;
+                Assert.True(window.ExportButton.IsEnabled);
+                Assert.False(window.DeleteButton.IsEnabled);
+
+                window.RecordButton.RaiseEvent(click);
+                Assert.False(recorder.IsRecording);
+                window.JournalList.SelectedIndex = 0;
+                Assert.True(window.DeleteButton.IsEnabled);
+                var file = Assert.IsType<ZillaTerm.Core.Duty.DutyFile>(((System.Windows.Controls.ListBoxItem)window.JournalList.Items[0]).Tag);
+                var recording = ZillaTerm.Core.Duty.DutyJournal.Read(file.Path, recorder.Protector);
+                Assert.Equal(ZillaTerm.Core.Duty.DutyKind.Started, recording.Entries[0].Kind);
+                Assert.Contains(recording.Entries, e => e.Kind == ZillaTerm.Core.Duty.DutyKind.Note && e.Text == "INC0012345 : redémarrage de httpd");
+                Assert.Equal(ZillaTerm.Core.Duty.DutyKind.Stopped, recording.Entries[^1].Kind);
+                Assert.False(recording.Unfinished);
+
+                window.SetTeamText("");
+                Assert.Equal(Visibility.Visible, window.NoTeamText.Visibility);
+                window.Close();
+            });
+        }
+        finally
+        {
+            if (Directory.Exists(dir))
+            {
+                Directory.Delete(dir, recursive: true);
+            }
+        }
+    }
+
+    private sealed class XorProtector : ZillaTerm.Core.KeePass.ISecretProtector
+    {
+        public byte[] Protect(byte[] data) => data.Select(b => (byte)(b ^ 0x5A)).ToArray();
+
+        public byte[] Unprotect(byte[] data) => Protect(data);
+    }
+
     private static void RunWithTheme(Action test)
     {
         ExceptionDispatchInfo? failure = null;

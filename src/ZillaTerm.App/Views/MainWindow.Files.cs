@@ -114,10 +114,10 @@ public partial class MainWindow
             switch (session.State)
             {
                 case RemoteSessionState.Connected:
-                    SetStatus(Text.Format(Strings.FilesOpened, session.Label, session.Protocol));
+                    SessionStatus(session.Label, Text.Format(Strings.FilesOpened, session.Label, session.Protocol));
                     break;
                 case RemoteSessionState.Failed:
-                    SetStatus(Text.Format(Strings.FilesSessionError, session.Label, session.Error), isError: true);
+                    SessionStatus(session.Label, Text.Format(Strings.FilesSessionError, session.Label, session.Error), isError: true);
                     break;
             }
         };

@@ -6,6 +6,10 @@
         <Border DockPanel.Dock="Top" Background="{DynamicResource MainTabBrush}" BorderBrush="{DynamicResource MainTabBorderBrush}" BorderThickness="0,0,0,1" Padding="8,3">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <!-- Astreinte en cours d'enregistrement : image du bureau ajoutée au journal. -->
+                    <Button x:Name="CaptureButton" Content="{x:Static loc:Strings.DutyCaptureButton}" ToolTip="{x:Static loc:Strings.DutyCaptureButtonTip}"
+                            AutomationProperties.HelpText="{x:Static loc:Strings.DutyCaptureButtonTip}"
+                            Click="OnCapture" Padding="10,1" Margin="0,0,6,0" Visibility="Collapsed" />
                     <Button x:Name="FullScreenButton" Content="{x:Static loc:Strings.RdpFullScreen}" ToolTip="{x:Static loc:Strings.RdpFullScreenTip}"
                             Click="OnFullScreen" Padding="10,1" Margin="0,0,6,0" />
                     <Button x:Name="DisconnectButton" Content="{x:Static loc:Strings.RdpDisconnect}" ToolTip="{x:Static loc:Strings.RdpDisconnectTip}"

@@ -186,7 +186,11 @@ public sealed class SshSession : RemoteSession
         bool listening = await display.IsListeningAsync(TimeSpan.FromSeconds(1), Lifetime);
         var x11 = new X11Forwarding(display.EndPoint, (uint)display.Screen);
         string label = Label;
-        x11.RequestReceived += (_, e) => DebugLog.Write("x11", $"{label} : fenêtre X11 ouverte par le serveur ({e.OriginatorHost})");
+        x11.RequestReceived += (_, e) =>
+        {
+            DebugLog.Write("x11", $"{label} : fenêtre X11 ouverte par le serveur ({e.OriginatorHost})");
+            DutyRecorder.Current.Record(Core.Duty.DutyKind.Action, label, Strings.DutyX11Window);
+        };
         x11.Exception += (_, e) => DebugLog.Write("x11", $"{label} : connexion X11", e.Exception);
         var shell = client.CreateShellStream("xterm-256color", (uint)Emulator.Columns, (uint)Emulator.Rows, 0, 0, 65536, null, x11);
         DebugLog.Write("x11", $"{Label} : transfert X11 vers {display} {(shell.IsX11ForwardingAccepted ? "accepté" : "refusé")}, serveur X {(listening ? "présent" : "absent")}");

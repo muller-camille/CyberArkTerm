@@ -88,6 +88,13 @@
                             <Button Grid.Column="2" Content="{x:Static loc:Strings.Browse}" Click="OnBrowseCentralFile" Margin="8,0,0,0" />
                         </Grid>
                         <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,4" Text="{x:Static loc:Strings.CentralFileHelp}" />
+
+                        <!-- Astreinte : texte de l'équipe, diffusé par le fichier d'environnement. -->
+                        <TextBlock Text="{x:Static loc:Strings.DutySection}" Style="{StaticResource SectionTitle}" />
+                        <Label Content="{x:Static loc:Strings.DutyTextLabel}" Target="{Binding ElementName=DutyTextBox}" Padding="0,0,0,4" />
+                        <TextBox x:Name="DutyTextBox" AcceptsReturn="True" AcceptsTab="False" TextWrapping="Wrap" MinHeight="96" MaxHeight="220"
+                                 VerticalScrollBarVisibility="Auto" MaxLength="8000" />
+                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,4,0,4" Text="{x:Static loc:Strings.DutyTextHelp}" />
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

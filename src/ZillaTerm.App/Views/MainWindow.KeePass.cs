@@ -615,6 +615,7 @@ public partial class MainWindow
                 var file = $"full address:s:{address}\r\nusername:s:{target.UserName}\r\nprompt for credentials:i:1\r\n";
                 _launcher.LaunchRdp([.. Encoding.Unicode.GetPreamble(), .. Encoding.Unicode.GetBytes(file)], label);
                 SetStatus(Text.Format(Strings.KeePassRdpNoControl, node.Title));
+                DutyRecord(Core.Duty.DutyKind.Connection, label, Text.Format(Strings.DutyRdpExternal, address));
             }
         }
         catch (Exception ex) when (ex is ArgumentException or IOException or System.ComponentModel.Win32Exception or InvalidOperationException)

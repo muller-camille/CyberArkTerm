@@ -14613,5 +14613,887 @@ namespace ZillaTerm.App.Localization {
                 return ResourceManager.GetString("X11Refused", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Duty.
+        /// </summary>
+        public static string ToolDuty {
+            get {
+                return ResourceManager.GetString("ToolDuty", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to On-call duty: the team's instructions and emergency numbers, and the recording of what you do.
+        /// </summary>
+        public static string ToolDutyTip {
+            get {
+                return ResourceManager.GetString("ToolDutyTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ● Duty recorded.
+        /// </summary>
+        public static string DutyRecordingIndicator {
+            get {
+                return ResourceManager.GetString("DutyRecordingIndicator", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to On-call duty.
+        /// </summary>
+        public static string DutyTitle {
+            get {
+                return ResourceManager.GetString("DutyTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Team instructions.
+        /// </summary>
+        public static string DutyTeamTextSection {
+            get {
+                return ResourceManager.GetString("DutyTeamTextSection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No duty text yet. It is set in Settings › General › Duty text, and shared with the team by the environment file..
+        /// </summary>
+        public static string DutyNoText {
+            get {
+                return ResourceManager.GetString("DutyNoText", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Recording.
+        /// </summary>
+        public static string DutyRecordingSection {
+            get {
+                return ResourceManager.GetString("DutyRecordingSection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Record the duty.
+        /// </summary>
+        public static string DutyStartRecording {
+            get {
+                return ResourceManager.GetString("DutyStartRecording", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Stop recording.
+        /// </summary>
+        public static string DutyStopRecording {
+            get {
+                return ResourceManager.GetString("DutyStopRecording", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Not recording..
+        /// </summary>
+        public static string DutyNotRecording {
+            get {
+                return ResourceManager.GetString("DutyNotRecording", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Recording since {0} ({1}), {2:# event|# events}..
+        /// </summary>
+        public static string DutyRecordingSince {
+            get {
+                return ResourceManager.GetString("DutyRecordingSince", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Everything is kept until you stop: the text of the SSH terminals, connections, account actions, file transfers with their SHA-256, your notes and the captures. The journal is encrypted for your Windows account only. Passwords typed without echo are not in it, but whatever a terminal shows is..
+        /// </summary>
+        public static string DutyRecordingHelp {
+            get {
+                return ResourceManager.GetString("DutyRecordingHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Note for the journal (incident number, decision…).
+        /// </summary>
+        public static string DutyNotePlaceholder {
+            get {
+                return ResourceManager.GetString("DutyNotePlaceholder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Note for the journal.
+        /// </summary>
+        public static string DutyNoteName {
+            get {
+                return ResourceManager.GetString("DutyNoteName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Add _note.
+        /// </summary>
+        public static string DutyAddNote {
+            get {
+                return ResourceManager.GetString("DutyAddNote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ca_pture a remote desktop….
+        /// </summary>
+        public static string DutyCaptureRdp {
+            get {
+                return ResourceManager.GetString("DutyCaptureRdp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Image of a Remote Desktop Connection window (PSM sessions), added to the journal.
+        /// </summary>
+        public static string DutyCaptureTip {
+            get {
+                return ResourceManager.GetString("DutyCaptureTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No Remote Desktop Connection window is open (a minimized window cannot be captured)..
+        /// </summary>
+        public static string DutyNoRdpWindow {
+            get {
+                return ResourceManager.GetString("DutyNoRdpWindow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The window could not be captured..
+        /// </summary>
+        public static string DutyCaptureFailed {
+            get {
+                return ResourceManager.GetString("DutyCaptureFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Capture added to the journal: {0}.
+        /// </summary>
+        public static string DutyCaptured {
+            get {
+                return ResourceManager.GetString("DutyCaptured", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Note added to the journal..
+        /// </summary>
+        public static string DutyNoteAdded {
+            get {
+                return ResourceManager.GetString("DutyNoteAdded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Recorded duties.
+        /// </summary>
+        public static string DutyPreviousSection {
+            get {
+                return ResourceManager.GetString("DutyPreviousSection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}  ({1}).
+        /// </summary>
+        public static string DutyJournalItem {
+            get {
+                return ResourceManager.GetString("DutyJournalItem", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}  (in progress).
+        /// </summary>
+        public static string DutyInProgress {
+            get {
+                return ResourceManager.GetString("DutyInProgress", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No recorded duty..
+        /// </summary>
+        public static string DutyNoJournal {
+            get {
+                return ResourceManager.GetString("DutyNoJournal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to E_xport the report….
+        /// </summary>
+        public static string DutyExportReport {
+            get {
+                return ResourceManager.GetString("DutyExportReport", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Delete….
+        /// </summary>
+        public static string DutyDelete {
+            get {
+                return ResourceManager.GetString("DutyDelete", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The exported report is not encrypted: keep it in a safe place..
+        /// </summary>
+        public static string DutyReportNotEncrypted {
+            get {
+                return ResourceManager.GetString("DutyReportNotEncrypted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Report saved: {0}.
+        /// </summary>
+        public static string DutyReportSaved {
+            get {
+                return ResourceManager.GetString("DutyReportSaved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The journal could not be read: {0}.
+        /// </summary>
+        public static string DutyReadFailed {
+            get {
+                return ResourceManager.GetString("DutyReadFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete this duty journal?.
+        /// </summary>
+        public static string DutyDeleteHeading {
+            get {
+                return ResourceManager.GetString("DutyDeleteHeading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Duty of {0}. It cannot be recovered..
+        /// </summary>
+        public static string DutyDeleteDetail {
+            get {
+                return ResourceManager.GetString("DutyDeleteDetail", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        public static string DutyDeleteAction {
+            get {
+                return ResourceManager.GetString("DutyDeleteAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The recording could not start: {0}.
+        /// </summary>
+        public static string DutyStartFailed {
+            get {
+                return ResourceManager.GetString("DutyStartFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The disk refused the journal: the rest of the duty is not kept ({0})..
+        /// </summary>
+        public static string DutyWriteFailed {
+            get {
+                return ResourceManager.GetString("DutyWriteFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Terminal text limit reached: the terminals are no longer kept (the other events are)..
+        /// </summary>
+        public static string DutyTerminalCapped {
+            get {
+                return ResourceManager.GetString("DutyTerminalCapped", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} on {1}, ZillaTerm {2}, {3}.
+        /// </summary>
+        public static string DutyStartedEntry {
+            get {
+                return ResourceManager.GetString("DutyStartedEntry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CyberArk session ({0}).
+        /// </summary>
+        public static string DutyModeCyberArk {
+            get {
+                return ResourceManager.GetString("DutyModeCyberArk", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to emergency access (without CyberArk).
+        /// </summary>
+        public static string DutyModeEmergency {
+            get {
+                return ResourceManager.GetString("DutyModeEmergency", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Recording stopped.
+        /// </summary>
+        public static string DutyStoppedByUser {
+            get {
+                return ResourceManager.GetString("DutyStoppedByUser", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ZillaTerm closed.
+        /// </summary>
+        public static string DutyStoppedAtExit {
+            get {
+                return ResourceManager.GetString("DutyStoppedAtExit", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connected: {0}.
+        /// </summary>
+        public static string DutyConnected {
+            get {
+                return ResourceManager.GetString("DutyConnected", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connection failed: {0}.
+        /// </summary>
+        public static string DutyConnectionFailed {
+            get {
+                return ResourceManager.GetString("DutyConnectionFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Session closed by the server.
+        /// </summary>
+        public static string DutyClosedByServer {
+            get {
+                return ResourceManager.GetString("DutyClosedByServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Session closed.
+        /// </summary>
+        public static string DutyTabClosed {
+            get {
+                return ResourceManager.GetString("DutyTabClosed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to PSM session opened in Remote Desktop Connection, component {0}.
+        /// </summary>
+        public static string DutyPsmLaunched {
+            get {
+                return ResourceManager.GetString("DutyPsmLaunched", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Target machine: {0}.
+        /// </summary>
+        public static string DutyMachine {
+            get {
+                return ResourceManager.GetString("DutyMachine", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reason: {0}.
+        /// </summary>
+        public static string DutyReason {
+            get {
+                return ResourceManager.GetString("DutyReason", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ticket: {0} {1}.
+        /// </summary>
+        public static string DutyTicket {
+            get {
+                return ResourceManager.GetString("DutyTicket", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SSH session opened in Windows Terminal: {0}.
+        /// </summary>
+        public static string DutySshExternal {
+            get {
+                return ResourceManager.GetString("DutySshExternal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Session opened in Remote Desktop Connection: {0}.
+        /// </summary>
+        public static string DutyRdpExternal {
+            get {
+                return ResourceManager.GetString("DutyRdpExternal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password copied to the clipboard.
+        /// </summary>
+        public static string DutyPasswordCopied {
+            get {
+                return ResourceManager.GetString("DutyPasswordCopied", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CPM: {0} requested.
+        /// </summary>
+        public static string DutyCpmRequested {
+            get {
+                return ResourceManager.GetString("DutyCpmRequested", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account added to safe {0}.
+        /// </summary>
+        public static string DutyAccountAdded {
+            get {
+                return ResourceManager.GetString("DutyAccountAdded", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account changed.
+        /// </summary>
+        public static string DutyAccountEdited {
+            get {
+                return ResourceManager.GetString("DutyAccountEdited", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account deleted.
+        /// </summary>
+        public static string DutyAccountDeleted {
+            get {
+                return ResourceManager.GetString("DutyAccountDeleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Emergency access opened (without CyberArk).
+        /// </summary>
+        public static string DutyEmergencyEntered {
+            get {
+                return ResourceManager.GetString("DutyEmergencyEntered", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Signed out.
+        /// </summary>
+        public static string DutyLoggedOut {
+            get {
+                return ResourceManager.GetString("DutyLoggedOut", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Upload of {0} to {1}.
+        /// </summary>
+        public static string DutyUpload {
+            get {
+                return ResourceManager.GetString("DutyUpload", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Download of {0} to {1}.
+        /// </summary>
+        public static string DutyDownload {
+            get {
+                return ResourceManager.GetString("DutyDownload", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to done.
+        /// </summary>
+        public static string DutyTransferDone {
+            get {
+                return ResourceManager.GetString("DutyTransferDone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to cancelled.
+        /// </summary>
+        public static string DutyTransferCancelled {
+            get {
+                return ResourceManager.GetString("DutyTransferCancelled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to failed: {0}.
+        /// </summary>
+        public static string DutyTransferFailed {
+            get {
+                return ResourceManager.GetString("DutyTransferFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to X11 window opened by the server.
+        /// </summary>
+        public static string DutyX11Window {
+            get {
+                return ResourceManager.GetString("DutyX11Window", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Capture of {0}.
+        /// </summary>
+        public static string DutyCaptureOf {
+            get {
+                return ResourceManager.GetString("DutyCaptureOf", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Capture.
+        /// </summary>
+        public static string DutyCaptureButton {
+            get {
+                return ResourceManager.GetString("DutyCaptureButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Adds an image of this desktop to the duty journal.
+        /// </summary>
+        public static string DutyCaptureButtonTip {
+            get {
+                return ResourceManager.GetString("DutyCaptureButtonTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to On-call duty report.
+        /// </summary>
+        public static string DutyReportTitle {
+            get {
+                return ResourceManager.GetString("DutyReportTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to From {0} to {1} ({2}).
+        /// </summary>
+        public static string DutyReportPeriod {
+            get {
+                return ResourceManager.GetString("DutyReportPeriod", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Recording interrupted: ZillaTerm stopped before the end of the duty..
+        /// </summary>
+        public static string DutyReportUnfinished {
+            get {
+                return ResourceManager.GetString("DutyReportUnfinished", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Part of the journal could not be read or was changed..
+        /// </summary>
+        public static string DutyReportDamaged {
+            get {
+                return ResourceManager.GetString("DutyReportDamaged", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Confidential: this report contains what the terminals showed. It is not encrypted..
+        /// </summary>
+        public static string DutyReportConfidential {
+            get {
+                return ResourceManager.GetString("DutyReportConfidential", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Summary.
+        /// </summary>
+        public static string DutyReportSummary {
+            get {
+                return ResourceManager.GetString("DutyReportSummary", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Timeline.
+        /// </summary>
+        public static string DutyReportTimeline {
+            get {
+                return ResourceManager.GetString("DutyReportTimeline", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Time.
+        /// </summary>
+        public static string DutyReportTime {
+            get {
+                return ResourceManager.GetString("DutyReportTime", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Session.
+        /// </summary>
+        public static string DutyReportSession {
+            get {
+                return ResourceManager.GetString("DutyReportSession", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Event.
+        /// </summary>
+        public static string DutyReportEvent {
+            get {
+                return ResourceManager.GetString("DutyReportEvent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Start.
+        /// </summary>
+        public static string DutyKindStarted {
+            get {
+                return ResourceManager.GetString("DutyKindStarted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to End.
+        /// </summary>
+        public static string DutyKindStopped {
+            get {
+                return ResourceManager.GetString("DutyKindStopped", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Note.
+        /// </summary>
+        public static string DutyKindNote {
+            get {
+                return ResourceManager.GetString("DutyKindNote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Terminal.
+        /// </summary>
+        public static string DutyKindTerminal {
+            get {
+                return ResourceManager.GetString("DutyKindTerminal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connection.
+        /// </summary>
+        public static string DutyKindConnection {
+            get {
+                return ResourceManager.GetString("DutyKindConnection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Action.
+        /// </summary>
+        public static string DutyKindAction {
+            get {
+                return ResourceManager.GetString("DutyKindAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Transfer.
+        /// </summary>
+        public static string DutyKindTransfer {
+            get {
+                return ResourceManager.GetString("DutyKindTransfer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Capture.
+        /// </summary>
+        public static string DutyKindScreenshot {
+            get {
+                return ResourceManager.GetString("DutyKindScreenshot", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0:# connection event|# connection events}.
+        /// </summary>
+        public static string DutyCountConnection {
+            get {
+                return ResourceManager.GetString("DutyCountConnection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0:# action|# actions}.
+        /// </summary>
+        public static string DutyCountAction {
+            get {
+                return ResourceManager.GetString("DutyCountAction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0:# transfer|# transfers}.
+        /// </summary>
+        public static string DutyCountTransfer {
+            get {
+                return ResourceManager.GetString("DutyCountTransfer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0:# capture|# captures}.
+        /// </summary>
+        public static string DutyCountScreenshot {
+            get {
+                return ResourceManager.GetString("DutyCountScreenshot", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0:# note|# notes}.
+        /// </summary>
+        public static string DutyCountNote {
+            get {
+                return ResourceManager.GetString("DutyCountNote", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0:# terminal line|# terminal lines}.
+        /// </summary>
+        public static string DutyCountTerminal {
+            get {
+                return ResourceManager.GetString("DutyCountTerminal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} h {1:00} min.
+        /// </summary>
+        public static string DutyDuration {
+            get {
+                return ResourceManager.GetString("DutyDuration", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to On-call duty.
+        /// </summary>
+        public static string DutySection {
+            get {
+                return ResourceManager.GetString("DutySection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to D_uty text:.
+        /// </summary>
+        public static string DutyTextLabel {
+            get {
+                return ResourceManager.GetString("DutyTextLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shown by the "Duty" button: good practices, emergency numbers… Plain text. Shared with the team by the environment file (Settings button › Export the environment)..
+        /// </summary>
+        public static string DutyTextHelp {
+            get {
+                return ResourceManager.GetString("DutyTextHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Duty text: 8000 characters at most, without invisible characters..
+        /// </summary>
+        public static string InvalidDutyText {
+            get {
+                return ResourceManager.GetString("InvalidDutyText", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Duty text.
+        /// </summary>
+        public static string EnvDutyText {
+            get {
+                return ResourceManager.GetString("EnvDutyText", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid duty text (8000 characters at most, without invisible characters): {0}.
+        /// </summary>
+        public static string EnvInvalidDutyText {
+            get {
+                return ResourceManager.GetString("EnvInvalidDutyText", resourceCulture);
+            }
+        }
     }
 }

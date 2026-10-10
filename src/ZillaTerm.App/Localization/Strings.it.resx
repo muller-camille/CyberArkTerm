@@ -4902,4 +4902,298 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   <data name="X11Refused" xml:space="preserve">
     <value>Inoltro X11 rifiutato dal server o dal PSMP: le applicazioni grafiche non potranno essere visualizzate.</value>
   </data>
+  <data name="ToolDuty" xml:space="preserve">
+    <value>Reperibilità</value>
+  </data>
+  <data name="ToolDutyTip" xml:space="preserve">
+    <value>Reperibilità: istruzioni e numeri di emergenza del team, e registrazione di ciò che fate</value>
+  </data>
+  <data name="DutyRecordingIndicator" xml:space="preserve">
+    <value>● Reperibilità registrata</value>
+  </data>
+  <data name="DutyTitle" xml:space="preserve">
+    <value>Reperibilità</value>
+  </data>
+  <data name="DutyTeamTextSection" xml:space="preserve">
+    <value>Istruzioni del team</value>
+  </data>
+  <data name="DutyNoText" xml:space="preserve">
+    <value>Ancora nessun testo di reperibilità. Si imposta in Impostazioni › Generale › Testo della reperibilità e si diffonde al team con il file di ambiente.</value>
+  </data>
+  <data name="DutyRecordingSection" xml:space="preserve">
+    <value>Registrazione</value>
+  </data>
+  <data name="DutyStartRecording" xml:space="preserve">
+    <value>_Registra la reperibilità</value>
+  </data>
+  <data name="DutyStopRecording" xml:space="preserve">
+    <value>_Interrompi la registrazione</value>
+  </data>
+  <data name="DutyNotRecording" xml:space="preserve">
+    <value>Nessuna registrazione in corso.</value>
+  </data>
+  <data name="DutyRecordingSince" xml:space="preserve">
+    <value>Registrazione dalle {0} ({1}), {2:# evento|# eventi}.</value>
+  </data>
+  <data name="DutyRecordingHelp" xml:space="preserve">
+    <value>Tutto viene conservato fino all'interruzione: il testo dei terminali SSH, le connessioni, le azioni sugli account, i trasferimenti di file con il loro SHA-256, le vostre note e le catture. Il registro è cifrato solo per il vostro account Windows. Le password digitate senza eco non ci sono, ma tutto ciò che mostra un terminale sì.</value>
+  </data>
+  <data name="DutyNotePlaceholder" xml:space="preserve">
+    <value>Nota per il registro (numero di incidente, decisione…)</value>
+  </data>
+  <data name="DutyNoteName" xml:space="preserve">
+    <value>Nota per il registro</value>
+  </data>
+  <data name="DutyAddNote" xml:space="preserve">
+    <value>Aggiungi _nota</value>
+  </data>
+  <data name="DutyCaptureRdp" xml:space="preserve">
+    <value>Ca_ttura un desktop remoto…</value>
+  </data>
+  <data name="DutyCaptureTip" xml:space="preserve">
+    <value>Immagine di una finestra Connessione Desktop remoto (sessioni PSM), aggiunta al registro</value>
+  </data>
+  <data name="DutyNoRdpWindow" xml:space="preserve">
+    <value>Nessuna finestra Connessione Desktop remoto è aperta (una finestra ridotta a icona non può essere catturata).</value>
+  </data>
+  <data name="DutyCaptureFailed" xml:space="preserve">
+    <value>Non è stato possibile catturare la finestra.</value>
+  </data>
+  <data name="DutyCaptured" xml:space="preserve">
+    <value>Cattura aggiunta al registro: {0}</value>
+  </data>
+  <data name="DutyNoteAdded" xml:space="preserve">
+    <value>Nota aggiunta al registro.</value>
+  </data>
+  <data name="DutyPreviousSection" xml:space="preserve">
+    <value>Reperibilità registrate</value>
+  </data>
+  <data name="DutyJournalItem" xml:space="preserve">
+    <value>{0}  ({1})</value>
+  </data>
+  <data name="DutyInProgress" xml:space="preserve">
+    <value>{0}  (in corso)</value>
+  </data>
+  <data name="DutyNoJournal" xml:space="preserve">
+    <value>Nessuna reperibilità registrata.</value>
+  </data>
+  <data name="DutyExportReport" xml:space="preserve">
+    <value>E_sporta il rapporto…</value>
+  </data>
+  <data name="DutyDelete" xml:space="preserve">
+    <value>_Elimina…</value>
+  </data>
+  <data name="DutyReportNotEncrypted" xml:space="preserve">
+    <value>Il rapporto esportato non è cifrato: conservatelo in un luogo sicuro.</value>
+  </data>
+  <data name="DutyReportSaved" xml:space="preserve">
+    <value>Rapporto salvato: {0}</value>
+  </data>
+  <data name="DutyReadFailed" xml:space="preserve">
+    <value>Impossibile leggere il registro: {0}</value>
+  </data>
+  <data name="DutyDeleteHeading" xml:space="preserve">
+    <value>Eliminare questo registro di reperibilità?</value>
+  </data>
+  <data name="DutyDeleteDetail" xml:space="preserve">
+    <value>Reperibilità del {0}. Non potrà essere recuperata.</value>
+  </data>
+  <data name="DutyDeleteAction" xml:space="preserve">
+    <value>Elimina</value>
+  </data>
+  <data name="DutyStartFailed" xml:space="preserve">
+    <value>Impossibile avviare la registrazione: {0}</value>
+  </data>
+  <data name="DutyWriteFailed" xml:space="preserve">
+    <value>Il disco rifiuta il registro: il resto della reperibilità non viene conservato ({0}).</value>
+  </data>
+  <data name="DutyTerminalCapped" xml:space="preserve">
+    <value>Limite del testo dei terminali raggiunto: i terminali non vengono più conservati (gli altri eventi sì).</value>
+  </data>
+  <data name="DutyStartedEntry" xml:space="preserve">
+    <value>{0} su {1}, ZillaTerm {2}, {3}</value>
+  </data>
+  <data name="DutyModeCyberArk" xml:space="preserve">
+    <value>sessione CyberArk ({0})</value>
+  </data>
+  <data name="DutyModeEmergency" xml:space="preserve">
+    <value>accesso di emergenza (senza CyberArk)</value>
+  </data>
+  <data name="DutyStoppedByUser" xml:space="preserve">
+    <value>Registrazione interrotta</value>
+  </data>
+  <data name="DutyStoppedAtExit" xml:space="preserve">
+    <value>ZillaTerm chiuso</value>
+  </data>
+  <data name="DutyConnected" xml:space="preserve">
+    <value>Connesso: {0}</value>
+  </data>
+  <data name="DutyConnectionFailed" xml:space="preserve">
+    <value>Connessione non riuscita: {0}</value>
+  </data>
+  <data name="DutyClosedByServer" xml:space="preserve">
+    <value>Sessione chiusa dal server</value>
+  </data>
+  <data name="DutyTabClosed" xml:space="preserve">
+    <value>Sessione chiusa</value>
+  </data>
+  <data name="DutyPsmLaunched" xml:space="preserve">
+    <value>Sessione PSM aperta in Connessione Desktop remoto, componente {0}</value>
+  </data>
+  <data name="DutyMachine" xml:space="preserve">
+    <value>Macchina di destinazione: {0}</value>
+  </data>
+  <data name="DutyReason" xml:space="preserve">
+    <value>Motivo: {0}</value>
+  </data>
+  <data name="DutyTicket" xml:space="preserve">
+    <value>Ticket: {0} {1}</value>
+  </data>
+  <data name="DutySshExternal" xml:space="preserve">
+    <value>Sessione SSH aperta in Windows Terminal: {0}</value>
+  </data>
+  <data name="DutyRdpExternal" xml:space="preserve">
+    <value>Sessione aperta in Connessione Desktop remoto: {0}</value>
+  </data>
+  <data name="DutyPasswordCopied" xml:space="preserve">
+    <value>Password copiata negli appunti</value>
+  </data>
+  <data name="DutyCpmRequested" xml:space="preserve">
+    <value>CPM: {0} richiesto</value>
+  </data>
+  <data name="DutyAccountAdded" xml:space="preserve">
+    <value>Account aggiunto nel safe {0}</value>
+  </data>
+  <data name="DutyAccountEdited" xml:space="preserve">
+    <value>Account modificato</value>
+  </data>
+  <data name="DutyAccountDeleted" xml:space="preserve">
+    <value>Account eliminato</value>
+  </data>
+  <data name="DutyEmergencyEntered" xml:space="preserve">
+    <value>Accesso di emergenza aperto (senza CyberArk)</value>
+  </data>
+  <data name="DutyLoggedOut" xml:space="preserve">
+    <value>Disconnessione</value>
+  </data>
+  <data name="DutyUpload" xml:space="preserve">
+    <value>Invio di {0} verso {1}</value>
+  </data>
+  <data name="DutyDownload" xml:space="preserve">
+    <value>Download di {0} verso {1}</value>
+  </data>
+  <data name="DutyTransferDone" xml:space="preserve">
+    <value>completato</value>
+  </data>
+  <data name="DutyTransferCancelled" xml:space="preserve">
+    <value>annullato</value>
+  </data>
+  <data name="DutyTransferFailed" xml:space="preserve">
+    <value>non riuscito: {0}</value>
+  </data>
+  <data name="DutyX11Window" xml:space="preserve">
+    <value>Finestra X11 aperta dal server</value>
+  </data>
+  <data name="DutyCaptureOf" xml:space="preserve">
+    <value>Cattura di {0}</value>
+  </data>
+  <data name="DutyCaptureButton" xml:space="preserve">
+    <value>Cattura</value>
+  </data>
+  <data name="DutyCaptureButtonTip" xml:space="preserve">
+    <value>Aggiunge un'immagine di questo desktop al registro di reperibilità</value>
+  </data>
+  <data name="DutyReportTitle" xml:space="preserve">
+    <value>Rapporto di reperibilità</value>
+  </data>
+  <data name="DutyReportPeriod" xml:space="preserve">
+    <value>Dal {0} al {1} ({2})</value>
+  </data>
+  <data name="DutyReportUnfinished" xml:space="preserve">
+    <value>Registrazione interrotta: ZillaTerm si è chiuso prima della fine della reperibilità.</value>
+  </data>
+  <data name="DutyReportDamaged" xml:space="preserve">
+    <value>Una parte del registro è illeggibile o è stata modificata.</value>
+  </data>
+  <data name="DutyReportConfidential" xml:space="preserve">
+    <value>Riservato: questo rapporto contiene ciò che hanno mostrato i terminali. Non è cifrato.</value>
+  </data>
+  <data name="DutyReportSummary" xml:space="preserve">
+    <value>Riepilogo</value>
+  </data>
+  <data name="DutyReportTimeline" xml:space="preserve">
+    <value>Cronologia</value>
+  </data>
+  <data name="DutyReportTime" xml:space="preserve">
+    <value>Ora</value>
+  </data>
+  <data name="DutyReportSession" xml:space="preserve">
+    <value>Sessione</value>
+  </data>
+  <data name="DutyReportEvent" xml:space="preserve">
+    <value>Evento</value>
+  </data>
+  <data name="DutyKindStarted" xml:space="preserve">
+    <value>Inizio</value>
+  </data>
+  <data name="DutyKindStopped" xml:space="preserve">
+    <value>Fine</value>
+  </data>
+  <data name="DutyKindNote" xml:space="preserve">
+    <value>Nota</value>
+  </data>
+  <data name="DutyKindTerminal" xml:space="preserve">
+    <value>Terminale</value>
+  </data>
+  <data name="DutyKindConnection" xml:space="preserve">
+    <value>Connessione</value>
+  </data>
+  <data name="DutyKindAction" xml:space="preserve">
+    <value>Azione</value>
+  </data>
+  <data name="DutyKindTransfer" xml:space="preserve">
+    <value>Trasferimento</value>
+  </data>
+  <data name="DutyKindScreenshot" xml:space="preserve">
+    <value>Cattura</value>
+  </data>
+  <data name="DutyCountConnection" xml:space="preserve">
+    <value>{0:# evento di connessione|# eventi di connessione}</value>
+  </data>
+  <data name="DutyCountAction" xml:space="preserve">
+    <value>{0:# azione|# azioni}</value>
+  </data>
+  <data name="DutyCountTransfer" xml:space="preserve">
+    <value>{0:# trasferimento|# trasferimenti}</value>
+  </data>
+  <data name="DutyCountScreenshot" xml:space="preserve">
+    <value>{0:# cattura|# catture}</value>
+  </data>
+  <data name="DutyCountNote" xml:space="preserve">
+    <value>{0:# nota|# note}</value>
+  </data>
+  <data name="DutyCountTerminal" xml:space="preserve">
+    <value>{0:# riga di terminale|# righe di terminale}</value>
+  </data>
+  <data name="DutyDuration" xml:space="preserve">
+    <value>{0} h {1:00}</value>
+  </data>
+  <data name="DutySection" xml:space="preserve">
+    <value>Reperibilità</value>
+  </data>
+  <data name="DutyTextLabel" xml:space="preserve">
+    <value>Testo della re_peribilità:</value>
+  </data>
+  <data name="DutyTextHelp" xml:space="preserve">
+    <value>Mostrato dal pulsante «Reperibilità»: buone pratiche, numeri di emergenza… Testo semplice. Diffuso al team con il file di ambiente (pulsante Impostazioni › Esporta l'ambiente).</value>
+  </data>
+  <data name="InvalidDutyText" xml:space="preserve">
+    <value>Testo della reperibilità: al massimo 8000 caratteri, senza caratteri invisibili.</value>
+  </data>
+  <data name="EnvDutyText" xml:space="preserve">
+    <value>Testo della reperibilità</value>
+  </data>
+  <data name="EnvInvalidDutyText" xml:space="preserve">
+    <value>Testo della reperibilità non valido (al massimo 8000 caratteri, senza caratteri invisibili): {0}</value>
+  </data>
 </root>

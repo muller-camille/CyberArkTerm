@@ -4902,4 +4902,298 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   <data name="X11Refused" xml:space="preserve">
     <value>Transfert X11 refusé par le serveur ou par le PSMP : les applications graphiques ne pourront pas s'afficher.</value>
   </data>
+  <data name="ToolDuty" xml:space="preserve">
+    <value>Astreinte</value>
+  </data>
+  <data name="ToolDutyTip" xml:space="preserve">
+    <value>Astreinte : consignes et numéros d'urgence de l'équipe, et enregistrement de ce que vous faites</value>
+  </data>
+  <data name="DutyRecordingIndicator" xml:space="preserve">
+    <value>● Astreinte enregistrée</value>
+  </data>
+  <data name="DutyTitle" xml:space="preserve">
+    <value>Astreinte</value>
+  </data>
+  <data name="DutyTeamTextSection" xml:space="preserve">
+    <value>Consignes de l'équipe</value>
+  </data>
+  <data name="DutyNoText" xml:space="preserve">
+    <value>Aucun texte d'astreinte pour l'instant. Il se règle dans Paramètres › Général › Texte de l'astreinte, et se diffuse à l'équipe par le fichier d'environnement.</value>
+  </data>
+  <data name="DutyRecordingSection" xml:space="preserve">
+    <value>Enregistrement</value>
+  </data>
+  <data name="DutyStartRecording" xml:space="preserve">
+    <value>_Enregistrer l'astreinte</value>
+  </data>
+  <data name="DutyStopRecording" xml:space="preserve">
+    <value>_Arrêter l'enregistrement</value>
+  </data>
+  <data name="DutyNotRecording" xml:space="preserve">
+    <value>Pas d'enregistrement en cours.</value>
+  </data>
+  <data name="DutyRecordingSince" xml:space="preserve">
+    <value>Enregistrement depuis {0} ({1}), {2:# événement|# événements}.</value>
+  </data>
+  <data name="DutyRecordingHelp" xml:space="preserve">
+    <value>Tout est gardé jusqu'à l'arrêt : le texte des terminaux SSH, les connexions, les actions sur les comptes, les transferts de fichiers avec leur SHA-256, vos notes et les captures. Le journal est chiffré pour votre compte Windows seul. Les mots de passe tapés sans écho n'y sont pas, mais tout ce qu'affiche un terminal y est.</value>
+  </data>
+  <data name="DutyNotePlaceholder" xml:space="preserve">
+    <value>Note pour le journal (numéro d'incident, décision…)</value>
+  </data>
+  <data name="DutyNoteName" xml:space="preserve">
+    <value>Note pour le journal</value>
+  </data>
+  <data name="DutyAddNote" xml:space="preserve">
+    <value>Ajouter la _note</value>
+  </data>
+  <data name="DutyCaptureRdp" xml:space="preserve">
+    <value>_Capturer un Bureau à distance…</value>
+  </data>
+  <data name="DutyCaptureTip" xml:space="preserve">
+    <value>Image d'une fenêtre Connexion Bureau à distance (sessions PSM), ajoutée au journal</value>
+  </data>
+  <data name="DutyNoRdpWindow" xml:space="preserve">
+    <value>Aucune fenêtre Connexion Bureau à distance n'est ouverte (une fenêtre réduite ne peut pas être capturée).</value>
+  </data>
+  <data name="DutyCaptureFailed" xml:space="preserve">
+    <value>La fenêtre n'a pas pu être capturée.</value>
+  </data>
+  <data name="DutyCaptured" xml:space="preserve">
+    <value>Capture ajoutée au journal : {0}</value>
+  </data>
+  <data name="DutyNoteAdded" xml:space="preserve">
+    <value>Note ajoutée au journal.</value>
+  </data>
+  <data name="DutyPreviousSection" xml:space="preserve">
+    <value>Astreintes enregistrées</value>
+  </data>
+  <data name="DutyJournalItem" xml:space="preserve">
+    <value>{0}  ({1})</value>
+  </data>
+  <data name="DutyInProgress" xml:space="preserve">
+    <value>{0}  (en cours)</value>
+  </data>
+  <data name="DutyNoJournal" xml:space="preserve">
+    <value>Aucune astreinte enregistrée.</value>
+  </data>
+  <data name="DutyExportReport" xml:space="preserve">
+    <value>E_xporter le rapport…</value>
+  </data>
+  <data name="DutyDelete" xml:space="preserve">
+    <value>_Supprimer…</value>
+  </data>
+  <data name="DutyReportNotEncrypted" xml:space="preserve">
+    <value>Le rapport exporté n'est pas chiffré : rangez-le en lieu sûr.</value>
+  </data>
+  <data name="DutyReportSaved" xml:space="preserve">
+    <value>Rapport enregistré : {0}</value>
+  </data>
+  <data name="DutyReadFailed" xml:space="preserve">
+    <value>Le journal n'a pas pu être lu : {0}</value>
+  </data>
+  <data name="DutyDeleteHeading" xml:space="preserve">
+    <value>Supprimer ce journal d'astreinte ?</value>
+  </data>
+  <data name="DutyDeleteDetail" xml:space="preserve">
+    <value>Astreinte du {0}. Elle ne pourra pas être récupérée.</value>
+  </data>
+  <data name="DutyDeleteAction" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="DutyStartFailed" xml:space="preserve">
+    <value>L'enregistrement n'a pas pu commencer : {0}</value>
+  </data>
+  <data name="DutyWriteFailed" xml:space="preserve">
+    <value>Le disque refuse le journal : la suite de l'astreinte n'est pas gardée ({0}).</value>
+  </data>
+  <data name="DutyTerminalCapped" xml:space="preserve">
+    <value>Limite du texte des terminaux atteinte : les terminaux ne sont plus gardés (les autres événements le sont).</value>
+  </data>
+  <data name="DutyStartedEntry" xml:space="preserve">
+    <value>{0} sur {1}, ZillaTerm {2}, {3}</value>
+  </data>
+  <data name="DutyModeCyberArk" xml:space="preserve">
+    <value>session CyberArk ({0})</value>
+  </data>
+  <data name="DutyModeEmergency" xml:space="preserve">
+    <value>accès d'urgence (sans CyberArk)</value>
+  </data>
+  <data name="DutyStoppedByUser" xml:space="preserve">
+    <value>Enregistrement arrêté</value>
+  </data>
+  <data name="DutyStoppedAtExit" xml:space="preserve">
+    <value>ZillaTerm fermé</value>
+  </data>
+  <data name="DutyConnected" xml:space="preserve">
+    <value>Connecté : {0}</value>
+  </data>
+  <data name="DutyConnectionFailed" xml:space="preserve">
+    <value>Échec de la connexion : {0}</value>
+  </data>
+  <data name="DutyClosedByServer" xml:space="preserve">
+    <value>Session fermée par le serveur</value>
+  </data>
+  <data name="DutyTabClosed" xml:space="preserve">
+    <value>Session fermée</value>
+  </data>
+  <data name="DutyPsmLaunched" xml:space="preserve">
+    <value>Session PSM ouverte dans Connexion Bureau à distance, composant {0}</value>
+  </data>
+  <data name="DutyMachine" xml:space="preserve">
+    <value>Machine cible : {0}</value>
+  </data>
+  <data name="DutyReason" xml:space="preserve">
+    <value>Motif : {0}</value>
+  </data>
+  <data name="DutyTicket" xml:space="preserve">
+    <value>Ticket : {0} {1}</value>
+  </data>
+  <data name="DutySshExternal" xml:space="preserve">
+    <value>Session SSH ouverte dans Windows Terminal : {0}</value>
+  </data>
+  <data name="DutyRdpExternal" xml:space="preserve">
+    <value>Session ouverte dans Connexion Bureau à distance : {0}</value>
+  </data>
+  <data name="DutyPasswordCopied" xml:space="preserve">
+    <value>Mot de passe copié dans le presse-papiers</value>
+  </data>
+  <data name="DutyCpmRequested" xml:space="preserve">
+    <value>CPM : {0} demandé</value>
+  </data>
+  <data name="DutyAccountAdded" xml:space="preserve">
+    <value>Compte ajouté dans le safe {0}</value>
+  </data>
+  <data name="DutyAccountEdited" xml:space="preserve">
+    <value>Compte modifié</value>
+  </data>
+  <data name="DutyAccountDeleted" xml:space="preserve">
+    <value>Compte supprimé</value>
+  </data>
+  <data name="DutyEmergencyEntered" xml:space="preserve">
+    <value>Accès d'urgence ouvert (sans CyberArk)</value>
+  </data>
+  <data name="DutyLoggedOut" xml:space="preserve">
+    <value>Déconnexion</value>
+  </data>
+  <data name="DutyUpload" xml:space="preserve">
+    <value>Envoi de {0} vers {1}</value>
+  </data>
+  <data name="DutyDownload" xml:space="preserve">
+    <value>Téléchargement de {0} vers {1}</value>
+  </data>
+  <data name="DutyTransferDone" xml:space="preserve">
+    <value>terminé</value>
+  </data>
+  <data name="DutyTransferCancelled" xml:space="preserve">
+    <value>annulé</value>
+  </data>
+  <data name="DutyTransferFailed" xml:space="preserve">
+    <value>échec : {0}</value>
+  </data>
+  <data name="DutyX11Window" xml:space="preserve">
+    <value>Fenêtre X11 ouverte par le serveur</value>
+  </data>
+  <data name="DutyCaptureOf" xml:space="preserve">
+    <value>Capture de {0}</value>
+  </data>
+  <data name="DutyCaptureButton" xml:space="preserve">
+    <value>Capture</value>
+  </data>
+  <data name="DutyCaptureButtonTip" xml:space="preserve">
+    <value>Ajoute une image de ce bureau au journal d'astreinte</value>
+  </data>
+  <data name="DutyReportTitle" xml:space="preserve">
+    <value>Rapport d'astreinte</value>
+  </data>
+  <data name="DutyReportPeriod" xml:space="preserve">
+    <value>Du {0} au {1} ({2})</value>
+  </data>
+  <data name="DutyReportUnfinished" xml:space="preserve">
+    <value>Enregistrement interrompu : ZillaTerm s'est arrêté avant la fin de l'astreinte.</value>
+  </data>
+  <data name="DutyReportDamaged" xml:space="preserve">
+    <value>Une partie du journal est illisible ou a été modifiée.</value>
+  </data>
+  <data name="DutyReportConfidential" xml:space="preserve">
+    <value>Confidentiel : ce rapport contient ce qu'ont affiché les terminaux. Il n'est pas chiffré.</value>
+  </data>
+  <data name="DutyReportSummary" xml:space="preserve">
+    <value>Résumé</value>
+  </data>
+  <data name="DutyReportTimeline" xml:space="preserve">
+    <value>Chronologie</value>
+  </data>
+  <data name="DutyReportTime" xml:space="preserve">
+    <value>Heure</value>
+  </data>
+  <data name="DutyReportSession" xml:space="preserve">
+    <value>Session</value>
+  </data>
+  <data name="DutyReportEvent" xml:space="preserve">
+    <value>Événement</value>
+  </data>
+  <data name="DutyKindStarted" xml:space="preserve">
+    <value>Début</value>
+  </data>
+  <data name="DutyKindStopped" xml:space="preserve">
+    <value>Fin</value>
+  </data>
+  <data name="DutyKindNote" xml:space="preserve">
+    <value>Note</value>
+  </data>
+  <data name="DutyKindTerminal" xml:space="preserve">
+    <value>Terminal</value>
+  </data>
+  <data name="DutyKindConnection" xml:space="preserve">
+    <value>Connexion</value>
+  </data>
+  <data name="DutyKindAction" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="DutyKindTransfer" xml:space="preserve">
+    <value>Transfert</value>
+  </data>
+  <data name="DutyKindScreenshot" xml:space="preserve">
+    <value>Capture</value>
+  </data>
+  <data name="DutyCountConnection" xml:space="preserve">
+    <value>{0:# événement de connexion|# événements de connexion}</value>
+  </data>
+  <data name="DutyCountAction" xml:space="preserve">
+    <value>{0:# action|# actions}</value>
+  </data>
+  <data name="DutyCountTransfer" xml:space="preserve">
+    <value>{0:# transfert|# transferts}</value>
+  </data>
+  <data name="DutyCountScreenshot" xml:space="preserve">
+    <value>{0:# capture|# captures}</value>
+  </data>
+  <data name="DutyCountNote" xml:space="preserve">
+    <value>{0:# note|# notes}</value>
+  </data>
+  <data name="DutyCountTerminal" xml:space="preserve">
+    <value>{0:# ligne de terminal|# lignes de terminal}</value>
+  </data>
+  <data name="DutyDuration" xml:space="preserve">
+    <value>{0} h {1:00}</value>
+  </data>
+  <data name="DutySection" xml:space="preserve">
+    <value>Astreinte</value>
+  </data>
+  <data name="DutyTextLabel" xml:space="preserve">
+    <value>Texte de l'_astreinte :</value>
+  </data>
+  <data name="DutyTextHelp" xml:space="preserve">
+    <value>Affiché par le bouton « Astreinte » : bonnes pratiques, numéros d'urgence… Texte brut. Diffusé à l'équipe par le fichier d'environnement (bouton Paramètres › Exporter l'environnement).</value>
+  </data>
+  <data name="InvalidDutyText" xml:space="preserve">
+    <value>Texte de l'astreinte : 8000 caractères au plus, sans caractère invisible.</value>
+  </data>
+  <data name="EnvDutyText" xml:space="preserve">
+    <value>Texte de l'astreinte</value>
+  </data>
+  <data name="EnvInvalidDutyText" xml:space="preserve">
+    <value>Texte de l'astreinte invalide (8000 caractères au plus, sans caractère invisible) : {0}</value>
+  </data>
 </root>

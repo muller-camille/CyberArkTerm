@@ -4902,4 +4902,298 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="X11Refused" xml:space="preserve">
     <value>X11 forwarding refused by the server or the PSMP: graphical applications cannot be shown.</value>
   </data>
+  <data name="ToolDuty" xml:space="preserve">
+    <value>Duty</value>
+  </data>
+  <data name="ToolDutyTip" xml:space="preserve">
+    <value>On-call duty: the team's instructions and emergency numbers, and the recording of what you do</value>
+  </data>
+  <data name="DutyRecordingIndicator" xml:space="preserve">
+    <value>● Duty recorded</value>
+  </data>
+  <data name="DutyTitle" xml:space="preserve">
+    <value>On-call duty</value>
+  </data>
+  <data name="DutyTeamTextSection" xml:space="preserve">
+    <value>Team instructions</value>
+  </data>
+  <data name="DutyNoText" xml:space="preserve">
+    <value>No duty text yet. It is set in Settings › General › Duty text, and shared with the team by the environment file.</value>
+  </data>
+  <data name="DutyRecordingSection" xml:space="preserve">
+    <value>Recording</value>
+  </data>
+  <data name="DutyStartRecording" xml:space="preserve">
+    <value>_Record the duty</value>
+  </data>
+  <data name="DutyStopRecording" xml:space="preserve">
+    <value>_Stop recording</value>
+  </data>
+  <data name="DutyNotRecording" xml:space="preserve">
+    <value>Not recording.</value>
+  </data>
+  <data name="DutyRecordingSince" xml:space="preserve">
+    <value>Recording since {0} ({1}), {2:# event|# events}.</value>
+  </data>
+  <data name="DutyRecordingHelp" xml:space="preserve">
+    <value>Everything is kept until you stop: the text of the SSH terminals, connections, account actions, file transfers with their SHA-256, your notes and the captures. The journal is encrypted for your Windows account only. Passwords typed without echo are not in it, but whatever a terminal shows is.</value>
+  </data>
+  <data name="DutyNotePlaceholder" xml:space="preserve">
+    <value>Note for the journal (incident number, decision…)</value>
+  </data>
+  <data name="DutyNoteName" xml:space="preserve">
+    <value>Note for the journal</value>
+  </data>
+  <data name="DutyAddNote" xml:space="preserve">
+    <value>Add _note</value>
+  </data>
+  <data name="DutyCaptureRdp" xml:space="preserve">
+    <value>Ca_pture a remote desktop…</value>
+  </data>
+  <data name="DutyCaptureTip" xml:space="preserve">
+    <value>Image of a Remote Desktop Connection window (PSM sessions), added to the journal</value>
+  </data>
+  <data name="DutyNoRdpWindow" xml:space="preserve">
+    <value>No Remote Desktop Connection window is open (a minimized window cannot be captured).</value>
+  </data>
+  <data name="DutyCaptureFailed" xml:space="preserve">
+    <value>The window could not be captured.</value>
+  </data>
+  <data name="DutyCaptured" xml:space="preserve">
+    <value>Capture added to the journal: {0}</value>
+  </data>
+  <data name="DutyNoteAdded" xml:space="preserve">
+    <value>Note added to the journal.</value>
+  </data>
+  <data name="DutyPreviousSection" xml:space="preserve">
+    <value>Recorded duties</value>
+  </data>
+  <data name="DutyJournalItem" xml:space="preserve">
+    <value>{0}  ({1})</value>
+  </data>
+  <data name="DutyInProgress" xml:space="preserve">
+    <value>{0}  (in progress)</value>
+  </data>
+  <data name="DutyNoJournal" xml:space="preserve">
+    <value>No recorded duty.</value>
+  </data>
+  <data name="DutyExportReport" xml:space="preserve">
+    <value>E_xport the report…</value>
+  </data>
+  <data name="DutyDelete" xml:space="preserve">
+    <value>_Delete…</value>
+  </data>
+  <data name="DutyReportNotEncrypted" xml:space="preserve">
+    <value>The exported report is not encrypted: keep it in a safe place.</value>
+  </data>
+  <data name="DutyReportSaved" xml:space="preserve">
+    <value>Report saved: {0}</value>
+  </data>
+  <data name="DutyReadFailed" xml:space="preserve">
+    <value>The journal could not be read: {0}</value>
+  </data>
+  <data name="DutyDeleteHeading" xml:space="preserve">
+    <value>Delete this duty journal?</value>
+  </data>
+  <data name="DutyDeleteDetail" xml:space="preserve">
+    <value>Duty of {0}. It cannot be recovered.</value>
+  </data>
+  <data name="DutyDeleteAction" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DutyStartFailed" xml:space="preserve">
+    <value>The recording could not start: {0}</value>
+  </data>
+  <data name="DutyWriteFailed" xml:space="preserve">
+    <value>The disk refused the journal: the rest of the duty is not kept ({0}).</value>
+  </data>
+  <data name="DutyTerminalCapped" xml:space="preserve">
+    <value>Terminal text limit reached: the terminals are no longer kept (the other events are).</value>
+  </data>
+  <data name="DutyStartedEntry" xml:space="preserve">
+    <value>{0} on {1}, ZillaTerm {2}, {3}</value>
+  </data>
+  <data name="DutyModeCyberArk" xml:space="preserve">
+    <value>CyberArk session ({0})</value>
+  </data>
+  <data name="DutyModeEmergency" xml:space="preserve">
+    <value>emergency access (without CyberArk)</value>
+  </data>
+  <data name="DutyStoppedByUser" xml:space="preserve">
+    <value>Recording stopped</value>
+  </data>
+  <data name="DutyStoppedAtExit" xml:space="preserve">
+    <value>ZillaTerm closed</value>
+  </data>
+  <data name="DutyConnected" xml:space="preserve">
+    <value>Connected: {0}</value>
+  </data>
+  <data name="DutyConnectionFailed" xml:space="preserve">
+    <value>Connection failed: {0}</value>
+  </data>
+  <data name="DutyClosedByServer" xml:space="preserve">
+    <value>Session closed by the server</value>
+  </data>
+  <data name="DutyTabClosed" xml:space="preserve">
+    <value>Session closed</value>
+  </data>
+  <data name="DutyPsmLaunched" xml:space="preserve">
+    <value>PSM session opened in Remote Desktop Connection, component {0}</value>
+  </data>
+  <data name="DutyMachine" xml:space="preserve">
+    <value>Target machine: {0}</value>
+  </data>
+  <data name="DutyReason" xml:space="preserve">
+    <value>Reason: {0}</value>
+  </data>
+  <data name="DutyTicket" xml:space="preserve">
+    <value>Ticket: {0} {1}</value>
+  </data>
+  <data name="DutySshExternal" xml:space="preserve">
+    <value>SSH session opened in Windows Terminal: {0}</value>
+  </data>
+  <data name="DutyRdpExternal" xml:space="preserve">
+    <value>Session opened in Remote Desktop Connection: {0}</value>
+  </data>
+  <data name="DutyPasswordCopied" xml:space="preserve">
+    <value>Password copied to the clipboard</value>
+  </data>
+  <data name="DutyCpmRequested" xml:space="preserve">
+    <value>CPM: {0} requested</value>
+  </data>
+  <data name="DutyAccountAdded" xml:space="preserve">
+    <value>Account added to safe {0}</value>
+  </data>
+  <data name="DutyAccountEdited" xml:space="preserve">
+    <value>Account changed</value>
+  </data>
+  <data name="DutyAccountDeleted" xml:space="preserve">
+    <value>Account deleted</value>
+  </data>
+  <data name="DutyEmergencyEntered" xml:space="preserve">
+    <value>Emergency access opened (without CyberArk)</value>
+  </data>
+  <data name="DutyLoggedOut" xml:space="preserve">
+    <value>Signed out</value>
+  </data>
+  <data name="DutyUpload" xml:space="preserve">
+    <value>Upload of {0} to {1}</value>
+  </data>
+  <data name="DutyDownload" xml:space="preserve">
+    <value>Download of {0} to {1}</value>
+  </data>
+  <data name="DutyTransferDone" xml:space="preserve">
+    <value>done</value>
+  </data>
+  <data name="DutyTransferCancelled" xml:space="preserve">
+    <value>cancelled</value>
+  </data>
+  <data name="DutyTransferFailed" xml:space="preserve">
+    <value>failed: {0}</value>
+  </data>
+  <data name="DutyX11Window" xml:space="preserve">
+    <value>X11 window opened by the server</value>
+  </data>
+  <data name="DutyCaptureOf" xml:space="preserve">
+    <value>Capture of {0}</value>
+  </data>
+  <data name="DutyCaptureButton" xml:space="preserve">
+    <value>Capture</value>
+  </data>
+  <data name="DutyCaptureButtonTip" xml:space="preserve">
+    <value>Adds an image of this desktop to the duty journal</value>
+  </data>
+  <data name="DutyReportTitle" xml:space="preserve">
+    <value>On-call duty report</value>
+  </data>
+  <data name="DutyReportPeriod" xml:space="preserve">
+    <value>From {0} to {1} ({2})</value>
+  </data>
+  <data name="DutyReportUnfinished" xml:space="preserve">
+    <value>Recording interrupted: ZillaTerm stopped before the end of the duty.</value>
+  </data>
+  <data name="DutyReportDamaged" xml:space="preserve">
+    <value>Part of the journal could not be read or was changed.</value>
+  </data>
+  <data name="DutyReportConfidential" xml:space="preserve">
+    <value>Confidential: this report contains what the terminals showed. It is not encrypted.</value>
+  </data>
+  <data name="DutyReportSummary" xml:space="preserve">
+    <value>Summary</value>
+  </data>
+  <data name="DutyReportTimeline" xml:space="preserve">
+    <value>Timeline</value>
+  </data>
+  <data name="DutyReportTime" xml:space="preserve">
+    <value>Time</value>
+  </data>
+  <data name="DutyReportSession" xml:space="preserve">
+    <value>Session</value>
+  </data>
+  <data name="DutyReportEvent" xml:space="preserve">
+    <value>Event</value>
+  </data>
+  <data name="DutyKindStarted" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="DutyKindStopped" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="DutyKindNote" xml:space="preserve">
+    <value>Note</value>
+  </data>
+  <data name="DutyKindTerminal" xml:space="preserve">
+    <value>Terminal</value>
+  </data>
+  <data name="DutyKindConnection" xml:space="preserve">
+    <value>Connection</value>
+  </data>
+  <data name="DutyKindAction" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="DutyKindTransfer" xml:space="preserve">
+    <value>Transfer</value>
+  </data>
+  <data name="DutyKindScreenshot" xml:space="preserve">
+    <value>Capture</value>
+  </data>
+  <data name="DutyCountConnection" xml:space="preserve">
+    <value>{0:# connection event|# connection events}</value>
+  </data>
+  <data name="DutyCountAction" xml:space="preserve">
+    <value>{0:# action|# actions}</value>
+  </data>
+  <data name="DutyCountTransfer" xml:space="preserve">
+    <value>{0:# transfer|# transfers}</value>
+  </data>
+  <data name="DutyCountScreenshot" xml:space="preserve">
+    <value>{0:# capture|# captures}</value>
+  </data>
+  <data name="DutyCountNote" xml:space="preserve">
+    <value>{0:# note|# notes}</value>
+  </data>
+  <data name="DutyCountTerminal" xml:space="preserve">
+    <value>{0:# terminal line|# terminal lines}</value>
+  </data>
+  <data name="DutyDuration" xml:space="preserve">
+    <value>{0} h {1:00} min</value>
+  </data>
+  <data name="DutySection" xml:space="preserve">
+    <value>On-call duty</value>
+  </data>
+  <data name="DutyTextLabel" xml:space="preserve">
+    <value>D_uty text:</value>
+  </data>
+  <data name="DutyTextHelp" xml:space="preserve">
+    <value>Shown by the "Duty" button: good practices, emergency numbers… Plain text. Shared with the team by the environment file (Settings button › Export the environment).</value>
+  </data>
+  <data name="InvalidDutyText" xml:space="preserve">
+    <value>Duty text: 8000 characters at most, without invisible characters.</value>
+  </data>
+  <data name="EnvDutyText" xml:space="preserve">
+    <value>Duty text</value>
+  </data>
+  <data name="EnvInvalidDutyText" xml:space="preserve">
+    <value>Invalid duty text (8000 characters at most, without invisible characters): {0}</value>
+  </data>
 </root>

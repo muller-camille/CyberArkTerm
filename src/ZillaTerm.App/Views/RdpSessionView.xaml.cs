@@ -22,9 +22,36 @@ public partial class RdpSessionView : UserControl
 
     internal RdpSession Session { get; }
 
+    /// <summary>Astreinte en cours d'enregistrement : le bouton « Capture » est proposé.</summary>
+    internal bool DutyRecording
+    {
+        get => _dutyRecording;
+        set
+        {
+            _dutyRecording = value;
+            Update();
+        }
+    }
+
+    private bool _dutyRecording;
+
+    private void OnCapture(object sender, RoutedEventArgs e)
+    {
+        var png = Services.WindowCapture.CaptureChildPng(Session.Host.SlotHandle);
+        if (png is null)
+        {
+            StatusLine.Text = Strings.DutyCaptureFailed;
+            return;
+        }
+
+        Services.DutyRecorder.Current.Record(Core.Duty.DutyKind.Screenshot, Session.Label, Text.Format(Strings.DutyCaptureOf, Session.Label), png);
+        StatusLine.Text = Text.Format(Strings.DutyCaptured, Session.Label);
+    }
+
     private void Update()
     {
         var session = Session;
+        CaptureButton.Visibility = _dutyRecording && session.ShowsDesktop ? Visibility.Visible : Visibility.Collapsed;
         Overlay.Visibility = session.ShowsDesktop ? Visibility.Collapsed : Visibility.Visible;
         FullScreenButton.IsEnabled = session.IsConnected;
         DisconnectButton.IsEnabled = session.HasControl;

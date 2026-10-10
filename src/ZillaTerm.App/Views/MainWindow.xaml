@@ -509,6 +509,19 @@
                             <TextBlock Text="{x:Static loc:Strings.ToolHistory}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
+                    <Button x:Name="DutyButton" Style="{StaticResource ToolButton}" Click="OnDuty" ToolTip="{x:Static loc:Strings.ToolDutyTip}"
+                            AutomationProperties.Name="{x:Static loc:Strings.ToolDuty}">
+                        <StackPanel>
+                            <Grid>
+                                <Image Source="{DynamicResource IconDuty}" Style="{StaticResource ToolIcon}" />
+                                <!-- Astreinte en cours d'enregistrement. -->
+                                <Ellipse x:Name="DutyBadge" Visibility="Collapsed" Width="11" Height="11" HorizontalAlignment="Right"
+                                         VerticalAlignment="Top" Margin="0,-3,-5,0" Fill="{DynamicResource StateFailedBrush}"
+                                         Stroke="{DynamicResource ToolbarBrush}" StrokeThickness="1.5" />
+                            </Grid>
+                            <TextBlock Text="{x:Static loc:Strings.ToolDuty}" Style="{StaticResource ToolLabel}" />
+                        </StackPanel>
+                    </Button>
                     <Button Style="{StaticResource ToolButton}" Click="OnSettingsMenu" ToolTip="{x:Static loc:Strings.ToolSettingsTip}"
                             AutomationProperties.Name="{x:Static loc:Strings.ToolSettings}">
                         <StackPanel>
@@ -528,6 +541,9 @@
                 <TextBlock DockPanel.Dock="Right" x:Name="UpdateLink" Visibility="Collapsed" Margin="0,0,16,0">
                     <Hyperlink Click="OnUpdateLink" Foreground="{DynamicResource StatusWarningForeground}"><Run x:Name="UpdateLinkText" /></Hyperlink>
                 </TextBlock>
+                <TextBlock DockPanel.Dock="Right" x:Name="DutyIndicator" Foreground="{DynamicResource StatusWarningForeground}" Margin="0,0,16,0"
+                           Visibility="Collapsed" Text="{x:Static loc:Strings.DutyRecordingIndicator}" Cursor="Hand"
+                           MouseLeftButtonUp="OnDutyIndicatorClick" ToolTip="{x:Static loc:Strings.ToolDutyTip}" />
                 <TextBlock DockPanel.Dock="Right" x:Name="DebugLogText" Foreground="{DynamicResource StatusWarningForeground}" Margin="0,0,16,0" Visibility="Collapsed"
                            Text="{x:Static loc:Strings.DebugLogActive}" />
                 <TextBlock x:Name="CountText" Foreground="{DynamicResource StatusForeground}" Margin="0,0,16,0" />

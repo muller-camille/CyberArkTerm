@@ -59,6 +59,7 @@ public partial class SettingsDialog : Window
         SshInAppBox.IsChecked = settings.SshInApp;
         FollowBox.IsChecked = settings.FollowTerminalFolder;
         X11DisplayBox.Text = settings.X11Display;
+        DutyTextBox.Text = settings.DutyText;
         EditorBox.Text = settings.TextEditor;
         CompareToolBox.Text = settings.CompareTool;
         ThemeBox.ItemsSource = TerminalTheme.All;
@@ -207,6 +208,12 @@ public partial class SettingsDialog : Window
             return;
         }
 
+        if (!EnvironmentProfile.IsValidDutyText(DutyTextBox.Text))
+        {
+            ShowError(Strings.InvalidDutyText, DutyTextBox);
+            return;
+        }
+
         var x11Display = X11DisplayBox.Text.Trim();
         if (x11Display.Length == 0)
         {
@@ -242,6 +249,7 @@ public partial class SettingsDialog : Window
         _settings.SshInApp = SshInAppBox.IsChecked == true;
         _settings.FollowTerminalFolder = FollowBox.IsChecked == true;
         _settings.X11Display = x11Display;
+        _settings.DutyText = EnvironmentProfile.NormalizeDutyText(DutyTextBox.Text);
         _settings.KeepPvwaSessionAlive = KeepAliveBox.IsChecked == true;
         _settings.CheckForUpdates = UpdateCheckBox.IsChecked == true;
         _settings.PreferredUploadProtocol = ScpRadio.IsChecked == true ? TransferProtocol.Scp : TransferProtocol.Sftp;
