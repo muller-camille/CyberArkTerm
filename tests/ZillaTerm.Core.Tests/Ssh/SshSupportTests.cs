@@ -127,6 +127,12 @@ public class SshSupportTests
         Assert.Equal("svc web", RemoteEntry.CleanName(" svc web\u200B "));
         Assert.Equal("", RemoteEntry.CleanName(null));
 
+        // Nom d'un fichier : affiché avec ses caractères invisibles rendus visibles, pour qu'il n'en imite pas un autre.
+        var spoof = new RemoteEntry("facture\u202Efdp.exe", "/tmp/facture\u202Efdp.exe", false, false, 1, default, "");
+        Assert.Equal("facture\uFFFDfdp.exe", spoof.DisplayName);
+        Assert.Equal("a\uFFFDb\uFFFD", RemoteEntry.Visible("a\u200Bb\n"));
+        Assert.Same("ordinaire.txt", RemoteEntry.Visible("ordinaire.txt"));
+
         // SFTP : UID et GID non signés, comme sur le serveur ; rien si le serveur ne les a pas envoyés.
         Assert.Equal("1000", RemoteFileBrowser.IdText(1000));
         Assert.Equal("4294967294", RemoteFileBrowser.IdText(-2));
@@ -145,8 +151,89 @@ public class SshSupportTests
         Assert.Equal(HostKeyStatus.Unknown, KnownHosts.Check(store, "psmp.corp", 2222, "ssh-ed25519", "AAA"));
 
         // Clé changée : l'ancienne empreinte se montre à côté de la nouvelle.
-        Assert.Equal(("ssh-ed25519", "AAA"), KnownHosts.Known(store, "psmp.corp", 22));
-        Assert.Null(KnownHosts.Known(store, "psmp.corp", 2222));
+        Assert.Equal(("ssh-ed25519", "AAA"), KnownHosts.Known(store, "psmp.corp", 22, "ssh-ed25519"));
+        Assert.Null(KnownHosts.Known(store, "psmp.corp", 2222, "ssh-ed25519"));
+    }
+
+    /// <summary>
+    /// Une clé d'un autre type (ed25519 après RSA) n'est ni acceptée d'office ni prise pour un changement de clé ; une
+    /// fois acceptée, les deux le restent, et chacune peut changer sans toucher à l'autre.
+    /// </summary>
+    [Fact]
+    public void KnownHostsKeepOneKeyPerAlgorithm()
+    {
+        var store = new Dictionary<string, string>();
+        KnownHosts.Remember(store, "psmp.corp", 22, "rsa-sha2-512", "RSA1");
+
+        Assert.Equal(HostKeyStatus.NewAlgorithm, KnownHosts.Check(store, "psmp.corp", 22, "ssh-ed25519", "ED1"));
+        Assert.Null(KnownHosts.Known(store, "psmp.corp", 22, "ssh-ed25519"));
+        Assert.Equal([("rsa-sha2-512", "RSA1")], KnownHosts.KnownKeys(store, "psmp.corp", 22));
+
+        KnownHosts.Remember(store, "psmp.corp", 22, "ssh-ed25519", "ED1");
+        Assert.Equal(HostKeyStatus.Trusted, KnownHosts.Check(store, "psmp.corp", 22, "ssh-ed25519", "ED1"));
+        Assert.Equal(HostKeyStatus.Trusted, KnownHosts.Check(store, "psmp.corp", 22, "rsa-sha2-512", "RSA1"));
+        // Même clé RSA, autre signature négociée : la même clé.
+        Assert.Equal(HostKeyStatus.Trusted, KnownHosts.Check(store, "psmp.corp", 22, "rsa-sha2-256", "RSA1"));
+        Assert.Equal(HostKeyStatus.Trusted, KnownHosts.Check(store, "psmp.corp", 22, "ssh-rsa", "RSA1"));
+        Assert.Equal(HostKeyStatus.Changed, KnownHosts.Check(store, "psmp.corp", 22, "ssh-ed25519", "ED2"));
+        Assert.Equal(("ssh-ed25519", "ED1"), KnownHosts.Known(store, "psmp.corp", 22, "ssh-ed25519"));
+        Assert.Equal(HostKeyStatus.NewAlgorithm, KnownHosts.Check(store, "psmp.corp", 22, "ecdsa-sha2-nistp256", "EC1"));
+
+        // Première clé gardée au format des versions précédentes, l'autre type à part.
+        Assert.Equal("rsa-sha2-512 SHA256:RSA1", store["psmp.corp:22"]);
+        Assert.Equal("ssh-ed25519 SHA256:ED1", store["psmp.corp:22 ssh-ed25519"]);
+        Assert.Equal("psmp.corp:22", KnownHosts.Server("psmp.corp:22 ssh-ed25519"));
+
+        // Clé ed25519 changée et confirmée : elle seule est remplacée, l'ancienne n'est plus acceptée.
+        KnownHosts.Remember(store, "psmp.corp", 22, "ssh-ed25519", "ED2");
+        Assert.Equal(2, store.Count);
+        Assert.Equal(HostKeyStatus.Changed, KnownHosts.Check(store, "psmp.corp", 22, "ssh-ed25519", "ED1"));
+        Assert.Equal(HostKeyStatus.Trusted, KnownHosts.Check(store, "psmp.corp", 22, "rsa-sha2-512", "RSA1"));
+        Assert.Equal(HostKeyStatus.Unknown, KnownHosts.Check(store, "psmp.corp", 2222, "ssh-ed25519", "ED2"));
+    }
+
+    /// <summary>
+    /// Négociation : les types de clé déjà acceptés pour le serveur passent en tête (le serveur présente alors sa clé
+    /// connue), dans leur ordre ; les autres restent proposés, après, dans le même ordre.
+    /// </summary>
+    [Fact]
+    public void KnownHostKeyTypesAreOfferedFirst()
+    {
+        var info = new Renci.SshNet.ConnectionInfo("psmp.corp", 22, "jdoe", new Renci.SshNet.PasswordAuthenticationMethod("jdoe", "x"));
+        var before = info.HostKeyAlgorithms.Keys.ToList();
+
+        SshConnector.PreferKnownHostKeys(info.HostKeyAlgorithms, ["ssh-rsa"]);
+
+        var after = info.HostKeyAlgorithms.Keys.ToList();
+        Assert.Equal(["rsa-sha2-512", "rsa-sha2-256", "ssh-rsa"], after.Take(3));
+        Assert.Equal(before.Where(a => KnownHosts.KeyType(a) != "ssh-rsa"), after.Skip(3));
+
+        SshConnector.PreferKnownHostKeys(info.HostKeyAlgorithms, []);
+        Assert.Equal(after, info.HostKeyAlgorithms.Keys);
+    }
+
+    /// <summary>
+    /// Réglages d'une version précédente (une clé par serveur) : toujours reconnus ; la première clé oubliée, la clé de
+    /// l'autre type reste, et une clé changée de ce type ne laisse jamais l'ancienne acceptée.
+    /// </summary>
+    [Fact]
+    public void KnownHostsReadPreviousSettingsAndNeverKeepAReplacedKey()
+    {
+        var store = new Dictionary<string, string> { ["psmp.corp:22"] = "ssh-ed25519 SHA256:ED1", ["other.example:22"] = "SHA256:XX" };
+        Assert.Equal(HostKeyStatus.Trusted, KnownHosts.Check(store, "psmp.corp", 22, "ssh-ed25519", "ED1"));
+        Assert.Equal(HostKeyStatus.NewAlgorithm, KnownHosts.Check(store, "psmp.corp", 22, "rsa-sha2-512", "RSA1"));
+        // Empreinte sans algorithme (fichier modifié à la main) : une autre clé est un changement, pas un nouveau type.
+        Assert.Equal(HostKeyStatus.Changed, KnownHosts.Check(store, "other.example", 22, "ssh-ed25519", "YY"));
+        Assert.Equal(HostKeyStatus.Trusted, KnownHosts.Check(store, "other.example", 22, "ssh-ed25519", "XX"));
+
+        KnownHosts.Remember(store, "psmp.corp", 22, "rsa-sha2-512", "RSA1");
+        store.Remove("psmp.corp:22");
+        Assert.Equal(HostKeyStatus.Trusted, KnownHosts.Check(store, "psmp.corp", 22, "rsa-sha2-256", "RSA1"));
+        Assert.Equal(HostKeyStatus.NewAlgorithm, KnownHosts.Check(store, "psmp.corp", 22, "ssh-ed25519", "ED1"));
+
+        KnownHosts.Remember(store, "psmp.corp", 22, "rsa-sha2-512", "RSA2");
+        Assert.Equal(HostKeyStatus.Changed, KnownHosts.Check(store, "psmp.corp", 22, "rsa-sha2-512", "RSA1"));
+        Assert.Equal([("rsa-sha2-512", "RSA2")], KnownHosts.KnownKeys(store, "psmp.corp", 22));
     }
 
     [Fact]

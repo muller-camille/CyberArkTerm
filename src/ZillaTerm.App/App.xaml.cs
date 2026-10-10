@@ -6,6 +6,7 @@ using System.Windows.Threading;
 using ZillaTerm.App.Localization;
 using ZillaTerm.App.Services;
 using ZillaTerm.App.Services.KeePass;
+using ZillaTerm.App.Services.Rdp;
 using ZillaTerm.App.Views;
 using ZillaTerm.Core;
 using ZillaTerm.Core.Diagnostics;
@@ -47,8 +48,6 @@ public partial class App : Application
                 window.Icon = icon;
             }
         }));
-        // Contraste élevé de Windows : couleurs système à la place de la palette, avant la première fenêtre.
-        Palette.Follow(this);
         _systemCulture = CultureInfo.CurrentUICulture;
         // Premier démarrage sous le nom ZillaTerm : réglages repris du dossier de CyberArkTerm.
         string? imported = null;
@@ -65,6 +64,8 @@ public partial class App : Application
         }
 
         _settings = AppSettings.Load(AppSettings.DefaultPath);
+        // Thème (clair, sombre ou celui de Windows) et contraste élevé de Windows, avant la première fenêtre.
+        Palette.Follow(this, _settings.Theme);
         AppDebugLog.Apply(_settings);
         if (imported is not null)
         {
@@ -98,10 +99,39 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         DebugLog.Write("app", "Fermeture de l'application.");
+        Release();
+        base.OnExit(e);
+    }
+
+    /// <summary>
+    /// Fin immédiate, après le nettoyage de <see cref="OnExit"/> : une session Bureau à distance bloquée garde une
+    /// fenêtre de son contrôle que l'arrêt normal détruirait en attendant son thread (l'application resterait figée).
+    /// </summary>
+    internal static void ExitNow()
+    {
+        DebugLog.Write("app", "Session Bureau à distance bloquée à la fermeture : arrêt immédiat de l'application.");
+        (Current as App)?.Release();
+        Environment.Exit(0);
+    }
+
+    /// <summary>Fin de l'application ; immédiate si une session Bureau à distance fermée est encore bloquée.</summary>
+    private void Quit()
+    {
+        if (RdpSession.ControlWindowsLeft)
+        {
+            ExitNow();
+        }
+
+        Shutdown();
+    }
+
+    private void Release()
+    {
         _keePass?.Dispose();
+        _keePass = null;
         _instance?.ReleaseMutex();
         _instance?.Dispose();
-        base.OnExit(e);
+        _instance = null;
     }
 
     /// <summary>Affiche l'écran de connexion puis, en cas de succès, la liste des comptes.</summary>
@@ -120,7 +150,7 @@ public partial class App : Application
 
         if (!ok)
         {
-            Shutdown();
+            Quit();
             return;
         }
 
@@ -136,7 +166,7 @@ public partial class App : Application
             }
             else
             {
-                Shutdown();
+                Quit();
             }
         };
         main.Show();

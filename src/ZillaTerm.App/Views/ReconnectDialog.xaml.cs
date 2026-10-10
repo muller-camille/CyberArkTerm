@@ -1,5 +1,6 @@
 using System.Windows;
 using ZillaTerm.App.Localization;
+using ZillaTerm.App.Services;
 using ZillaTerm.Core;
 using ZillaTerm.Core.Diagnostics;
 
@@ -54,7 +55,8 @@ public partial class ReconnectDialog : Window
 
     private async void OnReconnect(object sender, RoutedEventArgs e)
     {
-        var password = _challenge ? ChallengeBox.Password : PasswordBox.Password;
+        // Lu sans chaîne .NET, effacé après l'envoi.
+        var password = SecretInput.Read(_challenge ? ChallengeBox : PasswordBox);
         if (_method != AuthMethod.Windows && password.Length == 0)
         {
             // Rien n'est envoyé au PVWA sans saisie (Entrée tapée par erreur) : pas de tentative perdue.
@@ -101,6 +103,7 @@ public partial class ReconnectDialog : Window
         }
         finally
         {
+            SecretInput.Clear(password);
             ChallengeBox.Clear();
             if (!_closed)
             {

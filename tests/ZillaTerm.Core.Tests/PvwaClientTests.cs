@@ -22,6 +22,13 @@ public class PvwaClientTests
     [InlineData("   ")]
     [InlineData("http://pvwa.corp.local/PasswordVault")]
     [InlineData("https://")]
+    [InlineData("https://pvwa.corp.local:443@other.example/PasswordVault")]
+    [InlineData("pvwa.corp.local@other.example")]
+    [InlineData("https://user:secret@pvwa.corp.local/PasswordVault")]
+    [InlineData("https://pvwa.corp.local\\@other.example/")]
+    [InlineData("https://pvw\u0430.corp.local/PasswordVault")]
+    [InlineData("https://pvwa.corp.local\u202e/PasswordVault")]
+    [InlineData("https://pvwa .corp.local/PasswordVault")]
     public void NormalizeBaseUri_RejectsInvalidOrInsecureUrls(string input)
     {
         Assert.Throws<ArgumentException>(() => PvwaClient.NormalizeBaseUri(input));
@@ -72,7 +79,7 @@ public class PvwaClientTests
         var pvwa = new FakePvwa(_ => FakePvwa.Json("\"tok\""));
         using var client = pvwa.CreateClient();
 
-        await client.LogonAsync(AuthMethod.Windows, null, null);
+        await client.LogonAsync(AuthMethod.Windows, null, (string?)null);
 
         var request = Assert.Single(pvwa.Requests);
         Assert.Equal("/PasswordVault/API/auth/Windows/Logon", request.PathAndQuery);
@@ -110,6 +117,34 @@ public class PvwaClientTests
 
         Assert.Null(ex.ErrorCode);
         Assert.StartsWith("HTTP 503", ex.Message);
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.TemporaryRedirect, "https://other.example/PasswordVault/API/auth/CyberArk/Logon?x=1", "https://other.example/PasswordVault/API/auth/CyberArk/Logon")]
+    [InlineData(HttpStatusCode.Found, "/sso/login", "https://pvwa.test/sso/login")]
+    public async Task Logon_RedirectIsNeverFollowed(HttpStatusCode status, string location, string shown)
+    {
+        // Le mot de passe ne part jamais vers l'adresse d'une redirection (307/308 renverraient le corps).
+        using (var handler = PvwaClient.CreateHandler(AuthMethod.CyberArk))
+        {
+            Assert.False(handler.AllowAutoRedirect);
+        }
+
+        var pvwa = new FakePvwa(_ =>
+        {
+            var response = new HttpResponseMessage(status);
+            response.Headers.Location = new Uri(location, UriKind.RelativeOrAbsolute);
+            return response;
+        });
+        using var client = pvwa.CreateClient();
+
+        var ex = await Assert.ThrowsAsync<PvwaException>(() => client.LogonAsync(AuthMethod.CyberArk, "jdoe", "pw"));
+
+        Assert.Single(pvwa.Requests);
+        Assert.Equal(status, ex.StatusCode);
+        Assert.Contains(shown, ex.Message);
+        Assert.DoesNotContain("x=1", ex.Message);
+        Assert.False(client.IsAuthenticated);
     }
 
     [Fact]

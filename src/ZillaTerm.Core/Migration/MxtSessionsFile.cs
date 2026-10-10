@@ -78,6 +78,7 @@ public static partial class MxtSessionsFile
     [GeneratedRegex(@"^Bookmarks(_\d+)?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex BookmarksSection();
 
-    [GeneratedRegex(@"^\s*#(?<icon>\d{1,6})#(?<type>\d{1,6})%(?<rest>.*)$", RegexOptions.CultureInvariant | RegexOptions.Singleline)]
+    // [0-9] et non \d, qui accepterait aussi des chiffres d'autres écritures, refusés ensuite par int.Parse.
+    [GeneratedRegex(@"^\s*#(?<icon>[0-9]{1,6})#(?<type>[0-9]{1,6})%(?<rest>.*)$", RegexOptions.CultureInvariant | RegexOptions.Singleline)]
     private static partial Regex Definition();
 }

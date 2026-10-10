@@ -94,8 +94,17 @@ public sealed class SavedSession
 /// <summary>Chemins de dossiers « A/B/C » de « Mes serveurs ».</summary>
 public static class SessionFolders
 {
-    public static string Normalize(string? path) =>
-        string.Join('/', (path ?? "").Split(['/', '\\'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+    /// <summary>
+    /// Niveaux de dossiers gardés : les suivants sont ignorés. Un chemin forgé de milliers de niveaux (liste partagée,
+    /// fichier importé) épuiserait sinon la pile des parcours récursifs de l'arbre, et l'application s'arrêterait.
+    /// </summary>
+    public const int MaxDepth = 64;
+
+    public static string Normalize(string? path)
+    {
+        var parts = (path ?? "").Split(['/', '\\'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return string.Join('/', parts.Length > MaxDepth ? parts[..MaxDepth] : parts);
+    }
 
     public static string Parent(string path)
     {

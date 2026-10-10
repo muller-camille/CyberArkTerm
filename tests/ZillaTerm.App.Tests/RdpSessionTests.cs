@@ -99,6 +99,111 @@ public class RdpSessionTests(ITestOutputHelper output)
         });
     }
 
+    /// <summary>
+    /// Vrai serveur Bureau à distance de ce poste : son certificat TLS se lit avant toute connexion (empreinte à épingler),
+    /// sans identifiant ni mot de passe.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "RdpIntegration")]
+    public async Task CertificateOfARealServerIsReadBeforeConnecting()
+    {
+        if (IntegrationAccount() is null)
+        {
+            return;
+        }
+
+        var certificate = await RdpCertificateProbe.GetAsync("127.0.0.2", 3389, CancellationToken.None);
+        output.WriteLine($"{certificate.Subject} SHA256 {certificate.Sha256}, problème « {certificate.Problem} »");
+        Assert.Equal(64, certificate.Sha256.Length);
+    }
+
+    /// <summary>Connexion directe : le cache d'images persistant du contrôle est coupé (rien de la session sur le disque).</summary>
+    [Fact]
+    public async Task DirectConnectionKeepsNoBitmapCacheOnDisk()
+    {
+        if (!OperatingSystem.IsWindows() || !RdpClientHost.IsAvailable)
+        {
+            Assert.True(Environment.GetEnvironmentVariable("GITHUB_ACTIONS") is null, "Contrôle Bureau à distance absent du poste de CI");
+            return;
+        }
+
+        var request = new RdpConnectionRequest(RdpConnectionSettings.Direct("10.255.255.1", 3389, @"TEST\user"), null);
+        await RunOnStaAsync(request, async session =>
+        {
+            await session.ConnectAsync();
+            Assert.True(session.HasControl, session.Error);
+            var persistence = await session.InvokeOnControlAsync(ocx =>
+                Convert.ToInt32(Dispatch.Get(Dispatch.First(ocx, "AdvancedSettings9", "AdvancedSettings8", "AdvancedSettings7", "AdvancedSettings6")!,
+                    "BitmapPersistence"), System.Globalization.CultureInfo.InvariantCulture));
+            Assert.Equal(0, persistence);
+        });
+    }
+
+    /// <summary>
+    /// Quitter ou se déconnecter avec un contrôle bloqué : une fois l'emplacement de la session retiré de la fenêtre
+    /// (comme le fait la fenêtre principale après 3 s d'attente), la fenêtre se ferme sans attendre le thread du contrôle.
+    /// </summary>
+    [Fact]
+    public async Task WindowClosesWithoutWaitingForABlockedControlOnceItsSessionIsRemoved()
+    {
+        if (!OperatingSystem.IsWindows() || !RdpClientHost.IsAvailable)
+        {
+            Assert.True(Environment.GetEnvironmentVariable("GITHUB_ACTIONS") is null, "Contrôle Bureau à distance absent du poste de CI");
+            return;
+        }
+
+        var request = new RdpConnectionRequest(RdpConnectionSettings.Direct("10.255.255.1", 3389, @"TEST\user"), null);
+        var result = new TaskCompletionSource<long>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var thread = new Thread(() =>
+        {
+            var session = new RdpSession("test", _ => Task.FromResult(request));
+            var layer = new System.Windows.Controls.Grid();
+            layer.Children.Add(session.Host);
+            var window = new Window { Width = 900, Height = 650, ShowInTaskbar = false, ShowActivated = false, Content = layer };
+            window.Show();
+            window.Dispatcher.BeginInvoke(DispatcherPriority.Loaded, async () =>
+            {
+                try
+                {
+                    await session.ConnectAsync();
+                    Assert.True(session.HasControl, session.Error);
+                    _ = session.InvokeOnControlAsync(_ =>
+                    {
+                        Thread.Sleep(TimeSpan.FromSeconds(10));
+                        return true;
+                    });
+                    await Task.Delay(300);
+                    session.Dispose();
+                    Assert.True(RdpSession.ControlWindowsLeft);
+                    await Task.WhenAny(session.Closed, Task.Delay(TimeSpan.FromSeconds(1)));
+                    Assert.False(session.Closed.IsCompleted);
+
+                    var watch = System.Diagnostics.Stopwatch.StartNew();
+                    layer.Children.Remove(session.Host);
+                    await window.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Background);
+                    window.Close();
+                    result.TrySetResult(watch.ElapsedMilliseconds);
+                }
+                catch (Exception e)
+                {
+                    result.TrySetException(e);
+                }
+                finally
+                {
+                    window.Dispatcher.InvokeShutdown();
+                }
+            });
+            Dispatcher.Run();
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.IsBackground = true;
+        thread.Start();
+
+        long closeMs = await result.Task.WaitAsync(TimeSpan.FromMinutes(2));
+        output.WriteLine($"Fenêtre fermée en {closeMs} ms, contrôle encore bloqué");
+        Assert.True(closeMs < 2000, $"{closeMs} ms : la fermeture a attendu le thread du contrôle");
+    }
+
     /// <summary>Compte de test fourni par le workflow d'intégration, ou null (tests ignorés).</summary>
     private (string User, string Password)? IntegrationAccount()
     {

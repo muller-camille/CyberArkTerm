@@ -41,16 +41,17 @@ public sealed class PvwaClient : IDisposable
     /// Crée un client pour l'URL saisie par l'utilisateur. L'authentification Windows
     /// réutilise la session Windows courante (Kerberos/NTLM).
     /// </summary>
-    public static PvwaClient Create(string pvwaUrl, AuthMethod method)
-    {
-        var baseUri = NormalizeBaseUri(pvwaUrl);
-        var handler = new HttpClientHandler
+    public static PvwaClient Create(string pvwaUrl, AuthMethod method) => new(NormalizeBaseUri(pvwaUrl), CreateHandler(method));
+
+    internal static HttpClientHandler CreateHandler(AuthMethod method) =>
+        new()
         {
             UseDefaultCredentials = method == AuthMethod.Windows,
             UseCookies = true,
+            // Une redirection n'est jamais suivie : en 307/308, le mot de passe de la connexion serait renvoyé à
+            // l'adresse indiquée, et le jeton de session pourrait l'être aussi. Elle est signalée (CreateErrorAsync).
+            AllowAutoRedirect = false,
         };
-        return new PvwaClient(baseUri, handler);
-    }
 
     /// <summary>
     /// Transforme « pvwa.corp.local », « https://pvwa.corp.local/PasswordVault/v10/logon », etc.
@@ -64,6 +65,13 @@ public sealed class PvwaClient : IDisposable
             throw new ArgumentException(CoreStrings.PvwaAddressRequired);
         }
 
+        // Rien qui puisse faire passer une adresse pour une autre : espaces, caractères invisibles, « \ » ou lettres
+        // hors ASCII (d'apparence identique, d'un autre alphabet) ; un nom international s'écrit sous sa forme « xn-- ».
+        if (text.Any(c => c is < '!' or > '~' or '\\'))
+        {
+            throw new ArgumentException(CoreStrings.PvwaAddressSuspicious);
+        }
+
         if (!text.Contains("://", StringComparison.Ordinal))
         {
             text = "https://" + text;
@@ -72,6 +80,12 @@ public sealed class PvwaClient : IDisposable
         if (!Uri.TryCreate(text, UriKind.Absolute, out var uri) || string.IsNullOrEmpty(uri.Host))
         {
             throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, CoreStrings.PvwaAddressInvalid, input));
+        }
+
+        // « https://pvwa.corp.local:443@autre/ » joint « autre » : ce qui précède « @ » n'est qu'un nom d'utilisateur.
+        if (uri.UserInfo.Length > 0)
+        {
+            throw new ArgumentException(CoreStrings.PvwaAddressSuspicious);
         }
 
         if (uri.Scheme != Uri.UriSchemeHttps)
@@ -91,26 +105,52 @@ public sealed class PvwaClient : IDisposable
     /// client avec la réponse comme mot de passe (les cookies de la première tentative sont conservés).
     /// </summary>
     /// <exception cref="PvwaException">Échec d'authentification ; voir <see cref="PvwaException.IsRadiusChallenge"/>.</exception>
-    public async Task LogonAsync(AuthMethod method, string? userName, string? password, CancellationToken ct = default)
-    {
-        object body = method == AuthMethod.Windows
-            ? new { concurrentSession = true }
-            : new { username = userName, password, concurrentSession = true };
+    public Task LogonAsync(AuthMethod method, string? userName, string? password, CancellationToken ct = default) =>
+        LogonAsync(method, userName, password.AsMemory(), ct);
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, $"API/auth/{method}/Logon")
+    /// <inheritdoc cref="LogonAsync(AuthMethod, string?, string?, CancellationToken)"/>
+    /// <param name="password">
+    /// Mot de passe lu sans chaîne .NET (champ masqué) ; le corps de la requête qui le contient est effacé après l'envoi.
+    /// </param>
+    public async Task LogonAsync(AuthMethod method, string? userName, ReadOnlyMemory<char> password, CancellationToken ct = default)
+    {
+        // Corps écrit à l'avance pour envoyer un Content-Length : JsonContent passe en « chunked », que certains load
+        // balancers / WAF placés devant le PVWA rejettent.
+        var buffer = new System.Buffers.ArrayBufferWriter<byte>();
+        using (var writer = new Utf8JsonWriter(buffer))
         {
-            // Corps sérialisé à l'avance pour envoyer un Content-Length : JsonContent passe en
-            // « chunked », que certains load balancers / WAF placés devant le PVWA rejettent.
-            Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json"),
-        };
-        using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode)
-        {
-            throw await CreateErrorAsync(response, ct).ConfigureAwait(false);
+            writer.WriteStartObject();
+            if (method != AuthMethod.Windows)
+            {
+                writer.WriteString("username", userName);
+                writer.WriteString("password", password.Span);
+            }
+
+            writer.WriteBoolean("concurrentSession", true);
+            writer.WriteEndObject();
         }
 
-        var text = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-        _token = ParseToken(text);
+        var body = buffer.WrittenSpan.ToArray();
+        // Clear() remet à zéro les octets écrits.
+        buffer.Clear();
+        try
+        {
+            using var content = new ByteArrayContent(body);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
+            using var request = new HttpRequestMessage(HttpMethod.Post, $"API/auth/{method}/Logon") { Content = content };
+            using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw await CreateErrorAsync(response, ct).ConfigureAwait(false);
+            }
+
+            var text = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _token = ParseToken(text);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(body);
+        }
     }
 
     /// <summary>
@@ -477,6 +517,23 @@ public sealed class PvwaClient : IDisposable
         }
     }
 
+    /// <summary>
+    /// Retire la clé « MFA caching » de l'utilisateur sur le PVWA : elle ne permet plus de se connecter au PSMP, au lieu
+    /// de rester valable jusqu'à son expiration. Sans effet si aucune session n'est ouverte ; un refus du PVWA (fonction
+    /// absente de sa version) est ignoré.
+    /// </summary>
+    public async Task RevokeMfaCachingSshKeyAsync(CancellationToken ct = default)
+    {
+        if (_token is null)
+        {
+            return;
+        }
+
+        using var request = CreateAuthenticatedRequest(HttpMethod.Delete, "API/Users/Secret/SSHKeys/Cache");
+        using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
+        DebugLog.Write("pvwa", $"Clé MFA caching retirée : HTTP {(int)response.StatusCode}");
+    }
+
     /// <summary>Ferme la session côté PVWA. Sans effet si aucune session n'est ouverte.</summary>
     public async Task LogoffAsync(CancellationToken ct = default)
     {
@@ -540,8 +597,23 @@ public sealed class PvwaClient : IDisposable
         return request;
     }
 
-    private static async Task<PvwaException> CreateErrorAsync(HttpResponseMessage response, CancellationToken ct)
+    private async Task<PvwaException> CreateErrorAsync(HttpResponseMessage response, CancellationToken ct)
     {
+        if ((int)response.StatusCode is >= 300 and < 400)
+        {
+            // Adresse indiquée sans ses paramètres : c'est elle qu'il faudra peut-être saisir comme adresse du PVWA.
+            var location = response.Headers.Location;
+            if (location is { IsAbsoluteUri: false })
+            {
+                location = new Uri(response.RequestMessage?.RequestUri is { IsAbsoluteUri: true } from ? from : BaseUri, location);
+            }
+
+            var where = location is { IsAbsoluteUri: true } ? location.GetLeftPart(UriPartial.Path) : "?";
+            DebugLog.Write("pvwa", $"Redirection non suivie ({(int)response.StatusCode}) vers {where}");
+            return new PvwaException(response.StatusCode, null,
+                string.Format(CultureInfo.CurrentCulture, CoreStrings.PvwaRedirectNotFollowed, (int)response.StatusCode, where));
+        }
+
         string? code = null;
         string? message = null;
         try

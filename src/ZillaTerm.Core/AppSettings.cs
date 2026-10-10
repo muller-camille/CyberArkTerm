@@ -118,6 +118,9 @@ public sealed class AppSettings
     /// <summary>Dernière recherche de nouvelle version (UTC).</summary>
     public DateTime LastUpdateCheck { get; set; }
 
+    /// <summary>Couleurs de l'interface : celles de Windows (clair ou sombre), claires ou sombres.</summary>
+    public AppTheme Theme { get; set; } = AppTheme.System;
+
     /// <summary>Palette de couleurs des terminaux SSH (identifiant d'une palette de <c>TerminalTheme</c>).</summary>
     public string TerminalTheme { get; set; } = "campbell";
 
@@ -163,11 +166,17 @@ public sealed class AppSettings
 
     public bool FileSortDescending { get; set; }
 
+    /// <summary>Colonnes de l'onglet Fichiers masquées par l'utilisateur (menu de l'en-tête) ; la colonne Nom reste toujours.</summary>
+    public List<RemoteSortColumn> HiddenFileColumns { get; set; } = [];
+
     /// <summary>Éditeur de texte pour « Modifier » dans l'onglet Fichiers (chemin d'un exécutable) ; vide = Bloc-notes.</summary>
     public string TextEditor { get; set; } = "";
 
     /// <summary>Empreintes des clés d'hôte PSMP acceptées (« hôte:port » → « algorithme SHA256:... »).</summary>
     public Dictionary<string, string> KnownHosts { get; set; } = [];
+
+    /// <summary>Serveurs FTP (« hôte:port ») déjà vus avec TLS (voir <see cref="Ftp.FtpTlsMemory"/>).</summary>
+    public List<string> FtpTlsServers { get; set; } = [];
 
     public List<RecentSession> Recent { get; set; } = [];
 
@@ -347,6 +356,22 @@ public sealed class AppSettings
     {
         if (!File.Exists(path))
         {
+            // Remplacement interrompu (partage réseau, antivirus) : l'ancien fichier est resté en sauvegarde. Sans cette
+            // reprise, les réglages par défaut reviendraient, puis écraseraient les vrais au prochain enregistrement.
+            if (File.Exists(BackupPath(path)))
+            {
+                try
+                {
+                    var restored = Read(BackupPath(path));
+                    restored.RestoredFromBackup = true;
+                    return restored;
+                }
+                catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException)
+                {
+                    // Sauvegarde illisible aussi : réglages par défaut, la sauvegarde reste en place.
+                }
+            }
+
             return new AppSettings();
         }
 
@@ -406,7 +431,15 @@ public sealed class AppSettings
         settings.KeePassFolders.RemoveAll(f => f is null);
         settings.SharedLists ??= [];
         settings.KnownHosts ??= [];
+        settings.FtpTlsServers ??= [];
+        settings.HiddenFileColumns ??= [];
+        settings.HiddenFileColumns.RemoveAll(c => c == RemoteSortColumn.Name || !Enum.IsDefined(c));
         settings.Language ??= "";
+        if (!Enum.IsDefined(settings.Theme))
+        {
+            settings.Theme = AppTheme.System;
+        }
+
         settings.PvwaUrl ??= "";
         settings.UserName ??= "";
         settings.PsmpAddress ??= "";
@@ -436,7 +469,7 @@ public sealed class AppSettings
         return settings;
     }
 
-    private static string BackupPath(string path) => path + ".bak";
+    private static string BackupPath(string path) => DurableFile.BackupPath(path);
 
     /// <summary>Suffixe d'un fichier de réglages illisible mis de côté (suivi de la date).</summary>
     private const string SetAsideSuffix = ".illisible-";
@@ -447,22 +480,8 @@ public sealed class AppSettings
     /// </summary>
     public void Save(string path)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
-        var temp = path + ".tmp";
-        using (var stream = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.None))
-        {
-            JsonSerializer.Serialize(stream, this, JsonOptions);
-            stream.Flush(flushToDisk: true);
-        }
-
-        if (File.Exists(path))
-        {
-            File.Replace(temp, path, BackupPath(path), ignoreMetadataErrors: true);
-        }
-        else
-        {
-            File.Move(temp, path);
-        }
+        var temp = DurableFile.WriteTemp(path, JsonSerializer.SerializeToUtf8Bytes(this, JsonOptions));
+        DurableFile.Replace(temp, path);
     }
 }
 
@@ -487,6 +506,15 @@ public sealed record WindowPlacement(double Left, double Top, double Width, doub
                        && Top >= screen.Top - 10 && Top + 50 <= screen.Top + screen.Height;
         return visible ? this with { Width = width, Height = height } : null;
     }
+}
+
+/// <summary>Couleurs de l'interface (le contraste élevé de Windows l'emporte toujours).</summary>
+public enum AppTheme
+{
+    /// <summary>Comme Windows : « Choisir votre mode d'application par défaut » (clair ou sombre).</summary>
+    System,
+    Light,
+    Dark,
 }
 
 /// <summary>Connexion lancée récemment, affichée sur l'écran d'accueil.</summary>

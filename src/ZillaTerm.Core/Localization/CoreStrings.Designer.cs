@@ -1000,14 +1000,6 @@ namespace ZillaTerm.Core.Localization {
             }
         }
 
-        /// <summary>
-        ///   Looks up a localized string similar to the user name.
-        /// </summary>
-        public static string UserNameWhat {
-            get {
-                return ResourceManager.GetString("UserNameWhat", resourceCulture);
-            }
-        }
 
         /// <summary>
         ///   Looks up a localized string similar to Unknown CyberArk Vault user..
@@ -1339,6 +1331,357 @@ namespace ZillaTerm.Core.Localization {
         public static string MigrationColResult {
             get {
                 return ResourceManager.GetString("MigrationColResult", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Refused by the server: wrong password or code. Attempt {0} of {1}: check it (Caps Lock?) before sending, because too many failures can lock the account..
+        /// </summary>
+        public static string AuthenticationRefusedRetry {
+            get {
+                return ResourceManager.GetString("AuthenticationRefusedRetry", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password or code refused {0} times: connection abandoned so that the account is not locked. Check the password, then connect again..
+        /// </summary>
+        public static string AuthenticationRefusedFinal {
+            get {
+                return ResourceManager.GetString("AuthenticationRefusedFinal", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA address may only contain the server name, then a port and a path if needed: no “name@” before the server, no space or “\”, no accented letters or letters from another alphabet (an international name is written in its “xn--” form)..
+        /// </summary>
+        public static string PvwaAddressSuspicious {
+            get {
+                return ResourceManager.GetString("PvwaAddressSuspicious", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA answered with a redirection (HTTP {0}) to {1}. It is not followed, so that your password and session are never sent to another address: check the PVWA address in the Settings (exact server name and path to PasswordVault)..
+        /// </summary>
+        public static string PvwaRedirectNotFollowed {
+            get {
+                return ResourceManager.GetString("PvwaRedirectNotFollowed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to “{0}” is a special file (device, named pipe or socket): it can be neither opened nor downloaded, because reading it would never end or would block the server..
+        /// </summary>
+        public static string SpecialFileRefused {
+            get {
+                return ResourceManager.GetString("SpecialFileRefused", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file nests folders more than {0} levels deep: it is refused as damaged..
+        /// </summary>
+        public static string MigrationTooDeep {
+            get {
+                return ResourceManager.GetString("MigrationTooDeep", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This FTP server used to encrypt its connections (TLS) and no longer offers it: connection stopped, the password was not sent..
+        /// </summary>
+        public static string FtpTlsRemoved {
+            get {
+                return ResourceManager.GetString("FtpTlsRemoved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connection cancelled: the VNC password was not sent..
+        /// </summary>
+        public static string VncPasswordNotSent {
+            get {
+                return ResourceManager.GetString("VncPasswordNotSent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The Remote Desktop server does not accept TLS encryption: its identity cannot be checked, the password of the entry is not sent to it..
+        /// </summary>
+        public static string RdpNoTls {
+            get {
+                return ResourceManager.GetString("RdpNoTls", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The server did not answer like a Remote Desktop server: check the address and the port (3389 by default)..
+        /// </summary>
+        public static string RdpNotRdp {
+            get {
+                return ResourceManager.GetString("RdpNotRdp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The Remote Desktop server refused the connection (code {0})..
+        /// </summary>
+        public static string RdpNegotiationRefused {
+            get {
+                return ResourceManager.GetString("RdpNegotiationRefused", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No answer from the Remote Desktop server within 30 seconds: check the address and the port (3389 by default)..
+        /// </summary>
+        public static string RdpProbeTimeout {
+            get {
+                return ResourceManager.GetString("RdpProbeTimeout", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to TLS negotiation with the Remote Desktop server failed: {0}.
+        /// </summary>
+        public static string RdpTlsFailed {
+            get {
+                return ResourceManager.GetString("RdpTlsFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} PVWA message: {1}.
+        /// </summary>
+        public static string ErrorWithPvwaMessage {
+            get {
+                return ResourceManager.GetString("ErrorWithPvwaMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Details: {1}.
+        /// </summary>
+        public static string ErrorWithDetail {
+            get {
+                return ResourceManager.GetString("ErrorWithDetail", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA refused the user name or the password. Check them (and Caps Lock) before trying again: after several failures, CyberArk suspends the account..
+        /// </summary>
+        public static string PvwaBadCredentials {
+            get {
+                return ResourceManager.GetString("PvwaBadCredentials", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your CyberArk account is suspended or disabled (too many failed sign-ins, or by an administrator). Ask the CyberArk team to reactivate it..
+        /// </summary>
+        public static string PvwaUserSuspended {
+            get {
+                return ResourceManager.GetString("PvwaUserSuspended", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your CyberArk password has expired: change it on the PVWA web page, then sign in here with the new one..
+        /// </summary>
+        public static string PvwaPasswordExpired {
+            get {
+                return ResourceManager.GetString("PvwaPasswordExpired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This account needs an approved request (dual control): request access on the PVWA web page and wait for the approval, then try again..
+        /// </summary>
+        public static string PvwaDualControl {
+            get {
+                return ResourceManager.GetString("PvwaDualControl", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CyberArk requires a valid ticket for this account: check the ticketing system and the ticket number (“Ticket” fields), then try again..
+        /// </summary>
+        public static string PvwaTicketRequired {
+            get {
+                return ResourceManager.GetString("PvwaTicketRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CyberArk requires a reason for this account: enter it in the “Reason” field, then try again..
+        /// </summary>
+        public static string PvwaReasonRequired {
+            get {
+                return ResourceManager.GetString("PvwaReasonRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This connection component is not set up for the platform of the account: choose another one in “Advanced options…” (PSM component)..
+        /// </summary>
+        public static string PvwaComponentNotConfigured {
+            get {
+                return ResourceManager.GetString("PvwaComponentNotConfigured", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This account already exists in this safe..
+        /// </summary>
+        public static string PvwaAlreadyExists {
+            get {
+                return ResourceManager.GetString("PvwaAlreadyExists", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your CyberArk session has expired: sign in again..
+        /// </summary>
+        public static string PvwaSessionExpired {
+            get {
+                return ResourceManager.GetString("PvwaSessionExpired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CyberArk refused this action: your account does not have the rights it needs on this safe. Ask a manager of the safe (“Safe members…” shows your rights)..
+        /// </summary>
+        public static string PvwaForbidden {
+            get {
+                return ResourceManager.GetString("PvwaForbidden", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Not found in CyberArk (deleted, or your rights were removed): refresh the list (F5)..
+        /// </summary>
+        public static string PvwaNotFound {
+            get {
+                return ResourceManager.GetString("PvwaNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The PVWA ran into an error: try again in a moment. If it persists, give this message to the CyberArk team..
+        /// </summary>
+        public static string PvwaServerError {
+            get {
+                return ResourceManager.GetString("PvwaServerError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The SSH server refused the authentication. Check the password (and Caps Lock) before trying again; through the PSMP it is your CyberArk password, and several failures suspend your account..
+        /// </summary>
+        public static string SshAuthenticationRefused {
+            get {
+                return ResourceManager.GetString("SshAuthenticationRefused", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The server closed the connection without answering in SSH: check the address and the port, or try again in a moment..
+        /// </summary>
+        public static string SshNoSshAnswer {
+            get {
+                return ResourceManager.GetString("SshNoSshAnswer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The server did not answer in time: check the address, the port and your network access (VPN, firewall), then try again..
+        /// </summary>
+        public static string NetworkTimeout {
+            get {
+                return ResourceManager.GetString("NetworkTimeout", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Server name not found (DNS): check the address, or your connection to the company network (VPN)..
+        /// </summary>
+        public static string NetworkHostNotFound {
+            get {
+                return ResourceManager.GetString("NetworkHostNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The server refuses connections on this port: check the address and the port, and that the service is running there..
+        /// </summary>
+        public static string NetworkRefused {
+            get {
+                return ResourceManager.GetString("NetworkRefused", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The connection was cut by the server or the network: reconnect..
+        /// </summary>
+        public static string NetworkConnectionLost {
+            get {
+                return ResourceManager.GetString("NetworkConnectionLost", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to machine {0}.
+        /// </summary>
+        public static string FieldMachine {
+            get {
+                return ResourceManager.GetString("FieldMachine", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to safe {0}.
+        /// </summary>
+        public static string FieldSafe {
+            get {
+                return ResourceManager.GetString("FieldSafe", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to platform {0}.
+        /// </summary>
+        public static string FieldPlatform {
+            get {
+                return ResourceManager.GetString("FieldPlatform", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to domain {0}.
+        /// </summary>
+        public static string FieldDomain {
+            get {
+                return ResourceManager.GetString("FieldDomain", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to name {0}.
+        /// </summary>
+        public static string FieldName {
+            get {
+                return ResourceManager.GetString("FieldName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to any machine.
+        /// </summary>
+        public static string AnyMachine {
+            get {
+                return ResourceManager.GetString("AnyMachine", resourceCulture);
             }
         }
     }

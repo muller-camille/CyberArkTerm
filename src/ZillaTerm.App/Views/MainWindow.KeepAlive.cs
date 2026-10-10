@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Windows.Threading;
 using ZillaTerm.App.Localization;
 using ZillaTerm.Core;
@@ -8,11 +9,15 @@ namespace ZillaTerm.App.Views;
 /// <summary>
 /// Maintien de la session PVWA : une requête légère toutes les quelques minutes pour que le délai d'inactivité du
 /// PVWA ne ferme pas la session pendant qu'on travaille dans les onglets. Rien n'est envoyé tant que la session
-/// Windows est verrouillée : un poste laissé sans surveillance ne garde pas la session ouverte.
+/// Windows est verrouillée, ni quand personne n'a touché au clavier ou à la souris depuis
+/// <see cref="KeepAliveMaxIdle"/> : un poste laissé sans surveillance ne garde pas la session ouverte.
 /// </summary>
 public partial class MainWindow
 {
     private static readonly TimeSpan KeepAliveInterval = TimeSpan.FromMinutes(4);
+
+    /// <summary>Inactivité du poste au-delà de laquelle la session n'est plus maintenue (le délai du PVWA reprend).</summary>
+    private static readonly TimeSpan KeepAliveMaxIdle = TimeSpan.FromMinutes(15);
 
     private DispatcherTimer? _keepAlive;
     private bool _windowsLocked;
@@ -45,7 +50,7 @@ public partial class MainWindow
 
     private async Task KeepAliveAsync()
     {
-        if (_client is null || _windowsLocked || _keepAliveRunning || _loggedOff)
+        if (_client is null || _windowsLocked || _keepAliveRunning || _loggedOff || UserIdle() > KeepAliveMaxIdle)
         {
             return;
         }
@@ -79,4 +84,22 @@ public partial class MainWindow
             _keepAliveRunning = false;
         }
     }
+
+    /// <summary>Temps écoulé depuis la dernière action au clavier ou à la souris sur le poste (toutes applications).</summary>
+    private static TimeSpan UserIdle()
+    {
+        var info = new LastInputInfo { Size = (uint)Marshal.SizeOf<LastInputInfo>() };
+        return GetLastInputInfo(ref info) ? TimeSpan.FromMilliseconds(unchecked((uint)Environment.TickCount - info.Time)) : TimeSpan.Zero;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct LastInputInfo
+    {
+        public uint Size;
+        public uint Time;
+    }
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetLastInputInfo(ref LastInputInfo info);
 }

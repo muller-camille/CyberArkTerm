@@ -193,7 +193,9 @@ public partial class SessionImportWindow : Window
         RowsGrid.ItemsSource = _rows;
         ApplyFilter();
         FolderBox.IsEnabled = true;
-        _allBox.IsChecked = true;
+        // Sessions « à vérifier » non cochées d'office : la case de l'en-tête ne se dit cochée que si toutes le sont (un
+        // clic coche alors tout).
+        _allBox.IsChecked = _rows.Where(r => r.CanInclude).All(r => r.Include);
         StatusText.Text = sessions.Count == 0 ? "" : Text.Format(Strings.SessionImportReadFrom, sessions.Count, source);
         Refresh();
     }
@@ -384,7 +386,10 @@ public partial class SessionImportWindow : Window
     private void UpdateButtons()
     {
         bool pending = _import is { Applied: false };
-        ImportButton.IsEnabled = !_reading && pending && _import!.Items.Any(i => i.CanImport && i.Include);
+        int selected = pending ? _import!.Items.Count(i => i.CanImport && i.Include) : 0;
+        ImportButton.IsEnabled = !_reading && selected > 0;
+        // Nombre de sessions qui seront ajoutées : celles « à vérifier » ne sont pas cochées d'office.
+        ImportButton.Content = selected > 0 ? Text.Format(Strings.SessionImportButtonCount, selected) : Strings.SessionImportButton;
         ExportButton.IsEnabled = !_reading && _import is { Items.Count: > 0 };
         MissingAccountsButton.IsEnabled = !_reading && _import is { MissingAccounts: > 0 };
         ProblemsBox.IsEnabled = _import is { Items.Count: > 0 };

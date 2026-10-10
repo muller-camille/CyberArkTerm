@@ -13,7 +13,8 @@ vault for master passwords, "emergency access" direct SSH/RDP/VNC/FTP/FTPS/SFTP 
 (when CyberArk is unavailable), import of saved sessions from other tools (PuTTY/KiTTY registry and `.reg`, WinSCP,
 mRemoteNG, RDCMan, SecureCRT, OpenSSH config, `.rdp` and `.mxtsessions` files; never their passwords), CSV import of
 accounts into CyberArk, shared server lists and team environment files on network shares, and an update check
-against GitHub releases (SHA-256 verified download).
+against GitHub releases (download checked against the `SHA256SUMS.txt` of the same release: integrity of the
+download only, not who published it).
 
 ## Where untrusted input enters (most exposed first)
 

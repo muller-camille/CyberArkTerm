@@ -23,16 +23,25 @@ public sealed class TerminalView : FrameworkElement
     private readonly Typeface _regular = new(MonoFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
     private readonly Typeface _bold = new(MonoFamily, FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
     private double _fontSize = TerminalAppearance.FontSize;
+
+    // Taille par défaut des Paramètres déjà appliquée à ce terminal.
+    private double _defaultFontSize = TerminalAppearance.FontSize;
     private TerminalTheme _theme = TerminalAppearance.Theme;
     private IReadOnlyList<TerminalMatch> _matches = [];
     private int _currentMatch = -1;
+
+    // Première ligne de l'écran quand les occurrences ont été trouvées : elles suivent leurs lignes jusqu'au calcul suivant.
+    private long _matchesScreenLine;
     private TerminalEmulator? _emulator;
+
+    // Position dans l'historique et sélection, ancrées sur les lignes : elles ne glissent pas quand la sortie continue.
+    private TerminalViewport? _viewport;
     private double _cellWidth;
     private double _cellHeight;
-    private int _scrollOffset;
-    private (int Row, int Col)? _selectionStart;
-    private (int Row, int Col)? _selectionEnd;
     private bool _selecting;
+
+    // Sélection dessinée pendant un rendu, début avant fin ; null sans sélection visible.
+    private ((int Row, int Column) From, (int Row, int Column) To)? _shownSelection;
 
     public TerminalView()
     {
@@ -41,17 +50,27 @@ public sealed class TerminalView : FrameworkElement
         Cursor = Cursors.IBeam;
         SnapsToDevicePixels = true;
         MeasureCell();
-        // Palette et taille des Paramètres : suivies tant que le terminal est affiché (il peut changer de place).
+        // Palette et taille des Paramètres : suivies tant que le terminal est affiché (il peut changer de place), et
+        // rattrapées à son retour (onglet en arrière-plan, déplacé dans une fenêtre séparée ou la vue parallèle).
         Loaded += (_, _) =>
         {
-            TerminalAppearance.Changed += OnAppearanceChanged;
-            if (!ReferenceEquals(_theme, TerminalAppearance.Theme))
-            {
-                _theme = TerminalAppearance.Theme;
-                InvalidateVisual();
-            }
+            TerminalAppearance.Changed += OnAppearanceChangedElsewhere;
+            OnAppearanceChanged();
         };
-        Unloaded += (_, _) => TerminalAppearance.Changed -= OnAppearanceChanged;
+        Unloaded += (_, _) => TerminalAppearance.Changed -= OnAppearanceChangedElsewhere;
+    }
+
+    /// <summary>Réglage changé depuis un autre fil que celui du terminal : appliqué sur le fil du terminal.</summary>
+    private void OnAppearanceChangedElsewhere()
+    {
+        if (Dispatcher.CheckAccess())
+        {
+            OnAppearanceChanged();
+        }
+        else
+        {
+            Dispatcher.BeginInvoke(OnAppearanceChanged);
+        }
     }
 
     /// <summary>Ctrl+Maj+F : recherche dans le terminal.</summary>
@@ -73,7 +92,13 @@ public sealed class TerminalView : FrameworkElement
     private void OnAppearanceChanged()
     {
         _theme = TerminalAppearance.Theme;
-        SetFontSize(TerminalAppearance.FontSize);
+        // Nouvelle taille par défaut : appliquée ; sinon la taille choisie pour ce terminal (Ctrl+molette) reste.
+        if (_defaultFontSize != TerminalAppearance.FontSize)
+        {
+            _defaultFontSize = TerminalAppearance.FontSize;
+            SetFontSize(_defaultFontSize);
+        }
+
         InvalidateVisual();
     }
 
@@ -103,21 +128,29 @@ public sealed class TerminalView : FrameworkElement
     /// <param name="scroll">Faux quand les occurrences sont recalculées après de nouvelles lignes : la vue ne bouge pas.</param>
     public void ShowMatches(IReadOnlyList<TerminalMatch> matches, int current, bool scroll = true)
     {
+        if (!ReferenceEquals(matches, _matches))
+        {
+            _matchesScreenLine = _emulator?.FirstScreenLine ?? 0;
+        }
+
         _matches = matches;
         _currentMatch = current;
-        if (scroll && _emulator is not null && current >= 0 && current < matches.Count)
+        if (scroll && _viewport is { } viewport && current >= 0 && current < matches.Count)
         {
             // Ligne visible : en haut de l'historique si besoin, vers le milieu de l'écran sinon.
-            int row = matches[current].Row;
-            int top = -_scrollOffset;
-            if (row < top || row >= top + _emulator.Rows)
+            int row = matches[current].Row - MatchesShift;
+            int top = -viewport.ScrollOffset;
+            if (row < top || row >= top + viewport.Emulator.Rows)
             {
-                _scrollOffset = Math.Clamp(-row + (_emulator.Rows / 2), 0, _emulator.ScrollbackCount);
+                viewport.ScrollTo(-row + (viewport.Emulator.Rows / 2));
             }
         }
 
         InvalidateVisual();
     }
+
+    /// <summary>Lignes défilées depuis le calcul des occurrences.</summary>
+    private int MatchesShift => _emulator is null ? 0 : (int)Math.Min(_emulator.FirstScreenLine - _matchesScreenLine, int.MaxValue / 2);
 
     public void ClearMatches()
     {
@@ -138,33 +171,30 @@ public sealed class TerminalView : FrameworkElement
         set
         {
             _emulator = value;
-            _scrollOffset = 0;
-            ClearSelection();
+            _viewport = value is null ? null : new TerminalViewport(value);
             FitToSize();
             InvalidateVisual();
         }
     }
 
+    /// <summary>Lignes remontées dans l'historique (0 = en bas).</summary>
+    private int ScrollOffset => _viewport?.ScrollOffset ?? 0;
+
     public (int Columns, int Rows) SizeInCells => (
         Math.Max(2, (int)((ActualWidth - 2 * Padding) / _cellWidth)),
         Math.Max(2, (int)((ActualHeight - 2 * Padding) / _cellHeight)));
 
-    /// <summary>À appeler après avoir alimenté l'émulateur.</summary>
-    public void Refresh()
-    {
-        if (_emulator is not null)
-        {
-            _scrollOffset = Math.Min(_scrollOffset, _emulator.ScrollbackCount);
-        }
-
-        InvalidateVisual();
-    }
+    /// <summary>
+    /// À appeler après avoir alimenté l'émulateur. Une vue remontée reste sur les mêmes lignes, la sélection sur le même
+    /// texte (<see cref="TerminalViewport"/>).
+    /// </summary>
+    public void Refresh() => InvalidateVisual();
 
     // ===================== Rendu =====================
 
     /// <summary>Position dans l'historique : lignes au-dessus de l'écran, lignes remontées (0 = en bas), lignes affichées.</summary>
     public (int Scrollback, int Offset, int Rows) ScrollState =>
-        _emulator is null ? (0, 0, 0) : (_emulator.ScrollbackCount, _scrollOffset, _emulator.Rows);
+        _emulator is null ? (0, 0, 0) : (_emulator.ScrollbackCount, ScrollOffset, _emulator.Rows);
 
     /// <summary>La position dans l'historique ou sa taille a changé (barre de défilement, « Revenir en bas »).</summary>
     public event Action? ScrollStateChanged;
@@ -174,12 +204,7 @@ public sealed class TerminalView : FrameworkElement
     /// <summary>Affiche l'historique à <paramref name="offset"/> lignes du bas (0 = la fin, comme à la saisie).</summary>
     public void ScrollTo(int offset)
     {
-        if (_emulator is null)
-        {
-            return;
-        }
-
-        _scrollOffset = Math.Clamp(offset, 0, _emulator.ScrollbackCount);
+        _viewport?.ScrollTo(offset);
         InvalidateVisual();
     }
 
@@ -199,7 +224,20 @@ public sealed class TerminalView : FrameworkElement
             Dispatcher.BeginInvoke(() => ScrollStateChanged?.Invoke());
         }
 
-        int top = -_scrollOffset;
+        _shownSelection = null;
+        if (_viewport?.Selection is { } selection && (selection.Start != selection.End || _selecting))
+        {
+            var (from, to) = (selection.Start, selection.End);
+            if (from.Row > to.Row || (from.Row == to.Row && from.Column > to.Column))
+            {
+                (from, to) = (to, from);
+            }
+
+            _shownSelection = (from, to);
+        }
+
+        int offset = ScrollOffset;
+        int top = -offset;
         for (int screenRow = 0; screenRow < emulator.Rows; screenRow++)
         {
             int row = top + screenRow;
@@ -208,21 +246,24 @@ public sealed class TerminalView : FrameworkElement
                 continue;
             }
 
-            DrawMatches(dc, row, Padding + screenRow * _cellHeight);
+            DrawMatches(dc, row + MatchesShift, Padding + screenRow * _cellHeight);
             DrawLine(dc, emulator, row, Padding + screenRow * _cellHeight);
         }
 
-        // Curseur : pavé plein si le terminal a le focus, contour sinon.
-        if (emulator.CursorVisible && _scrollOffset == 0)
+        // Curseur : pavé plein si le terminal a le focus, contour sinon ; sur un caractère large, ses deux cases.
+        if (emulator.CursorVisible && offset == 0)
         {
-            var rect = new Rect(Padding + emulator.CursorColumn * _cellWidth, Padding + emulator.CursorRow * _cellHeight, _cellWidth, _cellHeight);
+            var line = emulator.GetLine(emulator.CursorRow);
+            int column = Math.Min(emulator.CursorColumn, line.Length - 1);
+            int cells = WidthAt(line, column, line.Length);
+            var rect = new Rect(Padding + column * _cellWidth, Padding + emulator.CursorRow * _cellHeight, cells * _cellWidth, _cellHeight);
             if (IsKeyboardFocused)
             {
                 dc.DrawRectangle(Brush(_theme.Cursor), null, rect);
-                var cell = emulator.GetLine(emulator.CursorRow)[Math.Min(emulator.CursorColumn, emulator.Columns - 1)];
-                if (cell.Char != ' ')
+                var cell = line[column];
+                if (cell.CodePoint != ' ' && !cell.IsWideTail)
                 {
-                    dc.DrawText(Format(cell.Char.ToString(), _regular, Brush(_theme.Background)), rect.TopLeft);
+                    DrawGlyph(dc, emulator.CellText(cell), _regular, Brush(_theme.Background), rect.TopLeft, cells);
                 }
             }
             else
@@ -239,12 +280,12 @@ public sealed class TerminalView : FrameworkElement
         int col = 0;
         while (col < columns)
         {
-            var (fg, bg, bold, underline) = Colors(line[col], IsSelected(row, col));
+            var (fg, bg, bold, underline) = Colors(line[col], IsSelected(line, row, col));
             int start = col;
             bool ascii = true;
-            while (col < columns && Colors(line[col], IsSelected(row, col)) == (fg, bg, bold, underline))
+            while (col < columns && Colors(line[col], IsSelected(line, row, col)) == (fg, bg, bold, underline))
             {
-                ascii &= line[col].Char < 0x80;
+                ascii &= (uint)line[col].CodePoint < 0x80;
                 col++;
             }
 
@@ -259,7 +300,13 @@ public sealed class TerminalView : FrameworkElement
             var brush = Brush(fg);
             if (ascii)
             {
-                var text = new string(line.AsSpan(start, col - start).ToArray().Select(c => c.Char).ToArray());
+                var text = string.Create(col - start, (line, start), static (chars, run) =>
+                {
+                    for (int i = 0; i < chars.Length; i++)
+                    {
+                        chars[i] = (char)run.line[run.start + i].CodePoint;
+                    }
+                });
                 if (!string.IsNullOrWhiteSpace(text))
                 {
                     dc.DrawText(Format(text, typeface, brush), new Point(x, y));
@@ -267,13 +314,13 @@ public sealed class TerminalView : FrameworkElement
             }
             else
             {
-                // Caractères hors ASCII (cadres, accents...) : placés case par case pour garder l'alignement
-                // même si la police de secours a une autre largeur.
+                // Caractères hors ASCII (cadres, accents, chinois, emoji...) : placés case par case pour garder
+                // l'alignement même si la police de secours a une autre largeur ; un caractère large sur ses deux cases.
                 for (int c = start; c < col; c++)
                 {
-                    if (line[c].Char != ' ')
+                    if (line[c].CodePoint != ' ' && !line[c].IsWideTail)
                     {
-                        dc.DrawText(Format(line[c].Char.ToString(), typeface, brush), new Point(Padding + c * _cellWidth, y));
+                        DrawGlyph(dc, emulator.CellText(line[c]), typeface, brush, new Point(Padding + c * _cellWidth, y), WidthAt(line, c, columns));
                     }
                 }
             }
@@ -285,7 +332,30 @@ public sealed class TerminalView : FrameworkElement
         }
     }
 
-    /// <summary>Fond des occurrences de la recherche (jaune ; orange pour la courante).</summary>
+    /// <summary>Cases occupées par le caractère de la case <paramref name="col"/> : 2 pour un caractère large visible en entier.</summary>
+    private static int WidthAt(Cell[] line, int col, int columns) => col + 1 < columns && line[col + 1].IsWideTail ? 2 : 1;
+
+    /// <summary>
+    /// Texte d'une case, à sa place. Un caractère large dont le glyphe déborde de ses deux cases (emoji d'une police de
+    /// secours) est resserré pour ne pas empiéter sur le voisin.
+    /// </summary>
+    private void DrawGlyph(DrawingContext dc, string text, Typeface typeface, Brush brush, Point origin, int cells)
+    {
+        var formatted = Format(text, typeface, brush);
+        double room = cells * _cellWidth;
+        if (cells > 1 && formatted.WidthIncludingTrailingWhitespace > room)
+        {
+            dc.PushTransform(new ScaleTransform(room / formatted.WidthIncludingTrailingWhitespace, 1, origin.X, origin.Y));
+            dc.DrawText(formatted, origin);
+            dc.Pop();
+        }
+        else
+        {
+            dc.DrawText(formatted, origin);
+        }
+    }
+
+    /// <summary>Fond des occurrences de la recherche (jaune ; orange pour la courante) ; <paramref name="row"/> au moment du calcul.</summary>
     private void DrawMatches(DrawingContext dc, int row, double y)
     {
         for (int i = 0; i < _matches.Count; i++)
@@ -527,10 +597,10 @@ public sealed class TerminalView : FrameworkElement
             return;
         }
 
-        if (_scrollOffset != 0 || _selectionStart is not null)
+        if (_viewport is { } viewport && (viewport.ScrollOffset != 0 || viewport.Selection is not null))
         {
-            _scrollOffset = 0;
-            ClearSelection();
+            viewport.ScrollTo(0);
+            viewport.ClearSelection();
             InvalidateVisual();
         }
 
@@ -590,8 +660,7 @@ public sealed class TerminalView : FrameworkElement
         }
         else
         {
-            _selectionStart = cell;
-            _selectionEnd = cell;
+            _viewport?.Select(cell, cell);
             _selecting = true;
             CaptureMouse();
         }
@@ -603,9 +672,9 @@ public sealed class TerminalView : FrameworkElement
     protected override void OnMouseMove(MouseEventArgs e)
     {
         base.OnMouseMove(e);
-        if (_selecting)
+        if (_selecting && _emulator is not null)
         {
-            _selectionEnd = CellAt(e.GetPosition(this));
+            _viewport?.ExtendSelection(CellAt(e.GetPosition(this)));
             InvalidateVisual();
         }
     }
@@ -620,7 +689,7 @@ public sealed class TerminalView : FrameworkElement
 
         _selecting = false;
         ReleaseMouseCapture();
-        if (_selectionStart == _selectionEnd)
+        if (_viewport?.HasSelection != true)
         {
             ClearSelection();
         }
@@ -671,12 +740,12 @@ public sealed class TerminalView : FrameworkElement
             return null;
         }
 
-        bool selection = _selectionStart is { } a && _selectionEnd is { } b && a != b;
+        bool selection = _viewport?.HasSelection == true;
         var menu = new ContextMenu { PlacementTarget = this, Placement = atCursor ? PlacementMode.Relative : PlacementMode.MousePoint };
         if (atCursor)
         {
             // Sous le curseur ; historique remonté (curseur hors de la vue) : en bas du terminal.
-            int row = Math.Min(_emulator.CursorRow + _scrollOffset, _emulator.Rows - 1);
+            int row = Math.Min(_emulator.CursorRow + ScrollOffset, _emulator.Rows - 1);
             menu.HorizontalOffset = Padding + (_emulator.CursorColumn * _cellWidth);
             menu.VerticalOffset = Padding + ((row + 1) * _cellHeight);
         }
@@ -745,20 +814,18 @@ public sealed class TerminalView : FrameworkElement
         }
 
         int last = _emulator.Rows - 1;
-        while (last > _emulator.CursorRow && _emulator.GetLine(last).All(c => c.Char is ' ' or '\0'))
+        while (last > _emulator.CursorRow && _emulator.GetLine(last).All(c => c.CodePoint is ' ' or 0))
         {
             last--;
         }
 
-        _selectionStart = (-_emulator.ScrollbackCount, 0);
-        _selectionEnd = (last, _emulator.Columns - 1);
+        _viewport?.Select((-_emulator.ScrollbackCount, 0), (last, _emulator.Columns - 1));
         CopySelection();
         InvalidateVisual();
     }
 
     /// <summary>Texte sélectionné (tests).</summary>
-    internal string SelectedText =>
-        _emulator is not null && _selectionStart is { } a && _selectionEnd is { } b ? _emulator.GetText(a.Row, a.Col, b.Row, b.Col) : "";
+    internal string SelectedText => _viewport?.SelectedText ?? "";
 
     /// <summary>Oublie les lignes sorties de l'écran (sur ce poste : rien n'est envoyé au serveur).</summary>
     private void ClearScrollback()
@@ -769,7 +836,7 @@ public sealed class TerminalView : FrameworkElement
         }
 
         _emulator.ClearScrollback();
-        _scrollOffset = 0;
+        _viewport?.ScrollTo(0);
         ClearSelection();
         _matches = [];
         _currentMatch = -1;
@@ -803,79 +870,89 @@ public sealed class TerminalView : FrameworkElement
 
     private void ScrollBy(int lines)
     {
-        if (_emulator is null)
-        {
-            return;
-        }
-
-        _scrollOffset = Math.Clamp(_scrollOffset + lines, 0, _emulator.ScrollbackCount);
+        _viewport?.ScrollBy(lines);
         InvalidateVisual();
     }
 
-    private (int Row, int Col) CellAt(Point p)
+    private (int Row, int Column) CellAt(Point p)
     {
         var emulator = _emulator!;
         int row = (int)Math.Floor((p.Y - Padding) / _cellHeight);
         int col = (int)Math.Floor((p.X - Padding) / _cellWidth);
-        row = Math.Clamp(row, 0, emulator.Rows - 1) - _scrollOffset;
+        row = Math.Clamp(row, 0, emulator.Rows - 1) - ScrollOffset;
         return (row, Math.Clamp(col, 0, emulator.Columns - 1));
     }
 
-    private void SelectWord((int Row, int Col) cell)
+    private void SelectWord((int Row, int Column) cell)
     {
-        var line = _emulator!.GetLine(cell.Row);
-        static bool IsWordChar(char c) => !char.IsWhiteSpace(c) && "\"'`()[]{}<>|;,".IndexOf(c) < 0;
-        if (cell.Col >= line.Length || !IsWordChar(line[cell.Col].Char))
+        var emulator = _emulator!;
+        var line = emulator.GetLine(cell.Row);
+
+        // Ni blanc ni séparateur ; la case de droite d'un caractère large compte comme lui.
+        bool IsWordChar(int col)
+        {
+            if (line[col].IsWideTail && col > 0)
+            {
+                col--;
+            }
+
+            var text = emulator.CellText(line[col]);
+            return text.Length > 0 && !char.IsWhiteSpace(text[0]) && "\"'`()[]{}<>|;,".IndexOf(text[0]) < 0;
+        }
+
+        if (cell.Column >= line.Length || !IsWordChar(cell.Column))
         {
             ClearSelection();
             return;
         }
 
-        int start = cell.Col;
-        int end = cell.Col;
-        while (start > 0 && IsWordChar(line[start - 1].Char))
+        int start = cell.Column;
+        int end = cell.Column;
+        while (start > 0 && IsWordChar(start - 1))
         {
             start--;
         }
 
-        while (end < line.Length - 1 && IsWordChar(line[end + 1].Char))
+        while (end < line.Length - 1 && IsWordChar(end + 1))
         {
             end++;
         }
 
-        _selectionStart = (cell.Row, start);
-        _selectionEnd = (cell.Row, end);
+        _viewport?.Select((cell.Row, start), (cell.Row, end));
     }
 
-    private bool IsSelected(int row, int col)
+    /// <summary>Case sélectionnée ; un caractère large l'est en entier, comme il sera copié.</summary>
+    private bool IsSelected(Cell[] line, int row, int col)
     {
-        if (_selectionStart is not { } a || _selectionEnd is not { } b || a == b && !_selecting)
+        if (_shownSelection is null)
         {
             return false;
         }
 
-        if (a.Row > b.Row || (a.Row == b.Row && a.Col > b.Col))
+        if (line[col].IsWideTail && col > 0)
         {
-            (a, b) = (b, a);
+            col--;
         }
 
-        return (row > a.Row || (row == a.Row && col >= a.Col)) && (row < b.Row || (row == b.Row && col <= b.Col));
+        return IsSelected(row, col) || (col + 1 < line.Length && line[col + 1].IsWideTail && IsSelected(row, col + 1));
     }
 
-    private void ClearSelection()
+    private bool IsSelected(int row, int col)
     {
-        _selectionStart = null;
-        _selectionEnd = null;
+        if (_shownSelection is not { } selection)
+        {
+            return false;
+        }
+
+        var (from, to) = selection;
+        return (row > from.Row || (row == from.Row && col >= from.Column)) && (row < to.Row || (row == to.Row && col <= to.Column));
     }
+
+    private void ClearSelection() => _viewport?.ClearSelection();
 
     private void CopySelection()
     {
-        if (_emulator is null || _selectionStart is not { } a || _selectionEnd is not { } b)
-        {
-            return;
-        }
-
-        var text = _emulator.GetText(a.Row, a.Col, b.Row, b.Col).Replace("\n", Environment.NewLine);
+        var text = SelectedText.Replace("\n", Environment.NewLine);
         if (text.Length > 0)
         {
             try

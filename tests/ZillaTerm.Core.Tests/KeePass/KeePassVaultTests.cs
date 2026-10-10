@@ -18,12 +18,17 @@ public sealed class KeePassVaultTests : IDisposable
         { "py-kdbx4-kxc-v2.kdbx", KdbxReadTests.Password, "kxc-v2.keyx" },
     };
 
+    /// <summary>
+    /// Tout est gardé ; la copie de sécurité (.bak) ne sert que pendant le remplacement : elle ne reste pas à côté du
+    /// coffre, où elle s'ouvrirait encore avec un ancien mot de passe maître. Une copie restée d'avant disparaît aussi.
+    /// </summary>
     [Theory]
     [MemberData(nameof(AllVaults))]
-    public async Task SavingKeepsEverythingAndMakesABackup(string vault, string? password, string? keyFile)
+    public async Task SavingKeepsEverythingAndRemovesTheBackup(string vault, string? password, string? keyFile)
     {
         var path = Copy(vault);
         var original = await File.ReadAllBytesAsync(path);
+        await File.WriteAllBytesAsync(path + ".bak", original);
         List<(string Title, string User, string Url, string Notes, string? Password)> before;
         string format;
         using (var v = await Open(path, password, keyFile))
@@ -33,7 +38,7 @@ public sealed class KeePassVaultTests : IDisposable
             await v.SaveAsync(_ => { });
         }
 
-        Assert.Equal(original, await File.ReadAllBytesAsync(path + ".bak"));
+        Assert.False(File.Exists(path + ".bak"));
         Assert.NotEqual(original, await File.ReadAllBytesAsync(path));
         using var reopened = await Open(path, password, keyFile);
         Assert.Equal(format, reopened.Database.FormatName);
@@ -278,6 +283,21 @@ public sealed class KeePassVaultTests : IDisposable
         Assert.Equal("nouveau", File.ReadAllText(path));
         Assert.Equal("ancien", File.ReadAllText(backup));
         Assert.False(File.Exists(temp));
+    }
+
+    /// <summary>Fichier en place différent de celui écrit (modifié entre-temps) : la copie de sécurité est gardée.</summary>
+    [Fact]
+    public async Task BackupIsKeptUnlessTheInstalledFileIsTheOneWritten()
+    {
+        var (path, _, backup) = InstallFiles();
+        File.WriteAllText(backup, "ancien");
+
+        await KeePassVault.RemoveBackupAsync(path, backup, "autre"u8.ToArray());
+        Assert.Equal("ancien", File.ReadAllText(backup));
+
+        await KeePassVault.RemoveBackupAsync(path, backup, "ancien"u8.ToArray());
+        Assert.False(File.Exists(backup));
+        Assert.Equal("ancien", File.ReadAllText(path));
     }
 
     public void Dispose() => Directory.Delete(_directory, recursive: true);

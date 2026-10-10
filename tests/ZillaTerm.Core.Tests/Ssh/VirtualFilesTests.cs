@@ -16,6 +16,8 @@ public class VirtualFilesTests
     [InlineData("", "_")]
     [InlineData("a:b*c?d\"e<f>g|h", "a_b_c_d_e_f_g_h")]
     [InlineData("tab\there\u0001", "tab_here_")]
+    [InlineData("facture\u202Efdp.exe", "facture_fdp.exe")]
+    [InlineData("a\u200Bb\u2028c\u2066d", "a_b_c_d")]
     [InlineData("fin. . ", "fin")]
     [InlineData("CON", "_CON")]
     [InlineData("con.txt", "_con.txt")]

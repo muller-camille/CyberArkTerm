@@ -38,6 +38,15 @@ public partial class SettingsDialog : Window
             .Concat(UiLanguage.Supported.Select(code => new KeyValuePair<string, string>(code, UiLanguage.NativeName(code))))
             .ToList();
         LanguageBox.SelectedValue = UiLanguage.Normalize(settings.Language);
+        AppThemeBox.DisplayMemberPath = "Value";
+        AppThemeBox.SelectedValuePath = "Key";
+        AppThemeBox.ItemsSource = new[]
+        {
+            new KeyValuePair<AppTheme, string>(AppTheme.System, Strings.AppThemeSystem),
+            new KeyValuePair<AppTheme, string>(AppTheme.Light, Strings.AppThemeLight),
+            new KeyValuePair<AppTheme, string>(AppTheme.Dark, Strings.AppThemeDark),
+        };
+        AppThemeBox.SelectedValue = settings.Theme;
         PsmpBox.Text = settings.PsmpAddress;
         PortBox.Text = settings.PsmpPort.ToString(CultureInfo.InvariantCulture);
         foreach (var psmp in settings.PsmpServers)
@@ -74,8 +83,11 @@ public partial class SettingsDialog : Window
         Loaded += (_, _) => LanguageBox.Focus();
     }
 
-    /// <summary>Clé d'hôte acceptée : « hôte:port », type de clé (ou X.509 pour un certificat FTPS), empreinte SHA-256.</summary>
-    internal sealed record HostKeyRow(string Server, string Algorithm, string Fingerprint);
+    /// <summary>
+    /// Clé d'hôte acceptée : « hôte:port », type de clé (ou X.509 pour un certificat), empreinte SHA-256, et sa clé
+    /// dans les réglages (un serveur peut avoir une clé de chaque type).
+    /// </summary>
+    internal sealed record HostKeyRow(string Server, string Algorithm, string Fingerprint, string Entry);
 
     /// <summary>Clés affichées (celles choisies pour l'oubli disparaissent de la liste, l'oubli se fait à l'enregistrement).</summary>
     internal IReadOnlyList<HostKeyRow> HostKeyRows { get; private set; } = [];
@@ -88,7 +100,8 @@ public partial class SettingsDialog : Window
             .Select(kv =>
             {
                 int space = kv.Value.IndexOf(' ');
-                return new HostKeyRow(kv.Key, space > 0 ? kv.Value[..space] : "", space > 0 ? kv.Value[(space + 1)..] : kv.Value);
+                return new HostKeyRow(KnownHosts.Server(kv.Key), space > 0 ? kv.Value[..space] : "", space > 0 ? kv.Value[(space + 1)..] : kv.Value,
+                    kv.Key);
             })
             .ToList();
         HostKeysGrid.ItemsSource = HostKeyRows;
@@ -124,7 +137,7 @@ public partial class SettingsDialog : Window
     {
         foreach (var row in HostKeysGrid.SelectedItems.OfType<HostKeyRow>().ToList())
         {
-            _forgottenKeys.Add(row.Server);
+            _forgottenKeys.Add(row.Entry);
         }
 
         ShowHostKeys();
@@ -207,6 +220,7 @@ public partial class SettingsDialog : Window
         }
 
         _settings.Language = LanguageBox.SelectedValue as string ?? "";
+        _settings.Theme = AppThemeBox.SelectedValue as AppTheme? ?? AppTheme.System;
         _settings.PsmpAddress = host;
         _settings.PsmpPort = port;
         _settings.PsmpServers = psmpServers;

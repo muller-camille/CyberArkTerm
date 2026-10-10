@@ -29,20 +29,24 @@
                 <views:ErrorLine x:Name="ErrorText" />
             </Border>
 
-            <TextBlock Text="{x:Static loc:Strings.ConnectionType}" Style="{StaticResource SectionTitle}" />
+            <TextBlock x:Name="ModeTitle" Text="{x:Static loc:Strings.ConnectionType}" Style="{StaticResource SectionTitle}" />
             <WrapPanel Margin="0,0,0,12">
                 <RadioButton x:Name="PsmRadio" Content="{x:Static loc:Strings.ModePsm}" GroupName="Mode" Margin="0,0,24,4"
-                             Checked="OnModeChanged" />
-                <RadioButton x:Name="SshRadio" Content="{x:Static loc:Strings.ModeSsh}" GroupName="Mode" Margin="0,0,24,4" Checked="OnModeChanged" />
-                <RadioButton x:Name="SftpRadio" Content="{x:Static loc:Strings.ModeSftp}" GroupName="Mode" Margin="0,0,0,4" Checked="OnModeChanged" />
+                             Checked="OnModeChanged" AutomationProperties.LabeledBy="{Binding ElementName=ModeTitle}" />
+                <RadioButton x:Name="SshRadio" Content="{x:Static loc:Strings.ModeSsh}" GroupName="Mode" Margin="0,0,24,4" Checked="OnModeChanged"
+                             AutomationProperties.LabeledBy="{Binding ElementName=ModeTitle}" />
+                <RadioButton x:Name="SftpRadio" Content="{x:Static loc:Strings.ModeSftp}" GroupName="Mode" Margin="0,0,0,4" Checked="OnModeChanged"
+                             AutomationProperties.LabeledBy="{Binding ElementName=ModeTitle}" />
             </WrapPanel>
 
             <Grid>
+                <!-- Étiquettes à la largeur du plus long texte (« Macchina di destinazione: » en italien). -->
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="140" />
+                    <ColumnDefinition Width="Auto" MinWidth="140" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -67,16 +71,20 @@
                         <ColumnDefinition Width="8" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <TextBox x:Name="TicketSystemBox" ToolTip="{x:Static loc:Strings.TicketSystemTip}" />
+                    <!-- Deux champs pour une étiquette : chacun son nom pour les lecteurs d'écran. -->
+                    <TextBox x:Name="TicketSystemBox" ToolTip="{x:Static loc:Strings.TicketSystemTip}"
+                             AutomationProperties.Name="{x:Static loc:Strings.TicketSystemTip}" />
                     <TextBlock Style="{StaticResource Placeholder}" Tag="{Binding ElementName=TicketSystemBox}"
                                Text="{x:Static loc:Strings.TicketSystemPlaceholder}" Margin="6,0,0,0" />
-                    <TextBox Grid.Column="2" x:Name="TicketIdBox" ToolTip="{x:Static loc:Strings.TicketIdTip}" />
+                    <TextBox Grid.Column="2" x:Name="TicketIdBox" ToolTip="{x:Static loc:Strings.TicketIdTip}"
+                             AutomationProperties.Name="{x:Static loc:Strings.TicketIdTip}" />
                     <TextBlock Grid.Column="2" Style="{StaticResource Placeholder}" Tag="{Binding ElementName=TicketIdBox}"
                                Text="{x:Static loc:Strings.TicketIdPlaceholder}" Margin="6,0,0,0" />
                 </Grid>
+
+                <CheckBox Grid.Row="4" Grid.Column="1" x:Name="RememberBox" Margin="0,0,0,10" />
             </Grid>
 
-            <CheckBox x:Name="RememberBox" Margin="140,0,0,10" />
             <TextBlock x:Name="SshHint" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,4" />
         </StackPanel>
     </DockPanel>

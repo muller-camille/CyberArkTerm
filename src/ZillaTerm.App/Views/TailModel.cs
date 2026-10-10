@@ -15,7 +15,7 @@ internal interface ITailLink : IDisposable
     /// <summary>Serveur (libellé de la session).</summary>
     string Server { get; }
 
-    /// <summary>Session d'origine : le suivi s'arrête quand elle se ferme.</summary>
+    /// <summary>Session d'origine : le suivi s'arrête quand elle se ferme (null ensuite, elle n'est plus retenue).</summary>
     RemoteSession? Session { get; }
 
     /// <summary>Connexion SFTP propre au suivi (option « session indépendante »).</summary>
@@ -47,10 +47,12 @@ internal interface ITailLink : IDisposable
 /// Connexion d'une fenêtre de suivi à une session SSH : celle de l'onglet Fichiers (partagée), ou une connexion SFTP
 /// dédiée, fermée avec la fenêtre. Une connexion perdue n'est rouverte que quand l'onglet se reconnecte ou sur le
 /// bouton « Reconnecter » : jamais en boucle, chaque connexion étant une session PSMP (et peut-être une demande MFA).
+/// Fermé (session fermée, fichiers retirés), le lien ne retient plus la session : les lignes reçues, gardées dans la
+/// fenêtre, ne gardent pas en mémoire son terminal et son historique.
 /// </summary>
 internal sealed class SessionTailLink : ITailLink
 {
-    private readonly RemoteSession _session;
+    private RemoteSession? _session;
     private IRemoteFiles? _browser;
     private Task? _connecting;
     private bool _wanted;
@@ -61,6 +63,7 @@ internal sealed class SessionTailLink : ITailLink
     public SessionTailLink(RemoteSession session, bool dedicated, IRemoteFiles? shared)
     {
         _session = session;
+        Server = session.Label;
         Dedicated = dedicated;
         if (!dedicated && shared is not null)
         {
@@ -74,7 +77,7 @@ internal sealed class SessionTailLink : ITailLink
         session.StateChanged += OnStateChanged;
     }
 
-    public string Server => _session.Label;
+    public string Server { get; }
 
     public RemoteSession? Session => _session;
 
@@ -87,11 +90,11 @@ internal sealed class SessionTailLink : ITailLink
     public bool IsConnecting => _connecting is { IsCompleted: false };
 
     public bool CanReconnect =>
-        _wanted && !_disposed && !_session.IsDisposed && _session.State == RemoteSessionState.Connected && !IsConnecting;
+        _wanted && _session is { IsDisposed: false, State: RemoteSessionState.Connected } && !IsConnecting;
 
     public bool CheckConnected()
     {
-        if (_disposed)
+        if (_session is not { } session)
         {
             return false;
         }
@@ -102,7 +105,7 @@ internal sealed class SessionTailLink : ITailLink
             return true;
         }
 
-        if (!Dedicated && _session.OpenedBrowser is { } opened && !ReferenceEquals(opened, _browser))
+        if (!Dedicated && session.OpenedBrowser is { } opened && !ReferenceEquals(opened, _browser))
         {
             // L'onglet Fichiers a rouvert la connexion de la session : le suivi la reprend.
             _browser = opened;
@@ -130,14 +133,19 @@ internal sealed class SessionTailLink : ITailLink
 
     private async Task ConnectAsync()
     {
+        if (_session is not { } session)
+        {
+            return;
+        }
+
         try
         {
-            var browser = Dedicated ? await _session.OpenDedicatedBrowserAsync() : await _session.GetBrowserAsync();
+            var browser = Dedicated ? await session.OpenDedicatedBrowserAsync() : await session.GetBrowserAsync();
             if (_disposed)
             {
                 if (Dedicated)
                 {
-                    _session.CloseDedicatedBrowser(browser);
+                    session.CloseDedicatedBrowser(browser);
                 }
 
                 return;
@@ -145,7 +153,7 @@ internal sealed class SessionTailLink : ITailLink
 
             if (Dedicated && _browser is { } previous)
             {
-                _session.CloseDedicatedBrowser(previous);
+                session.CloseDedicatedBrowser(previous);
             }
 
             _browser = browser;
@@ -162,13 +170,18 @@ internal sealed class SessionTailLink : ITailLink
 
     private void OnStateChanged()
     {
+        if (_session is not { } session)
+        {
+            return;
+        }
+
         // L'onglet s'est reconnecté : les fichiers suivis reprennent, sur une nouvelle connexion si l'ancienne est perdue.
-        if (_session.State == RemoteSessionState.Connected && _lastState != RemoteSessionState.Connected)
+        if (session.State == RemoteSessionState.Connected && _lastState != RemoteSessionState.Connected)
         {
             _wanted = true;
         }
 
-        _lastState = _session.State;
+        _lastState = session.State;
     }
 
     private static bool IsAlive(IRemoteFiles? browser)
@@ -191,12 +204,16 @@ internal sealed class SessionTailLink : ITailLink
         }
 
         _disposed = true;
-        _session.StateChanged -= OnStateChanged;
-        if (Dedicated && _browser is { } browser)
+        if (_session is { } session)
         {
-            _session.CloseDedicatedBrowser(browser);
+            session.StateChanged -= OnStateChanged;
+            if (Dedicated && _browser is { } browser)
+            {
+                session.CloseDedicatedBrowser(browser);
+            }
         }
 
+        _session = null;
         _browser = null;
     }
 }
@@ -204,11 +221,14 @@ internal sealed class SessionTailLink : ITailLink
 /// <summary>Fichier suivi dans une fenêtre (une source de la vue combinée).</summary>
 internal sealed class TailFeed : INotifyPropertyChanged
 {
-    public TailFeed(ITailLink link, string path, Brush brush)
+    private readonly int _color;
+
+    /// <param name="color">Rang de la couleur du fichier dans la vue combinée.</param>
+    public TailFeed(ITailLink link, string path, int color)
     {
         Link = link;
         Path = path;
-        Brush = brush;
+        _color = color;
         Tail = new FileTail(NoSource.Instance);
     }
 
@@ -223,7 +243,10 @@ internal sealed class TailFeed : INotifyPropertyChanged
 
     public string Tip => $"{Link.Server} : {Path}";
 
-    public Brush Brush { get; }
+    public Brush Brush => TailBrushes.Source(_color);
+
+    /// <summary>Thème changé : couleur du fichier recalculée.</summary>
+    public void ThemeChanged() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Brush)));
 
     public FileTail Tail { get; }
 
@@ -257,6 +280,13 @@ internal sealed class TailFeed : INotifyPropertyChanged
         StatusBrush = error ? TailBrushes.Error : TailBrushes.Muted;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Status)));
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatusBrush)));
+    }
+
+    /// <summary>Fichier plus suivi (ses lignes restent affichées) : l'accès au fichier, et sa connexion, ne sont plus retenus.</summary>
+    public void Release()
+    {
+        Stopped = true;
+        Tail.Source = NoSource.Instance;
     }
 
     /// <summary>Avant la première connexion.</summary>
@@ -323,6 +353,16 @@ internal static class TailBrushes
     private static readonly Brush MatchColor = Frozen(0xFF, 0xB7, 0x4D);
     private static readonly Brush AlertColor = Frozen(0xFD, 0xEC, 0xEA);
 
+    // Thème sombre : textes éclaircis, surlignages foncés sous un texte clair (4,5:1 au moins).
+    private static readonly Brush DarkErrorColor = Frozen(0xFF, 0x9A, 0x90);
+    private static readonly Brush DarkWarningColor = Frozen(0xF0, 0xC0, 0x60);
+    private static readonly Brush DarkMutedColor = Frozen(0xA3, 0xAD, 0xB8);
+    private static readonly Brush DarkContextColor = Frozen(0x8E, 0x99, 0xA5);
+    private static readonly Brush DarkMarkerColor = Frozen(0xA5, 0xB4, 0xFC);
+    private static readonly Brush DarkHighlightColor = Frozen(0x5C, 0x4D, 0x00);
+    private static readonly Brush DarkMatchColor = Frozen(0x7A, 0x41, 0x00);
+    private static readonly Brush DarkAlertColor = Frozen(0x4A, 0x22, 0x26);
+
     /// <summary>Couleurs des fichiers de la vue combinée (ni rouge ni orange, réservés aux niveaux).</summary>
     private static readonly Brush[] SourceColors =
     [
@@ -330,28 +370,37 @@ internal static class TailBrushes
         Frozen(0xAD, 0x14, 0x57), Frozen(0x4E, 0x34, 0x2E), Frozen(0x28, 0x35, 0x93), Frozen(0x55, 0x8B, 0x2F),
     ];
 
+    private static readonly Brush[] DarkSourceColors =
+    [
+        Frozen(0x5A, 0xA9, 0xF0), Frozen(0x6C, 0xC0, 0x70), Frozen(0xC0, 0x8A, 0xE0), Frozen(0x4D, 0xC6, 0xD0),
+        Frozen(0xF0, 0x7A, 0xA8), Frozen(0xC8, 0xA0, 0x8A), Frozen(0x8C, 0x9E, 0xFF), Frozen(0xA5, 0xD4, 0x6A),
+    ];
+
     private static bool HighContrast => SystemParameters.HighContrast;
 
-    public static Brush Error => HighContrast ? SystemColors.WindowTextBrush : ErrorColor;
+    private static bool Dark => Palette.IsDark;
 
-    public static Brush Warning => HighContrast ? SystemColors.WindowTextBrush : WarningColor;
+    public static Brush Error => HighContrast ? SystemColors.WindowTextBrush : Dark ? DarkErrorColor : ErrorColor;
 
-    public static Brush Muted => HighContrast ? SystemColors.WindowTextBrush : MutedColor;
+    public static Brush Warning => HighContrast ? SystemColors.WindowTextBrush : Dark ? DarkWarningColor : WarningColor;
 
-    public static Brush Context => HighContrast ? SystemColors.WindowTextBrush : ContextColor;
+    public static Brush Muted => HighContrast ? SystemColors.WindowTextBrush : Dark ? DarkMutedColor : MutedColor;
 
-    public static Brush Marker => HighContrast ? SystemColors.WindowTextBrush : MarkerColor;
+    public static Brush Context => HighContrast ? SystemColors.WindowTextBrush : Dark ? DarkContextColor : ContextColor;
 
-    public static Brush Highlight => HighContrast ? SystemColors.HighlightBrush : HighlightColor;
+    public static Brush Marker => HighContrast ? SystemColors.WindowTextBrush : Dark ? DarkMarkerColor : MarkerColor;
 
-    public static Brush Match => HighContrast ? SystemColors.HighlightBrush : MatchColor;
+    public static Brush Highlight => HighContrast ? SystemColors.HighlightBrush : Dark ? DarkHighlightColor : HighlightColor;
 
-    public static Brush Alert => HighContrast ? SystemColors.HighlightBrush : AlertColor;
+    public static Brush Match => HighContrast ? SystemColors.HighlightBrush : Dark ? DarkMatchColor : MatchColor;
+
+    public static Brush Alert => HighContrast ? SystemColors.HighlightBrush : Dark ? DarkAlertColor : AlertColor;
 
     /// <summary>Texte posé sur un surlignage ou une ligne d'alerte ; null hors contraste élevé (couleur du texte inchangée).</summary>
     public static Brush? OnHighlight => HighContrast ? SystemColors.HighlightTextBrush : null;
 
-    public static Brush Source(int index) => HighContrast ? SystemColors.WindowTextBrush : SourceColors[index % SourceColors.Length];
+    public static Brush Source(int index) =>
+        HighContrast ? SystemColors.WindowTextBrush : (Dark ? DarkSourceColors : SourceColors)[index % SourceColors.Length];
 
     public static Brush? Level(TailLevel level) => level switch
     {

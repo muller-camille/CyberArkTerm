@@ -7,10 +7,13 @@ using ZillaTerm.Core;
 
 namespace ZillaTerm.App;
 
-/// <summary>Traduit les exceptions réseau/API en messages compréhensibles pour l'utilisateur.</summary>
+/// <summary>
+/// Traduit les exceptions réseau/API en messages compréhensibles pour l'utilisateur. Les erreurs courantes du PVWA, du
+/// SSH et du réseau disent quoi faire, le texte d'origine à la fin (<see cref="ServerErrorText"/>).
+/// </summary>
 internal static class ErrorText
 {
-    public static string Describe(Exception e) => e switch
+    public static string Describe(Exception e) => ServerErrorText.Explain(e) ?? e switch
     {
         PvwaException p => p.Message,
         ArgumentException a => a.Message,

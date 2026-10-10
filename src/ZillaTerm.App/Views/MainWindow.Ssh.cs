@@ -23,6 +23,10 @@ public partial class MainWindow
     private MfaSshKey? _mfaKey;
     private Task<MfaKeyFetch>? _mfaFetch;
     private DateTime _mfaRetryAfter;
+    // Une clé MFA a été délivrée pendant cette session PVWA : elle est retirée à la déconnexion.
+    private bool _mfaKeyIssued;
+    // Sessions ouvertes ensemble (dossier, sélection, vue parallèle) : mot de passe du PSMP réutilisable entre elles.
+    private SshAnswerCache? _openingGroup;
 
     /// <summary>
     /// Onglet terminal d'une session via le PSMP, ouvert tout de suite : la clé MFA du PVWA puis la connexion au PSMP se
@@ -31,7 +35,7 @@ public partial class MainWindow
     private void OpenSshTab(PvwaAccount account, PsmpEndpoint psmp, string login, string label, SavedSession? saved,
         Func<Task>? duplicate, ConnectRequest request)
     {
-        var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), PsmpKeyAsync);
+        var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), PsmpKeyAsync, group: _openingGroup);
         var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved)
         {
             Psmp = psmp.Host,
@@ -85,13 +89,13 @@ public partial class MainWindow
         var closeButton = new Button
         {
             Style = (Style)FindResource("TabCloseButton"),
-            Content = new Image { Source = (System.Windows.Media.ImageSource)FindResource("IconClose"), Width = 11, Height = 11 },
+            Content = Palette.Icon("IconClose", 11),
             ToolTip = Strings.CloseSessionTip,
         };
         closeButton.Click += (_, _) => CloseSessionTab(tab);
         var mode = tab.Tag is RemoteSession { Psmp: { } psmp } ? Text.Format(Strings.TabModePsmp, psmp) : Strings.TabModeDirect;
         var shown = SessionTabHeader.UniqueLabel(label, SessionTabs().Select(t => t.Header).OfType<SessionTabHeader>().Select(h => h.Label));
-        var header = new SessionTabHeader(shown, (System.Windows.Media.ImageSource)FindResource(icon), closeButton, mode,
+        var header = new SessionTabHeader(shown, icon, closeButton, mode,
             tab.Tag is SshSession ? Strings.TabDetachTip : null);
         // Clic molette sur l'onglet : fermeture.
         header.MouseDown += (_, e) =>
@@ -398,8 +402,9 @@ public partial class MainWindow
         bool asked = false;
         if (session.Editor is { } editor)
         {
-            asked = RemoteEditor.UnsentFiles([editor]).Count > 0;
-            if (!RemoteEditor.ConfirmClose(owner, [editor]))
+            var unsent = RemoteEditor.UnsentFiles([editor]);
+            asked = unsent.Count > 0;
+            if (!RemoteEditor.ConfirmClose(owner, unsent))
             {
                 return;
             }
@@ -552,11 +557,11 @@ public partial class MainWindow
         return ConfirmDialog.Confirm(this, new ConfirmRequest
         {
             Title = "ZillaTerm",
-            Heading = LogoutRequested ? Strings.CloseAllLogoutHeading : Strings.CloseAllExitHeading,
+            Heading = !LogoutRequested ? Strings.CloseAllExitHeading : _client is null ? Strings.CloseAllLeaveEmergencyHeading : Strings.CloseAllLogoutHeading,
             Bullets = bullets,
             Items = unsent,
             Kind = unsent.Count > 0 || transfers > 0 ? ConfirmKind.Warning : ConfirmKind.Question,
-            Actions = [LogoutRequested ? Strings.ActionSignOut : Strings.ActionQuit],
+            Actions = [!LogoutRequested ? Strings.ActionQuit : _client is null ? Strings.ToolLeaveEmergency : Strings.ActionSignOut],
             DangerAction = unsent.Count > 0 || transfers > 0 ? 0 : -1,
         });
     }
@@ -637,15 +642,21 @@ public partial class MainWindow
             }
         }
 
+        // Copie de la clé lue par SSH.NET puis effacée : elle ne traîne pas en mémoire après la connexion.
+        var bytes = Encoding.UTF8.GetBytes(_mfaKey.PrivateKey);
         try
         {
-            return new PrivateKeyFile(new MemoryStream(Encoding.UTF8.GetBytes(_mfaKey.PrivateKey)));
+            return new PrivateKeyFile(new MemoryStream(bytes));
         }
         catch (Exception ex) when (ex is Renci.SshNet.Common.SshException or ArgumentException or InvalidOperationException or FormatException)
         {
             _mfaKey = null;
             _mfaRetryAfter = DateTime.UtcNow.AddMinutes(15);
             return null;
+        }
+        finally
+        {
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(bytes);
         }
     }
 
@@ -662,6 +673,7 @@ public partial class MainWindow
                 try
                 {
                     var key = await Client.GetMfaCachingSshKeyAsync(_lifetime.Token);
+                    _mfaKeyIssued |= key is not null;
                     return new MfaKeyFetch(key, NotProvided: key is null);
                 }
                 catch (PvwaException ex) when (ex.IsUnauthorized && attempt == 0)

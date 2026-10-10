@@ -21,7 +21,8 @@
 
         <TabControl x:Name="Pages" TabStripPlacement="Left" Margin="10,10,10,8" Padding="0">
             <TabControl.Resources>
-                <Style TargetType="TabItem">
+                <!-- Sur le style du thème (clair ou sombre) en vigueur à l'ouverture de la fenêtre. -->
+                <Style TargetType="TabItem" BasedOn="{StaticResource {x:Type TabItem}}">
                     <Setter Property="Padding" Value="14,7" />
                     <Setter Property="MinWidth" Value="130" />
                     <Setter Property="HorizontalContentAlignment" Value="Left" />
@@ -53,9 +54,25 @@
                                        TextWrapping="Wrap" Margin="0,4,0,0" />
                         </Grid>
 
+                        <TextBlock Text="{x:Static loc:Strings.AppearanceSection}" Style="{StaticResource SectionTitle}" />
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" MinWidth="140" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Label Content="{x:Static loc:Strings.AppThemeLabel}" Target="{Binding ElementName=AppThemeBox}" />
+                            <ComboBox Grid.Column="1" x:Name="AppThemeBox" VerticalAlignment="Center" MaxWidth="320" HorizontalAlignment="Left" MinWidth="220" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Static loc:Strings.AppThemeHelp}" Foreground="{DynamicResource MutedBrush}"
+                                       TextWrapping="Wrap" Margin="0,4,0,0" />
+                        </Grid>
+
                         <TextBlock Text="{x:Static loc:Strings.SettingsUpdatesSection}" Style="{StaticResource SectionTitle}" />
                         <CheckBox x:Name="UpdateCheckBox" Margin="0,0,0,16">
-                            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.AboutAutoCheck}" />
+                            <AccessText TextWrapping="Wrap" Text="{x:Static loc:Strings.AboutAutoCheck}" />
                         </CheckBox>
 
                         <!-- Environnement d'équipe : fichier central relu à chaque démarrage (voir EnvironmentImport). -->
@@ -81,7 +98,7 @@
                     <StackPanel Margin="16,12">
                         <TextBlock Text="{x:Static loc:Strings.PvwaSessionSection}" Style="{StaticResource SectionTitle}" />
                         <CheckBox x:Name="KeepAliveBox" Margin="0,0,0,2">
-                            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.KeepAlive}" />
+                            <AccessText TextWrapping="Wrap" Text="{x:Static loc:Strings.KeepAlive}" />
                         </CheckBox>
                         <TextBlock Style="{StaticResource OptionEffect}" Text="{x:Static loc:Strings.SettingsKeepAliveEffect}" Margin="20,0,0,16" />
 
@@ -176,7 +193,7 @@
                 <ScrollViewer>
                     <StackPanel Margin="16,12">
                         <CheckBox x:Name="SshInAppBox" Margin="0,0,0,12">
-                            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SshInApp}" />
+                            <AccessText TextWrapping="Wrap" Text="{x:Static loc:Strings.SshInApp}" />
                         </CheckBox>
                         <Grid Margin="0,0,0,12">
                             <Grid.ColumnDefinitions>
@@ -191,17 +208,17 @@
                             <TextBox Grid.Column="3" x:Name="FontSizeBox" VerticalContentAlignment="Center" ToolTip="{x:Static loc:Strings.TerminalFontTip}" />
                         </Grid>
                         <CheckBox x:Name="ConfirmPasteBox" Margin="0,0,0,8">
-                            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SettingsConfirmPaste}" />
+                            <AccessText TextWrapping="Wrap" Text="{x:Static loc:Strings.SettingsConfirmPaste}" />
                         </CheckBox>
                         <CheckBox x:Name="ConfirmCloseBox" Margin="0,0,0,8">
-                            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SettingsConfirmClose}" />
+                            <AccessText TextWrapping="Wrap" Text="{x:Static loc:Strings.SettingsConfirmClose}" />
                         </CheckBox>
                         <CheckBox x:Name="RightClickBox" Margin="0,0,0,2">
-                            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SettingsRightClickPastes}" />
+                            <AccessText TextWrapping="Wrap" Text="{x:Static loc:Strings.SettingsRightClickPastes}" />
                         </CheckBox>
                         <TextBlock Style="{StaticResource OptionEffect}" Text="{x:Static loc:Strings.SettingsRightClickEffect}" />
                         <CheckBox x:Name="FollowBox" Margin="0,0,0,2">
-                            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.FollowSetting}" />
+                            <AccessText TextWrapping="Wrap" Text="{x:Static loc:Strings.FollowSetting}" />
                         </CheckBox>
                         <TextBlock Style="{StaticResource OptionEffect}" Text="{x:Static loc:Strings.SettingsFollowEffect}" />
                     </StackPanel>
@@ -229,7 +246,7 @@
                             <TextBlock Text="{x:Static loc:Strings.SettingsArchiveFiles}" VerticalAlignment="Center" />
                         </WrapPanel>
                         <CheckBox x:Name="TailSessionBox" Margin="0,0,0,2">
-                            <TextBlock TextWrapping="Wrap" Text="{x:Static loc:Strings.SettingsTailSession}" />
+                            <AccessText TextWrapping="Wrap" Text="{x:Static loc:Strings.SettingsTailSession}" />
                         </CheckBox>
                         <TextBlock Style="{StaticResource OptionHelp}" Text="{x:Static loc:Strings.SettingsTailSessionHelp}" Margin="20,0,0,16" />
 
@@ -265,7 +282,7 @@
                             </Grid.RowDefinitions>
                             <Label Content="{x:Static loc:Strings.CompareToolLabel}" Target="{Binding ElementName=CompareToolBox}" />
                             <TextBox Grid.Column="1" x:Name="CompareToolBox" VerticalContentAlignment="Center" />
-                            <Button Grid.Column="2" Content="{x:Static loc:Strings.Browse}" Click="OnBrowseCompareTool" Margin="8,0,0,0" />
+                            <Button Grid.Column="2" Content="{x:Static loc:Strings.BrowseOther}" Click="OnBrowseCompareTool" Margin="8,0,0,0" />
                             <Label Grid.Row="1" Content="{x:Static loc:Strings.CompareArgumentsLabel}" Target="{Binding ElementName=CompareArgsBox}" />
                             <TextBox Grid.Row="1" Grid.Column="1" x:Name="CompareArgsBox" VerticalContentAlignment="Center" Margin="0,4,0,0"
                                      FontFamily="Consolas, Courier New" />

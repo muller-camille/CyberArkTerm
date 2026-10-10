@@ -85,7 +85,7 @@
             <Border DockPanel.Dock="Top" Background="{DynamicResource AccentLightBrush}" BorderBrush="{DynamicResource ToolHoverBorderBrush}"
                     BorderThickness="1" CornerRadius="3" Padding="10,6">
                 <DockPanel>
-                    <Image Source="{StaticResource IconInfo}" Width="16" Height="16" VerticalAlignment="Top" Margin="0,1,8,0" />
+                    <Image Source="{DynamicResource IconInfo}" Width="16" Height="16" VerticalAlignment="Top" Margin="0,1,8,0" />
                     <TextBlock Text="{x:Static loc:Strings.SessionImportSecurity}" TextWrapping="Wrap" />
                 </DockPanel>
             </Border>

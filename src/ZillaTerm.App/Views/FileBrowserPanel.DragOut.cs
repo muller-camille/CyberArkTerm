@@ -205,7 +205,7 @@ public partial class FileBrowserPanel
         _dragChecks = [];
         var dialog = new TransferDialog(Strings.DragDownloadTitle, fileCount, totalBytes, async (progress, ct) =>
         {
-            Interlocked.Increment(ref _busy);
+            BeginBusy(browser);
             try
             {
                 Directory.CreateDirectory(root);
@@ -235,13 +235,13 @@ public partial class FileBrowserPanel
                     {
                         if (!p.Verifying)
                         {
-                            progress.Report(new TransferStep(entry.Name, n, start + p.Transferred));
+                            progress.Report(new TransferStep(entry.DisplayName, n, start + p.Transferred));
                         }
                     }), ct);
                     // Fichier écrit différent de celui du serveur : le dépôt échoue plutôt que de livrer une copie fausse.
                     if (check.Verified && !check.Matches)
                     {
-                        throw new IOException(Text.Format(Strings.TransferMismatchFile, entry.Name));
+                        throw new IOException(Text.Format(Strings.TransferMismatchFile, entry.DisplayName));
                     }
 
                     checks.Add(check);
@@ -252,7 +252,7 @@ public partial class FileBrowserPanel
             }
             finally
             {
-                Interlocked.Decrement(ref _busy);
+                EndBusy(browser);
             }
         })
         {

@@ -34,6 +34,11 @@ public partial class MainWindow
     // Machines cibles venues d'une liste partagée déjà acceptées pendant cette session de ZillaTerm.
     private readonly HashSet<string> _acceptedSharedTargets = new(StringComparer.OrdinalIgnoreCase);
     private DispatcherTimer? _sharedReload;
+    // Listes dont la surveillance sera retentée (partage injoignable, coupure réseau ou VPN).
+    private readonly HashSet<SharedServerList> _sharedWatchRetries = [];
+
+    /// <summary>Délai avant de retenter la surveillance d'un partage perdu.</summary>
+    private static readonly TimeSpan SharedWatchRetry = TimeSpan.FromMinutes(1);
 
     private string SharedWho => SharedServerList.Who(_sessionUser);
 
@@ -249,12 +254,15 @@ public partial class MainWindow
         _sharedReload?.Stop();
     }
 
-    private void OnSharedListsMenu(object sender, RoutedEventArgs e)
+    /// <summary>Menus « Importer » et « Partager » de l'en-tête de « Mes serveurs », ouverts sous leur bouton.</summary>
+    private void OnHeaderMenu(object sender, RoutedEventArgs e)
     {
-        var menu = (ContextMenu)FindResource("SharedListsMenu");
-        menu.PlacementTarget = (UIElement)sender;
-        menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-        menu.IsOpen = true;
+        if (((FrameworkElement)sender).ContextMenu is { } menu)
+        {
+            menu.PlacementTarget = (UIElement)sender;
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            menu.IsOpen = true;
+        }
     }
 
     private async void OnOpenSharedList(object sender, RoutedEventArgs e)
@@ -383,7 +391,14 @@ public partial class MainWindow
     {
         if (SharedListOf(SavedTree.SelectedItem) is { } list)
         {
-            System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{list.Path}\"")?.Dispose();
+            try
+            {
+                Services.WindowsExplorer.ShowFile(list.Path);
+            }
+            catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or ArgumentException)
+            {
+                SetStatus(ex.Message, isError: true);
+            }
         }
     }
 
@@ -432,10 +447,11 @@ public partial class MainWindow
         });
         if (watcher is null)
         {
+            RetrySharedWatch(list);
             return;
         }
 
-        if (!_sharedLists.Contains(list) || _sharedWatchers.ContainsKey(list))
+        if (_sharedStopped || !_sharedLists.Contains(list) || _sharedWatchers.ContainsKey(list))
         {
             watcher.Dispose();
             return;
@@ -445,7 +461,52 @@ public partial class MainWindow
         watcher.Changed += changed;
         watcher.Created += changed;
         watcher.Renamed += (_, _) => Dispatcher.BeginInvoke(() => QueueSharedReload(list));
+        // Partage ou VPN coupé : le surveillant s'arrête en signalant une erreur ; sans reprise, les changements des
+        // collègues n'apparaîtraient plus jusqu'au redémarrage.
+        watcher.Error += (_, e) => Dispatcher.BeginInvoke(() => OnSharedWatchLost(list, watcher, e.GetException()));
         _sharedWatchers[list] = watcher;
+    }
+
+    private void OnSharedWatchLost(SharedServerList list, FileSystemWatcher watcher, Exception error)
+    {
+        DebugLog.Write("shared", $"Surveillance de {list.Path} interrompue : {error.Message}");
+        if (_sharedWatchers.TryGetValue(list, out var current) && ReferenceEquals(current, watcher))
+        {
+            _sharedWatchers.Remove(list);
+        }
+
+        watcher.Dispose();
+        RetrySharedWatch(list);
+    }
+
+    /// <summary>
+    /// Nouvel essai de surveillance un peu plus tard, tant que la liste est ouverte ; une fois repris, la liste est relue
+    /// pour rattraper les changements faits pendant la coupure.
+    /// </summary>
+    private void RetrySharedWatch(SharedServerList list)
+    {
+        if (_sharedStopped || !_sharedLists.Contains(list) || !_sharedWatchRetries.Add(list))
+        {
+            return;
+        }
+
+        var timer = new DispatcherTimer { Interval = SharedWatchRetry };
+        timer.Tick += async (_, _) =>
+        {
+            timer.Stop();
+            _sharedWatchRetries.Remove(list);
+            if (_sharedStopped || !_sharedLists.Contains(list) || _sharedWatchers.ContainsKey(list))
+            {
+                return;
+            }
+
+            await WatchSharedAsync(list);
+            if (_sharedWatchers.ContainsKey(list))
+            {
+                QueueSharedReload(list);
+            }
+        };
+        timer.Start();
     }
 
     /// <summary>Modification signalée par le partage : relecture groupée un instant après (une écriture = plusieurs signaux).</summary>
@@ -529,7 +590,7 @@ public partial class MainWindow
         foreach (var session in node.Sessions)
         {
             var account = SessionLibrary.IsForHost(session, PvwaHost) ? _byId.GetValueOrDefault(session.AccountId) : null;
-            var server = new SharedServerNode(list, entries[session], session, account);
+            var server = new SharedServerNode(list, entries[session], session, account, _accountsLoaded);
             _sharedSessions.AddOrUpdate(session, server);
             items.Add(server);
         }

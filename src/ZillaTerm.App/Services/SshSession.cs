@@ -141,7 +141,7 @@ public sealed class SshSession : RemoteSession
                 {
                     if (_shell == shell)
                     {
-                        SetState(RemoteSessionState.Failed, e.Exception.Message);
+                        SetState(RemoteSessionState.Failed, ErrorText.Describe(e.Exception));
                     }
                 });
             };
@@ -161,7 +161,7 @@ public sealed class SshSession : RemoteSession
                 return;
             }
 
-            SetState(RemoteSessionState.Failed, ex is HostKeyRefusedException ? ex.Message : ex is OperationCanceledException ? Strings.ConnectionCancelled : ex.Message);
+            SetState(RemoteSessionState.Failed, ex is HostKeyRefusedException ? ex.Message : ex is OperationCanceledException ? Strings.ConnectionCancelled : ErrorText.Describe(ex));
             throw;
         }
     }
@@ -275,7 +275,7 @@ public sealed class SshSession : RemoteSession
                         {
                             if (_shell == shell)
                             {
-                                SetState(RemoteSessionState.Closed, ex.Message);
+                                SetState(RemoteSessionState.Closed, ErrorText.Describe(ex));
                             }
                         });
                     }

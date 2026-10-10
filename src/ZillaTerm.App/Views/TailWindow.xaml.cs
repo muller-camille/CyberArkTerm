@@ -115,8 +115,10 @@ public partial class TailWindow : Window
             }
         };
         Activated += (_, _) => _unnotified = 0;
+        Palette.Changed += OnThemeChanged;
         Closed += (_, _) =>
         {
+            Palette.Changed -= OnThemeChanged;
             _timer.Stop();
             _closing.Cancel();
             StopRecording(null);
@@ -129,6 +131,17 @@ public partial class TailWindow : Window
             TailAlerts.Forget(this);
             SaveTailSettings();
         };
+    }
+
+    /// <summary>Thème clair ou sombre changé : couleurs des fichiers et des lignes affichées recalculées.</summary>
+    private void OnThemeChanged()
+    {
+        foreach (var feed in _feeds)
+        {
+            feed.ThemeChanged();
+        }
+
+        LogList.Items.Refresh();
     }
 
     /// <summary>Notification d'une alerte (tests) ; par défaut, notification Windows.</summary>
@@ -160,7 +173,7 @@ public partial class TailWindow : Window
             _links.Add(link);
         }
 
-        var feed = new TailFeed(link, path, TailBrushes.Source(_colors++));
+        var feed = new TailFeed(link, path, _colors++);
         feed.SetStatus(Strings.TailConnecting, error: false);
         _feeds.Add(feed);
         UpdateTitle();
@@ -184,7 +197,7 @@ public partial class TailWindow : Window
         foreach (var feed in _feeds.Where(f => !f.Stopped && ReferenceEquals(f.Link.Session, session)).ToList())
         {
             AddMarker(feed, Strings.TailSessionClosedMarker);
-            feed.Stopped = true;
+            feed.Release();
             feed.SetStatus(Strings.TailSessionClosed, error: true);
         }
 
@@ -202,8 +215,9 @@ public partial class TailWindow : Window
         if (!feed.Stopped)
         {
             AddMarker(feed, Strings.TailRemovedMarker);
-            feed.Stopped = true;
         }
+
+        feed.Release();
 
         _feeds.Remove(feed);
         if (!_feeds.Any(f => ReferenceEquals(f.Link, feed.Link)) && _links.Remove(feed.Link))

@@ -53,10 +53,13 @@ public static class AccountChanges
 
         var machines = string.IsNullOrWhiteSpace(edit.RemoteMachines) ? "" : NewAccount.NormalizeMachines(edit.RemoteMachines);
         Optional("/remoteMachinesAccess/remoteMachines", original.RemoteMachines, machines);
+        // La limitation aux machines ne change que si la liste apparaît (limité, comme à la création) ou disparaît (plus
+        // limité). Un compte qui a une liste sans y être limité le reste : le coffre ne doit pas changer sans qu'on le demande.
         bool restricted = original.RemoteMachinesAccess?.AccessRestrictedToRemoteMachines == true;
-        if (restricted != (machines.Length > 0))
+        bool restrictedAfter = machines.Length > 0 && (string.IsNullOrWhiteSpace(original.RemoteMachines) || restricted);
+        if (restricted != restrictedAfter)
         {
-            ops.Add(new PatchOperation("replace", "/remoteMachinesAccess/accessRestrictedToRemoteMachines", machines.Length > 0));
+            ops.Add(new PatchOperation("replace", "/remoteMachinesAccess/accessRestrictedToRemoteMachines", restrictedAfter));
         }
 
         var management = original.SecretManagement;

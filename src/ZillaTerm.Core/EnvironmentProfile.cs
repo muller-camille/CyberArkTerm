@@ -28,8 +28,10 @@ public enum EnvironmentSetting
 /// Changement qu'appliquerait un fichier d'environnement. <see cref="Sensitive"/> : adresse qui recevra le mot de passe
 /// CyberArk ou clé de serveur, à vérifier ; <see cref="Ignored"/> : non appliqué (clé différente de celle déjà acceptée).
 /// </summary>
+/// <param name="Ignored">Non appliqué : clé déjà acceptée et différente, ou clé d'un serveur qui n'est pas un PSMP.</param>
+/// <param name="NotPsmp">Clé ignorée parce que le serveur n'est pas un PSMP (ni des réglages, ni du fichier).</param>
 public sealed record EnvironmentChange(EnvironmentSetting Setting, string? Detail, string Current, string New, bool Sensitive,
-    bool Ignored = false);
+    bool Ignored = false, bool NotPsmp = false);
 
 /// <summary>Raison du refus d'un fichier d'environnement.</summary>
 public enum EnvironmentProblem
@@ -314,20 +316,38 @@ public sealed class EnvironmentProfile
 
         foreach (var path in (SharedLists ?? []).Where(p => !settings.SharedLists.Contains(p.Trim(), StringComparer.OrdinalIgnoreCase)))
         {
-            changes.Add(new EnvironmentChange(EnvironmentSetting.SharedList, null, "", path.Trim(), false));
+            // Liste sur un partage réseau : à chaque démarrage, Windows s'y authentifie (empreinte du mot de passe
+            // envoyée au serveur nommé). Signalée comme sensible, avec le serveur en clair.
+            var server = NetworkServer(path);
+            changes.Add(new EnvironmentChange(EnvironmentSetting.SharedList, server, "", path.Trim(), server is not null));
         }
 
+        var psmps = PsmpEndpoints(settings);
         foreach (var (host, key) in HostKeys ?? [])
         {
             var id = host.Trim().ToLowerInvariant();
-            if (!settings.KnownHosts.TryGetValue(id, out var known))
+            var known = KnownHosts.KnownKeys(settings.KnownHosts, id).Select(k => KnownHosts.Format(k.Algorithm, k.Sha256)).ToList();
+            if (known.Contains(key.Trim(), StringComparer.Ordinal))
+            {
+                // Clé déjà acceptée : rien à changer.
+                continue;
+            }
+
+            if (!psmps.Contains(id))
+            {
+                // Seules les clés des PSMP viennent du fichier : celle d'un serveur d'accès d'urgence, acceptée d'avance,
+                // supprimerait la vérification à la première connexion (où partent les mots de passe KeePass).
+                changes.Add(new EnvironmentChange(EnvironmentSetting.HostKey, id, "", key.Trim(), true, Ignored: true, NotPsmp: true));
+            }
+            else if (known.Count == 0)
             {
                 changes.Add(new EnvironmentChange(EnvironmentSetting.HostKey, id, "", key.Trim(), true));
             }
-            else if (!string.Equals(known, key.Trim(), StringComparison.Ordinal))
+            else
             {
-                // Une clé déjà acceptée n'est jamais remplacée par un fichier : son changement se vérifie à la connexion.
-                changes.Add(new EnvironmentChange(EnvironmentSetting.HostKey, id, known, key.Trim(), true, Ignored: true));
+                // Un serveur dont une clé est déjà acceptée n'en reçoit jamais d'un fichier (ni à la place, ni d'un autre
+                // type) : le changement se vérifie à la connexion.
+                changes.Add(new EnvironmentChange(EnvironmentSetting.HostKey, id, string.Join(", ", known), key.Trim(), true, Ignored: true));
             }
         }
 
@@ -404,9 +424,14 @@ public sealed class EnvironmentProfile
             }
         }
 
+        var psmps = PsmpEndpoints(settings);
         foreach (var (host, key) in HostKeys ?? [])
         {
-            settings.KnownHosts.TryAdd(host.Trim().ToLowerInvariant(), key.Trim());
+            var id = host.Trim().ToLowerInvariant();
+            if (psmps.Contains(id) && KnownHosts.KnownKeys(settings.KnownHosts, id).Count == 0)
+            {
+                settings.KnownHosts[id] = key.Trim();
+            }
         }
 
         if (CentralFile is not null)
@@ -418,6 +443,45 @@ public sealed class EnvironmentProfile
         settings.SshInApp = SshInApp ?? settings.SshInApp;
         settings.CheckForUpdates = CheckForUpdates ?? settings.CheckForUpdates;
         settings.PreferredUploadProtocol = UploadProtocol ?? settings.PreferredUploadProtocol;
+    }
+
+    /// <summary>
+    /// « hôte:port » de chaque PSMP : ceux des réglages et ceux de ce fichier (qui seront appliqués avec lui). Seules
+    /// leurs clés peuvent venir d'un fichier d'environnement.
+    /// </summary>
+    private HashSet<string> PsmpEndpoints(AppSettings settings)
+    {
+        var endpoints = new HashSet<string>(StringComparer.Ordinal);
+        void Add(string? address, int port)
+        {
+            if (!string.IsNullOrWhiteSpace(address))
+            {
+                endpoints.Add(KnownHosts.Key(address, port));
+            }
+        }
+
+        Add(settings.PsmpAddress, settings.PsmpPort);
+        Add(PsmpAddress ?? settings.PsmpAddress, PsmpPort ?? settings.PsmpPort);
+        foreach (var psmp in settings.PsmpServers.Concat(PsmpServers ?? []))
+        {
+            Add(psmp.Address, psmp.Port);
+        }
+
+        return endpoints;
+    }
+
+    /// <summary>Serveur d'un chemin réseau (<c>\\serveur\partage\…</c>) ; null pour un chemin local (<c>C:\…</c>).</summary>
+    public static string? NetworkServer(string? path)
+    {
+        var p = (path ?? "").Trim();
+        if (!p.StartsWith(@"\\", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        var rest = p[2..];
+        int end = rest.IndexOfAny(['\\', '/']);
+        return end < 0 ? rest : rest[..end];
     }
 
     /// <summary>Clé de fichier : « hôte:port » → « type SHA256:empreinte » (empreinte en base64).</summary>

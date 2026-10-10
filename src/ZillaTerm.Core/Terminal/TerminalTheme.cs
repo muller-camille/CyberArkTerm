@@ -95,7 +95,10 @@ public sealed class TerminalTheme
         ((0.299 * (rgb >> 16 & 0xFF)) + (0.587 * (rgb >> 8 & 0xFF)) + (0.114 * (rgb & 0xFF))) / 255;
 }
 
-/// <summary>Occurrence trouvée dans le terminal : ligne (historique compris, négative), colonne, longueur.</summary>
+/// <summary>
+/// Occurrence trouvée dans le terminal : ligne (historique compris, négative), colonne et longueur en cases (un caractère
+/// large en occupe deux).
+/// </summary>
 public readonly record struct TerminalMatch(int Row, int Column, int Length);
 
 /// <summary>Recherche dans le terminal, historique compris ; contenu entier pour l'enregistrer.</summary>
@@ -110,13 +113,18 @@ public static class TerminalSearch
             return matches;
         }
 
+        // Colonnes de chaque caractère du texte de la ligne : un caractère large en occupe deux, une marque combinante aucune.
+        var builder = new StringBuilder();
+        var starts = new List<int>();
+        var ends = new List<int>();
         for (int row = -emulator.ScrollbackCount; row < emulator.Rows; row++)
         {
-            var line = LineText(emulator, row);
+            var line = LineText(emulator, row, builder, starts, ends);
             for (int at = line.IndexOf(text, StringComparison.OrdinalIgnoreCase); at >= 0;
                  at = at + 1 < line.Length ? line.IndexOf(text, at + 1, StringComparison.OrdinalIgnoreCase) : -1)
             {
-                matches.Add(new TerminalMatch(row, at, text.Length));
+                int end = Math.Min(at + text.Length, line.Length) - 1;
+                matches.Add(new TerminalMatch(row, starts[at], ends[end] - starts[at]));
             }
         }
 
@@ -127,9 +135,10 @@ public static class TerminalSearch
     public static string AllText(TerminalEmulator emulator)
     {
         var lines = new List<string>();
+        var builder = new StringBuilder();
         for (int row = -emulator.ScrollbackCount; row < emulator.Rows; row++)
         {
-            lines.Add(LineText(emulator, row).TrimEnd());
+            lines.Add(LineText(emulator, row, builder, null, null).TrimEnd());
         }
 
         while (lines.Count > 0 && lines[^1].Length == 0)
@@ -140,13 +149,26 @@ public static class TerminalSearch
         return string.Join(Environment.NewLine, lines);
     }
 
-    private static string LineText(TerminalEmulator emulator, int row)
+    /// <summary>
+    /// Texte de la ligne ; pour chacun de ses caractères, <paramref name="starts"/> reçoit la colonne de sa case et
+    /// <paramref name="ends"/> la colonne qui suit cette case.
+    /// </summary>
+    private static string LineText(TerminalEmulator emulator, int row, StringBuilder text, List<int>? starts, List<int>? ends)
     {
         var cells = emulator.GetLine(row);
-        var text = new StringBuilder(cells.Length);
-        foreach (var cell in cells)
+        text.Clear();
+        starts?.Clear();
+        ends?.Clear();
+        for (int col = 0; col < cells.Length; col++)
         {
-            text.Append(cell.Char);
+            int length = text.Length;
+            emulator.AppendText(text, cells[col]);
+            int end = col + 1 < cells.Length && cells[col + 1].IsWideTail ? col + 2 : col + 1;
+            for (int i = length; i < text.Length; i++)
+            {
+                starts?.Add(col);
+                ends?.Add(end);
+            }
         }
 
         return text.ToString();

@@ -27,7 +27,12 @@ public partial class FileBrowserPanel : UserControl
     private FileNameFilter? _filter;
     private string? _shownDirectory;
     private bool _resettingFilter;
-    private int _busy;
+
+    /// <summary>
+    /// Opérations en cours (renommage, suppression, droits, glisser vers l'Explorateur), par connexion : elles ne bloquent
+    /// les autres que sur le même serveur.
+    /// </summary>
+    private readonly Dictionary<IRemoteFiles, int> _busy = new(ReferenceEqualityComparer.Instance);
 
     public FileBrowserPanel()
     {
@@ -35,6 +40,14 @@ public partial class FileBrowserPanel : UserControl
         InitializeQueue();
         FileList.SelectionChanged += (_, _) => UpdateSelectionButtons();
         FileList.SizeChanged += (_, _) => FitNameColumn();
+        // F5 partout dans l'onglet (liste, chemin, filtre, boutons) : relire le dossier, et non recharger les comptes du
+        // PVWA (raccourci de la fenêtre, que la commande atteindrait sinon). Aussi dans une fenêtre détachée.
+        CommandBindings.Add(new CommandBinding(NavigationCommands.Refresh, (_, e) =>
+        {
+            _ = RefreshAsync();
+            e.Handled = true;
+        }));
+        InputBindings.Add(new KeyBinding(NavigationCommands.Refresh, Key.F5, ModifierKeys.None));
         ShowMessage(Strings.NoSshSessionHelp, retry: false);
         HeaderText.Text = Strings.NoSshSession;
         UpdateToolbar();
@@ -48,6 +61,7 @@ public partial class FileBrowserPanel : UserControl
         _history = history ?? TransferHistory.Load(TransferHistory.DefaultPath);
         HiddenBox.IsChecked = settings.ShowHiddenFiles;
         ShowSortArrow();
+        FitNameColumn();
     }
 
     /// <summary>Associe le panneau à la session de l'onglet actif (ou à aucune).</summary>
@@ -71,6 +85,7 @@ public partial class FileBrowserPanel : UserControl
         _session = session;
         _browser = null;
         _generation++;
+        UpdateStopChmodButton();
         FileList.ItemsSource = null;
         ResetFilter();
         PathBox.Text = "";
@@ -221,6 +236,14 @@ public partial class FileBrowserPanel : UserControl
             if (!browser.IsConnected)
             {
                 _browser = null;
+                // Connexion remplacée entre-temps par une autre fonction de la session (envoi, comparaison, édition…) :
+                // le panneau reprend la nouvelle au lieu de rester sur l'ancienne, fermée.
+                if (_session?.OpenedBrowser is { } current && !ReferenceEquals(current, browser))
+                {
+                    _browser = current;
+                    return await NavigateAsync(path, quiet, silent);
+                }
+
                 ShowMessage(Text.Format(Strings.SftpLost, ErrorText.Describe(ex)), retry: true);
             }
             else if (!silent)
@@ -330,48 +353,188 @@ public partial class FileBrowserPanel : UserControl
         }
     }
 
-    /// <summary>Largeur des colonnes « Droits », « Propriétaire » et « Groupe » quand elles sont affichées.</summary>
-    private double _permissionsWidth = 84, _ownerWidth = 90, _groupWidth = 90;
+    // ===================== Colonnes =====================
+
+    private const double MinNameWidth = 130;
+
+    /// <summary>Largeur de l'indicateur « +2 » des colonnes masquées faute de place.</summary>
+    private const double MarkerWidth = 30;
+
+    /// <summary>Largeur de chaque colonne facultative quand elle est affichée (celle choisie en glissant le bord de l'en-tête).</summary>
+    private readonly Dictionary<RemoteSortColumn, double> _columnWidths = new()
+    {
+        [RemoteSortColumn.Size] = 76,
+        [RemoteSortColumn.Modified] = 112,
+        [RemoteSortColumn.Permissions] = 84,
+        [RemoteSortColumn.Owner] = 90,
+        [RemoteSortColumn.Group] = 90,
+    };
+
+    /// <summary>Colonnes cochées mais masquées faute de place, dans l'ordre des colonnes.</summary>
+    private List<RemoteSortColumn> _crowded = [];
+
+    /// <summary>Le panneau doit être élargi de tant de pixels (colonnes masquées faute de place) : la fenêtre s'en charge.</summary>
+    public event Action<double>? WidenRequested;
+
+    /// <summary>Colonnes que l'on peut masquer (toutes sauf « Nom »), dans l'ordre d'affichage.</summary>
+    private (GridViewColumn Column, RemoteSortColumn Kind, string Text)[] OptionalColumns() =>
+    [
+        (SizeColumn, RemoteSortColumn.Size, Strings.ColumnSize),
+        (ModifiedColumn, RemoteSortColumn.Modified, Strings.ColumnModified),
+        (PermissionsColumn, RemoteSortColumn.Permissions, Strings.ColumnPermissions),
+        (OwnerColumn, RemoteSortColumn.Owner, Strings.ColumnOwner),
+        (GroupColumn, RemoteSortColumn.Group, Strings.ColumnGroup),
+    ];
+
+    private bool IsChosen(RemoteSortColumn kind) => !_settings.HiddenFileColumns.Contains(kind);
+
+    /// <summary>Pixels qui manquent au panneau pour afficher toutes les colonnes cochées (0 si elles tiennent).</summary>
+    internal double MissingWidth =>
+        _crowded.Count == 0 || FileList.ActualWidth <= 0 ? 0
+        : Math.Ceiling(MinNameWidth + OptionalColumns().Where(c => IsChosen(c.Kind)).Sum(c => _columnWidths[c.Kind])
+                       + SystemParameters.VerticalScrollBarWidth + 8 - FileList.ActualWidth);
 
     /// <summary>
     /// Colonne « Nom » élastique : elle prend la largeur laissée par les autres colonnes (panneau élargi ou rétréci).
-    /// Panneau trop étroit : les colonnes « Groupe », « Propriétaire » puis « Droits » sont masquées, dans cet ordre
-    /// (elles reviennent en élargissant), plutôt que coupées.
+    /// Les colonnes décochées (menu de l'en-tête) sont masquées. Panneau trop étroit : les colonnes « Groupe »,
+    /// « Propriétaire » puis « Droits » sont masquées, dans cet ordre (elles reviennent en élargissant), plutôt que
+    /// coupées ; l'indicateur « +n » au bout de l'en-tête le signale.
     /// </summary>
     private void FitNameColumn()
     {
-        const double MinName = 130;
-        if (PermissionsColumn.ActualWidth > 0)
+        foreach (var (column, kind, _) in OptionalColumns())
         {
-            _permissionsWidth = PermissionsColumn.ActualWidth;
-        }
-
-        if (OwnerColumn.ActualWidth > 0)
-        {
-            _ownerWidth = OwnerColumn.ActualWidth;
-        }
-
-        if (GroupColumn.ActualWidth > 0)
-        {
-            _groupWidth = GroupColumn.ActualWidth;
+            if (column.ActualWidth > 0)
+            {
+                _columnWidths[kind] = column.ActualWidth;
+            }
         }
 
         double available = FileList.ActualWidth - SystemParameters.VerticalScrollBarWidth - 8;
-        double fixedWidth = SizeColumn.ActualWidth + ModifiedColumn.ActualWidth;
         if (available <= 0)
         {
             return;
         }
 
-        double room = available - fixedWidth - MinName;
-        bool permissions = room >= _permissionsWidth;
-        bool owner = permissions && room >= _permissionsWidth + _ownerWidth;
-        bool group = owner && room >= _permissionsWidth + _ownerWidth + _groupWidth;
-        PermissionsColumn.Width = permissions ? _permissionsWidth : 0;
-        OwnerColumn.Width = owner ? _ownerWidth : 0;
-        GroupColumn.Width = group ? _groupWidth : 0;
-        NameColumn.Width = Math.Max(MinName, available - fixedWidth - (permissions ? _permissionsWidth : 0) -
-            (owner ? _ownerWidth : 0) - (group ? _groupWidth : 0));
+        var (shown, crowded) = LayOutColumns(available);
+        if (crowded.Count > 0)
+        {
+            // Place de l'indicateur prise sur les colonnes : une de plus peut ne plus tenir.
+            (shown, crowded) = LayOutColumns(available - MarkerWidth);
+        }
+
+        foreach (var (column, kind, _) in OptionalColumns())
+        {
+            column.Width = shown.Contains(kind) ? _columnWidths[kind] : 0;
+        }
+
+        _crowded = crowded;
+        MoreColumn.Width = crowded.Count > 0 ? MarkerWidth : 0;
+        MoreColumnText.Text = "+" + crowded.Count.ToString(System.Globalization.CultureInfo.CurrentCulture);
+        var tip = crowded.Count == 0 ? "" : Text.Format(Strings.FilesColumnsHiddenTip,
+            string.Join(", ", OptionalColumns().Where(c => crowded.Contains(c.Kind)).Select(c => c.Text)));
+        MoreColumnText.ToolTip = tip;
+        System.Windows.Automation.AutomationProperties.SetName(MoreColumnText, tip);
+        NameColumn.Width = Math.Max(MinNameWidth,
+            available - shown.Sum(k => _columnWidths[k]) - (crowded.Count > 0 ? MarkerWidth : 0));
+    }
+
+    /// <summary>
+    /// Colonnes affichées dans <paramref name="available"/> pixels : « Taille » et « Modifié » si elles sont cochées,
+    /// puis « Droits », « Propriétaire » et « Groupe » tant qu'il reste la place (les suivantes sont alors masquées).
+    /// </summary>
+    private (List<RemoteSortColumn> Shown, List<RemoteSortColumn> Crowded) LayOutColumns(double available)
+    {
+        var shown = new List<RemoteSortColumn>();
+        var crowded = new List<RemoteSortColumn>();
+        double used = MinNameWidth;
+        foreach (var (_, kind, _) in OptionalColumns().Where(c => IsChosen(c.Kind)))
+        {
+            double width = _columnWidths[kind];
+            if (kind is RemoteSortColumn.Size or RemoteSortColumn.Modified || (crowded.Count == 0 && used + width <= available))
+            {
+                shown.Add(kind);
+                used += width;
+            }
+            else
+            {
+                crowded.Add(kind);
+            }
+        }
+
+        return (shown, crowded);
+    }
+
+    /// <summary>
+    /// Menu des colonnes (clic droit sur l'en-tête, ou clic sur « +n ») : une case par colonne facultative, gardée dans
+    /// les réglages ; une colonne cochée mais sans la place est signalée, et « Élargir le panneau » la fait apparaître.
+    /// </summary>
+    private void OnColumnsMenuOpened(object sender, RoutedEventArgs e)
+    {
+        var menu = (ContextMenu)sender;
+        menu.Items.Clear();
+        var items = new List<(MenuItem Item, RemoteSortColumn Kind)>();
+        var widen = new MenuItem { Header = Strings.FilesColumnsWiden };
+        // Colonnes sans la place, après chaque case cochée ou décochée (le menu reste ouvert).
+        void Mark()
+        {
+            foreach (var (item, kind) in items)
+            {
+                item.InputGestureText = _crowded.Contains(kind) ? Strings.FilesColumnNoRoom : "";
+            }
+
+            widen.IsEnabled = _crowded.Count > 0;
+        }
+
+        foreach (var (_, kind, text) in OptionalColumns())
+        {
+            var item = new MenuItem { Header = text, IsCheckable = true, IsChecked = IsChosen(kind), StaysOpenOnClick = true };
+            item.Click += (_, _) =>
+            {
+                ShowColumn(kind, item.IsChecked);
+                Mark();
+            };
+            items.Add((item, kind));
+            menu.Items.Add(item);
+        }
+
+        if (WidenRequested is not null)
+        {
+            widen.Click += (_, _) => WidenRequested?.Invoke(MissingWidth);
+            menu.Items.Add(new Separator());
+            menu.Items.Add(widen);
+        }
+
+        Mark();
+    }
+
+    /// <summary>Ouvert sous « +n » : le clic droit suivant l'ouvre de nouveau sous le pointeur.</summary>
+    private void OnColumnsMenuClosed(object sender, RoutedEventArgs e)
+    {
+        var menu = (ContextMenu)sender;
+        menu.ClearValue(ContextMenu.PlacementProperty);
+        menu.ClearValue(ContextMenu.PlacementTargetProperty);
+    }
+
+    /// <summary>Affiche ou masque une colonne (menu de l'en-tête) ; le choix est gardé dans les réglages.</summary>
+    internal void ShowColumn(RemoteSortColumn kind, bool show)
+    {
+        if (kind == RemoteSortColumn.Name || show == IsChosen(kind))
+        {
+            return;
+        }
+
+        if (show)
+        {
+            _settings.HiddenFileColumns.Remove(kind);
+        }
+        else
+        {
+            _settings.HiddenFileColumns.Add(kind);
+        }
+
+        _saveSettings();
+        FitNameColumn();
     }
 
     // ===================== Tri (clic sur un en-tête de colonne) =====================
@@ -382,8 +545,18 @@ public partial class FileBrowserPanel : UserControl
     /// </summary>
     private void OnColumnHeaderClick(object sender, RoutedEventArgs e)
     {
-        if (e.OriginalSource is not GridViewColumnHeader { Column: { } column, Role: not GridViewColumnHeaderRole.Padding })
+        if (e.OriginalSource is not GridViewColumnHeader { Column: { } column, Role: not GridViewColumnHeaderRole.Padding } header)
         {
+            return;
+        }
+
+        if (column == MoreColumn)
+        {
+            // « +n » : le menu des colonnes, sous l'indicateur.
+            var menu = (ContextMenu)FindResource("ColumnsMenu");
+            menu.PlacementTarget = header;
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            menu.IsOpen = true;
             return;
         }
 
@@ -454,10 +627,10 @@ public partial class FileBrowserPanel : UserControl
             var arrow = new System.Windows.Shapes.Path
             {
                 Data = System.Windows.Media.Geometry.Parse(descending ? "M0,0 L8,0 L4,4.5 Z" : "M0,4.5 L8,4.5 L4,0 Z"),
-                Fill = (System.Windows.Media.Brush)FindResource("MutedBrush"),
                 Margin = new Thickness(5, 0, 0, 0),
                 VerticalAlignment = VerticalAlignment.Center,
             };
+            arrow.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "MutedBrush");
             column.Header = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
@@ -630,7 +803,7 @@ public partial class FileBrowserPanel : UserControl
                     return;
                 }
 
-                SetStatus(Text.Format(Strings.CannotOpen, entry.Name, Describe(ex)), error: true);
+                SetStatus(Text.Format(Strings.CannotOpen, entry.DisplayName, Describe(ex)), error: true);
                 return;
             }
 
@@ -673,10 +846,6 @@ public partial class FileBrowserPanel : UserControl
                 break;
             case Key.Back:
                 OnParent(sender, e);
-                e.Handled = true;
-                break;
-            case Key.F5:
-                _ = RefreshAsync();
                 e.Handled = true;
                 break;
         }
@@ -778,25 +947,27 @@ public partial class FileBrowserPanel : UserControl
     {
         var browser = _browser;
         int generation = _generation;
-        if (browser is null || _busy > 0 || SelectedEntries() is not [var entry])
+        if (browser is null || SelectedEntries() is not [var entry] || RefuseIfBusy(browser))
         {
             return;
         }
 
         var directory = RemotePath.Parent(entry.FullPath);
-        var dialog = new InputDialog(Strings.RenameTitle,
-            Text.Format(Strings.RenamePrompt, entry.Name, Text.Format(Strings.ServerPath, _session?.Label ?? "", directory)),
-            entry.Name, ValidateName) { Owner = Window.GetWindow(this) };
+        var where = Text.Format(Strings.ServerPath, _session?.Label ?? "", RemoteEntry.Visible(directory));
+        var dialog = new InputDialog(Strings.RenameTitle, Text.Format(Strings.RenamePrompt, entry.DisplayName, where), entry.Name, ValidateName)
+        {
+            Owner = Window.GetWindow(this),
+        };
         if (dialog.ShowDialog() != true || dialog.Value == entry.Name || !StillShowing(browser, generation))
         {
             return;
         }
 
         var target = RemotePath.Combine(directory, dialog.Value);
-        Interlocked.Increment(ref _busy);
+        BeginBusy(browser);
         try
         {
-            await browser.RenameAsync(entry.FullPath, target, CancellationToken.None);
+            await browser.RenameAsync(entry, target, CancellationToken.None);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -809,7 +980,7 @@ public partial class FileBrowserPanel : UserControl
         }
         finally
         {
-            Interlocked.Decrement(ref _busy);
+            EndBusy(browser);
         }
 
         if (StillShowing(browser, generation) && await NavigateAsync(browser.CurrentDirectory))
@@ -820,7 +991,7 @@ public partial class FileBrowserPanel : UserControl
                 FileList.ScrollIntoView(renamed);
             }
 
-            SetStatus(Text.Format(Strings.Renamed, entry.Name, dialog.Value));
+            SetStatus(Text.Format(Strings.Renamed, entry.DisplayName, dialog.Value));
         }
     }
 
@@ -834,7 +1005,7 @@ public partial class FileBrowserPanel : UserControl
     /// <summary>Le contenu d'un dossier du serveur a changé (fichier renvoyé depuis l'éditeur) : actualisation s'il est affiché.</summary>
     public void OnRemoteChanged(RemoteSession session, string directory)
     {
-        if (ReferenceEquals(session, _session) && _browser is { } browser && browser.CurrentDirectory == directory && _busy == 0)
+        if (ReferenceEquals(session, _session) && _browser is { } browser && browser.CurrentDirectory == directory && !_busy.ContainsKey(browser))
         {
             _ = NavigateAsync(directory);
         }
@@ -850,20 +1021,20 @@ public partial class FileBrowserPanel : UserControl
 
     private void OnPermissions(object sender, RoutedEventArgs e) => _ = ChangePermissionsAsync();
 
-    /// <summary>Modification des droits en cours (bouton « Arrêter » de la barre d'état).</summary>
-    private CancellationTokenSource? _chmodCancel;
+    /// <summary>Modifications récursives des droits en cours, par connexion (bouton « Arrêter » de la barre d'état).</summary>
+    private readonly Dictionary<IRemoteFiles, CancellationTokenSource> _chmodCancels = new(ReferenceEqualityComparer.Instance);
 
     private async Task ChangePermissionsAsync()
     {
         var browser = _browser;
         int generation = _generation;
         var selected = SelectedEntries();
-        if (browser is null || selected.Count == 0 || _busy > 0)
+        if (browser is null || selected.Count == 0 || RefuseIfBusy(browser))
         {
             return;
         }
 
-        var target = selected.Count == 1 ? selected[0].Name : Text.Format(Strings.ItemsCount, selected.Count);
+        var target = selected.Count == 1 ? selected[0].DisplayName : Text.Format(Strings.ItemsCount, selected.Count);
         var modes = new List<int>();
         foreach (var entry in selected)
         {
@@ -888,7 +1059,7 @@ public partial class FileBrowserPanel : UserControl
 
             if (targetMode is not { } resolved)
             {
-                SetStatus(Text.Format(Strings.PermissionsLinkUnknown, entry.Name), error: true);
+                SetStatus(Text.Format(Strings.PermissionsLinkUnknown, entry.DisplayName), error: true);
                 return;
             }
 
@@ -935,20 +1106,30 @@ public partial class FileBrowserPanel : UserControl
             }
         }
 
+        if (RefuseIfBusy(browser))
+        {
+            // Autre opération lancée sur ce serveur pendant la lecture des droits d'un lien.
+            return;
+        }
+
         var errors = new List<string>();
         int changed = 0;
         bool stopped = false;
         using var cancel = new CancellationTokenSource();
-        _chmodCancel = cancel;
-        StopChmodButton.Visibility = dialog.Recursive ? Visibility.Visible : Visibility.Collapsed;
-        Interlocked.Increment(ref _busy);
+        if (dialog.Recursive)
+        {
+            _chmodCancels[browser] = cancel;
+            UpdateStopChmodButton();
+        }
+
+        BeginBusy(browser);
         try
         {
             foreach (var entry in selected)
             {
                 if (StillShowing(browser, generation))
                 {
-                    SetStatus(Text.Format(Strings.PermissionsApplying, entry.Name));
+                    SetStatus(Text.Format(Strings.PermissionsApplying, entry.DisplayName));
                 }
 
                 int before = changed;
@@ -975,15 +1156,15 @@ public partial class FileBrowserPanel : UserControl
                 }
                 catch (Exception ex) when (ex is not OutOfMemoryException)
                 {
-                    errors.Add(Text.Format(Strings.ItemError, entry.Name, Describe(ex)));
+                    errors.Add(Text.Format(Strings.ItemError, entry.DisplayName, Describe(ex)));
                 }
             }
         }
         finally
         {
-            Interlocked.Decrement(ref _busy);
-            _chmodCancel = null;
-            StopChmodButton.Visibility = Visibility.Collapsed;
+            EndBusy(browser);
+            _chmodCancels.Remove(browser);
+            UpdateStopChmodButton();
         }
 
         if (!StillShowing(browser, generation))
@@ -1008,7 +1189,46 @@ public partial class FileBrowserPanel : UserControl
         }
     }
 
-    private void OnStopChmod(object sender, RoutedEventArgs e) => _chmodCancel?.Cancel();
+    private void OnStopChmod(object sender, RoutedEventArgs e)
+    {
+        if (_browser is { } browser && _chmodCancels.TryGetValue(browser, out var cancel))
+        {
+            cancel.Cancel();
+        }
+    }
+
+    /// <summary>« Arrêter » : seulement pendant une modification récursive des droits sur le serveur affiché.</summary>
+    private void UpdateStopChmodButton() =>
+        StopChmodButton.Visibility = _browser is { } browser && _chmodCancels.ContainsKey(browser) ? Visibility.Visible : Visibility.Collapsed;
+
+    /// <summary>
+    /// Vrai (et la barre d'état le dit) si une opération est déjà en cours sur ce serveur : l'action demandée attend
+    /// qu'elle se termine. Les autres serveurs ne sont pas concernés.
+    /// </summary>
+    internal bool RefuseIfBusy(IRemoteFiles browser)
+    {
+        if (!_busy.ContainsKey(browser))
+        {
+            return false;
+        }
+
+        SetStatus(_chmodCancels.ContainsKey(browser) ? Strings.FilesBusyPermissions : Strings.FilesBusy, error: true);
+        return true;
+    }
+
+    internal void BeginBusy(IRemoteFiles browser) => _busy[browser] = _busy.GetValueOrDefault(browser) + 1;
+
+    internal void EndBusy(IRemoteFiles browser)
+    {
+        if (_busy.GetValueOrDefault(browser) <= 1)
+        {
+            _busy.Remove(browser);
+        }
+        else
+        {
+            _busy[browser]--;
+        }
+    }
 
     /// <summary>Curseur dans la liste des fichiers (Ctrl+3, F6) : sur l'élément choisi, sinon le premier.</summary>
     public void FocusList()
@@ -1041,13 +1261,13 @@ public partial class FileBrowserPanel : UserControl
         var browser = _browser;
         int generation = _generation;
         var selected = SelectedEntries();
-        if (browser is null || selected.Count == 0 || _busy > 0)
+        if (browser is null || selected.Count == 0 || RefuseIfBusy(browser))
         {
             return;
         }
 
         // Le serveur est nommé : l'onglet Fichiers change de serveur avec l'onglet de session actif.
-        static string Name(RemoteEntry entry) => entry.Name + (entry.IsDirectory ? "/" : "");
+        static string Name(RemoteEntry entry) => entry.DisplayName + (entry.IsDirectory ? "/" : "");
         if (!ConfirmDialog.Destructive(Window.GetWindow(this), Strings.DeleteTitle,
                 selected.Count == 1
                     ? Text.Format(Strings.FileDeleteHeadingOne, Name(selected[0]))
@@ -1061,14 +1281,14 @@ public partial class FileBrowserPanel : UserControl
         }
 
         var errors = new List<string>();
-        Interlocked.Increment(ref _busy);
+        BeginBusy(browser);
         try
         {
             foreach (var entry in selected)
             {
                 if (StillShowing(browser, generation))
                 {
-                    SetStatus(Text.Format(Strings.Deleting, entry.Name));
+                    SetStatus(Text.Format(Strings.Deleting, entry.DisplayName));
                 }
 
                 try
@@ -1077,13 +1297,13 @@ public partial class FileBrowserPanel : UserControl
                 }
                 catch (Exception ex) when (ex is not OutOfMemoryException)
                 {
-                    errors.Add(Text.Format(Strings.ItemError, entry.Name, Describe(ex, entry.IsDirectory)));
+                    errors.Add(Text.Format(Strings.ItemError, entry.DisplayName, Describe(ex, entry.IsDirectory)));
                 }
             }
         }
         finally
         {
-            Interlocked.Decrement(ref _busy);
+            EndBusy(browser);
         }
 
         if (!StillShowing(browser, generation))
@@ -1117,7 +1337,7 @@ public partial class FileBrowserPanel : UserControl
         {
             // Sur un dossier : la ligne en surbrillance, la destination dans la barre d'état (le voile cacherait la ligne).
             DropHint.Visibility = Visibility.Collapsed;
-            SetStatus(Text.Format(Strings.DropIntoFolder, Text.Format(Strings.ServerPath, _session?.Label ?? "", folder.FullPath)));
+            SetStatus(Text.Format(Strings.DropIntoFolder, Text.Format(Strings.ServerPath, _session?.Label ?? "", RemoteEntry.Visible(folder.FullPath))));
         }
         else if (ok)
         {
@@ -1280,7 +1500,9 @@ public partial class FileBrowserPanel : UserControl
 
         int verified = checks.Count(c => c.Matches);
         // Fichiers transférés mais non relus (droits, vérification annulée) ; pas ceux en échec ou interrompus.
-        int unverified = checks.Count(c => !c.Verified && !c.Failed && !c.Interrupted);
+        int unverified = checks.Count(c => c.Unverified);
+        // Liens vers des dossiers dans un dossier envoyé : pas suivis.
+        int skipped = checks.Count(c => c.Skipped);
         var parts = new List<string> { done };
         if (verified > 0)
         {
@@ -1290,6 +1512,11 @@ public partial class FileBrowserPanel : UserControl
         if (unverified > 0)
         {
             parts.Add(Text.Format(Strings.TransferNotVerified, unverified));
+        }
+
+        if (skipped > 0)
+        {
+            parts.Add(Text.Format(Strings.TransferLinksSkipped, skipped));
         }
 
         if (note is not null)
@@ -1331,6 +1558,7 @@ public partial class FileBrowserPanel : UserControl
     private void UpdateToolbar()
     {
         bool ready = _browser is not null;
+        UpdateStopChmodButton();
         Toolbar.IsEnabled = ready;
         PathBox.IsEnabled = ready;
         FilterBox.IsEnabled = ready;

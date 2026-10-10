@@ -85,6 +85,34 @@ public sealed class EditedFileTests : IDisposable
         Assert.Equal(0, saves.Count);
     }
 
+    /// <summary>
+    /// Fermeture d'un onglet : la copie déjà relue après son enregistrement n'est pas relue (gros fichier, fil de
+    /// l'interface) ; elle l'est de nouveau dès que sa taille ou sa date change.
+    /// </summary>
+    [Fact]
+    public async Task UnsentChanges_AreKnownWithoutReadingTheCopyAgain()
+    {
+        var path = Write("big.log", "v1");
+        using var file = new EditedFile("/var/log/big.log", path, default, 2, Delay);
+        var saves = Count(file);
+        File.WriteAllText(path, "v2, plus long");
+        await saves.WaitForAsync(1, Wait);
+
+        // Copie verrouillée : relue, elle passerait pour inchangée (lecture impossible).
+        using (new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+        {
+            Assert.True(file.HasUnsentChanges);
+            Assert.True(await file.HasUnsentChangesAsync());
+        }
+
+        // Retour au contenu du serveur, avant que la surveillance ne le relise : taille changée, la copie est relue.
+        File.WriteAllText(path, "v1");
+        Assert.False(await file.HasUnsentChangesAsync());
+        File.WriteAllText(path, "v3");
+        File.SetLastWriteTimeUtc(path, File.GetLastWriteTimeUtc(path).AddSeconds(5));
+        Assert.True(file.HasUnsentChanges);
+    }
+
     [Fact]
     public void InterruptedWrite_IsRememberedUntilTheNextSuccessfulSend()
     {

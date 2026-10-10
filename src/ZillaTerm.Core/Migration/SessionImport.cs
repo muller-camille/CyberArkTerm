@@ -35,6 +35,9 @@ public sealed class ImportItem
         Session = session;
         Candidates = candidates;
         Chosen = candidates.FirstOrDefault();
+        // Plusieurs comptes possibles : le premier n'est qu'une proposition, la session n'est cochée qu'une fois le
+        // compte choisi (ou cochée à la main).
+        Include = candidates.Count <= 1;
     }
 
     public ImportedSession Session { get; }
@@ -44,8 +47,8 @@ public sealed class ImportItem
 
     public ImportCandidate? Chosen { get; internal set; }
 
-    /// <summary>Coché : à importer s'il est prêt.</summary>
-    public bool Include { get; set; } = true;
+    /// <summary>Coché : à importer s'il est prêt (ou à vérifier, une fois le compte choisi).</summary>
+    public bool Include { get; set; }
 
     public ImportState State { get; internal set; }
 
@@ -160,6 +163,7 @@ public sealed class SessionImport
         }
 
         item.Chosen = candidate;
+        item.Include = true;
         IndexSaved();
         Refresh(item);
     }

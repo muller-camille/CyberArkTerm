@@ -7,7 +7,7 @@
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <StackPanel Margin="16">
         <DockPanel Margin="0,0,0,12">
-            <Image Source="{StaticResource IconPermissions}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Top" />
+            <Image Source="{DynamicResource IconPermissions}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Top" />
             <TextBlock x:Name="IntroText" TextWrapping="Wrap" />
         </DockPanel>
         <Grid>

@@ -13,6 +13,25 @@ public class SessionLibraryTests
     public void NormalizesFolderPaths(string? path, string expected) => Assert.Equal(expected, SessionFolders.Normalize(path));
 
     [Fact]
+    public void FoldersNestedThousandsOfTimesDoNotCrash()
+    {
+        // Liste partagée ou fichier forgé : 10 000 niveaux épuiseraient la pile du parcours récursif (arrêt du processus).
+        var deep = string.Join('/', Enumerable.Repeat("a", 10_000));
+        Assert.Equal(SessionFolders.MaxDepth, SessionFolders.Normalize(deep).Split('/').Length);
+
+        var session = new SavedSession { AccountId = "1", Name = "srv01", Folder = deep };
+        var root = SessionLibrary.BuildTree([deep, deep + "/b"], [session]);
+
+        int depth = 0;
+        for (var node = root; node.Folders.Count > 0; node = node.Folders[0])
+        {
+            depth++;
+        }
+
+        Assert.Equal(SessionFolders.MaxDepth, depth);
+    }
+
+    [Fact]
     public void FolderHelpers()
     {
         Assert.Equal("Prod", SessionFolders.Parent("Prod/Web"));

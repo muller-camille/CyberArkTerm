@@ -46,8 +46,8 @@ away in the chosen language, keeping the address and user name you typed.
   next / previous tab; `Ctrl+F4` or `Ctrl+Shift+W`: close the tab.
 - **Closing a connected session** (SSH, remote desktop, VNC) asks for confirmation, with a "Don't ask again when
   closing a session" box (the "Confirm before closing a connected session" setting, Settings › Terminal). On
-  sign-out and on exit, a single window sums up what will be closed: sessions, transfers running, edited files not
-  sent back.
+  "Sign out of CyberArk" (which closes every tab) and on exit, a single window sums up what will be closed: sessions,
+  transfers running, edited files not sent back.
 - **Confirmations**: the buttons say the action ("Delete the account", "Replace the key and connect"…), "Cancel" is
   the default button, and the server, account or safe concerned is named. Values to compare (fingerprints) are shown
   in a fixed-width font with "Copy". Some irreversible actions (deleting an account, accepting a server key that
@@ -56,6 +56,11 @@ away in the chosen language, keeping the address and user name you typed.
   emergency access, the buttons specific to CyberArk are hidden.
 - **Status bar**: an ordinary message clears after 10 seconds; an error stays until the next message. The number of
   accounts only shows with the "Available" tab.
+- **Error messages**: the common PVWA refusals (password refused, account suspended, password expired, reason or
+  ticket required, dual control, missing rights, session expired) and the common connection errors (SSH
+  authentication refused, server name not found, server not answering or refusing the connection, connection cut)
+  are explained and say what to do; the original text follows ("PVWA message: …" or "Details: …"), to pass on as is
+  to the CyberArk team or to support.
 - **CyberArk session expired** (PVWA inactivity timeout): a window asks for your password (and the RADIUS response if
   needed) to sign in again, with the same address, user and method. Tabs, open sessions and transfers stay as they
   are; the action that hit the expiry is run again (accounts reload, connection). "Later" keeps working without
@@ -68,7 +73,11 @@ away in the chosen language, keeping the address and user name you typed.
 
 - The search box ("Filter accounts…", `Ctrl+F`) filters on every field (server, user, safe, platform, domain…),
   several words allowed (`prd sql`). The ✕ at the end of the box (as in every search or filter box) or `Esc` empties
-  it.
+  it. When the word searched for does not show in the row, the reason shows in grey to the right of the account
+  ("matches: machine srv01", "matches: safe PROD"…).
+- Several accounts shown under the same name (`user@address`) in a folder are told apart by a grey text to the
+  right: their allowed machines ("→ srv01, srv02 (+2)", "→ any machine"), otherwise their platform, their
+  safe or their name in CyberArk. Screen readers read it with the name of the account.
 - Instead of an empty list, the tab says what is going on: accounts loading, loading failed with its message and
   "Retry", no account available to your CyberArk user, or no account matching the filter, with "Clear the filter".
 - "Group by" sorts accounts by safe, platform or target type.
@@ -126,10 +135,10 @@ away in the chosen language, keeping the address and user name you typed.
 
 ## 3. Open a PSM session (remote desktop)
 
-<img src="captures/en/psm-connect.png" alt="Advanced PSM connection: target machine, reason, ticket" width="520">
+<img src="captures/en/psm-connect.png" alt="Advanced connection options: target machine, reason, ticket" width="520">
 
 Double-click the account (or press Enter, or the "Connect" button); a Unix account opens over SSH through the PSMP
-when its address is set, or as files only for an "SFTP" platform (see 4.), and "Advanced connection…" then lets you
+when its address is set, or as files only for an "SFTP" platform (see 4.), and "Advanced options…" then lets you
 choose the PSM. ZillaTerm requests the
 connection from the PVWA and opens the session in Windows **Remote Desktop Connection** (`mstsc`), exactly like the
 PVWA "Connect" button: the PVWA's RDP file is handed over as is. A component that opens a remote application
@@ -149,14 +158,16 @@ PVWA "Connect" button: the PVWA's RDP file is handed over as is. A component tha
   another account in the vault targets it (local account, Unix account) or when its platform is a server or desktop
   platform ("Server", "Srv", "Desktop", "Workstation"). An account that only lists machines, without being restricted
   to them, opens on its own address; the target machine stays optional. Never a session to the domain
-  itself: the server is always asked, "Advanced connection" included. The "Choose the server" window asks which one to open the session on: the list offers
+  itself: the server is always asked, "Advanced options…" included. The "Choose the server" window asks which one to open the session on: the list offers
   the servers already used with this account (recent sessions, "My servers"), then its allowed machines; an account
   restricted to its machines refuses the others. "Keep this server in “My servers”", with the folder you want, adds
   it after a successful connection, named `account@server` (the choice is remembered for next time; the box
-  disappears when the server is already there). "Advanced…" opens the full window with this server.
-- **Reason and ticket**: if the PVWA refuses the request (reason required, component not configured…), its message
-  is shown and you can fix it and try again.
-- The "Advanced…" toolbar button (or right-click → "Advanced connection…") opens this window on demand. The cursor
+  disappears when the server is already there). "Advanced options…" opens the full window with this server.
+- **Reason and ticket**: if the PVWA refuses the request (reason or ticket required, component not configured…), the
+  window says what to do, followed by the original PVWA message, and you can fix it and try again.
+- The "Advanced options…" toolbar button (or right-click → "Advanced options…") opens this window, "Advanced
+  connection options", on demand. The two ticket fields (system, number) are named for screen readers; the label
+  column widens with their text. The cursor
   is put in the first usable field; over SSH or files only, the fields used only by the PSM are greyed out and
   their tooltip says so; without a component, the window asks you to choose one.
 
@@ -174,10 +185,11 @@ Double-click (or Enter) then chooses from the name of the account's platform:
 Right-click always offers the three (the default is in bold): "Connect (PSM)", "Connect over SSH (PSMP)" (or the
 "SSH" button) and "Open the files (SFTP, PSMP)".
 
-**Files only**: a single PSMP SFTP session, without a terminal. A tab shows its state; the files are in the "Files"
-tab, with the same functions (checked transfers, queue, editor, compare, live follow, permissions), except what needs
-a terminal (following the terminal folder, extracting a `.tar.gz` archive). Useful to just drop or fetch files, or
-when the platform allows PSMP-SFTP but not the shell. Like every PSMP session, it is recorded and audited by
+**Files only**: a single PSMP SFTP session, without a terminal. A tab shows its state, the server and a "Show the
+files" button, which opens the "Files" tab of the left panel and widens it if needed so that all its columns fit. The
+files are there, with the same functions (checked transfers, queue, editor, compare, live follow, permissions),
+except what needs a terminal (following the terminal folder, extracting a `.tar.gz` archive). Useful to just drop or
+fetch files, or when the platform allows PSMP-SFTP but not the shell. Like every PSMP session, it is recorded and audited by
 CyberArk.
 
 The session opens **in a ZillaTerm tab**, at once: a progress bar shows while ZillaTerm asks the PVWA for the MFA key
@@ -208,13 +220,22 @@ each PSMP is checked on its first connection. The tab tooltip names the PSMP use
 - **Authentication**: if the PVWA provides an "MFA caching" key, no question is asked. Otherwise the PSMP questions
   (password, MFA code) are shown in a window that names the session concerned, with help depending on the question:
   probably the password of your CyberArk account (reused for the SFTP and SCP connections of the same tab, never
-  saved), or the MFA code (asked again at each connection).
+  saved), or the MFA code (asked again at each connection). A refused answer is shown in red above the field with the
+  attempt number ("Attempt 2 of 3"); after three refusals the connection stops so that your account is not locked.
+  "Caps Lock is on." shows while you type. When several sessions open together (folder, selection, parallel view),
+  the window offers "Also use this password for the other sessions being opened": ticked, it is asked only once
+  (never for an MFA code) and kept in memory only until they are connected. The passwords kept for the tabs are
+  forgotten when Windows locks.
 - **PSMP key**: on first connection, a window shows its SHA-256 fingerprint in a fixed-width font, with "Copy":
   compare it with the one published by your CyberArk team before "Trust and connect" ("Cancel connection" is the
   default button). The fingerprint is then remembered on this computer. If the key changes, a red banner warns of a
   possible interception, the remembered and the new fingerprints are shown, and "Replace the key and connect" is
   only possible after ticking "I confirmed this change with the CyberArk team". A refused key stops the connection
-  ("Connection cancelled: the server key was not accepted.").
+  ("Connection cancelled: the server key was not accepted."). A PSMP can have keys of several types (RSA,
+  ed25519…): each one is remembered separately, and ZillaTerm asks for the known type first. A key of a type never
+  seen for this PSMP is neither accepted silently nor taken for a change: the "New key of the PSMP, of another type"
+  window shows the fingerprints already accepted and the new one, and "Accept this key and connect" is only possible
+  after ticking "I checked this fingerprint with the CyberArk team".
 - **Terminal**: selecting copies, the mouse wheel or the scroll bar on the right goes through the history; once you
   have scrolled up, "↓ Back to the end" (or typing) takes you back to the end. AltGr works on international
   keyboards. Close the tab with its cross, a middle click or `Ctrl+F4` (confirmation if the session is connected).
@@ -283,7 +304,11 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   reverse the order (an arrow shows it). Size and date start with the largest and the newest. Folders stay on top; the
   sort is kept from one folder and one session to the next. The Name column takes the width left by the others; when
   the panel is narrow, the Group, Owner and then Permissions columns are hidden rather than cut (they come back when
-  the panel is widened).
+  the panel is widened): "+n" at the end of the header shows it, with their names in a tooltip.
+- **Choose the columns**: right-click the list header (or click "+n"): one box per column (Size, Modified,
+  Permissions, Owner, Group), kept from one time to the next; a ticked column without room is marked "no room".
+  "Widen the panel to show them all" gives the panel the missing width (the session keeps at least 360 pixels).
+  Unticking Size or Modified makes room for Permissions and Owner in a narrow panel.
 - **Owner and Group**: hovering shows `owner:group` (as for `chown`). These are the names that the server sends with
   the file list, as shown by `ls -l`. Over SFTP, if the line that holds them does not have the usual shape (a name with
   a space…), ZillaTerm shows the numbers instead (UID and GID, as `ls -n`); over FTP, the columns stay empty if the
@@ -300,9 +325,15 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   at once, with no question and no wait: the status bar and the summary show it with the server's answer, and so does
   the transfer history ("SCP (SFTP refused)"). Over SCP, after a refusal when a file is announced, files at least as large go
   straight over SFTP until the tab is closed.
+  In an uploaded folder (or one packed into a .tar.gz archive), symbolic links and junctions to folders are not
+  followed, as for downloads: a junction can loop or lead to a forbidden folder ("My Music" of old Windows profiles).
+  They are reported in the summary ("↷ n link(s) to a folder not followed") and in "Details", with their target; a link
+  to a file is sent with the content of that file.
 - **Download**: "Download" button or right-click. One file asks where to save it; several go to a folder you choose,
   with one question ("Replace") for the files already there. A local file is replaced only once its download is complete: an
-  interrupted or cancelled download leaves it as it was. "Download" only takes files: for a folder, the status bar
+  interrupted or cancelled download leaves it as it was. The file being downloaded goes to a temporary copy in the
+  same folder (`name.xxxxxxxx.part`, or `zillaterm.xxxxxxxx.part` for a name longer than 241 characters: names can be up
+  to 255 characters, the Windows limit). "Download" only takes files: for a folder, the status bar
   reminds you to drag it to File Explorer or to the desktop.
 - **Download by dragging**: drag files or folders from the list to Explorer or the desktop. Nothing is downloaded
   while dragging: on drop, a window shows the progress (Cancel stops it), then Explorer copies the files where you
@@ -364,7 +395,9 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   even without a session. It lists the last 200 uploads and downloads (drag and drop included): date, direction,
   server, item, destination, number of files, protocol ("SCP (SFTP refused)" when the other protocol took over),
   result, written as in the queue; failures and differing files are in red, and the text of a column too narrow for
-  it shows in a tooltip. "Uploads" / "Downloads" filter; "Checksums…" (or double-click)
+  it shows in a tooltip. "Uploads" / "Downloads" / "Failures and unverified" filter (failed transfers, files that
+  differ or could not be read again), chosen by itself when a failure flagged with "!" has not been seen yet;
+  "Checksums…" (or double-click)
   shows each file's size, SHA-256 checksums and result, and copies them in the `sha256sum -c` format to check again
   on the server; "Open the folder" for a download; "Clear the history", set apart from the other buttons, asks for
   confirmation (the files themselves are not touched).
@@ -381,7 +414,8 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   link is deleted itself, never the file or folder it points to.
 - **Rename**: `F2`, right-click → "Rename…" or the toolbar button. A file is never overwritten: a name already taken
   is refused before anything is sent to the server (over SFTP as over FTP). "/", ".", ".." and control characters
-  (line break, tab…) are refused, as for "New folder".
+  (line break, tab…) are refused, as for "New folder". A symbolic link is renamed itself, never the file or folder
+  it points to.
 - **Edit a file**: **double-click** the file (or `Enter`, `F4`, right-click → "Edit", the pencil button). The file
   opens in the text editor chosen in Settings (Notepad by default). On double-click, an archive, an image, an
   executable or an office document is downloaded instead of opened, as is any file whose first bytes are binary. Every time you save, ZillaTerm offers to send it back to the
@@ -426,7 +460,11 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   contents too" propagates the permissions to subfolders and files; by
   default, execute (x) is only given to folders and to files that are already executable. The button then becomes
   "Apply recursively…" and a confirmation says what will happen; while it runs, "Stop" in the Files tab interrupts it
-  (items already done keep their new permissions). Symbolic links are not followed and the owner is not changed.
+  (items already done keep their new permissions). Symbolic links are not followed and the owner is not changed. Over
+  FTP, a name with a control character (it would add a command for the server) is left as it is and reported as an
+  error; the other items are processed.
+- **Operation in progress**: while a delete, a rename or a permission change runs on one server, the other servers
+  stay usable; on the same server, Delete, `F2` and Permissions are refused until it ends, and the status bar says so.
 - **Filter**: the box under the path keeps only the items of the folder whose name contains the text (`nginx`), or
   matches a mask with `*` and `?` (`*.log`, `app?.conf`; several separated by `;`: `*.log;*.gz`), ignoring case.
   `..` stays to go up; the status bar says how many items are shown. It is cleared when you change folder; `Ctrl+F`
@@ -478,32 +516,36 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
 <img src="captures/en/server-properties.png" alt="Properties of a server in “My servers”" width="540">
 
 Without a PSMP in the Settings, the SSH and files-only types are greyed out, as elsewhere; an incorrect value
-is reported in the window. A server whose account is no longer visible in CyberArk is greyed out.
+is reported in the window. A server whose account is not found in CyberArk (deleted or access removed) shows
+"⚠ not found in CyberArk", which screen readers read too; nothing is flagged while the accounts are loading.
 
 ### Export, import, share
 
-Four buttons at the top of the tab, left of the safe button (KeePass databases):
+Two menus at the top of the tab, "Import ▾" and "Share ▾", left of the "New folder", "Properties / rename" and
+"Remove the server or delete the folder" buttons (`Tab` reaches these buttons, the arrow keys move from one to the
+other):
 
-- **Export** saves "My servers" to a `.json` file: folders (even empty ones), name, CyberArk account (ID), connection
+- **Share › Export My servers to a file…** saves "My servers" to a `.json` file: folders (even empty ones), name, CyberArk account (ID), connection
   type, component, target machine, default reason, SFTP start folder. No password and no followed file. Handy to move
   to another computer or to pass your list on.
-- **Import** reads an exported file (or a shared list) and sums up before adding: servers added, servers already
+- **Import › ZillaTerm file (export of My servers)…** reads an exported file (or a shared list) and sums up before
+  adding: servers added, servers already
   there (same account, type, component, target machine and folder: skipped), folders created, servers opened on a
   target machine (check them: the machine comes from the file). Nothing is removed or changed in "My servers". A file
   created for another PVWA is refused: its account IDs designate other accounts there.
-- **Import sessions from another tool** (terminal and shield icon): see [below](#bring-in-the-sessions-of-another-tool).
-- **Shared lists** (two-people icon): a list of servers in a file on a network share, which the whole team opens and
-  completes.
-  - "Create a shared list…": choose the location (network share) and the name shown to everyone; "Open a shared
-    list…": add a list created by a colleague. Open lists are shown at the top of the tab (after the KeePass databases),
+- **Import › Sessions of another tool…**: see [below](#bring-in-the-sessions-of-another-tool).
+- **Import › Add a KeePass database…**: see [7.](#7-emergency-access-outside-cyberark-keepass-databases)
+- **Shared lists**: a list of servers in a file on a network share, which the whole team opens and completes.
+  - "Share › Create a shared list…": choose the location (network share) and the name shown to everyone; "Import ›
+    Open a shared list…": add a list created by a colleague. Open lists are shown at the top of the tab (after the KeePass databases),
     with their folders; the search filters them too.
   - **Add**: right-click a server or a folder of "My servers" → "Share in a list" (the folder is kept), or drag a
     server, a folder or an account of "Available" onto the list or one of its folders (confirmation). The default
     reason stays personal: it is never shared.
   - **Remove**: right-click → "Remove from the shared list…" (or `Del`), after confirmation.
-  - **Use**: double-click to connect; right-click for the advanced connection, the password, the safe members or
+  - **Use**: double-click to connect; right-click for the advanced options, the password, the safe members or
     "Copy into My servers". Everyone connects with their own CyberArk rights: an account you cannot see in the
-    CyberArk Vault is greyed out. The tooltip shows the account as CyberArk describes it, the target machine, who added the server
+    CyberArk Vault shows "⚠ not found in CyberArk". The tooltip shows the account as CyberArk describes it, the target machine, who added the server
     and when.
   - **Target machine**: a shared server that opens a domain account on a machine not among the account's allowed
     machines in CyberArk asks for confirmation on the first connection (anyone with write access to the share can
@@ -521,9 +563,8 @@ Four buttons at the top of the tab, left of the safe button (KeePass databases):
 
 ### Bring in the sessions of another tool
 
-To move to ZillaTerm without typing your servers again, and stop connecting to them directly: "Import sessions from
-another tool" button at the top of the tab (terminal and shield icon), or **Settings** menu › "Import sessions from
-another tool…". The PVWA accounts must be loaded.
+To move to ZillaTerm without typing your servers again, and stop connecting to them directly: "Import ▾" menu ›
+"Sessions of another tool…" at the top of the tab, or **Settings** menu › "Import sessions from another tool…". The PVWA accounts must be loaded.
 
 <img src="captures/en/session-import.png" alt="Importing the sessions of another tool: preview before the import" width="820">
 
@@ -552,8 +593,9 @@ another tool…". The PVWA accounts must be loaded.
    - A session that already went through the PSMP (`vault@target@server@psmp`) or through PSM (start program
      `psm /u account /a server /c component` of an `.rdp` file) is decoded: the target account and server are what
      count, and the PSM component is kept.
-   - Several possible accounts: the most likely one is chosen ("to check"); the list in the "PVWA account" column lets
-     you pick another one.
+   - Several possible accounts: the most likely one is proposed ("to check"), but the session is not ticked; choosing
+     an account in the list of the "PVWA account" column ticks it (or tick it to keep the proposed one). The
+     "Import (n)" button shows how many sessions will be added.
 3. **Saved connection**, never direct: Remote Desktop through PSM; SSH and files (SFTP, SCP) through the PSMP when
    there is one for that server (files only for an "SFTP" platform), otherwise through PSM (`PSM-WinSCP` for files);
    Telnet through `PSM-Telnet`.
@@ -586,10 +628,12 @@ servers, over SSH, remote desktop or VNC, or to their files only (SFTP, FTP, FTP
 ![Emergency access: KeePass database unlocked in "My servers"](captures/en/keepass-vault.png)
 
 - **Without CyberArk**: on the sign-in screen, "Emergency access (KeePass)" opens the main window without the PVWA
-  (only the KeePass databases are shown; the "Available" tab and the buttons specific to CyberArk are hidden). With
+  (only the KeePass databases are shown; the "Available" tab and the buttons specific to CyberArk are hidden; "Leave
+  emergency access" locks the databases and goes back to the sign-in screen). With
   CyberArk, the databases also appear at the top of "My servers". The tooltip of a session tab opened from a
   database says so: "Direct emergency access (KeePass): outside CyberArk, written to urgence.log".
-- **Add a database**: safe button of the "My servers" tab (or right-click → "Add a KeePass database…"). The "Add a
+- **Add a database**: "Import ▾" menu › "Add a KeePass database…" of the "My servers" tab (safe button in emergency
+  access), or right-click in the tab → "Add a KeePass database…". The "Add a
   KeePass database" window reminds you in a banner that these connections are outside CyberArk; "Browse…" picks the
   `.kdbx` file, then the name and an optional key file.
 - **Unlock**: double-click the database. Master password and/or key file (every KeePass format). "Remember the
@@ -602,13 +646,20 @@ servers, over SSH, remote desktop or VNC, or to their files only (SFTP, FTP, FTP
     with the one given by its administrator, in the same window as for the PSMP (see
     [section 4](#4-open-an-ssh-session-through-the-psmp)).
   - **Remote desktop**: the tab follows its size (remote desktop resolution) and offers "Full screen"
-    (`Ctrl+Alt+Break` to come back), "Disconnect" and "Reconnect".
+    (`Ctrl+Alt+Break` to come back), "Disconnect" and "Reconnect". Before each connection, ZillaTerm reads the
+    server's certificate. If Windows does not trust it (self-signed…), its subject, its issuer, its dates and its
+    SHA-256 fingerprint are shown on the first connection, then it is remembered for that server; if it changes later,
+    the remembered and the new fingerprints are shown, and you must tick "I confirmed this change with the server's
+    administrator". The password is only read and handed to the Remote Desktop control after this check; a server
+    that does not accept TLS encryption is refused. No image of the session is kept on the computer's disk.
   - **VNC** (`vnc://server`, port 5900; `vnc://server:1` means display 1, port 5901): desktop in a tab, fitted to
     the window or at real size ("Fit"), "Ctrl+Alt+Del" (after confirmation: depending on the machine, it opens the
     security screen or restarts some virtual machine consoles), "Send clipboard" and "Copy remote text" buttons: the
     clipboard is only exchanged through these buttons. VNC password authentication (8 characters at most, a limit
     of the protocol) or no authentication. **VNC encrypts nothing**: a banner says so; keep it for a trusted
-    network.
+    network. Before the VNC password is first sent, ZillaTerm asks for your agreement ("Send the password and
+    connect", once per tab, reconnections included): VNC does not check the identity of the server, and a fake server
+    or an interceptor can recover the first 8 characters of the password. Server beeps are limited to one per second.
   - **Files** (`sftp://`, `ftp://`, `ftpes://` for FTP with explicit TLS, `ftps://` for implicit TLS, port 990): a
     status tab, without a terminal, and the files in the "Files" tab with the same functions (transfers checked by
     SHA-256, queue, history, editor, compare, live follow, permissions if the server accepts `SITE CHMOD`).
@@ -618,12 +669,17 @@ servers, over SSH, remote desktop or VNC, or to their files only (SFTP, FTP, FTP
     back to clear text. An FTPS certificate that Windows does not trust (self-signed…) is shown with its subject, its
     issuer, its validity dates and its SHA-256 fingerprint (with "Copy"), then remembered for that server if you
     accept it; if it changes later, the remembered and the new fingerprints are shown, and you must tick "I confirmed
-    this change with the server's administrator".
+    this change with the server's administrator". A server that has already encrypted a connection is remembered:
+    if it later comes without TLS (which an interceptor can cause), it is no longer the plain question but the "This
+    FTP server no longer offers encryption" warning, which only lets you continue after ticking "I confirmed with the
+    server's administrator that encryption was removed"; otherwise the connection stops without sending the password.
 - **Edit the database**: right-click → "New entry…", "Edit…" (`F2`), "Delete" (`Del`, into the database's recycle
   bin, after confirmation). The server address is required: an entry without an address (neither in the Address
   box nor in its custom fields) is not saved. The rest of the database (attachments, fields, settings) is kept; the
-  previous version of an entry goes to its history, like in KeePass.
-- **Lock**: right-click → "Lock". Databases also lock on sign-out, on exit and when **Windows is locked**.
+  previous version of an entry goes to its history, like in KeePass. While saving, the previous version of the file
+  is kept as `database.kdbx.bak`, then deleted as soon as the new file reads back identical: no old copy, which
+  would still open with an old master password, stays next to the database (shared or not).
+- **Lock**: right-click → "Lock". Databases also lock on sign-out of CyberArk, on exit and when **Windows is locked**.
 
 **Local vault**: the master passwords you choose to remember are kept in `%APPDATA%\ZillaTerm\coffre-local.dat`,
 encrypted with a password of your own (at least 8 characters) and tied to your Windows account. That password is
@@ -637,7 +693,7 @@ says its master password was not remembered. Manage it in the **Settings**, Secu
 
 | Where | Action | Shortcut |
 | --- | --- | --- |
-| Everywhere | Reload the accounts from the PVWA | `F5` |
+| Everywhere (except the Files tab) | Reload the accounts from the PVWA | `F5` |
 | Everywhere | Filter the accounts (in "My servers": search a server; in "Files": filter the folder) | `Ctrl+F` |
 | Everywhere | Next / previous session tab | `Ctrl+Tab` / `Ctrl+Shift+Tab` |
 | Everywhere | Close the session tab | `Ctrl+F4` or `Ctrl+Shift+W` |
@@ -676,8 +732,15 @@ In a terminal, `Ctrl+K`, `Ctrl+B` and `F6` are sent to the server (`F6` to appli
 window has its access keys (`Alt` + underlined letter, without duplicates, in English, French and Italian), and the
 menu of an item of "My servers" opens at the same place with a right-click, `Shift+F10` or the Menu key. Password
 boxes (sign-in, KeePass database, local vault) warn when Caps Lock is on. Screen readers announce the names of list
-and tree items and of icon buttons, the status bar messages and connection errors. In high contrast mode, the
+and tree items, of icon or symbol buttons (✕, ↑, ↓), of fields (path, ticket number…), the status bar messages and
+connection errors. The toolbars of "My servers" and of the Files tab are a single `Tab` stop (the arrow keys move
+from one button to the other). In the Settings, every box has its access key, without duplicates in the page shown. In high contrast mode, the
 interface takes the Windows system colours and follows their changes.
+
+**Dark theme**: Settings → General → Appearance → Theme: "Same as Windows" (default: the app mode chosen in Windows,
+Personalization → Colors, followed even when it changes), "Light" or "Dark". The change applies right away, to open
+windows and to the title bar; Windows high contrast always takes precedence. SSH terminal colours are set separately
+(Terminal page).
 
 ## Settings and configuration file
 
@@ -689,16 +752,17 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 
 | Page | Setting | Purpose | Default |
 | --- | --- | --- | --- |
-| General | Interface language | Français, English, Italiano or system language; applied after signing out or at the next start | Windows language (English if it is not translated) |
+| General | Theme | Same as Windows, Light or Dark; applied right away (Windows high contrast takes precedence) | same as Windows |
+| General | Interface language | Français, English, Italiano or system language; applied after signing out of CyberArk or at the next start | Windows language (English if it is not translated) |
 | General | Central file | Team environment file on a network share, read at each start; its changes are shown before being applied (see [Shared environment](#shared-environment)) | empty |
 | General | Look for a new version at startup | One request to GitHub at most once a day; a link in the status bar when a newer version exists (the "About" window recalls this setting) | no |
-| CyberArk | Keep the PVWA session open | Light request every 4 minutes; paused while Windows is locked; ⚠ the PVWA session no longer closes by itself after inactivity | yes |
+| CyberArk | Keep the CyberArk session open | Light request every 4 minutes while you use the computer; paused while Windows is locked or after 15 minutes without keyboard or mouse (the CyberArk session then expires after its idle timeout) | yes |
 | CyberArk | Default PSMP, port | PSM for SSH server; when set (or a PSMP by domain), Unix accounts open over SSH by default (as files only for an "SFTP" platform); without any PSMP, SSH and SFTP are disabled | empty, 22 |
 | CyberArk | PSMP by domain | Other PSMPs (address, port, domain served); each server goes through the one of the domain closest to its own (see [PSMP by domain](#psmp-by-domain)); "Which PSMP for the server" to check | none |
 | CyberArk | Windows accounts component | PSM component of Windows accounts (domain or local) without a component remembered for their platform, for example `WIN-PSM` | empty = `PSM-RDP` |
 | CyberArk | Component per platform | Platform (PVWA ID, for example `WinDomain`) / PSM component table: "Add a component", "Remove the line", editable cells; takes precedence over the Windows accounts component. "Remember this component for platform" (connection window) adds a line to it | empty |
 | Terminal | SSH in ZillaTerm | Built-in terminal and Files tab; otherwise Windows Terminal | yes |
-| Terminal | Terminal colours, font | Palette (Campbell, One Half, Solarized…) and font size of the SSH terminals | Campbell, 14 |
+| Terminal | Terminal colours, font size | Palette (Campbell, One Half, Solarized…) and font size of the SSH terminals | Campbell, 14 |
 | Terminal | Warn before pasting several lines | Preview and confirmation when the shell would run the lines one by one | yes |
 | Terminal | Confirm before closing a connected session | SSH, remote desktop, VNC; "Don't ask again" in the confirmation unticks this setting | yes |
 | Terminal | Right-click in the terminal pastes the clipboard | Shift+right-click then opens the menu; ⚠ a stray right-click sends the clipboard to the shell | no |
@@ -709,7 +773,7 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 | Files | Text editor | Program opened by "Edit" in the Files tab | Notepad |
 | Files | Comparison tool | Program offered in the comparison window, with its arguments (`{0}` = left file, `{1}` = right file) | none |
 | Security | Local vault | Remembered KeePass master passwords: "Create…", "Unlock…", "Change password…", "Delete now…"; these actions apply at once, without "Save" | — |
-| Security | Accepted server keys | Table of the fingerprints checked and accepted (server, type, fingerprint): PSMP, direct SSH and FTPS certificates of KeePass entries. "Forget the selected keys" removes the selected rows on save; the key will be asked again at the next connection | — |
+| Security | Accepted server keys | Table of the fingerprints checked and accepted (server, type, fingerprint): PSMP, direct SSH, FTPS and Remote Desktop certificates of KeePass entries (one row per key type). "Forget the selected keys" removes the selected rows on save; the key will be asked again at the next connection | — |
 | Settings button menu | Debug log | How connections unfold, in a file, without secrets (see [Security](#security)); "Show the debug log file" opens it in Explorer | no |
 
 ### Shared environment
@@ -729,8 +793,10 @@ with nothing personal and no password:
 
 Each time, a window shows what will change ("old value → new value") and the SHA-256 fingerprint of the file; "Do not
 apply" is the default. The PVWA and the PSMPs receive your CyberArk password: when the file changes their address or
-adds a server key, "I have checked…" must be ticked before applying. A server key already accepted on the computer is
-never replaced by a file (it is reported). An invalid file (http address, wrong component name…) is refused as a
+adds a server key or a shared list on a network server (Windows signs in to it at each start; the server is named),
+"I have checked…" must be ticked before applying. A server key already accepted on the computer is never replaced by a
+file (it is reported). Only the keys of the PSMPs (those of the computer or of the file) are taken: the key of another
+server, an emergency access one for example, is ignored and checked at its first connection. An invalid file (http address, wrong component name…) is refused as a
 whole. A file already offered is offered again only when it has changed. A setting left empty on the exporting PC is
 not exported: it clears nothing on the importing one. Paths (shared lists, central file) are full: `C:\…` or
 `\\server\…`. Your user name, "My servers" and your
@@ -758,9 +824,17 @@ first ZillaTerm version but cannot download it itself (renamed repository): down
 
 ## Security
 
-- **HTTPS required** to the PVWA; certificate validation is never disabled.
+- **HTTPS required** to the PVWA; certificate validation is never disabled. A redirection from the PVWA is never
+  followed (your password would go to the address given): it is reported with that address. The PVWA address may
+  only contain the server name, a port and a path: a "name@" before the server (which would reach another server than
+  the one shown), a space, a "\" or a non-ASCII letter are refused.
+- **File names from the server**: invisible characters (writing direction override, zero-width space, control
+  characters) are shown as "�" in the list and confirmations, and become "_" in the name of the downloaded file, so
+  that a name cannot imitate another one (".exe" shown as ".pdf"). Special files (a device such as `/dev/zero`, a
+  named pipe, a socket) are neither opened nor downloaded, and are skipped when a folder is downloaded.
 - **No secret on disk**: CyberArk password, session token, MFA key and PSMP password stay in memory for the session.
-  The PVWA session is closed (`Logoff`) on exit.
+  Kept PSMP passwords and the MFA key are forgotten when Windows locks; the MFA key is wiped after each connection and
+  removed from the PVWA at logoff (`Logoff`), done on exit.
 - PVWA session opened with `concurrentSession`: your PVWA web session, if any, is not closed.
 - **Copying a password**: the PVWA response is read into a buffer wiped afterwards and decoded without going through
   a string; the password goes straight to the Windows clipboard, marked to be excluded from the history (`Win+V`),
@@ -791,11 +865,14 @@ first ZillaTerm version but cannot download it itself (renamed repository): down
   start.
 - **New version**: no request to the Internet without your action or the Settings option (off by default); only the
   addresses of the project repository are followed, the archive is kept only when its SHA-256 checksum is the one of
-  `SHA256SUMS.txt`, and nothing is installed or started.
+  `SHA256SUMS.txt` of the same release (which detects an incomplete or damaged download, not a release published by
+  someone who took over the repository), and nothing is installed or started.
 - **PSMP host keys pinned** on first use: the fingerprint is to be compared before accepting ("Cancel connection" by
   default); a changed key is flagged by a banner and only replaces the old one after a confirmation box is ticked
-  (the same for servers reached in emergency access and for FTPS certificates). Accepted keys can be reviewed and
-  forgotten in Settings › Security.
+  (the same for servers reached in emergency access and for FTPS and Remote Desktop certificates). One key is
+  remembered per server and per type: a key of a type never seen for that server is shown with the ones already
+  accepted and is only added after a check box is ticked, never silently. Accepted keys can be reviewed and forgotten
+  in Settings › Security.
 - **PVWA session keep-alive**: it avoids the idle timeout; nothing is sent while Windows is locked, and the option
   can be turned off in the Settings if your policy requires it.
 - **KeePass databases**:
@@ -804,15 +881,23 @@ first ZillaTerm version but cannot download it itself (renamed repository): down
   - in memory, the database key and the entry passwords stay masked and are only revealed when connecting;
     databases lock on sign-out, on exit and when Windows is locked;
   - safe saving: the file is read again, the change is applied to its current version (changes made elsewhere are
-    kept), the decrypted result is checked, a `.bak` copy is kept and the file is replaced in one step; an entry
-    changed elsewhere in the meantime is not overwritten;
+    kept), the decrypted result is checked and the file is replaced in one step (a `.bak` copy during the
+    replacement, deleted once the file reads back identical); an entry changed elsewhere in the meantime is not
+    overwritten;
   - direct remote desktop: the password is only passed to the Remote Desktop control (no file, no credential
-    manager), with network level authentication (NLA) and a warning if the server is not recognized;
+    manager), with network level authentication (NLA) and a warning if the server is not recognized; the server
+    certificate is read before the password is sent and pinned on first use (a change is reported and blocked until
+    it is confirmed), a server without TLS is refused, the persistent bitmap cache is off. Limit: the control then
+    runs its own TLS negotiation, and the pinned fingerprint cannot be imposed on it; for a certificate that Windows
+    does not trust, it still shows its own warning;
   - VNC: the protocol encrypts neither the screen, nor the keystrokes, nor the clipboard (permanent banner); the
-    password is not sent as is (challenge-response of the protocol); the clipboard is only exchanged on a click;
+    password is not sent as is (challenge-response of the protocol), and only after your agreement: the server is
+    not authenticated and can recover its first 8 characters; the clipboard is only exchanged on a click; beeps are
+    limited to one per second;
     the screen size announced by the server is bounded (8,192 pixels per side);
   - FTP: TLS is tried first, clear text only after your agreement (permanent banner), never for `ftpes://` and
-    `ftps://`; under TLS, transfers are encrypted too (`PROT P`);
+    `ftps://`; under TLS, transfers are encrypted too (`PROT P`); a server already seen with TLS that no longer
+    offers it is reported as a possible interception, and nothing is sent without confirmation;
   - FTPS certificate: one that Windows trusts is accepted; otherwise its SHA-256 fingerprint is shown and pinned on
     the first agreement (like an SSH host key), a change is reported; refused, the connection stops before the
     user name is sent;
@@ -834,8 +919,8 @@ first ZillaTerm version but cannot download it itself (renamed repository): down
 - CSV export protected against Excel formula injection.
 - **Environment files** (`ZillaTerm.env.json`): no password or personal data, only known fields are read. A file
   is never applied without your consent: changes and SHA-256 fingerprint shown, a box to tick when the PVWA or a PSMP
-  address changes or a server key is added. It never replaces a server key already accepted; https PVWA address
-  required; a file over 1 MB is refused.
+  address changes, or a server key or a list on a network server is added. It never replaces a server key already
+  accepted and only brings PSMP keys; https PVWA address required; a file over 1 MB is refused.
 - **Server files and shared lists**: no password or token, only server, account and safe names, account IDs and
   connection settings (the default reason is never shared). They grant no access: everyone connects with their
   own CyberArk rights, and the tooltip shows the account as the CyberArk Vault describes it. A target machine coming from a
@@ -874,7 +959,7 @@ JSON file (`"format": "CyberArkTerm.SharedServers"`, version 1): name, source PV
 (other computers retry for 5 s), re-reads it, copies the current revision to
 `name.versions\name.r00012.20261006-101500.json` (revision and the date it was saved, 100 versions kept), applies
 the change, increases the revision, records who, when and what, then rewrites the file (put back as it was if the
-write fails). The display follows the file's changes (`FileSystemWatcher`) and re-reads it with `F5`. The "My
+write fails). The display follows the file's changes (`FileSystemWatcher`, resumed by itself one minute after the share or VPN drops, then the list is re-read) and re-reads it with `F5`. The "My
 servers" export has the same format with `"format": "CyberArkTerm.Servers"`, without revision or journal.
 
 ### KeePass databases
@@ -892,14 +977,16 @@ Built-in client (RFB protocol 3.3, 3.7 and 3.8, RFC 6143; a newer server, such a
 3.8), nothing to install: "none" or "VNC password" authentication (when the server offers both, the password if the
 entry has one, otherwise none) (the protocol's DES, implemented in ZillaTerm because the Windows FIPS mode can forbid DES), Raw,
 CopyRect and Hextile encodings, screen size changes, 32-bit pixels. The keyboard is sent as X11 "keysyms" (AltGr
-characters are sent as characters), the wheel as buttons 4 and 5.
+characters are sent as characters), the wheel as buttons 4 and 5. The VNC password is only sent after your agreement
+(once per tab); server beeps are limited to one per second.
 
 ### FTP / FTPS files sessions
 
 FluentFTP library (MIT licence). Passive mode: `PASV` over IPv4, the data connection always going to the server
 itself (the address given in the reply is ignored: a server cannot point it at another machine), `EPSV` over IPv6;
 binary, `PBSZ 0` and `PROT P` under TLS; certificate
-checked by Windows, otherwise pinned (`ftps://server:port` among the accepted server keys, in Settings › Security). FTP has
+checked by Windows, otherwise pinned (`ftps://server:port` among the accepted server keys, in Settings › Security);
+servers that encrypted a connection are noted (`FtpTlsServers` in the settings) to report a removal of TLS. FTP has
 no standard checksum: each upload is read back from the server and compared by SHA-256. Partial reads (`REST`) for
 compare and live follow. After an interrupted transfer, the connection is reopened and the incomplete file deleted.
 Overwriting a file writes it in place: it keeps its permissions. Symbolic links: the first 40 of a folder are
@@ -915,7 +1002,11 @@ the return to `mstsc`.
 
 Remote desktop tabs (direct remote desktop from KeePass databases) host the Windows ActiveX control (`mstscax.dll`, the
 most recent `MsRdpClient` class available), set up as a direct connection: network level authentication (NLA),
-warning if the server is not recognized, redirections off except the clipboard. The remote desktop resolution
+warning if the server is not recognized, redirections off except the clipboard, persistent bitmap cache off. Before
+each connection, ZillaTerm reads the server's TLS certificate itself (X.224 connection request, then a TLS negotiation
+stopped as soon as the certificate is received: neither user name nor password is sent) to pin it
+(`rdp://server:port` among the accepted server keys); the ActiveX control does not allow imposing this fingerprint
+on it. The remote desktop resolution
 follows the tab size. Session ends and connection errors are explained in the tab with the Windows message and codes
 (reason, extended reason). An integration test (`rdp-integration` workflow) opens a real session on the CI machine.
 
@@ -925,7 +1016,9 @@ which that thread places the control's window. Before releasing the control, it 
 disconnection or release no longer freezes the application. If the thread stops responding for 5 s, the tab bar says
 so, and the rest of the application stays usable. Limit: Windows shares keyboard and mouse input between a window
 and the windows it contains, even from another thread; a control that is stuck for good can still hold up a click in
-its area or a focus change.
+its area or a focus change. On sign-out or exit, ZillaTerm waits at most 3 s for the remote desktop sessions to end;
+a session whose control stays stuck is then taken out of the window (its slot is set aside), and the application
+signs out anyway, or exits directly.
 
 ### PSMP sessions
 
@@ -966,20 +1059,27 @@ sh or fish, following is not set up and nothing stays on screen.
 | "The PVWA has no connection component “PSM-RDP” for this account" (`EPVWA093E Failed to get the relevant connection component`) | The account's platform uses a component with another name (for example `WIN-PSM`): the one offered by the PVWA "Connect" button, or the name after `/c` in a `psm /u … /a … /c …` command. Enter it in "Component"; "Remember this component for platform" is ticked for the next connections. |
 | "TLS connection refused: this computer does not trust the PVWA certificate" | The certificate (or its issuing authority) is not in the workstation's Windows store. |
 | "The PVWA must be reached over HTTPS" | Type the address without `http://` (or with `https://`). |
+| "The PVWA refused the user name or the password" (`ITATS004E Authentication failure…`) | Check the user name, the password and Caps Lock before trying again: after several failures, CyberArk suspends the account. |
+| "Your CyberArk account is suspended or disabled" | Too many failed sign-ins, or an administrator's decision: ask the CyberArk team to reactivate it. |
+| "Your CyberArk password has expired" | Change it on the PVWA web page, then sign in to ZillaTerm with the new one. |
+| "The SSH server refused the authentication" | Through the PSMP, it is your CyberArk password: check it (and Caps Lock) before trying again, several failures suspend the account. |
+| "Server name not found (DNS)", "The server did not answer in time", "The server refuses connections on this port" | Check the address and the port, and your access to the company network (VPN, firewall); the "Details" that follow give the Windows message. |
 | "CyberArk session expired" window | PVWA inactivity timeout reached: type your password to sign in again; tabs, sessions and transfers stay open. |
 | "Password" → "Copy the password…": "The PVWA refused: … “Retrieve accounts” …" | Missing right on the safe, or reason / ticket required by the platform: type it. With dual control, make the request in the PVWA. |
 | "Verify / Change / Reconcile": "The PVWA refused: … “Initiate CPM account management operations” …" | Ask for this right on the safe; "Safe members" shows your rights. |
 | "Add an account": "The PVWA refused: your account needs the “Add accounts” right…" | Ask for this right on the safe (and "Update account content" to give the password), or create the account without a password. "Safe members" shows your rights. |
 | "Safe members": "Your account cannot see the members of this safe" | The PVWA requires the "View Safe Members" right on the safe: ask a manager of the safe. |
-| "Connection component … is not configured for platform …" | Choose the right component in "Advanced connection", tick "Remember" for the platform. |
-| "You must specify a reason…" | Enter a reason in the window that opens (or a default reason in the server's properties, in "My servers"). |
+| "This connection component is not set up for the platform of the account" (`Connection component … is not configured for platform …`) | Choose the right component in "Advanced options…", tick "Remember" for the platform. |
+| "CyberArk requires a reason for this account" (`You must specify a reason…`) | Enter a reason in the window that opens (or a default reason in the server's properties, in "My servers"). |
+| "CyberArk requires a valid ticket for this account", "This account needs an approved request (dual control)" | Enter the ticketing system and the ticket number; for dual control, request access on the PVWA web page and wait for the approval. |
 | The account does not show up | You lack the "List accounts" permission on its safe, or the list needs reloading (`F5`). |
-| The PSMP password is asked for each tab | MFA caching is not enabled on the PVWA: expected behavior (once per tab). |
+| The PSMP password is asked for each tab | MFA caching is not enabled on the PVWA: expected behavior (once per tab). When opening several sessions together, tick "Also use this password…" to type it only once. |
 | The Files tab shows "SFTP connection failed" | SFTP is not allowed on the PSMP or for this account: ask your CyberArk team. |
 | An upload shows "SFTP (SCP refused)" or "SCP (SFTP refused)" | The PSMP or the server refused that protocol for this file: the other one took over and the file was checked as usual. The summary gives the server's answer. A PSMP that refuses SCP for a platform (error `118E Selected component PSMP-SCP does not contain the target settings definitions…` in its logs) lacks the PSMP-SCP connection component: your CyberArk team can add it to the platform, otherwise uploads go over SFTP. |
 | The browser does not follow `cd` | The remote shell is not bash, zsh or tcsh (or tcsh already has its own `cwdcmd` alias), the option is off in Settings, or the prompt was not recognized: tick "Follow the terminal folder" again at the shell prompt. |
 | "The key of the PSMP has changed" warning | Only continue ("I confirmed this change with the CyberArk team" box, then "Replace the key and connect") if your CyberArk team confirms a server change; otherwise, cancel and alert them. |
 | "Connection cancelled: the server key was not accepted." | The fingerprint window was cancelled or closed: connect again and accept the key after comparing its fingerprint. |
+| "New key of the PSMP, of another type" window | The PSMP presents a key type (ed25519, RSA…) never seen on this computer: compare the fingerprint with the one published by your CyberArk team before ticking the box and accepting it; otherwise, cancel and alert them. |
 | "Wrong master password or key file." | Check the password and the key file; a database protected by a YubiKey is not supported. |
 | The KeePass database asks for the password despite "Remember" | Local vault locked ("Later" when unlocking) or master password changed elsewhere: type it, it is remembered again. |
 | "The local vault file is damaged or was created by another Windows account." | The local vault does not follow a change of computer or account: delete it in the Settings and create it again. |
@@ -994,4 +1094,6 @@ sh or fish, following is not set up and nothing stays on screen.
 | VNC: "The VNC server offers no authentication supported by ZillaTerm…" | The server requires its vendor's own authentication (Windows account, VeNCrypt encryption…): enable "VNC password" authentication on the server. |
 | VNC: "No VNC answer from the server within 30 seconds" | Wrong port (5900 + display number) or a service other than VNC at this address. |
 | FTP: "The FTP server does not offer encryption (TLS), required by this entry" | The server does not accept TLS: use `ftp://` (clear-text connection after confirmation) or SFTP if available. |
+| FTP: "This FTP server no longer offers encryption" warning | The server used to encrypt its connections and no longer does: only continue if its administrator confirms that TLS was removed; otherwise the connection may be intercepted. |
+| Direct remote desktop: "The Remote Desktop server does not accept TLS encryption…" | The server only accepts the old "RDP security", which cannot prove its identity: ask its administrator to enable TLS or NLA. |
 | FTPS: the file list does not show or a transfer times out | A firewall blocks the server's passive ports, or the server requires TLS session reuse on data connections (`522`, for example vsftpd's `require_ssl_reuse`): see the server's administrator. |

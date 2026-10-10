@@ -30,9 +30,6 @@
   <data name="ServerAddressWhat" xml:space="preserve">
     <value>the server address</value>
   </data>
-  <data name="UserNameWhat" xml:space="preserve">
-    <value>the user name</value>
-  </data>
   <data name="CharacterNotAllowed" xml:space="preserve">
     <value>Character not allowed in {0}: “{1}”.</value>
   </data>
@@ -440,5 +437,122 @@
   </data>
   <data name="MigrationColResult" xml:space="preserve">
     <value>Result</value>
+  </data>
+  <data name="AuthenticationRefusedRetry" xml:space="preserve">
+    <value>Refused by the server: wrong password or code. Attempt {0} of {1}: check it (Caps Lock?) before sending, because too many failures can lock the account.</value>
+  </data>
+  <data name="AuthenticationRefusedFinal" xml:space="preserve">
+    <value>Password or code refused {0} times: connection abandoned so that the account is not locked. Check the password, then connect again.</value>
+  </data>
+  <data name="PvwaAddressSuspicious" xml:space="preserve">
+    <value>The PVWA address may only contain the server name, then a port and a path if needed: no “name@” before the server, no space or “\”, no accented letters or letters from another alphabet (an international name is written in its “xn--” form).</value>
+  </data>
+  <data name="PvwaRedirectNotFollowed" xml:space="preserve">
+    <value>The PVWA answered with a redirection (HTTP {0}) to {1}. It is not followed, so that your password and session are never sent to another address: check the PVWA address in the Settings (exact server name and path to PasswordVault).</value>
+  </data>
+  <data name="SpecialFileRefused" xml:space="preserve">
+    <value>“{0}” is a special file (device, named pipe or socket): it can be neither opened nor downloaded, because reading it would never end or would block the server.</value>
+  </data>
+  <data name="MigrationTooDeep" xml:space="preserve">
+    <value>The file nests folders more than {0} levels deep: it is refused as damaged.</value>
+  </data>
+  <data name="FtpTlsRemoved" xml:space="preserve">
+    <value>This FTP server used to encrypt its connections (TLS) and no longer offers it: connection stopped, the password was not sent.</value>
+  </data>
+  <data name="VncPasswordNotSent" xml:space="preserve">
+    <value>Connection cancelled: the VNC password was not sent.</value>
+  </data>
+  <data name="RdpNoTls" xml:space="preserve">
+    <value>The Remote Desktop server does not accept TLS encryption: its identity cannot be checked, the password of the entry is not sent to it.</value>
+  </data>
+  <data name="RdpNotRdp" xml:space="preserve">
+    <value>The server did not answer like a Remote Desktop server: check the address and the port (3389 by default).</value>
+  </data>
+  <data name="RdpNegotiationRefused" xml:space="preserve">
+    <value>The Remote Desktop server refused the connection (code {0}).</value>
+  </data>
+  <data name="RdpProbeTimeout" xml:space="preserve">
+    <value>No answer from the Remote Desktop server within 30 seconds: check the address and the port (3389 by default).</value>
+  </data>
+  <data name="RdpTlsFailed" xml:space="preserve">
+    <value>TLS negotiation with the Remote Desktop server failed: {0}</value>
+  </data>
+  <data name="ErrorWithPvwaMessage" xml:space="preserve">
+    <value>{0} PVWA message: {1}</value>
+  </data>
+  <data name="ErrorWithDetail" xml:space="preserve">
+    <value>{0} Details: {1}</value>
+  </data>
+  <data name="PvwaBadCredentials" xml:space="preserve">
+    <value>The PVWA refused the user name or the password. Check them (and Caps Lock) before trying again: after several failures, CyberArk suspends the account.</value>
+  </data>
+  <data name="PvwaUserSuspended" xml:space="preserve">
+    <value>Your CyberArk account is suspended or disabled (too many failed sign-ins, or by an administrator). Ask the CyberArk team to reactivate it.</value>
+  </data>
+  <data name="PvwaPasswordExpired" xml:space="preserve">
+    <value>Your CyberArk password has expired: change it on the PVWA web page, then sign in here with the new one.</value>
+  </data>
+  <data name="PvwaDualControl" xml:space="preserve">
+    <value>This account needs an approved request (dual control): request access on the PVWA web page and wait for the approval, then try again.</value>
+  </data>
+  <data name="PvwaTicketRequired" xml:space="preserve">
+    <value>CyberArk requires a valid ticket for this account: check the ticketing system and the ticket number (“Ticket” fields), then try again.</value>
+  </data>
+  <data name="PvwaReasonRequired" xml:space="preserve">
+    <value>CyberArk requires a reason for this account: enter it in the “Reason” field, then try again.</value>
+  </data>
+  <data name="PvwaComponentNotConfigured" xml:space="preserve">
+    <value>This connection component is not set up for the platform of the account: choose another one in “Advanced options…” (PSM component).</value>
+  </data>
+  <data name="PvwaAlreadyExists" xml:space="preserve">
+    <value>This account already exists in this safe.</value>
+  </data>
+  <data name="PvwaSessionExpired" xml:space="preserve">
+    <value>Your CyberArk session has expired: sign in again.</value>
+  </data>
+  <data name="PvwaForbidden" xml:space="preserve">
+    <value>CyberArk refused this action: your account does not have the rights it needs on this safe. Ask a manager of the safe (“Safe members…” shows your rights).</value>
+  </data>
+  <data name="PvwaNotFound" xml:space="preserve">
+    <value>Not found in CyberArk (deleted, or your rights were removed): refresh the list (F5).</value>
+  </data>
+  <data name="PvwaServerError" xml:space="preserve">
+    <value>The PVWA ran into an error: try again in a moment. If it persists, give this message to the CyberArk team.</value>
+  </data>
+  <data name="SshAuthenticationRefused" xml:space="preserve">
+    <value>The SSH server refused the authentication. Check the password (and Caps Lock) before trying again; through the PSMP it is your CyberArk password, and several failures suspend your account.</value>
+  </data>
+  <data name="SshNoSshAnswer" xml:space="preserve">
+    <value>The server closed the connection without answering in SSH: check the address and the port, or try again in a moment.</value>
+  </data>
+  <data name="NetworkTimeout" xml:space="preserve">
+    <value>The server did not answer in time: check the address, the port and your network access (VPN, firewall), then try again.</value>
+  </data>
+  <data name="NetworkHostNotFound" xml:space="preserve">
+    <value>Server name not found (DNS): check the address, or your connection to the company network (VPN).</value>
+  </data>
+  <data name="NetworkRefused" xml:space="preserve">
+    <value>The server refuses connections on this port: check the address and the port, and that the service is running there.</value>
+  </data>
+  <data name="NetworkConnectionLost" xml:space="preserve">
+    <value>The connection was cut by the server or the network: reconnect.</value>
+  </data>
+  <data name="FieldMachine" xml:space="preserve">
+    <value>machine {0}</value>
+  </data>
+  <data name="FieldSafe" xml:space="preserve">
+    <value>safe {0}</value>
+  </data>
+  <data name="FieldPlatform" xml:space="preserve">
+    <value>platform {0}</value>
+  </data>
+  <data name="FieldDomain" xml:space="preserve">
+    <value>domain {0}</value>
+  </data>
+  <data name="FieldName" xml:space="preserve">
+    <value>name {0}</value>
+  </data>
+  <data name="AnyMachine" xml:space="preserve">
+    <value>any machine</value>
   </data>
 </root>

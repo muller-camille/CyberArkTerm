@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace ZillaTerm.Core.Migration;
 
@@ -64,10 +63,44 @@ public static class OpenSshConfig
         public bool Matches(string alias) =>
             patterns.Any(p => !p.StartsWith('!') && Glob(p, alias))
             && !patterns.Any(p => p.StartsWith('!') && Glob(p[1..], alias));
+    }
 
-        private static bool Glob(string pattern, string value) =>
-            Regex.IsMatch(value, "^" + Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", ".") + "$",
-                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
+    /// <summary>
+    /// Motif « * » / « ? » d'OpenSSH, sans expression régulière : un motif plein d'étoiles ne peut pas faire
+    /// exploser le temps de calcul (au plus longueur du motif × longueur du nom).
+    /// </summary>
+    internal static bool Glob(string pattern, string value)
+    {
+        int p = 0, v = 0, star = -1, resume = 0;
+        while (v < value.Length)
+        {
+            if (p < pattern.Length && pattern[p] == '*')
+            {
+                star = p++;
+                resume = v;
+            }
+            else if (p < pattern.Length && (pattern[p] == '?' || char.ToUpperInvariant(pattern[p]) == char.ToUpperInvariant(value[v])))
+            {
+                p++;
+                v++;
+            }
+            else if (star >= 0)
+            {
+                p = star + 1;
+                v = ++resume;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        while (p < pattern.Length && pattern[p] == '*')
+        {
+            p++;
+        }
+
+        return p == pattern.Length;
     }
 
     /// <summary>« Host a b », « Port=2222 », « User "jean dupont" » → mot-clé et arguments ; commentaires ignorés.</summary>

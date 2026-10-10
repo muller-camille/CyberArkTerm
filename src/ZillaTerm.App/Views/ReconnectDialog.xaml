@@ -9,7 +9,7 @@
         <Border DockPanel.Dock="Top" Background="{DynamicResource ToolbarBrush}" BorderBrush="{DynamicResource ToolbarBorderBrush}"
                 BorderThickness="0,0,0,1" Padding="16,12">
             <DockPanel>
-                <Image Source="{StaticResource IconKey}" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center" />
+                <Image Source="{DynamicResource IconKey}" Width="36" Height="36" Margin="0,0,12,0" VerticalAlignment="Center" />
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{x:Static loc:Strings.ReconnectTitle}" FontSize="16" FontWeight="SemiBold" />
                     <TextBlock x:Name="WhoText" Foreground="{DynamicResource MutedBrush}" Margin="0,2,0,0" TextTrimming="CharacterEllipsis" />

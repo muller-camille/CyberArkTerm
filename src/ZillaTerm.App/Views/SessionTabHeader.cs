@@ -33,7 +33,8 @@ public sealed class SessionTabHeader : StackPanel
     /// <param name="label">Nom affiché, déjà numéroté s'il existe un autre onglet du même nom.</param>
     /// <param name="mode">Ligne de l'infobulle qui dit par où passe la session.</param>
     /// <param name="hint">Dernière ligne de l'infobulle (ex. : glisser pour détacher), facultative.</param>
-    public SessionTabHeader(string label, ImageSource icon, Button close, string mode, string? hint)
+    /// <param name="icon">Clé de l'icône dans Theme.xaml.</param>
+    public SessionTabHeader(string label, string icon, Button close, string mode, string? hint)
     {
         Label = label;
         _mode = mode;
@@ -48,7 +49,9 @@ public sealed class SessionTabHeader : StackPanel
             VerticalAlignment = VerticalAlignment.Center,
         };
         Children.Add(_dot);
-        Children.Add(new Image { Source = icon, Width = 16, Height = 16, Margin = new Thickness(0, 0, 6, 0) });
+        var image = Palette.Icon(icon, 16);
+        image.Margin = new Thickness(0, 0, 6, 0);
+        Children.Add(image);
         Children.Add(Title);
         Children.Add(close);
         SetState(SessionTabState.Connecting);

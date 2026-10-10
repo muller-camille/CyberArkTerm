@@ -24,7 +24,7 @@ public partial class MainWindow
     private void OpenPsmpFilesTab(PvwaAccount account, PsmpEndpoint psmp, string login, string label, SavedSession? saved,
         Func<Task>? duplicate, ConnectRequest request)
     {
-        var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), PsmpKeyAsync);
+        var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), PsmpKeyAsync, group: _openingGroup);
         var session = new FilesSession(label, "SFTP", connector.OpenFileBrowserAsync, Dispatcher, account, saved)
         {
             Psmp = psmp.Host,
@@ -61,8 +61,26 @@ public partial class MainWindow
                 },
                 TrustCertificate = certificate => Dispatcher.Invoke(() => TrustFtpCertificate(target, certificate)),
                 AllowCleartext = () => cleartextAccepted || (cleartextAccepted = Dispatcher.Invoke(() => ConfirmFtpCleartext(target))),
+                // Serveur déjà vu avec TLS : son retrait est une alerte (confirmée, elle vaut pour la session).
+                TlsSeenBefore = () => Dispatcher.Invoke(() => FtpTlsMemory.Seen(_settings, target.Host, target.Port)),
+                AllowTlsRemoved = () => cleartextAccepted = Dispatcher.Invoke(() => ConfirmFtpTlsRemoved(target)),
             };
-            open = async ct => await FtpFileBrowser.ConnectAsync(connection, ct);
+            open = async ct =>
+            {
+                var browser = await FtpFileBrowser.ConnectAsync(connection, ct);
+                if (browser.IsEncrypted)
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        if (FtpTlsMemory.Remember(_settings, target.Host, target.Port))
+                        {
+                            SaveSettings();
+                        }
+                    });
+                }
+
+                return browser;
+            };
         }
 
         var session = new FilesSession(label, KeePassTarget.Name(target.Protocol), open, Dispatcher);
@@ -88,7 +106,7 @@ public partial class MainWindow
                 return true;
             },
         };
-        view.ShowFilesRequested += () => ShowSideTab(FilesTab);
+        view.ShowFilesRequested += ShowFilesWide;
         var tab = new TabItem { Content = view, Tag = session };
         tab.Header = TabHeader(tab, session.Label, "IconFiles", duplicate);
         session.StateChanged += () =>
@@ -124,6 +142,26 @@ public partial class MainWindow
             return true;
         }
 
+        if (!ConfirmCertificate(Strings.FtpCertificateTitle, Strings.FtpCertVerifyHeading, Strings.FtpCertChangedHeading, target.Address,
+                (certificate.Subject, certificate.Issuer, certificate.NotBefore, certificate.NotAfter, certificate.Sha256, certificate.Problem),
+                status == HostKeyStatus.Unknown ? null : KnownHosts.Known(_settings.KnownHosts, host, target.Port, "X.509")?.Sha256 ?? ""))
+        {
+            return false;
+        }
+
+        KnownHosts.Remember(_settings.KnownHosts, host, target.Port, "X.509", certificate.Sha256);
+        SaveSettings();
+        return true;
+    }
+
+    /// <summary>
+    /// Question sur un certificat que Windows n'approuve pas (FTPS, Bureau à distance) : premier usage, empreinte à
+    /// comparer ; ou changement par rapport à l'empreinte épinglée <paramref name="pinned"/>, alerte qui ne s'accepte
+    /// qu'après avoir coché « J'ai confirmé… ». « Annuler la connexion » par défaut.
+    /// </summary>
+    private bool ConfirmCertificate(string title, string verifyHeading, string changedHeading, string address,
+        (string Subject, string Issuer, DateTime NotBefore, DateTime NotAfter, string Sha256, string Problem) certificate, string? pinned)
+    {
         static string Spaced(string sha256) => string.Join(" ", sha256.Chunk(16).Select(c => new string(c)));
         var culture = System.Globalization.CultureInfo.CurrentCulture;
         IReadOnlyList<string> details =
@@ -132,12 +170,12 @@ public partial class MainWindow
             Text.Format(Strings.FtpCertIssuer, certificate.Issuer),
             Text.Format(Strings.FtpCertValidity, certificate.NotBefore.ToString("d", culture), certificate.NotAfter.ToString("d", culture)),
         ];
-        var request = status == HostKeyStatus.Unknown
+        var request = pinned is null
             ? new ConfirmRequest
             {
-                Title = Strings.FtpCertificateTitle,
-                Heading = Strings.FtpCertVerifyHeading,
-                Subject = target.Address,
+                Title = title,
+                Heading = verifyHeading,
+                Subject = address,
                 Message = Text.Format(Strings.FtpCertUnknownMessage, certificate.Problem),
                 Bullets = details,
                 Codes = [(Strings.FtpCertFingerprint, Spaced(certificate.Sha256))],
@@ -147,15 +185,15 @@ public partial class MainWindow
             }
             : new ConfirmRequest
             {
-                Title = Strings.FtpCertificateTitle,
+                Title = title,
                 Banner = Strings.HostKeyChangedBanner,
-                Heading = Strings.FtpCertChangedHeading,
-                Subject = target.Address,
+                Heading = changedHeading,
+                Subject = address,
                 Message = Text.Format(Strings.FtpCertChangedMessage, certificate.Problem),
                 Bullets = details,
                 Codes =
                 [
-                    (Strings.FtpCertOld, Spaced(KnownHosts.Known(_settings.KnownHosts, host, target.Port)?.Sha256 ?? "")),
+                    (Strings.FtpCertOld, Spaced(pinned)),
                     (Strings.FtpCertNew, Spaced(certificate.Sha256)),
                 ],
                 Kind = ConfirmKind.Danger,
@@ -164,12 +202,33 @@ public partial class MainWindow
                 CancelLabel = Strings.HostKeyCancel,
                 Acknowledge = Strings.HostKeyAckServer,
             };
-        if (!ConfirmDialog.Confirm(this, request))
+        return ConfirmDialog.Confirm(this, request);
+    }
+
+    /// <summary>
+    /// Serveur qui chiffrait ses connexions et ne propose plus TLS : alerte d'interception possible, « Annuler la
+    /// connexion » par défaut, et rien sans avoir coché « J'ai confirmé… ». Confirmé, le retrait est mémorisé.
+    /// </summary>
+    private bool ConfirmFtpTlsRemoved(KeePassTarget target)
+    {
+        if (!ConfirmDialog.Confirm(this, new ConfirmRequest
+            {
+                Title = Strings.FtpCleartextTitle,
+                Banner = Strings.HostKeyChangedBanner,
+                Heading = Strings.FtpTlsRemovedHeading,
+                Subject = target.Address,
+                Message = Strings.FtpTlsRemovedMessage,
+                Kind = ConfirmKind.Danger,
+                Actions = [Strings.FtpCleartextAction],
+                DangerAction = 0,
+                CancelLabel = Strings.HostKeyCancel,
+                Acknowledge = Strings.FtpTlsRemovedAck,
+            }))
         {
             return false;
         }
 
-        KnownHosts.Remember(_settings.KnownHosts, host, target.Port, "X.509", certificate.Sha256);
+        FtpTlsMemory.Forget(_settings, target.Host, target.Port);
         SaveSettings();
         return true;
     }

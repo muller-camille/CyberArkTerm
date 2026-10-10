@@ -127,6 +127,48 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>
+    /// Clé d'hôte d'un type jamais vu pour un PSMP connu : ni l'alerte rouge de clé changée, ni la simple question du
+    /// premier usage ; les clés déjà acceptées sont montrées, et rien ne s'accepte sans cocher « J'ai vérifié… ».
+    /// </summary>
+    [Fact]
+    public void HostKeyOfANewTypeAsksForACheckedFingerprint()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var store = new Dictionary<string, string>();
+            KnownHosts.Remember(store, "psmp.corp.local", 22, "rsa-sha2-512", "RSA1");
+            var status = KnownHosts.Check(store, "psmp.corp.local", 22, "ssh-ed25519", "ED1");
+            Assert.Equal(HostKeyStatus.NewAlgorithm, status);
+
+            var dialog = new ConfirmDialog(Services.SshInteraction.HostKeyQuestion(false, "psmp.corp.local", 22, "ssh-ed25519", "ED1", status,
+                KnownHosts.KnownKeys(store, "psmp.corp.local", 22)));
+            Assert.Equal(Strings.HostKeyNewTypePsmpHeading, dialog.HeadingText.Text);
+            Assert.NotEqual(Visibility.Visible, dialog.Banner.Visibility);
+            Assert.Equal(2, dialog.CodeList.Items.Count);
+            var buttons = dialog.ButtonsPanel.Children.OfType<System.Windows.Controls.Button>().ToList();
+            Assert.Equal([Strings.HostKeyAddKey, Strings.HostKeyCancel], buttons.Select(b => (string)b.Content));
+            Assert.False(buttons[0].IsEnabled);
+            Assert.True(buttons[1].IsDefault);
+            dialog.AcknowledgeBox.IsChecked = true;
+            Assert.True(buttons[0].IsEnabled);
+            dialog.Close();
+
+            KnownHosts.Remember(store, "psmp.corp.local", 22, "ssh-ed25519", "ED1");
+            status = KnownHosts.Check(store, "psmp.corp.local", 22, "ssh-ed25519", "ED2");
+            var changed = new ConfirmDialog(Services.SshInteraction.HostKeyQuestion(true, "srv01.corp.local", 22, "ssh-ed25519", "ED2", status,
+                [KnownHosts.Known(store, "psmp.corp.local", 22, "ssh-ed25519")!.Value]));
+            Assert.Equal(Strings.HostKeyChangedServerHeading, changed.HeadingText.Text);
+            Assert.Equal(Visibility.Visible, changed.Banner.Visibility);
+            changed.Close();
+        });
+    }
+
     /// <summary>Droits de plusieurs fichiers (755 et 644) : seuls les droits changés partent, pas ceux du premier.</summary>
     [Fact]
     public void PermissionsOfMixedItemsOnlyChangeWhatIsTicked()
@@ -327,9 +369,15 @@ public sealed class DialogTests
                 Assert.True(window.ImportButton.IsEnabled);
                 Assert.True(window.Rows[1].CanChoose);
                 Assert.False(window.Rows[2].CanInclude);
+                // Session à vérifier : pas cochée d'office ; le bouton compte les sessions qui seront ajoutées.
+                Assert.False(window.Rows[1].Include);
+                Assert.EndsWith("(1)", (string)window.ImportButton.Content);
+                Assert.False(((System.Windows.Controls.CheckBox)window.IncludeColumn.Header).IsChecked);
 
                 // Même compte que la première session, dans le même dossier : ajouté une seule fois.
                 window.Rows[1].Chosen = window.Rows[1].Candidates.Single(c => c.Account.Id == "1");
+                Assert.True(window.Rows[1].Include);
+                Assert.EndsWith("(2)", (string)window.ImportButton.Content);
                 window.FolderBox.Text = "Migration";
                 window.OnImport(window, new RoutedEventArgs());
 
@@ -472,6 +520,36 @@ public sealed class DialogTests
         Assert.Equal(Strings.NameReserved, FileBrowserPanel.ValidateName("."));
     }
 
+    /// <summary>
+    /// F5 dans l'onglet Fichiers, hors de la liste aussi (chemin, filtre) : relit le dossier, sans atteindre le F5 de la
+    /// fenêtre principale qui recharge les comptes du PVWA.
+    /// </summary>
+    [Fact]
+    public void F5InTheFilesTabRefreshesTheFolderNotTheAccounts()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var panel = new FileBrowserPanel();
+            int reloads = 0;
+            var window = new Window { Content = panel };
+            window.CommandBindings.Add(new System.Windows.Input.CommandBinding(System.Windows.Input.NavigationCommands.Refresh, (_, _) => reloads++));
+
+            System.Windows.Input.NavigationCommands.Refresh.Execute(null, panel.PathBox);
+            System.Windows.Input.NavigationCommands.Refresh.Execute(null, panel.FilterBox);
+            System.Windows.Input.NavigationCommands.Refresh.Execute(null, panel.FileList);
+
+            Assert.Equal(0, reloads);
+            Assert.Contains(panel.InputBindings.OfType<System.Windows.Input.KeyBinding>(),
+                b => b.Key == System.Windows.Input.Key.F5 && b.Command == System.Windows.Input.NavigationCommands.Refresh);
+            window.Close();
+        });
+    }
+
     /// <summary>Onglet Fichiers : tri par colonne (« .. » et dossiers en tête), flèche dans l'en-tête, réglage enregistré.</summary>
     [Fact]
     public void FileListSortsByTheClickedColumn()
@@ -534,6 +612,114 @@ public sealed class DialogTests
             Assert.Equal(["..", "app", "a.log"], panel.FileList.Items.Cast<RemoteEntry>().Select(e => e.Name));
             panel.FilterBox.Text = "";
             Assert.Equal(5, panel.FileList.Items.Count);
+        });
+    }
+
+    /// <summary>
+    /// Panneau à sa largeur par défaut : les colonnes sans la place sont masquées et « +n » le signale (noms dans
+    /// l'infobulle) ; le menu de l'en-tête choisit les colonnes (gardé dans les réglages) et propose d'élargir le panneau.
+    /// </summary>
+    [Fact]
+    public void HiddenFileColumnsAreSignalledAndCanBeChosen()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var settings = new AppSettings();
+            int saved = 0;
+            var panel = new FileBrowserPanel();
+            panel.Initialize(settings, () => saved++, new TransferHistory());
+            void Layout(double width)
+            {
+                panel.Measure(new Size(width, 600));
+                panel.Arrange(new Rect(0, 0, width, 600));
+                panel.UpdateLayout();
+            }
+
+            Layout(400);
+            double available = panel.FileList.ActualWidth - SystemParameters.VerticalScrollBarWidth - 8;
+            Assert.Equal(400, panel.FileList.ActualWidth);
+            Assert.Equal((76.0, 112.0), (panel.SizeColumn.Width, panel.ModifiedColumn.Width));
+            Assert.Equal((0.0, 0.0, 0.0), (panel.PermissionsColumn.Width, panel.OwnerColumn.Width, panel.GroupColumn.Width));
+            Assert.Equal("+3", panel.MoreColumnText.Text);
+            Assert.True(panel.MoreColumn.Width > 0);
+            Assert.Equal(Text.Format(Strings.FilesColumnsHiddenTip, string.Join(", ", Strings.ColumnPermissions, Strings.ColumnOwner, Strings.ColumnGroup)),
+                panel.MoreColumnText.ToolTip);
+            Assert.Equal(available - 76 - 112 - panel.MoreColumn.Width, panel.NameColumn.Width, 3);
+
+            // Menu de l'en-tête : une case par colonne ; une colonne cochée sans la place est signalée.
+            var menu = (System.Windows.Controls.ContextMenu)panel.FindResource("ColumnsMenu");
+            menu.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.ContextMenu.OpenedEvent, menu));
+            var items = menu.Items.OfType<System.Windows.Controls.MenuItem>().ToList();
+            Assert.Equal([Strings.ColumnSize, Strings.ColumnModified, Strings.ColumnPermissions, Strings.ColumnOwner, Strings.ColumnGroup],
+                items.Select(i => (string)i.Header));
+            Assert.All(items, i => Assert.True(i.IsChecked));
+            Assert.Equal(["", "", Strings.FilesColumnNoRoom, Strings.FilesColumnNoRoom, Strings.FilesColumnNoRoom], items.Select(i => i.InputGestureText));
+
+            // Taille et Modifié décochées : Droits et Propriétaire prennent leur place, Groupe reste signalé.
+            items[0].IsChecked = false;
+            items[0].RaiseEvent(new RoutedEventArgs(System.Windows.Controls.MenuItem.ClickEvent));
+            panel.ShowColumn(ZillaTerm.Core.Ssh.RemoteSortColumn.Modified, show: false);
+            Assert.Equal([ZillaTerm.Core.Ssh.RemoteSortColumn.Size, ZillaTerm.Core.Ssh.RemoteSortColumn.Modified], settings.HiddenFileColumns);
+            Assert.Equal(2, saved);
+            Assert.Equal((0.0, 0.0, 84.0, 90.0, 0.0), (panel.SizeColumn.Width, panel.ModifiedColumn.Width, panel.PermissionsColumn.Width,
+                panel.OwnerColumn.Width, panel.GroupColumn.Width));
+            Assert.Equal("+1", panel.MoreColumnText.Text);
+            Assert.Equal(Strings.FilesColumnNoRoom, items[4].InputGestureText);
+
+            // « Élargir le panneau » : ce qu'il manque pour Droits, Propriétaire et Groupe avec la largeur minimale du nom.
+            double asked = 0;
+            panel.WidenRequested += extra => asked = extra;
+            menu.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.ContextMenu.OpenedEvent, menu));
+            var widen = menu.Items.OfType<System.Windows.Controls.MenuItem>().Single(i => Equals(i.Header, Strings.FilesColumnsWiden));
+            Assert.True(widen.IsEnabled);
+            widen.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.MenuItem.ClickEvent));
+            Assert.Equal(Math.Ceiling(130 + 84 + 90 + 90 - available), asked);
+
+            // Toutes les colonnes réaffichées, plus rien de masqué faute de place dans un panneau assez large.
+            panel.ShowColumn(ZillaTerm.Core.Ssh.RemoteSortColumn.Size, show: true);
+            panel.ShowColumn(ZillaTerm.Core.Ssh.RemoteSortColumn.Modified, show: true);
+            Layout(800);
+            Assert.Empty(settings.HiddenFileColumns);
+            Assert.Equal((84.0, 90.0, 90.0, 0.0), (panel.PermissionsColumn.Width, panel.OwnerColumn.Width, panel.GroupColumn.Width, panel.MoreColumn.Width));
+            Assert.Equal(0, panel.MissingWidth);
+        });
+    }
+
+    /// <summary>
+    /// Opération longue sur un serveur : les actions sont refusées sur ce serveur seulement, et la barre d'état le dit ;
+    /// les autres serveurs restent utilisables.
+    /// </summary>
+    [Fact]
+    public void BusyServerDoesNotBlockTheOthers()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var panel = new FileBrowserPanel();
+            var first = new FakeFiles("/root", []);
+            var second = new FakeFiles("/root", []);
+
+            panel.BeginBusy(first);
+            Assert.False(panel.RefuseIfBusy(second));
+            Assert.Equal("", panel.StatusText.Text);
+            Assert.True(panel.RefuseIfBusy(first));
+            Assert.Equal(Strings.FilesBusy, panel.StatusText.Text);
+
+            // Deux opérations sur le même serveur : il reste occupé jusqu'à la fin de la seconde.
+            panel.BeginBusy(first);
+            panel.EndBusy(first);
+            Assert.True(panel.RefuseIfBusy(first));
+            panel.EndBusy(first);
+            Assert.False(panel.RefuseIfBusy(first));
         });
     }
 
@@ -609,6 +795,12 @@ public sealed class DialogTests
             var dialog = new TransferHistoryDialog(history, () => saved++);
 
             Assert.Equal(8, dialog.RecordsGrid.Columns.Count);
+            // Colonne « Sens » assez large pour ses deux textes, dans la langue affichée.
+            double Width(string text) => new System.Windows.Media.FormattedText(text, System.Globalization.CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight, new System.Windows.Media.Typeface(dialog.RecordsGrid.FontFamily, dialog.RecordsGrid.FontStyle,
+                    FontWeights.SemiBold, dialog.RecordsGrid.FontStretch), dialog.RecordsGrid.FontSize, System.Windows.Media.Brushes.Black, 1)
+                .WidthIncludingTrailingWhitespace;
+            Assert.True(dialog.RecordsGrid.Columns[1].MinWidth > Math.Max(Width(Strings.ChecksUploaded), Width(Strings.ChecksDownloaded)));
             Assert.Contains(dialog.RecordsGrid.Columns, c => Equals(c.Header, Strings.HistoryColProtocol));
             Assert.Equal(2, ((IEnumerable<TransferRecord>)dialog.RecordsGrid.ItemsSource).Count());
             dialog.FilterBox.SelectedIndex = 2;
@@ -623,7 +815,29 @@ public sealed class DialogTests
             Assert.False(TransferHistoryDialog.HasProblem(download));
             Assert.NotNull(dialog.RecordsGrid.RowStyle);
             Assert.Equal(0, saved);
+
+            // Échecs et non vérifiés seulement : l'envoi en échec et le téléchargement non relu, pas celui vérifié.
+            history.Add(new TransferRecord
+            {
+                Upload = false, Label = "big.iso", Destination = Path.GetTempPath(), State = TransferState.Done, FileCount = 1,
+                Files = [new TransferCheck("big.iso", @"C:\Temp\big.iso", "/srv/big.iso", -1, [], 3, [.. hash], "fichier verrouillé")],
+            });
+            dialog.FilterBox.SelectedIndex = TransferHistoryDialog.ProblemsFilter;
+            Assert.Equal(["big.iso", "deploy/"], ((IEnumerable<TransferRecord>)dialog.RecordsGrid.ItemsSource).Select(r => r.Label));
+            dialog.FilterBox.SelectedIndex = 1;
             dialog.Close();
+
+            // Ouvert pour un échec signalé : directement sur ce filtre. Rien qui corresponde : c'est dit.
+            var problems = new TransferHistoryDialog(history, () => saved++, problemsOnly: true);
+            Assert.Equal(TransferHistoryDialog.ProblemsFilter, problems.FilterBox.SelectedIndex);
+            Assert.Equal(2, ((IEnumerable<TransferRecord>)problems.RecordsGrid.ItemsSource).Count());
+            problems.Close();
+            var clean = new TransferHistory();
+            clean.Add(history.Records[^1]);
+            var none = new TransferHistoryDialog(clean, () => saved++, problemsOnly: true);
+            Assert.Empty((IEnumerable<TransferRecord>)none.RecordsGrid.ItemsSource);
+            Assert.Equal((Strings.HistoryNoMatch, Visibility.Visible), (none.EmptyText.Text, none.EmptyText.Visibility));
+            none.Close();
         });
     }
 
@@ -843,6 +1057,83 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>
+    /// Session fermée : le lien de suivi ne la retient plus (ni son terminal et son historique) ; les lignes reçues
+    /// restent, avec le nom du serveur.
+    /// </summary>
+    [Fact]
+    public void TailLinkReleasesAClosedSession()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            SynchronizationContext.SetSynchronizationContext(null);
+            var (session, _) = NewSshView("root@srv01");
+            var link = new SessionTailLink(session, dedicated: false, shared: null);
+            var window = new TailWindow(new AppSettings(), () => { });
+            var feed = window.AddFeed(link, "/var/log/app.log");
+            Assert.Same(link, window.LinkFor(session));
+            Assert.Same(session, link.Session);
+
+            window.EndSession(session);
+
+            Assert.Null(link.Session);
+            Assert.Null(window.LinkFor(session));
+            Assert.True(feed.Stopped);
+            Assert.Equal(("root@srv01", "root@srv01 app.log"), (link.Server, feed.Label));
+            Assert.False(link.CheckConnected());
+            Assert.False(link.CanReconnect);
+            Assert.Contains(Strings.TailSessionClosedMarker, window.Shown);
+            window.Close();
+            session.Dispose();
+        });
+    }
+
+    /// <summary>
+    /// Dossier envoyé avec un lien vers un dossier : le lien, non suivi, est signalé à part dans le bilan, le détail et
+    /// l'historique, sans compter comme un fichier non vérifié.
+    /// </summary>
+    [Fact]
+    public void SkippedLinksAreReportedApart()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            SynchronizationContext.SetSynchronizationContext(null);
+            var hash = System.Security.Cryptography.SHA256.HashData("<h1>ok</h1>"u8);
+            var sent = new TransferCheck("index.html", @"C:\site\index.html", "/srv/site/index.html", 11, hash, 11, [.. hash]) { Upload = true };
+            var link = new TransferCheck("loop", @"C:\site\loop", "/srv/site/loop", -1, [], -1, [], @"C:\site") { Upload = true, Skipped = true };
+            var panel = new FileBrowserPanel();
+            var item = new TransferItem(true, "site/", "/srv", (i, _) =>
+            {
+                i.Checks.Add(sent);
+                i.Checks.Add(link);
+                return Task.CompletedTask;
+            }) { Protocol = "SFTP", FileCount = 1 };
+
+            panel.Queue.Enqueue(item);
+
+            Assert.Equal(Text.Format(Strings.QueueStateVerified, 1, 1), TransferStatusConverter.StateText(item));
+            Assert.Equal("Ok", TransferStatusConverter.Outcome(item));
+            Assert.Contains(Text.Format(Strings.TransferLinksSkipped, 1), panel.StatusText.Text);
+            Assert.DoesNotContain(Text.Format(Strings.TransferNotVerified, 1), panel.StatusText.Text);
+            Assert.Equal(Text.Format(Strings.ChecksAllOk, 1) + Environment.NewLine + Text.Format(Strings.ChecksSomeSkipped, 1),
+                TransferChecksDialog.Heading([sent, link]));
+            Assert.Equal(Text.Format(Strings.ChecksSkipped, @"C:\site"), TransferChecksDialog.Result(link));
+            var record = Assert.Single(panel.History.Records);
+            Assert.Equal(Text.Format(Strings.QueueStateVerified, 1, 1), TransferHistoryDialog.Result(record));
+            Assert.False(TransferHistoryDialog.NeedsReview(record));
+        });
+    }
+
     /// <summary>Couleur du niveau, mots surlignés et préfixe du fichier dans le texte affiché d'une ligne.</summary>
     [Fact]
     public void TailLinesAreColoured()
@@ -854,7 +1145,7 @@ public sealed class DialogTests
 
         RunWithTheme(() =>
         {
-            var feed = new TailFeed(new MemoryLink("root@srv01"), "/var/log/app.log", TailBrushes.Source(0));
+            var feed = new TailFeed(new MemoryLink("root@srv01"), "/var/log/app.log", 0);
             var style = new TailStyle(["db01"], null, Colors: true, Prefixes: true, Wrap: false);
             var block = new System.Windows.Controls.TextBlock();
             TailRowText.SetRow(block, new TailRow(new TailLine("12:00 ERROR db01 down", feed, TailLevel.Error, false), TailShownKind.Line, style));
@@ -890,18 +1181,24 @@ public sealed class DialogTests
             var settings = new AppSettings();
             ZillaTerm.Core.Ssh.KnownHosts.Remember(settings.KnownHosts, "psmp.corp.local", 22, "ssh-ed25519", "AAAA");
             ZillaTerm.Core.Ssh.KnownHosts.Remember(settings.KnownHosts, "ftp.corp.local", 990, "X.509", "BBBB");
+            // Deuxième clé du PSMP, d'un autre type : une ligne de plus pour le même serveur.
+            ZillaTerm.Core.Ssh.KnownHosts.Remember(settings.KnownHosts, "psmp.corp.local", 22, "rsa-sha2-512", "CCCC");
             var dialog = new SettingsDialog(settings);
-            Assert.Equal(2, dialog.HostKeyRows.Count);
-            Assert.Contains(new SettingsDialog.HostKeyRow("psmp.corp.local:22", "ssh-ed25519", "SHA256:AAAA"), dialog.HostKeyRows);
+            Assert.Equal(3, dialog.HostKeyRows.Count);
+            Assert.Contains(new SettingsDialog.HostKeyRow("psmp.corp.local:22", "ssh-ed25519", "SHA256:AAAA", "psmp.corp.local:22"), dialog.HostKeyRows);
+            Assert.Contains(new SettingsDialog.HostKeyRow("psmp.corp.local:22", "rsa-sha2-512", "SHA256:CCCC", "psmp.corp.local:22 ssh-rsa"),
+                dialog.HostKeyRows);
             Assert.False(dialog.ForgetKeysButton.IsEnabled);
 
             dialog.HostKeysGrid.SelectedItems.Add(dialog.HostKeyRows.Single(r => r.Server == "ftp.corp.local:990"));
+            dialog.HostKeysGrid.SelectedItems.Add(dialog.HostKeyRows.Single(r => r.Algorithm == "rsa-sha2-512"));
             dialog.ForgetSelectedKeys();
             Assert.Equal(["psmp.corp.local:22"], dialog.HostKeyRows.Select(r => r.Server));
-            Assert.Equal(2, settings.KnownHosts.Count);
+            Assert.Equal(3, settings.KnownHosts.Count);
 
             dialog.ApplyForgottenKeys();
             Assert.Equal(["psmp.corp.local:22"], settings.KnownHosts.Keys);
+            Assert.Equal("ssh-ed25519 SHA256:AAAA", settings.KnownHosts["psmp.corp.local:22"]);
             dialog.Close();
         });
     }
@@ -1107,6 +1404,32 @@ public sealed class DialogTests
             restricted.MachineBox.Text = "";
             Assert.False(restricted.Accept());
             restricted.Close();
+        });
+    }
+
+    /// <summary>
+    /// « Options avancées » : les deux champs du ticket ont chacun un nom pour les lecteurs d'écran, et la colonne des
+    /// étiquettes suit la longueur des textes (italien) au lieu d'une largeur fixe.
+    /// </summary>
+    [Fact]
+    public void AdvancedOptionsNameTheTicketFieldsAndFitTheLabels()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var account = new PvwaAccount { Id = "5_3", UserName = "admin", Address = "srv01.corp.local", PlatformId = "WinServerLocal" };
+            var dialog = new ConnectDialog(account, new ConnectRequest(ConnectMode.Psm, "PSM-RDP"), new AppSettings(), "jdoe", null);
+            Assert.Equal(Strings.TicketSystemTip, System.Windows.Automation.AutomationProperties.GetName(dialog.TicketSystemBox));
+            Assert.Equal(Strings.TicketIdTip, System.Windows.Automation.AutomationProperties.GetName(dialog.TicketIdBox));
+            var fields = Assert.IsType<System.Windows.Controls.Grid>(dialog.ComponentBox.Parent);
+            Assert.Equal(GridUnitType.Auto, fields.ColumnDefinitions[0].Width.GridUnitType);
+            Assert.Same(fields, dialog.RememberBox.Parent);
+            Assert.Equal(1, System.Windows.Controls.Grid.GetColumn(dialog.RememberBox));
+            dialog.Close();
         });
     }
 
@@ -1545,7 +1868,8 @@ public sealed class DialogTests
 
     /// <summary>
     /// Fenêtre principale avant le chargement des comptes : connexions récentes grisées, liste partagée lue en
-    /// arrière-plan et affichée avant « Mes serveurs », boutons d'import et d'export dans l'onglet.
+    /// arrière-plan et affichée avant « Mes serveurs », menus « Importer » et « Partager » dans l'onglet, aucun serveur
+    /// signalé introuvable tant que les comptes ne sont pas chargés.
     /// </summary>
     [Fact]
     public void MainWindowShowsSharedListsAndWaitsForTheAccounts()
@@ -1575,8 +1899,14 @@ public sealed class DialogTests
                 Assert.False(window.RecentList.IsEnabled);
                 Assert.Equal("root@web01", Assert.Single(Assert.IsAssignableFrom<IEnumerable<RecentSession>>(window.RecentList.ItemsSource)).Label);
                 Assert.Equal(Visibility.Visible, window.RecentLoadingText.Visibility);
-                Assert.Equal(Visibility.Visible, window.ImportServersButton.Visibility);
-                Assert.Equal(Visibility.Visible, window.SharedListsButton.Visibility);
+                Assert.Equal(Visibility.Visible, window.ImportMenuButton.Visibility);
+                Assert.Equal(Visibility.Visible, window.ShareMenuButton.Visibility);
+                Assert.Equal(Visibility.Collapsed, window.AddKeePassButton.Visibility);
+                // Imports distingués par leur libellé : fichier ZillaTerm, autre logiciel, liste partagée, base KeePass.
+                Assert.Equal([Strings.MenuImportServerFile, Strings.MenuImportOtherTool, Strings.MenuOpenSharedList, Strings.MenuKeePassAdd],
+                    window.ImportMenuButton.ContextMenu.Items.OfType<System.Windows.Controls.MenuItem>().Select(i => (string)i.Header));
+                Assert.Equal([Strings.MenuExportMyServers, Strings.MenuCreateSharedList],
+                    window.ShareMenuButton.ContextMenu.Items.OfType<System.Windows.Controls.MenuItem>().Select(i => (string)i.Header));
 
                 PumpUntil(() => window.SavedTree.ItemsSource is IEnumerable<object> items && items.OfType<SharedListNode>().Any(n => n.IsReadable));
                 var nodes = ((IEnumerable<object>)window.SavedTree.ItemsSource).ToList();
@@ -1584,7 +1914,9 @@ public sealed class DialogTests
                 Assert.Equal(("Équipe", " (2)"), (shared.Name, shared.StateText));
                 Assert.Equal("Prod", Assert.IsType<SharedFolderNode>(shared.Children[0]).Name);
                 var db = Assert.IsType<SharedServerNode>(shared.Children[1]);
-                Assert.Equal(("db01", 0.5), (db.Title, db.Opacity));
+                Assert.Equal("db01", db.Title);
+                Assert.False(db.IsMissing);
+                Assert.DoesNotContain(Strings.MissingInCyberArk, db.ToString());
                 Assert.Contains("alice", db.Details);
                 Assert.Equal("root@app01", Assert.IsType<SavedSessionNode>(nodes[1]).Title);
                 window.StopWatchingSharedLists();
@@ -1672,7 +2004,7 @@ public sealed class DialogTests
         public Task<List<RemoteEntry>> BrowseAsync(string directory, bool showHidden, CancellationToken ct) => Task.FromResult(entries.ToList());
         public Task DeleteAsync(RemoteEntry entry, CancellationToken ct) => throw new NotSupportedException();
         public Task CreateDirectoryAsync(string path, CancellationToken ct) => throw new NotSupportedException();
-        public Task RenameAsync(string path, string newPath, CancellationToken ct) => throw new NotSupportedException();
+        public Task RenameAsync(RemoteEntry entry, string newPath, CancellationToken ct) => throw new NotSupportedException();
         public Task<bool> ExistsAsync(string path, CancellationToken ct) => Task.FromResult(true);
         public Task UploadAsync(string localPath, string remoteDirectory, TransferProtocol protocol, ICollection<TransferCheck> checks,
             IProgress<TransferProgress>? progress, bool background, CancellationToken ct) => throw new NotSupportedException();
@@ -1851,6 +2183,85 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>
+    /// Taille de police des Paramètres : appliquée aux terminaux affichés, et à ceux des onglets en arrière-plan quand ils
+    /// réapparaissent ; la taille choisie pour un terminal (Ctrl+molette) reste si seule la palette change.
+    /// </summary>
+    [Fact]
+    public void TerminalFontSizeFromTheSettingsReachesHiddenTerminals()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var (shown, shownView) = NewSshView("root@srv01");
+            var (hidden, hiddenView) = NewSshView("root@srv02");
+            var window = new Window { Width = 800, Height = 500, ShowInTaskbar = false, ShowActivated = false, Content = shownView };
+            window.Show();
+            PumpUntil(() => shownView.Terminal.IsLoaded);
+            try
+            {
+                ZillaTerm.App.Terminal.TerminalAppearance.Apply(null, 18, rightClickPastes: false);
+                Assert.Equal(18.0, shownView.Terminal.TerminalFontSize);
+                Assert.Equal(14.0, hiddenView.Terminal.TerminalFontSize); // onglet en arrière-plan : pas chargé
+
+                window.Content = hiddenView;
+                PumpUntil(() => hiddenView.Terminal.IsLoaded);
+                Assert.Equal(18.0, hiddenView.Terminal.TerminalFontSize);
+
+                hiddenView.Terminal.SetFontSize(22);
+                ZillaTerm.App.Terminal.TerminalAppearance.Apply("one-half-dark", 18, rightClickPastes: false);
+                Assert.Equal(22.0, hiddenView.Terminal.TerminalFontSize);
+                Assert.Same(ZillaTerm.Core.Terminal.TerminalTheme.OneHalfDark, hiddenView.Terminal.Theme);
+            }
+            finally
+            {
+                ZillaTerm.App.Terminal.TerminalAppearance.Apply(null, 14, rightClickPastes: false);
+                window.Close();
+                shown.Dispose();
+                hidden.Dispose();
+            }
+        });
+    }
+
+    /// <summary>Caractères larges, hors BMP et combinants : dessinés sans erreur (sélection comprise), copiés tels quels.</summary>
+    [Fact]
+    public void TerminalDrawsAndCopiesWideAndCombinedCharacters()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var (session, view) = NewSshView("root@srv01");
+            var window = new Window { Width = 800, Height = 500, ShowInTaskbar = false, ShowActivated = false, Content = view };
+            window.Show();
+            PumpUntil(() => view.Terminal.IsLoaded);
+            try
+            {
+                session.Emulator.Feed("\x1b[2J\x1b[H日本語 e\u0301 😀 \U000F0001 ok\r\n[root@srv01 ~]# ");
+                view.Terminal.Focus();
+                var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(800, 500, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+                bitmap.Render(view.Terminal);
+
+                view.Terminal.BuildMenu(atCursor: false)!.Items.OfType<System.Windows.Controls.MenuItem>()
+                    .Single(i => i.Header as string == Strings.MenuTerminalSelectAll).RaiseEvent(new RoutedEventArgs(System.Windows.Controls.MenuItem.ClickEvent));
+                Assert.Equal("日本語 e\u0301 😀 \U000F0001 ok\n[root@srv01 ~]#", view.Terminal.SelectedText);
+                bitmap.Render(view.Terminal);
+            }
+            finally
+            {
+                window.Close();
+                session.Dispose();
+            }
+        });
+    }
+
     /// <summary>Menu du clic droit dans le terminal : actions selon l'état, effacer l'historique, actions de la session.</summary>
     [Fact]
     public void TerminalMenuOffersTheTerminalAndSessionActions()
@@ -1899,7 +2310,7 @@ public sealed class DialogTests
     {
         public bool CheckHostKey(string host, int port, string algorithm, string sha256Fingerprint) => false;
 
-        public string? Prompt(string instruction, string prompt, bool echo) => null;
+        public ZillaTerm.Core.Ssh.SshAnswer? Prompt(ZillaTerm.Core.Ssh.SshQuestion question) => null;
     }
 
     private sealed class MemoryFile : ITailSource
@@ -1952,6 +2363,62 @@ public sealed class DialogTests
         public ITailSource Source(string path) => _files[path];
 
         public void Dispose() => Disposed = true;
+    }
+
+    /// <summary>
+    /// Thème sombre : les fenêtres s'ouvrent avec ses modèles (listes déroulantes, onglets, tableaux, cases), le choix
+    /// est relu des réglages, et les icônes foncées sont éclaircies (écran de terminal cerné d'un trait clair).
+    /// </summary>
+    [Fact]
+    public void DarkThemeDrawsWindowsWithItsTemplates()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var merged = Application.Current.Resources.MergedDictionaries;
+            var dark = Palette.Dark(merged.ToList());
+            merged.Add(dark);
+            try
+            {
+                var dialog = new SettingsDialog(new AppSettings { Theme = AppTheme.Dark }) { ShowInTaskbar = false, ShowActivated = false };
+                dialog.Show();
+                PumpUntil(() => dialog.IsLoaded);
+                Assert.Equal(AppTheme.Dark, dialog.AppThemeBox.SelectedValue);
+                Assert.Same(dark["ComboTemplate"], dialog.LanguageBox.Template);
+                foreach (var page in dialog.Pages.Items.OfType<System.Windows.Controls.TabItem>())
+                {
+                    dialog.Pages.SelectedItem = page;
+                    dialog.UpdateLayout();
+                }
+
+                dialog.Close();
+
+                static IEnumerable<System.Windows.Media.GeometryDrawing> Shapes(System.Windows.Media.Drawing drawing) => drawing switch
+                {
+                    System.Windows.Media.DrawingGroup group => group.Children.SelectMany(Shapes),
+                    System.Windows.Media.GeometryDrawing shape => [shape],
+                    _ => [],
+                };
+
+                static System.Windows.Media.Color? Fill(System.Windows.Media.GeometryDrawing shape) =>
+                    (shape.Brush as System.Windows.Media.SolidColorBrush)?.Color;
+
+                var gear = Shapes(((System.Windows.Media.DrawingImage)dark["IconSettings"]).Drawing).ToList();
+                Assert.Contains(System.Windows.Media.Color.FromRgb(0xAE, 0xB8, 0xC2), gear.Select(Fill));
+                var screen = Shapes(((System.Windows.Media.DrawingImage)dark["IconSsh"]).Drawing).First();
+                Assert.NotNull(screen.Pen);
+                // Pastilles des dialogues : inchangées.
+                Assert.False(dark.Contains("IconWarning"));
+            }
+            finally
+            {
+                merged.Remove(dark);
+            }
+        });
     }
 
     /// <summary>

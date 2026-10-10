@@ -111,7 +111,7 @@ peut pas le télécharger lui-même) ; vos réglages sont repris au premier dém
 
 ## Prise en main
 
-1. **Se connecter** : adresse du PVWA (`pvwa.mondomaine.local` suffit), méthode d'authentification, utilisateur et mot
+1. **S'identifier** : adresse du PVWA (`pvwa.mondomaine.local` suffit), méthode d'authentification, utilisateur et mot
    de passe. L'adresse, la méthode et l'utilisateur sont mémorisés ; le mot de passe jamais. Pour reprendre la
    configuration de votre équipe : « Importer un environnement… » sur le même écran, ou un fichier `ZillaTerm.env.json`
    posé à côté de l'exécutable.
@@ -223,11 +223,11 @@ autonome en artefact `ZillaTerm-win-x64` pour chaque pull request et chaque push
 
 ### Publier une version
 
-Depuis GitHub : **Actions → release → Run workflow** sur `main`, en indiquant le numéro `X.Y.Z` ; ou bien
-poussez un tag `vX.Y.Z` sur `main`. Le workflow [`release.yml`](.github/workflows/release.yml) exécute les
-tests, compile l'exécutable avec ce numéro de version, crée le tag s'il n'existe pas et publie la *Release*
-GitHub avec le zip et `SHA256SUMS.txt`. Les notes de version sont lues dans `docs/releases/vX.Y.Z.md` si ce
-fichier existe.
+Depuis GitHub : **Actions → release → Run workflow** sur `main`, en indiquant le numéro `X.Y.Z`. Le workflow
+[`release.yml`](.github/workflows/release.yml) exécute les tests, compile l'exécutable avec ce numéro de version
+(avec un jeton en lecture seule), puis un second job, qui ne compile rien, crée le tag s'il n'existe pas et publie la
+*Release* GitHub avec le zip et `SHA256SUMS.txt`. Les notes de version sont lues dans `docs/releases/vX.Y.Z.md` si
+ce fichier existe. « Vérifier sans publier » fait toute la chaîne sans rien publier, depuis n'importe quelle branche.
 
 ## Limites et pistes
 

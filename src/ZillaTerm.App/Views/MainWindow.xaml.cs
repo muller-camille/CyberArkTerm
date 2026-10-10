@@ -15,6 +15,7 @@ using ZillaTerm.Core;
 using ZillaTerm.Core.Diagnostics;
 using ZillaTerm.Core.Localization;
 using ZillaTerm.Core.Rdp;
+using ZillaTerm.Core.Ssh;
 using Microsoft.Win32;
 
 namespace ZillaTerm.App.Views;
@@ -75,6 +76,14 @@ public partial class MainWindow : Window
         _keePass = keePass;
         Title = client is null ? Strings.EmergencyTitle : $"ZillaTerm — {client.BaseUri.Host}";
         SessionText.Text = client is null ? Strings.EmergencySession : $"{sessionUser} @ {client.BaseUri.Host}";
+        if (client is null)
+        {
+            // Accès d'urgence : pas de session CyberArk à fermer, le bouton ramène à l'identification.
+            LogoutLabel.Text = Strings.ToolLeaveEmergency;
+            LogoutButton.ToolTip = Strings.ToolLeaveEmergencyTip;
+            System.Windows.Automation.AutomationProperties.SetName(LogoutButton, Strings.ToolLeaveEmergency);
+        }
+
         UpdateDebugLogIndicator();
 
         _searchDebounce = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
@@ -117,6 +126,7 @@ public partial class MainWindow : Window
         FilesPanel.OpenSessions = () => MainTabs.Items.OfType<TabItem>().Select(t => t.Tag).OfType<RemoteSession>().ToList();
         FilesPanel.ShowTerminalRequested += ShowTerminal;
         FilesPanel.TransfersChanged += UpdateFilesBadge;
+        FilesPanel.WidenRequested += WidenSidePanel;
         if (IsOffline)
         {
             // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de « Mes serveurs ».
@@ -124,8 +134,9 @@ public partial class MainWindow : Window
             QuickPanel.Visibility = HomeLists.Visibility = NewFolderButton.Visibility = Visibility.Collapsed;
             // Boutons propres à CyberArk masqués plutôt que grisés : ils ne serviraient jamais dans ce mode.
             SshButton.Visibility = AdvancedButton.Visibility = AddCurrentButton.Visibility = RefreshButton.Visibility = Visibility.Collapsed;
-            ImportServersButton.Visibility = ExportServersButton.Visibility = ImportSessionsButton.Visibility = Visibility.Collapsed;
-            SharedListsButton.Visibility = SharedSeparator.Visibility = Visibility.Collapsed;
+            // Menus « Importer » et « Partager » de « Mes serveurs » aussi ; la base KeePass s'ajoute alors par son bouton.
+            ImportMenuButton.Visibility = ShareMenuButton.Visibility = SharedSeparator.Visibility = Visibility.Collapsed;
+            AddKeePassButton.Visibility = Visibility.Visible;
             SideTabs.SelectedItem = CurrentTab;
             CountText.Text = "";
         }
@@ -365,8 +376,13 @@ public partial class MainWindow : Window
     {
         var groups = AccountGrouping.Group(_shown, _settings.GroupBy);
         bool expand = _query.Trim().Length > 0 || groups.Count == 1;
+        // Comptes du même nom dans un dossier : ce qui les distingue ; pendant une recherche, le champ caché qui correspond.
         SessionTree.ItemsSource = groups
-            .Select(g => new FolderNode(g.Name, g.Accounts.Select(a => new AccountNode(a)).ToList(), expand))
+            .Select(g =>
+            {
+                var distinctions = AccountGrouping.Distinctions(g.Accounts);
+                return new FolderNode(g.Name, g.Accounts.Select(a => new AccountNode(a, distinctions.GetValueOrDefault(a), _query, g.Name)).ToList(), expand);
+            })
             .ToList();
     }
 
@@ -1446,6 +1462,7 @@ public partial class MainWindow : Window
         {
             SaveSettings();
             ZillaTerm.App.Terminal.TerminalAppearance.Apply(_settings.TerminalTheme, _settings.TerminalFontSize, _settings.TerminalRightClickPastes);
+            Palette.Choose(Application.Current, _settings.Theme);
             UpdateActions();
             StartKeepAlive();
             SetStatus(_settings.Language == language ? Strings.SettingsSaved : Strings.SettingsSavedLanguage);
@@ -1506,13 +1523,17 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>Bouton Historique : envois et téléchargements de l'onglet Fichiers, même sans session.</summary>
+    /// <summary>
+    /// Bouton Historique : envois et téléchargements de l'onglet Fichiers, même sans session ; seulement les échecs et
+    /// transferts non vérifiés quand un échec est signalé (« ! ») et pas encore vu.
+    /// </summary>
     private void OnTransferHistory(object sender, RoutedEventArgs e)
     {
+        bool problems = FilesPanel.UnseenProblems > 0;
         // L'historique montre les transferts en échec : ils sont vus.
         FilesPanel.MarkTransfersSeen();
         UpdateFilesBadge();
-        FilesPanel.ShowHistory();
+        FilesPanel.ShowHistory(problemsOnly: problems);
     }
 
     /// <summary>Affiche le terminal d'une session : son onglet, la vue parallèle ou sa fenêtre séparée.</summary>
@@ -1579,9 +1600,9 @@ public partial class MainWindow : Window
 
         try
         {
-            System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"")?.Dispose();
+            WindowsExplorer.ShowFile(path);
         }
-        catch (System.ComponentModel.Win32Exception ex)
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or ArgumentException)
         {
             SetStatus(ex.Message, isError: true);
         }
@@ -1698,7 +1719,8 @@ public partial class MainWindow : Window
         // Fermeture de la session PVWA avant de quitter (au plus 5 s d'attente).
         e.Cancel = true;
         _loggedOff = true;
-        ClearPasswordClipboard();
+        // Dernier essai, plus insistant : aucun minuteur ne réessaiera après la fermeture.
+        _passwordClipboard?.Dispose();
         IsEnabled = false;
         // Transferts annulés d'abord : le fichier interrompu est supprimé tant que la connexion est ouverte.
         await FilesPanel.CancelTransfersAsync(null);
@@ -1710,6 +1732,18 @@ public partial class MainWindow : Window
             if (_client is not null)
             {
                 using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                if (_mfaKeyIssued)
+                {
+                    try
+                    {
+                        await _client.RevokeMfaCachingSshKeyAsync(timeout.Token);
+                    }
+                    catch (Exception ex) when (ex is not OutOfMemoryException)
+                    {
+                        // Clé non retirée : elle expirera d'elle-même.
+                    }
+                }
+
                 await _client.LogoffAsync(timeout.Token);
             }
         }
@@ -1719,6 +1753,8 @@ public partial class MainWindow : Window
         }
         finally
         {
+            _mfaKey = null;
+            SshAnswerCache.ForgetAll();
             CloseAllSshSessions();
             // Les coffres KeePass ouverts se referment avec la fenêtre, et le coffre local avec eux : sinon « Accès d'urgence »,
             // sur l'écran de connexion, rouvrirait les coffres retenus sans aucun mot de passe.
@@ -1728,12 +1764,15 @@ public partial class MainWindow : Window
             _lifetime.Dispose();
         }
 
-        if (!await CloseAllRdpSessionsAsync() && !LogoutRequested)
+        // Au plus 3 s ; une session bloquée est ensuite sortie de la fenêtre, qui peut alors être détruite sans attendre
+        // son thread (déconnexion : l'écran de connexion revient).
+        bool released = await CloseAllRdpSessionsAsync();
+        if (!LogoutRequested && (!released || RdpSession.ControlWindowsLeft))
         {
-            // Un contrôle Bureau à distance bloqué garde sa fenêtre dans celle-ci : la détruire attendrait son thread.
-            // Tout le reste est déjà fermé (session PVWA, coffres) : on quitte directement.
-            DebugLog.Write("app", "Session Bureau à distance bloquée à la fermeture : arrêt immédiat de l'application.");
-            Environment.Exit(0);
+            // Quitter : la fenêtre d'un contrôle bloqué (de cette fenêtre ou d'avant une déconnexion) serait détruite
+            // avec l'application, en attendant son thread. Tout le reste est déjà fermé (session PVWA, coffres) : on
+            // quitte directement.
+            App.ExitNow();
         }
 
         _closeConfirmed = true;

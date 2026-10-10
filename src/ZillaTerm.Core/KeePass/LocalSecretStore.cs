@@ -276,9 +276,12 @@ public sealed class LocalSecretStore : IDisposable
         lock (_sync)
         {
             LockCore();
-            if (File.Exists(_path))
+            foreach (var file in new[] { _path, DurableFile.TempPath(_path) })
             {
-                File.Delete(_path);
+                if (File.Exists(file))
+                {
+                    File.Delete(file);
+                }
             }
         }
     }
@@ -384,10 +387,9 @@ public sealed class LocalSecretStore : IDisposable
             Data = Convert.ToBase64String(data),
         });
         var content = _protector?.Protect(json) ?? json;
-        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(_path))!);
-        var temp = _path + ".tmp";
-        File.WriteAllBytes(temp, content);
-        File.Move(temp, _path, overwrite: true);
+        // Écrit jusqu'au disque avant de remplacer l'ancien : une coupure de courant laisse l'ancien ou le nouveau coffre,
+        // jamais un fichier vide. Pas de copie de l'ancien : un mot de passe oublié n'y survivrait pas.
+        DurableFile.Write(_path, content);
     }
 
     private (KdfSettings Kdf, byte[] Salt, byte[] Nonce, byte[] Tag, byte[] Data) ReadEnvelope()

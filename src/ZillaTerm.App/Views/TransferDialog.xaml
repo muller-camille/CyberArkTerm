@@ -7,7 +7,7 @@
     <StackPanel Margin="16">
         <TextBlock x:Name="ItemText" TextTrimming="CharacterEllipsis" Margin="0,0,0,8" />
         <ProgressBar x:Name="Bar" Height="12" Maximum="100" />
-        <TextBlock x:Name="SummaryText" Foreground="Gray" Margin="0,6,0,12" />
+        <TextBlock x:Name="SummaryText" Foreground="{DynamicResource MutedBrush}" Margin="0,6,0,12" />
         <Button Content="{x:Static loc:Strings.Cancel}" IsCancel="True" HorizontalAlignment="Right" Click="OnCancel" />
     </StackPanel>
 </Window>

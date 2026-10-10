@@ -45,9 +45,22 @@ public partial class SshSessionView : UserControl
         Loaded += (_, _) =>
         {
             ApplyBackground();
-            TerminalAppearance.Changed += ApplyBackground;
+            TerminalAppearance.Changed += OnAppearanceChanged;
         };
-        Unloaded += (_, _) => TerminalAppearance.Changed -= ApplyBackground;
+        Unloaded += (_, _) => TerminalAppearance.Changed -= OnAppearanceChanged;
+    }
+
+    /// <summary>Palette changée, éventuellement depuis un autre fil : le fond est mis à jour sur celui de la vue.</summary>
+    private void OnAppearanceChanged()
+    {
+        if (Dispatcher.CheckAccess())
+        {
+            ApplyBackground();
+        }
+        else
+        {
+            Dispatcher.BeginInvoke(ApplyBackground);
+        }
     }
 
     private readonly DispatcherTimer _searchTimer = new() { Interval = TimeSpan.FromMilliseconds(400) };

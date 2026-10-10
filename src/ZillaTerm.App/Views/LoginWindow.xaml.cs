@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using ZillaTerm.App.Localization;
+using ZillaTerm.App.Services;
 using ZillaTerm.Core;
 using ZillaTerm.Core.Diagnostics;
 using ZillaTerm.Core.Localization;
@@ -152,10 +153,12 @@ public partial class LoginWindow : Window
         bool answeringChallenge = ChallengePanel.Visibility == Visibility.Visible;
         var method = answeringChallenge ? _pendingMethod : SelectedMethod;
         string userName = UserBox.Text.Trim();
-        string password = answeringChallenge ? ChallengeBox.Password : PasswordBox.Password;
+        // Lu sans chaîne .NET, effacé après l'envoi.
+        var password = SecretInput.Read(answeringChallenge ? ChallengeBox : PasswordBox);
 
         if (!answeringChallenge && method != AuthMethod.Windows && (userName.Length == 0 || password.Length == 0))
         {
+            SecretInput.Clear(password);
             ShowError(Strings.LoginMissingCredentials);
             return;
         }
@@ -206,8 +209,15 @@ public partial class LoginWindow : Window
             PasswordBox.Clear();
             PasswordBox.Focus();
         }
+        catch (Exception ex) when (_closed && ex is not OutOfMemoryException)
+        {
+            // Fenêtre fermée pendant une authentification lente (accès d'urgence, Quitter) : la requête a été annulée
+            // avec elle, rien à signaler par-dessus la fenêtre suivante.
+            DebugLog.Write("login", "Connexion au PVWA abandonnée (fenêtre fermée)", ex);
+        }
         finally
         {
+            SecretInput.Clear(password);
             ChallengeBox.Clear();
             SetBusy(false);
         }

@@ -82,12 +82,29 @@ internal static class ImportText
         return Decode(bytes.ToArray());
     }
 
-    /// <summary>Document XML, sans DTD ni ressource externe.</summary>
+    /// <summary>Profondeur d'éléments XML acceptée : bien au-delà des fichiers réels (dossiers dans des dossiers).</summary>
+    internal const int MaxXmlDepth = 160;
+
+    /// <summary>
+    /// Document XML, sans DTD ni ressource externe. Un document imbriqué au-delà de <see cref="MaxXmlDepth"/> est refusé
+    /// avant tout parcours récursif (fichier forgé : la pile serait épuisée et l'application s'arrêterait).
+    /// </summary>
     public static XDocument ParseXml(string text)
     {
         var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
         try
         {
+            using (var scan = XmlReader.Create(new StringReader(text), settings))
+            {
+                while (scan.Read())
+                {
+                    if (scan.Depth > MaxXmlDepth)
+                    {
+                        throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, CoreStrings.MigrationTooDeep, MaxXmlDepth));
+                    }
+                }
+            }
+
             using var reader = XmlReader.Create(new StringReader(text), settings);
             return XDocument.Load(reader);
         }

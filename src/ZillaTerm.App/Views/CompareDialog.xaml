@@ -36,7 +36,7 @@
         </RadioButton>
         <DockPanel Margin="20,0,0,12" IsEnabled="{Binding IsChecked, ElementName=LocalRadio}">
             <Button DockPanel.Dock="Right" Content="{x:Static loc:Strings.Browse}" Click="OnBrowse" Margin="8,0,0,0" />
-            <TextBox x:Name="LocalPathBox" VerticalContentAlignment="Center" />
+            <TextBox x:Name="LocalPathBox" VerticalContentAlignment="Center" AutomationProperties.LabeledBy="{Binding ElementName=LocalRadio}" />
         </DockPanel>
 
         <TextBlock Text="{x:Static loc:Strings.CompareNote}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,10" />

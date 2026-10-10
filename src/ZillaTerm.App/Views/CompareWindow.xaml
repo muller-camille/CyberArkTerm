@@ -1,10 +1,14 @@
 <Window x:Class="ZillaTerm.App.Views.CompareWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:app="clr-namespace:ZillaTerm.App"
         xmlns:loc="clr-namespace:ZillaTerm.App.Localization"
         xmlns:ssh="clr-namespace:ZillaTerm.Core.Ssh;assembly=ZillaTerm.Core"
         Width="1200" Height="760" MinWidth="640" MinHeight="320" ShowInTaskbar="True" Background="{DynamicResource ContentBrush}"
         PreviewKeyDown="OnWindowKeyDown">
+    <Window.Resources>
+        <app:TextFormatConverter x:Key="TextFormat" />
+    </Window.Resources>
     <DockPanel Margin="10">
         <!-- Actions -->
         <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
@@ -69,7 +73,7 @@
                                    ToolTipService.IsEnabled="False" x:Name="RightText" />
                         <TextBlock x:Name="GapText" Grid.ColumnSpan="4" Visibility="Collapsed" HorizontalAlignment="Center" FontStyle="Italic"
                                    Foreground="{DynamicResource MutedBrush}"
-                                   Text="{Binding Hidden, Mode=OneWay, StringFormat={x:Static loc:Strings.CompareHiddenLines}}" />
+                                   Text="{Binding Hidden, Mode=OneWay, Converter={StaticResource TextFormat}, ConverterParameter={x:Static loc:Strings.CompareHiddenLines}}" />
                     </Grid>
                     <DataTemplate.Triggers>
                         <DataTrigger Binding="{Binding Kind}" Value="{x:Static ssh:DiffKind.Removed}">

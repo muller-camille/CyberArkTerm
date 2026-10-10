@@ -1086,4 +1086,20 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
+
+    <!-- ===== Contrôles standard ===== -->
+    <!-- Marges des champs et des boutons (le thème sombre, ThemeDark.xaml, reprend ces valeurs avec ses propres modèles). -->
+    <Style TargetType="TextBox">
+        <Setter Property="Padding" Value="4,3" />
+    </Style>
+    <Style TargetType="PasswordBox">
+        <Setter Property="Padding" Value="4,3" />
+    </Style>
+    <Style TargetType="ComboBox">
+        <Setter Property="Padding" Value="6,4" />
+    </Style>
+    <Style TargetType="Button">
+        <Setter Property="Padding" Value="12,4" />
+        <Setter Property="MinWidth" Value="90" />
+    </Style>
 </ResourceDictionary>

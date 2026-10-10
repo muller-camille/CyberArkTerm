@@ -30,9 +30,6 @@
   <data name="ServerAddressWhat" xml:space="preserve">
     <value>l'indirizzo del server</value>
   </data>
-  <data name="UserNameWhat" xml:space="preserve">
-    <value>il nome utente</value>
-  </data>
   <data name="CharacterNotAllowed" xml:space="preserve">
     <value>Carattere non consentito in {0}: «{1}».</value>
   </data>
@@ -307,7 +304,7 @@
     <value>Questo elenco di server è stato scritto da una versione più recente di ZillaTerm (formato {0}): aggiorna ZillaTerm per aprirlo.</value>
   </data>
   <data name="ServerListNotShared" xml:space="preserve">
-    <value>Questo file è un'esportazione di I miei server, non un elenco condiviso: importalo invece.</value>
+    <value>Questo file è un'esportazione di «I miei server», non un elenco condiviso: importalo invece.</value>
   </data>
   <data name="ServerListBusy" xml:space="preserve">
     <value>L'elenco condiviso è in corso di modifica da parte di qualcun altro: riprova tra un momento.</value>
@@ -412,10 +409,10 @@
     <value>Non importato: connessione {0} non supportata</value>
   </data>
   <data name="MigrationAlreadyPresent" xml:space="preserve">
-    <value>Già in I miei server, cartella {0}</value>
+    <value>Già in «I miei server», cartella {0}</value>
   </data>
   <data name="MigrationAlreadyPresentRoot" xml:space="preserve">
-    <value>Già in I miei server</value>
+    <value>Già in «I miei server»</value>
   </data>
   <data name="MigrationExcluded" xml:space="preserve">
     <value>Non importato: deselezionato</value>
@@ -436,9 +433,126 @@
     <value>Connessione</value>
   </data>
   <data name="MigrationColTarget" xml:space="preserve">
-    <value>Cartella in I miei server</value>
+    <value>Cartella in «I miei server»</value>
   </data>
   <data name="MigrationColResult" xml:space="preserve">
     <value>Risultato</value>
+  </data>
+  <data name="AuthenticationRefusedRetry" xml:space="preserve">
+    <value>Rifiutato dal server: password o codice errato. Tentativo {0} di {1}: verificalo (Bloc Maiusc?) prima di inviare, perché troppi errori possono bloccare l'account.</value>
+  </data>
+  <data name="AuthenticationRefusedFinal" xml:space="preserve">
+    <value>Password o codice rifiutato {0} volte: connessione interrotta per non bloccare l'account. Verifica la password, poi riconnettiti.</value>
+  </data>
+  <data name="PvwaAddressSuspicious" xml:space="preserve">
+    <value>L'indirizzo del PVWA può contenere solo il nome del server, poi una porta e un percorso se necessario: niente «nome@» davanti al server, niente spazi né «\», niente lettere accentate o di un altro alfabeto (un nome internazionale si scrive nella forma «xn--»).</value>
+  </data>
+  <data name="PvwaRedirectNotFollowed" xml:space="preserve">
+    <value>Il PVWA ha risposto con un reindirizzamento (HTTP {0}) verso {1}. Non viene seguito, perché la password e la sessione non vengano mai inviate a un altro indirizzo: verifica l'indirizzo del PVWA nelle Impostazioni (nome esatto del server e percorso di PasswordVault).</value>
+  </data>
+  <data name="SpecialFileRefused" xml:space="preserve">
+    <value>«{0}» è un file speciale (dispositivo, named pipe o socket): non può essere né aperto né scaricato, perché la lettura non finirebbe mai o bloccherebbe il server.</value>
+  </data>
+  <data name="MigrationTooDeep" xml:space="preserve">
+    <value>Il file annida cartelle su più di {0} livelli: viene rifiutato come danneggiato.</value>
+  </data>
+  <data name="FtpTlsRemoved" xml:space="preserve">
+    <value>Questo server FTP cifrava le connessioni (TLS) e non lo propone più: connessione interrotta, la password non è stata inviata.</value>
+  </data>
+  <data name="VncPasswordNotSent" xml:space="preserve">
+    <value>Connessione annullata: la password VNC non è stata inviata.</value>
+  </data>
+  <data name="RdpNoTls" xml:space="preserve">
+    <value>Il server Desktop remoto non accetta la cifratura TLS: la sua identità non può essere verificata, la password della voce non gli viene inviata.</value>
+  </data>
+  <data name="RdpNotRdp" xml:space="preserve">
+    <value>Il server non ha risposto come un server Desktop remoto: verifica l'indirizzo e la porta (3389 per impostazione predefinita).</value>
+  </data>
+  <data name="RdpNegotiationRefused" xml:space="preserve">
+    <value>Il server Desktop remoto ha rifiutato la connessione (codice {0}).</value>
+  </data>
+  <data name="RdpProbeTimeout" xml:space="preserve">
+    <value>Nessuna risposta dal server Desktop remoto entro 30 secondi: verifica l'indirizzo e la porta (3389 per impostazione predefinita).</value>
+  </data>
+  <data name="RdpTlsFailed" xml:space="preserve">
+    <value>Negoziazione TLS con il server Desktop remoto non riuscita: {0}</value>
+  </data>
+  <data name="ErrorWithPvwaMessage" xml:space="preserve">
+    <value>{0} Messaggio del PVWA: {1}</value>
+  </data>
+  <data name="ErrorWithDetail" xml:space="preserve">
+    <value>{0} Dettaglio: {1}</value>
+  </data>
+  <data name="PvwaBadCredentials" xml:space="preserve">
+    <value>Il PVWA rifiuta il nome utente o la password. Verificali (e il Bloc Maiusc) prima di riprovare: dopo vari tentativi falliti, CyberArk sospende l'account.</value>
+  </data>
+  <data name="PvwaUserSuspended" xml:space="preserve">
+    <value>Il tuo account CyberArk è sospeso o disattivato (troppi accessi non riusciti, o da un amministratore). Chiedi al team CyberArk di riattivarlo.</value>
+  </data>
+  <data name="PvwaPasswordExpired" xml:space="preserve">
+    <value>La tua password CyberArk è scaduta: cambiala nella pagina web del PVWA, poi accedi qui con quella nuova.</value>
+  </data>
+  <data name="PvwaDualControl" xml:space="preserve">
+    <value>Questo account richiede una richiesta approvata (doppio controllo): richiedi l'accesso nella pagina web del PVWA e attendi l'approvazione, poi riprova.</value>
+  </data>
+  <data name="PvwaTicketRequired" xml:space="preserve">
+    <value>CyberArk richiede un ticket valido per questo account: verifica il sistema e il numero del ticket (campi «Ticket»), poi riprova.</value>
+  </data>
+  <data name="PvwaReasonRequired" xml:space="preserve">
+    <value>CyberArk richiede un motivo per questo account: inseriscilo nel campo «Motivo», poi riprova.</value>
+  </data>
+  <data name="PvwaComponentNotConfigured" xml:space="preserve">
+    <value>Questo componente di connessione non è configurato per la piattaforma dell'account: scegline un altro in «Opzioni avanzate…» (Componente PSM).</value>
+  </data>
+  <data name="PvwaAlreadyExists" xml:space="preserve">
+    <value>Questo account esiste già in questo safe.</value>
+  </data>
+  <data name="PvwaSessionExpired" xml:space="preserve">
+    <value>La tua sessione CyberArk è scaduta: accedi di nuovo.</value>
+  </data>
+  <data name="PvwaForbidden" xml:space="preserve">
+    <value>CyberArk rifiuta questa azione: il tuo account non ha i diritti necessari su questo safe. Chiedili a un gestore del safe («Membri del safe…» mostra i tuoi diritti).</value>
+  </data>
+  <data name="PvwaNotFound" xml:space="preserve">
+    <value>Non trovato in CyberArk (eliminato, o diritti revocati): aggiorna l'elenco (F5).</value>
+  </data>
+  <data name="PvwaServerError" xml:space="preserve">
+    <value>Il PVWA ha riscontrato un errore: riprova tra un momento. Se persiste, trasmetti questo messaggio al team CyberArk.</value>
+  </data>
+  <data name="SshAuthenticationRefused" xml:space="preserve">
+    <value>Il server SSH rifiuta l'autenticazione. Verifica la password (e il Bloc Maiusc) prima di riprovare; tramite il PSMP è la tua password CyberArk, e vari tentativi falliti sospendono l'account.</value>
+  </data>
+  <data name="SshNoSshAnswer" xml:space="preserve">
+    <value>Il server ha chiuso la connessione senza rispondere in SSH: verifica l'indirizzo e la porta, o riprova tra un momento.</value>
+  </data>
+  <data name="NetworkTimeout" xml:space="preserve">
+    <value>Il server non ha risposto in tempo: verifica l'indirizzo, la porta e l'accesso alla rete (VPN, firewall), poi riprova.</value>
+  </data>
+  <data name="NetworkHostNotFound" xml:space="preserve">
+    <value>Nome del server non trovato (DNS): verifica l'indirizzo o la connessione alla rete aziendale (VPN).</value>
+  </data>
+  <data name="NetworkRefused" xml:space="preserve">
+    <value>Il server rifiuta la connessione su questa porta: verifica l'indirizzo e la porta, e che il servizio sia avviato.</value>
+  </data>
+  <data name="NetworkConnectionLost" xml:space="preserve">
+    <value>La connessione è stata interrotta dal server o dalla rete: riconnettiti.</value>
+  </data>
+  <data name="FieldMachine" xml:space="preserve">
+    <value>macchina {0}</value>
+  </data>
+  <data name="FieldSafe" xml:space="preserve">
+    <value>safe {0}</value>
+  </data>
+  <data name="FieldPlatform" xml:space="preserve">
+    <value>piattaforma {0}</value>
+  </data>
+  <data name="FieldDomain" xml:space="preserve">
+    <value>dominio {0}</value>
+  </data>
+  <data name="FieldName" xml:space="preserve">
+    <value>nome {0}</value>
+  </data>
+  <data name="AnyMachine" xml:space="preserve">
+    <value>qualsiasi macchina</value>
   </data>
 </root>

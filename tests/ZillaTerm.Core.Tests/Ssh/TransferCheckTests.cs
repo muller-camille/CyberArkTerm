@@ -93,4 +93,42 @@ public sealed class TransferCheckTests
         Assert.Equal("cd02  /srv/app/f.tar.gz", check.ToSha256SumLine());
         Assert.Equal("\\ab01  /srv/a\\\\b\\nc", (check with { Upload = true, RemotePath = "/srv/a\\b\nc" }).ToSha256SumLine());
     }
+
+    /// <summary>
+    /// Copie en cours d'un téléchargement : à côté de la destination, « nom.xxxxxxxx.part » ; pour un nom de 242 à 255
+    /// caractères, un nom court (le suffixe dépasserait la limite de Windows). Jamais créée par-dessus un fichier existant.
+    /// </summary>
+    [Fact]
+    public void PartialCopyStaysInTheFolderWithinTheNameLimit()
+    {
+        var folder = Path.Combine(Path.GetTempPath(), $"cat-part-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(folder);
+        try
+        {
+            var normal = TransferCheck.PartialPath(Path.Combine(folder, "app.log"));
+            Assert.Matches(@"^app\.log\.[0-9a-f]{8}\.part$", Path.GetFileName(normal));
+            Assert.Equal(folder, Path.GetDirectoryName(normal));
+
+            foreach (int length in new[] { 241, 242, 255 })
+            {
+                var name = new string('x', length - 4) + ".log";
+                var partial = TransferCheck.PartialPath(Path.Combine(folder, name));
+                Assert.Equal(folder, Path.GetDirectoryName(partial));
+                Assert.InRange(Path.GetFileName(partial).Length, 1, WindowsFileName.MaxLength);
+                Assert.Equal(length <= 241, Path.GetFileName(partial).StartsWith(name, StringComparison.Ordinal));
+                // Créée pour de vrai : le nom tient (255 caractères sous Windows, 255 octets ici).
+                using (TransferCheck.CreatePartial(partial))
+                {
+                }
+
+                Assert.Throws<IOException>(() => TransferCheck.CreatePartial(partial).Dispose());
+            }
+
+            Assert.Matches(@"^zillaterm\.[0-9a-f]{8}\.part$", Path.GetFileName(TransferCheck.PartialPath(Path.Combine(folder, new string('x', 250)))));
+        }
+        finally
+        {
+            Directory.Delete(folder, recursive: true);
+        }
+    }
 }

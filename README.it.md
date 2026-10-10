@@ -52,7 +52,7 @@ e apre le sessioni con un doppio clic: desktop remoto tramite **PSM**, oppure un
 <table>
 <tr>
 <td width="50%"><img src="docs/captures/it/available.png" alt="Scheda Disponibili"><br><sub>«Disponibili»: tutti gli account del vault CyberArk, ricerca istantanea</sub></td>
-<td width="50%"><img src="docs/captures/it/my-servers.png" alt="Scheda I miei server"><br><sub>«I miei server»: i tuoi server in cartelle, database KeePass in cima</sub></td>
+<td width="50%"><img src="docs/captures/it/my-servers.png" alt="Scheda «I miei server»"><br><sub>«I miei server»: i tuoi server in cartelle, database KeePass in cima</sub></td>
 </tr>
 <tr>
 <td><img src="docs/captures/it/terminal-menu.png" alt="Menu del clic destro nel terminale"><br><sub>Clic destro nel terminale: copia, incolla, cerca, azioni della scheda</sub></td>
@@ -219,10 +219,11 @@ autonomo come artefatto `ZillaTerm-win-x64` per ogni pull request e ogni push su
 
 ### Pubblicare una versione
 
-Da GitHub: **Actions → release → Run workflow** su `main`, indicando il numero `X.Y.Z`; oppure invia un tag
-`vX.Y.Z` su `main`. Il workflow [`release.yml`](.github/workflows/release.yml) esegue i test, compila
-l'eseguibile con quel numero di versione, crea il tag se non esiste e pubblica la *Release* GitHub con lo zip
-e `SHA256SUMS.txt`. Le note di versione vengono lette da `docs/releases/vX.Y.Z.md` se il file esiste.
+Da GitHub: **Actions → release → Run workflow** su `main`, indicando il numero `X.Y.Z`. Il workflow
+[`release.yml`](.github/workflows/release.yml) esegue i test e compila l'eseguibile con quel numero di versione (con
+un token in sola lettura), poi un secondo job, che non compila nulla, crea il tag se non esiste e pubblica la
+*Release* GitHub con lo zip e `SHA256SUMS.txt`. Le note di versione vengono lette da `docs/releases/vX.Y.Z.md` se il
+file esiste. «Verificare senza pubblicare» esegue tutta la catena senza pubblicare nulla, da qualsiasi branch.
 
 ## Limiti e sviluppi futuri
 

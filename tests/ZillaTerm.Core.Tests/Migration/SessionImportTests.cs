@@ -125,11 +125,15 @@ public sealed class SessionImportTests
             Assert.Equal("Non importé : aucun compte dans le PVWA pour root@unknown01", import.Items[4].StateText);
         }
 
-        // Le compte choisi pour une session ambiguë peut être changé ; décocher exclut la session.
+        // Session ambiguë : le premier compte n'est qu'une proposition, elle n'est pas cochée tant qu'un compte n'a pas
+        // été choisi. Décocher exclut la session.
         var check = import.Items[6];
         Assert.Equal("6", check.Chosen!.Account.Id);
+        Assert.False(check.Include);
+        Assert.All(import.Items.Where(i => i.State == ImportState.Ready), i => Assert.True(i.Include));
         import.Choose(check, check.Candidates[1]);
         Assert.Equal("5", check.Chosen!.Account.Id);
+        Assert.True(check.Include);
         import.Items[2].Include = false;
 
         Assert.Equal(4, import.Apply());
