@@ -4,7 +4,7 @@ namespace ZillaTerm.Core.Tests.Terminal;
 
 public class TerminalEmulatorTests
 {
-    private static string Row(TerminalEmulator t, int row) => new string(t.GetLine(row).Select(c => c.Char).ToArray()).TrimEnd();
+    private static string Row(TerminalEmulator t, int row) => string.Concat(t.GetLine(row).Select(t.CellText)).TrimEnd();
 
     private static string[] Screen(TerminalEmulator t) => Enumerable.Range(0, t.Rows).Select(r => Row(t, r)).ToArray();
 
@@ -312,7 +312,7 @@ public class TerminalEmulatorTests
         t.Feed("\x1b[32m\u001b7\x1b[0m\x1b[3;5HZ\u001b8A");
 
         Assert.Equal(2, t.GetLine(0)[0].Foreground);
-        Assert.Equal('A', t.GetLine(0)[0].Char);
+        Assert.Equal('A', t.GetLine(0)[0].CodePoint);
     }
 
     [Fact]
@@ -457,6 +457,123 @@ public class TerminalEmulatorTests
         t.MarkEraseFromCursorLine();
         t.Feed("\x1b[?1049hvim" + WorkingDirectory.EraseMarker);
         Assert.Equal(["", "vim", ""], Screen(t));
+    }
+
+    /// <summary>
+    /// Fenêtre réduite pendant vim : l'écran principal est redimensionné comme s'il était affiché (le haut part dans
+    /// l'historique), et en sortant l'invite revient sous la commande, pas sur une ancienne ligne.
+    /// </summary>
+    [Fact]
+    public void ResizeDuringTheAlternateScreenKeepsTheMainScreenAndItsCursor()
+    {
+        var t = new TerminalEmulator(10, 6);
+        t.Feed("1\r\n2\r\n3\r\n4\r\n5\r\n$ vim");
+        t.Feed("\x1b[?1049h\x1b[H~\r\n~\r\n~\r\n~\r\n~\r\n~ file");
+
+        t.Resize(10, 3);
+
+        Assert.True(t.IsAlternateScreen);
+        Assert.Equal(["~", "~", "~ file"], Screen(t));
+        t.Feed("\x1b[?1049l");
+        Assert.Equal(["4", "5", "$ vim"], Screen(t));
+        Assert.Equal((2, 5), (t.CursorRow, t.CursorColumn));
+        Assert.Equal(["1", "2", "3"], Enumerable.Range(-3, 3).Select(r => Row(t, r)));
+        t.Feed("\r\n$ ");
+        Assert.Equal(["5", "$ vim", "$"], Screen(t));
+
+        // Agrandie pendant less : l'écran principal garde ses lignes, le curseur sa place.
+        t.Feed("\x1b[?1049h\x1b[2J\x1b[Hless");
+        t.Resize(12, 5);
+        t.Feed("\x1b[?1049l");
+        Assert.Equal(["5", "$ vim", "$", "", ""], Screen(t));
+        Assert.Equal((2, 2), (t.CursorRow, t.CursorColumn));
+    }
+
+    [Fact]
+    public void ResizeDuringTheOtherAlternateScreenModesKeepsTheMainScreen()
+    {
+        var t = new TerminalEmulator(10, 4);
+        t.Feed("a\r\nb\r\nc\r\n$ top\x1b[?1047h\x1b[Htop");
+
+        t.Resize(10, 2);
+        t.Feed("\x1b[?1047l");
+
+        Assert.Equal(["c", "$ top"], Screen(t));
+        Assert.Equal(["a", "b"], Enumerable.Range(-2, 2).Select(r => Row(t, r)));
+    }
+
+    [Fact]
+    public void SavedCursorFollowsTheLinesWhenTheScreenShrinks()
+    {
+        var t = new TerminalEmulator(10, 5);
+        t.Feed("1\r\n2\r\n3\u001b7\r\n4\r\n5");
+
+        t.Resize(10, 3);
+        t.Feed("\u001b8X");
+
+        Assert.Equal(["3X", "4", "5"], Screen(t));
+    }
+
+    /// <summary>Chaque écran a son curseur sauvegardé (xterm) : un programme qui sauvegarde le sien n'écrase pas celui du shell.</summary>
+    [Fact]
+    public void EachScreenHasItsOwnSavedCursor()
+    {
+        var t = new TerminalEmulator(10, 4);
+        t.Feed("$ vi");
+
+        t.Feed("\x1b[?1049h\x1b[3;3H\u001b7\x1b[HX\u001b8Y\x1b[?1049l");
+
+        Assert.Equal((0, 4), (t.CursorRow, t.CursorColumn));
+        Assert.Equal("$ vi", Row(t, 0));
+    }
+
+    /// <summary>
+    /// Seul le défilement du texte (saut de ligne, CSI S) en haut de l'écran principal alimente l'historique ; jamais la
+    /// suppression de lignes (CSI M), le défilement vers le bas (CSI T, RI), une zone qui ne commence pas en haut, ni
+    /// l'écran alternatif.
+    /// </summary>
+    [Fact]
+    public void OnlyTextScrollingOffTheTopOfTheMainScreenFeedsTheHistory()
+    {
+        var t = new TerminalEmulator(10, 4);
+        t.Feed("a\r\nb\r\nc\r\nd");
+
+        t.Feed("\x1b[H\x1b[2M");
+        Assert.Equal(["c", "d", "", ""], Screen(t));
+        Assert.Equal(0, t.ScrollbackCount);
+
+        t.Feed("\x1b[2T\x1b[H\u001bM");
+        Assert.Equal(["", "", "", "c"], Screen(t));
+        Assert.Equal(0, t.ScrollbackCount);
+
+        t.Feed("\x1b[2;4r\x1b[4;1H\n\n\x1b[2;1H\x1b[3M\x1b[S");
+        Assert.Equal(0, t.ScrollbackCount);
+
+        t.Feed("\x1b[r\x1b[Hx\x1b[2S");
+        Assert.Equal(2, t.ScrollbackCount);
+        Assert.Equal(["x", ""], Enumerable.Range(-2, 2).Select(r => Row(t, r)));
+
+        t.Feed("\x1b[?1049h1\r\n2\r\n3\r\n4\r\n5\x1b[H\x1b[M\x1b[S\x1b[?1049l");
+        Assert.Equal(2, t.ScrollbackCount);
+    }
+
+    /// <summary>
+    /// Zone de défilement qui commence en haut de l'écran, au-dessus d'une ligne d'état (barre de progression d'apt) :
+    /// les lignes qui en sortent vont dans l'historique, comme dans xterm ; la ligne d'état reste.
+    /// </summary>
+    [Fact]
+    public void ScrollRegionFromTheTopFeedsTheHistory()
+    {
+        var t = new TerminalEmulator(12, 4);
+        t.Feed("\x1b[4;1HProgress\x1b[1;3r\x1b[1;1Hl1\r\nl2\r\nl3\r\nl4\r\nl5");
+
+        Assert.Equal(["l3", "l4", "l5", "Progress"], Screen(t));
+        Assert.Equal(["l1", "l2"], Enumerable.Range(-2, 2).Select(r => Row(t, r)));
+
+        // Sans ligne effacée de l'historique par CSI M en haut de cette zone.
+        t.Feed("\x1b[1;1H\x1b[M");
+        Assert.Equal(["l4", "l5", "", "Progress"], Screen(t));
+        Assert.Equal(2, t.ScrollbackCount);
     }
 }
 
