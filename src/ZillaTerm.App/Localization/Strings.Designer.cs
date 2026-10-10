@@ -15650,7 +15650,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Its color marks the tab and the top of the session: you see at a glance where you work..
+        ///   Looks up a localized string similar to Its color marks the tab and the outline of the session: you see at a glance where you work..
         /// </summary>
         public static string TagPromptHelp {
             get {
@@ -15695,7 +15695,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Environment of the server (PROD, QA, DEV…): its color marks the tab and the top of the session. The tags are set in Settings › General..
+        ///   Looks up a localized string similar to Environment of the server (PROD, QA, DEV…): its color marks the tab and the outline of the session. The tags are set in Settings › General..
         /// </summary>
         public static string TagTip {
             get {
@@ -15803,7 +15803,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Environments given to the servers of My servers (asked when a server is added). Their color marks the session tabs and the top of each session. Removing a tag takes it off the servers. Shared with the team by the environment file..
+        ///   Looks up a localized string similar to Environments given to the servers of My servers (asked when a server is added). Their color marks the session tabs and the outline of each session. Removing a tag takes it off the servers. Shared with the team by the environment file..
         /// </summary>
         public static string ServerTagsHelp {
             get {

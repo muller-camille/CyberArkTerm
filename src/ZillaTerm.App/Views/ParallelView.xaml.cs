@@ -376,7 +376,19 @@ public partial class ParallelView : UserControl
             };
             var buttons = new StackPanel { Orientation = Orientation.Horizontal, Children = { IncludeBox, _zoom, remove } };
             DockPanel.SetDock(buttons, Dock.Right);
-            _header.Child = new DockPanel { Children = { buttons, _state, _mark, title } };
+            var header = new DockPanel { Children = { buttons, _state } };
+            // Étiquette du serveur (PROD, QA…) : en vue parallèle, chaque volet a la sienne, avant le nom.
+            if (view.ServerTag is { } tag)
+            {
+                var chip = ServerTagView.Chip(tag);
+                chip.Margin = new Thickness(0, 0, 6, 0);
+                DockPanel.SetDock(chip, Dock.Left);
+                header.Children.Add(chip);
+            }
+
+            header.Children.Add(_mark);
+            header.Children.Add(title);
+            _header.Child = header;
             DockPanel.SetDock(_state, Dock.Left);
             DockPanel.SetDock(_mark, Dock.Right);
             DockPanel.SetDock(_header, Dock.Top);

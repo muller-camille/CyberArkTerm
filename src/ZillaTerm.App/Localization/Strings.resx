@@ -5248,7 +5248,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Which environment is {0} in?</value>
   </data>
   <data name="TagPromptHelp" xml:space="preserve">
-    <value>Its color marks the tab and the top of the session: you see at a glance where you work.</value>
+    <value>Its color marks the tab and the outline of the session: you see at a glance where you work.</value>
   </data>
   <data name="TagPromptGuessed" xml:space="preserve">
     <value>Suggested from its name, address, safe or folder: check it.</value>
@@ -5263,7 +5263,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Ta_g:</value>
   </data>
   <data name="TagTip" xml:space="preserve">
-    <value>Environment of the server (PROD, QA, DEV…): its color marks the tab and the top of the session. The tags are set in Settings › General.</value>
+    <value>Environment of the server (PROD, QA, DEV…): its color marks the tab and the outline of the session. The tags are set in Settings › General.</value>
   </data>
   <data name="TagUnknown" xml:space="preserve">
     <value>(not in the Settings)</value>
@@ -5299,7 +5299,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Server tags</value>
   </data>
   <data name="ServerTagsHelp" xml:space="preserve">
-    <value>Environments given to the servers of My servers (asked when a server is added). Their color marks the session tabs and the top of each session. Removing a tag takes it off the servers. Shared with the team by the environment file.</value>
+    <value>Environments given to the servers of My servers (asked when a server is added). Their color marks the session tabs and the outline of each session. Removing a tag takes it off the servers. Shared with the team by the environment file.</value>
   </data>
   <data name="ServerTagColName" xml:space="preserve">
     <value>Name</value>

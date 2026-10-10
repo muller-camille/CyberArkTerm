@@ -5248,7 +5248,7 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
     <value>In quale ambiente si trova {0}?</value>
   </data>
   <data name="TagPromptHelp" xml:space="preserve">
-    <value>Il suo colore contrassegna la scheda e la parte alta della sessione: si vede a colpo d'occhio dove si lavora.</value>
+    <value>Il suo colore contrassegna la scheda e il contorno della sessione: si vede a colpo d'occhio dove si lavora.</value>
   </data>
   <data name="TagPromptGuessed" xml:space="preserve">
     <value>Proposta in base al nome, all'indirizzo, al safe o alla cartella: verificatela.</value>
@@ -5263,7 +5263,7 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
     <value>Eti_chetta:</value>
   </data>
   <data name="TagTip" xml:space="preserve">
-    <value>Ambiente del server (PROD, QA, DEV…): il suo colore contrassegna la scheda e la parte alta della sessione. Le etichette si impostano in Impostazioni › Generale.</value>
+    <value>Ambiente del server (PROD, QA, DEV…): il suo colore contrassegna la scheda e il contorno della sessione. Le etichette si impostano in Impostazioni › Generale.</value>
   </data>
   <data name="TagUnknown" xml:space="preserve">
     <value>(assente dalle Impostazioni)</value>
@@ -5299,7 +5299,7 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
     <value>Etichette dei server</value>
   </data>
   <data name="ServerTagsHelp" xml:space="preserve">
-    <value>Ambienti assegnati ai server di «I miei server» (chiesti all'aggiunta di un server). Il loro colore contrassegna la scheda e la parte alta di ogni sessione. Eliminare un'etichetta la toglie dai server. Diffuse al team con il file di ambiente.</value>
+    <value>Ambienti assegnati ai server di «I miei server» (chiesti all'aggiunta di un server). Il loro colore contrassegna la scheda e il contorno di ogni sessione. Eliminare un'etichetta la toglie dai server. Diffuse al team con il file di ambiente.</value>
   </data>
   <data name="ServerTagColName" xml:space="preserve">
     <value>Nome</value>

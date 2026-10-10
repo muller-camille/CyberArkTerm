@@ -130,7 +130,7 @@ public class ServerTagTests
 
         var target = new AppSettings { Sessions = [new SavedSession { Tag = "QA" }] };
         var change = Assert.Single(profile.Diff(target), c => c.Setting == EnvironmentSetting.ServerTags);
-        Assert.Equal("PROD (#D32F2F), QA (#EF6C00), DEV (#2E7D32)", change.Current);
+        Assert.Equal("PROD (#D32F2F), QA (#1976D2), DEV (#2E7D32)", change.Current);
         Assert.Equal("PROD (#D32F2F), REC (#F9A825)", change.New);
         profile.ApplyTo(target);
         Assert.Equal(["PROD", "REC"], target.ServerTags.Select(t => t.Name));

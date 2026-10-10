@@ -562,7 +562,7 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
 | Impostazione | Effetto |
 | --- | --- |
 | Nome, cartella | Visualizzazione e posizione nell'albero. |
-| Etichetta | Ambiente del server (PROD, QA, DEV…): il suo colore contrassegna l'albero, la scheda e la parte alta della sessione. |
+| Etichetta | Ambiente del server (PROD, QA, DEV…): il suo colore contrassegna l'albero, la scheda e il contorno della sessione. |
 | PSM, SSH tramite PSMP o solo file (SFTP tramite PSMP) | Tipo di connessione aperto con il doppio clic (all'inizio, in base alla piattaforma). |
 | Componente PSM | Componente da usare (vuoto: dedotto dalla piattaforma). |
 | Macchina di destinazione | Server su cui aprire la sessione per un account di dominio. |
@@ -579,13 +579,14 @@ segnalato mentre gli account si caricano.
 
 ### Etichette (PROD, QA, DEV…)
 
-Ogni server di «I miei server» può avere un'etichetta di ambiente, con un colore: PROD in rosso, QA in arancione, DEV
+Ogni server di «I miei server» può avere un'etichetta di ambiente, con un colore: PROD in rosso, QA in blu, DEV
 in verde all'inizio. Ricorda a colpo d'occhio dove si lavora:
 
 - un'etichetta colorata davanti al nome nell'albero «I miei server» e negli elenchi condivisi;
 - un'etichetta colorata sulla scheda della sessione (e `[PROD]` all'inizio del titolo di una finestra staccata);
-- una fascia del suo colore sopra il terminale SSH o la sessione di file, e un'etichetta colorata nell'intestazione
-  della scheda File: si vede su quale ambiente si deposita un file.
+- una cornice del suo colore attorno al terminale SSH o alla sessione di file (il nome resta sulla scheda, senza
+  togliere spazio al terminale); un'etichetta colorata nell'intestazione di ogni riquadro della vista parallela e in
+  quella della scheda File: si vede su quale ambiente si deposita un file.
 
 Una sessione aperta da «Disponibili» o dalle sessioni recenti prende l'etichetta del server di «I miei server» che ha
 lo stesso account (e la stessa macchina di destinazione). L'etichetta si applica all'apertura: dopo averla cambiata,
@@ -905,7 +906,7 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 | Generale | Tema | Come Windows, Chiaro o Scuro; applicato subito (il contrasto elevato di Windows ha la precedenza) | come Windows |
 | Generale | Promemoria di reperibilità | Buone pratiche e numeri di emergenza mostrati nella finestra «Intervento»; testo semplice, diffuso dal file di ambiente (vedi [Intervento](#8-intervento-registrazione-e-promemoria-di-reperibilità)) | vuoto |
 | Generale | File del promemoria | File di testo (di solito su una condivisione di rete) riletto a ogni apertura della finestra «Intervento», mostrato al posto del promemoria qui sopra; diffuso dal file di ambiente | vuoto |
-| Generale | Etichette dei server | Etichette assegnate ai server di «I miei server» (nome, colore): «Aggiungi un'etichetta», «Elimina l'etichetta», celle modificabili; la ridenominazione si applica in «I miei server», l'eliminazione toglie l'etichetta dai server; diffuse dal file di ambiente (vedi [Etichette](#etichette-prod-qa-dev)) | PROD (rosso), QA (arancione), DEV (verde) |
+| Generale | Etichette dei server | Etichette assegnate ai server di «I miei server» (nome, colore): «Aggiungi un'etichetta», «Elimina l'etichetta», celle modificabili; la ridenominazione si applica in «I miei server», l'eliminazione toglie l'etichetta dai server; diffuse dal file di ambiente (vedi [Etichette](#etichette-prod-qa-dev)) | PROD (rosso), QA (blu), DEV (verde) |
 | Generale | Lingua dell'interfaccia | Français, English, Italiano o lingua del sistema; applicata dopo la disconnessione da CyberArk o al prossimo avvio | lingua di Windows (inglese se non è tradotta) |
 | Generale | File centrale | File di ambiente del team su una condivisione di rete, riletto a ogni avvio; le sue modifiche vengono mostrate prima di essere applicate (vedi [Ambiente condiviso](#ambiente-condiviso)) | vuoto |
 | Generale | Cercare una nuova versione all'avvio | Una richiesta a GitHub al massimo una volta al giorno; un link nella barra di stato se esiste una versione più recente (la finestra «Informazioni» ricorda questa impostazione) | no |

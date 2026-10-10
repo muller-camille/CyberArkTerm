@@ -45,11 +45,11 @@ public static partial class ServerTagRules
         "#2E7D32", "#689F38", "#F9A825", "#EF6C00", "#6D4C41", "#757575",
     ];
 
-    /// <summary>PROD en rouge, QA en orange, DEV en vert.</summary>
+    /// <summary>PROD en rouge, QA en bleu, DEV en vert : trois couleurs bien distinctes, sans l'orange des alertes.</summary>
     public static List<ServerTag> Defaults() =>
     [
         new("PROD", "#D32F2F"),
-        new("QA", "#EF6C00"),
+        new("QA", "#1976D2"),
         new("DEV", "#2E7D32"),
     ];
 

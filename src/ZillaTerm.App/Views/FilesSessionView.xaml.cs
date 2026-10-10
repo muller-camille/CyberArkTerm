@@ -26,19 +26,8 @@ public partial class FilesSessionView : UserControl
 
     public FilesSession Session { get; }
 
-    /// <summary>Étiquette du serveur (PROD, QA…), en bandeau de sa couleur en haut de la session.</summary>
-    public void ShowTag(ServerTag? tag)
-    {
-        TagBand.Visibility = tag is null ? Visibility.Collapsed : Visibility.Visible;
-        if (tag is null)
-        {
-            return;
-        }
-
-        TagBand.Background = ServerTagView.Background(tag);
-        TagBandText.Foreground = ServerTagView.Foreground(tag);
-        TagBandText.Text = $"{tag.Name} · {Session.Label}";
-    }
+    /// <summary>Étiquette du serveur (PROD, QA…) : cadre de sa couleur autour de la session.</summary>
+    public void ShowTag(ServerTag? tag) => ServerTagView.Frame(TagFrame, tag);
 
     /// <summary>« Afficher les fichiers » : la fenêtre ouvre l'onglet Fichiers, élargi au besoin pour toutes ses colonnes.</summary>
     public event Action? ShowFilesRequested;

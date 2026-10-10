@@ -528,7 +528,7 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
 | Setting | Effect |
 | --- | --- |
 | Name, folder | Display and position in the tree. |
-| Tag | Environment of the server (PROD, QA, DEV…): its color marks the tree, the tab and the top of the session. |
+| Tag | Environment of the server (PROD, QA, DEV…): its color marks the tree, the tab and the outline of the session. |
 | PSM, SSH via PSMP or files only (SFTP via PSMP) | Connection type opened on double-click (at first, from the platform). |
 | PSM component | Component to use (empty: deduced from the platform). |
 | Target machine | Server to open the session on, for a domain account. |
@@ -544,12 +544,13 @@ is reported in the window. A server whose account is not found in CyberArk (dele
 
 ### Tags (PROD, QA, DEV…)
 
-Each server of "My servers" can carry an environment tag, with a color: PROD in red, QA in orange, DEV in green at
+Each server of "My servers" can carry an environment tag, with a color: PROD in red, QA in blue, DEV in green at
 first. It reminds you at a glance where you work:
 
 - a chip before the name in the "My servers" tree and in shared lists;
 - a chip on the session tab (and `[PROD]` at the start of the title of a detached window);
-- a band of its color above the SSH terminal or the files session, and a chip in the header of the Files tab: you see
+- a frame of its color around the SSH terminal or the files session (the name stays on the tab, taking no room
+  from the terminal); a chip in the header of each pane of the parallel view and in that of the Files tab: you see
   which environment you drop a file on.
 
 A session opened from "Available" or the recent sessions takes the tag of the "My servers" server that has the same
@@ -849,7 +850,7 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 | General | Theme | Same as Windows, Light or Dark; applied right away (Windows high contrast takes precedence) | same as Windows |
 | General | Duty reminder | Good practices and emergency numbers shown in the "Intervention" window; plain text, shared by the environment file (see [Intervention](#8-intervention-recording-and-on-call-duty-reminder)) | empty |
 | General | Reminder file | Text file (usually on a network share) read again each time the "Intervention" window opens, shown instead of the reminder above; shared by the environment file | empty |
-| General | Server tags | Tags given to the servers of "My servers" (name, color): "Add a tag", "Remove the tag", editable cells; renaming follows in "My servers", deleting removes the tag from the servers; shared by the environment file (see [Tags](#tags-prod-qa-dev)) | PROD (red), QA (orange), DEV (green) |
+| General | Server tags | Tags given to the servers of "My servers" (name, color): "Add a tag", "Remove the tag", editable cells; renaming follows in "My servers", deleting removes the tag from the servers; shared by the environment file (see [Tags](#tags-prod-qa-dev)) | PROD (red), QA (blue), DEV (green) |
 | General | Interface language | Français, English, Italiano or system language; applied after signing out of CyberArk or at the next start | Windows language (English if it is not translated) |
 | General | Central file | Team environment file on a network share, read at each start; its changes are shown before being applied (see [Shared environment](#shared-environment)) | empty |
 | General | Look for a new version at startup | One request to GitHub at most once a day; a link in the status bar when a newer version exists (the "About" window recalls this setting) | no |

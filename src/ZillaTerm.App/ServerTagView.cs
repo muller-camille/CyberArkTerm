@@ -8,6 +8,9 @@ namespace ZillaTerm.App;
 /// <summary>Étiquette d'un serveur à l'écran : sa couleur, le texte lisible dessus, et la pastille « PROD ».</summary>
 internal static class ServerTagView
 {
+    /// <summary>Épaisseur du cadre autour d'une session étiquetée : visible sans gêner le terminal.</summary>
+    private const double FrameThickness = 3;
+
     /// <summary>
     /// Étiquette d'un serveur parmi celles des réglages ; un nom inconnu (liste partagée, étiquette supprimée) garde son
     /// nom, en gris ; aucune : null.
@@ -39,6 +42,16 @@ internal static class ServerTagView
             FontWeight = FontWeights.SemiBold,
         },
     };
+
+    /// <summary>
+    /// Cadre de la couleur de l'étiquette autour d'une session (aucune étiquette : pas de cadre). Son nom est sur l'onglet
+    /// (et dans le nom de l'onglet pour les lecteurs d'écran) : le cadre ne le répète pas.
+    /// </summary>
+    public static void Frame(Border frame, ServerTag? tag)
+    {
+        frame.BorderBrush = tag is null ? null : Background(tag);
+        frame.BorderThickness = new Thickness(tag is null ? 0 : FrameThickness);
+    }
 
     private static Color Color(string hex)
     {

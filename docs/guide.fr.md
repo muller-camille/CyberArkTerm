@@ -560,7 +560,7 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
 | Réglage | Effet |
 | --- | --- |
 | Nom, dossier | Affichage et rangement dans l'arbre. |
-| Étiquette | Environnement du serveur (PROD, QA, DEV…) : sa couleur marque l'arbre, l'onglet et le haut de la session. |
+| Étiquette | Environnement du serveur (PROD, QA, DEV…) : sa couleur marque l'arbre, l'onglet et le contour de la session. |
 | PSM, SSH via PSMP ou fichiers seuls (SFTP via PSMP) | Type de connexion ouvert au double-clic (au départ, d'après la plateforme). |
 | Composant PSM | Composant à utiliser (vide : déduit de la plateforme). |
 | Machine cible | Serveur sur lequel ouvrir la session pour un compte de domaine. |
@@ -578,11 +578,12 @@ tant que les comptes se chargent.
 ### Étiquettes (PROD, QA, DEV…)
 
 Chaque serveur de « Mes serveurs » peut porter une étiquette d'environnement, de couleur : PROD en rouge, QA en
-orange, DEV en vert au départ. Elle rappelle d'un coup d'œil où vous travaillez :
+bleu, DEV en vert au départ. Elle rappelle d'un coup d'œil où vous travaillez :
 
 - pastille devant le nom dans l'arbre « Mes serveurs » et les listes partagées ;
 - pastille sur l'onglet de la session (et `[PROD]` en tête du titre d'une fenêtre détachée) ;
-- bandeau de sa couleur au-dessus du terminal SSH ou de la session de fichiers, et pastille dans l'en-tête de
+- cadre de sa couleur autour du terminal SSH ou de la session de fichiers (le nom reste sur l'onglet, sans
+  prendre de place au terminal) ; pastille dans l'en-tête de chaque volet de la vue parallèle et dans celui de
   l'onglet Fichiers : vous voyez sur quel environnement vous déposez un fichier.
 
 Une session ouverte depuis « Disponibles » ou les sessions récentes prend l'étiquette du serveur de « Mes serveurs »
@@ -902,7 +903,7 @@ disent sous leur case (« ⚠ Effet : … »).
 | Général | Thème | Comme Windows, Clair ou Sombre ; appliqué tout de suite (le contraste élevé de Windows l'emporte) | comme Windows |
 | Général | Consignes d'astreinte | Bonnes pratiques et numéros d'urgence affichés dans la fenêtre « Intervention » ; texte brut, diffusé par le fichier d'environnement (voir [Intervention](#8-intervention--enregistrement-et-consignes-dastreinte)) | vide |
 | Général | Fichier des consignes | Fichier texte (partage réseau en général) relu à chaque ouverture de la fenêtre « Intervention », affiché à la place des consignes ci-dessus ; diffusé par le fichier d'environnement | vide |
-| Général | Étiquettes des serveurs | Étiquettes données aux serveurs de « Mes serveurs » (nom, couleur) : « Ajouter une étiquette », « Supprimer l'étiquette », cellules modifiables ; renommer suit dans « Mes serveurs », supprimer retire l'étiquette des serveurs ; diffusées par le fichier d'environnement (voir [Étiquettes](#étiquettes-prod-qa-dev)) | PROD (rouge), QA (orange), DEV (vert) |
+| Général | Étiquettes des serveurs | Étiquettes données aux serveurs de « Mes serveurs » (nom, couleur) : « Ajouter une étiquette », « Supprimer l'étiquette », cellules modifiables ; renommer suit dans « Mes serveurs », supprimer retire l'étiquette des serveurs ; diffusées par le fichier d'environnement (voir [Étiquettes](#étiquettes-prod-qa-dev)) | PROD (rouge), QA (bleu), DEV (vert) |
 | Général | Langue de l'interface | Français, English, Italiano ou langue du système ; appliquée après la déconnexion de CyberArk ou au prochain démarrage | langue de Windows (anglais si elle n'est pas traduite) |
 | Général | Fichier central | Fichier d'environnement de l'équipe sur un partage réseau, relu à chaque démarrage ; ses changements sont montrés avant d'être appliqués (voir [Environnement partagé](#environnement-partagé)) | vide |
 | Général | Rechercher une nouvelle version au démarrage | Une requête vers GitHub au plus une fois par jour ; lien dans la barre d'état si une version plus récente existe (la fenêtre « À propos » rappelle ce réglage) | non |

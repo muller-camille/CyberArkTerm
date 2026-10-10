@@ -198,21 +198,13 @@ public partial class SshSessionView : UserControl
 
     public SshSession Session { get; }
 
-    /// <summary>Étiquette du serveur (PROD, QA…), montrée en bandeau de sa couleur au-dessus du terminal.</summary>
+    /// <summary>Étiquette du serveur (PROD, QA…), montrée en cadre de sa couleur autour du terminal.</summary>
     public ServerTag? ServerTag { get; private set; }
 
     public void ShowTag(ServerTag? tag)
     {
         ServerTag = tag;
-        TagBand.Visibility = tag is null ? Visibility.Collapsed : Visibility.Visible;
-        if (tag is null)
-        {
-            return;
-        }
-
-        TagBand.Background = ServerTagView.Background(tag);
-        TagBandText.Foreground = ServerTagView.Foreground(tag);
-        TagBandText.Text = $"{tag.Name} · {Session.Label}";
+        ServerTagView.Frame(TagFrame, tag);
     }
 
     /// <summary>« coffre@compte@cible via psmp », affiché pendant la connexion.</summary>
