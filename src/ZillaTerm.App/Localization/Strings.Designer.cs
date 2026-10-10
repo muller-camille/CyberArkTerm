@@ -14230,5 +14230,113 @@ namespace ZillaTerm.App.Localization {
                 return ResourceManager.GetString("RdpCertificateDeclined", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to An operation (delete, rename…) is still running on this server: try again when it has finished..
+        /// </summary>
+        public static string FilesBusy {
+            get {
+                return ResourceManager.GetString("FilesBusy", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Permissions are still being changed on this server: wait for the end, or click “Stop”..
+        /// </summary>
+        public static string FilesBusyPermissions {
+            get {
+                return ResourceManager.GetString("FilesBusyPermissions", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Columns hidden for lack of room: {0}. Widen the panel, or click to choose the columns..
+        /// </summary>
+        public static string FilesColumnsHiddenTip {
+            get {
+                return ResourceManager.GetString("FilesColumnsHiddenTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to no room.
+        /// </summary>
+        public static string FilesColumnNoRoom {
+            get {
+                return ResourceManager.GetString("FilesColumnNoRoom", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Widen the panel to show them all.
+        /// </summary>
+        public static string FilesColumnsWiden {
+            get {
+                return ResourceManager.GetString("FilesColumnsWiden", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The window is too narrow to show all the columns of the Files tab: enlarge it, or choose the columns (right-click on their header)..
+        /// </summary>
+        public static string FilesPanelNoRoom {
+            get {
+                return ResourceManager.GetString("FilesPanelNoRoom", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shows the “Files” tab on the left, widened if needed so that all its columns fit..
+        /// </summary>
+        public static string FilesShowTip {
+            get {
+                return ResourceManager.GetString("FilesShowTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failures and unverified.
+        /// </summary>
+        public static string HistoryFilterProblems {
+            get {
+                return ResourceManager.GetString("HistoryFilterProblems", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No transfer matches this filter..
+        /// </summary>
+        public static string HistoryNoMatch {
+            get {
+                return ResourceManager.GetString("HistoryNoMatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ↷ {0} link(s) to a folder not followed.
+        /// </summary>
+        public static string TransferLinksSkipped {
+            get {
+                return ResourceManager.GetString("TransferLinksSkipped", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ↷ Not followed (link to {0}).
+        /// </summary>
+        public static string ChecksSkipped {
+            get {
+                return ResourceManager.GetString("ChecksSkipped", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ↷ {0} link(s) to a folder (junction or symbolic link) not followed: their content was not sent..
+        /// </summary>
+        public static string ChecksSomeSkipped {
+            get {
+                return ResourceManager.GetString("ChecksSomeSkipped", resourceCulture);
+            }
+        }
     }
 }

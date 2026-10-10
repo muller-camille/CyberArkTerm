@@ -4778,4 +4778,40 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   <data name="RdpCertificateDeclined" xml:space="preserve">
     <value>Certificat du serveur refusé : connexion arrêtée, le mot de passe n'a pas été envoyé.</value>
   </data>
+  <data name="FilesBusy" xml:space="preserve">
+    <value>Une opération (suppression, renommage…) est encore en cours sur ce serveur : réessayez quand elle sera terminée.</value>
+  </data>
+  <data name="FilesBusyPermissions" xml:space="preserve">
+    <value>Modification des droits encore en cours sur ce serveur : attendez la fin, ou cliquez sur « Arrêter ».</value>
+  </data>
+  <data name="FilesColumnsHiddenTip" xml:space="preserve">
+    <value>Colonnes masquées faute de place : {0}. Élargissez le panneau, ou cliquez pour choisir les colonnes.</value>
+  </data>
+  <data name="FilesColumnNoRoom" xml:space="preserve">
+    <value>faute de place</value>
+  </data>
+  <data name="FilesColumnsWiden" xml:space="preserve">
+    <value>Élargir le panneau pour tout afficher</value>
+  </data>
+  <data name="FilesPanelNoRoom" xml:space="preserve">
+    <value>La fenêtre est trop étroite pour afficher toutes les colonnes de l'onglet Fichiers : agrandissez-la, ou choisissez les colonnes (clic droit sur leur en-tête).</value>
+  </data>
+  <data name="FilesShowTip" xml:space="preserve">
+    <value>Affiche l'onglet « Fichiers » à gauche, élargi au besoin pour que toutes ses colonnes tiennent.</value>
+  </data>
+  <data name="HistoryFilterProblems" xml:space="preserve">
+    <value>Échecs et non vérifiés</value>
+  </data>
+  <data name="HistoryNoMatch" xml:space="preserve">
+    <value>Aucun transfert ne correspond à ce filtre.</value>
+  </data>
+  <data name="TransferLinksSkipped" xml:space="preserve">
+    <value>↷ {0} lien(s) vers un dossier non suivi(s)</value>
+  </data>
+  <data name="ChecksSkipped" xml:space="preserve">
+    <value>↷ Non suivi (lien vers {0})</value>
+  </data>
+  <data name="ChecksSomeSkipped" xml:space="preserve">
+    <value>↷ {0} lien(s) vers un dossier (jonction ou lien symbolique) non suivi(s) : leur contenu n'a pas été envoyé.</value>
+  </data>
 </root>

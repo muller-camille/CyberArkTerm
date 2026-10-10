@@ -22,6 +22,15 @@ public sealed record TransferCheck(
     /// <summary>Transfert en échec pendant ce fichier (message dans <see cref="Error"/>).</summary>
     public bool Failed { get; init; }
 
+    /// <summary>
+    /// Lien symbolique ou jonction vers un dossier, trouvé dans un dossier envoyé : pas suivi, rien n'a été envoyé
+    /// (<see cref="Error"/> : la cible du lien).
+    /// </summary>
+    public bool Skipped { get; init; }
+
+    /// <summary>Fichier transféré mais pas relu (droits, vérification annulée…) : ni en échec, ni interrompu, ni ignoré.</summary>
+    public bool Unverified => !Verified && !Failed && !Interrupted && !Skipped;
+
     /// <summary>Protocole de l'envoi de ce fichier (null pour un téléchargement).</summary>
     public TransferProtocol? Protocol { get; init; }
 
@@ -59,10 +68,41 @@ public sealed record TransferCheck(
     }
 
     /// <summary>
-    /// Fichier où arrive un téléchargement, à côté de sa destination : il ne la remplace qu'une fois complet, si bien qu'un
-    /// transfert coupé ou annulé laisse intact le fichier local qui existait.
+    /// Fichier où arrive un téléchargement, à côté de sa destination (même dossier) : il ne la remplace qu'une fois
+    /// complet, si bien qu'un transfert coupé ou annulé laisse intact le fichier local qui existait. « nom.1a2b3c4d.part »,
+    /// ou « zillaterm.1a2b3c4d.part » quand le nom est si long (242 à 255 caractères) que le suffixe dépasserait la limite de
+    /// Windows. À créer sans jamais remplacer un fichier existant (<see cref="CreatePartial"/>).
     /// </summary>
-    internal static string PartialPath(string localPath) => $"{localPath}.{Guid.NewGuid().ToString("N")[..8]}.part";
+    internal static string PartialPath(string localPath)
+    {
+        var suffix = $".{Guid.NewGuid().ToString("N")[..8]}.part";
+        return Path.GetFileName(localPath).Length + suffix.Length <= WindowsFileName.MaxLength
+            ? localPath + suffix
+            : Path.Combine(Path.GetDirectoryName(localPath) ?? "", "zillaterm" + suffix);
+    }
+
+    /// <summary>
+    /// Lien vers un dossier dans un dossier envoyé ou archivé : noté dans le bilan, pas suivi. <paramref name="remotePath"/> :
+    /// où il serait arrivé sur le serveur.
+    /// </summary>
+    public static TransferCheck SkippedLink(DirectoryInfo link, string remotePath)
+    {
+        string target;
+        try
+        {
+            target = link.LinkTarget ?? link.FullName;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            target = link.FullName;
+        }
+
+        return new TransferCheck(link.Name, link.FullName, remotePath, -1, [], -1, [], target) { Upload = true, Skipped = true };
+    }
+
+    /// <summary>Crée le fichier d'un téléchargement en cours ; échoue plutôt que de remplacer un fichier du même nom.</summary>
+    internal static FileStream CreatePartial(string partialPath) =>
+        new(partialPath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None);
 
     /// <summary>SHA-256 et taille d'un fichier local.</summary>
     internal static async Task<(byte[] Hash, long Length)> HashFileAsync(string path, CancellationToken ct)

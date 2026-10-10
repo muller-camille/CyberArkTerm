@@ -180,11 +180,12 @@ plusieurs). Le double-clic (ou Entrée) choisit alors d'après le nom de la plat
 Le clic droit propose toujours les trois (l'ouverture par défaut est en gras) : « Se connecter (PSM) », « Se
 connecter en SSH (PSMP) » (ou bouton « SSH ») et « Ouvrir les fichiers (SFTP, PSMP) ».
 
-**Fichiers seuls** : une seule session PSMP SFTP, sans terminal. Un onglet montre son état ; les fichiers sont dans
-l'onglet « Fichiers », avec les mêmes fonctions (transferts vérifiés, file d'attente, éditeur, comparaison, suivi en
-direct, droits), sauf ce qui a besoin d'un terminal (suivi du dossier du terminal, extraction d'une archive
-`.tar.gz`). Utile pour simplement déposer ou récupérer des fichiers, ou quand la plateforme autorise PSMP-SFTP mais
-pas le shell. Comme toute session PSMP, elle est enregistrée et auditée par CyberArk.
+**Fichiers seuls** : une seule session PSMP SFTP, sans terminal. Un onglet montre son état, le serveur et un bouton
+« Afficher les fichiers », qui ouvre l'onglet « Fichiers » du panneau de gauche et l'élargit au besoin pour que toutes
+ses colonnes tiennent. Les fichiers y sont, avec les mêmes fonctions (transferts vérifiés, file d'attente, éditeur,
+comparaison, suivi en direct, droits), sauf ce qui a besoin d'un terminal (suivi du dossier du terminal, extraction
+d'une archive `.tar.gz`). Utile pour simplement déposer ou récupérer des fichiers, ou quand la plateforme autorise
+PSMP-SFTP mais pas le shell. Comme toute session PSMP, elle est enregistrée et auditée par CyberArk.
 
 La session s'ouvre **dans un onglet de ZillaTerm**, tout de suite : une barre de progression s'affiche pendant que
 ZillaTerm demande la clé MFA au PVWA et se connecte au PSMP (les questions de clé du serveur, de mot de passe ou de
@@ -308,7 +309,13 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   second clic inverse l'ordre (une flèche l'indique). La taille et la date commencent par les plus gros et les plus
   récents. Les dossiers restent en tête ; le tri est gardé d'un dossier et d'une session à l'autre. La colonne Nom
   prend la largeur laissée par les autres ; quand le panneau est étroit, les colonnes Groupe, Propriétaire puis Droits
-  sont masquées plutôt que coupées (elles reviennent en élargissant le panneau).
+  sont masquées plutôt que coupées (elles reviennent en élargissant le panneau) : « +n » au bout de l'en-tête le
+  signale, avec leur nom en infobulle.
+- **Choisir les colonnes** : clic droit sur l'en-tête de la liste (ou clic sur « +n ») : une case par colonne
+  (Taille, Modifié, Droits, Propriétaire, Groupe), gardée d'une fois sur l'autre ; une colonne cochée sans la place
+  est marquée « faute de place ». « Élargir le panneau pour tout afficher » donne au panneau la largeur qui manque
+  (la session garde au moins 360 pixels). Décocher Taille ou Modifié fait de la place pour Droits et Propriétaire
+  dans un panneau étroit.
 - **Propriétaire et Groupe** : au survol, `propriétaire:groupe` (comme pour `chown`). Ce sont les noms que le serveur
   envoie avec la liste des fichiers, comme ceux de `ls -l`. En SFTP, si la ligne qui les contient n'a pas la forme
   habituelle (nom avec une espace…), ZillaTerm affiche à la place les numéros (UID et GID, comme `ls -n`) ; en FTP, les
@@ -326,9 +333,15 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   l'autre prend le relais aussitôt, sans question ni attente : la barre d'état et le bilan l'indiquent avec la
   réponse du serveur, l'historique des transferts aussi (« SCP (SFTP refusé) »). En SCP, après un refus à l'annonce d'un fichier, les
   fichiers au moins aussi gros partent directement en SFTP jusqu'à la fermeture de l'onglet.
+  Dans un dossier envoyé (ou mis en archive .tar.gz), les liens symboliques et jonctions vers des dossiers ne sont
+  pas suivis, comme au téléchargement : une jonction peut boucler ou mener à un dossier interdit (« Ma musique » des
+  anciens profils Windows). Ils sont signalés dans le bilan (« ↷ n lien(s) vers un dossier non suivi(s) ») et dans
+  « Détails », avec leur cible ; un lien vers un fichier est envoyé avec le contenu de ce fichier.
 - **Télécharger** : bouton « Télécharger » ou clic droit. Un fichier demande où l'enregistrer ; plusieurs vont dans un
   dossier choisi, avec une seule question (« Remplacer ») pour ceux qui y sont déjà. Un fichier local n'est remplacé qu'une fois son
-  téléchargement complet : un téléchargement coupé ou annulé le laisse tel qu'il était. « Télécharger » ne prend
+  téléchargement complet : un téléchargement coupé ou annulé le laisse tel qu'il était. Le fichier en cours arrive
+  dans une copie temporaire du même dossier (`nom.xxxxxxxx.part`, ou `zillaterm.xxxxxxxx.part` pour un nom de plus de
+  241 caractères : les noms vont jusqu'à 255 caractères, la limite de Windows). « Télécharger » ne prend
   que des fichiers : pour un dossier, la barre d'état rappelle de le glisser vers l'Explorateur ou sur le bureau.
 - **Télécharger en glissant** : glissez des fichiers ou des dossiers de la liste vers l'Explorateur ou le bureau.
   Rien n'est téléchargé pendant le glissement : au dépôt, une fenêtre montre la progression (Annuler l'interrompt),
@@ -396,7 +409,9 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   téléchargements (y compris par glisser-déposer) : date, sens, serveur, élément, destination, nombre de fichiers,
   protocole (« SCP (SFTP refusé) » quand l'autre protocole a pris le relais), résultat, écrit comme dans la file ;
   les échecs et les fichiers différents sont en rouge, et le texte d'une colonne trop étroite s'affiche en
-  infobulle. Filtre « Envois » / « Téléchargements » ; « Sommes de contrôle… » (ou double-clic) montre, pour chaque
+  infobulle. Filtre « Envois » / « Téléchargements » / « Échecs et non vérifiés » (transferts en échec, fichiers
+  différents ou non relus), choisi d'office quand un échec signalé par « ! » n'a pas encore été vu ; « Sommes de
+  contrôle… » (ou double-clic) montre, pour chaque
   fichier, la taille, les sommes SHA-256 et le résultat, et les copie au format de `sha256sum -c` pour revérifier
   sur le serveur ; « Ouvrir le dossier » pour un téléchargement ; « Effacer l'historique », à l'écart des autres
   boutons, demande confirmation (les fichiers eux-mêmes ne sont pas touchés).
@@ -464,7 +479,12 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
   sous-dossiers et fichiers ; par défaut, l'exécution (x) n'est donnée qu'aux dossiers et aux fichiers déjà
   exécutables. Le bouton devient alors « Appliquer récursivement… » et une confirmation rappelle ce qui va se
   passer ; pendant la propagation, « Arrêter » dans l'onglet Fichiers l'interrompt (les éléments déjà traités gardent
-  leurs nouveaux droits). Les liens symboliques ne sont pas suivis, le propriétaire n'est pas modifié.
+  leurs nouveaux droits). Les liens symboliques ne sont pas suivis, le propriétaire n'est pas modifié. En FTP, un nom
+  contenant un caractère de contrôle (il ajouterait une commande au serveur) est laissé tel quel et noté en erreur ;
+  les autres éléments sont traités.
+- **Opération en cours** : pendant une suppression, un renommage ou une modification des droits sur un serveur, les
+  autres serveurs restent utilisables ; sur le même serveur, Supprimer, `F2` et Droits sont refusés jusqu'à sa fin,
+  et la barre d'état le dit.
 - **Filtrer** : le champ sous le chemin ne garde que les éléments du dossier dont le nom contient le texte (`nginx`),
   ou répond à un masque avec `*` et `?` (`*.log`, `app?.conf` ; plusieurs séparés par `;` : `*.log;*.gz`), sans tenir
   compte des majuscules. `..` reste pour remonter ; la barre d'état dit combien d'éléments sont affichés. Il est vidé

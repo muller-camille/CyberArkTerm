@@ -10,20 +10,30 @@ namespace ZillaTerm.App.Views;
 
 /// <summary>
 /// Historique des transferts de l'onglet Fichiers : date, sens, serveur, élément, destination, nombre de fichiers et
-/// résultat, filtrable par sens. Pour un transfert : ses sommes de contrôle, et le dossier d'un téléchargement.
+/// résultat, filtrable par sens ou réduit aux échecs et transferts non vérifiés. Pour un transfert : ses sommes de
+/// contrôle, et le dossier d'un téléchargement.
 /// </summary>
 public partial class TransferHistoryDialog : Window
 {
+    /// <summary>Choix du filtre « Échecs et non vérifiés ».</summary>
+    internal const int ProblemsFilter = 3;
+
     private readonly TransferHistory _history;
     private readonly Action _save;
 
     /// <param name="save">Enregistre l'historique (après « Effacer »).</param>
-    public TransferHistoryDialog(TransferHistory history, Action save)
+    /// <param name="problemsOnly">Ouvert pour un échec signalé : seulement les échecs et transferts non vérifiés.</param>
+    public TransferHistoryDialog(TransferHistory history, Action save, bool problemsOnly = false)
     {
         InitializeComponent();
         _history = history;
         _save = save;
         BuildColumns();
+        if (problemsOnly)
+        {
+            FilterBox.SelectedIndex = ProblemsFilter;
+        }
+
         // Branché après le chargement : la sélection initiale du filtre ne doit pas remplir une grille sans colonnes.
         FilterBox.SelectionChanged += (_, _) => ShowRecords();
         RecordsGrid.SelectionChanged += (_, _) => UpdateButtons();
@@ -34,9 +44,9 @@ public partial class TransferHistoryDialog : Window
     public static string Result(TransferRecord record) => record.State switch
     {
         TransferState.Done when record.Different > 0 => Text.Format(Strings.QueueStateDifferent, record.Different),
-        TransferState.Done when record.Files.Count(f => !f.Verified && !f.Failed && !f.Interrupted) is > 0 and var unverified =>
-            Text.Format(Strings.QueueStateUnverified, unverified, record.Files.Count),
-        TransferState.Done when record.Files.Count > 0 => Text.Format(Strings.QueueStateVerified, record.Identical, record.Files.Count),
+        TransferState.Done when record.Files.Count(f => f.Unverified) is > 0 and var unverified =>
+            Text.Format(Strings.QueueStateUnverified, unverified, Transferred(record)),
+        TransferState.Done when Transferred(record) > 0 => Text.Format(Strings.QueueStateVerified, record.Identical, Transferred(record)),
         TransferState.Done => Strings.QueueStateDone,
         TransferState.Failed => "✗ " + record.Error,
         _ => Strings.QueueStateCancelled,
@@ -45,15 +55,30 @@ public partial class TransferHistoryDialog : Window
     /// <summary>Transfert en échec ou fichier différent de l'original : ligne en rouge.</summary>
     public static bool HasProblem(TransferRecord record) => record.State == TransferState.Failed || record.Different > 0;
 
+    /// <summary>Filtre « Échecs et non vérifiés » : en échec, fichier différent, ou fichier transféré mais pas relu.</summary>
+    public static bool NeedsReview(TransferRecord record) =>
+        HasProblem(record) || (record.State == TransferState.Done && record.Files.Any(f => f.Unverified));
+
+    /// <summary>Fichiers transférés (liens vers des dossiers, non suivis, à part).</summary>
+    private static int Transferred(TransferRecord record) => record.Files.Count(f => !f.Skipped);
+
     private void BuildColumns()
     {
-        // Texte tronqué (« … ») et complet dans l'infobulle : serveur, élément et destination peuvent être longs.
-        void Add(string header, Binding binding, double width = 1, DataGridLengthUnitType unit = DataGridLengthUnitType.Star)
+        // Texte tronqué (« … ») et complet dans l'infobulle : serveur, élément et destination peuvent être longs. Colonne
+        // étroite : assez large pour ses textes possibles (texts), en entier dans chaque langue.
+        void Add(string header, Binding binding, double width = 1, DataGridLengthUnitType unit = DataGridLengthUnitType.Star,
+            params string[] texts)
         {
             var cell = new Style(typeof(TextBlock));
             cell.Setters.Add(new Setter(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis));
             cell.Setters.Add(new Setter(ToolTipProperty, new Binding(nameof(TextBlock.Text)) { RelativeSource = RelativeSource.Self }));
-            RecordsGrid.Columns.Add(new DataGridTextColumn { Header = header, Binding = binding, Width = new DataGridLength(width, unit), ElementStyle = cell });
+            var column = new DataGridTextColumn { Header = header, Binding = binding, Width = new DataGridLength(width, unit), ElementStyle = cell };
+            if (texts.Length > 0)
+            {
+                column.MinWidth = FitWidth(RecordsGrid, texts.Append(header));
+            }
+
+            RecordsGrid.Columns.Add(column);
         }
 
         var row = new Style(typeof(DataGridRow));
@@ -63,15 +88,33 @@ public partial class TransferHistoryDialog : Window
         row.Triggers.Add(problem);
         RecordsGrid.RowStyle = row;
 
-        Add(Strings.HistoryColTime, new Binding(nameof(TransferRecord.Time)) { Converter = new LocalTimeConverter() }, 1, DataGridLengthUnitType.Auto);
-        Add(Strings.ChecksColDirection, new Binding(nameof(TransferRecord.Upload)) { Converter = new DirectionConverter() }, 1, DataGridLengthUnitType.Auto);
+        // Date la plus large possible dans le format de la langue (jour et mois à deux chiffres, heure de l'après-midi).
+        var widestTime = new DateTime(2026, 12, 28, 22, 58, 0).ToString("g", System.Globalization.CultureInfo.CurrentCulture);
+        Add(Strings.HistoryColTime, new Binding(nameof(TransferRecord.Time)) { Converter = new LocalTimeConverter() }, 1, DataGridLengthUnitType.Auto,
+            widestTime);
+        Add(Strings.ChecksColDirection, new Binding(nameof(TransferRecord.Upload)) { Converter = new DirectionConverter() }, 1, DataGridLengthUnitType.Auto,
+            Strings.ChecksUploaded, Strings.ChecksDownloaded);
         Add(Strings.HistoryColServer, new Binding(nameof(TransferRecord.Server)));
         Add(Strings.HistoryColItem, new Binding(nameof(TransferRecord.Label)), 1.2);
         Add(Strings.HistoryColDestination, new Binding(nameof(TransferRecord.Destination)), 1.5);
-        Add(Strings.HistoryColFiles, new Binding(nameof(TransferRecord.FileCount)), 1, DataGridLengthUnitType.Auto);
+        Add(Strings.HistoryColFiles, new Binding(nameof(TransferRecord.FileCount)), 1, DataGridLengthUnitType.Auto, "0000");
         // Téléchargements : toujours par la connexion SFTP de l'onglet.
-        Add(Strings.HistoryColProtocol, new Binding(nameof(TransferRecord.Protocol)) { TargetNullValue = "SFTP" }, 1, DataGridLengthUnitType.Auto);
+        Add(Strings.HistoryColProtocol, new Binding(nameof(TransferRecord.Protocol)) { TargetNullValue = "SFTP" }, 1, DataGridLengthUnitType.Auto,
+            "SFTP");
         Add(Strings.ChecksColResult, new Binding(".") { Converter = new ResultConverter() }, 1.5);
+    }
+
+    /// <summary>
+    /// Largeur d'une colonne étroite pour montrer en entier ses textes possibles (titre compris), dans la police de la
+    /// grille, en gras (lignes en échec), avec la marge d'une cellule : lisible dans chacune des trois langues.
+    /// </summary>
+    internal static double FitWidth(DataGrid grid, IEnumerable<string> texts)
+    {
+        const double CellPadding = 16;
+        var typeface = new System.Windows.Media.Typeface(grid.FontFamily, grid.FontStyle, FontWeights.SemiBold, grid.FontStretch);
+        double pixelsPerDip = System.Windows.Media.VisualTreeHelper.GetDpi(grid).PixelsPerDip;
+        return CellPadding + texts.Max(text => new System.Windows.Media.FormattedText(text, System.Globalization.CultureInfo.CurrentCulture,
+            FlowDirection.LeftToRight, typeface, grid.FontSize, System.Windows.Media.Brushes.Black, pixelsPerDip).WidthIncludingTrailingWhitespace);
     }
 
     private void ShowRecords()
@@ -80,10 +123,13 @@ public partial class TransferHistoryDialog : Window
         {
             1 => _history.Records.Where(r => r.Upload),
             2 => _history.Records.Where(r => !r.Upload),
+            ProblemsFilter => _history.Records.Where(NeedsReview),
             _ => _history.Records,
         };
-        RecordsGrid.ItemsSource = records.ToList();
-        EmptyText.Visibility = _history.Records.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        var shown = records.ToList();
+        RecordsGrid.ItemsSource = shown;
+        EmptyText.Text = _history.Records.Count == 0 ? Strings.HistoryEmpty : Strings.HistoryNoMatch;
+        EmptyText.Visibility = shown.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         ClearButton.IsEnabled = _history.Records.Count > 0;
         UpdateButtons();
     }

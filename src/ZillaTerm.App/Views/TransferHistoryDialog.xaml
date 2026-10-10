@@ -10,6 +10,7 @@
                 <ComboBoxItem Content="{x:Static loc:Strings.HistoryFilterAll}" />
                 <ComboBoxItem Content="{x:Static loc:Strings.HistoryFilterUploads}" />
                 <ComboBoxItem Content="{x:Static loc:Strings.HistoryFilterDownloads}" />
+                <ComboBoxItem Content="{x:Static loc:Strings.HistoryFilterProblems}" />
             </ComboBox>
             <TextBlock Text="{x:Static loc:Strings.HistoryNote}" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" VerticalAlignment="Center" />
         </DockPanel>

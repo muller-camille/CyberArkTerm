@@ -184,7 +184,7 @@ public partial class TailWindow : Window
         foreach (var feed in _feeds.Where(f => !f.Stopped && ReferenceEquals(f.Link.Session, session)).ToList())
         {
             AddMarker(feed, Strings.TailSessionClosedMarker);
-            feed.Stopped = true;
+            feed.Release();
             feed.SetStatus(Strings.TailSessionClosed, error: true);
         }
 
@@ -202,8 +202,9 @@ public partial class TailWindow : Window
         if (!feed.Stopped)
         {
             AddMarker(feed, Strings.TailRemovedMarker);
-            feed.Stopped = true;
         }
+
+        feed.Release();
 
         _feeds.Remove(feed);
         if (!_feeds.Any(f => ReferenceEquals(f.Link, feed.Link)) && _links.Remove(feed.Link))

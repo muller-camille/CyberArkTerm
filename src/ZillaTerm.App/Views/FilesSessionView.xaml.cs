@@ -25,7 +25,7 @@ public partial class FilesSessionView : UserControl
 
     public FilesSession Session { get; }
 
-    /// <summary>« Afficher les fichiers » : la fenêtre ouvre l'onglet Fichiers.</summary>
+    /// <summary>« Afficher les fichiers » : la fenêtre ouvre l'onglet Fichiers, élargi au besoin pour toutes ses colonnes.</summary>
     public event Action? ShowFilesRequested;
 
     /// <summary>

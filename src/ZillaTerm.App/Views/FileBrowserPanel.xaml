@@ -164,6 +164,8 @@
             <MenuItem Tag="copy" Header="{x:Static loc:Strings.FileCopyPath}" Click="OnCopyPath" />
             <MenuItem Header="{x:Static loc:Strings.FileRefresh}" Click="OnRefresh" InputGestureText="F5" />
         </ContextMenu>
+        <!-- Choix des colonnes : clic droit sur l'en-tête de la liste, ou clic sur l'indicateur « +n » ; rempli à l'ouverture. -->
+        <ContextMenu x:Key="ColumnsMenu" Opened="OnColumnsMenuOpened" Closed="OnColumnsMenuClosed" />
     </UserControl.Resources>
 
     <DockPanel Background="{DynamicResource SidePanelBrush}">
@@ -322,7 +324,7 @@
                     </Style>
                 </ListView.ItemContainerStyle>
                 <ListView.View>
-                    <GridView>
+                    <GridView ColumnHeaderContextMenu="{StaticResource ColumnsMenu}">
                         <GridViewColumn x:Name="NameColumn" Header="{x:Static corel:CoreStrings.ColumnName}" Width="165">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
@@ -359,6 +361,17 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Group}" ToolTip="{Binding OwnerAndGroup}" TextTrimming="CharacterEllipsis" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <!-- Colonnes cochées masquées faute de place : « +2 » (nom des colonnes dans l'infobulle), le clic ouvre le choix des colonnes. -->
+                        <GridViewColumn x:Name="MoreColumn" Width="0">
+                            <GridViewColumn.Header>
+                                <TextBlock x:Name="MoreColumnText" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" />
+                            </GridViewColumn.Header>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>

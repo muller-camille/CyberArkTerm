@@ -616,6 +616,114 @@ public sealed class DialogTests
     }
 
     /// <summary>
+    /// Panneau à sa largeur par défaut : les colonnes sans la place sont masquées et « +n » le signale (noms dans
+    /// l'infobulle) ; le menu de l'en-tête choisit les colonnes (gardé dans les réglages) et propose d'élargir le panneau.
+    /// </summary>
+    [Fact]
+    public void HiddenFileColumnsAreSignalledAndCanBeChosen()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var settings = new AppSettings();
+            int saved = 0;
+            var panel = new FileBrowserPanel();
+            panel.Initialize(settings, () => saved++, new TransferHistory());
+            void Layout(double width)
+            {
+                panel.Measure(new Size(width, 600));
+                panel.Arrange(new Rect(0, 0, width, 600));
+                panel.UpdateLayout();
+            }
+
+            Layout(400);
+            double available = panel.FileList.ActualWidth - SystemParameters.VerticalScrollBarWidth - 8;
+            Assert.Equal(400, panel.FileList.ActualWidth);
+            Assert.Equal((76.0, 112.0), (panel.SizeColumn.Width, panel.ModifiedColumn.Width));
+            Assert.Equal((0.0, 0.0, 0.0), (panel.PermissionsColumn.Width, panel.OwnerColumn.Width, panel.GroupColumn.Width));
+            Assert.Equal("+3", panel.MoreColumnText.Text);
+            Assert.True(panel.MoreColumn.Width > 0);
+            Assert.Equal(Text.Format(Strings.FilesColumnsHiddenTip, string.Join(", ", Strings.ColumnPermissions, Strings.ColumnOwner, Strings.ColumnGroup)),
+                panel.MoreColumnText.ToolTip);
+            Assert.Equal(available - 76 - 112 - panel.MoreColumn.Width, panel.NameColumn.Width, 3);
+
+            // Menu de l'en-tête : une case par colonne ; une colonne cochée sans la place est signalée.
+            var menu = (System.Windows.Controls.ContextMenu)panel.FindResource("ColumnsMenu");
+            menu.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.ContextMenu.OpenedEvent, menu));
+            var items = menu.Items.OfType<System.Windows.Controls.MenuItem>().ToList();
+            Assert.Equal([Strings.ColumnSize, Strings.ColumnModified, Strings.ColumnPermissions, Strings.ColumnOwner, Strings.ColumnGroup],
+                items.Select(i => (string)i.Header));
+            Assert.All(items, i => Assert.True(i.IsChecked));
+            Assert.Equal(["", "", Strings.FilesColumnNoRoom, Strings.FilesColumnNoRoom, Strings.FilesColumnNoRoom], items.Select(i => i.InputGestureText));
+
+            // Taille et Modifié décochées : Droits et Propriétaire prennent leur place, Groupe reste signalé.
+            items[0].IsChecked = false;
+            items[0].RaiseEvent(new RoutedEventArgs(System.Windows.Controls.MenuItem.ClickEvent));
+            panel.ShowColumn(ZillaTerm.Core.Ssh.RemoteSortColumn.Modified, show: false);
+            Assert.Equal([ZillaTerm.Core.Ssh.RemoteSortColumn.Size, ZillaTerm.Core.Ssh.RemoteSortColumn.Modified], settings.HiddenFileColumns);
+            Assert.Equal(2, saved);
+            Assert.Equal((0.0, 0.0, 84.0, 90.0, 0.0), (panel.SizeColumn.Width, panel.ModifiedColumn.Width, panel.PermissionsColumn.Width,
+                panel.OwnerColumn.Width, panel.GroupColumn.Width));
+            Assert.Equal("+1", panel.MoreColumnText.Text);
+            Assert.Equal(Strings.FilesColumnNoRoom, items[4].InputGestureText);
+
+            // « Élargir le panneau » : ce qu'il manque pour Droits, Propriétaire et Groupe avec la largeur minimale du nom.
+            double asked = 0;
+            panel.WidenRequested += extra => asked = extra;
+            menu.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.ContextMenu.OpenedEvent, menu));
+            var widen = menu.Items.OfType<System.Windows.Controls.MenuItem>().Single(i => Equals(i.Header, Strings.FilesColumnsWiden));
+            Assert.True(widen.IsEnabled);
+            widen.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.MenuItem.ClickEvent));
+            Assert.Equal(Math.Ceiling(130 + 84 + 90 + 90 - available), asked);
+
+            // Toutes les colonnes réaffichées, plus rien de masqué faute de place dans un panneau assez large.
+            panel.ShowColumn(ZillaTerm.Core.Ssh.RemoteSortColumn.Size, show: true);
+            panel.ShowColumn(ZillaTerm.Core.Ssh.RemoteSortColumn.Modified, show: true);
+            Layout(800);
+            Assert.Empty(settings.HiddenFileColumns);
+            Assert.Equal((84.0, 90.0, 90.0, 0.0), (panel.PermissionsColumn.Width, panel.OwnerColumn.Width, panel.GroupColumn.Width, panel.MoreColumn.Width));
+            Assert.Equal(0, panel.MissingWidth);
+        });
+    }
+
+    /// <summary>
+    /// Opération longue sur un serveur : les actions sont refusées sur ce serveur seulement, et la barre d'état le dit ;
+    /// les autres serveurs restent utilisables.
+    /// </summary>
+    [Fact]
+    public void BusyServerDoesNotBlockTheOthers()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var panel = new FileBrowserPanel();
+            var first = new FakeFiles("/root", []);
+            var second = new FakeFiles("/root", []);
+
+            panel.BeginBusy(first);
+            Assert.False(panel.RefuseIfBusy(second));
+            Assert.Equal("", panel.StatusText.Text);
+            Assert.True(panel.RefuseIfBusy(first));
+            Assert.Equal(Strings.FilesBusy, panel.StatusText.Text);
+
+            // Deux opérations sur le même serveur : il reste occupé jusqu'à la fin de la seconde.
+            panel.BeginBusy(first);
+            panel.EndBusy(first);
+            Assert.True(panel.RefuseIfBusy(first));
+            panel.EndBusy(first);
+            Assert.False(panel.RefuseIfBusy(first));
+        });
+    }
+
+    /// <summary>
     /// Archive .tar.gz envoyée : encadré bien visible avec la commande d'extraction de sa session (une seule ligne, sans
     /// retour à la ligne), qui reste jusqu'à ce qu'on le ferme ou que la session se ferme.
     /// </summary>
@@ -687,6 +795,12 @@ public sealed class DialogTests
             var dialog = new TransferHistoryDialog(history, () => saved++);
 
             Assert.Equal(8, dialog.RecordsGrid.Columns.Count);
+            // Colonne « Sens » assez large pour ses deux textes, dans la langue affichée.
+            double Width(string text) => new System.Windows.Media.FormattedText(text, System.Globalization.CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight, new System.Windows.Media.Typeface(dialog.RecordsGrid.FontFamily, dialog.RecordsGrid.FontStyle,
+                    FontWeights.SemiBold, dialog.RecordsGrid.FontStretch), dialog.RecordsGrid.FontSize, System.Windows.Media.Brushes.Black, 1)
+                .WidthIncludingTrailingWhitespace;
+            Assert.True(dialog.RecordsGrid.Columns[1].MinWidth > Math.Max(Width(Strings.ChecksUploaded), Width(Strings.ChecksDownloaded)));
             Assert.Contains(dialog.RecordsGrid.Columns, c => Equals(c.Header, Strings.HistoryColProtocol));
             Assert.Equal(2, ((IEnumerable<TransferRecord>)dialog.RecordsGrid.ItemsSource).Count());
             dialog.FilterBox.SelectedIndex = 2;
@@ -701,7 +815,29 @@ public sealed class DialogTests
             Assert.False(TransferHistoryDialog.HasProblem(download));
             Assert.NotNull(dialog.RecordsGrid.RowStyle);
             Assert.Equal(0, saved);
+
+            // Échecs et non vérifiés seulement : l'envoi en échec et le téléchargement non relu, pas celui vérifié.
+            history.Add(new TransferRecord
+            {
+                Upload = false, Label = "big.iso", Destination = Path.GetTempPath(), State = TransferState.Done, FileCount = 1,
+                Files = [new TransferCheck("big.iso", @"C:\Temp\big.iso", "/srv/big.iso", -1, [], 3, [.. hash], "fichier verrouillé")],
+            });
+            dialog.FilterBox.SelectedIndex = TransferHistoryDialog.ProblemsFilter;
+            Assert.Equal(["big.iso", "deploy/"], ((IEnumerable<TransferRecord>)dialog.RecordsGrid.ItemsSource).Select(r => r.Label));
+            dialog.FilterBox.SelectedIndex = 1;
             dialog.Close();
+
+            // Ouvert pour un échec signalé : directement sur ce filtre. Rien qui corresponde : c'est dit.
+            var problems = new TransferHistoryDialog(history, () => saved++, problemsOnly: true);
+            Assert.Equal(TransferHistoryDialog.ProblemsFilter, problems.FilterBox.SelectedIndex);
+            Assert.Equal(2, ((IEnumerable<TransferRecord>)problems.RecordsGrid.ItemsSource).Count());
+            problems.Close();
+            var clean = new TransferHistory();
+            clean.Add(history.Records[^1]);
+            var none = new TransferHistoryDialog(clean, () => saved++, problemsOnly: true);
+            Assert.Empty((IEnumerable<TransferRecord>)none.RecordsGrid.ItemsSource);
+            Assert.Equal((Strings.HistoryNoMatch, Visibility.Visible), (none.EmptyText.Text, none.EmptyText.Visibility));
+            none.Close();
         });
     }
 
@@ -918,6 +1054,83 @@ public sealed class DialogTests
                 Directory.Delete(directory, recursive: true);
                 session.Dispose();
             }
+        });
+    }
+
+    /// <summary>
+    /// Session fermée : le lien de suivi ne la retient plus (ni son terminal et son historique) ; les lignes reçues
+    /// restent, avec le nom du serveur.
+    /// </summary>
+    [Fact]
+    public void TailLinkReleasesAClosedSession()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            SynchronizationContext.SetSynchronizationContext(null);
+            var (session, _) = NewSshView("root@srv01");
+            var link = new SessionTailLink(session, dedicated: false, shared: null);
+            var window = new TailWindow(new AppSettings(), () => { });
+            var feed = window.AddFeed(link, "/var/log/app.log");
+            Assert.Same(link, window.LinkFor(session));
+            Assert.Same(session, link.Session);
+
+            window.EndSession(session);
+
+            Assert.Null(link.Session);
+            Assert.Null(window.LinkFor(session));
+            Assert.True(feed.Stopped);
+            Assert.Equal(("root@srv01", "root@srv01 app.log"), (link.Server, feed.Label));
+            Assert.False(link.CheckConnected());
+            Assert.False(link.CanReconnect);
+            Assert.Contains(Strings.TailSessionClosedMarker, window.Shown);
+            window.Close();
+            session.Dispose();
+        });
+    }
+
+    /// <summary>
+    /// Dossier envoyé avec un lien vers un dossier : le lien, non suivi, est signalé à part dans le bilan, le détail et
+    /// l'historique, sans compter comme un fichier non vérifié.
+    /// </summary>
+    [Fact]
+    public void SkippedLinksAreReportedApart()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            SynchronizationContext.SetSynchronizationContext(null);
+            var hash = System.Security.Cryptography.SHA256.HashData("<h1>ok</h1>"u8);
+            var sent = new TransferCheck("index.html", @"C:\site\index.html", "/srv/site/index.html", 11, hash, 11, [.. hash]) { Upload = true };
+            var link = new TransferCheck("loop", @"C:\site\loop", "/srv/site/loop", -1, [], -1, [], @"C:\site") { Upload = true, Skipped = true };
+            var panel = new FileBrowserPanel();
+            var item = new TransferItem(true, "site/", "/srv", (i, _) =>
+            {
+                i.Checks.Add(sent);
+                i.Checks.Add(link);
+                return Task.CompletedTask;
+            }) { Protocol = "SFTP", FileCount = 1 };
+
+            panel.Queue.Enqueue(item);
+
+            Assert.Equal(Text.Format(Strings.QueueStateVerified, 1, 1), TransferStatusConverter.StateText(item));
+            Assert.Equal("Ok", TransferStatusConverter.Outcome(item));
+            Assert.Contains(Text.Format(Strings.TransferLinksSkipped, 1), panel.StatusText.Text);
+            Assert.DoesNotContain(Text.Format(Strings.TransferNotVerified, 1), panel.StatusText.Text);
+            Assert.Equal(Text.Format(Strings.ChecksAllOk, 1) + Environment.NewLine + Text.Format(Strings.ChecksSomeSkipped, 1),
+                TransferChecksDialog.Heading([sent, link]));
+            Assert.Equal(Text.Format(Strings.ChecksSkipped, @"C:\site"), TransferChecksDialog.Result(link));
+            var record = Assert.Single(panel.History.Records);
+            Assert.Equal(Text.Format(Strings.QueueStateVerified, 1, 1), TransferHistoryDialog.Result(record));
+            Assert.False(TransferHistoryDialog.NeedsReview(record));
         });
     }
 

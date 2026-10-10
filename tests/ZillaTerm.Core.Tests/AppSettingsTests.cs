@@ -207,12 +207,16 @@ public sealed class AppSettingsTests : IDisposable
                 SidePanelWidth = 455,
                 SidePanelCollapsed = true,
                 MainWindowPlacement = new WindowPlacement(10, 20, 1300, 800, true),
+                // La colonne Nom ne se masque pas, même dans un fichier modifié à la main.
+                HiddenFileColumns = [Core.Ssh.RemoteSortColumn.Modified, Core.Ssh.RemoteSortColumn.Name, Core.Ssh.RemoteSortColumn.Group],
             }.Save(path);
 
             var loaded = AppSettings.Load(path);
             Assert.Equal(455, loaded.SidePanelWidth);
             Assert.True(loaded.SidePanelCollapsed);
             Assert.Equal(new WindowPlacement(10, 20, 1300, 800, true), loaded.MainWindowPlacement);
+            Assert.Equal([Core.Ssh.RemoteSortColumn.Modified, Core.Ssh.RemoteSortColumn.Group], loaded.HiddenFileColumns);
+            Assert.Empty(new AppSettings().HiddenFileColumns);
         }
         finally
         {

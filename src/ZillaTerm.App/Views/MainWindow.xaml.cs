@@ -118,6 +118,7 @@ public partial class MainWindow : Window
         FilesPanel.OpenSessions = () => MainTabs.Items.OfType<TabItem>().Select(t => t.Tag).OfType<RemoteSession>().ToList();
         FilesPanel.ShowTerminalRequested += ShowTerminal;
         FilesPanel.TransfersChanged += UpdateFilesBadge;
+        FilesPanel.WidenRequested += WidenSidePanel;
         if (IsOffline)
         {
             // Accès d'urgence : ni comptes CyberArk ni PSM, seulement les coffres KeePass de « Mes serveurs ».
@@ -1507,13 +1508,17 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>Bouton Historique : envois et téléchargements de l'onglet Fichiers, même sans session.</summary>
+    /// <summary>
+    /// Bouton Historique : envois et téléchargements de l'onglet Fichiers, même sans session ; seulement les échecs et
+    /// transferts non vérifiés quand un échec est signalé (« ! ») et pas encore vu.
+    /// </summary>
     private void OnTransferHistory(object sender, RoutedEventArgs e)
     {
+        bool problems = FilesPanel.UnseenProblems > 0;
         // L'historique montre les transferts en échec : ils sont vus.
         FilesPanel.MarkTransfersSeen();
         UpdateFilesBadge();
-        FilesPanel.ShowHistory();
+        FilesPanel.ShowHistory(problemsOnly: problems);
     }
 
     /// <summary>Affiche le terminal d'une session : son onglet, la vue parallèle ou sa fenêtre séparée.</summary>

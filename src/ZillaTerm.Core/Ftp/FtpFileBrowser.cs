@@ -360,6 +360,9 @@ public sealed class FtpFileBrowser : IRemoteFiles
     private static string Checked(string path) =>
         path.Any(char.IsControl) ? throw new ArgumentException(CoreStrings.ControlCharacterInPath) : path;
 
+    /// <summary>Chemin affiché dans un message : caractères de contrôle remplacés par « ? ».</summary>
+    private static string Printable(string path) => string.Concat(path.Select(c => char.IsControl(c) ? '?' : c));
+
     // ===================== Envois =====================
 
     public async Task UploadAsync(string localPath, string remoteDirectory, TransferProtocol protocol, ICollection<TransferCheck> checks,
@@ -369,7 +372,19 @@ public sealed class FtpFileBrowser : IRemoteFiles
         var remote = RemotePath.Combine(remoteDirectory, name);
         if (Directory.Exists(localPath))
         {
-            await UploadDirectoryAsync(localPath, remote, checks, progress, background, ct).ConfigureAwait(false);
+            // Liens vers des dossiers, pas suivis : notés à la fin (le rang du fichier en cours ne compte que les fichiers).
+            var links = new List<TransferCheck>();
+            try
+            {
+                await UploadDirectoryAsync(localPath, remote, checks, links, progress, background, ct).ConfigureAwait(false);
+            }
+            finally
+            {
+                foreach (var link in links)
+                {
+                    checks.Add(link);
+                }
+            }
         }
         else
         {
@@ -378,7 +393,7 @@ public sealed class FtpFileBrowser : IRemoteFiles
     }
 
     private async Task UploadDirectoryAsync(string localDirectory, string remoteDirectory, ICollection<TransferCheck> checks,
-        IProgress<TransferProgress>? progress, bool background, CancellationToken ct)
+        List<TransferCheck> links, IProgress<TransferProgress>? progress, bool background, CancellationToken ct)
     {
         using (await _gate.EnterAsync(background, ct).ConfigureAwait(false))
         {
@@ -388,15 +403,18 @@ public sealed class FtpFileBrowser : IRemoteFiles
             }
         }
 
-        foreach (var file in Directory.EnumerateFiles(localDirectory))
+        var directory = new DirectoryInfo(localDirectory);
+        foreach (var file in LocalTree.Files(directory))
         {
-            await UploadFileAsync(file, RemotePath.Combine(remoteDirectory, Path.GetFileName(file)), checks, progress, background, ct)
+            await UploadFileAsync(file.FullName, RemotePath.Combine(remoteDirectory, file.Name), checks, progress, background, ct)
                 .ConfigureAwait(false);
         }
 
-        foreach (var sub in Directory.EnumerateDirectories(localDirectory))
+        // Liens symboliques et jonctions vers des dossiers : pas suivis (boucle, dossier interdit), notés dans le bilan.
+        links.AddRange(LocalTree.Links(directory).Select(link => TransferCheck.SkippedLink(link, RemotePath.Combine(remoteDirectory, link.Name))));
+        foreach (var sub in LocalTree.Directories(directory))
         {
-            await UploadDirectoryAsync(sub, RemotePath.Combine(remoteDirectory, Path.GetFileName(sub)), checks, progress, background, ct)
+            await UploadDirectoryAsync(sub.FullName, RemotePath.Combine(remoteDirectory, sub.Name), checks, links, progress, background, ct)
                 .ConfigureAwait(false);
         }
     }
@@ -640,6 +658,7 @@ public sealed class FtpFileBrowser : IRemoteFiles
         byte[] remoteHash;
         long received;
         bool started = false;
+        bool created = false;
         var partial = TransferCheck.PartialPath(localPath);
         try
         {
@@ -648,8 +667,9 @@ public sealed class FtpFileBrowser : IRemoteFiles
                 started = true;
                 try
                 {
-                    await using (var file = File.Create(partial))
+                    await using (var file = TransferCheck.CreatePartial(partial))
                     {
+                        created = true;
                         using var hashing = new HashingStream(file);
                         var report = progress is null ? null : new Progress<FtpProgress>(
                             p => progress.Report(new TransferProgress(entry.Name, p.TransferredBytes, entry.Length)));
@@ -674,10 +694,11 @@ public sealed class FtpFileBrowser : IRemoteFiles
         }
         catch (Exception e) when (e is not OutOfMemoryException && started)
         {
-            var detail = DiscardLocal(partial);
+            var detail = created ? DiscardLocal(partial) : null;
             bool cancelled = e is OperationCanceledException && ct.IsCancellationRequested;
             checks?.Add(new TransferCheck(entry.Name, localPath, entry.FullPath, -1, [], -1, [],
-                cancelled ? detail : $"{e.Message} ({detail})") { Interrupted = cancelled, Failed = !cancelled });
+                cancelled ? detail ?? e.Message : detail is null ? e.Message : $"{e.Message} ({detail})")
+                { Interrupted = cancelled, Failed = !cancelled });
             throw;
         }
 
@@ -884,7 +905,7 @@ public sealed class FtpFileBrowser : IRemoteFiles
         FtpListItem[] items;
         try
         {
-            items = await _client.GetListing(directory, FtpListOption.AllFiles, ct).ConfigureAwait(false);
+            items = await _client.GetListing(Checked(directory), FtpListOption.AllFiles, ct).ConfigureAwait(false);
         }
         catch (Exception e) when (e is FtpException or IOException)
         {
@@ -896,6 +917,14 @@ public sealed class FtpFileBrowser : IRemoteFiles
         {
             ct.ThrowIfCancellationRequested();
             var path = RemotePath.Combine(directory, item.Name);
+            if (path.Any(char.IsControl))
+            {
+                // Nom qui ajouterait une commande FTP : l'élément (et son contenu) est laissé tel quel, noté en erreur, et
+                // les suivants sont traités.
+                result.Errors.Add($"{Printable(path)} : {CoreStrings.ControlCharacterInPath}");
+                continue;
+            }
+
             int itemMode = ModeOf(item.Chmod);
             bool isDirectory = item.Type == FtpObjectType.Directory;
             try
@@ -966,7 +995,7 @@ public sealed class FtpFileBrowser : IRemoteFiles
             }
 
             // Lien vers un dossier : pas suivi. Lien vers un fichier : téléchargé, avec la taille de sa cible.
-            var full = RemotePath.Combine(entry.FullPath, item.Name);
+            var full = Checked(RemotePath.Combine(entry.FullPath, item.Name));
             if (!await IsDirectoryAsync(full, ct).ConfigureAwait(false))
             {
                 long size = await _client.GetFileSize(full, -1, ct).ConfigureAwait(false);
