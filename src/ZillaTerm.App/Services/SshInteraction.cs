@@ -29,8 +29,10 @@ internal sealed class SshInteraction(Window owner, AppSettings settings, Action 
                 return true;
             }
 
-            if (!AskHostKey(owner, direct, host, port, algorithm, sha256Fingerprint,
-                    status == HostKeyStatus.Changed ? KnownHosts.Known(settings.KnownHosts, host, port) : null))
+            if (!AskHostKey(owner, direct, host, port, algorithm, sha256Fingerprint, status,
+                    status == HostKeyStatus.Changed
+                        ? [KnownHosts.Known(settings.KnownHosts, host, port, algorithm)!.Value]
+                        : KnownHosts.KnownKeys(settings.KnownHosts, host, port)))
             {
                 return false;
             }
@@ -40,19 +42,53 @@ internal sealed class SshInteraction(Window owner, AppSettings settings, Action 
             return true;
         });
 
+    // Rien si l'application se ferme (Invoke ne rend alors rien) : l'ordre de négociation reste celui par défaut.
+    public IReadOnlyCollection<string> KnownHostKeyTypes(string host, int port) =>
+        Dispatcher.Invoke(() => KnownHosts.KnownKeys(settings.KnownHosts, host, port).Select(k => KnownHosts.KeyType(k.Algorithm)).ToList())
+        ?? [];
+
     /// <summary>
-    /// Clé d'hôte inconnue ou changée : empreinte à comparer (copiable), « Annuler la connexion » par défaut. Une clé
-    /// changée montre l'ancienne et la nouvelle empreinte, et ne s'accepte qu'après avoir coché « J'ai confirmé… ».
+    /// Clé d'hôte inconnue, changée ou d'un nouveau type : empreinte à comparer (copiable), « Annuler la connexion » par
+    /// défaut. Une clé changée montre l'ancienne et la nouvelle empreinte, et ne s'accepte qu'après avoir coché
+    /// « J'ai confirmé… » ; une clé d'un type jamais vu pour ce serveur montre aussi celles déjà acceptées, et ne
+    /// s'accepte qu'après avoir coché « J'ai vérifié… ».
     /// </summary>
-    internal static bool AskHostKey(Window owner, bool direct, string host, int port, string algorithm, string sha256,
-        (string Algorithm, string Sha256)? previous)
+    /// <param name="known">Clé remplacée (clé changée) ou clés déjà acceptées pour ce serveur (nouveau type).</param>
+    internal static bool AskHostKey(Window owner, bool direct, string host, int port, string algorithm, string sha256, HostKeyStatus status,
+        IReadOnlyList<(string Algorithm, string Sha256)> known) =>
+        ConfirmDialog.Confirm(owner, HostKeyQuestion(direct, host, port, algorithm, sha256, status, known));
+
+    /// <summary>Contenu de la question de <see cref="AskHostKey"/>.</summary>
+    internal static ConfirmRequest HostKeyQuestion(bool direct, string host, int port, string algorithm, string sha256, HostKeyStatus status,
+        IReadOnlyList<(string Algorithm, string Sha256)> known)
     {
         var receives = direct ? Strings.HostKeyServerReceives : Strings.HostKeyPsmpReceives;
         var title = direct ? Strings.HostKeyTitleServer : Strings.HostKeyTitle;
         var subject = $"{host}:{port}";
-        if (previous is not { } old)
+        if (status == HostKeyStatus.NewAlgorithm)
         {
-            return ConfirmDialog.Confirm(owner, new ConfirmRequest
+            return new ConfirmRequest
+            {
+                Title = title,
+                Heading = direct ? Strings.HostKeyNewTypeServerHeading : Strings.HostKeyNewTypePsmpHeading,
+                Subject = subject,
+                Message = direct ? Strings.HostKeyNewTypeServerMessage : Strings.HostKeyNewTypePsmpMessage,
+                Codes =
+                [
+                    .. known.Select(k => (Text.Format(Strings.HostKeyOld, k.Algorithm), "SHA256:" + k.Sha256)),
+                    (Text.Format(Strings.HostKeyNew, algorithm), "SHA256:" + sha256),
+                ],
+                Bullets = [receives, Strings.HostKeyBothKept],
+                Kind = ConfirmKind.Warning,
+                Actions = [Strings.HostKeyAddKey],
+                CancelLabel = Strings.HostKeyCancel,
+                Acknowledge = direct ? Strings.HostKeyAckNewServer : Strings.HostKeyAckNewPsmp,
+            };
+        }
+
+        if (status != HostKeyStatus.Changed)
+        {
+            return new ConfirmRequest
             {
                 Title = title,
                 Heading = direct ? Strings.HostKeyVerifyServer : Strings.HostKeyVerifyPsmp,
@@ -63,10 +99,10 @@ internal sealed class SshInteraction(Window owner, AppSettings settings, Action 
                 Kind = ConfirmKind.Question,
                 Actions = [Strings.HostKeyTrust],
                 CancelLabel = Strings.HostKeyCancel,
-            });
+            };
         }
 
-        return ConfirmDialog.Confirm(owner, new ConfirmRequest
+        return new ConfirmRequest
         {
             Title = title,
             Banner = Strings.HostKeyChangedBanner,
@@ -75,7 +111,7 @@ internal sealed class SshInteraction(Window owner, AppSettings settings, Action 
             Message = direct ? Strings.HostKeyChangedServerMessage : Strings.HostKeyChangedPsmpMessage,
             Codes =
             [
-                (Text.Format(Strings.HostKeyOld, old.Algorithm), "SHA256:" + old.Sha256),
+                (Text.Format(Strings.HostKeyOld, known[0].Algorithm), "SHA256:" + known[0].Sha256),
                 (Text.Format(Strings.HostKeyNew, algorithm), "SHA256:" + sha256),
             ],
             Kind = ConfirmKind.Danger,
@@ -83,7 +119,7 @@ internal sealed class SshInteraction(Window owner, AppSettings settings, Action 
             DangerAction = 0,
             CancelLabel = Strings.HostKeyCancel,
             Acknowledge = direct ? Strings.HostKeyAckServer : Strings.HostKeyAckPsmp,
-        });
+        };
     }
 
     public SshAnswer? Prompt(SshQuestion question) =>

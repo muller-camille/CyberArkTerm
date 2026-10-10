@@ -96,11 +96,18 @@ public sealed class RfbClient : IDisposable
     private readonly Queue<long> _resizes = new();
     private byte _buttons;
     private int _disposed;
+    private long _lastBell = long.MinValue;
 
     /// <summary>Changements de taille d'écran acceptés au plus pendant <see cref="ResizeWindow"/>.</summary>
     internal const int MaxResizes = 10;
 
     private static readonly TimeSpan ResizeWindow = TimeSpan.FromSeconds(10);
+
+    /// <summary>Délai de la connexion et de la poignée de main (hors question posée à l'utilisateur).</summary>
+    private static readonly TimeSpan HandshakeTimeout = TimeSpan.FromSeconds(30);
+
+    /// <summary>Bips du serveur relayés au plus une fois par intervalle : un serveur ne peut pas en inonder le poste.</summary>
+    internal static readonly TimeSpan BellInterval = TimeSpan.FromSeconds(1);
 
     private RfbClient(TcpClient tcp, NetworkStream network, BufferedStream reader, int minor, string name, int width, int height)
     {
@@ -129,6 +136,7 @@ public sealed class RfbClient : IDisposable
     /// <summary>Texte copié sur le serveur (depuis le fil de lecture).</summary>
     public event Action<string>? ClipboardReceived;
 
+    /// <summary>Bip du serveur, au plus un par <see cref="BellInterval"/> (depuis le fil de lecture).</summary>
     public event Action? Bell;
 
     /// <summary>
@@ -136,17 +144,26 @@ public sealed class RfbClient : IDisposable
     /// passe VNC (8 caractères au plus pris en compte par le protocole).
     /// </summary>
     /// <exception cref="RfbException">Protocole, authentification ou écran refusés.</exception>
-    public static async Task<RfbClient> ConnectAsync(string host, int port, Func<string?> password, CancellationToken ct)
+    public static Task<RfbClient> ConnectAsync(string host, int port, Func<string?> password, CancellationToken ct) =>
+        ConnectAsync(host, port, password, null, ct);
+
+    /// <param name="confirmPassword">
+    /// Appelé avant d'envoyer le mot de passe VNC : le protocole n'est pas chiffré et ne vérifie pas le serveur, qui (ou
+    /// un intermédiaire) peut en retrouver les 8 premiers caractères hors ligne. Faux : connexion annulée, rien d'envoyé.
+    /// Le délai de connexion ne court pas pendant la question.
+    /// </param>
+    public static async Task<RfbClient> ConnectAsync(string host, int port, Func<string?> password, Func<bool>? confirmPassword,
+        CancellationToken ct)
     {
         var tcp = new TcpClient { NoDelay = true };
         try
         {
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
-            timeout.CancelAfter(TimeSpan.FromSeconds(30));
+            timeout.CancelAfter(HandshakeTimeout);
             await tcp.ConnectAsync(host, port, timeout.Token).ConfigureAwait(false);
             var network = tcp.GetStream();
             var reader = new BufferedStream(network, 64 * 1024);
-            var client = await HandshakeAsync(tcp, network, reader, password, timeout.Token).ConfigureAwait(false);
+            var client = await HandshakeAsync(tcp, network, reader, password, confirmPassword, timeout).ConfigureAwait(false);
             return client;
         }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested)
@@ -162,8 +179,9 @@ public sealed class RfbClient : IDisposable
     }
 
     private static async Task<RfbClient> HandshakeAsync(TcpClient tcp, NetworkStream network, BufferedStream reader, Func<string?> password,
-        CancellationToken ct)
+        Func<bool>? confirmPassword, CancellationTokenSource timeout)
     {
+        var ct = timeout.Token;
         // Version : « RFB 003.008\n ».
         var version = await ReadBytesAsync(reader, 12, ct).ConfigureAwait(false);
         var text = Encoding.ASCII.GetString(version);
@@ -210,6 +228,19 @@ public sealed class RfbClient : IDisposable
         string? secret = null;
         bool HasPassword() => !string.IsNullOrEmpty(secret ??= password());
         var security = ChooseSecurity(offered, HasPassword);
+        if (security == SecurityVnc && confirmPassword is not null && HasPassword())
+        {
+            // Question sans limite de temps (le serveur attend) ; le délai reprend ensuite pour la fin de la poignée de main.
+            ct.ThrowIfCancellationRequested();
+            timeout.CancelAfter(Timeout.InfiniteTimeSpan);
+            bool confirmed = confirmPassword();
+            timeout.CancelAfter(HandshakeTimeout);
+            if (!confirmed)
+            {
+                throw new RfbException(CoreStrings.VncPasswordNotSent);
+            }
+        }
+
         if (minor != 3)
         {
             await network.WriteAsync(new[] { security }, ct).ConfigureAwait(false);
@@ -382,7 +413,13 @@ public sealed class RfbClient : IDisposable
                         await SkipAsync(BinaryPrimitives.ReadUInt16BigEndian(header.AsSpan(3)) * 6, token).ConfigureAwait(false);
                         break;
                     case 2:
-                        Bell?.Invoke();
+                        var now = Environment.TickCount64;
+                        if (_lastBell == long.MinValue || now - _lastBell >= (long)BellInterval.TotalMilliseconds)
+                        {
+                            _lastBell = now;
+                            Bell?.Invoke();
+                        }
+
                         break;
                     case 3:
                         await ReadCutTextAsync(token).ConfigureAwait(false);

@@ -388,7 +388,14 @@ public partial class MainWindow
     {
         if (SharedListOf(SavedTree.SelectedItem) is { } list)
         {
-            System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{list.Path}\"")?.Dispose();
+            try
+            {
+                Services.WindowsExplorer.ShowFile(list.Path);
+            }
+            catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or ArgumentException)
+            {
+                SetStatus(ex.Message, isError: true);
+            }
         }
     }
 

@@ -12,7 +12,10 @@ public partial class MainWindow
     /// <param name="duplicate">Ouvre une autre session sur la même entrée (menu de l'onglet).</param>
     private void OpenVncTab(string label, string host, int port, Func<string?> password, Func<Task>? duplicate)
     {
-        var session = new VncSession(label, host, port, password);
+        // Mot de passe VNC envoyé en clair (ou presque) : accord demandé une fois pour l'onglet, reconnexions comprises.
+        bool passwordAccepted = false;
+        var session = new VncSession(label, host, port, password,
+            () => passwordAccepted || (passwordAccepted = Dispatcher.Invoke(() => ConfirmVncPassword(host, port))));
         var view = new VncSessionView(session);
         var tab = new TabItem { Content = view, Tag = session };
         tab.Header = TabHeader(tab, label, "IconConnect", duplicate);
@@ -33,6 +36,23 @@ public partial class MainWindow
         MainTabs.SelectedItem = tab;
         _ = session.ConnectAsync();
     }
+
+    /// <summary>
+    /// Avant le premier envoi du mot de passe VNC : le protocole ne chiffre rien et ne vérifie pas le serveur, qui peut
+    /// en retrouver les 8 premiers caractères. « Annuler la connexion » par défaut.
+    /// </summary>
+    private bool ConfirmVncPassword(string host, int port) =>
+        ConfirmDialog.Confirm(this, new ConfirmRequest
+        {
+            Title = Strings.VncPasswordTitle,
+            Heading = Strings.VncPasswordHeading,
+            Subject = host.Contains(':') ? $"[{host}]:{port}" : $"{host}:{port}",
+            Message = Strings.VncPasswordMessage,
+            Bullets = [Strings.VncPasswordOnce],
+            Kind = ConfirmKind.Warning,
+            Actions = [Strings.VncPasswordSend],
+            CancelLabel = Strings.HostKeyCancel,
+        });
 
     private void CloseVncTab(TabItem tab, Window? owner = null)
     {

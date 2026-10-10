@@ -459,4 +459,25 @@
   <data name="MigrationTooDeep" xml:space="preserve">
     <value>Il file annida cartelle su più di {0} livelli: viene rifiutato come danneggiato.</value>
   </data>
+  <data name="FtpTlsRemoved" xml:space="preserve">
+    <value>Questo server FTP cifrava le connessioni (TLS) e non lo propone più: connessione interrotta, la password non è stata inviata.</value>
+  </data>
+  <data name="VncPasswordNotSent" xml:space="preserve">
+    <value>Connessione annullata: la password VNC non è stata inviata.</value>
+  </data>
+  <data name="RdpNoTls" xml:space="preserve">
+    <value>Il server Desktop remoto non accetta la cifratura TLS: la sua identità non può essere verificata, la password della voce non gli viene inviata.</value>
+  </data>
+  <data name="RdpNotRdp" xml:space="preserve">
+    <value>Il server non ha risposto come un server Desktop remoto: verifica l'indirizzo e la porta (3389 per impostazione predefinita).</value>
+  </data>
+  <data name="RdpNegotiationRefused" xml:space="preserve">
+    <value>Il server Desktop remoto ha rifiutato la connessione (codice {0}).</value>
+  </data>
+  <data name="RdpProbeTimeout" xml:space="preserve">
+    <value>Nessuna risposta dal server Desktop remoto entro 30 secondi: verifica l'indirizzo e la porta (3389 per impostazione predefinita).</value>
+  </data>
+  <data name="RdpTlsFailed" xml:space="preserve">
+    <value>Negoziazione TLS con il server Desktop remoto non riuscita: {0}</value>
+  </data>
 </root>

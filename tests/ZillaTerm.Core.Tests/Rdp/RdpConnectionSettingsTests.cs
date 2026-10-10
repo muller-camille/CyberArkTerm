@@ -53,5 +53,7 @@ public class RdpConnectionSettingsTests
         Assert.True(s.EnableCredSsp);
         Assert.False(s.RedirectDrives);
         Assert.False(s.RedirectPrinters);
+        // Pas d'images de la session gardées sur le disque de ce poste.
+        Assert.False(s.BitmapPersistence);
     }
 }

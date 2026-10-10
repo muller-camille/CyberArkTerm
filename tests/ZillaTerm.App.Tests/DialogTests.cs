@@ -127,6 +127,48 @@ public sealed class DialogTests
         });
     }
 
+    /// <summary>
+    /// Clé d'hôte d'un type jamais vu pour un PSMP connu : ni l'alerte rouge de clé changée, ni la simple question du
+    /// premier usage ; les clés déjà acceptées sont montrées, et rien ne s'accepte sans cocher « J'ai vérifié… ».
+    /// </summary>
+    [Fact]
+    public void HostKeyOfANewTypeAsksForACheckedFingerprint()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var store = new Dictionary<string, string>();
+            KnownHosts.Remember(store, "psmp.corp.local", 22, "rsa-sha2-512", "RSA1");
+            var status = KnownHosts.Check(store, "psmp.corp.local", 22, "ssh-ed25519", "ED1");
+            Assert.Equal(HostKeyStatus.NewAlgorithm, status);
+
+            var dialog = new ConfirmDialog(Services.SshInteraction.HostKeyQuestion(false, "psmp.corp.local", 22, "ssh-ed25519", "ED1", status,
+                KnownHosts.KnownKeys(store, "psmp.corp.local", 22)));
+            Assert.Equal(Strings.HostKeyNewTypePsmpHeading, dialog.HeadingText.Text);
+            Assert.NotEqual(Visibility.Visible, dialog.Banner.Visibility);
+            Assert.Equal(2, dialog.CodeList.Items.Count);
+            var buttons = dialog.ButtonsPanel.Children.OfType<System.Windows.Controls.Button>().ToList();
+            Assert.Equal([Strings.HostKeyAddKey, Strings.HostKeyCancel], buttons.Select(b => (string)b.Content));
+            Assert.False(buttons[0].IsEnabled);
+            Assert.True(buttons[1].IsDefault);
+            dialog.AcknowledgeBox.IsChecked = true;
+            Assert.True(buttons[0].IsEnabled);
+            dialog.Close();
+
+            KnownHosts.Remember(store, "psmp.corp.local", 22, "ssh-ed25519", "ED1");
+            status = KnownHosts.Check(store, "psmp.corp.local", 22, "ssh-ed25519", "ED2");
+            var changed = new ConfirmDialog(Services.SshInteraction.HostKeyQuestion(true, "srv01.corp.local", 22, "ssh-ed25519", "ED2", status,
+                [KnownHosts.Known(store, "psmp.corp.local", 22, "ssh-ed25519")!.Value]));
+            Assert.Equal(Strings.HostKeyChangedServerHeading, changed.HeadingText.Text);
+            Assert.Equal(Visibility.Visible, changed.Banner.Visibility);
+            changed.Close();
+        });
+    }
+
     /// <summary>Droits de plusieurs fichiers (755 et 644) : seuls les droits changés partent, pas ceux du premier.</summary>
     [Fact]
     public void PermissionsOfMixedItemsOnlyChangeWhatIsTicked()
@@ -926,18 +968,24 @@ public sealed class DialogTests
             var settings = new AppSettings();
             ZillaTerm.Core.Ssh.KnownHosts.Remember(settings.KnownHosts, "psmp.corp.local", 22, "ssh-ed25519", "AAAA");
             ZillaTerm.Core.Ssh.KnownHosts.Remember(settings.KnownHosts, "ftp.corp.local", 990, "X.509", "BBBB");
+            // Deuxième clé du PSMP, d'un autre type : une ligne de plus pour le même serveur.
+            ZillaTerm.Core.Ssh.KnownHosts.Remember(settings.KnownHosts, "psmp.corp.local", 22, "rsa-sha2-512", "CCCC");
             var dialog = new SettingsDialog(settings);
-            Assert.Equal(2, dialog.HostKeyRows.Count);
-            Assert.Contains(new SettingsDialog.HostKeyRow("psmp.corp.local:22", "ssh-ed25519", "SHA256:AAAA"), dialog.HostKeyRows);
+            Assert.Equal(3, dialog.HostKeyRows.Count);
+            Assert.Contains(new SettingsDialog.HostKeyRow("psmp.corp.local:22", "ssh-ed25519", "SHA256:AAAA", "psmp.corp.local:22"), dialog.HostKeyRows);
+            Assert.Contains(new SettingsDialog.HostKeyRow("psmp.corp.local:22", "rsa-sha2-512", "SHA256:CCCC", "psmp.corp.local:22 ssh-rsa"),
+                dialog.HostKeyRows);
             Assert.False(dialog.ForgetKeysButton.IsEnabled);
 
             dialog.HostKeysGrid.SelectedItems.Add(dialog.HostKeyRows.Single(r => r.Server == "ftp.corp.local:990"));
+            dialog.HostKeysGrid.SelectedItems.Add(dialog.HostKeyRows.Single(r => r.Algorithm == "rsa-sha2-512"));
             dialog.ForgetSelectedKeys();
             Assert.Equal(["psmp.corp.local:22"], dialog.HostKeyRows.Select(r => r.Server));
-            Assert.Equal(2, settings.KnownHosts.Count);
+            Assert.Equal(3, settings.KnownHosts.Count);
 
             dialog.ApplyForgottenKeys();
             Assert.Equal(["psmp.corp.local:22"], settings.KnownHosts.Keys);
+            Assert.Equal("ssh-ed25519 SHA256:AAAA", settings.KnownHosts["psmp.corp.local:22"]);
             dialog.Close();
         });
     }

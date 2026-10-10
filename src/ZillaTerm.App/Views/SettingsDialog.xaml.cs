@@ -74,8 +74,11 @@ public partial class SettingsDialog : Window
         Loaded += (_, _) => LanguageBox.Focus();
     }
 
-    /// <summary>Clé d'hôte acceptée : « hôte:port », type de clé (ou X.509 pour un certificat FTPS), empreinte SHA-256.</summary>
-    internal sealed record HostKeyRow(string Server, string Algorithm, string Fingerprint);
+    /// <summary>
+    /// Clé d'hôte acceptée : « hôte:port », type de clé (ou X.509 pour un certificat), empreinte SHA-256, et sa clé
+    /// dans les réglages (un serveur peut avoir une clé de chaque type).
+    /// </summary>
+    internal sealed record HostKeyRow(string Server, string Algorithm, string Fingerprint, string Entry);
 
     /// <summary>Clés affichées (celles choisies pour l'oubli disparaissent de la liste, l'oubli se fait à l'enregistrement).</summary>
     internal IReadOnlyList<HostKeyRow> HostKeyRows { get; private set; } = [];
@@ -88,7 +91,8 @@ public partial class SettingsDialog : Window
             .Select(kv =>
             {
                 int space = kv.Value.IndexOf(' ');
-                return new HostKeyRow(kv.Key, space > 0 ? kv.Value[..space] : "", space > 0 ? kv.Value[(space + 1)..] : kv.Value);
+                return new HostKeyRow(KnownHosts.Server(kv.Key), space > 0 ? kv.Value[..space] : "", space > 0 ? kv.Value[(space + 1)..] : kv.Value,
+                    kv.Key);
             })
             .ToList();
         HostKeysGrid.ItemsSource = HostKeyRows;
@@ -124,7 +128,7 @@ public partial class SettingsDialog : Window
     {
         foreach (var row in HostKeysGrid.SelectedItems.OfType<HostKeyRow>().ToList())
         {
-            _forgottenKeys.Add(row.Server);
+            _forgottenKeys.Add(row.Entry);
         }
 
         ShowHostKeys();

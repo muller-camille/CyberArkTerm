@@ -32,6 +32,9 @@ internal sealed class RdpSession : IDisposable
     /// <summary>Sans réponse du thread de la connexion au-delà de ce délai, l'onglet le signale.</summary>
     private static readonly TimeSpan NotRespondingAfter = TimeSpan.FromSeconds(5);
 
+    // Sessions fermées dont l'emplacement n'est pas encore libéré (fenêtre d'un contrôle bloqué).
+    private static int _unreleased;
+
     private readonly Func<CancellationToken, Task<RdpConnectionRequest>> _prepare;
     private readonly CancellationTokenSource _lifetime = new();
     private readonly DispatcherTimer _watchdog;
@@ -108,6 +111,12 @@ internal sealed class RdpSession : IDisposable
 
     /// <summary>Terminée quand la session est fermée et que sa fenêtre a quitté l'onglet (voir <see cref="Dispose"/>).</summary>
     public Task Closed => _closed.Task;
+
+    /// <summary>
+    /// Vrai tant qu'une session fermée garde la fenêtre de son contrôle (thread bloqué) : l'arrêt normal de
+    /// l'application la détruirait en attendant ce thread.
+    /// </summary>
+    public static bool ControlWindowsLeft => Volatile.Read(ref _unreleased) > 0;
 
     public async Task ConnectAsync()
     {
@@ -280,6 +289,7 @@ internal sealed class RdpSession : IDisposable
         }
 
         _disposed = true;
+        Interlocked.Increment(ref _unreleased);
         _lifetime.Cancel();
         _watchdog.Stop();
         var connection = _connection;
@@ -447,6 +457,7 @@ internal sealed class RdpSession : IDisposable
     private void CloseHost()
     {
         Host.Dispose();
+        Interlocked.Decrement(ref _unreleased);
         _closed.TrySetResult();
     }
 

@@ -46,6 +46,15 @@ public sealed class FtpConnection
 
     /// <summary>Serveur sans TLS (ftp://) : vrai pour continuer en clair (mot de passe et fichiers lisibles sur le réseau).</summary>
     public required Func<bool> AllowCleartext { get; init; }
+
+    /// <summary>
+    /// Ce serveur a déjà chiffré une connexion (<see cref="FtpTlsMemory"/>) : s'il ne propose plus TLS, c'est
+    /// <see cref="AllowTlsRemoved"/> qui décide, jamais la simple question <see cref="AllowCleartext"/>.
+    /// </summary>
+    public Func<bool> TlsSeenBefore { get; init; } = () => false;
+
+    /// <summary>Serveur déjà vu avec TLS qui ne le propose plus (interception possible) : vrai pour continuer en clair.</summary>
+    public Func<bool> AllowTlsRemoved { get; init; } = () => false;
 }
 
 /// <summary>
@@ -90,10 +99,12 @@ public sealed class FtpFileBrowser : IRemoteFiles
         }
         catch (FtpSecurityNotAvailableException) when (connection.Security == FtpSecurity.Opportunistic)
         {
-            Diagnostics.DebugLog.Write("ftp", $"{connection.Host}:{connection.Port} ne propose pas TLS");
-            if (!connection.AllowCleartext())
+            // Serveur déjà vu avec TLS : le retrait de TLS (qu'un intermédiaire obtient en effaçant AUTH TLS) est signalé.
+            bool seen = connection.TlsSeenBefore();
+            Diagnostics.DebugLog.Write("ftp", $"{connection.Host}:{connection.Port} ne propose pas TLS{(seen ? " (déjà vu avec TLS)" : "")}");
+            if (seen ? !connection.AllowTlsRemoved() : !connection.AllowCleartext())
             {
-                throw new FtpRefusedException(CoreStrings.FtpCleartextDeclined);
+                throw new FtpRefusedException(seen ? CoreStrings.FtpTlsRemoved : CoreStrings.FtpCleartextDeclined);
             }
 
             return await OpenAsync(connection, FtpEncryptionMode.None, ct).ConfigureAwait(false);
@@ -175,7 +186,7 @@ public sealed class FtpFileBrowser : IRemoteFiles
         }
     }
 
-    private static string Describe(SslPolicyErrors errors)
+    internal static string Describe(SslPolicyErrors errors)
     {
         var problems = new List<string>();
         if (errors.HasFlag(SslPolicyErrors.RemoteCertificateNameMismatch))

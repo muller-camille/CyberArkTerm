@@ -15,6 +15,9 @@ public interface ISshInteraction
 
     /// <summary>Question posée par le serveur (mot de passe, code MFA...) ; null si l'utilisateur annule.</summary>
     SshAnswer? Prompt(SshQuestion question);
+
+    /// <summary>Types de clé d'hôte déjà acceptés pour ce serveur (voir <see cref="KnownHosts.KeyType"/>).</summary>
+    IReadOnlyCollection<string> KnownHostKeyTypes(string host, int port) => [];
 }
 
 /// <summary>Question posée par le serveur pendant l'authentification.</summary>
@@ -129,6 +132,7 @@ public sealed class SshConnector
     private async Task<T> ConnectWithKeyAsync<T>(Func<ConnectionInfo, T> create, PrivateKeyFile? key, string purpose, CancellationToken ct)
         where T : BaseClient
     {
+        var knownTypes = _ui.KnownHostKeyTypes(Host, Port);
         // 1er essai : clé MFA (ou mot de passe connu) + keyboard-interactive. Ensuite, selon les méthodes que le
         // serveur annonce dans son refus : keyboard-interactive à nouveau (mauvais mot de passe) ou « password ».
         bool usePassword = false;
@@ -197,6 +201,7 @@ public sealed class SshConnector
                 Encoding = Encoding.UTF8,
             };
             info.AuthenticationBanner += (_, e) => Banner = e.BannerMessage;
+            PreferKnownHostKeys(info.HostKeyAlgorithms, knownTypes);
             if (!Curve25519Supported.Value)
             {
                 // Système sans Curve25519 (anciens Windows, Wine) : on laisse le serveur choisir ECDH NIST ou DH.
@@ -271,6 +276,22 @@ public sealed class SshConnector
                 }
 
                 throw;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Types de clé d'hôte déjà acceptés pour ce serveur proposés en premier, comme OpenSSH : un serveur qui a plusieurs
+    /// clés présente celle déjà connue plutôt qu'une nouvelle à faire vérifier (l'ordre des autres ne change pas).
+    /// </summary>
+    internal static void PreferKnownHostKeys<TValue>(IOrderedDictionary<string, TValue> algorithms, IReadOnlyCollection<string> knownTypes)
+    {
+        int position = 0;
+        foreach (var name in algorithms.Keys.ToList())
+        {
+            if (knownTypes.Contains(KnownHosts.KeyType(name)))
+            {
+                algorithms.SetPosition(name, position++);
             }
         }
     }

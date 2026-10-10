@@ -15,9 +15,10 @@ public enum VncSessionState
 
 /// <summary>
 /// Session VNC d'un onglet : connexion (et reconnexion) au serveur, réception de l'écran en arrière-plan. Les
-/// événements arrivent depuis d'autres fils.
+/// événements arrivent depuis d'autres fils. <paramref name="confirmPassword"/> : accord avant d'envoyer le mot de
+/// passe VNC (connexion non chiffrée), demandé depuis un autre fil.
 /// </summary>
-public sealed class VncSession(string label, string host, int port, Func<string?> password) : IDisposable
+public sealed class VncSession(string label, string host, int port, Func<string?> password, Func<bool>? confirmPassword = null) : IDisposable
 {
     private CancellationTokenSource? _lifetime;
     private bool _disposed;
@@ -56,7 +57,7 @@ public sealed class VncSession(string label, string host, int port, Func<string?
         RfbClient client;
         try
         {
-            client = await RfbClient.ConnectAsync(Host, Port, password, lifetime.Token);
+            client = await RfbClient.ConnectAsync(Host, Port, password, confirmPassword, lifetime.Token);
         }
         catch (Exception e) when (e is RfbException or SocketException or IOException or OperationCanceledException)
         {

@@ -229,7 +229,11 @@ utilisé.
   change, un bandeau rouge avertit d'une possible interception, l'empreinte mémorisée et la nouvelle sont affichées,
   et « Remplacer la clé et se connecter » n'est possible qu'après avoir coché « J'ai confirmé ce changement avec
   l'équipe CyberArk ». Une clé refusée arrête la connexion (« Connexion annulée : la clé du serveur n'a pas été
-  acceptée. »).
+  acceptée. »). Un PSMP peut avoir des clés de plusieurs types (RSA, ed25519…) : chacune est mémorisée à part, et
+  ZillaTerm demande d'abord le type déjà connu. Une clé d'un type jamais vu pour ce PSMP n'est ni acceptée d'office
+  ni prise pour un changement : la fenêtre « Nouvelle clé du PSMP, d'un autre type » montre les empreintes déjà
+  acceptées et la nouvelle, et « Accepter cette clé et se connecter » n'est possible qu'après avoir coché « J'ai
+  vérifié cette empreinte avec l'équipe CyberArk ».
 - **Terminal** : la sélection copie, la molette ou la barre de défilement à droite parcourt l'historique ; après
   avoir remonté, « ↓ Revenir à la fin » (ou une frappe au clavier) ramène à la fin. AltGr fonctionne sur clavier
   français. Fermez l'onglet avec la croix, un clic molette ou `Ctrl+F4` (confirmation si la session est connectée).
@@ -644,13 +648,22 @@ qu'elles contiennent.
     avec celle que donne son administrateur, dans la même fenêtre que pour le PSMP (voir
     [section 4](#4-ouvrir-une-session-ssh-via-le-psmp)).
   - **Bureau à distance** : l'onglet suit sa taille (résolution du bureau distant), propose « Plein écran »
-    (`Ctrl+Alt+Pause` pour revenir), « Déconnecter » et « Reconnecter ».
+    (`Ctrl+Alt+Pause` pour revenir), « Déconnecter » et « Reconnecter ». Avant chaque connexion, ZillaTerm lit le
+    certificat du serveur. S'il n'est pas approuvé par Windows (auto-signé…), son sujet, son émetteur, ses dates et
+    son empreinte SHA-256 sont montrés à la première connexion, puis il est mémorisé pour ce serveur ; s'il change
+    ensuite, l'empreinte mémorisée et la nouvelle sont affichées, et il faut cocher « J'ai confirmé ce changement
+    avec l'administrateur du serveur ». Le mot de passe n'est lu et confié au contrôle Bureau à distance qu'après
+    cette vérification ; un serveur qui n'accepte pas le chiffrement TLS est refusé. Aucune image de la session n'est
+    gardée sur le disque du poste.
   - **VNC** (`vnc://serveur`, port 5900 ; `vnc://serveur:1` désigne l'écran 1, port 5901) : bureau dans un onglet,
     ajusté à la fenêtre ou en taille réelle (« Ajuster »), boutons « Ctrl+Alt+Suppr » (après confirmation : selon
     la machine, il ouvre l'écran de sécurité ou redémarre certaines consoles de machines virtuelles), « Envoyer le
     presse-papiers » et « Copier le texte distant » : le presse-papiers n'est échangé que par ces boutons. Authentification par mot de
     passe VNC (8 caractères au plus, limite du protocole) ou sans authentification. **VNC ne chiffre rien** : un
-    bandeau le rappelle ; réservez-le à un réseau de confiance.
+    bandeau le rappelle ; réservez-le à un réseau de confiance. Avant le premier envoi du mot de passe VNC, ZillaTerm
+    demande votre accord (« Envoyer le mot de passe et se connecter », une fois par onglet, reconnexions comprises) :
+    VNC ne vérifie pas l'identité du serveur, et un faux serveur ou un intermédiaire peut retrouver les 8 premiers
+    caractères du mot de passe. Les bips du serveur sont limités à un par seconde.
   - **Fichiers** (`sftp://`, `ftp://`, `ftpes://` pour FTP avec TLS explicite, `ftps://` pour TLS implicite, port
     990) : un onglet d'état, sans terminal, et les fichiers dans l'onglet « Fichiers » avec les mêmes fonctions
     (transferts vérifiés par SHA-256, file d'attente, historique, éditeur, comparaison, suivi en direct, droits si
@@ -660,12 +673,18 @@ qu'elles contiennent.
     rappelle. `ftpes://` et `ftps://` ne passent jamais en clair. Un certificat FTPS que Windows n'approuve pas
     (auto-signé…) est montré avec son sujet, son émetteur, ses dates de validité et son empreinte SHA-256 (avec
     « Copier »), puis mémorisé pour ce serveur si vous l'acceptez ; s'il change ensuite, l'empreinte mémorisée et la
-    nouvelle sont affichées, et il faut cocher « J'ai confirmé ce changement avec l'administrateur du serveur ».
+    nouvelle sont affichées, et il faut cocher « J'ai confirmé ce changement avec l'administrateur du serveur ». Un
+    serveur qui a déjà chiffré une connexion est mémorisé : s'il se présente ensuite sans TLS (ce qu'un intermédiaire
+    peut obtenir), ce n'est plus la simple question mais l'alerte « Ce serveur FTP ne propose plus de chiffrement »,
+    qui ne laisse continuer qu'après avoir coché « J'ai confirmé avec l'administrateur du serveur le retrait du
+    chiffrement » ; sinon la connexion s'arrête sans envoyer le mot de passe.
 - **Modifier la base** : clic droit → « Nouvelle entrée… », « Modifier… » (`F2`), « Supprimer » (`Suppr`, vers la
   corbeille de la base, après confirmation). L'adresse du serveur est obligatoire : une entrée sans adresse (ni
   dans le champ Adresse, ni dans ses champs personnalisés) n'est pas enregistrée. Les autres données de la base
   (pièces jointes, champs, réglages) sont gardées ; l'ancienne version d'une entrée va dans son historique, comme
-  dans KeePass.
+  dans KeePass. Pendant l'enregistrement, la version précédente du fichier est gardée dans `base.kdbx.bak`, puis
+  supprimée dès que le nouveau fichier est relu à l'identique : aucune ancienne copie, qui s'ouvrirait encore avec un
+  ancien mot de passe maître, ne reste à côté de la base (partagée ou non).
 - **Verrouiller** : clic droit → « Verrouiller ». Les bases se verrouillent aussi à la déconnexion, à la fermeture
   et au **verrouillage de Windows**.
 
@@ -757,7 +776,7 @@ disent sous leur case (« ⚠ Effet : … »).
 | Fichiers | Éditeur de texte | Programme ouvert par « Modifier » dans l'onglet Fichiers | Bloc-notes |
 | Fichiers | Outil de comparaison | Programme proposé dans la fenêtre de comparaison, avec ses arguments (`{0}` = fichier de gauche, `{1}` = de droite) | aucun |
 | Sécurité | Coffre local | Mots de passe maîtres KeePass mémorisés : « Créer le coffre… », « Déverrouiller… », « Changer le mot de passe… », « Supprimer maintenant… » ; ces actions s'appliquent tout de suite, sans « Enregistrer » | — |
-| Sécurité | Clés de serveurs acceptées | Tableau des empreintes vérifiées et acceptées (serveur, type, empreinte) : PSMP, SSH direct et certificats FTPS des entrées KeePass. « Oublier les clés choisies » retire les lignes sélectionnées à l'enregistrement ; la clé sera redemandée à la prochaine connexion | — |
+| Sécurité | Clés de serveurs acceptées | Tableau des empreintes vérifiées et acceptées (serveur, type, empreinte) : PSMP, SSH direct, certificats FTPS et Bureau à distance des entrées KeePass (une ligne par type de clé). « Oublier les clés choisies » retire les lignes sélectionnées à l'enregistrement ; la clé sera redemandée à la prochaine connexion | — |
 | Menu du bouton Paramètres | Journal de débogage | Déroulement des connexions dans un fichier, sans secret (voir [Sécurité](#sécurité)) ; « Afficher le fichier du journal » l'ouvre dans l'Explorateur | non |
 
 ### Environnement partagé
@@ -863,7 +882,9 @@ renommé) : téléchargez-la une fois depuis la page des versions.
   publiée par un tiers qui aurait pris la main sur le dépôt), et rien n'est installé ni lancé.
 - **Clés d'hôte PSMP épinglées** au premier usage : l'empreinte est à comparer avant d'accepter (« Annuler la
   connexion » par défaut) ; une clé changée est signalée par un bandeau et ne remplace l'ancienne qu'après une case
-  de confirmation (de même pour les serveurs joints en accès d'urgence et les certificats FTPS). Les clés acceptées
+  de confirmation (de même pour les serveurs joints en accès d'urgence et les certificats FTPS et Bureau à
+  distance). Une clé est mémorisée par serveur et par type : une clé d'un type jamais vu pour ce serveur est montrée
+  avec celles déjà acceptées et ne s'ajoute qu'après une case de vérification, jamais d'office. Les clés acceptées
   se consultent et s'oublient dans Paramètres › Sécurité.
 - **Maintien de la session PVWA** : il évite l'expiration pendant que vous travaillez ; rien n'est envoyé tant que
   Windows est verrouillé ni après 15 minutes sans clavier ni souris, et l'option se désactive dans les Paramètres si
@@ -874,15 +895,23 @@ renommé) : téléchargez-la une fois depuis la page des versions.
   - en mémoire, clé de la base et mots de passe des entrées restent masqués et ne sont révélés qu'au moment de la
     connexion ; bases verrouillées à la déconnexion, à la fermeture et au verrouillage de Windows ;
   - enregistrement sûr : relecture du fichier, modification appliquée à sa version du moment (les changements faits
-    ailleurs sont gardés), vérification du résultat déchiffré, copie `.bak`, remplacement en une fois ; une entrée
-    modifiée ailleurs entre-temps n'est pas écrasée ;
+    ailleurs sont gardés), vérification du résultat déchiffré, remplacement en une fois (copie `.bak` le temps du
+    remplacement, supprimée une fois le fichier relu à l'identique) ; une entrée modifiée ailleurs entre-temps n'est
+    pas écrasée ;
   - bureau à distance direct : le mot de passe est transmis au seul contrôle Bureau à distance (ni fichier, ni
     gestionnaire d'identification), authentification réseau (NLA) et alerte si le serveur n'est pas reconnu ;
+    certificat du serveur lu avant l'envoi du mot de passe et épinglé au premier usage (un changement est signalé et
+    bloqué tant qu'il n'est pas confirmé), serveur sans TLS refusé, cache d'images persistant désactivé. Limite : le
+    contrôle fait ensuite sa propre négociation TLS, sans qu'on puisse lui imposer l'empreinte épinglée ; pour un
+    certificat que Windows n'approuve pas, il affiche encore son propre avertissement ;
   - VNC : le protocole ne chiffre ni l'écran, ni les frappes, ni le presse-papiers (bandeau permanent) ; le mot de
-    passe n'est pas envoyé tel quel (défi-réponse du protocole) ; presse-papiers échangé seulement sur un clic ;
+    passe n'est pas envoyé tel quel (défi-réponse du protocole), et seulement après votre accord : le serveur n'est
+    pas authentifié et peut en retrouver les 8 premiers caractères ; presse-papiers échangé seulement sur un clic ;
+    bips limités à un par seconde ;
     taille d'écran annoncée par le serveur bornée (8 192 pixels de côté) ;
   - FTP : TLS tenté d'abord, connexion en clair seulement après votre accord (bandeau permanent), jamais pour
-    `ftpes://` et `ftps://` ; sous TLS, les transferts sont chiffrés aussi (`PROT P`) ;
+    `ftpes://` et `ftps://` ; sous TLS, les transferts sont chiffrés aussi (`PROT P`) ; un serveur déjà vu avec TLS
+    qui ne le propose plus est signalé comme une interception possible, et rien n'est envoyé sans confirmation ;
   - certificat FTPS : celui que Windows approuve est accepté ; sinon son empreinte SHA-256 est montrée et épinglée
     au premier accord (comme une clé d'hôte SSH), un changement est signalé ; refusé, la connexion s'arrête avant
     l'envoi de l'identifiant ;
@@ -966,7 +995,8 @@ Client intégré (protocole RFB 3.3, 3.7 et 3.8, RFC 6143 ; un serveur plus réc
 réponse en 3.8), sans logiciel à installer : authentification « aucune » ou « mot de passe VNC » (si le serveur
 propose les deux : le mot de passe si l'entrée en a un, sinon aucune) (DES du protocole, implémenté dans ZillaTerm car le mode FIPS de Windows peut interdire
 DES), encodages Raw, CopyRect et Hextile, changement de taille d'écran, pixels 32 bits. Le clavier est transmis en
-« keysyms » X11 (les caractères AltGr sont envoyés comme caractères), la molette en boutons 4 et 5.
+« keysyms » X11 (les caractères AltGr sont envoyés comme caractères), la molette en boutons 4 et 5. Le mot de passe
+VNC n'est envoyé qu'après votre accord (une fois par onglet) ; les bips du serveur sont limités à un par seconde.
 
 ### Sessions de fichiers FTP / FTPS
 
@@ -974,8 +1004,9 @@ Bibliothèque FluentFTP (licence MIT). Mode passif : `PASV` en IPv4, la connexio
 serveur lui-même (l'adresse annoncée dans la réponse est ignorée : un serveur ne peut pas faire viser une autre
 machine), `EPSV` en IPv6 ; binaire, `PBSZ 0` et `PROT P` sous TLS ;
 certificat vérifié par Windows, sinon épinglé (`ftps://serveur:port` parmi les clés de serveurs acceptées, dans
-Paramètres › Sécurité). FTP n'a
-pas de somme de contrôle standard : chaque envoi est relu depuis le serveur et comparé par SHA-256. Lecture partielle
+Paramètres › Sécurité) ; les serveurs qui ont chiffré une connexion sont notés (`FtpTlsServers` des réglages) pour
+signaler un retrait de TLS. FTP n'a pas de somme de contrôle standard : chaque envoi est relu depuis le serveur et
+comparé par SHA-256. Lecture partielle
 (`REST`) pour la comparaison et le suivi en direct. Après un transfert interrompu, la connexion est rouverte et le
 fichier incomplet supprimé. Un fichier remplacé est réécrit sur place : il garde ses droits. Liens symboliques : les
 40 premiers d'un dossier sont résolus (un aller-retour chacun) ; au-delà, un lien s'affiche comme un fichier, et
@@ -992,7 +1023,11 @@ bien (position et taille des fenêtres sur le serveur, souris), d'où le retour 
 Les onglets Bureau à distance (bureau à distance direct des bases KeePass) hébergent le contrôle ActiveX de
 Windows (`mstscax.dll`, classe `MsRdpClient` la plus récente disponible), réglé comme une connexion directe :
 authentification réseau (NLA), alerte si le serveur n'est pas reconnu, redirections désactivées sauf le
-presse-papiers. La résolution du bureau distant suit la taille de l'onglet. Les fermetures de session et les erreurs
+presse-papiers, cache d'images persistant désactivé. Avant chaque connexion, ZillaTerm lit lui-même le certificat
+TLS du serveur (demande de connexion X.224, puis négociation TLS interrompue dès le certificat reçu : ni identifiant
+ni mot de passe envoyés) pour l'épingler (`rdp://serveur:port` parmi les clés de serveurs acceptées) ; le contrôle
+ActiveX ne permet pas de lui imposer cette empreinte. La résolution du bureau distant suit la taille de l'onglet.
+Les fermetures de session et les erreurs
 de connexion sont expliquées dans l'onglet avec le message et les codes de Windows (raison, raison étendue). Un test
 d'intégration (workflow `rdp-integration`) ouvre une vraie session sur le poste de CI.
 
@@ -1002,7 +1037,9 @@ l'interface, dans laquelle ce thread place la fenêtre du contrôle. Avant de li
 une déconnexion ou une libération qui tarde ne fige plus l'application. Si le thread ne répond plus pendant 5 s, la
 barre de l'onglet le signale, et le reste de l'application reste utilisable. Limite : Windows partage le clavier et
 la souris entre une fenêtre et celles qu'elle contient, même d'un autre thread ; un contrôle bloqué pour de bon peut
-encore retenir un clic dans sa zone ou un changement de focus.
+encore retenir un clic dans sa zone ou un changement de focus. À la déconnexion ou à la fermeture, ZillaTerm attend au
+plus 3 s la fin des sessions Bureau à distance ; une session dont le contrôle reste bloqué est alors retirée de la
+fenêtre (son emplacement est mis de côté), et l'application se déconnecte quand même, ou se ferme directement.
 
 ### Sessions PSMP
 
@@ -1059,6 +1096,7 @@ l'écran.
 | Le navigateur ne suit pas les `cd` | Le shell distant n'est pas bash, zsh ou tcsh (ou tcsh a déjà son propre alias `cwdcmd`), l'option est désactivée dans les Paramètres, ou l'invite n'a pas été reconnue : recochez « Suivre le dossier du terminal » à l'invite du shell. |
 | Alerte « La clé du PSMP a changé » | Ne continuez (case « J'ai confirmé ce changement avec l'équipe CyberArk », puis « Remplacer la clé et se connecter ») que si l'équipe CyberArk confirme un changement du serveur ; sinon, annulez et prévenez-la. |
 | « Connexion annulée : la clé du serveur n'a pas été acceptée. » | La fenêtre de l'empreinte a été annulée ou fermée : reconnectez-vous et acceptez la clé après avoir comparé son empreinte. |
+| Fenêtre « Nouvelle clé du PSMP, d'un autre type » | Le PSMP présente un type de clé (ed25519, RSA…) jamais vu sur ce poste : comparez l'empreinte avec celle publiée par l'équipe CyberArk avant de cocher la case et de l'accepter ; sinon, annulez et prévenez-la. |
 | « Mot de passe maître ou fichier clé incorrect » | Vérifiez le mot de passe et le fichier clé ; une base protégée par YubiKey n'est pas prise en charge. |
 | La base KeePass demande le mot de passe malgré « Mémoriser » | Coffre local verrouillé (« Plus tard » au déverrouillage) ou mot de passe maître changé ailleurs : saisissez-le, il est remémorisé. |
 | « Le fichier du coffre local est endommagé ou a été créé par un autre compte Windows » | Le coffre local ne suit pas un changement de poste ou de compte : supprimez-le dans les Paramètres et recréez-le. |
@@ -1073,4 +1111,6 @@ l'écran.
 | VNC : « Le serveur VNC ne propose aucune authentification prise en charge… » | Le serveur exige une authentification propre à son éditeur (compte Windows, chiffrement VeNCrypt…) : activez l'authentification « mot de passe VNC » sur le serveur. |
 | VNC : « Pas de réponse VNC du serveur en 30 secondes » | Mauvais port (5900 + numéro d'écran) ou service autre que VNC à cette adresse. |
 | FTP : « Le serveur FTP ne propose pas de chiffrement (TLS), exigé par cette entrée » | Le serveur n'accepte pas TLS : utilisez `ftp://` (connexion en clair après confirmation) ou SFTP s'il est disponible. |
+| FTP : alerte « Ce serveur FTP ne propose plus de chiffrement » | Le serveur chiffrait ses connexions et ne le fait plus : ne continuez que si son administrateur confirme le retrait de TLS ; sinon la connexion est peut-être interceptée. |
+| Bureau à distance direct : « Le serveur Bureau à distance n'accepte pas le chiffrement TLS… » | Le serveur n'accepte que l'ancienne « sécurité RDP », qui ne permet pas de vérifier son identité : demandez à son administrateur d'activer TLS ou NLA. |
 | FTPS : la liste des fichiers ne s'affiche pas ou un transfert expire | Un pare-feu bloque les ports passifs du serveur, ou le serveur exige la reprise de session TLS sur les connexions de données (`522`, par exemple `require_ssl_reuse` de vsftpd) : voir l'administrateur du serveur. |

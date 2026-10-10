@@ -305,6 +305,102 @@ public sealed class RfbClientTests
         }
     }
 
+    /// <summary>
+    /// Mot de passe VNC (protocole non chiffré) : envoyé seulement après accord. Refusé, rien ne part, pas même le choix
+    /// de la méthode ; sans mot de passe à envoyer (méthode « aucune », entrée sans mot de passe), pas de question.
+    /// </summary>
+    [Fact]
+    public async Task VncPasswordIsSentOnlyAfterConfirmation()
+    {
+        int received = -1, asked = 0;
+        using (var server = new FakeServer(async s =>
+               {
+                   s.Write("RFB 003.008\n"u8);
+                   Read(s, 12);
+                   s.Write([1, 2]);
+                   received = await s.ReadAtLeastAsync(new byte[17], 1, throwOnEndOfStream: false);
+               }))
+        {
+            var e = await Assert.ThrowsAsync<RfbException>(() => RfbClient.ConnectAsync("127.0.0.1", server.Port, () => "s3cret",
+                () => { asked++; return false; }, CancellationToken.None));
+            Assert.Equal(ZillaTerm.Core.Localization.CoreStrings.VncPasswordNotSent, e.Message);
+            await server.Run.WaitAsync(Timeout);
+            Assert.Equal((1, 0), (asked, received));
+        }
+
+        var challenge = Enumerable.Range(0, 16).Select(i => (byte)(i * 3)).ToArray();
+        byte[]? response = null;
+        using (var server = new FakeServer(async s =>
+               {
+                   s.Write("RFB 003.008\n"u8);
+                   Read(s, 12);
+                   s.Write([1, 2]);
+                   Read(s, 1);
+                   s.Write(challenge);
+                   response = Read(s, 16);
+                   s.Write(U32(0));
+                   Read(s, 1);
+                   s.Write(ServerInit(8, 8, "accord"));
+                   await Task.Delay(100);
+               }))
+        {
+            using var client = await RfbClient.ConnectAsync("127.0.0.1", server.Port, () => "s3cret", () => { asked++; return true; },
+                CancellationToken.None);
+            await server.Run.WaitAsync(Timeout);
+            Assert.Equal(2, asked);
+            Assert.Equal(ExpectedResponse(challenge, "s3cret"), response);
+        }
+
+        using (var server = new FakeServer(async s =>
+               {
+                   s.Write("RFB 003.008\n"u8);
+                   Read(s, 12);
+                   s.Write([2, 2, 1]);
+                   Read(s, 1);
+                   s.Write(U32(0));
+                   Read(s, 1);
+                   s.Write(ServerInit(8, 8, "libre"));
+                   await Task.Delay(100);
+               }))
+        {
+            using var client = await RfbClient.ConnectAsync("127.0.0.1", server.Port, () => null, () => throw new InvalidOperationException("question inattendue"),
+                CancellationToken.None);
+            await server.Run.WaitAsync(Timeout);
+        }
+    }
+
+    /// <summary>Un serveur qui envoie des centaines de bips n'en fait entendre qu'un par seconde.</summary>
+    [Fact]
+    public async Task BellsAreRelayedAtMostOncePerSecond()
+    {
+        using var server = new FakeServer(async s =>
+        {
+            s.Write("RFB 003.008\n"u8);
+            Read(s, 12);
+            s.Write([1, 1]);
+            Read(s, 1);
+            s.Write(U32(0));
+            Read(s, 1);
+            s.Write(ServerInit(4, 4, "x"));
+            Read(s, 20 + 4 + 16 + 10);
+            s.Write(Enumerable.Repeat((byte)2, 500).ToArray());
+            s.Write([3, 0, 0, 0, .. U32(3), .. "fin"u8]);
+            await Task.Delay(100);
+        });
+
+        using var client = await RfbClient.ConnectAsync("127.0.0.1", server.Port, () => null, CancellationToken.None);
+        int bells = 0;
+        var done = new TaskCompletionSource();
+        client.Bell += () => Interlocked.Increment(ref bells);
+        client.ClipboardReceived += _ => done.TrySetResult();
+        using var cts = new CancellationTokenSource(Timeout);
+        var run = client.RunAsync(cts.Token);
+        await done.Task.WaitAsync(Timeout);
+        Assert.Equal(1, bells);
+        cts.Cancel();
+        await Assert.ThrowsAnyAsync<Exception>(() => run);
+    }
+
     [Fact]
     public async Task CopiesOverlappingAreasInPlaceAndReadsEmptyCopies()
     {

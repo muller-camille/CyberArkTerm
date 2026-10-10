@@ -1395,5 +1395,68 @@ namespace ZillaTerm.Core.Localization {
                 return ResourceManager.GetString("MigrationTooDeep", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This FTP server used to encrypt its connections (TLS) and no longer offers it: connection stopped, the password was not sent..
+        /// </summary>
+        public static string FtpTlsRemoved {
+            get {
+                return ResourceManager.GetString("FtpTlsRemoved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connection cancelled: the VNC password was not sent..
+        /// </summary>
+        public static string VncPasswordNotSent {
+            get {
+                return ResourceManager.GetString("VncPasswordNotSent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The Remote Desktop server does not accept TLS encryption: its identity cannot be checked, the password of the entry is not sent to it..
+        /// </summary>
+        public static string RdpNoTls {
+            get {
+                return ResourceManager.GetString("RdpNoTls", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The server did not answer like a Remote Desktop server: check the address and the port (3389 by default)..
+        /// </summary>
+        public static string RdpNotRdp {
+            get {
+                return ResourceManager.GetString("RdpNotRdp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The Remote Desktop server refused the connection (code {0})..
+        /// </summary>
+        public static string RdpNegotiationRefused {
+            get {
+                return ResourceManager.GetString("RdpNegotiationRefused", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No answer from the Remote Desktop server within 30 seconds: check the address and the port (3389 by default)..
+        /// </summary>
+        public static string RdpProbeTimeout {
+            get {
+                return ResourceManager.GetString("RdpProbeTimeout", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to TLS negotiation with the Remote Desktop server failed: {0}.
+        /// </summary>
+        public static string RdpTlsFailed {
+            get {
+                return ResourceManager.GetString("RdpTlsFailed", resourceCulture);
+            }
+        }
     }
 }

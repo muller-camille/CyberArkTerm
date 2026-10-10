@@ -71,6 +71,7 @@ public sealed record RdpConnectionSettings
 
     public bool Compress { get; init; } = true;
 
+    /// <summary>Cache d'images persistant : morceaux de l'écran distant gardés sur le disque de ce poste.</summary>
     public bool BitmapPersistence { get; init; } = true;
 
     /// <summary>Effets désactivés ou activés (bits TS_PERF_*).</summary>
@@ -82,12 +83,16 @@ public sealed record RdpConnectionSettings
     /// <summary>Mise à l'échelle de l'image au lieu d'adapter la résolution du bureau distant.</summary>
     public bool SmartSizing { get; init; }
 
-    /// <summary>Réglages d'une connexion directe : authentification réseau, alerte si le serveur n'est pas reconnu.</summary>
+    /// <summary>
+    /// Réglages d'une connexion directe (accès d'urgence) : authentification réseau, alerte si le serveur n'est pas
+    /// reconnu, et pas de cache d'images sur disque (l'écran d'une session d'administration n'y reste pas).
+    /// </summary>
     public static RdpConnectionSettings Direct(string server, int port, string userName) => new()
     {
         Server = server,
         Port = port is > 0 and <= 65535 ? port : DefaultPort,
         UserName = userName,
+        BitmapPersistence = false,
     };
 
     /// <summary>Réglages d'un fichier .rdp (voir <see cref="Parse"/>), quel que soit son encodage.</summary>

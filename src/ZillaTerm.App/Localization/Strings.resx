@@ -2250,7 +2250,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>Saving the KeePass database {0}…</value>
   </data>
   <data name="KeePassSaved" xml:space="preserve">
-    <value>KeePass database {0} saved (previous version kept in {1})</value>
+    <value>KeePass database {0} saved and checked</value>
   </data>
   <data name="KeePassSaveFailed" xml:space="preserve">
     <value>The KeePass database {0} was not saved:
@@ -4035,7 +4035,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Accepted server keys</value>
   </data>
   <data name="HostKeysHelp" xml:space="preserve">
-    <value>Fingerprints checked and accepted (PSMP, direct SSH, FTPS certificates). A forgotten key is asked again at the next connection.</value>
+    <value>Fingerprints checked and accepted (PSMP, direct SSH, FTPS and Remote Desktop certificates), one row per key type. A forgotten key is asked again at the next connection.</value>
   </data>
   <data name="HostKeyServer" xml:space="preserve">
     <value>Server</value>
@@ -4717,5 +4717,65 @@ Two instances would overwrite each other's settings, local vault and files being
   </data>
   <data name="PromptShareWithGroup" xml:space="preserve">
     <value>Also use this password for the other sessions being opened (kept in memory only until they are connected)</value>
+  </data>
+  <data name="HostKeyNewTypePsmpHeading" xml:space="preserve">
+    <value>New key of the PSMP, of another type</value>
+  </data>
+  <data name="HostKeyNewTypeServerHeading" xml:space="preserve">
+    <value>New key of the server, of another type</value>
+  </data>
+  <data name="HostKeyNewTypePsmpMessage" xml:space="preserve">
+    <value>This computer already knows a key of this PSMP, of another type. A new key is expected if the PSMP has just received one (update), but it may also mean that the connection is being intercepted. Compare its fingerprint with the one published by your CyberArk team before you trust it.</value>
+  </data>
+  <data name="HostKeyNewTypeServerMessage" xml:space="preserve">
+    <value>This computer already knows a key of this server, of another type. A new key is expected if the server has just received one (update), but it may also mean that the connection is being intercepted. Compare its fingerprint with the one given by the server's administrator before you trust it.</value>
+  </data>
+  <data name="HostKeyBothKept" xml:space="preserve">
+    <value>Both keys are then accepted for this server.</value>
+  </data>
+  <data name="HostKeyAddKey" xml:space="preserve">
+    <value>Accept this key and connect</value>
+  </data>
+  <data name="HostKeyAckNewPsmp" xml:space="preserve">
+    <value>I checked this fingerprint with the CyberArk team</value>
+  </data>
+  <data name="HostKeyAckNewServer" xml:space="preserve">
+    <value>I checked this fingerprint with the server's administrator</value>
+  </data>
+  <data name="FtpTlsRemovedHeading" xml:space="preserve">
+    <value>This FTP server no longer offers encryption</value>
+  </data>
+  <data name="FtpTlsRemovedMessage" xml:space="preserve">
+    <value>Earlier connections to this server were encrypted (TLS). Without encryption, the password of the entry and the files would travel in clear on the network. Only continue if the server's administrator confirmed that encryption was removed; otherwise, cancel and alert them.</value>
+  </data>
+  <data name="FtpTlsRemovedAck" xml:space="preserve">
+    <value>I confirmed with the server's administrator that encryption was removed</value>
+  </data>
+  <data name="VncPasswordTitle" xml:space="preserve">
+    <value>VNC without encryption</value>
+  </data>
+  <data name="VncPasswordHeading" xml:space="preserve">
+    <value>Send the VNC password over an unencrypted connection?</value>
+  </data>
+  <data name="VncPasswordMessage" xml:space="preserve">
+    <value>VNC does not encrypt the connection and does not check the identity of the server. The password of the entry is sent in a form that a fake server, or anyone intercepting the connection, can crack offline (its first 8 characters). Only continue on a trusted network.</value>
+  </data>
+  <data name="VncPasswordOnce" xml:space="preserve">
+    <value>Asked once for this tab, reconnections included.</value>
+  </data>
+  <data name="VncPasswordSend" xml:space="preserve">
+    <value>Send the password and connect</value>
+  </data>
+  <data name="RdpCertificateTitle" xml:space="preserve">
+    <value>Remote Desktop server certificate</value>
+  </data>
+  <data name="RdpCertVerifyHeading" xml:space="preserve">
+    <value>Verify the certificate of the Remote Desktop server</value>
+  </data>
+  <data name="RdpCertChangedHeading" xml:space="preserve">
+    <value>The certificate of the Remote Desktop server has changed</value>
+  </data>
+  <data name="RdpCertificateDeclined" xml:space="preserve">
+    <value>Certificate of the server refused: connection stopped, the password was not sent.</value>
   </data>
 </root>

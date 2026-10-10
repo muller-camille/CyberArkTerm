@@ -326,20 +326,28 @@ public sealed class EnvironmentProfile
         foreach (var (host, key) in HostKeys ?? [])
         {
             var id = host.Trim().ToLowerInvariant();
+            var known = KnownHosts.KnownKeys(settings.KnownHosts, id).Select(k => KnownHosts.Format(k.Algorithm, k.Sha256)).ToList();
+            if (known.Contains(key.Trim(), StringComparer.Ordinal))
+            {
+                // Clé déjà acceptée : rien à changer.
+                continue;
+            }
+
             if (!psmps.Contains(id))
             {
                 // Seules les clés des PSMP viennent du fichier : celle d'un serveur d'accès d'urgence, acceptée d'avance,
                 // supprimerait la vérification à la première connexion (où partent les mots de passe KeePass).
                 changes.Add(new EnvironmentChange(EnvironmentSetting.HostKey, id, "", key.Trim(), true, Ignored: true, NotPsmp: true));
             }
-            else if (!settings.KnownHosts.TryGetValue(id, out var known))
+            else if (known.Count == 0)
             {
                 changes.Add(new EnvironmentChange(EnvironmentSetting.HostKey, id, "", key.Trim(), true));
             }
-            else if (!string.Equals(known, key.Trim(), StringComparison.Ordinal))
+            else
             {
-                // Une clé déjà acceptée n'est jamais remplacée par un fichier : son changement se vérifie à la connexion.
-                changes.Add(new EnvironmentChange(EnvironmentSetting.HostKey, id, known, key.Trim(), true, Ignored: true));
+                // Un serveur dont une clé est déjà acceptée n'en reçoit jamais d'un fichier (ni à la place, ni d'un autre
+                // type) : le changement se vérifie à la connexion.
+                changes.Add(new EnvironmentChange(EnvironmentSetting.HostKey, id, string.Join(", ", known), key.Trim(), true, Ignored: true));
             }
         }
 
@@ -419,9 +427,10 @@ public sealed class EnvironmentProfile
         var psmps = PsmpEndpoints(settings);
         foreach (var (host, key) in HostKeys ?? [])
         {
-            if (psmps.Contains(host.Trim().ToLowerInvariant()))
+            var id = host.Trim().ToLowerInvariant();
+            if (psmps.Contains(id) && KnownHosts.KnownKeys(settings.KnownHosts, id).Count == 0)
             {
-                settings.KnownHosts.TryAdd(host.Trim().ToLowerInvariant(), key.Trim());
+                settings.KnownHosts[id] = key.Trim();
             }
         }
 
@@ -436,7 +445,6 @@ public sealed class EnvironmentProfile
         settings.PreferredUploadProtocol = UploadProtocol ?? settings.PreferredUploadProtocol;
     }
 
-    /// <summary>Clé de fichier : « hôte:port » → « type SHA256:empreinte » (empreinte en base64).</summary>
     /// <summary>
     /// « hôte:port » de chaque PSMP : ceux des réglages et ceux de ce fichier (qui seront appliqués avec lui). Seules
     /// leurs clés peuvent venir d'un fichier d'environnement.
@@ -476,6 +484,7 @@ public sealed class EnvironmentProfile
         return end < 0 ? rest : rest[..end];
     }
 
+    /// <summary>Clé de fichier : « hôte:port » → « type SHA256:empreinte » (empreinte en base64).</summary>
     private static bool IsHostKeyEntry(string host, string key)
     {
         int colon = (host ?? "").LastIndexOf(':');
