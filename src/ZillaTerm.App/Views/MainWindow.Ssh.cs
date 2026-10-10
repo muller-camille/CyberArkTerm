@@ -557,11 +557,11 @@ public partial class MainWindow
         return ConfirmDialog.Confirm(this, new ConfirmRequest
         {
             Title = "ZillaTerm",
-            Heading = LogoutRequested ? Strings.CloseAllLogoutHeading : Strings.CloseAllExitHeading,
+            Heading = !LogoutRequested ? Strings.CloseAllExitHeading : _client is null ? Strings.CloseAllLeaveEmergencyHeading : Strings.CloseAllLogoutHeading,
             Bullets = bullets,
             Items = unsent,
             Kind = unsent.Count > 0 || transfers > 0 ? ConfirmKind.Warning : ConfirmKind.Question,
-            Actions = [LogoutRequested ? Strings.ActionSignOut : Strings.ActionQuit],
+            Actions = [!LogoutRequested ? Strings.ActionQuit : _client is null ? Strings.ToolLeaveEmergency : Strings.ActionSignOut],
             DangerAction = unsent.Count > 0 || transfers > 0 ? 0 : -1,
         });
     }

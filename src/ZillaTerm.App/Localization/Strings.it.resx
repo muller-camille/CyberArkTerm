@@ -4863,4 +4863,13 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   <data name="AppThemeHelp" xml:space="preserve">
     <value>Applicato subito. Il contrasto elevato di Windows ha sempre la precedenza. I colori dei terminali si impostano nella pagina Terminale.</value>
   </data>
+  <data name="ToolLeaveEmergency" xml:space="preserve">
+    <value>Esci dall'accesso di emergenza</value>
+  </data>
+  <data name="ToolLeaveEmergencyTip" xml:space="preserve">
+    <value>Blocca i database KeePass, chiudi tutte le schede e torna alla schermata di accesso</value>
+  </data>
+  <data name="CloseAllLeaveEmergencyHeading" xml:space="preserve">
+    <value>Uscire dall'accesso di emergenza e chiudere le sessioni aperte?</value>
+  </data>
 </root>

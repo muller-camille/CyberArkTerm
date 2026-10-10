@@ -628,7 +628,8 @@ servers, over SSH, remote desktop or VNC, or to their files only (SFTP, FTP, FTP
 ![Emergency access: KeePass database unlocked in "My servers"](captures/en/keepass-vault.png)
 
 - **Without CyberArk**: on the sign-in screen, "Emergency access (KeePass)" opens the main window without the PVWA
-  (only the KeePass databases are shown; the "Available" tab and the buttons specific to CyberArk are hidden). With
+  (only the KeePass databases are shown; the "Available" tab and the buttons specific to CyberArk are hidden; "Leave
+  emergency access" locks the databases and goes back to the sign-in screen). With
   CyberArk, the databases also appear at the top of "My servers". The tooltip of a session tab opened from a
   database says so: "Direct emergency access (KeePass): outside CyberArk, written to urgence.log".
 - **Add a database**: "Import ▾" menu › "Add a KeePass database…" of the "My servers" tab (safe button in emergency

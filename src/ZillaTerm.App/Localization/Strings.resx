@@ -4863,4 +4863,13 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="AppThemeHelp" xml:space="preserve">
     <value>Applied right away. Windows high contrast always takes precedence. Terminal colors are set on the Terminal page.</value>
   </data>
+  <data name="ToolLeaveEmergency" xml:space="preserve">
+    <value>Leave emergency access</value>
+  </data>
+  <data name="ToolLeaveEmergencyTip" xml:space="preserve">
+    <value>Lock the KeePass databases, close all tabs and go back to the sign-in screen</value>
+  </data>
+  <data name="CloseAllLeaveEmergencyHeading" xml:space="preserve">
+    <value>Leave emergency access and close the open sessions?</value>
+  </data>
 </root>

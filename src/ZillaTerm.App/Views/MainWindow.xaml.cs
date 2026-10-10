@@ -76,6 +76,14 @@ public partial class MainWindow : Window
         _keePass = keePass;
         Title = client is null ? Strings.EmergencyTitle : $"ZillaTerm — {client.BaseUri.Host}";
         SessionText.Text = client is null ? Strings.EmergencySession : $"{sessionUser} @ {client.BaseUri.Host}";
+        if (client is null)
+        {
+            // Accès d'urgence : pas de session CyberArk à fermer, le bouton ramène à l'identification.
+            LogoutLabel.Text = Strings.ToolLeaveEmergency;
+            LogoutButton.ToolTip = Strings.ToolLeaveEmergencyTip;
+            System.Windows.Automation.AutomationProperties.SetName(LogoutButton, Strings.ToolLeaveEmergency);
+        }
+
         UpdateDebugLogIndicator();
 
         _searchDebounce = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };

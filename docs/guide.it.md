@@ -670,7 +670,7 @@ contengono.
 
 - **Senza CyberArk**: nella schermata di accesso, «Accesso di emergenza (KeePass)» apre la finestra principale senza
   PVWA (sono mostrati solo i database KeePass; la scheda «Disponibili» e i pulsanti propri di CyberArk sono
-  nascosti). Con CyberArk, i database compaiono anche in cima a «I miei server». La descrizione comandi di una
+  nascosti; «Esci dall'accesso di emergenza» blocca i database e torna alla schermata di accesso). Con CyberArk, i database compaiono anche in cima a «I miei server». La descrizione comandi di una
   scheda di sessione aperta da un database lo ricorda: «Accesso diretto di emergenza (KeePass): fuori da CyberArk,
   annotato in urgence.log».
 - **Aggiungere un database**: menu «Importa ▾» › «Aggiungi un database KeePass…» della scheda «I miei server»

@@ -666,7 +666,8 @@ qu'elles contiennent.
 ![Accès d'urgence : base KeePass déverrouillée dans « Mes serveurs »](captures/fr/keepass-vault.png)
 
 - **Sans CyberArk** : sur l'écran d'identification, « Accès d'urgence (KeePass) » ouvre la fenêtre principale sans PVWA
-  (seules les bases KeePass y figurent ; l'onglet « Disponibles » et les boutons propres à CyberArk sont masqués).
+  (seules les bases KeePass y figurent ; l'onglet « Disponibles » et les boutons propres à CyberArk sont masqués ;
+  « Quitter l'accès d'urgence » verrouille les bases et ramène à l'identification).
   Avec CyberArk, les bases apparaissent aussi en tête de l'onglet « Mes serveurs ». L'infobulle d'un onglet de
   session ouvert depuis une base le rappelle : « Accès direct d'urgence (KeePass) : hors CyberArk, noté dans
   urgence.log ».

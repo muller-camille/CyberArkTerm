@@ -4863,4 +4863,13 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   <data name="AppThemeHelp" xml:space="preserve">
     <value>Appliqué tout de suite. Le contraste élevé de Windows l'emporte toujours. Les couleurs des terminaux se règlent dans la page Terminal.</value>
   </data>
+  <data name="ToolLeaveEmergency" xml:space="preserve">
+    <value>Quitter l'accès d'urgence</value>
+  </data>
+  <data name="ToolLeaveEmergencyTip" xml:space="preserve">
+    <value>Verrouiller les bases KeePass, fermer tous les onglets et revenir à l'écran d'identification</value>
+  </data>
+  <data name="CloseAllLeaveEmergencyHeading" xml:space="preserve">
+    <value>Quitter l'accès d'urgence et fermer les sessions ouvertes ?</value>
+  </data>
 </root>

@@ -14496,5 +14496,32 @@ namespace ZillaTerm.App.Localization {
                 return ResourceManager.GetString("AppThemeHelp", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Leave emergency access.
+        /// </summary>
+        public static string ToolLeaveEmergency {
+            get {
+                return ResourceManager.GetString("ToolLeaveEmergency", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Lock the KeePass databases, close all tabs and go back to the sign-in screen.
+        /// </summary>
+        public static string ToolLeaveEmergencyTip {
+            get {
+                return ResourceManager.GetString("ToolLeaveEmergencyTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Leave emergency access and close the open sessions?.
+        /// </summary>
+        public static string CloseAllLeaveEmergencyHeading {
+            get {
+                return ResourceManager.GetString("CloseAllLeaveEmergencyHeading", resourceCulture);
+            }
+        }
     }
 }
