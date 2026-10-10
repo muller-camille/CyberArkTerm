@@ -456,4 +456,7 @@
   <data name="SpecialFileRefused" xml:space="preserve">
     <value>“{0}” is a special file (device, named pipe or socket): it can be neither opened nor downloaded, because reading it would never end or would block the server.</value>
   </data>
+  <data name="MigrationTooDeep" xml:space="preserve">
+    <value>The file nests folders more than {0} levels deep: it is refused as damaged.</value>
+  </data>
 </root>

@@ -158,6 +158,47 @@ public sealed class SessionReaderTests
     }
 
     [Fact]
+    public void CraftedFilesAreRefusedWithoutCrashing()
+    {
+        // Dossiers imbriqués des milliers de fois : refusé avant tout parcours récursif.
+        var nested = new StringBuilder("<?xml version=\"1.0\"?><mrng:Connections xmlns:mrng=\"http://mremoteng.org\" Name=\"Connections\">");
+        for (int i = 0; i < 5_000; i++)
+        {
+            nested.Append("<Node Name=\"a\" Type=\"Container\">");
+        }
+
+        for (int i = 0; i < 5_000; i++)
+        {
+            nested.Append("</Node>");
+        }
+
+        nested.Append("</mrng:Connections>");
+        Assert.Throws<InvalidDataException>(() => MRemoteNgFile.Read(nested.ToString()));
+
+        // Chiffres d'une autre écriture dans une définition : ligne ignorée, pas d'exception.
+        var sessions = MxtSessionsFile.Read("[Bookmarks]\nSubRep=\nweb01=#\u0661\u0660\u0669#0%web01.corp.local%22%root\n");
+        Assert.Empty(sessions);
+
+        // Motif plein d'étoiles : réponse immédiate, sans expression régulière qui s'emballe.
+        var started = System.Diagnostics.Stopwatch.StartNew();
+        var config = OpenSshConfig.Read("Host " + string.Concat(Enumerable.Repeat("*a", 40)) + "b\n  HostName srv01.corp.local\n"
+            + "Host web01\n  User root\n");
+        Assert.True(started.Elapsed < TimeSpan.FromSeconds(1));
+        Assert.Single(config);
+    }
+
+    [Theory]
+    [InlineData("web*", "web01", true)]
+    [InlineData("WEB0?", "web01", true)]
+    [InlineData("*.corp.local", "srv01.corp.local", true)]
+    [InlineData("*", "", true)]
+    [InlineData("web?", "web01", false)]
+    [InlineData("a*b*c", "aXbYc", true)]
+    [InlineData("a*b*c", "aXbY", false)]
+    public void OpenSshPatternsMatchLikeOpenSsh(string pattern, string alias, bool expected) =>
+        Assert.Equal(expected, OpenSshConfig.Glob(pattern, alias));
+
+    [Fact]
     public void ReadsAnMxtSessionsFile()
     {
         var sessions = MxtSessionsFile.Read("""

@@ -15,6 +15,7 @@ using ZillaTerm.Core;
 using ZillaTerm.Core.Diagnostics;
 using ZillaTerm.Core.Localization;
 using ZillaTerm.Core.Rdp;
+using ZillaTerm.Core.Ssh;
 using Microsoft.Win32;
 
 namespace ZillaTerm.App.Views;
@@ -1698,7 +1699,8 @@ public partial class MainWindow : Window
         // Fermeture de la session PVWA avant de quitter (au plus 5 s d'attente).
         e.Cancel = true;
         _loggedOff = true;
-        ClearPasswordClipboard();
+        // Dernier essai, plus insistant : aucun minuteur ne réessaiera après la fermeture.
+        _passwordClipboard?.Dispose();
         IsEnabled = false;
         // Transferts annulés d'abord : le fichier interrompu est supprimé tant que la connexion est ouverte.
         await FilesPanel.CancelTransfersAsync(null);
@@ -1710,6 +1712,18 @@ public partial class MainWindow : Window
             if (_client is not null)
             {
                 using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                if (_mfaKeyIssued)
+                {
+                    try
+                    {
+                        await _client.RevokeMfaCachingSshKeyAsync(timeout.Token);
+                    }
+                    catch (Exception ex) when (ex is not OutOfMemoryException)
+                    {
+                        // Clé non retirée : elle expirera d'elle-même.
+                    }
+                }
+
                 await _client.LogoffAsync(timeout.Token);
             }
         }
@@ -1719,6 +1733,8 @@ public partial class MainWindow : Window
         }
         finally
         {
+            _mfaKey = null;
+            SshAnswerCache.ForgetAll();
             CloseAllSshSessions();
             // Les coffres KeePass ouverts se referment avec la fenêtre, et le coffre local avec eux : sinon « Accès d'urgence »,
             // sur l'écran de connexion, rouvrirait les coffres retenus sans aucun mot de passe.

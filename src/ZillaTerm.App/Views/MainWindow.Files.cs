@@ -24,7 +24,7 @@ public partial class MainWindow
     private void OpenPsmpFilesTab(PvwaAccount account, PsmpEndpoint psmp, string login, string label, SavedSession? saved,
         Func<Task>? duplicate, ConnectRequest request)
     {
-        var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), PsmpKeyAsync);
+        var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), PsmpKeyAsync, group: _openingGroup);
         var session = new FilesSession(label, "SFTP", connector.OpenFileBrowserAsync, Dispatcher, account, saved)
         {
             Psmp = psmp.Host,

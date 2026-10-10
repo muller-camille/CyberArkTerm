@@ -23,6 +23,10 @@
                    Visibility="Collapsed" AutomationProperties.LiveSetting="Polite" />
         <TextBox x:Name="TextBox" Margin="0,0,0,6" Visibility="Collapsed" />
         <TextBlock x:Name="HintText" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,6" Visibility="Collapsed" />
+        <!-- Groupe de sessions ouvertes ensemble : un seul mot de passe pour toutes, en mémoire seulement. -->
+        <CheckBox x:Name="ShareBox" Margin="0,2,0,6" Visibility="Collapsed">
+            <TextBlock Text="{x:Static loc:Strings.PromptShareWithGroup}" TextWrapping="Wrap" />
+        </CheckBox>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,0,0">
             <Button Content="{x:Static loc:Strings.PromptSend}" IsDefault="True" Click="OnOk" />
             <Button Content="{x:Static loc:Strings.Cancel}" IsCancel="True" Margin="8,0,0,0" />

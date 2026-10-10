@@ -105,26 +105,52 @@ public sealed class PvwaClient : IDisposable
     /// client avec la réponse comme mot de passe (les cookies de la première tentative sont conservés).
     /// </summary>
     /// <exception cref="PvwaException">Échec d'authentification ; voir <see cref="PvwaException.IsRadiusChallenge"/>.</exception>
-    public async Task LogonAsync(AuthMethod method, string? userName, string? password, CancellationToken ct = default)
-    {
-        object body = method == AuthMethod.Windows
-            ? new { concurrentSession = true }
-            : new { username = userName, password, concurrentSession = true };
+    public Task LogonAsync(AuthMethod method, string? userName, string? password, CancellationToken ct = default) =>
+        LogonAsync(method, userName, password.AsMemory(), ct);
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, $"API/auth/{method}/Logon")
+    /// <inheritdoc cref="LogonAsync(AuthMethod, string?, string?, CancellationToken)"/>
+    /// <param name="password">
+    /// Mot de passe lu sans chaîne .NET (champ masqué) ; le corps de la requête qui le contient est effacé après l'envoi.
+    /// </param>
+    public async Task LogonAsync(AuthMethod method, string? userName, ReadOnlyMemory<char> password, CancellationToken ct = default)
+    {
+        // Corps écrit à l'avance pour envoyer un Content-Length : JsonContent passe en « chunked », que certains load
+        // balancers / WAF placés devant le PVWA rejettent.
+        var buffer = new System.Buffers.ArrayBufferWriter<byte>();
+        using (var writer = new Utf8JsonWriter(buffer))
         {
-            // Corps sérialisé à l'avance pour envoyer un Content-Length : JsonContent passe en
-            // « chunked », que certains load balancers / WAF placés devant le PVWA rejettent.
-            Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json"),
-        };
-        using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode)
-        {
-            throw await CreateErrorAsync(response, ct).ConfigureAwait(false);
+            writer.WriteStartObject();
+            if (method != AuthMethod.Windows)
+            {
+                writer.WriteString("username", userName);
+                writer.WriteString("password", password.Span);
+            }
+
+            writer.WriteBoolean("concurrentSession", true);
+            writer.WriteEndObject();
         }
 
-        var text = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-        _token = ParseToken(text);
+        var body = buffer.WrittenSpan.ToArray();
+        // Clear() remet à zéro les octets écrits.
+        buffer.Clear();
+        try
+        {
+            using var content = new ByteArrayContent(body);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
+            using var request = new HttpRequestMessage(HttpMethod.Post, $"API/auth/{method}/Logon") { Content = content };
+            using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw await CreateErrorAsync(response, ct).ConfigureAwait(false);
+            }
+
+            var text = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _token = ParseToken(text);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(body);
+        }
     }
 
     /// <summary>
@@ -489,6 +515,23 @@ public sealed class PvwaClient : IDisposable
         {
             throw await CreateErrorAsync(response, ct).ConfigureAwait(false);
         }
+    }
+
+    /// <summary>
+    /// Retire la clé « MFA caching » de l'utilisateur sur le PVWA : elle ne permet plus de se connecter au PSMP, au lieu
+    /// de rester valable jusqu'à son expiration. Sans effet si aucune session n'est ouverte ; un refus du PVWA (fonction
+    /// absente de sa version) est ignoré.
+    /// </summary>
+    public async Task RevokeMfaCachingSshKeyAsync(CancellationToken ct = default)
+    {
+        if (_token is null)
+        {
+            return;
+        }
+
+        using var request = CreateAuthenticatedRequest(HttpMethod.Delete, "API/Users/Secret/SSHKeys/Cache");
+        using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
+        DebugLog.Write("pvwa", $"Clé MFA caching retirée : HTTP {(int)response.StatusCode}");
     }
 
     /// <summary>Ferme la session côté PVWA. Sans effet si aucune session n'est ouverte.</summary>

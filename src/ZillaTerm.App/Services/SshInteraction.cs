@@ -86,20 +86,21 @@ internal sealed class SshInteraction(Window owner, AppSettings settings, Action 
         });
     }
 
-    public string? Prompt(string instruction, string prompt, bool echo, string? refused) =>
+    public SshAnswer? Prompt(SshQuestion question) =>
         Dispatcher.Invoke(() =>
         {
             // Aide selon la question : mot de passe (gardé pour les fichiers de l'onglet) ou code MFA (redemandé).
-            string? hint = SshConnector.IsPasswordPrompt(prompt) && !echo
+            string? hint = SshConnector.IsPasswordPrompt(question.Prompt) && !question.Echo
                 ? (direct ? Strings.PromptHintPassword : Strings.PromptHintVaultPassword)
-                : !direct && LooksLikeOneTimeCode(prompt) ? Strings.PromptHintMfa : null;
-            var dialog = new PromptDialog(instruction, prompt, echo, context, hint, direct, refused) { Owner = owner };
+                : !direct && LooksLikeOneTimeCode(question.Prompt) ? Strings.PromptHintMfa : null;
+            var dialog = new PromptDialog(question.Instruction, question.Prompt, question.Echo, context, hint, direct, question.Refused,
+                question.OfferShare) { Owner = owner };
             if (direct)
             {
                 dialog.Title = Strings.PromptTitleServer;
             }
 
-            return dialog.ShowDialog() == true ? dialog.Answer : null;
+            return dialog.ShowDialog() == true ? new SshAnswer(dialog.Answer, dialog.Share) : null;
         });
 
     private static bool LooksLikeOneTimeCode(string prompt) =>

@@ -4344,10 +4344,10 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
     <value>Ces réglages seront modifiés (rien de personnel : identifiant, « Mes serveurs » et sessions récentes restent tels quels) :</value>
   </data>
   <data name="EnvSensitiveBanner" xml:space="preserve">
-    <value>Le PVWA et les PSMP reçoivent votre mot de passe CyberArk, et une clé de serveur est acceptée sans question : n'appliquez qu'un fichier qui vient de votre équipe.</value>
+    <value>Le PVWA et les PSMP reçoivent votre mot de passe CyberArk, une clé de PSMP est acceptée sans question, et Windows s'authentifie auprès des serveurs réseau des listes partagées : n'appliquez qu'un fichier qui vient de votre équipe.</value>
   </data>
   <data name="EnvAcknowledge" xml:space="preserve">
-    <value>J'ai vérifié les adresses du PVWA et des PSMP, et les clés de serveur</value>
+    <value>J'ai vérifié les adresses du PVWA et des PSMP, les clés de serveur et les serveurs réseau</value>
   </data>
   <data name="EnvApply" xml:space="preserve">
     <value>_Appliquer</value>
@@ -4708,5 +4708,14 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   </data>
   <data name="SessionImportButtonCount" xml:space="preserve">
     <value>_Importer ({0})</value>
+  </data>
+  <data name="EnvHostKeyNotPsmp" xml:space="preserve">
+    <value>Clé de {0} ignorée : un fichier d'environnement ne peut fournir que les clés des PSMP. Celle d'un autre serveur se vérifie à sa première connexion.</value>
+  </data>
+  <data name="EnvSharedListNetwork" xml:space="preserve">
+    <value>Liste partagée ajoutée sur le serveur réseau {0}</value>
+  </data>
+  <data name="PromptShareWithGroup" xml:space="preserve">
+    <value>Utiliser aussi ce mot de passe pour les autres sessions en cours d'ouverture (gardé en mémoire seulement, jusqu'à leur connexion)</value>
   </data>
 </root>

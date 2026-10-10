@@ -456,4 +456,7 @@
   <data name="SpecialFileRefused" xml:space="preserve">
     <value>« {0} » est un fichier spécial (périphérique, tube nommé ou socket) : il ne peut être ni ouvert ni téléchargé, car sa lecture ne finirait pas ou bloquerait le serveur.</value>
   </data>
+  <data name="MigrationTooDeep" xml:space="preserve">
+    <value>Le fichier imbrique des dossiers sur plus de {0} niveaux : il est refusé comme abîmé.</value>
+  </data>
 </root>

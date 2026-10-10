@@ -1935,7 +1935,7 @@ public sealed class DialogTests
     {
         public bool CheckHostKey(string host, int port, string algorithm, string sha256Fingerprint) => false;
 
-        public string? Prompt(string instruction, string prompt, bool echo, string? refused) => null;
+        public ZillaTerm.Core.Ssh.SshAnswer? Prompt(ZillaTerm.Core.Ssh.SshQuestion question) => null;
     }
 
     private sealed class MemoryFile : ITailSource

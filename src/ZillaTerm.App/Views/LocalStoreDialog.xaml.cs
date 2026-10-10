@@ -18,6 +18,8 @@ public partial class LocalStoreDialog : Window
     private readonly LocalSecretStore _store;
     private readonly Mode _mode;
     private readonly IEnumerable<string>? _remembered;
+    // Fenêtre fermée (Alt+F4) pendant le calcul : son résultat ne peut plus être donné.
+    private bool _closed;
 
     /// <param name="remembered">
     /// Coffres KeePass dont le mot de passe doit rester mémorisé : au déverrouillage, les autres secrets (coffres retirés
@@ -121,14 +123,20 @@ public partial class LocalStoreDialog : Window
                         break;
                 }
             });
-            DialogResult = true;
+            if (!_closed)
+            {
+                DialogResult = true;
+            }
         }
         catch (OperationCanceledException)
         {
             // Session Windows verrouillée pendant le calcul : le coffre local reste verrouillé.
-            DialogResult = false;
+            if (!_closed)
+            {
+                DialogResult = false;
+            }
         }
-        catch (Exception ex) when (ex is KeePassException or ArgumentException or InvalidOperationException or System.IO.IOException
+        catch (Exception ex) when (!_closed && ex is KeePassException or ArgumentException or InvalidOperationException or System.IO.IOException
                                        or UnauthorizedAccessException)
         {
             IsEnabled = true;
@@ -137,10 +145,16 @@ public partial class LocalStoreDialog : Window
             PasswordBox.SelectAll();
             PasswordBox.Focus();
         }
+        catch (Exception ex) when (_closed && ex is KeePassException or ArgumentException or InvalidOperationException
+                                       or System.IO.IOException or UnauthorizedAccessException)
+        {
+            // Fenêtre déjà fermée : plus personne à qui montrer l'erreur ; le coffre local reste dans son état d'avant.
+        }
     }
 
     protected override void OnClosed(EventArgs e)
     {
+        _closed = true;
         PasswordBox.Clear();
         ConfirmBox.Clear();
         base.OnClosed(e);

@@ -42,12 +42,11 @@ public partial class MainWindow
         double height = Math.Max(view.ActualHeight, 400) + 39;
         tab.Content = DetachedPlaceholder(session);
         var window = new DetachedSessionWindow(view, session.Label, Icon) { Width = width, Height = height };
-        if (screenPoint is { } point && PresentationSource.FromVisual(this)?.CompositionTarget is { } target)
+        if (screenPoint is { } point)
         {
-            // L'onglet suit le curseur : la fenêtre s'ouvre sous lui, sur l'écran où il a été lâché.
-            var position = target.TransformFromDevice.Transform(point);
-            window.Left = position.X - 80;
-            window.Top = position.Y - 15;
+            // L'onglet suit le curseur : la fenêtre s'ouvre sous lui, sur l'écran où il a été lâché (quelle que soit son
+            // échelle).
+            ScreenPlacement.OpenAt(window, point, -80, -15);
         }
         else
         {

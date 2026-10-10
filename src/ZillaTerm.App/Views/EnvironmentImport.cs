@@ -102,7 +102,8 @@ internal static class EnvironmentImport
 
         var changes = file.Profile.Diff(settings);
         var applicable = changes.Where(c => !c.Ignored).ToList();
-        var ignored = changes.Where(c => c.Ignored).Select(c => Text.Format(Strings.EnvHostKeyIgnored, c.Detail)).ToList();
+        var ignored = changes.Where(c => c.Ignored)
+            .Select(c => Text.Format(c.NotPsmp ? Strings.EnvHostKeyNotPsmp : Strings.EnvHostKeyIgnored, c.Detail)).ToList();
         bool applied = false;
         if (applicable.Count > 0)
         {
@@ -186,7 +187,7 @@ internal static class EnvironmentImport
             EnvironmentSetting.PsmpServers => Strings.EnvPsmpServers,
             EnvironmentSetting.WindowsComponent => Strings.EnvWindowsComponent,
             EnvironmentSetting.PlatformComponent => Text.Format(Strings.EnvPlatformComponent, change.Detail),
-            EnvironmentSetting.SharedList => Strings.EnvSharedList,
+            EnvironmentSetting.SharedList => change.Detail is { } server ? Text.Format(Strings.EnvSharedListNetwork, server) : Strings.EnvSharedList,
             EnvironmentSetting.HostKey => Text.Format(Strings.EnvHostKey, change.Detail),
             EnvironmentSetting.CentralFile => Strings.EnvCentralFile,
             EnvironmentSetting.KeepPvwaSessionAlive => Strings.EnvKeepAlive,

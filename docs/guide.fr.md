@@ -219,6 +219,10 @@ utilisé.
   et SCP du même onglet, jamais enregistré), ou le code MFA (redemandé à chaque connexion). Une réponse refusée est
   signalée en rouge au-dessus du champ avec le numéro de l'essai (« Essai 2 sur 3 ») ; après trois refus, la
   connexion s'arrête pour ne pas verrouiller votre compte. « Verr. Maj est activé. » s'affiche pendant la saisie.
+  Quand plusieurs sessions s'ouvrent ensemble (dossier, sélection, vue parallèle), la fenêtre propose « Utiliser aussi
+  ce mot de passe pour les autres sessions en cours d'ouverture » : coché, il n'est demandé qu'une fois (jamais pour un
+  code MFA), gardé en mémoire seulement le temps de leur connexion. Les mots de passe gardés pour les onglets sont
+  oubliés au verrouillage de Windows.
 - **Clé du PSMP** : à la première connexion, une fenêtre montre son empreinte SHA-256 en police fixe, avec
   « Copier » : comparez-la avec celle publiée par votre équipe CyberArk avant « Faire confiance et se connecter »
   (« Annuler la connexion » est le bouton par défaut). L'empreinte est ensuite mémorisée sur le poste. Si la clé
@@ -736,7 +740,7 @@ disent sous leur case (« ⚠ Effet : … »).
 | Général | Langue de l'interface | Français, English, Italiano ou langue du système ; appliquée après déconnexion ou au prochain démarrage | langue de Windows (anglais si elle n'est pas traduite) |
 | Général | Fichier central | Fichier d'environnement de l'équipe sur un partage réseau, relu à chaque démarrage ; ses changements sont montrés avant d'être appliqués (voir [Environnement partagé](#environnement-partagé)) | vide |
 | Général | Rechercher une nouvelle version au démarrage | Une requête vers GitHub au plus une fois par jour ; lien dans la barre d'état si une version plus récente existe (la fenêtre « À propos » rappelle ce réglage) | non |
-| CyberArk | Garder la session PVWA ouverte | Requête légère toutes les 4 minutes ; suspendue quand Windows est verrouillé ; ⚠ la session PVWA ne se ferme plus d'elle-même après inactivité | oui |
+| CyberArk | Garder la session PVWA ouverte | Requête légère toutes les 4 minutes, tant que vous utilisez le poste ; suspendue quand Windows est verrouillé ou après 15 minutes sans clavier ni souris (la session PVWA expire alors selon son délai d'inactivité) | oui |
 | CyberArk | PSMP par défaut, port | Serveur PSM for SSH ; renseigné (ou un PSMP par domaine), les comptes Unix s'ouvrent en SSH par défaut (en fichiers seuls pour une plateforme « SFTP ») ; sans aucun PSMP, SSH et SFTP sont désactivés | vide, 22 |
 | CyberArk | PSMP par domaine | Autres PSMP (adresse, port, domaine servi) ; chaque serveur passe par celui du domaine le plus proche du sien (voir [PSMP par domaine](#psmp-par-domaine)) ; « Quel PSMP pour le serveur » pour vérifier | aucun |
 | CyberArk | Composant des comptes Windows | Composant PSM des comptes Windows (domaine ou locaux) sans composant mémorisé pour leur plateforme, par exemple `WIN-PSM` | vide = `PSM-RDP` |
@@ -774,8 +778,11 @@ des PSMP, quelques options), sans rien de personnel ni aucun mot de passe :
 
 Chaque fois, une fenêtre montre ce qui va changer (« ancienne valeur → nouvelle valeur ») et l'empreinte SHA-256 du
 fichier ; « Ne pas appliquer » est le choix par défaut. Le PVWA et les PSMP reçoivent votre mot de passe CyberArk :
-quand le fichier change leur adresse ou ajoute une clé de serveur, il faut cocher « J'ai vérifié… » avant
-d'appliquer. Une clé de serveur déjà acceptée sur le poste n'est jamais remplacée par un fichier (elle est signalée).
+quand le fichier change leur adresse, ajoute une clé de serveur ou une liste partagée sur un serveur réseau (Windows
+s'y authentifie à chaque démarrage ; le serveur est nommé), il faut cocher « J'ai vérifié… » avant d'appliquer. Une
+clé de serveur déjà acceptée sur le poste n'est jamais remplacée par un fichier (elle est signalée). Seules les clés
+des PSMP (ceux du poste ou du fichier) sont reprises : celle d'un autre serveur, d'accès d'urgence par exemple, est
+ignorée et se vérifie à sa première connexion.
 Un fichier invalide (adresse en http, nom de composant incorrect…) est refusé en entier. Un fichier déjà proposé
 n'est reproposé que s'il a changé. Un réglage vide sur le poste qui exporte n'est pas exporté : il n'efface rien
 chez celui qui importe. Les chemins (listes partagées, fichier central) sont complets : `C:\…` ou `\\serveur\…`.
@@ -816,7 +823,8 @@ renommé) : téléchargez-la une fois depuis la page des versions.
   spéciaux (périphérique comme `/dev/zero`, tube nommé, socket) ne sont ni ouverts ni téléchargés, et sont ignorés
   dans le téléchargement d'un dossier.
 - **Aucun secret sur disque** : mot de passe CyberArk, jeton de session, clé MFA et mot de passe PSMP restent en
-  mémoire, le temps de la session. Déconnexion du PVWA (`Logoff`) à la fermeture.
+  mémoire, le temps de la session. Mots de passe PSMP gardés et clé MFA oubliés au verrouillage de Windows ; la clé
+  MFA est effacée après chaque connexion et retirée du PVWA à la déconnexion (`Logoff`), faite à la fermeture.
 - Session PVWA ouverte avec `concurrentSession` : votre session web PVWA éventuelle n'est pas fermée.
 - **Copie d'un mot de passe** : la réponse du PVWA est lue dans un tampon effacé ensuite et décodée sans passer par
   une chaîne ; le mot de passe est copié directement dans le presse-papiers Windows, marqué pour être exclu de
@@ -857,8 +865,9 @@ renommé) : téléchargez-la une fois depuis la page des versions.
   connexion » par défaut) ; une clé changée est signalée par un bandeau et ne remplace l'ancienne qu'après une case
   de confirmation (de même pour les serveurs joints en accès d'urgence et les certificats FTPS). Les clés acceptées
   se consultent et s'oublient dans Paramètres › Sécurité.
-- **Maintien de la session PVWA** : il évite l'expiration par inactivité ; rien n'est envoyé tant que Windows est
-  verrouillé, et l'option se désactive dans les Paramètres si votre politique l'exige.
+- **Maintien de la session PVWA** : il évite l'expiration pendant que vous travaillez ; rien n'est envoyé tant que
+  Windows est verrouillé ni après 15 minutes sans clavier ni souris, et l'option se désactive dans les Paramètres si
+  votre politique l'exige.
 - **Bases KeePass** :
   - mot de passe maître jamais enregistré, sauf dans le coffre local si vous le demandez : Argon2id (64 Mio, 3
     passes) puis AES-256-GCM, réglages de dérivation authentifiés, le tout protégé par DPAPI (compte Windows) ;
@@ -897,8 +906,8 @@ renommé) : téléchargez-la une fois depuis la page des versions.
 - Export CSV protégé contre l'injection de formules Excel.
 - **Fichiers d'environnement** (`ZillaTerm.env.json`) : ni mot de passe ni donnée personnelle, seuls les champs
   connus sont lus. Un fichier n'est jamais appliqué sans votre accord : changements et empreinte SHA-256 affichés,
-  case à cocher quand l'adresse du PVWA ou d'un PSMP change ou qu'une clé de serveur est ajoutée. Il ne remplace
-  jamais une clé de serveur déjà acceptée ; adresse du PVWA en https obligatoire ; fichier de plus de 1 Mo refusé.
+  case à cocher quand l'adresse du PVWA ou d'un PSMP change, qu'une clé de serveur ou une liste sur un serveur réseau
+  est ajoutée. Il ne remplace jamais une clé de serveur déjà acceptée et n'apporte que des clés de PSMP ; adresse du PVWA en https obligatoire ; fichier de plus de 1 Mo refusé.
 - **Fichiers de serveurs et listes partagées** : ni mot de passe ni jeton, seulement des noms de serveurs, de
   comptes et de safes, des ID de comptes et les réglages de connexion (le motif par défaut n'est jamais partagé).
   Ils ne donnent aucun accès : chacun se connecte avec ses droits CyberArk, et l'info-bulle montre le compte tel
@@ -937,7 +946,7 @@ serveurs (avec qui les a ajoutés et quand) et journal des modifications (les 1 
 ouvre le fichier en exclusivité (les autres postes réessaient pendant 5 s), le relit, copie la révision en cours
 dans `nom.versions\nom.r00012.20261006-101500.json` (révision et date de son enregistrement, 100 versions gardées),
 applique la modification, augmente la révision, note qui, quand et quoi, puis réécrit le fichier (remis tel quel si
-l'écriture échoue). L'affichage suit les changements du fichier (`FileSystemWatcher`) et se relit avec `F5`. L'export
+l'écriture échoue). L'affichage suit les changements du fichier (`FileSystemWatcher`, repris de lui-même une minute après une coupure du partage ou du VPN, puis la liste est relue) et se relit avec `F5`. L'export
 de « Mes serveurs » a le même format avec `"format": "CyberArkTerm.Servers"`, sans révision ni journal.
 
 ### Bases KeePass
@@ -1044,7 +1053,7 @@ l'écran.
 | « Connection component … is not configured for platform … » | Choisissez le bon composant dans « Connexion avancée », cochez « Mémoriser » pour la plateforme. |
 | « You must specify a reason… » | Saisissez un motif dans la fenêtre qui s'ouvre (ou un motif par défaut dans les propriétés du serveur, dans « Mes serveurs »). |
 | Le compte n'apparaît pas | Vous n'avez pas le droit « List accounts » sur son safe, ou la liste doit être rechargée (`F5`). |
-| Le mot de passe PSMP est demandé à chaque onglet | MFA caching non activé sur le PVWA : comportement normal (une fois par onglet). |
+| Le mot de passe PSMP est demandé à chaque onglet | MFA caching non activé sur le PVWA : comportement normal (une fois par onglet). En ouvrant plusieurs sessions ensemble, cochez « Utiliser aussi ce mot de passe… » pour ne le saisir qu'une fois. |
 | L'onglet Fichiers indique « Connexion SFTP impossible » | SFTP n'est pas autorisé sur le PSMP ou pour ce compte : voir l'équipe CyberArk. |
 | Un envoi indique « SFTP (SCP refusé) » ou « SCP (SFTP refusé) » | Le PSMP ou le serveur a refusé ce protocole pour ce fichier : l'autre a pris le relais et le fichier a été vérifié comme d'habitude. Le bilan donne la réponse du serveur. Un PSMP qui refuse SCP pour une plateforme (erreur `118E Selected component PSMP-SCP does not contain the target settings definitions…` dans ses journaux) n'a pas le composant de connexion PSMP-SCP : votre équipe CyberArk peut l'ajouter à la plateforme, sinon les envois passent en SFTP. |
 | Le navigateur ne suit pas les `cd` | Le shell distant n'est pas bash, zsh ou tcsh (ou tcsh a déjà son propre alias `cwdcmd`), l'option est désactivée dans les Paramètres, ou l'invite n'a pas été reconnue : recochez « Suivre le dossier du terminal » à l'invite du shell. |

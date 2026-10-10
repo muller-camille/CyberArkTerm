@@ -34,6 +34,11 @@ public partial class MainWindow
     // Machines cibles venues d'une liste partagée déjà acceptées pendant cette session de ZillaTerm.
     private readonly HashSet<string> _acceptedSharedTargets = new(StringComparer.OrdinalIgnoreCase);
     private DispatcherTimer? _sharedReload;
+    // Listes dont la surveillance sera retentée (partage injoignable, coupure réseau ou VPN).
+    private readonly HashSet<SharedServerList> _sharedWatchRetries = [];
+
+    /// <summary>Délai avant de retenter la surveillance d'un partage perdu.</summary>
+    private static readonly TimeSpan SharedWatchRetry = TimeSpan.FromMinutes(1);
 
     private string SharedWho => SharedServerList.Who(_sessionUser);
 
@@ -432,10 +437,11 @@ public partial class MainWindow
         });
         if (watcher is null)
         {
+            RetrySharedWatch(list);
             return;
         }
 
-        if (!_sharedLists.Contains(list) || _sharedWatchers.ContainsKey(list))
+        if (_sharedStopped || !_sharedLists.Contains(list) || _sharedWatchers.ContainsKey(list))
         {
             watcher.Dispose();
             return;
@@ -445,7 +451,52 @@ public partial class MainWindow
         watcher.Changed += changed;
         watcher.Created += changed;
         watcher.Renamed += (_, _) => Dispatcher.BeginInvoke(() => QueueSharedReload(list));
+        // Partage ou VPN coupé : le surveillant s'arrête en signalant une erreur ; sans reprise, les changements des
+        // collègues n'apparaîtraient plus jusqu'au redémarrage.
+        watcher.Error += (_, e) => Dispatcher.BeginInvoke(() => OnSharedWatchLost(list, watcher, e.GetException()));
         _sharedWatchers[list] = watcher;
+    }
+
+    private void OnSharedWatchLost(SharedServerList list, FileSystemWatcher watcher, Exception error)
+    {
+        DebugLog.Write("shared", $"Surveillance de {list.Path} interrompue : {error.Message}");
+        if (_sharedWatchers.TryGetValue(list, out var current) && ReferenceEquals(current, watcher))
+        {
+            _sharedWatchers.Remove(list);
+        }
+
+        watcher.Dispose();
+        RetrySharedWatch(list);
+    }
+
+    /// <summary>
+    /// Nouvel essai de surveillance un peu plus tard, tant que la liste est ouverte ; une fois repris, la liste est relue
+    /// pour rattraper les changements faits pendant la coupure.
+    /// </summary>
+    private void RetrySharedWatch(SharedServerList list)
+    {
+        if (_sharedStopped || !_sharedLists.Contains(list) || !_sharedWatchRetries.Add(list))
+        {
+            return;
+        }
+
+        var timer = new DispatcherTimer { Interval = SharedWatchRetry };
+        timer.Tick += async (_, _) =>
+        {
+            timer.Stop();
+            _sharedWatchRetries.Remove(list);
+            if (_sharedStopped || !_sharedLists.Contains(list) || _sharedWatchers.ContainsKey(list))
+            {
+                return;
+            }
+
+            await WatchSharedAsync(list);
+            if (_sharedWatchers.ContainsKey(list))
+            {
+                QueueSharedReload(list);
+            }
+        };
+        timer.Start();
     }
 
     /// <summary>Modification signalée par le partage : relecture groupée un instant après (une écriture = plusieurs signaux).</summary>

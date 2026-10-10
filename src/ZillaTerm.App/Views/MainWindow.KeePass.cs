@@ -10,6 +10,7 @@ using ZillaTerm.App.Services.Rdp;
 using ZillaTerm.Core.KeePass;
 using ZillaTerm.Core.Localization;
 using ZillaTerm.Core.Rdp;
+using ZillaTerm.Core.Ssh;
 using Microsoft.Win32;
 
 namespace ZillaTerm.App.Views;
@@ -645,6 +646,9 @@ public partial class MainWindow
         {
             Dispatcher.BeginInvoke(() => _windowsLocked = true);
             Dispatcher.BeginInvoke(ClearPasswordClipboard);
+            // Mots de passe du PSMP gardés pour les connexions suivantes et clé MFA : oubliés, redemandés au besoin.
+            SshAnswerCache.ForgetAll();
+            Dispatcher.BeginInvoke(() => _mfaKey = null);
             Dispatcher.BeginInvoke(() =>
             {
                 if (_settings.KeePassFolders.Any(f => _keePass.IsOpen(f.Id)) || _keePass.Store.IsUnlocked)

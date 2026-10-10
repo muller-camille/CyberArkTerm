@@ -12927,7 +12927,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to The PVWA and the PSMPs receive your CyberArk password, and a server key is trusted without asking: apply only a file that comes from your team..
+        ///   Looks up a localized string similar to The PVWA and the PSMPs receive your CyberArk password, a PSMP key is trusted without asking, and Windows signs in to the network servers of shared lists: apply only a file that comes from your team..
         /// </summary>
         public static string EnvSensitiveBanner {
             get {
@@ -12936,7 +12936,7 @@ namespace ZillaTerm.App.Localization {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to I have checked the PVWA and PSMP addresses and the server keys.
+        ///   Looks up a localized string similar to I have checked the PVWA and PSMP addresses, the server keys and the network servers.
         /// </summary>
         public static string EnvAcknowledge {
             get {
@@ -14021,6 +14021,33 @@ namespace ZillaTerm.App.Localization {
         public static string SessionImportButtonCount {
             get {
                 return ResourceManager.GetString("SessionImportButtonCount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Key of {0} ignored: an environment file can only provide the keys of the PSMPs. The key of another server is checked at its first connection..
+        /// </summary>
+        public static string EnvHostKeyNotPsmp {
+            get {
+                return ResourceManager.GetString("EnvHostKeyNotPsmp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Shared list added on the network server {0}.
+        /// </summary>
+        public static string EnvSharedListNetwork {
+            get {
+                return ResourceManager.GetString("EnvSharedListNetwork", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Also use this password for the other sessions being opened (kept in memory only until they are connected).
+        /// </summary>
+        public static string PromptShareWithGroup {
+            get {
+                return ResourceManager.GetString("PromptShareWithGroup", resourceCulture);
             }
         }
     }

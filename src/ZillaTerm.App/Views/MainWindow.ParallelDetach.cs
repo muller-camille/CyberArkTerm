@@ -35,11 +35,9 @@ public partial class MainWindow
             Content = view,
         };
         window.SetResourceReference(BackgroundProperty, "ContentBrush");
-        if (screenPoint is { } point && PresentationSource.FromVisual(this)?.CompositionTarget is { } target)
+        if (screenPoint is { } point)
         {
-            var position = target.TransformFromDevice.Transform(point);
-            window.Left = position.X - 80;
-            window.Top = position.Y - 15;
+            ScreenPlacement.OpenAt(window, point, -80, -15);
         }
         else
         {

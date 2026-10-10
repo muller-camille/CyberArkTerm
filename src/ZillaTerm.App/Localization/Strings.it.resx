@@ -4344,10 +4344,10 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
     <value>Queste impostazioni verranno modificate (niente di personale: nome utente, «I miei server» e sessioni recenti restano invariati):</value>
   </data>
   <data name="EnvSensitiveBanner" xml:space="preserve">
-    <value>Il PVWA e i PSMP ricevono la tua password CyberArk e una chiave di server viene accettata senza domande: applica solo un file che proviene dal tuo team.</value>
+    <value>Il PVWA e i PSMP ricevono la tua password CyberArk, una chiave di PSMP viene accettata senza domande, e Windows si autentica presso i server di rete degli elenchi condivisi: applica solo un file che proviene dal tuo team.</value>
   </data>
   <data name="EnvAcknowledge" xml:space="preserve">
-    <value>Ho verificato gli indirizzi del PVWA e dei PSMP e le chiavi dei server</value>
+    <value>Ho verificato gli indirizzi del PVWA e dei PSMP, le chiavi dei server e i server di rete</value>
   </data>
   <data name="EnvApply" xml:space="preserve">
     <value>_Applica</value>
@@ -4708,5 +4708,14 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   </data>
   <data name="SessionImportButtonCount" xml:space="preserve">
     <value>_Importa ({0})</value>
+  </data>
+  <data name="EnvHostKeyNotPsmp" xml:space="preserve">
+    <value>Chiave di {0} ignorata: un file di ambiente può fornire solo le chiavi dei PSMP. Quella di un altro server si verifica alla sua prima connessione.</value>
+  </data>
+  <data name="EnvSharedListNetwork" xml:space="preserve">
+    <value>Elenco condiviso aggiunto sul server di rete {0}</value>
+  </data>
+  <data name="PromptShareWithGroup" xml:space="preserve">
+    <value>Usa questa password anche per le altre sessioni in apertura (conservata solo in memoria, fino alla loro connessione)</value>
   </data>
 </root>

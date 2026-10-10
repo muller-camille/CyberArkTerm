@@ -4344,10 +4344,10 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>These settings will change (nothing personal: user name, “My servers” and recent sessions stay as they are):</value>
   </data>
   <data name="EnvSensitiveBanner" xml:space="preserve">
-    <value>The PVWA and the PSMPs receive your CyberArk password, and a server key is trusted without asking: apply only a file that comes from your team.</value>
+    <value>The PVWA and the PSMPs receive your CyberArk password, a PSMP key is trusted without asking, and Windows signs in to the network servers of shared lists: apply only a file that comes from your team.</value>
   </data>
   <data name="EnvAcknowledge" xml:space="preserve">
-    <value>I have checked the PVWA and PSMP addresses and the server keys</value>
+    <value>I have checked the PVWA and PSMP addresses, the server keys and the network servers</value>
   </data>
   <data name="EnvApply" xml:space="preserve">
     <value>_Apply</value>
@@ -4708,5 +4708,14 @@ Two instances would overwrite each other's settings, local vault and files being
   </data>
   <data name="SessionImportButtonCount" xml:space="preserve">
     <value>_Import ({0})</value>
+  </data>
+  <data name="EnvHostKeyNotPsmp" xml:space="preserve">
+    <value>Key of {0} ignored: an environment file can only provide the keys of the PSMPs. The key of another server is checked at its first connection.</value>
+  </data>
+  <data name="EnvSharedListNetwork" xml:space="preserve">
+    <value>Shared list added on the network server {0}</value>
+  </data>
+  <data name="PromptShareWithGroup" xml:space="preserve">
+    <value>Also use this password for the other sessions being opened (kept in memory only until they are connected)</value>
   </data>
 </root>

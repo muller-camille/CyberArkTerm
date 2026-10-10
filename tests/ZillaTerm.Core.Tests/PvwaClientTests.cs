@@ -79,7 +79,7 @@ public class PvwaClientTests
         var pvwa = new FakePvwa(_ => FakePvwa.Json("\"tok\""));
         using var client = pvwa.CreateClient();
 
-        await client.LogonAsync(AuthMethod.Windows, null, null);
+        await client.LogonAsync(AuthMethod.Windows, null, (string?)null);
 
         var request = Assert.Single(pvwa.Requests);
         Assert.Equal("/PasswordVault/API/auth/Windows/Logon", request.PathAndQuery);

@@ -14,9 +14,18 @@ public interface ISshInteraction
     bool CheckHostKey(string host, int port, string algorithm, string sha256Fingerprint);
 
     /// <summary>Question posée par le serveur (mot de passe, code MFA...) ; null si l'utilisateur annule.</summary>
-    /// <param name="refused">Réponse précédente refusée : le dire, avec le numéro de l'essai ; null au premier essai.</param>
-    string? Prompt(string instruction, string prompt, bool echo, string? refused);
+    SshAnswer? Prompt(SshQuestion question);
 }
+
+/// <summary>Question posée par le serveur pendant l'authentification.</summary>
+/// <param name="Refused">Réponse précédente refusée : le dire, avec le numéro de l'essai ; null au premier essai.</param>
+/// <param name="OfferShare">
+/// Mot de passe demandé pendant l'ouverture d'un groupe de sessions : proposer de le réutiliser pour les autres.
+/// </param>
+public sealed record SshQuestion(string Instruction, string Prompt, bool Echo, string? Refused = null, bool OfferShare = false);
+
+/// <summary>Réponse de l'utilisateur ; <paramref name="Share"/> : à réutiliser pour les autres sessions du groupe.</summary>
+public sealed record SshAnswer(string Text, bool Share = false);
 
 /// <summary>
 /// Ouvre les connexions SSH, SFTP et SCP : vers une cible via le PSM for SSH (identifiant
@@ -28,8 +37,9 @@ public sealed class SshConnector
     private readonly ISshInteraction _ui;
     private readonly Func<CancellationToken, Task<PrivateKeyFile?>>? _key;
     private readonly Func<string?>? _password;
-    private readonly Dictionary<string, string> _cachedAnswers = new(StringComparer.Ordinal);
-    private readonly object _cacheLock = new();
+    private readonly SshAnswerCache _answers = new();
+    private readonly SshAnswerCache? _group;
+    private int _leftGroup;
 
     /// <summary>
     /// Essais d'authentification par connexion : chaque mot de passe refusé compte pour le verrouillage du compte
@@ -44,8 +54,12 @@ public sealed class SshConnector
     /// <param name="password">
     /// Mot de passe connu (coffre KeePass), lu au moment de chaque connexion ; s'il est refusé, il est demandé.
     /// </param>
+    /// <param name="group">
+    /// Sessions ouvertes ensemble (dossier, vue parallèle) : le mot de passe donné pour l'une peut, si l'utilisateur le
+    /// choisit, servir aux autres ; oublié dès qu'elles sont toutes authentifiées.
+    /// </param>
     public SshConnector(string host, int port, string login, ISshInteraction ui, Func<CancellationToken, Task<PrivateKeyFile?>>? key = null,
-        Func<string?>? password = null, string? addressWhat = null)
+        Func<string?>? password = null, string? addressWhat = null, SshAnswerCache? group = null)
     {
         PsmpTarget.Validate(host, addressWhat ?? CoreStrings.PsmpAddressWhat);
         Host = host;
@@ -54,6 +68,8 @@ public sealed class SshConnector
         _ui = ui;
         _key = key;
         _password = password;
+        _group = group;
+        _group?.Join();
     }
 
     public string Host { get; }
@@ -92,7 +108,27 @@ public sealed class SshConnector
         where T : BaseClient
     {
         purpose ??= typeof(T).Name;
-        var key = _key is null ? null : await _key(ct).ConfigureAwait(false);
+        PrivateKeyFile? key = null;
+        try
+        {
+            key = _key is null ? null : await _key(ct).ConfigureAwait(false);
+            return await ConnectWithKeyAsync(create, key, purpose, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            // La clé MFA n'est gardée que le temps de cette connexion.
+            key?.Dispose();
+            // Première authentification de cette session terminée : elle ne compte plus parmi celles qui s'ouvrent.
+            if (Interlocked.Exchange(ref _leftGroup, 1) == 0)
+            {
+                _group?.Leave();
+            }
+        }
+    }
+
+    private async Task<T> ConnectWithKeyAsync<T>(Func<ConnectionInfo, T> create, PrivateKeyFile? key, string purpose, CancellationToken ct)
+        where T : BaseClient
+    {
         // 1er essai : clé MFA (ou mot de passe connu) + keyboard-interactive. Ensuite, selon les méthodes que le
         // serveur annonce dans son refus : keyboard-interactive à nouveau (mauvais mot de passe) ou « password ».
         bool usePassword = false;
@@ -120,10 +156,8 @@ public sealed class SshConnector
 
             if (usePassword)
             {
-                var password = _ui.Prompt(
-                        string.Format(CultureInfo.CurrentCulture, CoreStrings.PasswordPromptTitle, Host),
-                        string.Format(CultureInfo.CurrentCulture, CoreStrings.PasswordPrompt, Login),
-                        echo: false, refused)
+                var password = Answer(string.Format(CultureInfo.CurrentCulture, CoreStrings.PasswordPromptTitle, Host),
+                        string.Format(CultureInfo.CurrentCulture, CoreStrings.PasswordPrompt, Login), echo: false, refused)
                     ?? throw new OperationCanceledException(CoreStrings.AuthenticationCancelled);
                 answered = true;
                 methods.Add(new PasswordAuthenticationMethod(Login, password));
@@ -139,7 +173,7 @@ public sealed class SshConnector
                         DebugLog.Write("ssh", $"{Host} : question du serveur « {prompt.Request.Trim()} » (saisie affichée {prompt.IsEchoed})");
                         var answer = known is not null && !prompt.IsEchoed && IsPasswordPrompt(prompt.Request)
                             ? known
-                            : Answer(e.Instruction, prompt, refused);
+                            : Answer(e.Instruction, prompt.Request, prompt.IsEchoed, refused);
                         refused = null;
                         if (answer is null)
                         {
@@ -193,7 +227,13 @@ public sealed class SshConnector
             {
                 DebugLog.Write("ssh", $"{Host}:{Port} : authentification refusée : {ex.Message}");
                 client.Dispose();
-                ClearCache();
+                if (answered)
+                {
+                    // Réponse refusée : oubliée ici et pour le groupe, qui ne doit pas la réessayer sur ses autres sessions.
+                    _answers.Clear();
+                    _group?.Clear();
+                }
+
                 var allowed = ex.Message;
                 bool interactive = allowed.Contains("keyboard-interactive", StringComparison.OrdinalIgnoreCase);
                 usePassword = !interactive && allowed.Contains("password", StringComparison.OrdinalIgnoreCase);
@@ -236,37 +276,54 @@ public sealed class SshConnector
     }
 
     /// <summary>
-    /// Le mot de passe est réutilisé pour les connexions suivantes de la même session (SFTP, SCP)
-    /// tant qu'il est accepté ; les codes à usage unique (MFA) sont toujours redemandés.
+    /// Le mot de passe est réutilisé pour les connexions suivantes de la même session (SFTP, SCP) tant qu'il est
+    /// accepté, et pour les autres sessions d'un groupe si l'utilisateur l'a choisi ; les codes à usage unique (MFA) sont
+    /// toujours redemandés.
     /// </summary>
-    private string? Answer(string instruction, AuthenticationPrompt prompt, string? refused)
+    private string? Answer(string instruction, string request, bool echo, string? refused)
     {
-        bool cacheable = !prompt.IsEchoed && IsPasswordPrompt(prompt.Request);
-        lock (_cacheLock)
+        bool cacheable = !echo && IsPasswordPrompt(request);
+        if (cacheable && _answers.TryGet(request, out var cached))
         {
-            if (cacheable && _cachedAnswers.TryGetValue(prompt.Request, out var cached))
-            {
-                return cached;
-            }
+            return cached;
         }
 
-        var answer = _ui.Prompt(instruction, prompt.Request, prompt.IsEchoed, refused);
-        if (answer is not null && cacheable)
+        if (!cacheable || _group is not { } group)
         {
-            lock (_cacheLock)
+            var answer = _ui.Prompt(new SshQuestion(instruction, request, echo, refused))?.Text;
+            if (answer is not null && cacheable)
             {
-                _cachedAnswers[prompt.Request] = answer;
+                _answers.Set(request, answer);
             }
+
+            return answer;
         }
 
-        return answer;
-    }
-
-    private void ClearCache()
-    {
-        lock (_cacheLock)
+        // Groupe : une question à la fois ; la réponse partagée par une session précédente sert sans redemander.
+        group.Gate.Wait();
+        try
         {
-            _cachedAnswers.Clear();
+            if (group.TryGet(request, out var shared))
+            {
+                _answers.Set(request, shared);
+                return shared;
+            }
+
+            var answer = _ui.Prompt(new SshQuestion(instruction, request, echo, refused, OfferShare: true));
+            if (answer is not null)
+            {
+                _answers.Set(request, answer.Text);
+                if (answer.Share)
+                {
+                    group.Set(request, answer.Text);
+                }
+            }
+
+            return answer?.Text;
+        }
+        finally
+        {
+            group.Gate.Release();
         }
     }
 

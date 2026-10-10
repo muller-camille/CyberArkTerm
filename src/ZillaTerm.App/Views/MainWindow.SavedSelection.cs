@@ -4,6 +4,7 @@ using System.Windows.Input;
 using ZillaTerm.App.Localization;
 using ZillaTerm.App.Services;
 using ZillaTerm.Core;
+using ZillaTerm.Core.Ssh;
 using ZillaTerm.Core.Terminal;
 
 namespace ZillaTerm.App.Views;
@@ -307,32 +308,48 @@ public partial class MainWindow
 
         var opened = new List<SshSession>();
         int missing = 0;
-        foreach (var saved in chosen)
+        // Plusieurs sessions via le PSMP : le mot de passe peut être donné une fois pour toutes (au choix de l'utilisateur,
+        // en mémoire, oublié dès qu'elles sont connectées, et au plus tard après 5 minutes).
+        var group = chosen.Count > 1 ? new SshAnswerCache() : null;
+        _openingGroup = group;
+        if (group is not null)
         {
-            if (_loggedOff)
-            {
-                // Session expirée ou fenêtre en cours de fermeture : les serveurs suivants ne s'ouvrent pas.
-                break;
-            }
+            _ = Task.Delay(TimeSpan.FromMinutes(5)).ContinueWith(_ => group.Clear(), TaskScheduler.Default);
+        }
 
-            if (!SessionLibrary.IsForHost(saved, PvwaHost) || !_byId.TryGetValue(saved.AccountId, out var account))
+        try
+        {
+            foreach (var saved in chosen)
             {
-                missing++;
-                continue;
-            }
+                if (_loggedOff)
+                {
+                    // Session expirée ou fenêtre en cours de fermeture : les serveurs suivants ne s'ouvrent pas.
+                    break;
+                }
 
-            if (!ConfirmSharedTarget(saved, account))
-            {
-                continue;
-            }
+                if (!SessionLibrary.IsForHost(saved, PvwaHost) || !_byId.TryGetValue(saved.AccountId, out var account))
+                {
+                    missing++;
+                    continue;
+                }
 
-            int before = _remoteSessions.Count;
-            await ConnectAsync(account, SavedRequest(saved, account), saved: saved);
-            // Vue parallèle : terminaux seulement (pas les sessions de fichiers seuls).
-            if (_remoteSessions.Count > before && _remoteSessions[^1] is SshSession session)
-            {
-                opened.Add(session);
+                if (!ConfirmSharedTarget(saved, account))
+                {
+                    continue;
+                }
+
+                int before = _remoteSessions.Count;
+                await ConnectAsync(account, SavedRequest(saved, account), saved: saved);
+                // Vue parallèle : terminaux seulement (pas les sessions de fichiers seuls).
+                if (_remoteSessions.Count > before && _remoteSessions[^1] is SshSession session)
+                {
+                    opened.Add(session);
+                }
             }
+        }
+        finally
+        {
+            _openingGroup = null;
         }
 
         ClearSavedMarks();

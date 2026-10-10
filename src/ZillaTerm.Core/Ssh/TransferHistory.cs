@@ -163,10 +163,7 @@ public sealed class TransferHistory
                 return;
             }
 
-            Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
-            var temp = _path + ".tmp";
-            File.WriteAllText(temp, json);
-            File.Move(temp, _path, overwrite: true);
+            DurableFile.Write(_path, System.Text.Encoding.UTF8.GetBytes(json));
             _savedVersion = version;
         }
     }

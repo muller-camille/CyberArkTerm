@@ -23,6 +23,10 @@ public partial class MainWindow
     private MfaSshKey? _mfaKey;
     private Task<MfaKeyFetch>? _mfaFetch;
     private DateTime _mfaRetryAfter;
+    // Une clé MFA a été délivrée pendant cette session PVWA : elle est retirée à la déconnexion.
+    private bool _mfaKeyIssued;
+    // Sessions ouvertes ensemble (dossier, sélection, vue parallèle) : mot de passe du PSMP réutilisable entre elles.
+    private SshAnswerCache? _openingGroup;
 
     /// <summary>
     /// Onglet terminal d'une session via le PSMP, ouvert tout de suite : la clé MFA du PVWA puis la connexion au PSMP se
@@ -31,7 +35,7 @@ public partial class MainWindow
     private void OpenSshTab(PvwaAccount account, PsmpEndpoint psmp, string login, string label, SavedSession? saved,
         Func<Task>? duplicate, ConnectRequest request)
     {
-        var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), PsmpKeyAsync);
+        var connector = new SshConnector(psmp.Host, psmp.Port, login, _psmpUi.For(label), PsmpKeyAsync, group: _openingGroup);
         var session = new SshSession(account, label, connector, Dispatcher, _settings.FollowTerminalFolder, saved)
         {
             Psmp = psmp.Host,
@@ -637,15 +641,21 @@ public partial class MainWindow
             }
         }
 
+        // Copie de la clé lue par SSH.NET puis effacée : elle ne traîne pas en mémoire après la connexion.
+        var bytes = Encoding.UTF8.GetBytes(_mfaKey.PrivateKey);
         try
         {
-            return new PrivateKeyFile(new MemoryStream(Encoding.UTF8.GetBytes(_mfaKey.PrivateKey)));
+            return new PrivateKeyFile(new MemoryStream(bytes));
         }
         catch (Exception ex) when (ex is Renci.SshNet.Common.SshException or ArgumentException or InvalidOperationException or FormatException)
         {
             _mfaKey = null;
             _mfaRetryAfter = DateTime.UtcNow.AddMinutes(15);
             return null;
+        }
+        finally
+        {
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(bytes);
         }
     }
 
@@ -662,6 +672,7 @@ public partial class MainWindow
                 try
                 {
                     var key = await Client.GetMfaCachingSshKeyAsync(_lifetime.Token);
+                    _mfaKeyIssued |= key is not null;
                     return new MfaKeyFetch(key, NotProvided: key is null);
                 }
                 catch (PvwaException ex) when (ex.IsUnauthorized && attempt == 0)

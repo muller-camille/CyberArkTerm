@@ -1386,5 +1386,14 @@ namespace ZillaTerm.Core.Localization {
                 return ResourceManager.GetString("SpecialFileRefused", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The file nests folders more than {0} levels deep: it is refused as damaged..
+        /// </summary>
+        public static string MigrationTooDeep {
+            get {
+                return ResourceManager.GetString("MigrationTooDeep", resourceCulture);
+            }
+        }
     }
 }

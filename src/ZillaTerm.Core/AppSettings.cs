@@ -347,6 +347,22 @@ public sealed class AppSettings
     {
         if (!File.Exists(path))
         {
+            // Remplacement interrompu (partage réseau, antivirus) : l'ancien fichier est resté en sauvegarde. Sans cette
+            // reprise, les réglages par défaut reviendraient, puis écraseraient les vrais au prochain enregistrement.
+            if (File.Exists(BackupPath(path)))
+            {
+                try
+                {
+                    var restored = Read(BackupPath(path));
+                    restored.RestoredFromBackup = true;
+                    return restored;
+                }
+                catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException)
+                {
+                    // Sauvegarde illisible aussi : réglages par défaut, la sauvegarde reste en place.
+                }
+            }
+
             return new AppSettings();
         }
 
@@ -436,7 +452,7 @@ public sealed class AppSettings
         return settings;
     }
 
-    private static string BackupPath(string path) => path + ".bak";
+    private static string BackupPath(string path) => DurableFile.BackupPath(path);
 
     /// <summary>Suffixe d'un fichier de réglages illisible mis de côté (suivi de la date).</summary>
     private const string SetAsideSuffix = ".illisible-";
@@ -447,22 +463,8 @@ public sealed class AppSettings
     /// </summary>
     public void Save(string path)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
-        var temp = path + ".tmp";
-        using (var stream = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.None))
-        {
-            JsonSerializer.Serialize(stream, this, JsonOptions);
-            stream.Flush(flushToDisk: true);
-        }
-
-        if (File.Exists(path))
-        {
-            File.Replace(temp, path, BackupPath(path), ignoreMetadataErrors: true);
-        }
-        else
-        {
-            File.Move(temp, path);
-        }
+        var temp = DurableFile.WriteTemp(path, JsonSerializer.SerializeToUtf8Bytes(this, JsonOptions));
+        DurableFile.Replace(temp, path);
     }
 }
 

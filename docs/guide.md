@@ -210,7 +210,10 @@ each PSMP is checked on its first connection. The tab tooltip names the PSMP use
   probably the password of your CyberArk account (reused for the SFTP and SCP connections of the same tab, never
   saved), or the MFA code (asked again at each connection). A refused answer is shown in red above the field with the
   attempt number ("Attempt 2 of 3"); after three refusals the connection stops so that your account is not locked.
-  "Caps Lock is on." shows while you type.
+  "Caps Lock is on." shows while you type. When several sessions open together (folder, selection, parallel view),
+  the window offers "Also use this password for the other sessions being opened": ticked, it is asked only once
+  (never for an MFA code) and kept in memory only until they are connected. The passwords kept for the tabs are
+  forgotten when Windows locks.
 - **PSMP key**: on first connection, a window shows its SHA-256 fingerprint in a fixed-width font, with "Copy":
   compare it with the one published by your CyberArk team before "Trust and connect" ("Cancel connection" is the
   default button). The fingerprint is then remembered on this computer. If the key changes, a red banner warns of a
@@ -696,7 +699,7 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 | General | Interface language | Français, English, Italiano or system language; applied after signing out or at the next start | Windows language (English if it is not translated) |
 | General | Central file | Team environment file on a network share, read at each start; its changes are shown before being applied (see [Shared environment](#shared-environment)) | empty |
 | General | Look for a new version at startup | One request to GitHub at most once a day; a link in the status bar when a newer version exists (the "About" window recalls this setting) | no |
-| CyberArk | Keep the PVWA session open | Light request every 4 minutes; paused while Windows is locked; ⚠ the PVWA session no longer closes by itself after inactivity | yes |
+| CyberArk | Keep the PVWA session open | Light request every 4 minutes while you use the computer; paused while Windows is locked or after 15 minutes without keyboard or mouse (the PVWA session then expires after its idle timeout) | yes |
 | CyberArk | Default PSMP, port | PSM for SSH server; when set (or a PSMP by domain), Unix accounts open over SSH by default (as files only for an "SFTP" platform); without any PSMP, SSH and SFTP are disabled | empty, 22 |
 | CyberArk | PSMP by domain | Other PSMPs (address, port, domain served); each server goes through the one of the domain closest to its own (see [PSMP by domain](#psmp-by-domain)); "Which PSMP for the server" to check | none |
 | CyberArk | Windows accounts component | PSM component of Windows accounts (domain or local) without a component remembered for their platform, for example `WIN-PSM` | empty = `PSM-RDP` |
@@ -733,8 +736,10 @@ with nothing personal and no password:
 
 Each time, a window shows what will change ("old value → new value") and the SHA-256 fingerprint of the file; "Do not
 apply" is the default. The PVWA and the PSMPs receive your CyberArk password: when the file changes their address or
-adds a server key, "I have checked…" must be ticked before applying. A server key already accepted on the computer is
-never replaced by a file (it is reported). An invalid file (http address, wrong component name…) is refused as a
+adds a server key or a shared list on a network server (Windows signs in to it at each start; the server is named),
+"I have checked…" must be ticked before applying. A server key already accepted on the computer is never replaced by a
+file (it is reported). Only the keys of the PSMPs (those of the computer or of the file) are taken: the key of another
+server, an emergency access one for example, is ignored and checked at its first connection. An invalid file (http address, wrong component name…) is refused as a
 whole. A file already offered is offered again only when it has changed. A setting left empty on the exporting PC is
 not exported: it clears nothing on the importing one. Paths (shared lists, central file) are full: `C:\…` or
 `\\server\…`. Your user name, "My servers" and your
@@ -771,7 +776,8 @@ first ZillaTerm version but cannot download it itself (renamed repository): down
   that a name cannot imitate another one (".exe" shown as ".pdf"). Special files (a device such as `/dev/zero`, a
   named pipe, a socket) are neither opened nor downloaded, and are skipped when a folder is downloaded.
 - **No secret on disk**: CyberArk password, session token, MFA key and PSMP password stay in memory for the session.
-  The PVWA session is closed (`Logoff`) on exit.
+  Kept PSMP passwords and the MFA key are forgotten when Windows locks; the MFA key is wiped after each connection and
+  removed from the PVWA at logoff (`Logoff`), done on exit.
 - PVWA session opened with `concurrentSession`: your PVWA web session, if any, is not closed.
 - **Copying a password**: the PVWA response is read into a buffer wiped afterwards and decoded without going through
   a string; the password goes straight to the Windows clipboard, marked to be excluded from the history (`Win+V`),
@@ -846,8 +852,8 @@ first ZillaTerm version but cannot download it itself (renamed repository): down
 - CSV export protected against Excel formula injection.
 - **Environment files** (`ZillaTerm.env.json`): no password or personal data, only known fields are read. A file
   is never applied without your consent: changes and SHA-256 fingerprint shown, a box to tick when the PVWA or a PSMP
-  address changes or a server key is added. It never replaces a server key already accepted; https PVWA address
-  required; a file over 1 MB is refused.
+  address changes, or a server key or a list on a network server is added. It never replaces a server key already
+  accepted and only brings PSMP keys; https PVWA address required; a file over 1 MB is refused.
 - **Server files and shared lists**: no password or token, only server, account and safe names, account IDs and
   connection settings (the default reason is never shared). They grant no access: everyone connects with their
   own CyberArk rights, and the tooltip shows the account as the CyberArk Vault describes it. A target machine coming from a
@@ -886,7 +892,7 @@ JSON file (`"format": "CyberArkTerm.SharedServers"`, version 1): name, source PV
 (other computers retry for 5 s), re-reads it, copies the current revision to
 `name.versions\name.r00012.20261006-101500.json` (revision and the date it was saved, 100 versions kept), applies
 the change, increases the revision, records who, when and what, then rewrites the file (put back as it was if the
-write fails). The display follows the file's changes (`FileSystemWatcher`) and re-reads it with `F5`. The "My
+write fails). The display follows the file's changes (`FileSystemWatcher`, resumed by itself one minute after the share or VPN drops, then the list is re-read) and re-reads it with `F5`. The "My
 servers" export has the same format with `"format": "CyberArkTerm.Servers"`, without revision or journal.
 
 ### KeePass databases
@@ -986,7 +992,7 @@ sh or fish, following is not set up and nothing stays on screen.
 | "Connection component … is not configured for platform …" | Choose the right component in "Advanced connection", tick "Remember" for the platform. |
 | "You must specify a reason…" | Enter a reason in the window that opens (or a default reason in the server's properties, in "My servers"). |
 | The account does not show up | You lack the "List accounts" permission on its safe, or the list needs reloading (`F5`). |
-| The PSMP password is asked for each tab | MFA caching is not enabled on the PVWA: expected behavior (once per tab). |
+| The PSMP password is asked for each tab | MFA caching is not enabled on the PVWA: expected behavior (once per tab). When opening several sessions together, tick "Also use this password…" to type it only once. |
 | The Files tab shows "SFTP connection failed" | SFTP is not allowed on the PSMP or for this account: ask your CyberArk team. |
 | An upload shows "SFTP (SCP refused)" or "SCP (SFTP refused)" | The PSMP or the server refused that protocol for this file: the other one took over and the file was checked as usual. The summary gives the server's answer. A PSMP that refuses SCP for a platform (error `118E Selected component PSMP-SCP does not contain the target settings definitions…` in its logs) lacks the PSMP-SCP connection component: your CyberArk team can add it to the platform, otherwise uploads go over SFTP. |
 | The browser does not follow `cd` | The remote shell is not bash, zsh or tcsh (or tcsh already has its own `cwdcmd` alias), the option is off in Settings, or the prompt was not recognized: tick "Follow the terminal folder" again at the shell prompt. |

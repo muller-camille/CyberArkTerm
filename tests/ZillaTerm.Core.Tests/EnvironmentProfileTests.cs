@@ -87,7 +87,9 @@ public sealed class EnvironmentProfileTests : IDisposable
 
     /// <summary>
     /// Une clé de serveur déjà acceptée n'est jamais remplacée par un fichier (le changement se vérifie à la connexion) ;
-    /// les listes partagées s'ajoutent sans retirer celles de l'utilisateur.
+    /// seules les clés des PSMP (des réglages ou du fichier) sont reprises, jamais celle d'un serveur d'accès d'urgence ;
+    /// les listes partagées s'ajoutent sans retirer celles de l'utilisateur, et un partage réseau est signalé avec son
+    /// serveur.
     /// </summary>
     [Fact]
     public void KnownHostKeysAreNeverReplaced()
@@ -96,18 +98,28 @@ public sealed class EnvironmentProfileTests : IDisposable
         user.SharedLists.Add(@"\\srv\perso\mes-serveurs.json");
         var profile = new EnvironmentProfile
         {
-            HostKeys = new() { ["PSMP.corp.com:2222"] = "ssh-ed25519 SHA256:ZZZZ", ["psmp.lyon.corp.com:22"] = "ssh-rsa SHA256:CCCC" },
-            SharedLists = [@"\\srv\partage\listes\recette.json"],
+            PsmpServers = [new PsmpServer { Address = "psmp.lyon.corp.com", Port = 22 }],
+            HostKeys = new()
+            {
+                ["PSMP.corp.com:2222"] = "ssh-ed25519 SHA256:ZZZZ",
+                ["psmp.lyon.corp.com:22"] = "ssh-rsa SHA256:CCCC",
+                ["srv01.corp.local:22"] = "ssh-ed25519 SHA256:DDDD",
+            },
+            SharedLists = [@"\\other.example\partage\recette.json", @"C:\Listes\locale.json"],
         };
 
         var changes = profile.Diff(user);
-        Assert.Contains(changes, c => c is { Setting: EnvironmentSetting.HostKey, Detail: "psmp.corp.com:2222", Ignored: true });
+        Assert.Contains(changes, c => c is { Setting: EnvironmentSetting.HostKey, Detail: "psmp.corp.com:2222", Ignored: true, NotPsmp: false });
         Assert.Contains(changes, c => c is { Setting: EnvironmentSetting.HostKey, Detail: "psmp.lyon.corp.com:22", Ignored: false });
+        Assert.Contains(changes, c => c is { Setting: EnvironmentSetting.HostKey, Detail: "srv01.corp.local:22", Ignored: true, NotPsmp: true });
+        Assert.Contains(changes, c => c is { Setting: EnvironmentSetting.SharedList, Detail: "other.example", Sensitive: true });
+        Assert.Contains(changes, c => c is { Setting: EnvironmentSetting.SharedList, Detail: null, Sensitive: false });
 
         profile.ApplyTo(user);
         Assert.Equal("ssh-ed25519 SHA256:AAAA", user.KnownHosts["psmp.corp.com:2222"]);
         Assert.Equal("ssh-rsa SHA256:CCCC", user.KnownHosts["psmp.lyon.corp.com:22"]);
-        Assert.Equal(3, user.SharedLists.Count);
+        Assert.False(user.KnownHosts.ContainsKey("srv01.corp.local:22"));
+        Assert.Equal(4, user.SharedLists.Count);
     }
 
     /// <summary>Exporté d'un poste sans PSMP ni composant Windows : n'efface pas ceux du poste qui l'importe.</summary>

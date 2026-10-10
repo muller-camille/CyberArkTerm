@@ -1,3 +1,6 @@
+using System.Globalization;
+using ZillaTerm.Core.Localization;
+
 namespace ZillaTerm.Core.Migration;
 
 /// <summary>Où lire les sessions d'un autre logiciel.</summary>
@@ -70,7 +73,21 @@ public static class SessionSources
         kind == ImportSourceKind.WinScpRegistry ? WinScpSites.FromRegistry(keys) : PuttySessions.FromRegistry(keys);
 
     /// <summary>Sessions d'un fichier ou d'un dossier.</summary>
+    /// <exception cref="InvalidDataException">Fichier illisible, y compris une valeur qu'un format n'attend pas.</exception>
     public static List<ImportedSession> Read(ImportSourceKind kind, string path)
+    {
+        try
+        {
+            return ReadCore(kind, path);
+        }
+        catch (Exception ex) when (ex is FormatException or OverflowException or System.Text.RegularExpressions.RegexMatchTimeoutException)
+        {
+            // Valeur inattendue dans un fichier abîmé ou forgé : une erreur de lecture comme une autre, pas un plantage.
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, CoreStrings.MigrationUnreadable, ex.Message), ex);
+        }
+    }
+
+    private static List<ImportedSession> ReadCore(ImportSourceKind kind, string path)
     {
         switch (kind)
         {
