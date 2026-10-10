@@ -207,4 +207,33 @@ public sealed class EnvironmentProfileTests : IDisposable
 
         Assert.Equal(("pvwa.corp.com", "jdupont"), (settings.PvwaUrl, settings.UserName));
     }
+    /// <summary>
+    /// Texte de l'astreinte : diffusé par le fichier d'environnement en texte brut ; absent, il ne change rien, vide, il
+    /// l'efface ; trop long ou avec des caractères invisibles, le fichier est refusé.
+    /// </summary>
+    [Fact]
+    public void DutyTextIsSharedAsPlainTextAndChecked()
+    {
+        var settings = new AppSettings { DutyText = "Astreinte : 01 23 45 67 89\r\nJamais de redémarrage en production sans ticket.\r\n\r\n" };
+        var profile = EnvironmentProfile.FromSettings(settings, null);
+        Assert.Equal("Astreinte : 01 23 45 67 89\nJamais de redémarrage en production sans ticket.", profile.DutyText);
+        Assert.Null(EnvironmentProfile.FromSettings(new AppSettings(), null).DutyText);
+
+        var target = new AppSettings();
+        var change = Assert.Single(profile.Diff(target), c => c.Setting == EnvironmentSetting.DutyText);
+        Assert.False(change.Sensitive);
+        profile.ApplyTo(target);
+        Assert.Equal("Astreinte : 01 23 45 67 89\nJamais de redémarrage en production sans ticket.", target.DutyText);
+        Assert.DoesNotContain(profile.Diff(target), c => c.Setting == EnvironmentSetting.DutyText);
+
+        new EnvironmentProfile().ApplyTo(target);
+        Assert.NotEmpty(target.DutyText);
+        new EnvironmentProfile { DutyText = "" }.ApplyTo(target);
+        Assert.Empty(target.DutyText);
+
+        var reversed = Assert.Throws<EnvironmentFileException>(new EnvironmentProfile { DutyText = "appeler le\u202E 01 23" }.Validate);
+        Assert.Equal(EnvironmentProblem.InvalidDutyText, reversed.Problem);
+        Assert.Throws<EnvironmentFileException>(new EnvironmentProfile { DutyText = new string('x', EnvironmentProfile.MaxDutyText + 1) }.Validate);
+        new EnvironmentProfile { DutyText = "Tél.\t01 23 45 67 89" }.Validate();
+    }
 }

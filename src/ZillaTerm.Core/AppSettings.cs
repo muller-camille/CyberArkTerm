@@ -150,6 +150,12 @@ public sealed class AppSettings
     /// <summary>Installe PROMPT_COMMAND à l'ouverture d'une session SSH pour que le navigateur suive le dossier du terminal.</summary>
     public bool FollowTerminalFolder { get; set; } = true;
 
+    /// <summary>
+    /// Texte de l'astreinte (bonnes pratiques, numéros d'urgence…) affiché par le bouton « Astreinte » ; en général
+    /// diffusé par le fichier d'environnement de l'équipe.
+    /// </summary>
+    public string DutyText { get; set; } = "";
+
     /// <summary>Serveur X de ce poste pour le transfert X11 (voir <see cref="Ssh.X11Display"/>), « :0 » par défaut.</summary>
     public string X11Display { get; set; } = Ssh.X11Display.Default;
 
@@ -474,6 +480,7 @@ public sealed class AppSettings
             settings.X11Display = Ssh.X11Display.Default;
         }
 
+        settings.DutyText ??= "";
         settings.X11Servers ??= [];
         settings.X11Servers.RemoveAll(string.IsNullOrWhiteSpace);
         settings.CompareToolArguments ??= DefaultCompareArguments;

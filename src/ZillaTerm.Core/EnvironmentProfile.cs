@@ -22,6 +22,7 @@ public enum EnvironmentSetting
     SshInApp,
     CheckForUpdates,
     UploadProtocol,
+    DutyText,
 }
 
 /// <summary>
@@ -47,6 +48,7 @@ public enum EnvironmentProblem
     InvalidComponent,
     InvalidHostKey,
     InvalidPath,
+    InvalidDutyText,
 }
 
 /// <summary>Fichier d'environnement refusé ; <see cref="Detail"/> nomme la valeur en cause.</summary>
@@ -123,6 +125,15 @@ public sealed class EnvironmentProfile
 
     public TransferProtocol? UploadProtocol { get; set; }
 
+    /// <summary>
+    /// Texte de l'astreinte (bonnes pratiques, numéros d'urgence…), affiché par le bouton « Astreinte » ; vide pour
+    /// l'effacer. Texte brut : aucun lien ni mise en forme n'est interprété.
+    /// </summary>
+    public string? DutyText { get; set; }
+
+    /// <summary>Longueur maximale du texte de l'astreinte.</summary>
+    public const int MaxDutyText = 8000;
+
     /// <summary>Environnement des réglages actuels, sans rien de personnel ; clés des PSMP configurés déjà acceptées.</summary>
     public static EnvironmentProfile FromSettings(AppSettings settings, string? name)
     {
@@ -152,6 +163,7 @@ public sealed class EnvironmentProfile
             SshInApp = settings.SshInApp,
             CheckForUpdates = settings.CheckForUpdates,
             UploadProtocol = settings.PreferredUploadProtocol,
+            DutyText = string.IsNullOrWhiteSpace(settings.DutyText) ? null : NormalizeDutyText(settings.DutyText),
         };
     }
 
@@ -267,7 +279,24 @@ public sealed class EnvironmentProfile
                 Fail(EnvironmentProblem.InvalidPath, path ?? "");
             }
         }
+
+        if (DutyText is not null && !IsValidDutyText(DutyText))
+        {
+            Fail(EnvironmentProblem.InvalidDutyText, DutyText.Length > 40 ? DutyText[..40] + "…" : DutyText);
+        }
     }
+
+    /// <summary>
+    /// Texte de l'astreinte acceptable : <see cref="MaxDutyText"/> caractères au plus, sans caractère de contrôle (sauf
+    /// sauts de ligne et tabulations) ni caractère invisible qui changerait le sens de lecture.
+    /// </summary>
+    public static bool IsValidDutyText(string text) =>
+        text.Length <= MaxDutyText
+        && text.EnumerateRunes().All(r => r.Value is '\r' or '\n' or '\t'
+            || (!System.Text.Rune.IsControl(r) && System.Text.Rune.GetUnicodeCategory(r) != System.Globalization.UnicodeCategory.Format));
+
+    /// <summary>Texte de l'astreinte tel qu'il est gardé : sauts de ligne « \n », sans espaces ni lignes vides à la fin.</summary>
+    public static string NormalizeDutyText(string text) => text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n').TrimEnd();
 
     /// <summary>Changements par rapport aux réglages actuels (rien de ce qui est déjà identique).</summary>
     public IReadOnlyList<EnvironmentChange> Diff(AppSettings settings)
@@ -365,6 +394,11 @@ public sealed class EnvironmentProfile
                 protocol.ToString().ToUpperInvariant(), false);
         }
 
+        if (DutyText is not null)
+        {
+            Add(EnvironmentSetting.DutyText, null, NormalizeDutyText(settings.DutyText), NormalizeDutyText(DutyText), false);
+        }
+
         return changes;
 
         void AddFlag(EnvironmentSetting setting, bool current, bool? next)
@@ -443,6 +477,10 @@ public sealed class EnvironmentProfile
         settings.SshInApp = SshInApp ?? settings.SshInApp;
         settings.CheckForUpdates = CheckForUpdates ?? settings.CheckForUpdates;
         settings.PreferredUploadProtocol = UploadProtocol ?? settings.PreferredUploadProtocol;
+        if (DutyText is not null)
+        {
+            settings.DutyText = NormalizeDutyText(DutyText);
+        }
     }
 
     /// <summary>

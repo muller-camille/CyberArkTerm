@@ -140,6 +140,19 @@ public sealed class TerminalEmulator
     /// <summary>Retire la marque posée par <see cref="MarkEraseFromCursorLine"/> : un marqueur reçu ensuite est sans effet.</summary>
     public void CancelEraseMark() => _eraseFrom = null;
 
+    /// <summary>
+    /// Numéro (comme <see cref="FirstScreenLine"/>) de la ligne marquée par <see cref="MarkEraseFromCursorLine"/>, tant que
+    /// la marque est posée : les lignes à partir d'elle seront effacées si le marqueur arrive.
+    /// </summary>
+    public long? EraseMark => _eraseFrom;
+
+    /// <summary>
+    /// Ligne quittée par un saut de ligne sur l'écran principal (jamais en écran alternatif : vim, less, top) : son numéro
+    /// (comme <see cref="FirstScreenLine"/>), son texte (sans les espaces de fin, sauf si elle continue), et vrai si elle
+    /// continue sur la suivante (retour automatique en fin de ligne). Sert au journal d'astreinte.
+    /// </summary>
+    public event Action<long, string, bool>? LineLeft;
+
     /// <summary>Marqueur reçu alors qu'une marque était posée (écran effacé, sauf en écran alternatif) ; la marque est retirée.</summary>
     public event Action? EraseMarkerReceived;
 
@@ -814,7 +827,7 @@ public sealed class TerminalEmulator
             if (AutoWrap)
             {
                 CursorColumn = 0;
-                LineFeed();
+                LineFeed(wrap: true);
             }
         }
 
@@ -825,7 +838,7 @@ public sealed class TerminalEmulator
             if (AutoWrap)
             {
                 CursorColumn = 0;
-                LineFeed();
+                LineFeed(wrap: true);
             }
             else
             {
@@ -904,9 +917,21 @@ public sealed class TerminalEmulator
         line[col].CodePoint = id;
     }
 
-    private void LineFeed()
+    private void LineFeed(bool wrap = false)
     {
         _wrapPending = false;
+        if (LineLeft is { } left && !IsAlternateScreen)
+        {
+            var text = new StringBuilder(Columns);
+            foreach (var cell in _screen[CursorRow])
+            {
+                AppendText(text, cell);
+            }
+
+            // Morceau d'une ligne coupée : ses espaces de fin font partie du texte.
+            left(_scrolledOff + CursorRow, wrap ? text.ToString() : text.ToString().TrimEnd(), wrap);
+        }
+
         if (CursorRow == _scrollBottom)
         {
             ScrollUp(_scrollTop, _scrollBottom, 1, toHistory: true);
