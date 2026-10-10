@@ -241,6 +241,26 @@ public sealed class SessionImportTests
         Assert.NotNull(parsed.Rows[4].Error);
     }
 
+    /// <summary>
+    /// Étiquette devinée d'après le nom, le serveur et les dossiers de l'autre logiciel ; choisie à la main, elle est
+    /// gardée ; enregistrée avec le serveur.
+    /// </summary>
+    [Fact]
+    public void GuessesTheTagOfEachImportedServer()
+    {
+        var import = new SessionImport(new AppSettings(), Pvwa, Matcher(),
+        [
+            ImportedSession.Terminal("Clients/Production", "web", ImportProtocol.Ssh, "web01.corp.local", 22, "root"),
+            ImportedSession.Terminal("Recette", "app-dev", ImportProtocol.Ssh, "app01.corp.local", 22, "deploy"),
+            ImportedSession.Terminal("", "transfer", ImportProtocol.Sftp, "sftp01.corp.local", 22, "transfer"),
+        ]);
+        Assert.Equal(["PROD", "DEV", null], import.Items.Select(i => i.Tag));
+
+        import.SetTag(import.Items[2], "QA");
+        import.Apply();
+        Assert.Equal(["PROD", "DEV", "QA"], import.Items.Select(i => i.Created?.Tag));
+    }
+
     [Fact]
     public void ExportsTheResultAsCsv()
     {
@@ -256,8 +276,8 @@ public sealed class SessionImportTests
         import.WriteCsv(writer, ';');
         var lines = writer.ToString().Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
         Assert.Equal(3, lines.Length);
-        Assert.Equal("Dossier;Nom;Protocole;Serveur;Utilisateur;Compte PVWA;Safe;Connexion;Dossier dans Mes serveurs;Résultat", lines[0]);
-        Assert.Equal("Prod;web;SSH;web01.corp.local;root;root@web01.corp.local;Safe;PSM;Import/Prod;Importé", lines[1]);
+        Assert.Equal("Dossier;Nom;Protocole;Serveur;Utilisateur;Compte PVWA;Safe;Connexion;Dossier dans Mes serveurs;Étiquette;Résultat", lines[0]);
+        Assert.Equal("Prod;web;SSH;web01.corp.local;root;root@web01.corp.local;Safe;PSM;Import/Prod;PROD;Importé", lines[1]);
 
         // Pas d'interprétation comme formule par Excel ; port indiqué s'il n'est pas celui par défaut.
         Assert.StartsWith(";'=cmd;SSH;unknown01:2222;root;;;;;", lines[2]);

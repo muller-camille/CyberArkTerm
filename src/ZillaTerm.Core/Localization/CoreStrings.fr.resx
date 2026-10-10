@@ -555,4 +555,7 @@
   <data name="AnyMachine" xml:space="preserve">
     <value>toutes machines</value>
   </data>
+  <data name="MigrationColTag" xml:space="preserve">
+    <value>Étiquette</value>
+  </data>
 </root>

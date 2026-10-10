@@ -363,6 +363,7 @@ public sealed class SharedServerList(string path)
         RemoteMachine = s.RemoteMachine,
         Reason = s.Reason,
         StartDirectory = s.StartDirectory,
+        Tag = ServerTagRules.NormalizeName(s.Tag),
         Address = s.Address,
         UserName = s.UserName,
         PlatformId = s.PlatformId,

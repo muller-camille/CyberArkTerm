@@ -67,6 +67,15 @@ public sealed class ImportItem
     /// <summary>Serveur ajouté à « Mes serveurs ».</summary>
     public SavedSession? Created { get; internal set; }
 
+    /// <summary>
+    /// Étiquette du serveur importé (PROD, QA, DEV…) : devinée d'après le nom, le serveur, le compte et les dossiers,
+    /// ou choisie (<see cref="SessionImport.SetTag"/>) ; null = aucune.
+    /// </summary>
+    public string? Tag { get; internal set; }
+
+    /// <summary>Étiquette choisie à la main : elle n'est plus devinée à nouveau quand le compte change.</summary>
+    internal bool TagChosen { get; set; }
+
     /// <summary>Connexion affichée : « PSM », « PSM (PSM-WinSCP) », « SSH », « SFTP ».</summary>
     public string ConnectionText => State is ImportState.NoAccount or ImportState.Unsupported ? ""
         : Component is { } component ? $"{SessionLibrary.ModeName(Mode)} ({component})" : SessionLibrary.ModeName(Mode);
@@ -133,6 +142,11 @@ public sealed class SessionImport
         _settings = settings;
         _pvwaHost = pvwaHost;
         Items = sessions.Select(s => new ImportItem(s, matcher.Candidates(s))).ToList();
+        foreach (var item in Items)
+        {
+            item.Tag = GuessTag(item);
+        }
+
         RootFolder = rootFolder;
     }
 
@@ -164,9 +178,31 @@ public sealed class SessionImport
 
         item.Chosen = candidate;
         item.Include = true;
+        if (!item.TagChosen)
+        {
+            // Un autre compte (autre safe, autre machine) peut désigner un autre environnement.
+            item.Tag = GuessTag(item);
+        }
+
         IndexSaved();
         Refresh(item);
     }
+
+    /// <summary>Choisit l'étiquette d'une session (null : aucune) ; elle ne sera plus devinée.</summary>
+    public void SetTag(ImportItem item, string? tag)
+    {
+        if (Applied)
+        {
+            return;
+        }
+
+        item.Tag = ServerTagRules.NormalizeName(tag);
+        item.TagChosen = true;
+    }
+
+    /// <summary>Étiquette d'après la session de l'autre logiciel et le compte retenu (son safe, sa machine cible).</summary>
+    private string? GuessTag(ImportItem item) => ServerTagGuess.ForServer(_settings.ServerTags, item.Session.Name,
+        item.Chosen?.RemoteMachine, item.Session.Host, item.Chosen?.Account.SafeName, item.Session.Folder)?.Name;
 
     /// <summary>Ajoute à « Mes serveurs » les sessions prêtes et cochées ; renvoie le nombre de serveurs ajoutés.</summary>
     public int Apply()
@@ -202,6 +238,7 @@ public sealed class SessionImport
                 session.Name = item.Session.Name;
             }
 
+            session.Tag = item.Tag;
             item.Created = session;
             item.State = ImportState.Imported;
             Index(session);
@@ -219,7 +256,7 @@ public sealed class SessionImport
         [
             CoreStrings.MigrationColFolder, CoreStrings.ColumnName, CoreStrings.MigrationColProtocol, CoreStrings.ColumnServer,
             CoreStrings.ColumnUser, CoreStrings.MigrationColAccount, CoreStrings.ColumnSafe, CoreStrings.MigrationColConnection,
-            CoreStrings.MigrationColTarget, CoreStrings.MigrationColResult,
+            CoreStrings.MigrationColTarget, CoreStrings.MigrationColTag, CoreStrings.MigrationColResult,
         ]);
         foreach (var item in Items)
         {
@@ -237,6 +274,7 @@ public sealed class SessionImport
                 account?.Account.SafeName ?? "",
                 item.ConnectionText,
                 placed ? item.TargetFolder : "",
+                placed ? item.Tag ?? "" : "",
                 item.StateText,
             ]);
         }

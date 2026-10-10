@@ -171,6 +171,12 @@ public sealed class AppSettings
     /// </summary>
     public List<string> X11Servers { get; set; } = [];
 
+    /// <summary>
+    /// Étiquettes proposées pour les serveurs de « Mes serveurs » (PROD, QA, DEV par défaut), avec leur couleur ;
+    /// modifiables dans les Paramètres et diffusées par le fichier d'environnement.
+    /// </summary>
+    public List<ServerTag> ServerTags { get; set; } = ServerTagRules.Defaults();
+
     public bool ShowHiddenFiles { get; set; }
 
     /// <summary>Largeur du panneau de gauche (pixels indépendants) ; 0 = largeur par défaut.</summary>
@@ -294,6 +300,25 @@ public sealed class AppSettings
         }
 
         return list;
+    }
+
+    /// <summary>
+    /// Remplace les étiquettes (Paramètres). Les serveurs de « Mes serveurs » suivent les renommages
+    /// (<paramref name="renamed"/> : ancien nom → nouveau) et perdent une étiquette supprimée.
+    /// </summary>
+    public void ReplaceServerTags(IEnumerable<ServerTag> tags, IReadOnlyDictionary<string, string> renamed)
+    {
+        ServerTags = ServerTagRules.Sanitize(tags);
+        var renames = new Dictionary<string, string>(renamed, StringComparer.OrdinalIgnoreCase);
+        foreach (var session in Sessions.Where(s => s.Tag is not null))
+        {
+            if (renames.TryGetValue(session.Tag!, out var newName))
+            {
+                session.Tag = newName;
+            }
+
+            session.Tag = ServerTagRules.Find(ServerTags, session.Tag)?.Name;
+        }
     }
 
     public void RememberComponent(string? platformId, string component)
@@ -490,10 +515,12 @@ public sealed class AppSettings
         settings.DutyTextFile = DutyReminderFile.IsValidPath(settings.DutyTextFile) ? settings.DutyTextFile.Trim() : "";
         settings.X11Servers ??= [];
         settings.X11Servers.RemoveAll(string.IsNullOrWhiteSpace);
+        settings.ServerTags = ServerTagRules.Sanitize(settings.ServerTags);
         settings.CompareToolArguments ??= DefaultCompareArguments;
         foreach (var session in settings.Sessions)
         {
             session.TailFiles ??= [];
+            session.Tag = ServerTagRules.NormalizeName(session.Tag);
         }
 
         return settings;

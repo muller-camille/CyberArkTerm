@@ -47,7 +47,10 @@ public static class SessionLibrary
         return root;
     }
 
-    /// <summary>Recherche dans « Mes serveurs » : nom, serveur, utilisateur, dossier, mode, composant, machine cible, plateforme, safe.</summary>
+    /// <summary>
+    /// Recherche dans « Mes serveurs » : nom, serveur, utilisateur, dossier, mode, composant, machine cible, plateforme,
+    /// safe, étiquette.
+    /// </summary>
     public static bool Matches(SavedSession session, string? query) => SearchQuery.Matches(
         query,
         session.Name,
@@ -58,7 +61,8 @@ public static class SessionLibrary
         session.Component,
         session.RemoteMachine,
         session.PlatformId,
-        session.SafeName);
+        session.SafeName,
+        session.Tag);
 
     /// <summary>Nom court du type de connexion (recherche, affichage).</summary>
     public static string ModeName(ConnectMode mode) => mode switch

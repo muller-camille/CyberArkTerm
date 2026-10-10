@@ -35,6 +35,9 @@ public sealed class ServerEntry : IJsonOnDeserializing
 
     public string? StartDirectory { get; set; }
 
+    /// <summary>Étiquette d'environnement (PROD, QA, DEV…), partagée avec la liste.</summary>
+    public string? Tag { get; set; }
+
     public string? Address { get; set; }
 
     public string? UserName { get; set; }
@@ -58,6 +61,7 @@ public sealed class ServerEntry : IJsonOnDeserializing
         RemoteMachine = session.RemoteMachine,
         Reason = session.Reason,
         StartDirectory = session.StartDirectory,
+        Tag = ServerTagRules.NormalizeName(session.Tag),
         Address = session.Address,
         UserName = session.UserName,
         PlatformId = session.PlatformId,
@@ -80,6 +84,7 @@ public sealed class ServerEntry : IJsonOnDeserializing
         RemoteMachine = RemoteMachine,
         Reason = Reason,
         StartDirectory = StartDirectory,
+        Tag = ServerTagRules.NormalizeName(Tag),
         Address = Address,
         UserName = UserName,
         PlatformId = PlatformId,
@@ -227,6 +232,8 @@ public sealed class ServerListFile
         {
             server.Name ??= "";
             server.Folder = SessionFolders.Normalize(server.Folder);
+            // Étiquette du fichier : un nom lisible seulement (caractères invisibles ou trop long : ignorée).
+            server.Tag = ServerTagRules.NormalizeName(server.Tag);
             // Fichier écrit à la main sans « id » : un identifiant tiré de l'entrée, le même à chaque lecture (le retrait
             // d'un serveur relit le fichier et le retrouve par son identifiant).
             server.Id = string.IsNullOrWhiteSpace(server.Id) ? StableId(server) : server.Id;
