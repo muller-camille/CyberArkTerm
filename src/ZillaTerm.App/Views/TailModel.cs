@@ -221,11 +221,14 @@ internal sealed class SessionTailLink : ITailLink
 /// <summary>Fichier suivi dans une fenêtre (une source de la vue combinée).</summary>
 internal sealed class TailFeed : INotifyPropertyChanged
 {
-    public TailFeed(ITailLink link, string path, Brush brush)
+    private readonly int _color;
+
+    /// <param name="color">Rang de la couleur du fichier dans la vue combinée.</param>
+    public TailFeed(ITailLink link, string path, int color)
     {
         Link = link;
         Path = path;
-        Brush = brush;
+        _color = color;
         Tail = new FileTail(NoSource.Instance);
     }
 
@@ -240,7 +243,10 @@ internal sealed class TailFeed : INotifyPropertyChanged
 
     public string Tip => $"{Link.Server} : {Path}";
 
-    public Brush Brush { get; }
+    public Brush Brush => TailBrushes.Source(_color);
+
+    /// <summary>Thème changé : couleur du fichier recalculée.</summary>
+    public void ThemeChanged() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Brush)));
 
     public FileTail Tail { get; }
 
@@ -347,6 +353,16 @@ internal static class TailBrushes
     private static readonly Brush MatchColor = Frozen(0xFF, 0xB7, 0x4D);
     private static readonly Brush AlertColor = Frozen(0xFD, 0xEC, 0xEA);
 
+    // Thème sombre : textes éclaircis, surlignages foncés sous un texte clair (4,5:1 au moins).
+    private static readonly Brush DarkErrorColor = Frozen(0xFF, 0x9A, 0x90);
+    private static readonly Brush DarkWarningColor = Frozen(0xF0, 0xC0, 0x60);
+    private static readonly Brush DarkMutedColor = Frozen(0xA3, 0xAD, 0xB8);
+    private static readonly Brush DarkContextColor = Frozen(0x8E, 0x99, 0xA5);
+    private static readonly Brush DarkMarkerColor = Frozen(0xA5, 0xB4, 0xFC);
+    private static readonly Brush DarkHighlightColor = Frozen(0x5C, 0x4D, 0x00);
+    private static readonly Brush DarkMatchColor = Frozen(0x7A, 0x41, 0x00);
+    private static readonly Brush DarkAlertColor = Frozen(0x4A, 0x22, 0x26);
+
     /// <summary>Couleurs des fichiers de la vue combinée (ni rouge ni orange, réservés aux niveaux).</summary>
     private static readonly Brush[] SourceColors =
     [
@@ -354,28 +370,37 @@ internal static class TailBrushes
         Frozen(0xAD, 0x14, 0x57), Frozen(0x4E, 0x34, 0x2E), Frozen(0x28, 0x35, 0x93), Frozen(0x55, 0x8B, 0x2F),
     ];
 
+    private static readonly Brush[] DarkSourceColors =
+    [
+        Frozen(0x5A, 0xA9, 0xF0), Frozen(0x6C, 0xC0, 0x70), Frozen(0xC0, 0x8A, 0xE0), Frozen(0x4D, 0xC6, 0xD0),
+        Frozen(0xF0, 0x7A, 0xA8), Frozen(0xC8, 0xA0, 0x8A), Frozen(0x8C, 0x9E, 0xFF), Frozen(0xA5, 0xD4, 0x6A),
+    ];
+
     private static bool HighContrast => SystemParameters.HighContrast;
 
-    public static Brush Error => HighContrast ? SystemColors.WindowTextBrush : ErrorColor;
+    private static bool Dark => Palette.IsDark;
 
-    public static Brush Warning => HighContrast ? SystemColors.WindowTextBrush : WarningColor;
+    public static Brush Error => HighContrast ? SystemColors.WindowTextBrush : Dark ? DarkErrorColor : ErrorColor;
 
-    public static Brush Muted => HighContrast ? SystemColors.WindowTextBrush : MutedColor;
+    public static Brush Warning => HighContrast ? SystemColors.WindowTextBrush : Dark ? DarkWarningColor : WarningColor;
 
-    public static Brush Context => HighContrast ? SystemColors.WindowTextBrush : ContextColor;
+    public static Brush Muted => HighContrast ? SystemColors.WindowTextBrush : Dark ? DarkMutedColor : MutedColor;
 
-    public static Brush Marker => HighContrast ? SystemColors.WindowTextBrush : MarkerColor;
+    public static Brush Context => HighContrast ? SystemColors.WindowTextBrush : Dark ? DarkContextColor : ContextColor;
 
-    public static Brush Highlight => HighContrast ? SystemColors.HighlightBrush : HighlightColor;
+    public static Brush Marker => HighContrast ? SystemColors.WindowTextBrush : Dark ? DarkMarkerColor : MarkerColor;
 
-    public static Brush Match => HighContrast ? SystemColors.HighlightBrush : MatchColor;
+    public static Brush Highlight => HighContrast ? SystemColors.HighlightBrush : Dark ? DarkHighlightColor : HighlightColor;
 
-    public static Brush Alert => HighContrast ? SystemColors.HighlightBrush : AlertColor;
+    public static Brush Match => HighContrast ? SystemColors.HighlightBrush : Dark ? DarkMatchColor : MatchColor;
+
+    public static Brush Alert => HighContrast ? SystemColors.HighlightBrush : Dark ? DarkAlertColor : AlertColor;
 
     /// <summary>Texte posé sur un surlignage ou une ligne d'alerte ; null hors contraste élevé (couleur du texte inchangée).</summary>
     public static Brush? OnHighlight => HighContrast ? SystemColors.HighlightTextBrush : null;
 
-    public static Brush Source(int index) => HighContrast ? SystemColors.WindowTextBrush : SourceColors[index % SourceColors.Length];
+    public static Brush Source(int index) =>
+        HighContrast ? SystemColors.WindowTextBrush : (Dark ? DarkSourceColors : SourceColors)[index % SourceColors.Length];
 
     public static Brush? Level(TailLevel level) => level switch
     {

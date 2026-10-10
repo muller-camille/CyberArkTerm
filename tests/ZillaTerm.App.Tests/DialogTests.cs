@@ -1145,7 +1145,7 @@ public sealed class DialogTests
 
         RunWithTheme(() =>
         {
-            var feed = new TailFeed(new MemoryLink("root@srv01"), "/var/log/app.log", TailBrushes.Source(0));
+            var feed = new TailFeed(new MemoryLink("root@srv01"), "/var/log/app.log", 0);
             var style = new TailStyle(["db01"], null, Colors: true, Prefixes: true, Wrap: false);
             var block = new System.Windows.Controls.TextBlock();
             TailRowText.SetRow(block, new TailRow(new TailLine("12:00 ERROR db01 down", feed, TailLevel.Error, false), TailShownKind.Line, style));
@@ -2363,6 +2363,62 @@ public sealed class DialogTests
         public ITailSource Source(string path) => _files[path];
 
         public void Dispose() => Disposed = true;
+    }
+
+    /// <summary>
+    /// Thème sombre : les fenêtres s'ouvrent avec ses modèles (listes déroulantes, onglets, tableaux, cases), le choix
+    /// est relu des réglages, et les icônes foncées sont éclaircies (écran de terminal cerné d'un trait clair).
+    /// </summary>
+    [Fact]
+    public void DarkThemeDrawsWindowsWithItsTemplates()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var merged = Application.Current.Resources.MergedDictionaries;
+            var dark = Palette.Dark(merged.ToList());
+            merged.Add(dark);
+            try
+            {
+                var dialog = new SettingsDialog(new AppSettings { Theme = AppTheme.Dark }) { ShowInTaskbar = false, ShowActivated = false };
+                dialog.Show();
+                PumpUntil(() => dialog.IsLoaded);
+                Assert.Equal(AppTheme.Dark, dialog.AppThemeBox.SelectedValue);
+                Assert.Same(dark["ComboTemplate"], dialog.LanguageBox.Template);
+                foreach (var page in dialog.Pages.Items.OfType<System.Windows.Controls.TabItem>())
+                {
+                    dialog.Pages.SelectedItem = page;
+                    dialog.UpdateLayout();
+                }
+
+                dialog.Close();
+
+                static IEnumerable<System.Windows.Media.GeometryDrawing> Shapes(System.Windows.Media.Drawing drawing) => drawing switch
+                {
+                    System.Windows.Media.DrawingGroup group => group.Children.SelectMany(Shapes),
+                    System.Windows.Media.GeometryDrawing shape => [shape],
+                    _ => [],
+                };
+
+                static System.Windows.Media.Color? Fill(System.Windows.Media.GeometryDrawing shape) =>
+                    (shape.Brush as System.Windows.Media.SolidColorBrush)?.Color;
+
+                var gear = Shapes(((System.Windows.Media.DrawingImage)dark["IconSettings"]).Drawing).ToList();
+                Assert.Contains(System.Windows.Media.Color.FromRgb(0xAE, 0xB8, 0xC2), gear.Select(Fill));
+                var screen = Shapes(((System.Windows.Media.DrawingImage)dark["IconSsh"]).Drawing).First();
+                Assert.NotNull(screen.Pen);
+                // Pastilles des dialogues : inchangées.
+                Assert.False(dark.Contains("IconWarning"));
+            }
+            finally
+            {
+                merged.Remove(dark);
+            }
+        });
     }
 
     /// <summary>

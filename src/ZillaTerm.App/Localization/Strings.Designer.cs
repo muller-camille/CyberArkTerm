@@ -14442,5 +14442,59 @@ namespace ZillaTerm.App.Localization {
                 return ResourceManager.GetString("A11yExtractCommand", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Appearance.
+        /// </summary>
+        public static string AppearanceSection {
+            get {
+                return ResourceManager.GetString("AppearanceSection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _Theme:.
+        /// </summary>
+        public static string AppThemeLabel {
+            get {
+                return ResourceManager.GetString("AppThemeLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Same as Windows.
+        /// </summary>
+        public static string AppThemeSystem {
+            get {
+                return ResourceManager.GetString("AppThemeSystem", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Light.
+        /// </summary>
+        public static string AppThemeLight {
+            get {
+                return ResourceManager.GetString("AppThemeLight", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Dark.
+        /// </summary>
+        public static string AppThemeDark {
+            get {
+                return ResourceManager.GetString("AppThemeDark", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Applied right away. Windows high contrast always takes precedence. Terminal colors are set on the Terminal page..
+        /// </summary>
+        public static string AppThemeHelp {
+            get {
+                return ResourceManager.GetString("AppThemeHelp", resourceCulture);
+            }
+        }
     }
 }

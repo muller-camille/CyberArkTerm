@@ -79,6 +79,19 @@ public sealed class AppSettingsTests : IDisposable
         Assert.False(File.Exists(path));
     }
 
+    /// <summary>Thème de l'interface : celui de Windows par défaut, le choix gardé, une valeur inconnue ramenée au défaut.</summary>
+    [Fact]
+    public void ThemeDefaultsToWindowsAndIsKept()
+    {
+        Assert.Equal(AppTheme.System, new AppSettings().Theme);
+        var path = Path.Combine(_dir, "theme.json");
+        new AppSettings { Theme = AppTheme.Dark }.Save(path);
+        Assert.Equal(AppTheme.Dark, AppSettings.Load(path).Theme);
+
+        File.WriteAllText(path, """{ "PvwaUrl": "https://pvwa", "Theme": 7 }""");
+        Assert.Equal(AppTheme.System, AppSettings.Load(path).Theme);
+    }
+
     [Fact]
     public void SaveThenLoad_RoundTrips()
     {

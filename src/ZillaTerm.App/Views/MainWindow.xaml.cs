@@ -1454,6 +1454,7 @@ public partial class MainWindow : Window
         {
             SaveSettings();
             ZillaTerm.App.Terminal.TerminalAppearance.Apply(_settings.TerminalTheme, _settings.TerminalFontSize, _settings.TerminalRightClickPastes);
+            Palette.Choose(Application.Current, _settings.Theme);
             UpdateActions();
             StartKeepAlive();
             SetStatus(_settings.Language == language ? Strings.SettingsSaved : Strings.SettingsSavedLanguage);

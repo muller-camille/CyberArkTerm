@@ -6,7 +6,7 @@
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <StackPanel Margin="16">
         <DockPanel Margin="0,0,0,12">
-            <Image Source="{StaticResource IconSsh}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Top" />
+            <Image Source="{DynamicResource IconSsh}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Top" />
             <StackPanel>
                 <!-- Session qui pose la question : plusieurs peuvent s'ouvrir ensemble (vue parallèle, multi-sélection). -->
                 <TextBlock x:Name="SessionText" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,4"

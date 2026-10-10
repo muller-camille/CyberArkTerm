@@ -118,6 +118,9 @@ public sealed class AppSettings
     /// <summary>Dernière recherche de nouvelle version (UTC).</summary>
     public DateTime LastUpdateCheck { get; set; }
 
+    /// <summary>Couleurs de l'interface : celles de Windows (clair ou sombre), claires ou sombres.</summary>
+    public AppTheme Theme { get; set; } = AppTheme.System;
+
     /// <summary>Palette de couleurs des terminaux SSH (identifiant d'une palette de <c>TerminalTheme</c>).</summary>
     public string TerminalTheme { get; set; } = "campbell";
 
@@ -432,6 +435,11 @@ public sealed class AppSettings
         settings.HiddenFileColumns ??= [];
         settings.HiddenFileColumns.RemoveAll(c => c == RemoteSortColumn.Name || !Enum.IsDefined(c));
         settings.Language ??= "";
+        if (!Enum.IsDefined(settings.Theme))
+        {
+            settings.Theme = AppTheme.System;
+        }
+
         settings.PvwaUrl ??= "";
         settings.UserName ??= "";
         settings.PsmpAddress ??= "";
@@ -498,6 +506,15 @@ public sealed record WindowPlacement(double Left, double Top, double Width, doub
                        && Top >= screen.Top - 10 && Top + 50 <= screen.Top + screen.Height;
         return visible ? this with { Width = width, Height = height } : null;
     }
+}
+
+/// <summary>Couleurs de l'interface (le contraste élevé de Windows l'emporte toujours).</summary>
+public enum AppTheme
+{
+    /// <summary>Comme Windows : « Choisir votre mode d'application par défaut » (clair ou sombre).</summary>
+    System,
+    Light,
+    Dark,
 }
 
 /// <summary>Connexion lancée récemment, affichée sur l'écran d'accueil.</summary>

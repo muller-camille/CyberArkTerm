@@ -4845,4 +4845,22 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   <data name="A11yExtractCommand" xml:space="preserve">
     <value>Comando di estrazione</value>
   </data>
+  <data name="AppearanceSection" xml:space="preserve">
+    <value>Aspetto</value>
+  </data>
+  <data name="AppThemeLabel" xml:space="preserve">
+    <value>_Tema:</value>
+  </data>
+  <data name="AppThemeSystem" xml:space="preserve">
+    <value>Come Windows</value>
+  </data>
+  <data name="AppThemeLight" xml:space="preserve">
+    <value>Chiaro</value>
+  </data>
+  <data name="AppThemeDark" xml:space="preserve">
+    <value>Scuro</value>
+  </data>
+  <data name="AppThemeHelp" xml:space="preserve">
+    <value>Applicato subito. Il contrasto elevato di Windows ha sempre la precedenza. I colori dei terminali si impostano nella pagina Terminale.</value>
+  </data>
 </root>

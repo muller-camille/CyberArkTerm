@@ -114,55 +114,55 @@
             <MenuItem Tag="open" Header="{x:Static loc:Strings.FileOpen}" Click="OnOpenSelected" FontWeight="SemiBold" />
             <MenuItem Tag="download" Header="{x:Static loc:Strings.FileDownload}" Click="OnDownload">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconDownload}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconDownload}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="edit" Header="{x:Static loc:Strings.FileEdit}" Click="OnEdit" InputGestureText="F4">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconEdit}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="tail" Header="{x:Static loc:Strings.FileTail}" Click="OnTail">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconTail}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconTail}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="compare" Header="{x:Static loc:Strings.FileCompareWith}" Click="OnCompare">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconCompare}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconCompare}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <!-- Sous-menu rempli à l'ouverture : une entrée par fenêtre de suivi ouverte. -->
             <MenuItem Tag="tailadd" Header="{x:Static loc:Strings.FileTailAdd}" />
             <MenuItem Header="{x:Static loc:Strings.FileUploadHere}" Click="OnUploadDialog">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconUpload}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconUpload}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.FileUploadMany}" Click="OnMultiUpload">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconUploadMany}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconUploadMany}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.NewFolderMenu}" Click="OnNewFolder">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconNewFolder}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconNewFolder}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="rename" Header="{x:Static loc:Strings.FileRename}" Click="OnRename" InputGestureText="F2">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconRename}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconRename}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="delete" Header="{x:Static loc:Strings.FileDelete}" Click="OnDelete">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconDelete}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="chmod" Header="{x:Static loc:Strings.FilePermissions}" Click="OnPermissions">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconPermissions}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconPermissions}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
@@ -179,9 +179,9 @@
                 <!-- Fichiers déjà suivis sur ce serveur « Mes serveurs » : les suivre à nouveau d'un clic. -->
                 <Button x:Name="TailFilesButton" DockPanel.Dock="Right" Style="{StaticResource SmallToolButton}" Click="OnTailFiles"
                         ToolTip="{x:Static loc:Strings.TailFilesTip}" Visibility="Collapsed">
-                    <Image Source="{StaticResource IconTail}" Style="{StaticResource SmallIcon}" />
+                    <Image Source="{DynamicResource IconTail}" Style="{StaticResource SmallIcon}" />
                 </Button>
-                <Image Source="{StaticResource IconFiles}" Width="18" Height="18" Margin="0,0,6,0" />
+                <Image Source="{DynamicResource IconFiles}" Width="18" Height="18" Margin="0,0,6,0" />
                 <TextBlock x:Name="HeaderText" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
             </DockPanel>
 
@@ -190,44 +190,44 @@
             <StackPanel x:Name="Toolbar" Orientation="Horizontal" Margin="-2,6,0,0" KeyboardNavigation.TabNavigation="Once"
                         KeyboardNavigation.DirectionalNavigation="Cycle">
                 <Button Style="{StaticResource SmallToolButton}" Click="OnParent" ToolTip="{x:Static loc:Strings.ParentTip}">
-                    <Image Source="{StaticResource IconParentFolder}" Style="{StaticResource SmallIcon}" />
+                    <Image Source="{DynamicResource IconParentFolder}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Button Style="{StaticResource SmallToolButton}" Click="OnHome" ToolTip="{x:Static loc:Strings.HomeTip}">
-                    <Image Source="{StaticResource IconHome}" Style="{StaticResource SmallIcon}" />
+                    <Image Source="{DynamicResource IconHome}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Button Style="{StaticResource SmallToolButton}" Click="OnRefresh" ToolTip="{x:Static loc:Strings.RefreshTip}">
-                    <Image Source="{StaticResource IconRefresh}" Style="{StaticResource SmallIcon}" />
+                    <Image Source="{DynamicResource IconRefresh}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Rectangle Style="{StaticResource ToolSeparator}" Margin="4,3" />
                 <Button Style="{StaticResource SmallToolButton}" Click="OnUploadDialog" ToolTip="{x:Static loc:Strings.UploadTip}">
-                    <Image Source="{StaticResource IconUpload}" Style="{StaticResource SmallIcon}" />
+                    <Image Source="{DynamicResource IconUpload}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Button Style="{StaticResource SmallToolButton}" Click="OnMultiUpload" ToolTip="{x:Static loc:Strings.MultiUploadTip}">
-                    <Image Source="{StaticResource IconUploadMany}" Style="{StaticResource SmallIcon}" />
+                    <Image Source="{DynamicResource IconUploadMany}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <!-- Boutons de la sélection : grisés comme dans le menu, l'infobulle dit ce qui manque. -->
                 <Button x:Name="DownloadButton" Style="{StaticResource SmallToolButton}" Click="OnDownload" ToolTip="{x:Static loc:Strings.DownloadTip}"
                         ToolTipService.ShowOnDisabled="True">
-                    <Image Source="{StaticResource IconDownload}" Style="{StaticResource SmallIcon}" />
+                    <Image Source="{DynamicResource IconDownload}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Button x:Name="EditButton" Style="{StaticResource SmallToolButton}" Click="OnEdit" ToolTip="{x:Static loc:Strings.EditTip}"
                         ToolTipService.ShowOnDisabled="True">
-                    <Image Source="{StaticResource IconEdit}" Style="{StaticResource SmallIcon}" />
+                    <Image Source="{DynamicResource IconEdit}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Button Style="{StaticResource SmallToolButton}" Click="OnNewFolder" ToolTip="{x:Static loc:Strings.NewFolder}">
-                    <Image Source="{StaticResource IconNewFolder}" Style="{StaticResource SmallIcon}" />
+                    <Image Source="{DynamicResource IconNewFolder}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Button x:Name="RenameButton" Style="{StaticResource SmallToolButton}" Click="OnRename" ToolTip="{x:Static loc:Strings.RenameTip}"
                         ToolTipService.ShowOnDisabled="True">
-                    <Image Source="{StaticResource IconRename}" Style="{StaticResource SmallIcon}" />
+                    <Image Source="{DynamicResource IconRename}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Button x:Name="PermissionsButton" Style="{StaticResource SmallToolButton}" Click="OnPermissions" ToolTip="{x:Static loc:Strings.PermissionsTip}"
                         ToolTipService.ShowOnDisabled="True">
-                    <Image Source="{StaticResource IconPermissions}" Style="{StaticResource SmallIcon}" />
+                    <Image Source="{DynamicResource IconPermissions}" Style="{StaticResource SmallIcon}" />
                 </Button>
                 <Button x:Name="DeleteButton" Style="{StaticResource SmallToolButton}" Click="OnDelete" ToolTip="{x:Static loc:Strings.DeleteTip}"
                         ToolTipService.ShowOnDisabled="True">
-                    <Image Source="{StaticResource IconDelete}" Style="{StaticResource SmallIcon}" />
+                    <Image Source="{DynamicResource IconDelete}" Style="{StaticResource SmallIcon}" />
                 </Button>
             </StackPanel>
 
@@ -242,7 +242,7 @@
                 <TextBox x:Name="FilterBox" Padding="24,3,22,3" TextChanged="OnFilterChanged" PreviewKeyDown="OnFilterKeyDown"
                          AutomationProperties.Name="{x:Static loc:Strings.FilesFilterPlaceholder}"
                          ToolTip="{x:Static loc:Strings.FilesFilterTip}" />
-                <Image Source="{StaticResource IconSearch}" Width="14" Height="14" HorizontalAlignment="Left"
+                <Image Source="{DynamicResource IconSearch}" Width="14" Height="14" HorizontalAlignment="Left"
                        Margin="6,0,0,0" IsHitTestVisible="False" />
                 <TextBlock Style="{StaticResource Placeholder}" Tag="{Binding ElementName=FilterBox}"
                            Text="{x:Static loc:Strings.FilesFilterPlaceholder}" Margin="26,0,0,0" />
@@ -271,7 +271,7 @@
                         <DockPanel>
                             <Button DockPanel.Dock="Right" Style="{StaticResource SmallToolButton}" VerticalAlignment="Top" Click="OnCloseExtract"
                                     ToolTip="{x:Static loc:Strings.ArchiveDismissTip}">
-                                <Image Source="{StaticResource IconClose}" Style="{StaticResource SmallIcon}" />
+                                <Image Source="{DynamicResource IconClose}" Style="{StaticResource SmallIcon}" />
                             </Button>
                             <TextBlock x:Name="ExtractTitle" FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" />
                         </DockPanel>
@@ -395,7 +395,7 @@
             <Border x:Name="DropHint" Visibility="Collapsed" IsHitTestVisible="False" Margin="6"
                     Background="{DynamicResource DropHintBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="2" CornerRadius="6">
                 <StackPanel VerticalAlignment="Center" Margin="12">
-                    <Image Source="{StaticResource IconUpload}" Width="40" Height="40" />
+                    <Image Source="{DynamicResource IconUpload}" Width="40" Height="40" />
                     <TextBlock x:Name="DropHintText" TextAlignment="Center" TextWrapping="Wrap" FontWeight="SemiBold"
                                Foreground="{DynamicResource AccentBrush}" Margin="0,8,0,0" />
                 </StackPanel>
@@ -404,7 +404,7 @@
             <!-- Message : aucune session, connexion en cours, erreur -->
             <Border x:Name="MessagePanel" Background="{DynamicResource SidePanelBrush}" Visibility="Collapsed">
                 <StackPanel VerticalAlignment="Center" Margin="20">
-                    <Image Source="{StaticResource IconFiles}" Width="44" Height="44" Opacity="0.7" />
+                    <Image Source="{DynamicResource IconFiles}" Width="44" Height="44" Opacity="0.7" />
                     <TextBlock x:Name="MessageText" TextAlignment="Center" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}"
                                Margin="0,10,0,0" />
                     <Button x:Name="RetryButton" Content="{x:Static loc:Strings.Retry}" Click="OnRetry" Visibility="Collapsed"

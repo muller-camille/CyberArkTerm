@@ -37,22 +37,22 @@
         <ContextMenu x:Key="AccountMenu" x:Shared="False" Opened="OnAccountMenuOpened">
             <MenuItem Tag="psm" Header="{x:Static loc:Strings.MenuConnectPsm}" Click="OnConnectPsm" FontWeight="SemiBold">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconConnect}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconConnect}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="ssh" Header="{x:Static loc:Strings.MenuConnectSsh}" Click="OnConnectSsh">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconSsh}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconSsh}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="sftp" Header="{x:Static loc:Strings.MenuConnectSftp}" Click="OnConnectSftp" ToolTipService.ShowOnDisabled="True">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconFiles}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconFiles}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuConnectAdvanced}" Click="OnConnectAdvanced">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconConnectAdvanced}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconConnectAdvanced}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
@@ -66,33 +66,33 @@
             <Separator />
             <MenuItem Tag="addcurrent" Header="{x:Static loc:Strings.MenuAddToMyServers}">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconBookmark}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconBookmark}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="safemembers" Click="OnShowSafeMembers">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconPermissions}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconPermissions}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="addaccount" Click="OnAddAccount" />
             <MenuItem Tag="importaccounts" Header="{x:Static loc:Strings.MenuImportAccounts}" Click="OnImportAccounts">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconImport}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconImport}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="exportaccounts" Header="{x:Static loc:Strings.MenuExportAccounts}" Click="OnExport">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconExport}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconExport}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuEditAccount}" Click="OnEditAccount">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconEdit}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuDeleteAccount}" Click="OnDeleteAccount">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconDelete}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
@@ -105,13 +105,13 @@
         <ContextMenu x:Key="RecentMenu" Opened="OnRecentMenuOpened">
             <MenuItem Header="{x:Static loc:Strings.Connect}" Click="OnConnectRecent" FontWeight="SemiBold">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconConnect}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconConnect}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
             <MenuItem Tag="addcurrent" Header="{x:Static loc:Strings.MenuAddToMyServers}" ToolTipService.ShowOnDisabled="True">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconBookmark}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconBookmark}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
@@ -122,18 +122,18 @@
         <ContextMenu x:Key="SavedSessionMenu" x:Shared="False" Opened="OnSavedSessionMenuOpened">
             <MenuItem Tag="connect" Header="{x:Static loc:Strings.Connect}" Click="OnConnectSelectedSaved" FontWeight="SemiBold">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconConnect}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconConnect}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuConnectAdvanced}" Click="OnConnectSelectedSavedAdvanced">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconConnectAdvanced}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconConnectAdvanced}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <!-- Plusieurs serveurs choisis (Ctrl+clic, Maj+clic) : les ouvrir ensemble. -->
             <MenuItem Tag="parallel" Header="{x:Static loc:Strings.MenuOpenInParallel}" Click="OnOpenSavedInParallel">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconParallel}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconParallel}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="connectmany" Click="OnConnectMarkedSaved" />
@@ -148,23 +148,23 @@
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuProperties}" Click="OnEditSelectedSaved">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconEdit}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuRename}" Click="OnRenameSelectedSaved" />
             <MenuItem Tag="share" Header="{x:Static loc:Strings.MenuShareInList}" ToolTipService.ShowOnDisabled="True">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconShared}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconShared}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuRemoveFromMyServers}" Click="OnDeleteSelectedSaved">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconDelete}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuSafeMembers}" Click="OnSafeMembersOfSelectedSaved">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconPermissions}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconPermissions}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
@@ -174,42 +174,42 @@
         <ContextMenu x:Key="SavedFolderMenu" x:Shared="False" Opened="OnSavedFolderMenuOpened">
             <MenuItem Tag="parallel" Header="{x:Static loc:Strings.MenuOpenFolderInParallel}" Click="OnOpenFolderInParallel" FontWeight="SemiBold">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconParallel}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconParallel}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="connectmany" Click="OnConnectFolder" />
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuNewSubfolder}" Click="OnNewFolder">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconNewFolder}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconNewFolder}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuRename}" Click="OnRenameSelectedSaved">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconEdit}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuDeleteFolder}" Click="OnDeleteSelectedSaved">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconDelete}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
             <MenuItem Tag="share" Header="{x:Static loc:Strings.MenuShareFolderInList}" ToolTipService.ShowOnDisabled="True">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconShared}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconShared}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
         </ContextMenu>
         <ContextMenu x:Key="SavedBackgroundMenu" x:Shared="False">
             <MenuItem Header="{x:Static loc:Strings.NewFolderMenu}" Click="OnNewFolder">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconNewFolder}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconNewFolder}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuKeePassAdd}" Click="OnAddKeePass">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconKeePass}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconKeePass}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
         </ContextMenu>
@@ -218,70 +218,70 @@
         <ContextMenu x:Key="KeePassFolderMenu" x:Shared="False" Opened="OnKeePassFolderMenuOpened">
             <MenuItem Tag="unlock" Header="{x:Static loc:Strings.MenuKeePassUnlock}" Click="OnKeePassUnlock" FontWeight="SemiBold">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconPermissions}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconPermissions}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="lock" Header="{x:Static loc:Strings.MenuKeePassLock}" Click="OnKeePassLock" />
             <MenuItem Tag="open" Header="{x:Static loc:Strings.MenuKeePassRefresh}" Click="OnKeePassReload">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconRefresh}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconRefresh}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="open" Header="{x:Static loc:Strings.MenuKeePassNewEntry}" Click="OnKeePassNewEntry">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconEdit}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuKeePassProperties}" Click="OnKeePassProperties" />
             <MenuItem Header="{x:Static loc:Strings.MenuKeePassRemove}" Click="OnKeePassRemove">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconDelete}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
         </ContextMenu>
         <ContextMenu x:Key="KeePassGroupMenu" x:Shared="False">
             <MenuItem Header="{x:Static loc:Strings.MenuKeePassNewEntry}" Click="OnKeePassNewEntry">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconEdit}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
         </ContextMenu>
         <ContextMenu x:Key="KeePassEntryMenu" x:Shared="False">
             <MenuItem Header="{x:Static loc:Strings.MenuKeePassConnect}" Click="OnKeePassConnect" FontWeight="SemiBold">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconConnect}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconConnect}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuKeePassSsh}" Click="OnKeePassConnectSsh">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconSsh}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconSsh}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuKeePassRdp}" Click="OnKeePassConnectRdp">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconWindows}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconWindows}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuKeePassVnc}" Click="OnKeePassConnectVnc" ToolTip="{x:Static loc:Strings.MenuKeePassVncTip}">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconConnect}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconConnect}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuKeePassFiles}" Click="OnKeePassOpenFiles" ToolTip="{x:Static loc:Strings.MenuKeePassFilesTip}">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconFiles}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconFiles}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuKeePassEditEntry}" Click="OnKeePassEditEntry">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconEdit}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconEdit}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuKeePassDeleteEntry}" Click="OnKeePassDeleteEntry">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconDelete}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
         </ContextMenu>
@@ -290,58 +290,58 @@
         <ContextMenu x:Key="SharedListMenu" x:Shared="False" Opened="OnSharedListMenuOpened">
             <MenuItem Header="{x:Static loc:Strings.MenuSharedHistory}" Click="OnSharedHistory" FontWeight="SemiBold">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconHistory}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconHistory}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuSharedRefresh}" Click="OnRefreshSharedList">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconRefresh}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconRefresh}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Tag="readable" Header="{x:Static loc:Strings.MenuSharedCopyAll}" Click="OnCopySharedToMyServers">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconBookmark}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconBookmark}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuSharedShowFile}" Click="OnShowSharedListFile">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconFolder}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconFolder}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuSharedClose}" Click="OnCloseSharedList" ToolTip="{x:Static loc:Strings.MenuSharedCloseTip}">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconClose}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconClose}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
         </ContextMenu>
         <ContextMenu x:Key="SharedFolderMenu" x:Shared="False">
             <MenuItem Header="{x:Static loc:Strings.MenuSharedCopyFolder}" Click="OnCopySharedToMyServers" FontWeight="SemiBold">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconBookmark}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconBookmark}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuSharedRemoveFolder}" Click="OnRemoveFromSharedList">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconDelete}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuSharedHistory}" Click="OnSharedHistory">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconHistory}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconHistory}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
         </ContextMenu>
         <ContextMenu x:Key="SharedServerMenu" x:Shared="False">
             <MenuItem Header="{x:Static loc:Strings.Connect}" Click="OnConnectSelectedSaved" FontWeight="SemiBold">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconConnect}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconConnect}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuConnectAdvanced}" Click="OnConnectSelectedSavedAdvanced">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconConnectAdvanced}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconConnectAdvanced}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
@@ -355,22 +355,22 @@
             <Separator />
             <MenuItem Header="{x:Static loc:Strings.MenuSharedCopyServer}" Click="OnCopySharedToMyServers">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconBookmark}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconBookmark}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuSharedRemoveServer}" Click="OnRemoveFromSharedList">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconDelete}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconDelete}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuSafeMembers}" Click="OnSafeMembersOfSelectedSaved">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconPermissions}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconPermissions}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="{x:Static loc:Strings.MenuSharedHistory}" Click="OnSharedHistory">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconHistory}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconHistory}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
@@ -382,7 +382,7 @@
         <ContextMenu x:Key="SettingsMenu" Opened="OnSettingsMenuOpened">
             <MenuItem Header="{x:Static loc:Strings.MenuSettings}" Click="OnSettings" FontWeight="SemiBold">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconSettings}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconSettings}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
@@ -395,7 +395,7 @@
             <MenuItem Tag="sessionimport" Header="{x:Static loc:Strings.MenuSessionImport}" Click="OnImportSessions"
                       ToolTip="{x:Static loc:Strings.SessionImportTip}">
                 <MenuItem.Icon>
-                    <Image Source="{StaticResource IconMigrate}" Width="16" Height="16" />
+                    <Image Source="{DynamicResource IconMigrate}" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
@@ -435,14 +435,14 @@
                     <Button Style="{StaticResource ToolButton}" Click="OnLogout" ToolTip="{x:Static loc:Strings.ToolLogoutTip}"
                             AutomationProperties.Name="{x:Static loc:Strings.ToolLogout}">
                         <StackPanel>
-                            <Image Source="{StaticResource IconLogout}" Style="{StaticResource ToolIcon}" />
+                            <Image Source="{DynamicResource IconLogout}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolLogout}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                     <Button Style="{StaticResource ToolButton}" Click="OnExit" ToolTip="{x:Static loc:Strings.ToolExitTip}"
                             AutomationProperties.Name="{x:Static loc:Strings.ToolExit}">
                         <StackPanel>
-                            <Image Source="{StaticResource IconExit}" Style="{StaticResource ToolIcon}" />
+                            <Image Source="{DynamicResource IconExit}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolExit}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
@@ -452,28 +452,28 @@
                     <Button x:Name="ConnectButton" Style="{StaticResource ToolButton}" Click="OnConnectDefault"
                             ToolTip="{x:Static loc:Strings.ToolConnectTip}" AutomationProperties.Name="{x:Static loc:Strings.ToolConnect}">
                         <StackPanel>
-                            <Image Source="{StaticResource IconConnect}" Style="{StaticResource ToolIcon}" />
+                            <Image Source="{DynamicResource IconConnect}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolConnect}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                     <Button x:Name="SshButton" Style="{StaticResource ToolButton}" Click="OnConnectSsh"
                             ToolTip="{x:Static loc:Strings.ToolSshTip}" AutomationProperties.Name="SSH">
                         <StackPanel>
-                            <Image Source="{StaticResource IconSsh}" Style="{StaticResource ToolIcon}" />
+                            <Image Source="{DynamicResource IconSsh}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="SSH" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                     <Button x:Name="AdvancedButton" Style="{StaticResource ToolButton}" Click="OnConnectAdvanced"
                             ToolTip="{x:Static loc:Strings.ToolAdvancedTip}" AutomationProperties.Name="{x:Static loc:Strings.ToolAdvanced}">
                         <StackPanel>
-                            <Image Source="{StaticResource IconConnectAdvanced}" Style="{StaticResource ToolIcon}" />
+                            <Image Source="{DynamicResource IconConnectAdvanced}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolAdvanced}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                     <Button x:Name="ParallelButton" Style="{StaticResource ToolButton}" Click="OnParallel"
                             ToolTip="{x:Static loc:Strings.ToolParallelTip}" AutomationProperties.Name="{x:Static loc:Strings.ToolParallel}">
                         <StackPanel>
-                            <Image Source="{StaticResource IconParallel}" Style="{StaticResource ToolIcon}" />
+                            <Image Source="{DynamicResource IconParallel}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolParallel}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
@@ -481,14 +481,14 @@
                     <Button x:Name="AddCurrentButton" Style="{StaticResource ToolButton}" Click="OnAddToCurrent"
                             ToolTip="{x:Static loc:Strings.ToolAddToMyServersTip}" AutomationProperties.Name="{x:Static loc:Strings.ToolAddToMyServers}">
                         <StackPanel>
-                            <Image Source="{StaticResource IconBookmark}" Style="{StaticResource ToolIcon}" />
+                            <Image Source="{DynamicResource IconBookmark}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolAddToMyServers}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
                     <Button x:Name="RefreshButton" Style="{StaticResource ToolButton}" Command="Refresh" ToolTip="{x:Static loc:Strings.ToolRefreshTip}"
                             AutomationProperties.Name="{x:Static loc:Strings.ToolRefresh}">
                         <StackPanel>
-                            <Image Source="{StaticResource IconRefresh}" Style="{StaticResource ToolIcon}" />
+                            <Image Source="{DynamicResource IconRefresh}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolRefresh}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
@@ -497,7 +497,7 @@
                             AutomationProperties.Name="{x:Static loc:Strings.ToolHistory}">
                         <StackPanel>
                             <Grid>
-                                <Image Source="{StaticResource IconTransferHistory}" Style="{StaticResource ToolIcon}" />
+                                <Image Source="{DynamicResource IconTransferHistory}" Style="{StaticResource ToolIcon}" />
                                 <!-- Transfert en échec pas encore vu, quand l'onglet Fichiers (et son badge) est caché. -->
                                 <Border x:Name="HistoryBadge" Visibility="Collapsed" CornerRadius="7" MinWidth="14" Height="14" Padding="3,0"
                                         HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-4,-6,0"
@@ -512,7 +512,7 @@
                     <Button Style="{StaticResource ToolButton}" Click="OnSettingsMenu" ToolTip="{x:Static loc:Strings.ToolSettingsTip}"
                             AutomationProperties.Name="{x:Static loc:Strings.ToolSettings}">
                         <StackPanel>
-                            <Image Source="{StaticResource IconSettings}" Style="{StaticResource ToolIcon}" />
+                            <Image Source="{DynamicResource IconSettings}" Style="{StaticResource ToolIcon}" />
                             <TextBlock Text="{x:Static loc:Strings.ToolSettings}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
@@ -549,7 +549,7 @@
                 <TabItem x:Name="AvailableTab" ToolTip="{x:Static loc:Strings.TabAvailableTip}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="{StaticResource IconFolder}" Width="14" Height="14" Margin="0,0,6,0">
+                            <Image Source="{DynamicResource IconFolder}" Width="14" Height="14" Margin="0,0,6,0">
                                 <Image.LayoutTransform>
                                     <RotateTransform Angle="90" />
                                 </Image.LayoutTransform>
@@ -564,7 +564,7 @@
                                          AutomationProperties.Name="{x:Static loc:Strings.SearchPlaceholder}"
                                          PreviewKeyDown="OnSearchKeyDown"
                                          ToolTip="{x:Static loc:Strings.SearchTip}" />
-                                <Image Source="{StaticResource IconSearch}" Width="14" Height="14" HorizontalAlignment="Left"
+                                <Image Source="{DynamicResource IconSearch}" Width="14" Height="14" HorizontalAlignment="Left"
                                        Margin="6,0,0,0" IsHitTestVisible="False" />
                                 <TextBlock Style="{StaticResource Placeholder}" Tag="{Binding ElementName=SearchBox}"
                                            Text="{x:Static loc:Strings.SearchPlaceholder}" Margin="26,0,0,0" />
@@ -589,7 +589,7 @@
                             <TreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type app:FolderNode}" ItemsSource="{Binding Children}">
                                     <StackPanel Orientation="Horizontal" Margin="0,2">
-                                        <Image Source="{StaticResource IconFolder}" Width="16" Height="16" Margin="0,0,6,0" />
+                                        <Image Source="{DynamicResource IconFolder}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
                                         <TextBlock Text="{Binding Count, StringFormat=' ({0})'}" Foreground="{DynamicResource MutedBrush}" />
                                     </StackPanel>
@@ -622,7 +622,7 @@
                          ToolTip="{x:Static loc:Strings.TabMyServersTip}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="{StaticResource IconBookmark}" Width="14" Height="14" Margin="0,0,6,0">
+                            <Image Source="{DynamicResource IconBookmark}" Width="14" Height="14" Margin="0,0,6,0">
                                 <Image.LayoutTransform>
                                     <RotateTransform Angle="90" />
                                 </Image.LayoutTransform>
@@ -643,26 +643,26 @@
                                             <MenuItem Header="{x:Static loc:Strings.MenuImportServerFile}" Click="OnImportMyServers"
                                                       ToolTip="{x:Static loc:Strings.ImportServersTip}">
                                                 <MenuItem.Icon>
-                                                    <Image Source="{StaticResource IconImport}" Width="16" Height="16" />
+                                                    <Image Source="{DynamicResource IconImport}" Width="16" Height="16" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                             <MenuItem Header="{x:Static loc:Strings.MenuImportOtherTool}" Click="OnImportSessions"
                                                       ToolTip="{x:Static loc:Strings.SessionImportTip}">
                                                 <MenuItem.Icon>
-                                                    <Image Source="{StaticResource IconMigrate}" Width="16" Height="16" />
+                                                    <Image Source="{DynamicResource IconMigrate}" Width="16" Height="16" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                             <Separator />
                                             <MenuItem Header="{x:Static loc:Strings.MenuOpenSharedList}" Click="OnOpenSharedList"
                                                       ToolTip="{x:Static loc:Strings.SharedListsTip}">
                                                 <MenuItem.Icon>
-                                                    <Image Source="{StaticResource IconShared}" Width="16" Height="16" />
+                                                    <Image Source="{DynamicResource IconShared}" Width="16" Height="16" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                             <Separator />
                                             <MenuItem Header="{x:Static loc:Strings.MenuKeePassAdd}" Click="OnAddKeePass" ToolTip="{x:Static loc:Strings.ToolKeePassTip}">
                                                 <MenuItem.Icon>
-                                                    <Image Source="{StaticResource IconKeePass}" Width="16" Height="16" />
+                                                    <Image Source="{DynamicResource IconKeePass}" Width="16" Height="16" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                         </ContextMenu>
@@ -679,13 +679,13 @@
                                             <MenuItem Header="{x:Static loc:Strings.MenuExportMyServers}" Click="OnExportMyServers"
                                                       ToolTip="{x:Static loc:Strings.ExportServersTip}">
                                                 <MenuItem.Icon>
-                                                    <Image Source="{StaticResource IconExport}" Width="16" Height="16" />
+                                                    <Image Source="{DynamicResource IconExport}" Width="16" Height="16" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                             <MenuItem Header="{x:Static loc:Strings.MenuCreateSharedList}" Click="OnCreateSharedList"
                                                       ToolTip="{x:Static loc:Strings.SharedListsTip}">
                                                 <MenuItem.Icon>
-                                                    <Image Source="{StaticResource IconShared}" Width="16" Height="16" />
+                                                    <Image Source="{DynamicResource IconShared}" Width="16" Height="16" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                         </ContextMenu>
@@ -699,18 +699,18 @@
                                 <!-- Accès d'urgence : sans les menus, la base KeePass s'ajoute par ce bouton. -->
                                 <Button x:Name="AddKeePassButton" Style="{StaticResource SmallToolButton}" Click="OnAddKeePass" ToolTip="{x:Static loc:Strings.ToolKeePassTip}"
                                         Visibility="Collapsed">
-                                    <Image Source="{StaticResource IconKeePass}" Style="{StaticResource SmallIcon}" />
+                                    <Image Source="{DynamicResource IconKeePass}" Style="{StaticResource SmallIcon}" />
                                 </Button>
                                 <Button x:Name="NewFolderButton" Style="{StaticResource SmallToolButton}" Click="OnNewFolder" ToolTip="{x:Static loc:Strings.NewFolder}">
-                                    <Image Source="{StaticResource IconNewFolder}" Style="{StaticResource SmallIcon}" />
+                                    <Image Source="{DynamicResource IconNewFolder}" Style="{StaticResource SmallIcon}" />
                                 </Button>
                                 <Button x:Name="EditSavedButton" Style="{StaticResource SmallToolButton}" Click="OnEditSelectedSaved" ToolTip="{x:Static loc:Strings.EditSavedTip}"
                                         IsEnabled="False">
-                                    <Image Source="{StaticResource IconEdit}" Style="{StaticResource SmallIcon}" />
+                                    <Image Source="{DynamicResource IconEdit}" Style="{StaticResource SmallIcon}" />
                                 </Button>
                                 <Button x:Name="DeleteSavedButton" Style="{StaticResource SmallToolButton}" Click="OnDeleteSelectedSaved" ToolTip="{x:Static loc:Strings.DeleteSavedTip}"
                                         IsEnabled="False">
-                                    <Image Source="{StaticResource IconDelete}" Style="{StaticResource SmallIcon}" />
+                                    <Image Source="{DynamicResource IconDelete}" Style="{StaticResource SmallIcon}" />
                                 </Button>
                             </StackPanel>
                             <TextBlock Text="{x:Static loc:Strings.MyServersHeading}" Style="{StaticResource SectionTitle}" Margin="0" VerticalAlignment="Center"
@@ -721,7 +721,7 @@
                                      AutomationProperties.Name="{x:Static loc:Strings.SavedSearchPlaceholder}"
                                      PreviewKeyDown="OnSavedSearchKeyDown"
                                      ToolTip="{x:Static loc:Strings.SavedSearchTip}" />
-                            <Image Source="{StaticResource IconSearch}" Width="14" Height="14" HorizontalAlignment="Left"
+                            <Image Source="{DynamicResource IconSearch}" Width="14" Height="14" HorizontalAlignment="Left"
                                    Margin="6,0,0,0" IsHitTestVisible="False" />
                             <TextBlock Style="{StaticResource Placeholder}" Tag="{Binding ElementName=SavedSearchBox}"
                                        Text="{x:Static loc:Strings.SavedSearchPlaceholder}" Margin="26,0,0,0" />
@@ -739,14 +739,14 @@
                                 <HierarchicalDataTemplate DataType="{x:Type app:KeePassFolderNode}" ItemsSource="{Binding Children}">
                                     <StackPanel Orientation="Horizontal" Margin="0,2"
                                                 Background="Transparent" ToolTip="{Binding Details}">
-                                        <Image Source="{StaticResource IconKeePass}" Width="16" Height="16" Margin="0,0,6,0" Opacity="{Binding Opacity}" />
+                                        <Image Source="{DynamicResource IconKeePass}" Width="16" Height="16" Margin="0,0,6,0" Opacity="{Binding Opacity}" />
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
                                         <TextBlock Text="{Binding StateText}" Foreground="{DynamicResource MutedBrush}" />
                                     </StackPanel>
                                 </HierarchicalDataTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type app:KeePassGroupNode}" ItemsSource="{Binding Children}">
                                     <StackPanel Orientation="Horizontal" Margin="0,2" Background="Transparent">
-                                        <Image Source="{StaticResource IconFolder}" Width="16" Height="16" Margin="0,0,6,0" />
+                                        <Image Source="{DynamicResource IconFolder}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Name}" />
                                         <TextBlock Text="{Binding Count, StringFormat=' ({0})'}" Foreground="{DynamicResource MutedBrush}" />
                                     </StackPanel>
@@ -761,21 +761,21 @@
                                 </DataTemplate>
                                 <DataTemplate DataType="{x:Type app:KeePassHintNode}">
                                     <StackPanel Orientation="Horizontal" Margin="0,1" Background="Transparent">
-                                        <Image Source="{StaticResource IconPermissions}" Width="14" Height="14" Margin="0,0,6,0" />
+                                        <Image Source="{DynamicResource IconPermissions}" Width="14" Height="14" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Text}" FontStyle="Italic" Foreground="{DynamicResource MutedBrush}" />
                                     </StackPanel>
                                 </DataTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type app:SharedListNode}" ItemsSource="{Binding Children}">
                                     <StackPanel Orientation="Horizontal" Margin="0,2"
                                                 Background="Transparent" ToolTip="{Binding Details}">
-                                        <Image Source="{StaticResource IconShared}" Width="16" Height="16" Margin="0,0,6,0" Opacity="{Binding Opacity}" />
+                                        <Image Source="{DynamicResource IconShared}" Width="16" Height="16" Margin="0,0,6,0" Opacity="{Binding Opacity}" />
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
                                         <TextBlock Text="{Binding StateText}" Foreground="{DynamicResource MutedBrush}" />
                                     </StackPanel>
                                 </HierarchicalDataTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type app:SharedFolderNode}" ItemsSource="{Binding Children}">
                                     <StackPanel Orientation="Horizontal" Margin="0,2" Background="Transparent">
-                                        <Image Source="{StaticResource IconFolder}" Width="16" Height="16" Margin="0,0,6,0" />
+                                        <Image Source="{DynamicResource IconFolder}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Name}" />
                                         <TextBlock Text="{Binding Count, StringFormat=' ({0})'}" Foreground="{DynamicResource MutedBrush}" />
                                     </StackPanel>
@@ -791,7 +791,7 @@
                                 </DataTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type app:SavedFolderNode}" ItemsSource="{Binding Children}">
                                     <StackPanel Orientation="Horizontal" Margin="0,2" Background="Transparent">
-                                        <Image Source="{StaticResource IconFolder}" Width="16" Height="16" Margin="0,0,6,0" />
+                                        <Image Source="{DynamicResource IconFolder}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
                                         <TextBlock Text="{Binding Count, StringFormat=' ({0})'}" Foreground="{DynamicResource MutedBrush}" />
                                     </StackPanel>
@@ -833,7 +833,7 @@
                 <TabItem x:Name="FilesTab" ToolTip="{x:Static loc:Strings.TabFilesTip}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="{StaticResource IconFiles}" Width="14" Height="14" Margin="0,0,6,0">
+                            <Image Source="{DynamicResource IconFiles}" Width="14" Height="14" Margin="0,0,6,0">
                                 <Image.LayoutTransform>
                                     <RotateTransform Angle="90" />
                                 </Image.LayoutTransform>
@@ -861,7 +861,7 @@
                 <TabItem x:Name="HomeTab">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="{StaticResource IconHome}" Width="16" Height="16" Margin="0,0,6,0" />
+                            <Image Source="{DynamicResource IconHome}" Width="16" Height="16" Margin="0,0,6,0" />
                             <TextBlock Text="{x:Static loc:Strings.TabHome}" />
                         </StackPanel>
                     </TabItem.Header>
@@ -875,7 +875,7 @@
                             </Grid.RowDefinitions>
 
                             <DockPanel Grid.Row="0" Margin="0,0,0,20">
-                                <Image Source="{StaticResource IconConnect}" Width="54" Height="54" Margin="0,0,14,0" />
+                                <Image Source="{DynamicResource IconConnect}" Width="54" Height="54" Margin="0,0,14,0" />
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="ZillaTerm" FontSize="26" FontWeight="SemiBold" Foreground="{DynamicResource HeadingBrush}" />
                                     <TextBlock x:Name="WelcomeText" Foreground="{DynamicResource MutedBrush}" FontSize="13" TextWrapping="Wrap" />
@@ -889,7 +889,7 @@
                                     <TextBox x:Name="QuickBox" BorderThickness="0" FontSize="15" Padding="36,8,30,8"
                                              AutomationProperties.Name="{x:Static loc:Strings.QuickPlaceholder}"
                                              TextChanged="OnQuickChanged" PreviewKeyDown="OnQuickKeyDown" />
-                                    <Image Source="{StaticResource IconSearch}" Width="18" Height="18" HorizontalAlignment="Left"
+                                    <Image Source="{DynamicResource IconSearch}" Width="18" Height="18" HorizontalAlignment="Left"
                                            Margin="10,0,0,0" IsHitTestVisible="False" />
                                     <TextBlock Style="{StaticResource Placeholder}" Tag="{Binding ElementName=QuickBox}" FontSize="15"
                                                Text="{x:Static loc:Strings.QuickPlaceholder}" Margin="38,0,0,0" />
@@ -918,7 +918,7 @@
 
                                 <StackPanel>
                                     <DockPanel Margin="0,0,0,6">
-                                        <Image Source="{StaticResource IconHistory}" Width="16" Height="16" Margin="0,0,6,0" />
+                                        <Image Source="{DynamicResource IconHistory}" Width="16" Height="16" Margin="0,0,6,0" />
                                         <!-- Tant que les comptes du PVWA ne sont pas chargés, les connexions récentes sont grisées. -->
                                         <TextBlock x:Name="RecentLoadingText" DockPanel.Dock="Right" Foreground="{DynamicResource MutedBrush}"
                                                    VerticalAlignment="Center" Margin="12,0,0,0" FontStyle="Italic" Visibility="Collapsed"

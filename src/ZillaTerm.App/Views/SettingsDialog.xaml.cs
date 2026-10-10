@@ -38,6 +38,15 @@ public partial class SettingsDialog : Window
             .Concat(UiLanguage.Supported.Select(code => new KeyValuePair<string, string>(code, UiLanguage.NativeName(code))))
             .ToList();
         LanguageBox.SelectedValue = UiLanguage.Normalize(settings.Language);
+        AppThemeBox.DisplayMemberPath = "Value";
+        AppThemeBox.SelectedValuePath = "Key";
+        AppThemeBox.ItemsSource = new[]
+        {
+            new KeyValuePair<AppTheme, string>(AppTheme.System, Strings.AppThemeSystem),
+            new KeyValuePair<AppTheme, string>(AppTheme.Light, Strings.AppThemeLight),
+            new KeyValuePair<AppTheme, string>(AppTheme.Dark, Strings.AppThemeDark),
+        };
+        AppThemeBox.SelectedValue = settings.Theme;
         PsmpBox.Text = settings.PsmpAddress;
         PortBox.Text = settings.PsmpPort.ToString(CultureInfo.InvariantCulture);
         foreach (var psmp in settings.PsmpServers)
@@ -211,6 +220,7 @@ public partial class SettingsDialog : Window
         }
 
         _settings.Language = LanguageBox.SelectedValue as string ?? "";
+        _settings.Theme = AppThemeBox.SelectedValue as AppTheme? ?? AppTheme.System;
         _settings.PsmpAddress = host;
         _settings.PsmpPort = port;
         _settings.PsmpServers = psmpServers;

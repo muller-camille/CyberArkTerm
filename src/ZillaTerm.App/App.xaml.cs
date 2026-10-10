@@ -48,8 +48,6 @@ public partial class App : Application
                 window.Icon = icon;
             }
         }));
-        // Contraste élevé de Windows : couleurs système à la place de la palette, avant la première fenêtre.
-        Palette.Follow(this);
         _systemCulture = CultureInfo.CurrentUICulture;
         // Premier démarrage sous le nom ZillaTerm : réglages repris du dossier de CyberArkTerm.
         string? imported = null;
@@ -66,6 +64,8 @@ public partial class App : Application
         }
 
         _settings = AppSettings.Load(AppSettings.DefaultPath);
+        // Thème (clair, sombre ou celui de Windows) et contraste élevé de Windows, avant la première fenêtre.
+        Palette.Follow(this, _settings.Theme);
         AppDebugLog.Apply(_settings);
         if (imported is not null)
         {

@@ -17,7 +17,7 @@
                     <ToggleButton x:Name="FitButton" Content="{x:Static loc:Strings.VncFit}" ToolTip="{x:Static loc:Strings.VncFitTip}"
                                   IsChecked="True" Click="OnFitChanged" Padding="10,1" Focusable="False" />
                 </StackPanel>
-                <Image Source="{StaticResource IconConnect}" Width="16" Height="16" Margin="0,0,6,0" />
+                <Image Source="{DynamicResource IconConnect}" Width="16" Height="16" Margin="0,0,6,0" />
                 <TextBlock x:Name="StatusLine" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
             </DockPanel>
         </Border>
@@ -33,7 +33,7 @@
             </ScrollViewer>
             <Border x:Name="Overlay" Background="#0C0C0C">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="560">
-                    <Image Source="{StaticResource IconConnect}" Width="44" Height="44" Margin="0,0,0,12" />
+                    <Image Source="{DynamicResource IconConnect}" Width="44" Height="44" Margin="0,0,0,12" />
                     <TextBlock x:Name="OverlayText" Foreground="White" FontSize="15" TextAlignment="Center" TextWrapping="Wrap" />
                     <TextBlock x:Name="OverlayDetail" Foreground="#9AA5B1" TextAlignment="Center" TextWrapping="Wrap" Margin="0,6,0,0" />
                     <Button x:Name="ReconnectButton" Content="{x:Static loc:Strings.Reconnect}" HorizontalAlignment="Center"

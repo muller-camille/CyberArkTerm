@@ -4845,4 +4845,22 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="A11yExtractCommand" xml:space="preserve">
     <value>Extraction command</value>
   </data>
+  <data name="AppearanceSection" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="AppThemeLabel" xml:space="preserve">
+    <value>_Theme:</value>
+  </data>
+  <data name="AppThemeSystem" xml:space="preserve">
+    <value>Same as Windows</value>
+  </data>
+  <data name="AppThemeLight" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="AppThemeDark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="AppThemeHelp" xml:space="preserve">
+    <value>Applied right away. Windows high contrast always takes precedence. Terminal colors are set on the Terminal page.</value>
+  </data>
 </root>

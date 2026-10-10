@@ -53,7 +53,7 @@
         <!-- Pendant la connexion, ou si la session n'a jamais pu s'ouvrir : voile plein (rien à lire dessous). -->
         <Border x:Name="Overlay" Grid.RowSpan="2" Grid.ColumnSpan="2" Background="#D80C0C0C" Visibility="Collapsed">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="560">
-                <Image Source="{StaticResource IconSsh}" Width="44" Height="44" Margin="0,0,0,12" />
+                <Image Source="{DynamicResource IconSsh}" Width="44" Height="44" Margin="0,0,0,12" />
                 <TextBlock x:Name="OverlayText" Foreground="White" FontSize="15" TextAlignment="Center" TextWrapping="Wrap" />
                 <TextBlock x:Name="OverlayDetail" Foreground="#9AA5B1" TextAlignment="Center" TextWrapping="Wrap" Margin="0,6,0,0" />
                 <!-- Pendant la connexion (clé MFA du PVWA, PSMP, serveur cible) : quelque chose est en cours. -->

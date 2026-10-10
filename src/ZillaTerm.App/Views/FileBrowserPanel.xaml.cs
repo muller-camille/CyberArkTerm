@@ -627,10 +627,10 @@ public partial class FileBrowserPanel : UserControl
             var arrow = new System.Windows.Shapes.Path
             {
                 Data = System.Windows.Media.Geometry.Parse(descending ? "M0,0 L8,0 L4,4.5 Z" : "M0,4.5 L8,4.5 L4,0 Z"),
-                Fill = (System.Windows.Media.Brush)FindResource("MutedBrush"),
                 Margin = new Thickness(5, 0, 0, 0),
                 VerticalAlignment = VerticalAlignment.Center,
             };
+            arrow.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "MutedBrush");
             column.Header = new StackPanel
             {
                 Orientation = Orientation.Horizontal,

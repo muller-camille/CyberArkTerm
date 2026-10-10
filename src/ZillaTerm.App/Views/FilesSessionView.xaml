@@ -4,7 +4,7 @@
              xmlns:loc="clr-namespace:ZillaTerm.App.Localization">
     <Grid Background="{DynamicResource SidePanelBrush}">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="600" Margin="24">
-            <Image Source="{StaticResource IconFiles}" Width="48" Height="48" Margin="0,0,0,12" />
+            <Image Source="{DynamicResource IconFiles}" Width="48" Height="48" Margin="0,0,0,12" />
             <TextBlock x:Name="TitleText" FontSize="17" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" Foreground="{DynamicResource HeadingBrush}" />
             <TextBlock x:Name="DetailText" TextAlignment="Center" TextWrapping="Wrap" Margin="0,4,0,0" Foreground="{DynamicResource MutedBrush}" />
             <TextBlock x:Name="StateText" TextAlignment="Center" TextWrapping="Wrap" Margin="0,14,0,0" FontSize="13" />

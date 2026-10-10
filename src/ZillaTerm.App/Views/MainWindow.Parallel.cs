@@ -246,12 +246,14 @@ public partial class MainWindow
         var close = new Button
         {
             Style = (Style)FindResource("TabCloseButton"),
-            Content = new Image { Source = (ImageSource)FindResource("IconClose"), Width = 11, Height = 11 },
+            Content = Palette.Icon("IconClose", 11),
             ToolTip = Strings.ParallelCloseTip,
         };
         close.Click += (_, _) => CloseParallel();
         var header = new StackPanel { Orientation = Orientation.Horizontal, Background = Brushes.Transparent, ToolTip = Strings.ParallelCloseTip };
-        header.Children.Add(new Image { Source = (ImageSource)FindResource("IconParallel"), Width = 16, Height = 16, Margin = new Thickness(0, 0, 6, 0) });
+        var icon = Palette.Icon("IconParallel", 16);
+        icon.Margin = new Thickness(0, 0, 6, 0);
+        header.Children.Add(icon);
         header.Children.Add(new TextBlock { VerticalAlignment = VerticalAlignment.Center, FontWeight = FontWeights.SemiBold });
         header.Children.Add(close);
         header.MouseDown += (_, e) =>
@@ -313,11 +315,11 @@ public partial class MainWindow
                     Text = Strings.ParallelPlaceholder, FontSize = 15, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap,
                     HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 0, 0, 8),
                 },
-                new TextBlock
+                Palette.Muted(new TextBlock
                 {
-                    Text = Strings.ParallelPlaceholderHint, Foreground = (Brush)FindResource("MutedBrush"), TextWrapping = TextWrapping.Wrap,
+                    Text = Strings.ParallelPlaceholderHint, TextWrapping = TextWrapping.Wrap,
                     TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 14),
-                },
+                }),
                 new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, Children = { show, back } },
             },
         };

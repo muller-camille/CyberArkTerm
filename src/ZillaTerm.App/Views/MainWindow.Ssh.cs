@@ -89,13 +89,13 @@ public partial class MainWindow
         var closeButton = new Button
         {
             Style = (Style)FindResource("TabCloseButton"),
-            Content = new Image { Source = (System.Windows.Media.ImageSource)FindResource("IconClose"), Width = 11, Height = 11 },
+            Content = Palette.Icon("IconClose", 11),
             ToolTip = Strings.CloseSessionTip,
         };
         closeButton.Click += (_, _) => CloseSessionTab(tab);
         var mode = tab.Tag is RemoteSession { Psmp: { } psmp } ? Text.Format(Strings.TabModePsmp, psmp) : Strings.TabModeDirect;
         var shown = SessionTabHeader.UniqueLabel(label, SessionTabs().Select(t => t.Header).OfType<SessionTabHeader>().Select(h => h.Label));
-        var header = new SessionTabHeader(shown, (System.Windows.Media.ImageSource)FindResource(icon), closeButton, mode,
+        var header = new SessionTabHeader(shown, icon, closeButton, mode,
             tab.Tag is SshSession ? Strings.TabDetachTip : null);
         // Clic molette sur l'onglet : fermeture.
         header.MouseDown += (_, e) =>

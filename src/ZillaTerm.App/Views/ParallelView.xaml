@@ -10,7 +10,7 @@
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                     <Button Padding="8,2" Margin="0,0,8,0" Click="OnSendFiles" ToolTip="{x:Static loc:Strings.ParallelSendFilesTip}">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="{StaticResource IconUploadMany}" Width="16" Height="16" Margin="0,0,6,0" />
+                            <Image Source="{DynamicResource IconUploadMany}" Width="16" Height="16" Margin="0,0,6,0" />
                             <AccessText Text="{x:Static loc:Strings.ParallelSendFiles}" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
@@ -21,7 +21,7 @@
                             ToolTip="{x:Static loc:Strings.ParallelCloseTip}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="{StaticResource IconParallel}" Width="18" Height="18" Margin="0,0,6,0" VerticalAlignment="Center" />
+                    <Image Source="{DynamicResource IconParallel}" Width="18" Height="18" Margin="0,0,6,0" VerticalAlignment="Center" />
                     <TextBlock x:Name="TitleText" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <!-- Active : fond ambre et « ACTIVE (n) », comme le bandeau. -->
                     <ToggleButton x:Name="BroadcastToggle" Margin="16,0,0,0" Padding="0" Click="OnBroadcast"

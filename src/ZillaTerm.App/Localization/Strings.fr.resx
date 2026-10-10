@@ -4845,4 +4845,22 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   <data name="A11yExtractCommand" xml:space="preserve">
     <value>Commande d'extraction</value>
   </data>
+  <data name="AppearanceSection" xml:space="preserve">
+    <value>Apparence</value>
+  </data>
+  <data name="AppThemeLabel" xml:space="preserve">
+    <value>_Thème :</value>
+  </data>
+  <data name="AppThemeSystem" xml:space="preserve">
+    <value>Comme Windows</value>
+  </data>
+  <data name="AppThemeLight" xml:space="preserve">
+    <value>Clair</value>
+  </data>
+  <data name="AppThemeDark" xml:space="preserve">
+    <value>Sombre</value>
+  </data>
+  <data name="AppThemeHelp" xml:space="preserve">
+    <value>Appliqué tout de suite. Le contraste élevé de Windows l'emporte toujours. Les couleurs des terminaux se règlent dans la page Terminal.</value>
+  </data>
 </root>

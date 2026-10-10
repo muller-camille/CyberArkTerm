@@ -134,11 +134,11 @@ public partial class MainWindow
                     Text = Strings.DetachedPlaceholder, FontSize = 15, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap,
                     HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 0, 0, 8),
                 },
-                new TextBlock
+                Palette.Muted(new TextBlock
                 {
-                    Text = Strings.DetachedHint, Foreground = (Brush)FindResource("MutedBrush"), TextWrapping = TextWrapping.Wrap,
+                    Text = Strings.DetachedHint, TextWrapping = TextWrapping.Wrap,
                     TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 14),
-                },
+                }),
                 new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, Children = { show, back } },
             },
         };

@@ -21,7 +21,8 @@
 
         <TabControl x:Name="Pages" TabStripPlacement="Left" Margin="10,10,10,8" Padding="0">
             <TabControl.Resources>
-                <Style TargetType="TabItem">
+                <!-- Sur le style du thème (clair ou sombre) en vigueur à l'ouverture de la fenêtre. -->
+                <Style TargetType="TabItem" BasedOn="{StaticResource {x:Type TabItem}}">
                     <Setter Property="Padding" Value="14,7" />
                     <Setter Property="MinWidth" Value="130" />
                     <Setter Property="HorizontalContentAlignment" Value="Left" />
@@ -50,6 +51,22 @@
                             <Label Content="{x:Static loc:Strings.LanguageLabel}" Target="{Binding ElementName=LanguageBox}" />
                             <ComboBox Grid.Column="1" x:Name="LanguageBox" VerticalAlignment="Center" MaxWidth="320" HorizontalAlignment="Left" MinWidth="220" />
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Static loc:Strings.LanguageHelp}" Foreground="{DynamicResource MutedBrush}"
+                                       TextWrapping="Wrap" Margin="0,4,0,0" />
+                        </Grid>
+
+                        <TextBlock Text="{x:Static loc:Strings.AppearanceSection}" Style="{StaticResource SectionTitle}" />
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" MinWidth="140" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Label Content="{x:Static loc:Strings.AppThemeLabel}" Target="{Binding ElementName=AppThemeBox}" />
+                            <ComboBox Grid.Column="1" x:Name="AppThemeBox" VerticalAlignment="Center" MaxWidth="320" HorizontalAlignment="Left" MinWidth="220" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Static loc:Strings.AppThemeHelp}" Foreground="{DynamicResource MutedBrush}"
                                        TextWrapping="Wrap" Margin="0,4,0,0" />
                         </Grid>
 

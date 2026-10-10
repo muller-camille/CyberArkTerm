@@ -88,7 +88,7 @@
                 <Button x:Name="EmergencyButton" Style="{StaticResource ToolButton}" HorizontalAlignment="Left" Focusable="True"
                         ToolTip="{x:Static loc:Strings.LoginEmergencyTip}" Click="OnEmergencyClick">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{StaticResource IconKeePass}" Width="18" Height="18" Margin="0,0,8,0" />
+                        <Image Source="{DynamicResource IconKeePass}" Width="18" Height="18" Margin="0,0,8,0" />
                         <AccessText Text="{x:Static loc:Strings.LoginEmergency}" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
