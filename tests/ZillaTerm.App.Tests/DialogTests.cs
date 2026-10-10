@@ -355,7 +355,7 @@ public sealed class DialogTests
                 SessionImport? done = null;
                 var window = new SessionImportWindow(settings, "pvwa.corp.local", accounts, KnownDomains.From([], []), i => done = i);
                 Assert.Equal(SessionImportWindow.Sources.Count, window.SourceBox.Items.Count);
-                Assert.Equal(9, window.RowsGrid.Columns.Count);
+                Assert.Equal(10, window.RowsGrid.Columns.Count);
                 Assert.False(window.ImportButton.IsEnabled);
 
                 window.Load(
@@ -366,6 +366,10 @@ public sealed class DialogTests
                     ImportedSession.Unsupported("", "vnc", "VNC", "vnc01"),
                 ], "test");
                 Assert.Equal([ImportState.Ready, ImportState.Check, ImportState.NoAccount, ImportState.Unsupported], window.Rows.Select(r => r.State));
+                // Étiquette proposée d'après le dossier « Prod » de l'autre logiciel, modifiable ; « aucune » en fin de liste.
+                Assert.Equal("PROD", window.Rows[0].Tag);
+                Assert.Equal(["PROD", "QA", "DEV", ""], window.Rows[0].TagChoices.Select(c => c.Value));
+                Assert.False(window.Rows[3].CanTag);
                 Assert.True(window.ImportButton.IsEnabled);
                 Assert.True(window.Rows[1].CanChoose);
                 Assert.False(window.Rows[2].CanInclude);
