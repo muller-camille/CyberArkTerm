@@ -154,7 +154,8 @@ public sealed class RemoteFileBrowser : IRemoteFiles
     /// <summary>
     /// Envoie un fichier ou un dossier local (récursivement) dans <paramref name="remoteDirectory"/>, un fichier à la
     /// fois : chaque fichier est envoyé (SCP ou SFTP), puis relu par SFTP pour comparer sa somme SHA-256 à celle du
-    /// fichier local. Entre deux fichiers, les demandes interactives (navigation, suppression...) passent avant.
+    /// fichier local. Entre deux fichiers, les demandes interactives (navigation, suppression...) passent avant. Les liens
+    /// vers des dossiers ne sont pas suivis (<see cref="LocalTree"/>).
     /// </summary>
     /// <param name="protocol">Protocole préféré ; refusé par le serveur pour un fichier, l'autre prend le relais.</param>
     /// <param name="checks">Reçoit la vérification de chaque fichier traité, y compris celui en échec ou interrompu.</param>
@@ -170,7 +171,19 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         var remote = RemotePath.Combine(remoteDirectory, name);
         if (Directory.Exists(localPath))
         {
-            await UploadDirectoryAsync(localPath, remote, protocol, checks, progress, background, ct).ConfigureAwait(false);
+            // Liens vers des dossiers, pas suivis : notés à la fin (le rang du fichier en cours ne compte que les fichiers).
+            var links = new List<TransferCheck>();
+            try
+            {
+                await UploadDirectoryAsync(localPath, remote, protocol, checks, links, progress, background, ct).ConfigureAwait(false);
+            }
+            finally
+            {
+                foreach (var link in links)
+                {
+                    checks.Add(link);
+                }
+            }
         }
         else
         {
@@ -178,9 +191,9 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         }
     }
 
-    /// <summary>Nombre de fichiers que <see cref="UploadAsync"/> enverra pour ce chemin local.</summary>
+    /// <summary>Nombre de fichiers que <see cref="UploadAsync"/> enverra pour ce chemin local (liens vers des dossiers non suivis).</summary>
     public static int CountFiles(string localPath) =>
-        Directory.Exists(localPath) ? Directory.EnumerateFiles(localPath, "*", SearchOption.AllDirectories).Count() : 1;
+        Directory.Exists(localPath) ? LocalTree.AllFiles(new DirectoryInfo(localPath)).Count() : 1;
 
         /// <summary>Suivi d'un fichier du serveur (tail -f) par SFTP : taille, puis lecture de ce qui a été ajouté.</summary>
     public ITailSource TailSource(string path) => new SftpTailSource(this, path);
@@ -493,13 +506,15 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         byte[] remoteHash;
         long received;
         bool started = false;
+        bool created = false;
         var partial = TransferCheck.PartialPath(localPath);
         try
         {
             using (await _gate.EnterAsync(background, ct).ConfigureAwait(false))
             {
                 started = true;
-                await using var file = File.Create(partial);
+                await using var file = TransferCheck.CreatePartial(partial);
+                created = true;
                 using var hashing = new HashingStream(file);
                 var report = progress is null ? null : new Progress<Renci.SshNet.DownloadFileProgressReport>(
                     p => progress.Report(new TransferProgress(entry.Name, (long)p.TotalBytesDownloaded, entry.Length)));
@@ -514,11 +529,13 @@ public sealed class RemoteFileBrowser : IRemoteFiles
         }
         catch (Exception e) when (e is not OutOfMemoryException && started)
         {
-            // Annulé ou en échec en cours de route : la copie, incomplète, est supprimée.
-            var detail = DiscardLocal(partial);
+            // Annulé ou en échec en cours de route : la copie, incomplète, est supprimée (rien à supprimer si elle n'a pas pu
+            // être créée).
+            var detail = created ? DiscardLocal(partial) : null;
             bool cancelled = e is OperationCanceledException && ct.IsCancellationRequested;
             checks?.Add(new TransferCheck(entry.Name, localPath, entry.FullPath, -1, [], -1, [],
-                cancelled ? detail : $"{e.Message} ({detail})") { Interrupted = cancelled, Failed = !cancelled });
+                cancelled ? detail ?? e.Message : detail is null ? e.Message : $"{e.Message} ({detail})")
+                { Interrupted = cancelled, Failed = !cancelled });
             throw;
         }
 
@@ -565,22 +582,25 @@ public sealed class RemoteFileBrowser : IRemoteFiles
     }
 
     private async Task UploadDirectoryAsync(string localDirectory, string remoteDirectory, TransferProtocol protocol,
-        ICollection<TransferCheck> checks, IProgress<TransferProgress>? progress, bool background, CancellationToken ct)
+        ICollection<TransferCheck> checks, List<TransferCheck> links, IProgress<TransferProgress>? progress, bool background, CancellationToken ct)
     {
         using (await _gate.EnterAsync(background, ct).ConfigureAwait(false))
         {
             await EnsureDirectoryAsync(remoteDirectory, ct).ConfigureAwait(false);
         }
 
-        foreach (var file in Directory.EnumerateFiles(localDirectory))
+        var directory = new DirectoryInfo(localDirectory);
+        foreach (var file in LocalTree.Files(directory))
         {
-            await UploadFileAsync(file, RemotePath.Combine(remoteDirectory, Path.GetFileName(file)), protocol, checks, progress, background, ct)
+            await UploadFileAsync(file.FullName, RemotePath.Combine(remoteDirectory, file.Name), protocol, checks, progress, background, ct)
                 .ConfigureAwait(false);
         }
 
-        foreach (var sub in Directory.EnumerateDirectories(localDirectory))
+        // Liens symboliques et jonctions vers des dossiers : pas suivis (boucle, dossier interdit), notés dans le bilan.
+        links.AddRange(LocalTree.Links(directory).Select(link => TransferCheck.SkippedLink(link, RemotePath.Combine(remoteDirectory, link.Name))));
+        foreach (var sub in LocalTree.Directories(directory))
         {
-            await UploadDirectoryAsync(sub, RemotePath.Combine(remoteDirectory, Path.GetFileName(sub)), protocol, checks, progress, background, ct)
+            await UploadDirectoryAsync(sub.FullName, RemotePath.Combine(remoteDirectory, sub.Name), protocol, checks, links, progress, background, ct)
                 .ConfigureAwait(false);
         }
     }

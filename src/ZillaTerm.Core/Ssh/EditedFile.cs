@@ -17,12 +17,17 @@ public sealed class EditedFile : IDisposable
     private readonly object _lock = new();
     private string _seenHash;
     private string _sentHash;
+    // Dernière empreinte lue de la copie locale, avec sa taille et sa date relevées juste avant la lecture : tant qu'elles
+    // n'ont pas changé, la copie n'est pas relue (fermeture d'un onglet ou de l'application, sur le fil de l'interface).
+    private string? _localHash;
+    private (long Length, DateTime WriteTime) _localStamp;
     private int _readAttempts;
     private bool _disposed;
 
     /// <param name="remoteWriteTime">Date de modification du fichier sur le serveur à l'ouverture.</param>
     /// <param name="remoteLength">Taille du fichier sur le serveur à l'ouverture.</param>
     /// <param name="delay">Attente après la dernière écriture avant de lire le fichier (les éditeurs écrivent en plusieurs fois).</param>
+    /// <remarks>Lit et hache toute la copie locale : hors du fil de l'interface pour un gros fichier.</remarks>
     public EditedFile(string remotePath, string localPath, DateTime remoteWriteTime, long remoteLength, TimeSpan? delay = null)
     {
         RemotePath = remotePath;
@@ -30,7 +35,7 @@ public sealed class EditedFile : IDisposable
         RemoteWriteTime = remoteWriteTime;
         RemoteLength = remoteLength;
         _delay = delay ?? DefaultDelay;
-        _sentHash = _seenHash = Hash(ReadAllBytesShared(localPath));
+        _sentHash = _seenHash = ReadLocalHash();
         _timer = new Timer(_ => OnQuiet());
         // On surveille le dossier : beaucoup d'éditeurs enregistrent dans un fichier temporaire puis le renomment.
         _watcher = new FileSystemWatcher(Path.GetDirectoryName(localPath)!, Path.GetFileName(localPath))
@@ -61,13 +66,18 @@ public sealed class EditedFile : IDisposable
     public long RemoteLength { get; private set; }
 
     /// <summary>Vrai si la copie locale diffère du contenu présent sur le serveur.</summary>
+    /// <remarks>
+    /// Rapide quand la copie n'a pas changé depuis sa dernière lecture (taille et date) : la surveillance la relit après
+    /// chaque enregistrement. Sinon (enregistrement de l'instant), elle est relue : <see cref="HasUnsentChangesAsync"/> le
+    /// fait hors du fil de l'interface.
+    /// </remarks>
     public bool HasUnsentChanges
     {
         get
         {
             try
             {
-                var hash = Hash(ReadAllBytesShared(LocalPath));
+                var hash = CurrentLocalHash();
                 lock (_lock)
                 {
                     return hash != _sentHash;
@@ -79,6 +89,9 @@ public sealed class EditedFile : IDisposable
             }
         }
     }
+
+    /// <summary><see cref="HasUnsentChanges"/>, la copie relue (si besoin) et hachée hors du fil appelant.</summary>
+    public Task<bool> HasUnsentChangesAsync() => Task.Run(() => HasUnsentChanges);
 
     /// <summary>
     /// Un renvoi a été coupé pendant l'écriture : le fichier du serveur est peut-être incomplet, et c'est nous qui
@@ -174,6 +187,51 @@ public sealed class EditedFile : IDisposable
 
     private static string Hash(byte[] content) => Convert.ToHexString(SHA256.HashData(content));
 
+    /// <summary>Taille et date de la copie locale.</summary>
+    private (long Length, DateTime WriteTime) LocalStamp()
+    {
+        var info = new FileInfo(LocalPath);
+        return (info.Length, info.LastWriteTimeUtc);
+    }
+
+    /// <summary>
+    /// Empreinte de la copie locale, lue par morceaux (pas tout le fichier en mémoire) et gardée avec sa taille et sa
+    /// date relevées avant la lecture : un changement pendant la lecture rend la date différente, la copie sera relue.
+    /// </summary>
+    private string ReadLocalHash()
+    {
+        var stamp = LocalStamp();
+        string hash;
+        using (var stream = new FileStream(LocalPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete, 81920,
+                   FileOptions.SequentialScan))
+        {
+            hash = Convert.ToHexString(SHA256.HashData(stream));
+        }
+
+        lock (_lock)
+        {
+            _localHash = hash;
+            _localStamp = stamp;
+        }
+
+        return hash;
+    }
+
+    /// <summary>Empreinte de la copie locale : celle déjà lue si sa taille et sa date n'ont pas changé, sinon relue.</summary>
+    private string CurrentLocalHash()
+    {
+        var stamp = LocalStamp();
+        lock (_lock)
+        {
+            if (_localHash is { } known && stamp == _localStamp)
+            {
+                return known;
+            }
+        }
+
+        return ReadLocalHash();
+    }
+
     private void OnFileEvent(object sender, FileSystemEventArgs e)
     {
         if (e is RenamedEventArgs r && !string.Equals(r.FullPath, LocalPath, StringComparison.OrdinalIgnoreCase))
@@ -193,10 +251,10 @@ public sealed class EditedFile : IDisposable
 
     private void OnQuiet()
     {
-        byte[] content;
+        string hash;
         try
         {
-            content = ReadAllBytesShared(LocalPath);
+            hash = ReadLocalHash();
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
@@ -212,7 +270,6 @@ public sealed class EditedFile : IDisposable
             return;
         }
 
-        var hash = Hash(content);
         lock (_lock)
         {
             if (_disposed || hash == _seenHash)

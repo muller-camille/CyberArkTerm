@@ -15,7 +15,7 @@ internal interface ITailLink : IDisposable
     /// <summary>Serveur (libellé de la session).</summary>
     string Server { get; }
 
-    /// <summary>Session d'origine : le suivi s'arrête quand elle se ferme.</summary>
+    /// <summary>Session d'origine : le suivi s'arrête quand elle se ferme (null ensuite, elle n'est plus retenue).</summary>
     RemoteSession? Session { get; }
 
     /// <summary>Connexion SFTP propre au suivi (option « session indépendante »).</summary>
@@ -47,10 +47,12 @@ internal interface ITailLink : IDisposable
 /// Connexion d'une fenêtre de suivi à une session SSH : celle de l'onglet Fichiers (partagée), ou une connexion SFTP
 /// dédiée, fermée avec la fenêtre. Une connexion perdue n'est rouverte que quand l'onglet se reconnecte ou sur le
 /// bouton « Reconnecter » : jamais en boucle, chaque connexion étant une session PSMP (et peut-être une demande MFA).
+/// Fermé (session fermée, fichiers retirés), le lien ne retient plus la session : les lignes reçues, gardées dans la
+/// fenêtre, ne gardent pas en mémoire son terminal et son historique.
 /// </summary>
 internal sealed class SessionTailLink : ITailLink
 {
-    private readonly RemoteSession _session;
+    private RemoteSession? _session;
     private IRemoteFiles? _browser;
     private Task? _connecting;
     private bool _wanted;
@@ -61,6 +63,7 @@ internal sealed class SessionTailLink : ITailLink
     public SessionTailLink(RemoteSession session, bool dedicated, IRemoteFiles? shared)
     {
         _session = session;
+        Server = session.Label;
         Dedicated = dedicated;
         if (!dedicated && shared is not null)
         {
@@ -74,7 +77,7 @@ internal sealed class SessionTailLink : ITailLink
         session.StateChanged += OnStateChanged;
     }
 
-    public string Server => _session.Label;
+    public string Server { get; }
 
     public RemoteSession? Session => _session;
 
@@ -87,11 +90,11 @@ internal sealed class SessionTailLink : ITailLink
     public bool IsConnecting => _connecting is { IsCompleted: false };
 
     public bool CanReconnect =>
-        _wanted && !_disposed && !_session.IsDisposed && _session.State == RemoteSessionState.Connected && !IsConnecting;
+        _wanted && _session is { IsDisposed: false, State: RemoteSessionState.Connected } && !IsConnecting;
 
     public bool CheckConnected()
     {
-        if (_disposed)
+        if (_session is not { } session)
         {
             return false;
         }
@@ -102,7 +105,7 @@ internal sealed class SessionTailLink : ITailLink
             return true;
         }
 
-        if (!Dedicated && _session.OpenedBrowser is { } opened && !ReferenceEquals(opened, _browser))
+        if (!Dedicated && session.OpenedBrowser is { } opened && !ReferenceEquals(opened, _browser))
         {
             // L'onglet Fichiers a rouvert la connexion de la session : le suivi la reprend.
             _browser = opened;
@@ -130,14 +133,19 @@ internal sealed class SessionTailLink : ITailLink
 
     private async Task ConnectAsync()
     {
+        if (_session is not { } session)
+        {
+            return;
+        }
+
         try
         {
-            var browser = Dedicated ? await _session.OpenDedicatedBrowserAsync() : await _session.GetBrowserAsync();
+            var browser = Dedicated ? await session.OpenDedicatedBrowserAsync() : await session.GetBrowserAsync();
             if (_disposed)
             {
                 if (Dedicated)
                 {
-                    _session.CloseDedicatedBrowser(browser);
+                    session.CloseDedicatedBrowser(browser);
                 }
 
                 return;
@@ -145,7 +153,7 @@ internal sealed class SessionTailLink : ITailLink
 
             if (Dedicated && _browser is { } previous)
             {
-                _session.CloseDedicatedBrowser(previous);
+                session.CloseDedicatedBrowser(previous);
             }
 
             _browser = browser;
@@ -162,13 +170,18 @@ internal sealed class SessionTailLink : ITailLink
 
     private void OnStateChanged()
     {
+        if (_session is not { } session)
+        {
+            return;
+        }
+
         // L'onglet s'est reconnecté : les fichiers suivis reprennent, sur une nouvelle connexion si l'ancienne est perdue.
-        if (_session.State == RemoteSessionState.Connected && _lastState != RemoteSessionState.Connected)
+        if (session.State == RemoteSessionState.Connected && _lastState != RemoteSessionState.Connected)
         {
             _wanted = true;
         }
 
-        _lastState = _session.State;
+        _lastState = session.State;
     }
 
     private static bool IsAlive(IRemoteFiles? browser)
@@ -191,12 +204,16 @@ internal sealed class SessionTailLink : ITailLink
         }
 
         _disposed = true;
-        _session.StateChanged -= OnStateChanged;
-        if (Dedicated && _browser is { } browser)
+        if (_session is { } session)
         {
-            _session.CloseDedicatedBrowser(browser);
+            session.StateChanged -= OnStateChanged;
+            if (Dedicated && _browser is { } browser)
+            {
+                session.CloseDedicatedBrowser(browser);
+            }
         }
 
+        _session = null;
         _browser = null;
     }
 }
@@ -257,6 +274,13 @@ internal sealed class TailFeed : INotifyPropertyChanged
         StatusBrush = error ? TailBrushes.Error : TailBrushes.Muted;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Status)));
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatusBrush)));
+    }
+
+    /// <summary>Fichier plus suivi (ses lignes restent affichées) : l'accès au fichier, et sa connexion, ne sont plus retenus.</summary>
+    public void Release()
+    {
+        Stopped = true;
+        Tail.Source = NoSource.Instance;
     }
 
     /// <summary>Avant la première connexion.</summary>

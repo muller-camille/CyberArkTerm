@@ -81,7 +81,7 @@ public static class TarGzPacker
                     return root + "/";
                 }
 
-                foreach (var entry in top.EnumerateFileSystemInfos("*", SearchOption.AllDirectories))
+                foreach (var entry in LocalTree.All(top))
                 {
                     var name = root + "/" + Path.GetRelativePath(top.FullName, entry.FullName).Replace('\\', '/');
                     if (entry is DirectoryInfo)
@@ -122,7 +122,10 @@ public static class TarGzPacker
         }
     }
 
-    /// <summary>Nombre de fichiers et taille totale de ce qui est déposé (dossiers parcourus entièrement).</summary>
+    /// <summary>
+    /// Nombre de fichiers et taille totale de ce qui est déposé (dossiers parcourus entièrement, sans suivre les liens vers
+    /// des dossiers).
+    /// </summary>
     public static (int Files, long Bytes) Measure(IEnumerable<string> paths)
     {
         int files = 0;
@@ -131,9 +134,7 @@ public static class TarGzPacker
         {
             try
             {
-                var entries = Directory.Exists(path)
-                    ? new DirectoryInfo(path).EnumerateFiles("*", SearchOption.AllDirectories)
-                    : [new FileInfo(path)];
+                var entries = Directory.Exists(path) ? LocalTree.AllFiles(new DirectoryInfo(path)) : [new FileInfo(path)];
                 foreach (var file in entries)
                 {
                     files++;
@@ -187,13 +188,15 @@ public static class TarGzPacker
     /// <summary>
     /// Crée l'archive : format ustar (POSIX, lu par tous les tar ; noms en UTF-8), chemins « dossier/sous-dossier/fichier »,
     /// droits 0644 pour les fichiers et 0755 pour les dossiers, propriétaire 0 (l'utilisateur qui extrait en devient
-    /// propriétaire, root reste root), dates de modification conservées. À vérifier d'abord avec <see cref="UstarProblem"/>.
+    /// propriétaire, root reste root), dates de modification conservées. Les liens vers des dossiers ne sont pas suivis
+    /// (<see cref="LocalTree"/>). À vérifier d'abord avec <see cref="UstarProblem"/>.
     /// </summary>
     /// <param name="compress">Compression gzip (.tar.gz), sinon simple .tar.</param>
     /// <param name="progress">Octets archivés sur le total (<see cref="TransferProgress.Packing"/>).</param>
+    /// <param name="linkSkipped">Lien vers un dossier laissé de côté, avec le chemin qu'il aurait eu dans l'archive.</param>
     /// <returns>Nombre de fichiers archivés.</returns>
     public static async Task<int> CreateAsync(IReadOnlyList<string> paths, string archivePath, bool compress,
-        IProgress<TransferProgress>? progress, CancellationToken ct)
+        IProgress<TransferProgress>? progress, CancellationToken ct, Action<DirectoryInfo, string>? linkSkipped = null)
     {
         var name = Path.GetFileName(archivePath);
         long total = Measure(paths).Bytes;
@@ -227,12 +230,17 @@ public static class TarGzPacker
                 Mode = DirectoryMode,
                 ModificationTime = directory.LastWriteTimeUtc,
             }, ct).ConfigureAwait(false);
-            foreach (var child in directory.EnumerateFiles())
+            foreach (var child in LocalTree.Files(directory))
             {
                 await AddFileAsync(child, $"{entryName}/{child.Name}").ConfigureAwait(false);
             }
 
-            foreach (var child in directory.EnumerateDirectories())
+            foreach (var link in LocalTree.Links(directory))
+            {
+                linkSkipped?.Invoke(link, $"{entryName}/{link.Name}");
+            }
+
+            foreach (var child in LocalTree.Directories(directory))
             {
                 await AddDirectoryAsync(child, $"{entryName}/{child.Name}").ConfigureAwait(false);
             }

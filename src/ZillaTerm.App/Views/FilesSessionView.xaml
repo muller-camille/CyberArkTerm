@@ -16,7 +16,8 @@
                 <TextBlock Text="{x:Static loc:Strings.FtpUnencrypted}" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" />
             </Border>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-                <Button x:Name="ShowFilesButton" Content="{x:Static loc:Strings.FilesShow}" Click="OnShowFiles" Padding="12,3" />
+                <Button x:Name="ShowFilesButton" Content="{x:Static loc:Strings.FilesShow}" Click="OnShowFiles" Padding="12,3"
+                        ToolTip="{x:Static loc:Strings.FilesShowTip}" />
                 <Button x:Name="ReconnectButton" Content="{x:Static loc:Strings.Reconnect}" Click="OnReconnect" Padding="12,3" Margin="8,0,0,0"
                         Visibility="Collapsed" />
             </StackPanel>

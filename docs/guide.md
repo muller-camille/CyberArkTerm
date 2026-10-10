@@ -174,10 +174,11 @@ Double-click (or Enter) then chooses from the name of the account's platform:
 Right-click always offers the three (the default is in bold): "Connect (PSM)", "Connect over SSH (PSMP)" (or the
 "SSH" button) and "Open the files (SFTP, PSMP)".
 
-**Files only**: a single PSMP SFTP session, without a terminal. A tab shows its state; the files are in the "Files"
-tab, with the same functions (checked transfers, queue, editor, compare, live follow, permissions), except what needs
-a terminal (following the terminal folder, extracting a `.tar.gz` archive). Useful to just drop or fetch files, or
-when the platform allows PSMP-SFTP but not the shell. Like every PSMP session, it is recorded and audited by
+**Files only**: a single PSMP SFTP session, without a terminal. A tab shows its state, the server and a "Show the
+files" button, which opens the "Files" tab of the left panel and widens it if needed so that all its columns fit. The
+files are there, with the same functions (checked transfers, queue, editor, compare, live follow, permissions),
+except what needs a terminal (following the terminal folder, extracting a `.tar.gz` archive). Useful to just drop or
+fetch files, or when the platform allows PSMP-SFTP but not the shell. Like every PSMP session, it is recorded and audited by
 CyberArk.
 
 The session opens **in a ZillaTerm tab**, at once: a progress bar shows while ZillaTerm asks the PVWA for the MFA key
@@ -283,7 +284,11 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   reverse the order (an arrow shows it). Size and date start with the largest and the newest. Folders stay on top; the
   sort is kept from one folder and one session to the next. The Name column takes the width left by the others; when
   the panel is narrow, the Group, Owner and then Permissions columns are hidden rather than cut (they come back when
-  the panel is widened).
+  the panel is widened): "+n" at the end of the header shows it, with their names in a tooltip.
+- **Choose the columns**: right-click the list header (or click "+n"): one box per column (Size, Modified,
+  Permissions, Owner, Group), kept from one time to the next; a ticked column without room is marked "no room".
+  "Widen the panel to show them all" gives the panel the missing width (the session keeps at least 360 pixels).
+  Unticking Size or Modified makes room for Permissions and Owner in a narrow panel.
 - **Owner and Group**: hovering shows `owner:group` (as for `chown`). These are the names that the server sends with
   the file list, as shown by `ls -l`. Over SFTP, if the line that holds them does not have the usual shape (a name with
   a space…), ZillaTerm shows the numbers instead (UID and GID, as `ls -n`); over FTP, the columns stay empty if the
@@ -300,9 +305,15 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   at once, with no question and no wait: the status bar and the summary show it with the server's answer, and so does
   the transfer history ("SCP (SFTP refused)"). Over SCP, after a refusal when a file is announced, files at least as large go
   straight over SFTP until the tab is closed.
+  In an uploaded folder (or one packed into a .tar.gz archive), symbolic links and junctions to folders are not
+  followed, as for downloads: a junction can loop or lead to a forbidden folder ("My Music" of old Windows profiles).
+  They are reported in the summary ("↷ n link(s) to a folder not followed") and in "Details", with their target; a link
+  to a file is sent with the content of that file.
 - **Download**: "Download" button or right-click. One file asks where to save it; several go to a folder you choose,
   with one question ("Replace") for the files already there. A local file is replaced only once its download is complete: an
-  interrupted or cancelled download leaves it as it was. "Download" only takes files: for a folder, the status bar
+  interrupted or cancelled download leaves it as it was. The file being downloaded goes to a temporary copy in the
+  same folder (`name.xxxxxxxx.part`, or `zillaterm.xxxxxxxx.part` for a name longer than 241 characters: names can be up
+  to 255 characters, the Windows limit). "Download" only takes files: for a folder, the status bar
   reminds you to drag it to File Explorer or to the desktop.
 - **Download by dragging**: drag files or folders from the list to Explorer or the desktop. Nothing is downloaded
   while dragging: on drop, a window shows the progress (Cancel stops it), then Explorer copies the files where you
@@ -364,7 +375,9 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   even without a session. It lists the last 200 uploads and downloads (drag and drop included): date, direction,
   server, item, destination, number of files, protocol ("SCP (SFTP refused)" when the other protocol took over),
   result, written as in the queue; failures and differing files are in red, and the text of a column too narrow for
-  it shows in a tooltip. "Uploads" / "Downloads" filter; "Checksums…" (or double-click)
+  it shows in a tooltip. "Uploads" / "Downloads" / "Failures and unverified" filter (failed transfers, files that
+  differ or could not be read again), chosen by itself when a failure flagged with "!" has not been seen yet;
+  "Checksums…" (or double-click)
   shows each file's size, SHA-256 checksums and result, and copies them in the `sha256sum -c` format to check again
   on the server; "Open the folder" for a download; "Clear the history", set apart from the other buttons, asks for
   confirmation (the files themselves are not touched).
@@ -426,7 +439,11 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
   contents too" propagates the permissions to subfolders and files; by
   default, execute (x) is only given to folders and to files that are already executable. The button then becomes
   "Apply recursively…" and a confirmation says what will happen; while it runs, "Stop" in the Files tab interrupts it
-  (items already done keep their new permissions). Symbolic links are not followed and the owner is not changed.
+  (items already done keep their new permissions). Symbolic links are not followed and the owner is not changed. Over
+  FTP, a name with a control character (it would add a command for the server) is left as it is and reported as an
+  error; the other items are processed.
+- **Operation in progress**: while a delete, a rename or a permission change runs on one server, the other servers
+  stay usable; on the same server, Delete, `F2` and Permissions are refused until it ends, and the status bar says so.
 - **Filter**: the box under the path keeps only the items of the folder whose name contains the text (`nginx`), or
   matches a mask with `*` and `?` (`*.log`, `app?.conf`; several separated by `;`: `*.log;*.gz`), ignoring case.
   `..` stays to go up; the status bar says how many items are shown. It is cleared when you change folder; `Ctrl+F`

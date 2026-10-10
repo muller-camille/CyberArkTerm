@@ -16,6 +16,10 @@ namespace ZillaTerm.App.Views;
 public partial class MainWindow
 {
     private const double MinSideWidth = 260;
+
+    /// <summary>Largeur gardée au moins pour la session quand le panneau est élargi pour l'onglet Fichiers.</summary>
+    private const double MinSessionWidth = 360;
+
     private bool _sideCollapsed;
     // Largeur du panneau déplié, gardée pendant qu'il est replié.
     private GridLength _sideWidth = new(400);
@@ -178,6 +182,50 @@ public partial class MainWindow
     }
 
     private void ToggleSidePanel() => SetSidePanelCollapsed(!SidePanelCollapsed);
+
+    /// <summary>
+    /// Élargit le panneau de gauche de <paramref name="extra"/> pixels (colonnes de l'onglet Fichiers masquées faute de
+    /// place), en laissant au moins <see cref="MinSessionWidth"/> à la session ; la largeur est gardée, comme après un
+    /// glissement du séparateur. Fenêtre trop étroite : la barre d'état le dit.
+    /// </summary>
+    private void WidenSidePanel(double extra)
+    {
+        if (extra <= 0)
+        {
+            return;
+        }
+
+        if (SidePanelCollapsed)
+        {
+            SetSidePanelCollapsed(false);
+        }
+
+        double current = SideColumn.Width.IsAbsolute ? SideColumn.Width.Value : SideColumn.ActualWidth;
+        double room = SideSplitter.Parent is Grid grid ? grid.ActualWidth - SplitterColumn.Width.Value - MinSessionWidth : current;
+        double width = Math.Round(Math.Min(current + extra, room));
+        if (width > current)
+        {
+            SideColumn.Width = new GridLength(width);
+            _settings.SidePanelWidth = width;
+            SaveSettings();
+        }
+
+        if (width < current + extra)
+        {
+            SetStatus(Strings.FilesPanelNoRoom);
+        }
+    }
+
+    /// <summary>
+    /// « Afficher les fichiers » d'une session de fichiers seuls : l'onglet Fichiers, élargi au besoin pour que toutes ses
+    /// colonnes cochées tiennent (la session n'a pas de terminal qui aurait besoin de la place).
+    /// </summary>
+    private void ShowFilesWide()
+    {
+        ShowSideTab(FilesTab);
+        // Après la mise en page : la liste a sa largeur, les colonnes sans la place sont connues.
+        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, () => WidenSidePanel(FilesPanel.MissingWidth));
+    }
 
     /// <summary>Onglet de gauche choisi par l'application ; <paramref name="expand"/> faux : un panneau replié le reste.</summary>
     private bool _quietSideSelection;

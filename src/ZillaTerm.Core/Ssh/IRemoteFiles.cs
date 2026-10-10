@@ -39,7 +39,10 @@ public interface IRemoteFiles : IDisposable
 
     Task<bool> ExistsAsync(string path, CancellationToken ct);
 
-    /// <summary>Envoie un fichier ou un dossier local (récursivement) ; chaque fichier est vérifié (SHA-256).</summary>
+    /// <summary>
+    /// Envoie un fichier ou un dossier local (récursivement) ; chaque fichier est vérifié (SHA-256). Les liens vers des
+    /// dossiers ne sont pas suivis (<see cref="LocalTree"/>) : notés dans <c>checks</c> (<see cref="TransferCheck.Skipped"/>).
+    /// </summary>
     /// <param name="protocol">Protocole préféré quand il y a le choix (<see cref="ChoosesUploadProtocol"/>).</param>
     Task UploadAsync(string localPath, string remoteDirectory, TransferProtocol protocol, ICollection<TransferCheck> checks,
         IProgress<TransferProgress>? progress, bool background, CancellationToken ct);

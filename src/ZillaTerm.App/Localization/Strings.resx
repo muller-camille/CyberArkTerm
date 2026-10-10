@@ -4706,4 +4706,40 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="ColumnGroup" xml:space="preserve">
     <value>Group</value>
   </data>
+  <data name="FilesBusy" xml:space="preserve">
+    <value>An operation (delete, rename…) is still running on this server: try again when it has finished.</value>
+  </data>
+  <data name="FilesBusyPermissions" xml:space="preserve">
+    <value>Permissions are still being changed on this server: wait for the end, or click “Stop”.</value>
+  </data>
+  <data name="FilesColumnsHiddenTip" xml:space="preserve">
+    <value>Columns hidden for lack of room: {0}. Widen the panel, or click to choose the columns.</value>
+  </data>
+  <data name="FilesColumnNoRoom" xml:space="preserve">
+    <value>no room</value>
+  </data>
+  <data name="FilesColumnsWiden" xml:space="preserve">
+    <value>Widen the panel to show them all</value>
+  </data>
+  <data name="FilesPanelNoRoom" xml:space="preserve">
+    <value>The window is too narrow to show all the columns of the Files tab: enlarge it, or choose the columns (right-click on their header).</value>
+  </data>
+  <data name="FilesShowTip" xml:space="preserve">
+    <value>Shows the “Files” tab on the left, widened if needed so that all its columns fit.</value>
+  </data>
+  <data name="HistoryFilterProblems" xml:space="preserve">
+    <value>Failures and unverified</value>
+  </data>
+  <data name="HistoryNoMatch" xml:space="preserve">
+    <value>No transfer matches this filter.</value>
+  </data>
+  <data name="TransferLinksSkipped" xml:space="preserve">
+    <value>↷ {0} link(s) to a folder not followed</value>
+  </data>
+  <data name="ChecksSkipped" xml:space="preserve">
+    <value>↷ Not followed (link to {0})</value>
+  </data>
+  <data name="ChecksSomeSkipped" xml:space="preserve">
+    <value>↷ {0} link(s) to a folder (junction or symbolic link) not followed: their content was not sent.</value>
+  </data>
 </root>

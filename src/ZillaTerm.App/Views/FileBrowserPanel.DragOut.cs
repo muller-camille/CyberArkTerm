@@ -205,7 +205,7 @@ public partial class FileBrowserPanel
         _dragChecks = [];
         var dialog = new TransferDialog(Strings.DragDownloadTitle, fileCount, totalBytes, async (progress, ct) =>
         {
-            Interlocked.Increment(ref _busy);
+            BeginBusy(browser);
             try
             {
                 Directory.CreateDirectory(root);
@@ -252,7 +252,7 @@ public partial class FileBrowserPanel
             }
             finally
             {
-                Interlocked.Decrement(ref _busy);
+                EndBusy(browser);
             }
         })
         {

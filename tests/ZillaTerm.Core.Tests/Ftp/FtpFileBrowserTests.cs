@@ -8,6 +8,7 @@ using System.Text;
 using ZillaTerm.Core.Ftp;
 using ZillaTerm.Core.Localization;
 using ZillaTerm.Core.Ssh;
+using ZillaTerm.Core.Tests.Ssh;
 
 namespace ZillaTerm.Core.Tests.Ftp;
 
@@ -17,12 +18,16 @@ namespace ZillaTerm.Core.Tests.Ftp;
 /// </summary>
 public sealed class FtpFileBrowserTests
 {
-    /// <summary>Faux serveur FTP : réponses minimales, TLS (AUTH TLS) seulement si un certificat est donné.</summary>
+    /// <summary>
+    /// Faux serveur FTP : réponses minimales, TLS (AUTH TLS) seulement si un certificat est donné, listes de dossiers
+    /// (format <c>ls -l</c>) par une connexion de données passive.
+    /// </summary>
     private sealed class FakeFtp : IDisposable
     {
         private readonly TcpListener _listener = new(IPAddress.Loopback, 0);
         private readonly X509Certificate2? _certificate;
         private readonly CancellationTokenSource _stop = new();
+        private TcpListener? _data;
 
         public FakeFtp(X509Certificate2? certificate = null)
         {
@@ -40,6 +45,67 @@ public sealed class FtpFileBrowserTests
 
         public bool Received(string verb) =>
             Commands.Any(c => c.StartsWith(verb + " ", StringComparison.OrdinalIgnoreCase) || c.Equals(verb, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>Contenu des dossiers (lignes au format <c>ls -l</c>), par chemin.</summary>
+        public Dictionary<string, string[]> Listings { get; } = [];
+
+        /// <summary>Contenu des fichiers, par chemin : à télécharger, ou reçus.</summary>
+        public ConcurrentDictionary<string, byte[]> Files { get; } = new();
+
+        /// <summary>Dossier d'une commande LIST (« LIST -a /chemin »).</summary>
+        private static string ListedPath(string line)
+        {
+            var argument = line.Length > 5 ? line[5..] : "";
+            return argument.StartsWith("-a ", StringComparison.Ordinal) ? argument[3..] : argument;
+        }
+
+        private Task SendListingAsync(Stream stream, string line) =>
+            SendDataAsync(stream, Listings.TryGetValue(ListedPath(line), out var entries)
+                ? Encoding.UTF8.GetBytes(string.Concat(entries.Select(e => e + "\r\n")))
+                : null);
+
+        /// <summary>Reçoit un fichier par la connexion de données ouverte par PASV.</summary>
+        private async Task ReceiveAsync(Stream stream, string path)
+        {
+            var listener = Interlocked.Exchange(ref _data, null);
+            if (listener is null)
+            {
+                await WriteAsync(stream, "425 Use PASV first.");
+                return;
+            }
+
+            await WriteAsync(stream, "150 Ok to send data.");
+            using (var data = await listener.AcceptTcpClientAsync())
+            {
+                listener.Stop();
+                using var received = new MemoryStream();
+                await data.GetStream().CopyToAsync(received);
+                Files[path] = received.ToArray();
+            }
+
+            await WriteAsync(stream, "226 Transfer complete.");
+        }
+
+        /// <summary>Envoie <paramref name="content"/> par la connexion de données ouverte par PASV (550 sans contenu).</summary>
+        private async Task SendDataAsync(Stream stream, byte[]? content)
+        {
+            var listener = Interlocked.Exchange(ref _data, null);
+            if (listener is null || content is null)
+            {
+                listener?.Stop();
+                await WriteAsync(stream, "550 No such file or directory.");
+                return;
+            }
+
+            await WriteAsync(stream, "150 Opening data connection.");
+            using (var data = await listener.AcceptTcpClientAsync())
+            {
+                listener.Stop();
+                await data.GetStream().WriteAsync(content);
+            }
+
+            await WriteAsync(stream, "226 Transfer complete.");
+        }
 
         private async Task AcceptAsync()
         {
@@ -104,10 +170,26 @@ public sealed class FtpFileBrowserTests
                             await WriteAsync(stream, line.Contains("taken", StringComparison.Ordinal) ? "213 12" : "550 No such file.");
                             break;
                         case "CWD":
-                            await WriteAsync(stream, line[4..] == "/home/fake" ? "250 OK" : "550 Failed to change directory.");
+                            await WriteAsync(stream, line[4..] == "/home/fake" || Listings.ContainsKey(line[4..]) ? "250 OK" : "550 Failed to change directory.");
                             break;
                         case "RNFR":
                             await WriteAsync(stream, "350 Ready for RNTO.");
+                            break;
+                        case "PASV":
+                            var data = new TcpListener(IPAddress.Loopback, 0);
+                            data.Start();
+                            Interlocked.Exchange(ref _data, data)?.Stop();
+                            int port = ((IPEndPoint)data.LocalEndpoint).Port;
+                            await WriteAsync(stream, $"227 Entering Passive Mode (127,0,0,1,{port / 256},{port % 256})");
+                            break;
+                        case "LIST":
+                            await SendListingAsync(stream, line);
+                            break;
+                        case "RETR":
+                            await SendDataAsync(stream, Files.GetValueOrDefault(line[5..]));
+                            break;
+                        case "STOR":
+                            await ReceiveAsync(stream, line[5..]);
                             break;
                         case "QUIT":
                             await WriteAsync(stream, "221 Goodbye.");
@@ -239,6 +321,112 @@ public sealed class FtpFileBrowserTests
         Assert.False(server.Received("DELE"));
         await browser.CreateDirectoryAsync("/home/fake/ok", CancellationToken.None);
         Assert.Contains("MKD /home/fake/ok", server.Commands);
+    }
+
+    /// <summary>
+    /// Droits récursifs : un nom avec un caractère de contrôle (il ajouterait une commande FTP) est noté en erreur, sans
+    /// arrêter le reste ; son contenu n'est pas parcouru et le bilan compte les autres éléments.
+    /// </summary>
+    [Fact]
+    public async Task RecursivePermissionsSkipANameWithAControlCharacter()
+    {
+        using var server = new FakeFtp();
+        const string Bell = "\u0007";
+        server.Listings["/home/fake/app"] =
+        [
+            "drwxr-xr-x 2 alice users 4096 Oct 10 08:00 conf",
+            $"-rw-r--r-- 1 alice users 12 Oct 10 08:00 bad{Bell}name.txt",
+            $"drwxr-xr-x 2 alice users 4096 Oct 10 08:00 bad{Bell}dir",
+            "-rw-r--r-- 1 alice users 12 Oct 10 08:00 z.txt",
+        ];
+        server.Listings["/home/fake/app/conf"] = ["-rw-r--r-- 1 alice users 3 Oct 10 08:00 app.conf"];
+        server.Listings[$"/home/fake/app/bad{Bell}dir"] = ["-rw-r--r-- 1 alice users 3 Oct 10 08:00 hidden.txt"];
+        using var browser = await FtpFileBrowser.ConnectAsync(
+            Connection(server, FtpSecurity.Opportunistic, () => true), CancellationToken.None);
+
+        var result = await browser.SetPermissionsAsync("/home/fake/app", PermissionChange.Absolute(0x1ED, includeSpecial: false),
+            recursive: true, executeOnlyIfAlready: false, null, CancellationToken.None);
+
+        // Le dossier, conf/, conf/app.conf et z.txt ; les deux noms refusés, chacun une fois, lisibles dans le message.
+        Assert.Equal(4, result.Changed);
+        Assert.Equal(2, result.Errors.Count);
+        Assert.Contains($"/home/fake/app/bad?name.txt : {CoreStrings.ControlCharacterInPath}", result.Errors);
+        Assert.Contains($"/home/fake/app/bad?dir : {CoreStrings.ControlCharacterInPath}", result.Errors);
+        Assert.Contains("SITE CHMOD 755 /home/fake/app/z.txt", server.Commands);
+        Assert.Contains("SITE CHMOD 755 /home/fake/app/conf/app.conf", server.Commands);
+        Assert.DoesNotContain(server.Commands, c => c.Contains('\u0007', StringComparison.Ordinal));
+    }
+
+    /// <summary>
+    /// Nom long (jusqu'à 255 caractères, la limite de Windows) : le fichier en cours de téléchargement prend un nom court
+    /// dans le même dossier, puis le nom voulu une fois complet ; rien d'autre ne reste dans le dossier.
+    /// </summary>
+    [Fact]
+    public async Task DownloadsAFileWithANameOfMaximumLength()
+    {
+        using var server = new FakeFtp();
+        var name = new string('j', 250) + ".log";
+        var content = Encoding.UTF8.GetBytes("ligne 1\nligne 2\n");
+        server.Files["/home/fake/" + name] = content;
+        var folder = Path.Combine(Path.GetTempPath(), "zt-ftp-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(folder);
+        try
+        {
+            using var browser = await FtpFileBrowser.ConnectAsync(
+                Connection(server, FtpSecurity.Opportunistic, () => true), CancellationToken.None);
+            var entry = new RemoteEntry(name, "/home/fake/" + name, false, false, content.Length, default, "-rw-r--r--");
+            var local = Path.Combine(folder, name);
+
+            var check = await browser.DownloadAsync(entry, local, null, CancellationToken.None);
+
+            Assert.True(check.Matches);
+            Assert.Equal(content, File.ReadAllBytes(local));
+            Assert.Equal([local], Directory.GetFiles(folder));
+        }
+        finally
+        {
+            Directory.Delete(folder, recursive: true);
+        }
+    }
+
+    /// <summary>
+    /// Envoi d'un dossier : un lien vers un dossier (ici vers le dossier lui-même, une boucle) n'est pas suivi ; il est
+    /// noté dans les vérifications, après les fichiers envoyés.
+    /// </summary>
+    [Fact]
+    public async Task FolderUploadDoesNotFollowALinkToAFolder()
+    {
+        var folder = Path.Combine(Path.GetTempPath(), "zt-ftp-" + Guid.NewGuid().ToString("N"));
+        var site = Path.Combine(folder, "site");
+        Directory.CreateDirectory(site);
+        try
+        {
+            File.WriteAllText(Path.Combine(site, "index.html"), "<h1>ok</h1>");
+            if (!LocalLinks.TryLinkDirectory(Path.Combine(site, "loop"), site))
+            {
+                // Windows sans le droit de créer des liens symboliques.
+                return;
+            }
+
+            using var server = new FakeFtp();
+            using var browser = await FtpFileBrowser.ConnectAsync(
+                Connection(server, FtpSecurity.Opportunistic, () => true), CancellationToken.None);
+            var checks = new List<TransferCheck>();
+
+            await browser.UploadAsync(site, "/home/fake", TransferProtocol.Ftp, checks, null, background: false, CancellationToken.None);
+
+            Assert.True(checks[0].Matches);
+            Assert.Equal("/home/fake/site/index.html", checks[0].RemotePath);
+            var link = Assert.Single(checks, c => c.Skipped);
+            Assert.Equal(("loop", "/home/fake/site/loop", false), (link.Name, link.RemotePath, link.Unverified));
+            Assert.Same(link, checks[^1]);
+            Assert.Equal(2, checks.Count);
+            Assert.DoesNotContain(server.Commands, c => c.Contains("loop", StringComparison.Ordinal));
+        }
+        finally
+        {
+            Directory.Delete(folder, recursive: true);
+        }
     }
 
     [Fact]

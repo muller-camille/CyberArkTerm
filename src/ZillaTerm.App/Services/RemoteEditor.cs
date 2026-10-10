@@ -45,7 +45,10 @@ public sealed class RemoteEditor : IDisposable
         _remoteChanged = remoteChanged;
     }
 
-    /// <summary>Fichiers modifiés localement mais pas encore renvoyés sur le serveur.</summary>
+    /// <summary>
+    /// Fichiers modifiés localement mais pas encore renvoyés sur le serveur. Rapide : chaque copie n'est relue que si elle
+    /// a changé depuis sa dernière lecture par la surveillance (enregistrement de l'instant).
+    /// </summary>
     public IReadOnlyList<EditedFile> Unsent => _files.Where(f => f.HasUnsentChanges).ToList();
 
     public async Task EditAsync(RemoteEntry entry)
@@ -107,7 +110,8 @@ public sealed class RemoteEditor : IDisposable
                     : $"{Text.Format(Strings.TransferNotVerified, 1)} ({check.Error})");
             }
 
-            file = new EditedFile(entry.FullPath, local, time, length);
+            // Copie lue et hachée hors du fil de l'interface (fichier volumineux accepté plus haut).
+            file = await Task.Run(() => new EditedFile(entry.FullPath, local, time, length));
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
@@ -166,21 +170,19 @@ public sealed class RemoteEditor : IDisposable
     }
 
     /// <summary>Demande à l'utilisateur s'il faut renvoyer ce qui n'a pas été envoyé ; vrai si l'on peut fermer.</summary>
-    public static bool ConfirmClose(Window owner, IEnumerable<RemoteEditor> editors)
-    {
-        var unsent = UnsentFiles(editors);
-        return unsent.Count == 0
-            || ConfirmDialog.Confirm(owner, new ConfirmRequest
-            {
-                Title = Strings.EditPendingTitle,
-                Heading = Strings.EditPendingHeading,
-                Message = Strings.EditPendingMessage,
-                Items = unsent,
-                Kind = ConfirmKind.Warning,
-                Actions = [Strings.EditCloseWithoutSending],
-                DangerAction = 0,
-            });
-    }
+    /// <param name="unsent">Fichiers pas encore renvoyés (<see cref="UnsentFiles"/>).</param>
+    public static bool ConfirmClose(Window owner, IReadOnlyList<string> unsent) =>
+        unsent.Count == 0
+        || ConfirmDialog.Confirm(owner, new ConfirmRequest
+        {
+            Title = Strings.EditPendingTitle,
+            Heading = Strings.EditPendingHeading,
+            Message = Strings.EditPendingMessage,
+            Items = unsent,
+            Kind = ConfirmKind.Warning,
+            Actions = [Strings.EditCloseWithoutSending],
+            DangerAction = 0,
+        });
 
     /// <summary>Fichiers modifiés et pas encore renvoyés, sous la forme « serveur:chemin ».</summary>
     public static List<string> UnsentFiles(IEnumerable<RemoteEditor> editors) =>
@@ -272,7 +274,8 @@ public sealed class RemoteEditor : IDisposable
             do
             {
                 _savedAgain.Remove(file);
-                if (!file.HasUnsentChanges)
+                // Copie relue (si besoin) et hachée hors du fil de l'interface.
+                if (!await file.HasUnsentChangesAsync() || _disposed)
                 {
                     break;
                 }
@@ -339,11 +342,12 @@ public sealed class RemoteEditor : IDisposable
             }
 
             _status(Text.Format(Strings.EditUploading, file.Name), false);
-            var content = EditedFile.ReadAllBytesShared(file.LocalPath);
+            // Lecture et hachage de la copie hors du fil de l'interface.
+            var content = await Task.Run(() => EditedFile.ReadAllBytesShared(file.LocalPath));
             writing = true;
             var (newTime, newLength) = await browser.WriteFileAsync(file.RemotePath, content, CancellationToken.None);
             writing = false;
-            file.MarkSent(content, newTime, newLength);
+            await Task.Run(() => file.MarkSent(content, newTime, newLength));
             _status(Text.Format(Strings.EditUploaded, file.Name), false);
             _remoteChanged(RemotePath.Parent(file.RemotePath));
             return true;

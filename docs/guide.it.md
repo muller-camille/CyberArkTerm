@@ -182,11 +182,12 @@ diversi). Il doppio clic (o Invio) sceglie allora in base al nome della piattafo
 Il clic destro propone sempre le tre (l'apertura predefinita è in grassetto): «Connetti (PSM)», «Connetti in SSH
 (PSMP)» (o il pulsante «SSH») e «Apri i file (SFTP, PSMP)».
 
-**Solo file**: una sola sessione PSMP SFTP, senza terminale. Una scheda ne mostra lo stato; i file sono nella scheda
-«File», con le stesse funzioni (trasferimenti verificati, coda, editor, confronto, monitoraggio in tempo reale,
-permessi), tranne ciò che richiede un terminale (monitoraggio della cartella del terminale, estrazione di un archivio
-`.tar.gz`). Utile per depositare o recuperare file, o quando la piattaforma consente PSMP-SFTP ma non la shell. Come
-ogni sessione PSMP, è registrata e verificata da CyberArk.
+**Solo file**: una sola sessione PSMP SFTP, senza terminale. Una scheda ne mostra lo stato, il server e un pulsante
+«Mostra i file», che apre la scheda «File» del pannello di sinistra e la allarga se serve perché tutte le colonne ci
+stiano. I file sono lì, con le stesse funzioni (trasferimenti verificati, coda, editor, confronto, monitoraggio in
+tempo reale, permessi), tranne ciò che richiede un terminale (monitoraggio della cartella del terminale, estrazione di
+un archivio `.tar.gz`). Utile per depositare o recuperare file, o quando la piattaforma consente PSMP-SFTP ma non la
+shell. Come ogni sessione PSMP, è registrata e verificata da CyberArk.
 
 La sessione si apre **in una scheda di ZillaTerm**, subito: una barra di avanzamento compare mentre ZillaTerm chiede
 la chiave MFA al PVWA e si connette al PSMP (le domande su chiave del server, password o codice arrivano nel
@@ -300,7 +301,13 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   Proprietario, Gruppo); un secondo clic inverte l'ordine (lo indica una freccia). Dimensione e data partono dai più
   grandi e dai più recenti. Le cartelle restano in cima; l'ordinamento è mantenuto da una cartella e da una sessione
   all'altra. La colonna Nome prende la larghezza lasciata dalle altre; quando il pannello è stretto, le colonne Gruppo,
-  Proprietario e poi Permessi vengono nascoste invece di essere tagliate (ricompaiono allargando il pannello).
+  Proprietario e poi Permessi vengono nascoste invece di essere tagliate (ricompaiono allargando il pannello): lo
+  segnala «+n» in fondo all'intestazione, con i loro nomi nella descrizione comandi.
+- **Scegliere le colonne**: clic destro sull'intestazione dell'elenco (o clic su «+n»): una casella per colonna
+  (Dimensione, Modificato, Permessi, Proprietario, Gruppo), mantenuta da una volta all'altra; una colonna selezionata
+  senza spazio è indicata con «manca spazio». «Allarga il pannello per mostrarle tutte» dà al pannello la larghezza
+  che manca (la sessione mantiene almeno 360 pixel). Deselezionare Dimensione o Modificato fa posto a Permessi e
+  Proprietario in un pannello stretto.
 - **Proprietario e Gruppo**: passando il mouse compare `proprietario:gruppo` (come per `chown`). Sono i nomi che il
   server invia con l'elenco dei file, come quelli di `ls -l`. In SFTP, se la riga che li contiene non ha la forma
   abituale (un nome con uno spazio…), ZillaTerm mostra invece i numeri (UID e GID, come `ls -n`); in FTP, le colonne
@@ -318,9 +325,15 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   lettura…), l'altro subentra subito, senza domande né attese: la barra di stato e il riepilogo lo indicano con la
   risposta del server, e così la cronologia dei trasferimenti («SCP (SFTP rifiutato)»). In SCP, dopo un rifiuto all'annuncio di un
   file, i file grandi almeno altrettanto partono direttamente in SFTP fino alla chiusura della scheda.
+  In una cartella inviata (o messa in un archivio .tar.gz), i collegamenti simbolici e le giunzioni verso cartelle non
+  vengono seguiti, come al download: una giunzione può creare un ciclo o portare a una cartella vietata («Musica» dei
+  vecchi profili Windows). Sono segnalati nel riepilogo («↷ n collegamento/i a una cartella non seguito/i») e in
+  «Dettagli», con la loro destinazione; un collegamento a un file viene inviato con il contenuto di quel file.
 - **Scaricare**: pulsante «Scarica» o clic destro. Un file chiede dove salvarlo; più file vanno in una cartella
   scelta, con una sola domanda («Sostituisci») per quelli già presenti. Un file locale viene sostituito solo a download completato: un
-  download interrotto o annullato lo lascia com'era. «Scarica» prende solo file: per una cartella, la barra di stato
+  download interrotto o annullato lo lascia com'era. Il file in corso arriva in una copia temporanea della stessa
+  cartella (`nome.xxxxxxxx.part`, o `zillaterm.xxxxxxxx.part` per un nome di più di 241 caratteri: i nomi arrivano a
+  255 caratteri, il limite di Windows). «Scarica» prende solo file: per una cartella, la barra di stato
   ricorda di trascinarla in Esplora file o sul desktop.
 - **Scaricare trascinando**: trascina file o cartelle dall'elenco verso Esplora file o il desktop. Nulla viene
   scaricato durante il trascinamento: al rilascio, una finestra mostra l'avanzamento (Annulla lo interrompe), poi
@@ -388,7 +401,8 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   (trascinamento compreso): data, direzione, server, elemento, destinazione, numero di file, protocollo («SCP (SFTP
   rifiutato)» quando l'altro protocollo è subentrato), risultato, scritto come nella coda; errori e file diversi
   sono in rosso, e il testo di una colonna troppo stretta compare nella descrizione comandi. Filtro
-  «Invii» / «Download»; «Checksum…» (o doppio clic) mostra per ogni file la dimensione, i checksum SHA-256 e il
+  «Invii» / «Download» / «Errori e non verificati» (trasferimenti non riusciti, file diversi o non riletti), scelto da
+  solo quando un errore segnalato da «!» non è ancora stato visto; «Checksum…» (o doppio clic) mostra per ogni file la dimensione, i checksum SHA-256 e il
   risultato, e li copia nel formato di `sha256sum -c` per riverificare sul server; «Apri la cartella» per un
   download; «Cancella la cronologia», separato dagli altri pulsanti, chiede conferma (i file stessi non vengono
   toccati).
@@ -455,7 +469,12 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   impostazione predefinita, l'esecuzione (x) viene data solo alle cartelle e ai file già eseguibili. Il pulsante
   diventa allora «Applica ricorsivamente…» e una conferma ricorda cosa succederà; durante la propagazione,
   «Interrompi» nella scheda File la ferma (gli elementi già trattati mantengono i nuovi permessi). I link
-  simbolici non vengono seguiti e il proprietario non viene modificato.
+  simbolici non vengono seguiti e il proprietario non viene modificato. In FTP, un nome con un carattere di controllo
+  (aggiungerebbe un comando per il server) viene lasciato com'è e segnalato come errore; gli altri elementi vengono
+  trattati.
+- **Operazione in corso**: durante un'eliminazione, una ridenominazione o una modifica dei permessi su un server, gli
+  altri server restano utilizzabili; sullo stesso server, Elimina, `F2` e Permessi vengono rifiutati fino alla fine,
+  e la barra di stato lo dice.
 - **Filtrare**: il campo sotto il percorso mostra solo gli elementi della cartella il cui nome contiene il testo
   (`nginx`), o corrisponde a una maschera con `*` e `?` (`*.log`, `app?.conf`; più maschere separate da `;`:
   `*.log;*.gz`), senza distinguere maiuscole e minuscole. `..` resta per risalire; la barra di stato dice quanti

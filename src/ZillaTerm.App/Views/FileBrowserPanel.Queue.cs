@@ -245,9 +245,13 @@ public partial class FileBrowserPanel
             try
             {
                 var archive = Path.Combine(folder, archiveName);
-                // Parcours et compression hors du fil de l'interface (la progression y revient d'elle-même).
-                await Task.Run(() => TarGzPacker.CreateAsync(paths, archive, compress: gzip is not null, progress, ct), ct);
+                // Parcours et compression hors du fil de l'interface (la progression y revient d'elle-même). Liens vers des
+                // dossiers laissés de côté : notés après l'envoi de l'archive, là où ils seraient arrivés.
+                var links = new List<TransferCheck>();
+                await Task.Run(() => TarGzPacker.CreateAsync(paths, archive, compress: gzip is not null, progress, ct,
+                    (link, name) => links.Add(TransferCheck.SkippedLink(link, RemotePath.Combine(directory, name)))), ct);
                 await browser.UploadAsync(archive, directory, protocol, item.Checks, progress, background: true, ct);
+                item.Checks.AddRange(links);
                 item.ExtractCommand = TarGzPacker.ExtractCommand(directory, archiveName, gzip);
             }
             finally
@@ -751,8 +755,9 @@ public partial class FileBrowserPanel
     }
 
     /// <summary>Historique des transferts (bouton de la barre d'outils principale), même sans session.</summary>
-    public void ShowHistory() =>
-        new TransferHistoryDialog(_history, SaveHistory) { Owner = Window.GetWindow(this) }.ShowDialog();
+    /// <param name="problemsOnly">Échec signalé et pas encore vu : seulement les échecs et transferts non vérifiés.</param>
+    public void ShowHistory(bool problemsOnly = false) =>
+        new TransferHistoryDialog(_history, SaveHistory, problemsOnly) { Owner = Window.GetWindow(this) }.ShowDialog();
 
     private void Record(TransferRecord record)
     {
@@ -781,7 +786,10 @@ public partial class FileBrowserPanel
 /// <summary>Texte d'état d'un transfert de la file : en attente, avancement, vérification, résultat.</summary>
 public sealed class TransferStatusConverter : IMultiValueConverter
 {
-    /// <summary>Rang du fichier en cours (les fichiers déjà traités ont chacun leur vérification).</summary>
+    /// <summary>
+    /// Rang du fichier en cours (les fichiers déjà traités ont chacun leur vérification ; les liens non suivis d'un dossier
+    /// ne sont notés qu'à la fin).
+    /// </summary>
     public static int FileNumber(TransferItem item) => Math.Max(1, Math.Min(item.Checks.Count + 1, Math.Max(item.FileCount, 1)));
 
     /// <summary>Nombre de fichiers, « … » tant qu'il n'est pas connu.</summary>
@@ -803,21 +811,24 @@ public sealed class TransferStatusConverter : IMultiValueConverter
         TransferState.Done when item.Checks.Count(c => c.Verified && !c.Matches) is > 0 and var different =>
             Text.Format(Strings.QueueStateDifferent, different),
         // Fichiers transférés mais non relus (droits, vérification annulée) : « terminé » seul les cacherait.
-        TransferState.Done when item.Checks.Count(c => !c.Verified && !c.Failed && !c.Interrupted) is > 0 and var unverified =>
-            Text.Format(Strings.QueueStateUnverified, unverified, item.Checks.Count),
-        TransferState.Done when item.Checks.Count > 0 => Text.Format(Strings.QueueStateVerified, item.Checks.Count(c => c.Matches), item.Checks.Count),
+        TransferState.Done when item.Checks.Count(c => c.Unverified) is > 0 and var unverified =>
+            Text.Format(Strings.QueueStateUnverified, unverified, Transferred(item)),
+        TransferState.Done when Transferred(item) > 0 => Text.Format(Strings.QueueStateVerified, item.Checks.Count(c => c.Matches), Transferred(item)),
         TransferState.Done => Strings.QueueStateDone,
         TransferState.Failed => "✗ " + item.Error,
         _ => Strings.QueueStateCancelled,
     };
+
+    /// <summary>Fichiers transférés (liens vers des dossiers, non suivis, à part).</summary>
+    private static int Transferred(TransferItem item) => item.Checks.Count(c => !c.Skipped);
 
     /// <summary>Couleur du résultat : « Ok » (tout vérifié), « Warning » (non vérifié), « Error » (échec, différent), sinon « None ».</summary>
     public static string Outcome(TransferItem item) => item.State switch
     {
         TransferState.Failed => "Error",
         TransferState.Done when item.Checks.Any(c => c.Verified && !c.Matches) => "Error",
-        TransferState.Done when item.Checks.Any(c => !c.Verified && !c.Failed && !c.Interrupted) => "Warning",
-        TransferState.Done when item.Checks.Count > 0 => "Ok",
+        TransferState.Done when item.Checks.Any(c => c.Unverified) => "Warning",
+        TransferState.Done when Transferred(item) > 0 => "Ok",
         _ => "None",
     };
 }

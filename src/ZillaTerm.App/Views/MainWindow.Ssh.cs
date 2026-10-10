@@ -398,8 +398,9 @@ public partial class MainWindow
         bool asked = false;
         if (session.Editor is { } editor)
         {
-            asked = RemoteEditor.UnsentFiles([editor]).Count > 0;
-            if (!RemoteEditor.ConfirmClose(owner, [editor]))
+            var unsent = RemoteEditor.UnsentFiles([editor]);
+            asked = unsent.Count > 0;
+            if (!RemoteEditor.ConfirmClose(owner, unsent))
             {
                 return;
             }

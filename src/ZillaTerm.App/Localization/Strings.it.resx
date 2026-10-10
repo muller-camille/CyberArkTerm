@@ -4706,4 +4706,40 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   <data name="ColumnGroup" xml:space="preserve">
     <value>Gruppo</value>
   </data>
+  <data name="FilesBusy" xml:space="preserve">
+    <value>Un'operazione (eliminazione, ridenominazione…) è ancora in corso su questo server: riprova quando sarà terminata.</value>
+  </data>
+  <data name="FilesBusyPermissions" xml:space="preserve">
+    <value>Modifica dei permessi ancora in corso su questo server: attendi la fine o fai clic su «Interrompi».</value>
+  </data>
+  <data name="FilesColumnsHiddenTip" xml:space="preserve">
+    <value>Colonne nascoste per mancanza di spazio: {0}. Allarga il pannello, o fai clic per scegliere le colonne.</value>
+  </data>
+  <data name="FilesColumnNoRoom" xml:space="preserve">
+    <value>manca spazio</value>
+  </data>
+  <data name="FilesColumnsWiden" xml:space="preserve">
+    <value>Allarga il pannello per mostrarle tutte</value>
+  </data>
+  <data name="FilesPanelNoRoom" xml:space="preserve">
+    <value>La finestra è troppo stretta per mostrare tutte le colonne della scheda File: ingrandiscila, o scegli le colonne (clic destro sulla loro intestazione).</value>
+  </data>
+  <data name="FilesShowTip" xml:space="preserve">
+    <value>Mostra la scheda «File» a sinistra, allargata se serve perché tutte le colonne ci stiano.</value>
+  </data>
+  <data name="HistoryFilterProblems" xml:space="preserve">
+    <value>Errori e non verificati</value>
+  </data>
+  <data name="HistoryNoMatch" xml:space="preserve">
+    <value>Nessun trasferimento corrisponde a questo filtro.</value>
+  </data>
+  <data name="TransferLinksSkipped" xml:space="preserve">
+    <value>↷ {0} collegamento/i a una cartella non seguito/i</value>
+  </data>
+  <data name="ChecksSkipped" xml:space="preserve">
+    <value>↷ Non seguito (collegamento a {0})</value>
+  </data>
+  <data name="ChecksSomeSkipped" xml:space="preserve">
+    <value>↷ {0} collegamento/i a una cartella (giunzione o collegamento simbolico) non seguito/i: il loro contenuto non è stato inviato.</value>
+  </data>
 </root>

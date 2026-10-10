@@ -163,6 +163,9 @@ public sealed class AppSettings
 
     public bool FileSortDescending { get; set; }
 
+    /// <summary>Colonnes de l'onglet Fichiers masquées par l'utilisateur (menu de l'en-tête) ; la colonne Nom reste toujours.</summary>
+    public List<RemoteSortColumn> HiddenFileColumns { get; set; } = [];
+
     /// <summary>Éditeur de texte pour « Modifier » dans l'onglet Fichiers (chemin d'un exécutable) ; vide = Bloc-notes.</summary>
     public string TextEditor { get; set; } = "";
 
@@ -406,6 +409,8 @@ public sealed class AppSettings
         settings.KeePassFolders.RemoveAll(f => f is null);
         settings.SharedLists ??= [];
         settings.KnownHosts ??= [];
+        settings.HiddenFileColumns ??= [];
+        settings.HiddenFileColumns.RemoveAll(c => c == RemoteSortColumn.Name || !Enum.IsDefined(c));
         settings.Language ??= "";
         settings.PvwaUrl ??= "";
         settings.UserName ??= "";
