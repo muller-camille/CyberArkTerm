@@ -40,6 +40,7 @@ public partial class MainWindow
         {
             Psmp = psmp.Host,
             Request = request,
+            X11 = request.X11Forwarding && X11Display.TryParse(_settings.X11Display, out var display) ? display : null,
         };
         ShowSshTab(session, $"{login}@{psmp.Host}", Strings.ConnectingViaPsmp, "IconSsh",
             Text.Format(Strings.SshOpened, label, psmp.Host), duplicate);
@@ -58,15 +59,20 @@ public partial class MainWindow
         var tab = new TabItem { Content = view, Tag = session };
         tab.Header = TabHeader(tab, label, icon, duplicate);
         view.SessionMenu = items => AddTerminalSessionItems(items, tab, duplicate);
+        // Texte du terminal gardé pendant l'enregistrement d'une intervention.
+        Intervention.Attach(session);
         session.StateChanged += () =>
         {
             switch (session.State)
             {
                 case RemoteSessionState.Connected:
-                    SetStatus(openedMessage);
+                    SessionStatus(label, openedMessage);
                     break;
                 case RemoteSessionState.Failed:
-                    SetStatus(Text.Format(Strings.SshSessionError, label, session.Error), isError: true);
+                    SessionStatus(label, Text.Format(Strings.SshSessionError, label, session.Error), isError: true);
+                    break;
+                case RemoteSessionState.Closed:
+                    InterventionRecord(Core.Interventions.InterventionKind.Connection, label, Strings.InterventionClosedByServer);
                     break;
             }
         };
@@ -433,7 +439,7 @@ public partial class MainWindow
         _remoteSessions.Remove(session);
         _ = DisposeAfterTransfersAsync(session);
         MainTabs.SelectedItem ??= HomeTab;
-        SetStatus(Text.Format(session is SshSession ? Strings.SshClosed : Strings.FilesClosed, session.Label));
+        SessionStatus(session.Label, Text.Format(session is SshSession ? Strings.SshClosed : Strings.FilesClosed, session.Label));
     }
 
     /// <summary>Annule les transferts de la session, laisse le fichier interrompu être supprimé, puis ferme ses connexions.</summary>

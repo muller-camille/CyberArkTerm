@@ -66,6 +66,11 @@ public sealed class SshSession : RemoteSession
 
     public TerminalEmulator Emulator { get; } = new(100, 30);
 
+    /// <summary>
+    /// Serveur X de ce poste vers lequel transférer X11 (applications graphiques du serveur), ou null : pas de transfert.
+    /// </summary>
+    public X11Display? X11 { get; init; }
+
     public string? TerminalDirectory { get; private set; }
 
     /// <summary>Le navigateur suit le dossier du terminal (case « Suivre le terminal » du panneau Fichiers).</summary>
@@ -118,7 +123,7 @@ public sealed class SshSession : RemoteSession
                 Emulator.Feed("\x1b[90m" + connector.Banner.TrimEnd().Replace("\r\n", "\n").Replace("\n", "\r\n") + "\x1b[0m\r\n");
             }
 
-            var shell = _shell = client.CreateShellStream("xterm-256color", (uint)Emulator.Columns, (uint)Emulator.Rows, 0, 0, 65536);
+            var shell = _shell = await CreateShellAsync(client);
             shell.DataReceived += (_, _) => Pump(shell);
             // Ce qui est arrivé avant l'abonnement attend dans le flux.
             _ = Task.Run(() => Pump(shell));
@@ -164,6 +169,36 @@ public sealed class SshSession : RemoteSession
             SetState(RemoteSessionState.Failed, ex is HostKeyRefusedException ? ex.Message : ex is OperationCanceledException ? Strings.ConnectionCancelled : ErrorText.Describe(ex));
             throw;
         }
+    }
+
+    /// <summary>
+    /// Shell interactif, avec le transfert X11 si <see cref="X11"/> est renseigné. Le PSMP ou le serveur peuvent le
+    /// refuser : le shell s'ouvre quand même, et une ligne grise dit ce qu'il en est (actif, refusé, pas de serveur X).
+    /// </summary>
+    private async Task<ShellStream> CreateShellAsync(SshClient client)
+    {
+        if (X11 is not { } display)
+        {
+            return client.CreateShellStream("xterm-256color", (uint)Emulator.Columns, (uint)Emulator.Rows, 0, 0, 65536);
+        }
+
+        // Avant le shell : sa première sortie ne doit pas passer avant la ligne grise.
+        bool listening = await display.IsListeningAsync(TimeSpan.FromSeconds(1), Lifetime);
+        var x11 = new X11Forwarding(display.EndPoint, (uint)display.Screen);
+        string label = Label;
+        x11.RequestReceived += (_, e) =>
+        {
+            DebugLog.Write("x11", $"{label} : fenêtre X11 ouverte par le serveur ({e.OriginatorHost})");
+            InterventionRecorder.Current.Record(Core.Interventions.InterventionKind.Action, label, Strings.InterventionX11Window);
+        };
+        x11.Exception += (_, e) => DebugLog.Write("x11", $"{label} : connexion X11", e.Exception);
+        var shell = client.CreateShellStream("xterm-256color", (uint)Emulator.Columns, (uint)Emulator.Rows, 0, 0, 65536, null, x11);
+        DebugLog.Write("x11", $"{Label} : transfert X11 vers {display} {(shell.IsX11ForwardingAccepted ? "accepté" : "refusé")}, serveur X {(listening ? "présent" : "absent")}");
+        string message = !shell.IsX11ForwardingAccepted ? Strings.X11Refused
+            : listening ? Text.Format(Strings.X11Active, display)
+            : Text.Format(Strings.X11NoServer, display, display.EndPoint.Port);
+        Emulator.Feed("\x1b[90m" + message + "\x1b[0m\r\n");
+        return shell;
     }
 
     /// <summary>

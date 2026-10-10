@@ -87,7 +87,25 @@
                             <TextBox Grid.Column="1" x:Name="CentralFileBox" VerticalContentAlignment="Center" />
                             <Button Grid.Column="2" Content="{x:Static loc:Strings.Browse}" Click="OnBrowseCentralFile" Margin="8,0,0,0" />
                         </Grid>
-                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,4" Text="{x:Static loc:Strings.CentralFileHelp}" />
+                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,16" Text="{x:Static loc:Strings.CentralFileHelp}" />
+
+                        <!-- Astreinte : consignes de l'équipe (texte ou fichier), diffusées par le fichier d'environnement. -->
+                        <TextBlock Text="{x:Static loc:Strings.DutySection}" Style="{StaticResource SectionTitle}" />
+                        <Label Content="{x:Static loc:Strings.DutyTextLabel}" Target="{Binding ElementName=DutyTextBox}" Padding="0,0,0,4" />
+                        <TextBox x:Name="DutyTextBox" AcceptsReturn="True" AcceptsTab="False" TextWrapping="Wrap" MinHeight="96" MaxHeight="220"
+                                 VerticalScrollBarVisibility="Auto" MaxLength="8000" />
+                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,4,0,8" Text="{x:Static loc:Strings.DutyTextHelp}" />
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" MinWidth="140" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Label Content="{x:Static loc:Strings.DutyFileLabel}" Target="{Binding ElementName=DutyFileBox}" />
+                            <TextBox Grid.Column="1" x:Name="DutyFileBox" VerticalContentAlignment="Center" MaxLength="1024" />
+                            <Button Grid.Column="2" Content="{x:Static loc:Strings.Browse}" Click="OnBrowseDutyFile" Margin="8,0,0,0" />
+                        </Grid>
+                        <TextBlock Style="{StaticResource OptionHelp}" Margin="0,0,0,4" Text="{x:Static loc:Strings.DutyFileHelp}" />
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
@@ -221,6 +239,17 @@
                             <AccessText TextWrapping="Wrap" Text="{x:Static loc:Strings.FollowSetting}" />
                         </CheckBox>
                         <TextBlock Style="{StaticResource OptionEffect}" Text="{x:Static loc:Strings.SettingsFollowEffect}" />
+
+                        <TextBlock Text="{x:Static loc:Strings.X11Section}" Style="{StaticResource SectionTitle}" />
+                        <Grid Margin="0,0,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" MinWidth="140" />
+                                <ColumnDefinition Width="120" />
+                            </Grid.ColumnDefinitions>
+                            <Label Content="{x:Static loc:Strings.X11DisplayLabel}" Target="{Binding ElementName=X11DisplayBox}" />
+                            <TextBox Grid.Column="1" x:Name="X11DisplayBox" VerticalContentAlignment="Center" />
+                        </Grid>
+                        <TextBlock Style="{StaticResource OptionHelp}" Text="{x:Static loc:Strings.X11DisplayHelp}" />
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

@@ -20,8 +20,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
 COPY . /src
 WORKDIR /src
 
-# SSH.NET is the 2026.0.0 release plus one patch (it keeps the SFTP "longname" line, which carries the owner and group
-# names), built from a fork at a pinned, verified commit into local-packages/ (see tools/sshnet-patched.sh and
+# SSH.NET is the 2026.0.0 release plus two patches (it keeps the SFTP "longname" line, which carries the owner and group
+# names; X11 forwarding for shells), built from a fork at a pinned, verified commit into local-packages/ (see tools/sshnet-patched.sh and
 # nuget.config). Then restore every package while the network is available and build the whole solution (Debug:
 # symbols, no optimisation). Warnings are errors in this repository, as in its CI.
 RUN bash tools/sshnet-patched.sh \

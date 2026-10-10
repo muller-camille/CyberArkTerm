@@ -169,9 +169,9 @@ All the details: [user guide → Security](docs/guide.md#security). To report a 
 
 External dependencies: [SSH.NET](https://github.com/sshnet/SSH.NET), [FluentFTP](https://github.com/robinrodricks/FluentFTP)
 and [Konscious.Security.Cryptography](https://github.com/kmaragon/Konscious.Security.Cryptography) (Argon2), all
-under the MIT license. SSH.NET is version 2026.0.0 plus one patch that keeps the owner and group names of SFTP
-listings, built from [a fork](https://github.com/muller-camille/SSH.NET) at a pinned commit by
-`tools/sshnet-patched.sh`, until an SSH.NET release includes it.
+under the MIT license. SSH.NET is version 2026.0.0 plus two patches, one that keeps the owner and group names of SFTP
+listings and one that adds X11 forwarding for shells, built from [a fork](https://github.com/muller-camille/SSH.NET)
+at a pinned commit by `tools/sshnet-patched.sh`, until an SSH.NET release includes them.
 
 ### Translations
 

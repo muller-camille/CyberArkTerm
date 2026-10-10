@@ -1434,6 +1434,47 @@ public sealed class DialogTests
     }
 
     /// <summary>
+    /// Transfert X11 : proposé pour une session SSH seulement (grisé pour le PSM et les fichiers seuls, avec la raison),
+    /// repris de la requête et rendu dans le résultat ; de même dans les propriétés d'un serveur de « Mes serveurs ».
+    /// </summary>
+    [Fact]
+    public void X11ForwardingIsForSshSessionsOnly()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var account = new PvwaAccount { Id = "5_4", UserName = "root", Address = "srv01.corp.local", PlatformId = "UnixSSH" };
+            var settings = new AppSettings { PsmpAddress = "psmp.corp.local" };
+            var dialog = new ConnectDialog(account, new ConnectRequest(ConnectMode.Ssh, "PSM-RDP", X11Forwarding: true), settings, "jdoe", null);
+            Assert.True(dialog.X11Box.IsEnabled);
+            Assert.True(dialog.X11Box.IsChecked);
+            Assert.Equal(Strings.X11ForwardingTip, dialog.X11Box.ToolTip);
+            Assert.True(dialog.Accept());
+            Assert.True(dialog.Result?.X11Forwarding);
+
+            dialog.SftpRadio.IsChecked = true;
+            Assert.False(dialog.X11Box.IsEnabled);
+            Assert.Equal(Strings.X11SshOnly, dialog.X11Box.ToolTip);
+            Assert.True(dialog.Accept());
+            Assert.False(dialog.Result?.X11Forwarding);
+            dialog.Close();
+
+            var saved = new SavedSession { AccountId = "5_4", Name = "root@srv01.corp.local", Mode = ConnectMode.Ssh, UserName = "root", Address = "srv01.corp.local" };
+            var properties = new SessionPropertiesDialog(saved, account, [], sshAvailable: true, [], x11: true);
+            Assert.True(properties.X11Box.IsEnabled);
+            Assert.True(properties.X11Box.IsChecked);
+            properties.PsmRadio.IsChecked = true;
+            Assert.False(properties.X11Box.IsEnabled);
+            Assert.Equal(Strings.X11SshOnly, properties.X11Box.ToolTip);
+            properties.Close();
+        });
+    }
+
+    /// <summary>
     /// Entrée KeePass : une nouvelle entrée sans adresse est refusée, une entrée qui avait une adresse la garde ; une entrée
     /// existante sans adresse (mot de passe seul) se modifie, avec un titre.
     /// </summary>
@@ -2419,6 +2460,121 @@ public sealed class DialogTests
                 merged.Remove(dark);
             }
         });
+    }
+
+    /// <summary>
+    /// Intervention : les consignes d'astreinte s'affichent telles quelles (texte brut, sans mise en forme) ; enregistrer, ajouter une
+    /// note, arrêter ; l'intervention en cours ne se supprime pas ; le journal se relit avec la note et sa fin.
+    /// </summary>
+    [Fact]
+    public void InterventionWindowRecordsANoteAndListsTheIntervention()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var dir = Path.Combine(Path.GetTempPath(), "zillaterm-intervention-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            RunWithTheme(() =>
+            {
+                var click = new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent);
+                var recorder = new ZillaTerm.App.Services.InterventionRecorder(dir, new XorProtector());
+                const string team = "Astreinte : 01 23 45 67 89\n<b>pas de HTML</b>";
+                var window = new InterventionWindow(team, "", recorder, "jdoe", "session CyberArk (pvwa.corp.local)");
+                Assert.Equal(team, window.TeamText.Text);
+                Assert.Equal(Visibility.Collapsed, window.NoTeamText.Visibility);
+                Assert.False(window.NoteBox.IsEnabled);
+                Assert.False(window.CaptureButton.IsEnabled);
+
+                window.RecordButton.RaiseEvent(click);
+                Assert.True(recorder.IsRecording);
+                Assert.True(window.NoteBox.IsEnabled);
+                Assert.Equal(Strings.InterventionStopRecording, window.RecordLabel.Text);
+                window.NoteBox.Text = "INC0012345 : redémarrage de httpd";
+                window.NoteButton.RaiseEvent(click);
+                Assert.Equal("", window.NoteBox.Text);
+
+                window.JournalList.SelectedIndex = 0;
+                Assert.True(window.ExportButton.IsEnabled);
+                Assert.False(window.DeleteButton.IsEnabled);
+
+                window.RecordButton.RaiseEvent(click);
+                Assert.False(recorder.IsRecording);
+                // L'intervention arrêtée reste sélectionnée, prête à exporter.
+                Assert.Equal(0, window.JournalList.SelectedIndex);
+                Assert.Equal(Strings.InterventionStoppedHint, window.MessageText.Text);
+                Assert.True(window.ExportButton.IsEnabled);
+                Assert.True(window.DeleteButton.IsEnabled);
+                var file = Assert.IsType<ZillaTerm.Core.Interventions.InterventionFile>(((System.Windows.Controls.ListBoxItem)window.JournalList.Items[0]).Tag);
+                var recording = ZillaTerm.Core.Interventions.InterventionJournal.Read(file.Path, recorder.Protector);
+                Assert.Equal(ZillaTerm.Core.Interventions.InterventionKind.Started, recording.Entries[0].Kind);
+                Assert.Contains(recording.Entries, e => e.Kind == ZillaTerm.Core.Interventions.InterventionKind.Note && e.Text == "INC0012345 : redémarrage de httpd");
+                Assert.Equal(ZillaTerm.Core.Interventions.InterventionKind.Stopped, recording.Entries[^1].Kind);
+                Assert.False(recording.Unfinished);
+
+                Assert.True(window.ShowReminderAsync("", "").IsCompleted);
+                Assert.Equal(Visibility.Visible, window.NoTeamText.Visibility);
+                window.Close();
+            });
+        }
+        finally
+        {
+            if (Directory.Exists(dir))
+            {
+                Directory.Delete(dir, recursive: true);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Consignes d'astreinte tirées d'un fichier (tenu à jour par les responsables) : son texte remplace celui des
+    /// réglages, inverseurs de sens de lecture retirés ; fichier absent : le texte des réglages reste, avec la raison.
+    /// </summary>
+    [Fact]
+    public void InterventionWindowShowsTheDutyReminderFile()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var dir = Path.Combine(Path.GetTempPath(), "zillaterm-reminder-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            var file = Path.Combine(dir, "consignes.txt");
+            File.WriteAllText(file, "Responsable : 01 23 45 67 89\r\nSupervision : \u202E98 76 54 32 10\r\n", new System.Text.UTF8Encoding(true));
+            RunWithTheme(() =>
+            {
+                UseDispatcherContext();
+                var recorder = new ZillaTerm.App.Services.InterventionRecorder(Path.Combine(dir, "journaux"), new XorProtector());
+                var window = new InterventionWindow("Texte des réglages", file, recorder, "jdoe", "session CyberArk (pvwa.corp.local)");
+                PumpUntil(() => window.TeamText.Text != "Texte des réglages");
+                Assert.Equal("Responsable : 01 23 45 67 89\nSupervision : 98 76 54 32 10", window.TeamText.Text);
+                Assert.Equal(Text.Format(Strings.DutyFileSource, file), window.ReminderSource.Text);
+
+                Pump(window.ShowReminderAsync("Texte des réglages", Path.Combine(dir, "absent.txt")));
+                Assert.Equal("Texte des réglages", window.TeamText.Text);
+                Assert.Equal(Text.Format(Strings.DutyFileUnreadable, Strings.DutyFileMissing), window.ReminderSource.Text);
+
+                Assert.True(window.ShowReminderAsync("Texte des réglages", "").IsCompleted);
+                Assert.Equal(Visibility.Collapsed, window.ReminderSource.Visibility);
+                window.Close();
+            });
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    private sealed class XorProtector : ZillaTerm.Core.KeePass.ISecretProtector
+    {
+        public byte[] Protect(byte[] data) => data.Select(b => (byte)(b ^ 0x5A)).ToArray();
+
+        public byte[] Unprotect(byte[] data) => Protect(data);
     }
 
     /// <summary>

@@ -4872,4 +4872,367 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   <data name="CloseAllLeaveEmergencyHeading" xml:space="preserve">
     <value>Quitter l'accès d'urgence et fermer les sessions ouvertes ?</value>
   </data>
+  <data name="X11Forwarding" xml:space="preserve">
+    <value>Transfert _X11 (applications graphiques)</value>
+  </data>
+  <data name="X11ForwardingTip" xml:space="preserve">
+    <value>Les applications graphiques lancées sur le serveur (xclock, installeurs…) s'affichent sur le serveur X de ce poste (VcXsrv, X410, Xming…). À réserver aux serveurs de confiance : un serveur compromis pourrait voir les autres fenêtres X de ce poste et y envoyer des frappes.</value>
+  </data>
+  <data name="X11SshOnly" xml:space="preserve">
+    <value>Pour les sessions SSH seulement.</value>
+  </data>
+  <data name="X11Section" xml:space="preserve">
+    <value>Applications graphiques (X11)</value>
+  </data>
+  <data name="X11DisplayLabel" xml:space="preserve">
+    <value>Serveur X _local :</value>
+  </data>
+  <data name="X11DisplayHelp" xml:space="preserve">
+    <value>Un serveur X installé sur ce poste (VcXsrv, X410, Xming…) qui accepte les connexions TCP locales : « :0 » est le port 6000. Le transfert X11 se coche serveur par serveur (Propriétés ou Options avancées).</value>
+  </data>
+  <data name="X11DisplayInvalid" xml:space="preserve">
+    <value>Serveur X local : « :0 », « localhost:0 » ou « 127.0.0.1:0.0 » (ce poste seulement : le protocole X n'est pas chiffré).</value>
+  </data>
+  <data name="X11Active" xml:space="preserve">
+    <value>Transfert X11 actif vers le serveur X {0} de ce poste.</value>
+  </data>
+  <data name="X11NoServer" xml:space="preserve">
+    <value>Transfert X11 actif, mais aucun serveur X n'écoute sur {0} (port {1}) : lancez VcXsrv, X410 ou Xming en autorisant les connexions TCP locales.</value>
+  </data>
+  <data name="X11Refused" xml:space="preserve">
+    <value>Transfert X11 refusé par le serveur ou par le PSMP : les applications graphiques ne pourront pas s'afficher.</value>
+  </data>
+  <data name="ToolIntervention" xml:space="preserve">
+    <value>Intervention</value>
+  </data>
+  <data name="ToolInterventionTip" xml:space="preserve">
+    <value>Intervention : enregistre ce que vous faites (terminaux, connexions, transferts, captures) pour en garder la trace ; consignes d'astreinte</value>
+  </data>
+  <data name="InterventionRecordingIndicator" xml:space="preserve">
+    <value>● Intervention enregistrée</value>
+  </data>
+  <data name="InterventionTitle" xml:space="preserve">
+    <value>Intervention</value>
+  </data>
+  <data name="DutyTeamTextSection" xml:space="preserve">
+    <value>Consignes d'astreinte</value>
+  </data>
+  <data name="DutyNoText" xml:space="preserve">
+    <value>Aucune consigne d'astreinte pour l'instant. Elles se règlent dans Paramètres › Général › Astreinte (texte ou fichier), et se diffusent à l'équipe par le fichier d'environnement.</value>
+  </data>
+  <data name="InterventionRecordingSection" xml:space="preserve">
+    <value>Enregistrement</value>
+  </data>
+  <data name="InterventionStartRecording" xml:space="preserve">
+    <value>_Enregistrer l'intervention</value>
+  </data>
+  <data name="InterventionStopRecording" xml:space="preserve">
+    <value>_Arrêter l'enregistrement</value>
+  </data>
+  <data name="InterventionNotRecording" xml:space="preserve">
+    <value>Pas d'enregistrement en cours.</value>
+  </data>
+  <data name="InterventionRecordingSince" xml:space="preserve">
+    <value>Enregistrement depuis {0} ({1}), {2:# événement|# événements}.</value>
+  </data>
+  <data name="InterventionRecordingHelp" xml:space="preserve">
+    <value>Pour toute intervention, d'astreinte ou non. Tout est gardé jusqu'à l'arrêt : le texte des terminaux SSH, les connexions, les actions sur les comptes, les transferts de fichiers avec leur SHA-256, vos notes et les captures. Le journal est chiffré pour votre compte Windows seul. Les mots de passe tapés sans écho n'y sont pas, mais tout ce qu'affiche un terminal y est.</value>
+  </data>
+  <data name="InterventionNotePlaceholder" xml:space="preserve">
+    <value>Note pour le journal (numéro d'incident, décision…)</value>
+  </data>
+  <data name="InterventionNoteName" xml:space="preserve">
+    <value>Note pour le journal</value>
+  </data>
+  <data name="InterventionAddNote" xml:space="preserve">
+    <value>Ajouter la _note</value>
+  </data>
+  <data name="InterventionCaptureRdp" xml:space="preserve">
+    <value>_Capturer un Bureau à distance…</value>
+  </data>
+  <data name="InterventionCaptureTip" xml:space="preserve">
+    <value>Image d'une fenêtre Connexion Bureau à distance (sessions PSM), ajoutée au journal</value>
+  </data>
+  <data name="InterventionNoRdpWindow" xml:space="preserve">
+    <value>Aucune fenêtre Connexion Bureau à distance n'est ouverte (une fenêtre réduite ne peut pas être capturée).</value>
+  </data>
+  <data name="InterventionCaptureFailed" xml:space="preserve">
+    <value>La fenêtre n'a pas pu être capturée.</value>
+  </data>
+  <data name="InterventionCaptured" xml:space="preserve">
+    <value>Capture ajoutée au journal : {0}</value>
+  </data>
+  <data name="InterventionNoteAdded" xml:space="preserve">
+    <value>Note ajoutée au journal.</value>
+  </data>
+  <data name="InterventionPreviousSection" xml:space="preserve">
+    <value>Interventions enregistrées</value>
+  </data>
+  <data name="InterventionJournalItem" xml:space="preserve">
+    <value>{0}  ({1})</value>
+  </data>
+  <data name="InterventionInProgress" xml:space="preserve">
+    <value>{0}  (en cours)</value>
+  </data>
+  <data name="InterventionNoJournal" xml:space="preserve">
+    <value>Aucune intervention enregistrée.</value>
+  </data>
+  <data name="InterventionExportReport" xml:space="preserve">
+    <value>E_xporter le rapport…</value>
+  </data>
+  <data name="InterventionDelete" xml:space="preserve">
+    <value>_Supprimer…</value>
+  </data>
+  <data name="InterventionReportNotEncrypted" xml:space="preserve">
+    <value>Le rapport exporté n'est pas chiffré : rangez-le en lieu sûr.</value>
+  </data>
+  <data name="InterventionReportSaved" xml:space="preserve">
+    <value>Rapport enregistré : {0}</value>
+  </data>
+  <data name="InterventionReadFailed" xml:space="preserve">
+    <value>Le journal n'a pas pu être lu : {0}</value>
+  </data>
+  <data name="InterventionDeleteHeading" xml:space="preserve">
+    <value>Supprimer ce journal d'intervention ?</value>
+  </data>
+  <data name="InterventionDeleteDetail" xml:space="preserve">
+    <value>Intervention du {0}. Elle ne pourra pas être récupérée.</value>
+  </data>
+  <data name="InterventionDeleteAction" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="InterventionStartFailed" xml:space="preserve">
+    <value>L'enregistrement n'a pas pu commencer : {0}</value>
+  </data>
+  <data name="InterventionWriteFailed" xml:space="preserve">
+    <value>Le disque refuse le journal : la suite de l'intervention n'est pas gardée ({0}).</value>
+  </data>
+  <data name="InterventionTerminalCapped" xml:space="preserve">
+    <value>Limite du texte des terminaux atteinte : les terminaux ne sont plus gardés (les autres événements le sont).</value>
+  </data>
+  <data name="InterventionStartedEntry" xml:space="preserve">
+    <value>{0} sur {1}, ZillaTerm {2}, {3}</value>
+  </data>
+  <data name="InterventionModeCyberArk" xml:space="preserve">
+    <value>session CyberArk ({0})</value>
+  </data>
+  <data name="InterventionModeEmergency" xml:space="preserve">
+    <value>accès d'urgence (sans CyberArk)</value>
+  </data>
+  <data name="InterventionStoppedByUser" xml:space="preserve">
+    <value>Enregistrement arrêté</value>
+  </data>
+  <data name="InterventionStoppedAtExit" xml:space="preserve">
+    <value>ZillaTerm fermé</value>
+  </data>
+  <data name="InterventionConnected" xml:space="preserve">
+    <value>Connecté : {0}</value>
+  </data>
+  <data name="InterventionConnectionFailed" xml:space="preserve">
+    <value>Échec de la connexion : {0}</value>
+  </data>
+  <data name="InterventionClosedByServer" xml:space="preserve">
+    <value>Session fermée par le serveur</value>
+  </data>
+  <data name="InterventionTabClosed" xml:space="preserve">
+    <value>Session fermée</value>
+  </data>
+  <data name="InterventionPsmLaunched" xml:space="preserve">
+    <value>Session PSM ouverte dans Connexion Bureau à distance, composant {0}</value>
+  </data>
+  <data name="InterventionMachine" xml:space="preserve">
+    <value>Machine cible : {0}</value>
+  </data>
+  <data name="InterventionReason" xml:space="preserve">
+    <value>Motif : {0}</value>
+  </data>
+  <data name="InterventionTicket" xml:space="preserve">
+    <value>Ticket : {0} {1}</value>
+  </data>
+  <data name="InterventionSshExternal" xml:space="preserve">
+    <value>Session SSH ouverte dans Windows Terminal : {0}</value>
+  </data>
+  <data name="InterventionRdpExternal" xml:space="preserve">
+    <value>Session ouverte dans Connexion Bureau à distance : {0}</value>
+  </data>
+  <data name="InterventionPasswordCopied" xml:space="preserve">
+    <value>Mot de passe copié dans le presse-papiers</value>
+  </data>
+  <data name="InterventionCpmRequested" xml:space="preserve">
+    <value>CPM : {0} demandé</value>
+  </data>
+  <data name="InterventionAccountAdded" xml:space="preserve">
+    <value>Compte ajouté dans le safe {0}</value>
+  </data>
+  <data name="InterventionAccountEdited" xml:space="preserve">
+    <value>Compte modifié</value>
+  </data>
+  <data name="InterventionAccountDeleted" xml:space="preserve">
+    <value>Compte supprimé</value>
+  </data>
+  <data name="InterventionEmergencyEntered" xml:space="preserve">
+    <value>Accès d'urgence ouvert (sans CyberArk)</value>
+  </data>
+  <data name="InterventionLoggedOut" xml:space="preserve">
+    <value>Déconnexion</value>
+  </data>
+  <data name="InterventionUpload" xml:space="preserve">
+    <value>Envoi de {0} vers {1}</value>
+  </data>
+  <data name="InterventionDownload" xml:space="preserve">
+    <value>Téléchargement de {0} vers {1}</value>
+  </data>
+  <data name="InterventionTransferDone" xml:space="preserve">
+    <value>terminé</value>
+  </data>
+  <data name="InterventionTransferCancelled" xml:space="preserve">
+    <value>annulé</value>
+  </data>
+  <data name="InterventionTransferFailed" xml:space="preserve">
+    <value>échec : {0}</value>
+  </data>
+  <data name="InterventionX11Window" xml:space="preserve">
+    <value>Fenêtre X11 ouverte par le serveur</value>
+  </data>
+  <data name="InterventionCaptureOf" xml:space="preserve">
+    <value>Capture de {0}</value>
+  </data>
+  <data name="InterventionCaptureButton" xml:space="preserve">
+    <value>Capture</value>
+  </data>
+  <data name="InterventionCaptureButtonTip" xml:space="preserve">
+    <value>Ajoute une image de ce bureau au journal d'intervention</value>
+  </data>
+  <data name="InterventionReportTitle" xml:space="preserve">
+    <value>Rapport d'intervention</value>
+  </data>
+  <data name="InterventionReportPeriod" xml:space="preserve">
+    <value>Du {0} au {1} ({2})</value>
+  </data>
+  <data name="InterventionReportUnfinished" xml:space="preserve">
+    <value>Enregistrement interrompu : ZillaTerm s'est arrêté avant la fin de l'intervention.</value>
+  </data>
+  <data name="InterventionReportDamaged" xml:space="preserve">
+    <value>Une partie du journal est illisible ou a été modifiée.</value>
+  </data>
+  <data name="InterventionReportConfidential" xml:space="preserve">
+    <value>Confidentiel : ce rapport contient ce qu'ont affiché les terminaux. Il n'est pas chiffré.</value>
+  </data>
+  <data name="InterventionReportSummary" xml:space="preserve">
+    <value>Résumé</value>
+  </data>
+  <data name="InterventionReportTimeline" xml:space="preserve">
+    <value>Chronologie</value>
+  </data>
+  <data name="InterventionReportTime" xml:space="preserve">
+    <value>Heure</value>
+  </data>
+  <data name="InterventionReportSession" xml:space="preserve">
+    <value>Session</value>
+  </data>
+  <data name="InterventionReportEvent" xml:space="preserve">
+    <value>Événement</value>
+  </data>
+  <data name="InterventionKindStarted" xml:space="preserve">
+    <value>Début</value>
+  </data>
+  <data name="InterventionKindStopped" xml:space="preserve">
+    <value>Fin</value>
+  </data>
+  <data name="InterventionKindNote" xml:space="preserve">
+    <value>Note</value>
+  </data>
+  <data name="InterventionKindTerminal" xml:space="preserve">
+    <value>Terminal</value>
+  </data>
+  <data name="InterventionKindConnection" xml:space="preserve">
+    <value>Connexion</value>
+  </data>
+  <data name="InterventionKindAction" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="InterventionKindTransfer" xml:space="preserve">
+    <value>Transfert</value>
+  </data>
+  <data name="InterventionKindScreenshot" xml:space="preserve">
+    <value>Capture</value>
+  </data>
+  <data name="InterventionCountConnection" xml:space="preserve">
+    <value>{0:# événement de connexion|# événements de connexion}</value>
+  </data>
+  <data name="InterventionCountAction" xml:space="preserve">
+    <value>{0:# action|# actions}</value>
+  </data>
+  <data name="InterventionCountTransfer" xml:space="preserve">
+    <value>{0:# transfert|# transferts}</value>
+  </data>
+  <data name="InterventionCountScreenshot" xml:space="preserve">
+    <value>{0:# capture|# captures}</value>
+  </data>
+  <data name="InterventionCountNote" xml:space="preserve">
+    <value>{0:# note|# notes}</value>
+  </data>
+  <data name="InterventionCountTerminal" xml:space="preserve">
+    <value>{0:# ligne de terminal|# lignes de terminal}</value>
+  </data>
+  <data name="InterventionDuration" xml:space="preserve">
+    <value>{0} h {1:00}</value>
+  </data>
+  <data name="DutySection" xml:space="preserve">
+    <value>Astreinte</value>
+  </data>
+  <data name="DutyTextLabel" xml:space="preserve">
+    <value>Consignes d'_astreinte :</value>
+  </data>
+  <data name="DutyTextHelp" xml:space="preserve">
+    <value>Affichées en haut de la fenêtre « Intervention » : bonnes pratiques, numéros d'urgence… Texte brut. Diffusées à l'équipe par le fichier d'environnement (bouton Paramètres › Exporter l'environnement).</value>
+  </data>
+  <data name="InvalidDutyText" xml:space="preserve">
+    <value>Consignes d'astreinte : 8000 caractères au plus, sans caractère invisible.</value>
+  </data>
+  <data name="EnvDutyText" xml:space="preserve">
+    <value>Consignes d'astreinte</value>
+  </data>
+  <data name="EnvInvalidDutyText" xml:space="preserve">
+    <value>Consignes d'astreinte invalides (8000 caractères au plus, sans caractère invisible) : {0}</value>
+  </data>
+  <data name="InterventionStoppedHint" xml:space="preserve">
+    <value>Enregistrement arrêté. Exportez le rapport pour le relire ou le transmettre.</value>
+  </data>
+  <data name="DutyFileLabel" xml:space="preserve">
+    <value>_Fichier des consignes :</value>
+  </data>
+  <data name="DutyFileHelp" xml:space="preserve">
+    <value>Facultatif : fichier texte (sur un partage réseau, par exemple) relu à chaque ouverture de la fenêtre Intervention. Il remplace le texte ci-dessus : les responsables le mettent à jour sans rediffuser l'environnement. S'il est illisible, le texte ci-dessus est affiché.</value>
+  </data>
+  <data name="InvalidDutyFile" xml:space="preserve">
+    <value>Fichier des consignes : chemin complet d'un fichier (C:\… ou \\serveur\partage\…).</value>
+  </data>
+  <data name="EnvDutyFile" xml:space="preserve">
+    <value>Fichier des consignes d'astreinte</value>
+  </data>
+  <data name="EnvDutyFileNetwork" xml:space="preserve">
+    <value>Fichier des consignes d'astreinte sur le serveur réseau {0}</value>
+  </data>
+  <data name="DutyFileReading" xml:space="preserve">
+    <value>Lecture du fichier des consignes…</value>
+  </data>
+  <data name="DutyFileSource" xml:space="preserve">
+    <value>Lu dans {0}</value>
+  </data>
+  <data name="DutyFileUnreadable" xml:space="preserve">
+    <value>Le fichier des consignes est illisible ({0}) : le texte enregistré est affiché.</value>
+  </data>
+  <data name="DutyFileSlow" xml:space="preserve">
+    <value>le partage ne répond pas</value>
+  </data>
+  <data name="DutyFileTruncated" xml:space="preserve">
+    <value>Le fichier des consignes est trop long : seul son début est affiché.</value>
+  </data>
+  <data name="DutyFileMissing" xml:space="preserve">
+    <value>fichier introuvable</value>
+  </data>
+  <data name="DutyFileDenied" xml:space="preserve">
+    <value>accès refusé</value>
+  </data>
 </root>

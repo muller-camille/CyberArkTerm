@@ -26,7 +26,7 @@ public partial class MainWindow
     private async Task OpenRdpTabAsync(string label, Func<CancellationToken, Task<RdpConnectionRequest>> prepare, Func<Task>? duplicate = null)
     {
         var session = new RdpSession(label, prepare);
-        var view = new RdpSessionView(session) { Visibility = Visibility.Hidden };
+        var view = new RdpSessionView(session) { Visibility = Visibility.Hidden, InterventionRecording = Intervention.IsRecording };
         var tab = new TabItem { Tag = session };
         tab.Header = TabHeader(tab, label, "IconWindows", duplicate);
         session.StateChanged += () =>
@@ -34,10 +34,10 @@ public partial class MainWindow
             switch (session.State)
             {
                 case RdpSessionState.Connected:
-                    SetStatus(Text.Format(Strings.RdpOpened, label));
+                    SessionStatus(label, Text.Format(Strings.RdpOpened, label));
                     break;
                 case RdpSessionState.Failed when session.Error is not null:
-                    SetStatus(Text.Format(Strings.RdpSessionError, label, session.Error), isError: true);
+                    SessionStatus(label, Text.Format(Strings.RdpSessionError, label, session.Error), isError: true);
                     break;
             }
         };
@@ -64,7 +64,7 @@ public partial class MainWindow
         }
 
         await RemoveRdpTabAsync(session);
-        SetStatus(Text.Format(Strings.RdpClosed, session.Label));
+        SessionStatus(session.Label, Text.Format(Strings.RdpClosed, session.Label));
     }
 
     private async Task RemoveRdpTabAsync(RdpSession session)

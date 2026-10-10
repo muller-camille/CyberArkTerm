@@ -11,6 +11,7 @@
 - [5. Sfogliare e inviare file: scheda «File»](#5-sfogliare-e-inviare-file-scheda-file)
 - [6. Organizzare i server: scheda «I miei server»](#6-organizzare-i-server-scheda-i-miei-server)
 - [7. Accesso di emergenza fuori da CyberArk: database KeePass](#7-accesso-di-emergenza-fuori-da-cyberark-database-keepass)
+- [8. Intervento: registrazione e promemoria di reperibilità](#8-intervento-registrazione-e-promemoria-di-reperibilità)
 - [Scorciatoie](#scorciatoie)
 - [Impostazioni e file di configurazione](#impostazioni-e-file-di-configurazione)
 - [Sicurezza](#sicurezza)
@@ -205,6 +206,25 @@ la chiave MFA al PVWA e si connette al PSMP (le domande su chiave del server, pa
 frattempo). L'identificativo è quello PSMP standard `<tu>@<account di destinazione>[#dominio]@<server di
 destinazione>`. I nomi utente che contengono spazi (`Mario Rossi`, `Admin
 Locale`) sono accettati. Il pannello laterale passa alla scheda «File» del server (se è ridotto, resta ridotto).
+
+### Applicazioni grafiche (X11)
+
+Le applicazioni grafiche avviate in una sessione SSH (`xclock`, programmi di installazione Oracle, `xterm`…) possono
+aprirsi sul vostro computer, come con `ssh -X`:
+
+1. Installate un **server X** sul computer (VcXsrv, X410, Xming…) e avviatelo consentendo le **connessioni TCP
+   locali**: il display `:0` è in ascolto sulla porta 6000. Il server X si imposta in **Impostazioni › Terminale ›
+   Server X locale** (`:0` per impostazione predefinita; solo questo computer, perché il protocollo X non è cifrato).
+2. Selezionate **«Inoltro X11 (applicazioni grafiche)»** per il server: clic destro → «Proprietà…» in «I miei
+   server», oppure in «Opzioni avanzate…» per una sola connessione. Solo sessioni SSH; non selezionato per impostazione
+   predefinita.
+3. Aprite la sessione: una riga grigia indica se l'inoltro è attivo, se è stato rifiutato (dal server, il cui
+   `sshd_config` deve contenere `X11Forwarding yes`, o dal PSMP) o se nessun server X è in ascolto sul computer.
+
+ZillaTerm fornisce al server un **cookie fittizio**: ogni connessione X11 deve presentarlo, e viene rimosso prima che
+qualsiasi cosa raggiunga il server X del computer; una connessione senza questo cookie viene chiusa. ⚠ Solo per server
+attendibili: un server compromesso potrebbe vedere le altre finestre X del computer e inviarvi dei tasti. La scelta è
+personale: non viene né esportata né inserita in un elenco condiviso.
 
 ### PSMP per dominio
 
@@ -545,6 +565,7 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
 | Macchina di destinazione | Server su cui aprire la sessione per un account di dominio. |
 | Motivo predefinito | Motivo di accesso inviato automaticamente al PVWA. |
 | Cartella SFTP iniziale | Il terminale **e** il browser dei file si aprono direttamente in questa cartella. |
+| Inoltro X11 | Le applicazioni grafiche del server si aprono sul server X del computer (solo SSH, vedi [Applicazioni grafiche (X11)](#applicazioni-grafiche-x11)); scelta personale, mai esportata né condivisa. |
 
 <img src="captures/it/server-properties.png" alt="Proprietà di un server in «I miei server»" width="540">
 
@@ -736,6 +757,50 @@ memorizzata. Gestione nelle **Impostazioni**, pagina Sicurezza: «Crea…», «S
 ora…»; queste azioni si applicano subito, senza «Salva». Si blocca alla disconnessione da CyberArk (così «Accesso di emergenza»
 non riapre mai i database memorizzati senza password), alla chiusura e al blocco di Windows.
 
+## 8. Intervento: registrazione e promemoria di reperibilità
+
+Il pulsante **«Intervento»** della barra degli strumenti apre una finestra utile a qualsiasi intervento, in
+reperibilità o no:
+
+- **Il promemoria di reperibilità**: buone pratiche, numeri di emergenza, contatti… Proviene:
+  - dal testo di **Impostazioni › Generale › Promemoria di reperibilità**, diffuso a tutto il team con il
+    [file di ambiente](#ambiente-condiviso);
+  - oppure da un **file di testo** indicato in **Impostazioni › Generale › File del promemoria** (di solito su una
+    condivisione di rete; anch'esso diffondibile con il file di ambiente). Viene riletto a ogni apertura della
+    finestra: i responsabili lo aggiornano senza ridistribuire l'ambiente. Il suo percorso appare sotto il titolo; se
+    non è leggibile (assente, accesso negato, condivisione che non risponde entro 5 secondi), viene mostrato il testo
+    delle Impostazioni, con il motivo. UTF-8 o UTF-16 (il Blocco note va bene); vengono letti solo i primi 64 KB.
+
+  Viene mostrato come testo semplice (selezionabile per copiare un numero): nessun link né formattazione viene
+  interpretato, e i caratteri invisibili di un file (che potrebbero invertire l'ordine delle cifre di un numero)
+  vengono rimossi.
+- **«Registra l'intervento»**: da quel momento ZillaTerm conserva tutto ciò che accade, fino a «Interrompi la
+  registrazione» o alla chiusura di ZillaTerm. La registrazione continua dopo la disconnessione da CyberArk e in
+  accesso di emergenza. Un pallino rosso sul pulsante e «● Intervento registrato» nella barra di stato lo ricordano.
+  Vengono conservati:
+  - il **testo dei terminali SSH** (comandi digitati e il loro risultato, riga per riga, con l'ora; non la schermata
+    di vim, less o top, né il comando che ZillaTerm digita da sé per seguire la cartella);
+  - le **connessioni**: apertura, errore e chiusura delle sessioni SSH, file, desktop remoto e VNC, e le sessioni
+    PSM con componente, macchina di destinazione, motivo e ticket;
+  - le **azioni**: password copiata (mai la password), richieste al CPM, account aggiunti, modificati, eliminati o
+    importati, finestre X11, passaggio all'accesso di emergenza, disconnessione;
+  - i **trasferimenti di file**, con lo SHA-256 di ogni file;
+  - le vostre **note** (campo «Nota per il registro»: numero di incidente, decisione presa…);
+  - le **catture**: «Cattura un desktop remoto…» acquisisce l'immagine di una finestra Connessione Desktop remoto
+    (sessioni PSM; una finestra ridotta a icona non può essere catturata), e il pulsante «Cattura» delle schede
+    desktop remoto di ZillaTerm acquisisce il desktop visualizzato.
+- **«Interventi registrati»**: l'elenco delle registrazioni, dalla più recente. All'interruzione l'intervento resta
+  selezionato: **«Esporta il rapporto…»** (o doppio clic) ne fa una pagina HTML: riepilogo, cronologia, blocchi di
+  testo dei terminali e catture, da allegare al resoconto dell'intervento. **«Elimina…»** cancella una registrazione
+  terminata.
+
+Il registro è **cifrato solo per il vostro account Windows** (DPAPI) in `%LOCALAPPDATA%\ZillaTerm\Interventions`, blocco
+per blocco durante la registrazione (un arresto improvviso perde solo gli ultimi due secondi, e il rapporto lo
+segnala). Un blocco rimosso, spostato o modificato viene segnalato. ⚠ Le password digitate senza eco non ci sono, ma
+**tutto ciò che mostra un terminale sì** (il contenuto di un file di configurazione, per esempio); il rapporto
+esportato **non è cifrato**: conservatelo in un luogo sicuro. Il testo dei terminali è limitato a 64 milioni di
+caratteri per intervento (gli altri eventi continuano a essere conservati oltre).
+
 ## Scorciatoie
 
 | Dove | Azione | Scorciatoia |
@@ -803,6 +868,8 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 | Pagina | Impostazione | Ruolo | Predefinito |
 | --- | --- | --- | --- |
 | Generale | Tema | Come Windows, Chiaro o Scuro; applicato subito (il contrasto elevato di Windows ha la precedenza) | come Windows |
+| Generale | Promemoria di reperibilità | Buone pratiche e numeri di emergenza mostrati nella finestra «Intervento»; testo semplice, diffuso dal file di ambiente (vedi [Intervento](#8-intervento-registrazione-e-promemoria-di-reperibilità)) | vuoto |
+| Generale | File del promemoria | File di testo (di solito su una condivisione di rete) riletto a ogni apertura della finestra «Intervento», mostrato al posto del promemoria qui sopra; diffuso dal file di ambiente | vuoto |
 | Generale | Lingua dell'interfaccia | Français, English, Italiano o lingua del sistema; applicata dopo la disconnessione da CyberArk o al prossimo avvio | lingua di Windows (inglese se non è tradotta) |
 | Generale | File centrale | File di ambiente del team su una condivisione di rete, riletto a ogni avvio; le sue modifiche vengono mostrate prima di essere applicate (vedi [Ambiente condiviso](#ambiente-condiviso)) | vuoto |
 | Generale | Cercare una nuova versione all'avvio | Una richiesta a GitHub al massimo una volta al giorno; un link nella barra di stato se esiste una versione più recente (la finestra «Informazioni» ricorda questa impostazione) | no |
@@ -817,6 +884,7 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 | Terminale | Conferma prima di chiudere una sessione connessa | SSH, desktop remoto, VNC; «Non chiedere più» nella conferma deseleziona questa impostazione | sì |
 | Terminale | Il clic destro nel terminale incolla gli appunti | Maiusc+clic destro apre allora il menu; ⚠ un clic destro involontario invia gli appunti alla shell | no |
 | Terminale | Segui la cartella del terminale | Consente di attivare il monitoraggio della cartella nella shell; ⚠ un comando viene aggiunto a `PROMPT_COMMAND` | sì |
+| Terminale | Server X locale | Server X di questo computer per l'inoltro X11 (`:0` = porta 6000); solo questo computer | `:0` |
 | File | Invio dei file | Protocollo provato per primo (SFTP o SCP); se il server lo rifiuta, subentra l'altro | SFTP |
 | File | Proporre un archivio .tar.gz | Invio in un unico archivio proposto a partire da questo numero di file rilasciati insieme | sì, 200 |
 | File | Monitoraggio in una sessione indipendente | Seguire un file (tail -f) apre una propria connessione SFTP (una sessione PSMP in più) | no |
@@ -830,7 +898,7 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 
 Per dare ZillaTerm a un collega con la configurazione del team (indirizzo del PVWA, metodo di accesso, PSMP
 predefinito e per dominio, componente degli account Windows e componenti per piattaforma, elenchi condivisi, chiavi
-dei PSMP, alcune opzioni), senza niente di personale né alcuna password:
+dei PSMP, promemoria di reperibilità (testo o file), alcune opzioni), senza niente di personale né alcuna password:
 
 1. **Esportare**: pulsante «Impostazioni» → «Esporta l'ambiente…» salva `ZillaTerm.env.json`.
 2. **Accanto all'eseguibile**: metti questo file accanto a `ZillaTerm.exe` (ad esempio nello stesso zip).

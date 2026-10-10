@@ -24,10 +24,10 @@ public partial class MainWindow
             switch (session.State)
             {
                 case VncSessionState.Connected:
-                    SetStatus(Text.Format(Strings.VncOpened, label));
+                    SessionStatus(label, Text.Format(Strings.VncOpened, label));
                     break;
                 case VncSessionState.Failed or VncSessionState.Closed when session.Error is not null:
-                    SetStatus(Text.Format(Strings.VncSessionError, label, session.Error), isError: true);
+                    SessionStatus(label, Text.Format(Strings.VncSessionError, label, session.Error), isError: true);
                     break;
             }
         });
@@ -67,7 +67,7 @@ public partial class MainWindow
         }
 
         RemoveVncTab(tab);
-        SetStatus(Text.Format(Strings.VncClosed, session.Label));
+        SessionStatus(session.Label, Text.Format(Strings.VncClosed, session.Label));
     }
 
     private void RemoveVncTab(TabItem tab)

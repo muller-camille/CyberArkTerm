@@ -509,6 +509,19 @@
                             <TextBlock Text="{x:Static loc:Strings.ToolHistory}" Style="{StaticResource ToolLabel}" />
                         </StackPanel>
                     </Button>
+                    <Button x:Name="InterventionButton" Style="{StaticResource ToolButton}" Click="OnIntervention" ToolTip="{x:Static loc:Strings.ToolInterventionTip}"
+                            AutomationProperties.Name="{x:Static loc:Strings.ToolIntervention}">
+                        <StackPanel>
+                            <Grid>
+                                <Image Source="{DynamicResource IconIntervention}" Style="{StaticResource ToolIcon}" />
+                                <!-- Intervention en cours d'enregistrement. -->
+                                <Ellipse x:Name="InterventionBadge" Visibility="Collapsed" Width="11" Height="11" HorizontalAlignment="Right"
+                                         VerticalAlignment="Top" Margin="0,-3,-5,0" Fill="{DynamicResource StateFailedBrush}"
+                                         Stroke="{DynamicResource ToolbarBrush}" StrokeThickness="1.5" />
+                            </Grid>
+                            <TextBlock Text="{x:Static loc:Strings.ToolIntervention}" Style="{StaticResource ToolLabel}" />
+                        </StackPanel>
+                    </Button>
                     <Button Style="{StaticResource ToolButton}" Click="OnSettingsMenu" ToolTip="{x:Static loc:Strings.ToolSettingsTip}"
                             AutomationProperties.Name="{x:Static loc:Strings.ToolSettings}">
                         <StackPanel>
@@ -528,6 +541,9 @@
                 <TextBlock DockPanel.Dock="Right" x:Name="UpdateLink" Visibility="Collapsed" Margin="0,0,16,0">
                     <Hyperlink Click="OnUpdateLink" Foreground="{DynamicResource StatusWarningForeground}"><Run x:Name="UpdateLinkText" /></Hyperlink>
                 </TextBlock>
+                <TextBlock DockPanel.Dock="Right" x:Name="InterventionIndicator" Foreground="{DynamicResource StatusWarningForeground}" Margin="0,0,16,0"
+                           Visibility="Collapsed" Text="{x:Static loc:Strings.InterventionRecordingIndicator}" Cursor="Hand"
+                           MouseLeftButtonUp="OnInterventionIndicatorClick" ToolTip="{x:Static loc:Strings.ToolInterventionTip}" />
                 <TextBlock DockPanel.Dock="Right" x:Name="DebugLogText" Foreground="{DynamicResource StatusWarningForeground}" Margin="0,0,16,0" Visibility="Collapsed"
                            Text="{x:Static loc:Strings.DebugLogActive}" />
                 <TextBlock x:Name="CountText" Foreground="{DynamicResource StatusForeground}" Margin="0,0,16,0" />

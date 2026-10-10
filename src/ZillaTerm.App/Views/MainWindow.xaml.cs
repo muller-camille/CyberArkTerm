@@ -85,6 +85,7 @@ public partial class MainWindow : Window
         }
 
         UpdateDebugLogIndicator();
+        InitIntervention();
 
         _searchDebounce = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
         _searchDebounce.Tick += (_, _) =>
@@ -1053,6 +1054,7 @@ public partial class MainWindow : Window
             // Session PSM dans Connexion Bureau à distance (mstsc), en fenêtre(s) à part : le fichier du PVWA tel quel.
             _launcher.LaunchRdp(rdp, label);
             SetStatus(Text.Format(Strings.PsmStarted, label, request.Component));
+            InterventionRecord(Core.Interventions.InterventionKind.Connection, label, InterventionPsmText(request));
             AddRecent(account, label, request.Component, request.RemoteMachine);
         }
         else
@@ -1083,6 +1085,7 @@ public partial class MainWindow : Window
             {
                 _launcher.LaunchSsh(login, psmp.Host, psmp.Port, label);
                 SetStatus(Text.Format(Strings.SshStarted, label, psmp.Host));
+                InterventionRecord(Core.Interventions.InterventionKind.Connection, label, Text.Format(Strings.InterventionSshExternal, psmp.Host));
                 AddRecent(account, label, RecentModes.Ssh, request.RemoteMachine);
             }
         }
@@ -1678,6 +1681,7 @@ public partial class MainWindow : Window
     private void OnLogout(object sender, RoutedEventArgs e)
     {
         LogoutRequested = true;
+        InterventionRecord(Core.Interventions.InterventionKind.Action, "", Strings.InterventionLoggedOut);
         Close();
     }
 

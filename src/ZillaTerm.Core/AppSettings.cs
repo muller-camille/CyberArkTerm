@@ -150,6 +150,27 @@ public sealed class AppSettings
     /// <summary>Installe PROMPT_COMMAND à l'ouverture d'une session SSH pour que le navigateur suive le dossier du terminal.</summary>
     public bool FollowTerminalFolder { get; set; } = true;
 
+    /// <summary>
+    /// Consignes d'astreinte (bonnes pratiques, numéros d'urgence…) affichées dans la fenêtre « Intervention » ; en général
+    /// diffusé par le fichier d'environnement de l'équipe.
+    /// </summary>
+    public string DutyText { get; set; } = "";
+
+    /// <summary>
+    /// Fichier des consignes d'astreinte (partage réseau en général), relu à chaque ouverture de la fenêtre « Intervention » ;
+    /// remplace <see cref="DutyText"/>, montré si le fichier est illisible. Vide : pas de fichier.
+    /// </summary>
+    public string DutyTextFile { get; set; } = "";
+
+    /// <summary>Serveur X de ce poste pour le transfert X11 (voir <see cref="Ssh.X11Display"/>), « :0 » par défaut.</summary>
+    public string X11Display { get; set; } = Ssh.X11Display.Default;
+
+    /// <summary>
+    /// Serveurs de « Mes serveurs » (identifiants) dont les sessions SSH transfèrent X11 : un choix personnel, jamais
+    /// exporté ni partagé (le serveur pourra utiliser le serveur X de ce poste).
+    /// </summary>
+    public List<string> X11Servers { get; set; } = [];
+
     public bool ShowHiddenFiles { get; set; }
 
     /// <summary>Largeur du panneau de gauche (pixels indépendants) ; 0 = largeur par défaut.</summary>
@@ -460,6 +481,15 @@ public sealed class AppSettings
         settings.TailAlerts ??= "";
         settings.CompareTool ??= "";
         settings.TerminalTheme ??= "campbell";
+        if (!Ssh.X11Display.TryParse(settings.X11Display, out _))
+        {
+            settings.X11Display = Ssh.X11Display.Default;
+        }
+
+        settings.DutyText ??= "";
+        settings.DutyTextFile = DutyReminderFile.IsValidPath(settings.DutyTextFile) ? settings.DutyTextFile.Trim() : "";
+        settings.X11Servers ??= [];
+        settings.X11Servers.RemoveAll(string.IsNullOrWhiteSpace);
         settings.CompareToolArguments ??= DefaultCompareArguments;
         foreach (var session in settings.Sessions)
         {

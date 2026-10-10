@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# SSH.NET patché pour ZillaTerm : la version 2026.0.0 publiée, plus le commit qui garde la ligne « longname » des
-# listes SFTP version 3 (noms du propriétaire et du groupe), en attendant une version de SSH.NET qui l'intègre.
+# SSH.NET patché pour ZillaTerm : la version 2026.0.0 publiée, plus deux commits, en attendant une version de SSH.NET
+# qui les intègre : la ligne « longname » des listes SFTP version 3 (noms du propriétaire et du groupe) et le transfert
+# X11 des shells (comme ssh -X, cookie factice vérifié puis remplacé avant d'atteindre le serveur X local).
 #
 # Compile le paquet depuis le fork muller-camille/SSH.NET, au commit figé ci-dessous (vérifié après le clone), et le
 # dépose dans local-packages/, où nuget.config prend SSH.NET et lui seul. À lancer une fois avant de compiler
@@ -8,8 +9,8 @@
 set -euo pipefail
 
 repository=https://github.com/muller-camille/SSH.NET
-commit=dce42a9d5750587df25c883cd3c37990d46ea64e
-version=2026.0.1-zillaterm.1.gdce42a9d57
+commit=c3245ef61d4bf06c986d7e486d1b7de4686320d7
+version=2026.0.1-zillaterm.2.gc3245ef61d
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 package="$root/local-packages/SSH.NET.$version.nupkg"

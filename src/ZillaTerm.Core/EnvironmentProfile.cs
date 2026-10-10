@@ -22,6 +22,8 @@ public enum EnvironmentSetting
     SshInApp,
     CheckForUpdates,
     UploadProtocol,
+    DutyText,
+    DutyTextFile,
 }
 
 /// <summary>
@@ -47,6 +49,7 @@ public enum EnvironmentProblem
     InvalidComponent,
     InvalidHostKey,
     InvalidPath,
+    InvalidDutyText,
 }
 
 /// <summary>Fichier d'environnement refusé ; <see cref="Detail"/> nomme la valeur en cause.</summary>
@@ -123,6 +126,21 @@ public sealed class EnvironmentProfile
 
     public TransferProtocol? UploadProtocol { get; set; }
 
+    /// <summary>
+    /// Consignes d'astreinte (bonnes pratiques, numéros d'urgence…), affichées dans la fenêtre « Intervention » ; vide pour
+    /// l'effacer. Texte brut : aucun lien ni mise en forme n'est interprété.
+    /// </summary>
+    public string? DutyText { get; set; }
+
+    /// <summary>
+    /// Fichier des consignes d'astreinte (texte brut, souvent sur un partage), relu à chaque ouverture de la fenêtre
+    /// « Intervention » ; vide pour ne plus en avoir.
+    /// </summary>
+    public string? DutyTextFile { get; set; }
+
+    /// <summary>Longueur maximale des consignes d'astreinte.</summary>
+    public const int MaxDutyText = 8000;
+
     /// <summary>Environnement des réglages actuels, sans rien de personnel ; clés des PSMP configurés déjà acceptées.</summary>
     public static EnvironmentProfile FromSettings(AppSettings settings, string? name)
     {
@@ -152,6 +170,8 @@ public sealed class EnvironmentProfile
             SshInApp = settings.SshInApp,
             CheckForUpdates = settings.CheckForUpdates,
             UploadProtocol = settings.PreferredUploadProtocol,
+            DutyText = string.IsNullOrWhiteSpace(settings.DutyText) ? null : NormalizeDutyText(settings.DutyText),
+            DutyTextFile = NullIfEmpty(settings.DutyTextFile),
         };
     }
 
@@ -267,7 +287,29 @@ public sealed class EnvironmentProfile
                 Fail(EnvironmentProblem.InvalidPath, path ?? "");
             }
         }
+
+        if (DutyText is not null && !IsValidDutyText(DutyText))
+        {
+            Fail(EnvironmentProblem.InvalidDutyText, DutyText.Length > 40 ? DutyText[..40] + "…" : DutyText);
+        }
+
+        if (!string.IsNullOrWhiteSpace(DutyTextFile) && !DutyReminderFile.IsValidPath(DutyTextFile))
+        {
+            Fail(EnvironmentProblem.InvalidPath, DutyTextFile);
+        }
     }
+
+    /// <summary>
+    /// Consignes d'astreinte acceptables : <see cref="MaxDutyText"/> caractères au plus, sans caractère de contrôle (sauf
+    /// sauts de ligne et tabulations) ni caractère invisible qui changerait le sens de lecture.
+    /// </summary>
+    public static bool IsValidDutyText(string text) =>
+        text.Length <= MaxDutyText
+        && text.EnumerateRunes().All(r => r.Value is '\r' or '\n' or '\t'
+            || (!System.Text.Rune.IsControl(r) && System.Text.Rune.GetUnicodeCategory(r) != System.Globalization.UnicodeCategory.Format));
+
+    /// <summary>Consignes d'astreinte telles qu'elles sont gardées : sauts de ligne « \n », sans espaces ni lignes vides à la fin.</summary>
+    public static string NormalizeDutyText(string text) => text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n').TrimEnd();
 
     /// <summary>Changements par rapport aux réglages actuels (rien de ce qui est déjà identique).</summary>
     public IReadOnlyList<EnvironmentChange> Diff(AppSettings settings)
@@ -365,6 +407,19 @@ public sealed class EnvironmentProfile
                 protocol.ToString().ToUpperInvariant(), false);
         }
 
+        if (DutyText is not null)
+        {
+            Add(EnvironmentSetting.DutyText, null, NormalizeDutyText(settings.DutyText), NormalizeDutyText(DutyText), false);
+        }
+
+        if (DutyTextFile is not null)
+        {
+            // Fichier sur un partage réseau : à chaque ouverture de la fenêtre Intervention, Windows s'y authentifie.
+            // Signalé comme sensible, avec le serveur en clair (comme une liste partagée).
+            var server = NetworkServer(DutyTextFile);
+            Add(EnvironmentSetting.DutyTextFile, server, settings.DutyTextFile.Trim(), DutyTextFile.Trim(), server is not null);
+        }
+
         return changes;
 
         void AddFlag(EnvironmentSetting setting, bool current, bool? next)
@@ -443,6 +498,15 @@ public sealed class EnvironmentProfile
         settings.SshInApp = SshInApp ?? settings.SshInApp;
         settings.CheckForUpdates = CheckForUpdates ?? settings.CheckForUpdates;
         settings.PreferredUploadProtocol = UploadProtocol ?? settings.PreferredUploadProtocol;
+        if (DutyText is not null)
+        {
+            settings.DutyText = NormalizeDutyText(DutyText);
+        }
+
+        if (DutyTextFile is not null)
+        {
+            settings.DutyTextFile = DutyTextFile.Trim();
+        }
     }
 
     /// <summary>

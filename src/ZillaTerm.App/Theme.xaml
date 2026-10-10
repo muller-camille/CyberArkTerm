@@ -427,6 +427,26 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <!-- Intervention : gyrophare (socle, dôme rouge, reflet, rayons). -->
+    <DrawingImage x:Key="IconIntervention">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#5A6573" Geometry="M4.5,18 H19.5 A1,1 0 0 1 20.5,19 V21.5 H3.5 V19 A1,1 0 0 1 4.5,18 Z" />
+                <GeometryDrawing Brush="#D32F2F" Geometry="M6.5,18 V13 A5.5,5.5 0 0 1 17.5,13 V18 Z" />
+                <GeometryDrawing Geometry="M9.5,13.2 A2.6,2.6 0 0 1 12,10.6">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="White" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M12,2.5 V5 M4.2,5.8 L5.9,7.5 M19.8,5.8 L18.1,7.5 M1.8,12.5 H4 M22.2,12.5 H20">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#E8A33D" Thickness="1.7" StartLineCap="Round" EndLineCap="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
     <DrawingImage x:Key="IconSearch">
         <DrawingImage.Drawing>
             <GeometryDrawing Geometry="M3,10 A7,7 0 1 1 17,10 A7,7 0 1 1 3,10 Z M15,15 L21,21">

@@ -64,7 +64,7 @@ public partial class MainWindow
         }
 
         await ReloadAndSelectAsync(created.Id);
-        SetStatus(Text.Format(Strings.AccountCreated, AccountLabel(created), created.SafeName));
+        ActionStatus(AccountLabel(created), Text.Format(Strings.AccountCreated, AccountLabel(created), created.SafeName));
     }
 
     /// <summary>Plateforme la plus courante du safe (proposée quand on part du safe et non d'un compte).</summary>
@@ -115,7 +115,7 @@ public partial class MainWindow
         if (progress.Created > 0)
         {
             await LoadAccountsAsync();
-            SetStatus(Text.Format(Strings.AccountsImported, progress.Created));
+            ActionStatus("", Text.Format(Strings.AccountsImported, progress.Created));
         }
     }
 
@@ -151,7 +151,7 @@ public partial class MainWindow
         }
 
         await ReloadAndSelectAsync(account.Id);
-        SetStatus(Text.Format(Strings.AccountUpdated, AccountLabel(saved)));
+        ActionStatus(AccountLabel(saved), Text.Format(Strings.AccountUpdated, AccountLabel(saved)));
     }
 
     private async void OnDeleteAccount(object sender, RoutedEventArgs e)
@@ -197,7 +197,7 @@ public partial class MainWindow
 
         SetCurrent(null);
         await LoadAccountsAsync();
-        SetStatus(Text.Format(Strings.AccountDeleted, label, account.SafeName));
+        ActionStatus(label, Text.Format(Strings.AccountDeleted, label, account.SafeName));
     }
 
     // ===================== Opérations du CPM =====================
@@ -258,7 +258,7 @@ public partial class MainWindow
                 CpmAction.Reconcile => Strings.CpmActionReconcile,
                 _ => Strings.CpmActionVerify,
             };
-            SetStatus(Text.Format(Strings.CpmRequested, label, name));
+            ActionStatus(label, Text.Format(Strings.CpmRequested, label, name));
         }
         catch (OperationCanceledException) when (_lifetime.IsCancellationRequested)
         {
@@ -312,6 +312,7 @@ public partial class MainWindow
             (options, ct) => client.RetrievePasswordAsync(account.Id, options, ct), _passwordClipboard.Copy, account.SafeName) { Owner = this };
         if (dialog.ShowDialog() == true)
         {
+            InterventionRecord(Core.Interventions.InterventionKind.Action, label, Strings.InterventionPasswordCopied);
             StartPasswordCountdown(label);
         }
         else if (dialog.SessionExpired)

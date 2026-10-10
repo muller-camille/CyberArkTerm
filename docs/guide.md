@@ -11,6 +11,7 @@
 - [5. Browse and upload files: "Files" tab](#5-browse-and-upload-files-files-tab)
 - [6. Organize your servers: "My servers" tab](#6-organize-your-servers-my-servers-tab)
 - [7. Emergency access outside CyberArk: KeePass databases](#7-emergency-access-outside-cyberark-keepass-databases)
+- [8. Intervention: recording and on-call duty reminder](#8-intervention-recording-and-on-call-duty-reminder)
 - [Shortcuts](#shortcuts)
 - [Settings and configuration file](#settings-and-configuration-file)
 - [Security](#security)
@@ -196,6 +197,24 @@ The session opens **in a ZillaTerm tab**, at once: a progress bar shows while Zi
 and connects to the PSMP (server key, password or code questions show up meanwhile). It uses the standard PSMP login
 `<you>@<target account>[#domain]@<target server>`. User names containing spaces (`John Smith`, `Local Admin`) are accepted. The side panel switches to the
 server's "Files" tab (a collapsed panel stays collapsed).
+
+### Graphical applications (X11)
+
+Graphical applications started in an SSH session (`xclock`, Oracle installers, `xterm`…) can show on your computer,
+as with `ssh -X`:
+
+1. Install an **X server** on the computer (VcXsrv, X410, Xming…) and start it with **local TCP connections**
+   allowed: display `:0` listens on port 6000. The X server is set in **Settings › Terminal › Local X server** (`:0`
+   by default; this computer only, since the X protocol is not encrypted).
+2. Tick **"X11 forwarding (graphical applications)"** for the server: right-click → "Properties…" in "My servers", or
+   in "Advanced options…" for a single connection. SSH sessions only; unticked by default.
+3. Open the session: a grey line tells whether forwarding is active, refused (by the server, whose `sshd_config` needs
+   `X11Forwarding yes`, or by the PSMP) or whether no X server is listening on the computer.
+
+ZillaTerm gives the server a **fake cookie**: every X11 connection must present it, and it is removed before anything
+reaches the computer's X server; a connection without this cookie is closed. ⚠ For trusted servers only: a compromised
+server could see the other X windows on the computer and send keystrokes to them. The choice is personal: it is
+neither exported nor put in a shared list.
 
 ### PSMP by domain
 
@@ -512,6 +531,7 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
 | Target machine | Server to open the session on, for a domain account. |
 | Default reason | Access reason sent automatically to the PVWA. |
 | SFTP start folder | The terminal **and** the file browser open directly in this folder. |
+| X11 forwarding | The server's graphical applications show on the computer's X server (SSH only, see [Graphical applications (X11)](#graphical-applications-x11)); a personal choice, never exported or shared. |
 
 <img src="captures/en/server-properties.png" alt="Properties of a server in “My servers”" width="540">
 
@@ -689,6 +709,45 @@ says its master password was not remembered. Manage it in the **Settings**, Secu
 "Change password…", "Delete now…"; these actions apply at once, without "Save". It locks on sign-out (so that
 "Emergency access" never reopens the remembered databases without a password), on exit and when Windows is locked.
 
+## 8. Intervention: recording and on-call duty reminder
+
+The **"Intervention"** button in the toolbar opens a window for any intervention, on call or not:
+
+- **The on-call duty reminder**: good practices, emergency numbers, contacts… It comes:
+  - from the text of **Settings › General › Duty reminder**, shared with the whole team by the
+    [environment file](#shared-environment);
+  - or from a **text file** set in **Settings › General › Reminder file** (usually on a network share; it can also be
+    shared by the environment file). It is read again each time the window opens: the managers update it without
+    sending a new environment. Its path shows under the title; if it cannot be read (missing, access denied, share not
+    answering within 5 seconds), the text from the Settings is shown, with the reason. UTF-8 or UTF-16 (Notepad is
+    fine); only the first 64 KB are read.
+
+  It shows as plain text (selectable to copy a number): no link or formatting is interpreted, and the invisible
+  characters of a file (which could reverse the order of the digits of a number) are removed.
+- **"Record the intervention"**: from then on, ZillaTerm keeps everything that happens, until "Stop recording" or
+  until ZillaTerm closes. Recording goes on after signing out of CyberArk and in emergency access. A red dot on the
+  button and "● Intervention recorded" in the status bar remind you of it. What is kept:
+  - the **text of the SSH terminals** (commands typed and their output, line by line, with the time; not the screen
+    of vim, less or top, nor the command ZillaTerm types itself to follow the folder);
+  - **connections**: SSH, files, remote desktop and VNC sessions opened, failed and closed, and PSM sessions with
+    the component, target machine, reason and ticket;
+  - **actions**: password copied (never the password), CPM requests, accounts added, changed, deleted or imported,
+    X11 windows, switch to emergency access, sign-out;
+  - **file transfers**, with the SHA-256 of each file;
+  - your **notes** ("Note for the journal" field: incident number, decision taken…);
+  - **captures**: "Capture a remote desktop…" takes an image of a Remote Desktop Connection window (PSM sessions; a
+    minimized window cannot be captured), and the "Capture" button of ZillaTerm's remote desktop tabs takes the
+    desktop shown.
+- **"Recorded interventions"**: the list of recordings, newest first. When you stop, the intervention stays
+  selected: **"Export the report…"** (or double-click) turns it into an HTML page: summary, timeline, blocks of
+  terminal text and captures, to attach to the intervention report. **"Delete…"** erases a finished recording.
+
+The journal is **encrypted for your Windows account only** (DPAPI) in `%LOCALAPPDATA%\ZillaTerm\Interventions`, block
+by block as recording goes (a crash only loses the last two seconds, and the report says so). A block removed, moved
+or changed is reported. ⚠ Passwords typed without echo are not in it, but **whatever a terminal shows is** (the
+contents of a configuration file, for example); the exported report is **not encrypted**: keep it in a safe place.
+Terminal text is capped at 64 million characters per intervention (the other events are still kept beyond that).
+
 ## Shortcuts
 
 | Where | Action | Shortcut |
@@ -753,6 +812,8 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 | Page | Setting | Purpose | Default |
 | --- | --- | --- | --- |
 | General | Theme | Same as Windows, Light or Dark; applied right away (Windows high contrast takes precedence) | same as Windows |
+| General | Duty reminder | Good practices and emergency numbers shown in the "Intervention" window; plain text, shared by the environment file (see [Intervention](#8-intervention-recording-and-on-call-duty-reminder)) | empty |
+| General | Reminder file | Text file (usually on a network share) read again each time the "Intervention" window opens, shown instead of the reminder above; shared by the environment file | empty |
 | General | Interface language | Français, English, Italiano or system language; applied after signing out of CyberArk or at the next start | Windows language (English if it is not translated) |
 | General | Central file | Team environment file on a network share, read at each start; its changes are shown before being applied (see [Shared environment](#shared-environment)) | empty |
 | General | Look for a new version at startup | One request to GitHub at most once a day; a link in the status bar when a newer version exists (the "About" window recalls this setting) | no |
@@ -767,6 +828,7 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 | Terminal | Confirm before closing a connected session | SSH, remote desktop, VNC; "Don't ask again" in the confirmation unticks this setting | yes |
 | Terminal | Right-click in the terminal pastes the clipboard | Shift+right-click then opens the menu; ⚠ a stray right-click sends the clipboard to the shell | no |
 | Terminal | Follow the terminal folder | Allows setting up folder tracking in the shell; ⚠ a command is added to `PROMPT_COMMAND` | yes |
+| Terminal | Local X server | This computer's X server for X11 forwarding (`:0` = port 6000); this computer only | `:0` |
 | Files | File upload | Protocol tried first (SFTP or SCP); if the server refuses it, the other one takes over | SFTP |
 | Files | Offer a single .tar.gz archive | Sending a single archive is offered from this number of files dropped at once | yes, 200 |
 | Files | Follow in an independent session | Following a file (tail -f) opens its own SFTP connection (one more PSMP session) | no |
@@ -779,7 +841,7 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 ### Shared environment
 
 To give ZillaTerm to a colleague with the team's configuration (PVWA address, sign-in method, default and
-by-domain PSMPs, Windows accounts component and per-platform components, shared lists, PSMP keys, a few options),
+by-domain PSMPs, Windows accounts component and per-platform components, shared lists, PSMP keys, on-call duty reminder (text or file), a few options),
 with nothing personal and no password:
 
 1. **Export**: "Settings" button → "Export the environment…" saves `ZillaTerm.env.json`.

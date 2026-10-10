@@ -52,12 +52,18 @@ download only, not who published it).
 - Transfers are integrity-checked (SHA-256) and a mismatch is never reported as success.
 - The local vault (`KeePass/LocalSecretStore.cs`: AES-256-GCM, Argon2id, then DPAPI on Windows) and `.kdbx` handling are
   cryptographically sound: correct KDFs, authenticated formats checked before use, no downgrade.
+- The intervention journal (`Interventions/InterventionJournal.cs`: terminal text, connections, transfers, captures)
+  is only readable by the user's Windows account (DPAPI, block by block); a block removed, moved or changed is
+  reported, and the exported HTML report cannot run script (CSP, every text encoded, images checked as PNG).
+- The on-call duty reminder (settings text or `DutyReminderFile.cs`, a text file often on a network share) is shown as
+  plain text only; invisible characters that could change what a phone number looks like are removed, and the path
+  can never name a device or a named pipe.
 
 ## Components that matter most
 
 - `src/ZillaTerm.Core/Terminal/` (emulator, folder-tracking injection), `src/ZillaTerm.Core/Ssh/` (paths, transfers,
   remote commands), `src/ZillaTerm.Core/KeePass/`, `src/ZillaTerm.Core/Migration/`, `PvwaClient.cs`,
-  `EnvironmentProfile.cs`, `Sessions/`, `Vnc/`, `Ftp/`.
+  `EnvironmentProfile.cs`, `DutyReminderFile.cs`, `Sessions/`, `Vnc/`, `Ftp/`, `Interventions/`.
 - `src/ZillaTerm.App/`: where external processes are started (`Services/SessionLauncher.cs` for Remote Desktop
   Connection and ssh, `Services/RemoteEditor.cs` for the text editor, `Views/CompareWindow.xaml.cs` for the compare
   tool), the clipboard, drag-and-drop to Explorer, and the session tabs. It compiles in this image but only runs on
@@ -66,8 +72,9 @@ download only, not who published it).
 ## Less important / out of scope
 
 - `tests/`, `docs/`, `tools/`.
-- Bugs inside third-party packages (SSH.NET, FluentFTP, Argon2) unless ZillaTerm uses them unsafely. The one patch
-  ZillaTerm carries on SSH.NET (keeping the SFTP "longname", built by `tools/sshnet-patched.sh`) is in scope.
+- Bugs inside third-party packages (SSH.NET, FluentFTP, Argon2) unless ZillaTerm uses them unsafely. The two patches
+  ZillaTerm carries on SSH.NET (keeping the SFTP "longname"; X11 forwarding with the fake cookie checked and replaced
+  before anything reaches the local X server; built by `tools/sshnet-patched.sh`) are in scope.
 - The CyberArk servers themselves (PVWA, PSM, PSMP) are trusted for authentication; a malicious PVWA is in scope
   only for what it can do to the workstation beyond what CyberArk already lets it do.
 - Attacks that need the local Windows session to be already compromised (malware running as the user can read the

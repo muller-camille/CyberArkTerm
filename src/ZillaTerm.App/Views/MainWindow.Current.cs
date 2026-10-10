@@ -495,9 +495,17 @@ public partial class MainWindow
         {
             case SavedSessionNode node:
                 var dialog = new SessionPropertiesDialog(node.Session, node.Account, _settings.SessionFolderList, HasPsmp,
-                    _settings.KnownComponents(node.Account?.PlatformId ?? node.Session.PlatformId)) { Owner = this };
+                    _settings.KnownComponents(node.Account?.PlatformId ?? node.Session.PlatformId),
+                    _settings.X11Servers.Contains(node.Session.Id)) { Owner = this };
                 if (dialog.ShowDialog() == true)
                 {
+                    // Transfert X11 : réglage personnel, hors du serveur (jamais exporté ni partagé).
+                    _settings.X11Servers.Remove(node.Session.Id);
+                    if (dialog.X11Forwarding)
+                    {
+                        _settings.X11Servers.Add(node.Session.Id);
+                    }
+
                     SessionLibrary.AddFolder(_settings, node.Session.Folder);
                     Expand(node.Session.Folder);
                     SaveAndRefreshSaved();

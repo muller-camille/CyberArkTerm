@@ -22,9 +22,36 @@ public partial class RdpSessionView : UserControl
 
     internal RdpSession Session { get; }
 
+    /// <summary>Intervention en cours d'enregistrement : le bouton « Capture » est proposé.</summary>
+    internal bool InterventionRecording
+    {
+        get => _interventionRecording;
+        set
+        {
+            _interventionRecording = value;
+            Update();
+        }
+    }
+
+    private bool _interventionRecording;
+
+    private void OnCapture(object sender, RoutedEventArgs e)
+    {
+        var png = Services.WindowCapture.CaptureChildPng(Session.Host.SlotHandle);
+        if (png is null)
+        {
+            StatusLine.Text = Strings.InterventionCaptureFailed;
+            return;
+        }
+
+        Services.InterventionRecorder.Current.Record(Core.Interventions.InterventionKind.Screenshot, Session.Label, Text.Format(Strings.InterventionCaptureOf, Session.Label), png);
+        StatusLine.Text = Text.Format(Strings.InterventionCaptured, Session.Label);
+    }
+
     private void Update()
     {
         var session = Session;
+        CaptureButton.Visibility = _interventionRecording && session.ShowsDesktop ? Visibility.Visible : Visibility.Collapsed;
         Overlay.Visibility = session.ShowsDesktop ? Visibility.Collapsed : Visibility.Visible;
         FullScreenButton.IsEnabled = session.IsConnected;
         DisconnectButton.IsEnabled = session.HasControl;

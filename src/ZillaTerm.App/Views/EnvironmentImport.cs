@@ -193,8 +193,18 @@ internal static class EnvironmentImport
             EnvironmentSetting.KeepPvwaSessionAlive => Strings.EnvKeepAlive,
             EnvironmentSetting.SshInApp => Strings.EnvSshInApp,
             EnvironmentSetting.CheckForUpdates => Strings.EnvCheckForUpdates,
+            EnvironmentSetting.DutyText => Strings.EnvDutyText,
+            EnvironmentSetting.DutyTextFile => change.Detail is { } dutyServer ? Text.Format(Strings.EnvDutyFileNetwork, dutyServer) : Strings.EnvDutyFile,
             _ => Strings.EnvUploadProtocol,
         };
+        if (change.Setting == EnvironmentSetting.DutyText)
+        {
+            // Texte de plusieurs lignes : son début, sur une ligne (le texte complet s'affiche ensuite dans la fenêtre Intervention).
+            return change.Current.Length == 0
+                ? Text.Format(Strings.EnvLineNew, label, ShortName(change.New))
+                : Text.Format(Strings.EnvLineChange, label, ShortName(change.Current), change.New.Length == 0 ? Strings.EnvNone : ShortName(change.New));
+        }
+
         var next = Value(change.New);
         return change.Current.Length == 0
             ? Text.Format(Strings.EnvLineNew, label, next)
@@ -228,6 +238,7 @@ internal static class EnvironmentImport
         EnvironmentProblem.DuplicateDomain => Strings.EnvDuplicateDomain,
         EnvironmentProblem.InvalidComponent => Strings.EnvInvalidComponent,
         EnvironmentProblem.InvalidHostKey => Strings.EnvInvalidHostKey,
+        EnvironmentProblem.InvalidDutyText => Strings.EnvInvalidDutyText,
         _ => Strings.EnvInvalidPath,
     }, ex.Detail);
 

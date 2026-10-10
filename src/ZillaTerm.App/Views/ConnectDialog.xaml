@@ -85,6 +85,10 @@
                 <CheckBox Grid.Row="4" Grid.Column="1" x:Name="RememberBox" Margin="0,0,0,10" />
             </Grid>
 
+            <CheckBox x:Name="X11Box" Margin="0,0,0,10" ToolTip="{x:Static loc:Strings.X11ForwardingTip}">
+                <AccessText Text="{x:Static loc:Strings.X11Forwarding}" TextWrapping="Wrap" />
+            </CheckBox>
+
             <TextBlock x:Name="SshHint" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,4" />
         </StackPanel>
     </DockPanel>

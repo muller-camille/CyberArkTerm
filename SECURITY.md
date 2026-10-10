@@ -31,14 +31,16 @@ an explanation.
 
 In scope: the ZillaTerm code in this repository (PVWA client, PSM / PSMP connections, SSH terminal,
 SFTP / SCP and FTP / FTPS file transfers, embedded remote desktop and VNC tabs, KeePass vault reading and writing, the
-local encrypted vault, the emergency access log, settings storage, release executables).
+local encrypted vault, the emergency access log, the intervention journal and its exported report, the on-call duty
+reminder file, settings storage, release executables).
 
 Out of scope, to be reported to their maintainers:
 
 - vulnerabilities in CyberArk products (PVWA, PSM, PSMP) → CyberArk;
 - vulnerabilities in [SSH.NET](https://github.com/sshnet/SSH.NET), [FluentFTP](https://github.com/robinrodricks/FluentFTP),
   [Konscious.Security.Cryptography](https://github.com/kmaragon/Konscious.Security.Cryptography) (Argon2) or .NET → their projects
-  (except in the one patch that ZillaTerm carries on SSH.NET, built by `tools/sshnet-patched.sh`: report it here);
+  (except in the two patches that ZillaTerm carries on SSH.NET, SFTP longname and X11 forwarding, built by
+  `tools/sshnet-patched.sh`: report them here);
 - vulnerabilities in the Windows Remote Desktop client or in KeePass / KeePassXC → Microsoft or their projects.
 
 The security measures built into the application are summed up in the [README](README.md#security) and described in

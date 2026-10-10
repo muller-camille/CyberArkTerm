@@ -763,6 +763,8 @@ public partial class FileBrowserPanel
     {
         _history.Add(record);
         SaveHistory();
+        // Intervention enregistrée : le transfert et l'empreinte de chaque fichier figurent aussi dans son journal.
+        Services.InterventionRecorder.Current.RecordTransfer(record);
     }
 
     /// <summary>Enregistre l'historique sans bloquer l'interface ; un échec d'écriture est seulement journalisé.</summary>
