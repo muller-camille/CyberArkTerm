@@ -54,10 +54,23 @@ public sealed class TerminalView : FrameworkElement
         // rattrapées à son retour (onglet en arrière-plan, déplacé dans une fenêtre séparée ou la vue parallèle).
         Loaded += (_, _) =>
         {
-            TerminalAppearance.Changed += OnAppearanceChanged;
+            TerminalAppearance.Changed += OnAppearanceChangedElsewhere;
             OnAppearanceChanged();
         };
-        Unloaded += (_, _) => TerminalAppearance.Changed -= OnAppearanceChanged;
+        Unloaded += (_, _) => TerminalAppearance.Changed -= OnAppearanceChangedElsewhere;
+    }
+
+    /// <summary>Réglage changé depuis un autre fil que celui du terminal : appliqué sur le fil du terminal.</summary>
+    private void OnAppearanceChangedElsewhere()
+    {
+        if (Dispatcher.CheckAccess())
+        {
+            OnAppearanceChanged();
+        }
+        else
+        {
+            Dispatcher.BeginInvoke(OnAppearanceChanged);
+        }
     }
 
     /// <summary>Ctrl+Maj+F : recherche dans le terminal.</summary>
