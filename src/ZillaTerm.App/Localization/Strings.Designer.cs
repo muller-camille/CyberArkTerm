@@ -14523,5 +14523,95 @@ namespace ZillaTerm.App.Localization {
                 return ResourceManager.GetString("CloseAllLeaveEmergencyHeading", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to _X11 forwarding (graphical applications).
+        /// </summary>
+        public static string X11Forwarding {
+            get {
+                return ResourceManager.GetString("X11Forwarding", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Graphical applications started on the server (xclock, installers…) show on this computer's X server (VcXsrv, X410, Xming…). Only for trusted servers: a compromised server could see the other X windows on this computer and send keystrokes to them..
+        /// </summary>
+        public static string X11ForwardingTip {
+            get {
+                return ResourceManager.GetString("X11ForwardingTip", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to SSH sessions only..
+        /// </summary>
+        public static string X11SshOnly {
+            get {
+                return ResourceManager.GetString("X11SshOnly", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Graphical applications (X11).
+        /// </summary>
+        public static string X11Section {
+            get {
+                return ResourceManager.GetString("X11Section", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Local _X server:.
+        /// </summary>
+        public static string X11DisplayLabel {
+            get {
+                return ResourceManager.GetString("X11DisplayLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to An X server installed on this computer (VcXsrv, X410, Xming…) that accepts local TCP connections: ":0" is port 6000. X11 forwarding is turned on server by server (Properties or Advanced options)..
+        /// </summary>
+        public static string X11DisplayHelp {
+            get {
+                return ResourceManager.GetString("X11DisplayHelp", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Local X server: ":0", "localhost:0" or "127.0.0.1:0.0" (this computer only: the X protocol is not encrypted)..
+        /// </summary>
+        public static string X11DisplayInvalid {
+            get {
+                return ResourceManager.GetString("X11DisplayInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to X11 forwarding active, to this computer's X server {0}..
+        /// </summary>
+        public static string X11Active {
+            get {
+                return ResourceManager.GetString("X11Active", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to X11 forwarding active, but no X server is listening on {0} (port {1}): start VcXsrv, X410 or Xming and allow local TCP connections..
+        /// </summary>
+        public static string X11NoServer {
+            get {
+                return ResourceManager.GetString("X11NoServer", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to X11 forwarding refused by the server or the PSMP: graphical applications cannot be shown..
+        /// </summary>
+        public static string X11Refused {
+            get {
+                return ResourceManager.GetString("X11Refused", resourceCulture);
+            }
+        }
     }
 }

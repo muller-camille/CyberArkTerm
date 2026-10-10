@@ -40,6 +40,7 @@ public partial class MainWindow
         {
             Psmp = psmp.Host,
             Request = request,
+            X11 = request.X11Forwarding && X11Display.TryParse(_settings.X11Display, out var display) ? display : null,
         };
         ShowSshTab(session, $"{login}@{psmp.Host}", Strings.ConnectingViaPsmp, "IconSsh",
             Text.Format(Strings.SshOpened, label, psmp.Host), duplicate);

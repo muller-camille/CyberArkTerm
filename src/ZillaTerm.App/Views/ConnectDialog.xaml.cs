@@ -42,6 +42,8 @@ public partial class ConnectDialog : Window
         RememberBox.Content = Text.Format(Strings.RememberComponent, account.PlatformId);
         // Composant refusé : celui saisi à la place sera retenu pour la plateforme (décochable).
         RememberBox.IsChecked = initial.RememberComponent || componentError;
+        X11Box.IsChecked = initial.X11Forwarding;
+        System.Windows.Controls.ToolTipService.SetShowOnDisabled(X11Box, true);
 
         bool sshAvailable = PsmpRouting.Any(settings);
         SshRadio.IsEnabled = sshAvailable;
@@ -116,6 +118,9 @@ public partial class ConnectDialog : Window
             field.ToolTip = psm ? _psmTips[field] : Strings.PsmOnlyField;
         }
 
+        // Transfert X11 : sessions SSH seulement (ni PSM, ni fichiers seuls).
+        X11Box.IsEnabled = SshRadio.IsChecked == true;
+        X11Box.ToolTip = X11Box.IsEnabled ? Strings.X11ForwardingTip : Strings.X11SshOnly;
         UpdateSshHint();
     }
 
@@ -184,7 +189,8 @@ public partial class ConnectDialog : Window
             NullIfEmpty(ReasonBox.Text),
             NullIfEmpty(TicketSystemBox.Text),
             NullIfEmpty(TicketIdBox.Text),
-            psm && RememberBox.IsChecked == true);
+            psm && RememberBox.IsChecked == true,
+            SshRadio.IsChecked == true && X11Box.IsChecked == true);
         return true;
     }
 

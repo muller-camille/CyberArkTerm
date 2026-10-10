@@ -4872,4 +4872,34 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="CloseAllLeaveEmergencyHeading" xml:space="preserve">
     <value>Leave emergency access and close the open sessions?</value>
   </data>
+  <data name="X11Forwarding" xml:space="preserve">
+    <value>_X11 forwarding (graphical applications)</value>
+  </data>
+  <data name="X11ForwardingTip" xml:space="preserve">
+    <value>Graphical applications started on the server (xclock, installers…) show on this computer's X server (VcXsrv, X410, Xming…). Only for trusted servers: a compromised server could see the other X windows on this computer and send keystrokes to them.</value>
+  </data>
+  <data name="X11SshOnly" xml:space="preserve">
+    <value>SSH sessions only.</value>
+  </data>
+  <data name="X11Section" xml:space="preserve">
+    <value>Graphical applications (X11)</value>
+  </data>
+  <data name="X11DisplayLabel" xml:space="preserve">
+    <value>Local _X server:</value>
+  </data>
+  <data name="X11DisplayHelp" xml:space="preserve">
+    <value>An X server installed on this computer (VcXsrv, X410, Xming…) that accepts local TCP connections: ":0" is port 6000. X11 forwarding is turned on server by server (Properties or Advanced options).</value>
+  </data>
+  <data name="X11DisplayInvalid" xml:space="preserve">
+    <value>Local X server: ":0", "localhost:0" or "127.0.0.1:0.0" (this computer only: the X protocol is not encrypted).</value>
+  </data>
+  <data name="X11Active" xml:space="preserve">
+    <value>X11 forwarding active, to this computer's X server {0}.</value>
+  </data>
+  <data name="X11NoServer" xml:space="preserve">
+    <value>X11 forwarding active, but no X server is listening on {0} (port {1}): start VcXsrv, X410 or Xming and allow local TCP connections.</value>
+  </data>
+  <data name="X11Refused" xml:space="preserve">
+    <value>X11 forwarding refused by the server or the PSMP: graphical applications cannot be shown.</value>
+  </data>
 </root>

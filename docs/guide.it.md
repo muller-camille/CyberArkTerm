@@ -206,6 +206,25 @@ frattempo). L'identificativo è quello PSMP standard `<tu>@<account di destinazi
 destinazione>`. I nomi utente che contengono spazi (`Mario Rossi`, `Admin
 Locale`) sono accettati. Il pannello laterale passa alla scheda «File» del server (se è ridotto, resta ridotto).
 
+### Applicazioni grafiche (X11)
+
+Le applicazioni grafiche avviate in una sessione SSH (`xclock`, programmi di installazione Oracle, `xterm`…) possono
+aprirsi sul vostro computer, come con `ssh -X`:
+
+1. Installate un **server X** sul computer (VcXsrv, X410, Xming…) e avviatelo consentendo le **connessioni TCP
+   locali**: il display `:0` è in ascolto sulla porta 6000. Il server X si imposta in **Impostazioni › Terminale ›
+   Server X locale** (`:0` per impostazione predefinita; solo questo computer, perché il protocollo X non è cifrato).
+2. Selezionate **«Inoltro X11 (applicazioni grafiche)»** per il server: clic destro → «Proprietà…» in «I miei
+   server», oppure in «Opzioni avanzate…» per una sola connessione. Solo sessioni SSH; non selezionato per impostazione
+   predefinita.
+3. Aprite la sessione: una riga grigia indica se l'inoltro è attivo, se è stato rifiutato (dal server, il cui
+   `sshd_config` deve contenere `X11Forwarding yes`, o dal PSMP) o se nessun server X è in ascolto sul computer.
+
+ZillaTerm fornisce al server un **cookie fittizio**: ogni connessione X11 deve presentarlo, e viene rimosso prima che
+qualsiasi cosa raggiunga il server X del computer; una connessione senza questo cookie viene chiusa. ⚠ Solo per server
+attendibili: un server compromesso potrebbe vedere le altre finestre X del computer e inviarvi dei tasti. La scelta è
+personale: non viene né esportata né inserita in un elenco condiviso.
+
 ### PSMP per dominio
 
 Con un PSMP per dominio, dichiarali in **Impostazioni › CyberArk**: un **PSMP predefinito** e l'elenco **PSMP per
@@ -545,6 +564,7 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
 | Macchina di destinazione | Server su cui aprire la sessione per un account di dominio. |
 | Motivo predefinito | Motivo di accesso inviato automaticamente al PVWA. |
 | Cartella SFTP iniziale | Il terminale **e** il browser dei file si aprono direttamente in questa cartella. |
+| Inoltro X11 | Le applicazioni grafiche del server si aprono sul server X del computer (solo SSH, vedi [Applicazioni grafiche (X11)](#applicazioni-grafiche-x11)); scelta personale, mai esportata né condivisa. |
 
 <img src="captures/it/server-properties.png" alt="Proprietà di un server in «I miei server»" width="540">
 
@@ -817,6 +837,7 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 | Terminale | Conferma prima di chiudere una sessione connessa | SSH, desktop remoto, VNC; «Non chiedere più» nella conferma deseleziona questa impostazione | sì |
 | Terminale | Il clic destro nel terminale incolla gli appunti | Maiusc+clic destro apre allora il menu; ⚠ un clic destro involontario invia gli appunti alla shell | no |
 | Terminale | Segui la cartella del terminale | Consente di attivare il monitoraggio della cartella nella shell; ⚠ un comando viene aggiunto a `PROMPT_COMMAND` | sì |
+| Terminale | Server X locale | Server X di questo computer per l'inoltro X11 (`:0` = porta 6000); solo questo computer | `:0` |
 | File | Invio dei file | Protocollo provato per primo (SFTP o SCP); se il server lo rifiuta, subentra l'altro | SFTP |
 | File | Proporre un archivio .tar.gz | Invio in un unico archivio proposto a partire da questo numero di file rilasciati insieme | sì, 200 |
 | File | Monitoraggio in una sessione indipendente | Seguire un file (tail -f) apre una propria connessione SFTP (una sessione PSMP in più) | no |

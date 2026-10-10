@@ -66,8 +66,9 @@ download only, not who published it).
 ## Less important / out of scope
 
 - `tests/`, `docs/`, `tools/`.
-- Bugs inside third-party packages (SSH.NET, FluentFTP, Argon2) unless ZillaTerm uses them unsafely. The one patch
-  ZillaTerm carries on SSH.NET (keeping the SFTP "longname", built by `tools/sshnet-patched.sh`) is in scope.
+- Bugs inside third-party packages (SSH.NET, FluentFTP, Argon2) unless ZillaTerm uses them unsafely. The two patches
+  ZillaTerm carries on SSH.NET (keeping the SFTP "longname"; X11 forwarding with the fake cookie checked and replaced
+  before anything reaches the local X server; built by `tools/sshnet-patched.sh`) are in scope.
 - The CyberArk servers themselves (PVWA, PSM, PSMP) are trusted for authentication; a malicious PVWA is in scope
   only for what it can do to the workstation beyond what CyberArk already lets it do.
 - Attacks that need the local Windows session to be already compromised (malware running as the user can read the

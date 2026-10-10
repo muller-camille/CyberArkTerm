@@ -1434,6 +1434,47 @@ public sealed class DialogTests
     }
 
     /// <summary>
+    /// Transfert X11 : proposé pour une session SSH seulement (grisé pour le PSM et les fichiers seuls, avec la raison),
+    /// repris de la requête et rendu dans le résultat ; de même dans les propriétés d'un serveur de « Mes serveurs ».
+    /// </summary>
+    [Fact]
+    public void X11ForwardingIsForSshSessionsOnly()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        RunWithTheme(() =>
+        {
+            var account = new PvwaAccount { Id = "5_4", UserName = "root", Address = "srv01.corp.local", PlatformId = "UnixSSH" };
+            var settings = new AppSettings { PsmpAddress = "psmp.corp.local" };
+            var dialog = new ConnectDialog(account, new ConnectRequest(ConnectMode.Ssh, "PSM-RDP", X11Forwarding: true), settings, "jdoe", null);
+            Assert.True(dialog.X11Box.IsEnabled);
+            Assert.True(dialog.X11Box.IsChecked);
+            Assert.Equal(Strings.X11ForwardingTip, dialog.X11Box.ToolTip);
+            Assert.True(dialog.Accept());
+            Assert.True(dialog.Result?.X11Forwarding);
+
+            dialog.SftpRadio.IsChecked = true;
+            Assert.False(dialog.X11Box.IsEnabled);
+            Assert.Equal(Strings.X11SshOnly, dialog.X11Box.ToolTip);
+            Assert.True(dialog.Accept());
+            Assert.False(dialog.Result?.X11Forwarding);
+            dialog.Close();
+
+            var saved = new SavedSession { AccountId = "5_4", Name = "root@srv01.corp.local", Mode = ConnectMode.Ssh, UserName = "root", Address = "srv01.corp.local" };
+            var properties = new SessionPropertiesDialog(saved, account, [], sshAvailable: true, [], x11: true);
+            Assert.True(properties.X11Box.IsEnabled);
+            Assert.True(properties.X11Box.IsChecked);
+            properties.PsmRadio.IsChecked = true;
+            Assert.False(properties.X11Box.IsEnabled);
+            Assert.Equal(Strings.X11SshOnly, properties.X11Box.ToolTip);
+            properties.Close();
+        });
+    }
+
+    /// <summary>
     /// Entrée KeePass : une nouvelle entrée sans adresse est refusée, une entrée qui avait une adresse la garde ; une entrée
     /// existante sans adresse (mot de passe seul) se modifie, avec un titre.
     /// </summary>

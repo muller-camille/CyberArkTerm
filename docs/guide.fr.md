@@ -204,6 +204,24 @@ code arrivent entre-temps). L'identifiant est l'identifiant PSMP standard `<vous
 cible>`. Les noms d'utilisateur contenant des espaces (`Jean Dupont`, `Admin Local`) sont
 acceptés. Le panneau de gauche passe sur l'onglet « Fichiers » du serveur (s'il est replié, il le reste).
 
+### Applications graphiques (X11)
+
+Les applications graphiques lancées dans une session SSH (`xclock`, installeurs Oracle, `xterm`…) peuvent s'afficher
+sur votre poste, comme avec `ssh -X` :
+
+1. Installez un **serveur X** sur le poste (VcXsrv, X410, Xming…) et lancez-le en autorisant les **connexions TCP
+   locales** : l'affichage `:0` écoute sur le port 6000. Le serveur X se règle dans **Paramètres › Terminal ›
+   Serveur X local** (`:0` par défaut ; ce poste seulement, le protocole X n'étant pas chiffré).
+2. Cochez **« Transfert X11 (applications graphiques) »** pour le serveur : clic droit → « Propriétés… » dans « Mes
+   serveurs », ou dans « Options avancées… » pour une seule connexion. Sessions SSH seulement ; décoché par défaut.
+3. Ouvrez la session : une ligne grise dit si le transfert est actif, s'il a été refusé (par le serveur, dont
+   `sshd_config` doit avoir `X11Forwarding yes`, ou par le PSMP) ou si aucun serveur X n'écoute sur le poste.
+
+ZillaTerm donne au serveur un **cookie factice** : chaque connexion X11 doit le présenter, et il est retiré avant que
+quoi que ce soit n'atteigne le serveur X du poste ; une connexion sans ce cookie est refermée. ⚠ À réserver aux
+serveurs de confiance : un serveur compromis pourrait voir les autres fenêtres X du poste et y envoyer des frappes. Le
+choix est personnel : il n'est ni exporté, ni mis dans une liste partagée.
+
 ### PSMP par domaine
 
 Avec un PSMP par domaine, déclarez-les dans **Paramètres › CyberArk** : un **PSMP par défaut** et la liste **PSMP
@@ -544,6 +562,7 @@ entrées KeePass SFTP, FTP, FTPS ([section 7](#7-accès-durgence-hors-cyberark--
 | Machine cible | Serveur sur lequel ouvrir la session pour un compte de domaine. |
 | Motif par défaut | Motif d'accès envoyé automatiquement au PVWA. |
 | Dossier SFTP de départ | Le terminal **et** le navigateur de fichiers s'ouvrent directement dans ce dossier. |
+| Transfert X11 | Applications graphiques du serveur affichées sur le serveur X du poste (SSH seulement, voir [Applications graphiques (X11)](#applications-graphiques-x11)) ; choix personnel, jamais exporté ni partagé. |
 
 <img src="captures/fr/server-properties.png" alt="Propriétés d'un serveur de « Mes serveurs »" width="540">
 
@@ -815,6 +834,7 @@ disent sous leur case (« ⚠ Effet : … »).
 | Terminal | Confirmer avant de fermer une session connectée | SSH, Bureau à distance, VNC ; « Ne plus demander » dans la confirmation décoche ce réglage | oui |
 | Terminal | Le clic droit dans le terminal colle le presse-papiers | Maj+clic droit ouvre alors le menu ; ⚠ un clic droit par mégarde envoie le presse-papiers au shell | non |
 | Terminal | Suivre le dossier du terminal | Autorise l'installation du suivi de dossier dans le shell ; ⚠ une commande est ajoutée à `PROMPT_COMMAND` | oui |
+| Terminal | Serveur X local | Serveur X de ce poste pour le transfert X11 (`:0` = port 6000) ; ce poste seulement | `:0` |
 | Fichiers | Dépôt de fichiers | Protocole essayé d'abord (SFTP ou SCP) ; si le serveur le refuse, l'autre prend le relais | SFTP |
 | Fichiers | Proposer une archive .tar.gz | Envoi en une seule archive proposé à partir de ce nombre de fichiers déposés d'un coup | oui, 200 |
 | Fichiers | Suivi dans une session indépendante | Le suivi d'un fichier (tail -f) ouvre sa propre connexion SFTP (une session PSMP de plus) | non |

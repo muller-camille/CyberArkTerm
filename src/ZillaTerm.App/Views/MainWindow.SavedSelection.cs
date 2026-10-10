@@ -254,7 +254,8 @@ public partial class MainWindow
             saved.Mode,
             string.IsNullOrWhiteSpace(saved.Component) ? _settings.ResolveComponent(account) : saved.Component,
             saved.RemoteMachine ?? (machines.Count == 1 ? machines[0] : null),
-            saved.Reason);
+            saved.Reason,
+            X11Forwarding: saved.Mode == ConnectMode.Ssh && _settings.X11Servers.Contains(saved.Id));
     }
 
     /// <summary>

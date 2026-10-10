@@ -10,4 +10,5 @@ public sealed record ConnectRequest(
     string? Reason = null,
     string? TicketingSystem = null,
     string? TicketId = null,
-    bool RememberComponent = false);
+    bool RememberComponent = false,
+    bool X11Forwarding = false);

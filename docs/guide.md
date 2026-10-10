@@ -197,6 +197,24 @@ and connects to the PSMP (server key, password or code questions show up meanwhi
 `<you>@<target account>[#domain]@<target server>`. User names containing spaces (`John Smith`, `Local Admin`) are accepted. The side panel switches to the
 server's "Files" tab (a collapsed panel stays collapsed).
 
+### Graphical applications (X11)
+
+Graphical applications started in an SSH session (`xclock`, Oracle installers, `xterm`…) can show on your computer,
+as with `ssh -X`:
+
+1. Install an **X server** on the computer (VcXsrv, X410, Xming…) and start it with **local TCP connections**
+   allowed: display `:0` listens on port 6000. The X server is set in **Settings › Terminal › Local X server** (`:0`
+   by default; this computer only, since the X protocol is not encrypted).
+2. Tick **"X11 forwarding (graphical applications)"** for the server: right-click → "Properties…" in "My servers", or
+   in "Advanced options…" for a single connection. SSH sessions only; unticked by default.
+3. Open the session: a grey line tells whether forwarding is active, refused (by the server, whose `sshd_config` needs
+   `X11Forwarding yes`, or by the PSMP) or whether no X server is listening on the computer.
+
+ZillaTerm gives the server a **fake cookie**: every X11 connection must present it, and it is removed before anything
+reaches the computer's X server; a connection without this cookie is closed. ⚠ For trusted servers only: a compromised
+server could see the other X windows on the computer and send keystrokes to them. The choice is personal: it is
+neither exported nor put in a shared list.
+
 ### PSMP by domain
 
 With one PSMP per domain, declare them in **Settings › CyberArk**: a **default PSMP** and the **PSMP by domain** list
@@ -512,6 +530,7 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
 | Target machine | Server to open the session on, for a domain account. |
 | Default reason | Access reason sent automatically to the PVWA. |
 | SFTP start folder | The terminal **and** the file browser open directly in this folder. |
+| X11 forwarding | The server's graphical applications show on the computer's X server (SSH only, see [Graphical applications (X11)](#graphical-applications-x11)); a personal choice, never exported or shared. |
 
 <img src="captures/en/server-properties.png" alt="Properties of a server in “My servers”" width="540">
 
@@ -767,6 +786,7 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 | Terminal | Confirm before closing a connected session | SSH, remote desktop, VNC; "Don't ask again" in the confirmation unticks this setting | yes |
 | Terminal | Right-click in the terminal pastes the clipboard | Shift+right-click then opens the menu; ⚠ a stray right-click sends the clipboard to the shell | no |
 | Terminal | Follow the terminal folder | Allows setting up folder tracking in the shell; ⚠ a command is added to `PROMPT_COMMAND` | yes |
+| Terminal | Local X server | This computer's X server for X11 forwarding (`:0` = port 6000); this computer only | `:0` |
 | Files | File upload | Protocol tried first (SFTP or SCP); if the server refuses it, the other one takes over | SFTP |
 | Files | Offer a single .tar.gz archive | Sending a single archive is offered from this number of files dropped at once | yes, 200 |
 | Files | Follow in an independent session | Following a file (tail -f) opens its own SFTP connection (one more PSMP session) | no |

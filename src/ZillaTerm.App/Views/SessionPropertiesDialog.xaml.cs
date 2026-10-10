@@ -11,8 +11,9 @@ public partial class SessionPropertiesDialog : Window
     private readonly SavedSession _session;
 
     /// <param name="components">Composants proposés (voir <see cref="AppSettings.KnownComponents"/>).</param>
+    /// <param name="x11">Transfert X11 coché pour ce serveur (réglage personnel, hors du serveur enregistré).</param>
     public SessionPropertiesDialog(SavedSession session, PvwaAccount? account, IEnumerable<string> folders, bool sshAvailable,
-        IReadOnlyList<string> components)
+        IReadOnlyList<string> components, bool x11 = false)
     {
         InitializeComponent();
         _session = session;
@@ -33,6 +34,8 @@ public partial class SessionPropertiesDialog : Window
         MachineBox.Text = session.RemoteMachine ?? "";
         ReasonBox.Text = session.Reason ?? "";
         StartDirBox.Text = session.StartDirectory ?? "";
+        X11Box.IsChecked = x11;
+        System.Windows.Controls.ToolTipService.SetShowOnDisabled(X11Box, true);
         // Comme dans « Connexion avancée » : sans PSMP, SSH et SFTP sont grisés (le mode enregistré reste coché, visible).
         SshRadio.IsEnabled = SftpRadio.IsEnabled = sshAvailable;
         System.Windows.Controls.ToolTipService.SetShowOnDisabled(SshRadio, true);
@@ -57,7 +60,12 @@ public partial class SessionPropertiesDialog : Window
         ComponentBox.IsEnabled = PsmRadio.IsChecked == true;
         ReasonBox.IsEnabled = PsmRadio.IsChecked == true;
         StartDirBox.IsEnabled = PsmRadio.IsChecked != true;
+        X11Box.IsEnabled = SshRadio.IsChecked == true;
+        X11Box.ToolTip = X11Box.IsEnabled ? Strings.X11ForwardingTip : Strings.X11SshOnly;
     }
+
+    /// <summary>Transfert X11 choisi (sessions SSH seulement), une fois la fenêtre validée.</summary>
+    public bool X11Forwarding { get; private set; }
 
     private void OnSave(object sender, RoutedEventArgs e)
     {
@@ -78,6 +86,7 @@ public partial class SessionPropertiesDialog : Window
         _session.RemoteMachine = NullIfEmpty(MachineBox.Text);
         _session.Reason = NullIfEmpty(ReasonBox.Text);
         _session.StartDirectory = NullIfEmpty(start);
+        X11Forwarding = _session.Mode == ConnectMode.Ssh && X11Box.IsChecked == true;
         DialogResult = true;
     }
 

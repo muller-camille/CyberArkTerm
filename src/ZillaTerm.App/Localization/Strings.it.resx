@@ -4872,4 +4872,34 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   <data name="CloseAllLeaveEmergencyHeading" xml:space="preserve">
     <value>Uscire dall'accesso di emergenza e chiudere le sessioni aperte?</value>
   </data>
+  <data name="X11Forwarding" xml:space="preserve">
+    <value>Inoltro _X11 (applicazioni grafiche)</value>
+  </data>
+  <data name="X11ForwardingTip" xml:space="preserve">
+    <value>Le applicazioni grafiche avviate sul server (xclock, programmi di installazione…) si aprono sul server X di questo computer (VcXsrv, X410, Xming…). Solo per server attendibili: un server compromesso potrebbe vedere le altre finestre X di questo computer e inviarvi dei tasti.</value>
+  </data>
+  <data name="X11SshOnly" xml:space="preserve">
+    <value>Solo per le sessioni SSH.</value>
+  </data>
+  <data name="X11Section" xml:space="preserve">
+    <value>Applicazioni grafiche (X11)</value>
+  </data>
+  <data name="X11DisplayLabel" xml:space="preserve">
+    <value>Server X _locale:</value>
+  </data>
+  <data name="X11DisplayHelp" xml:space="preserve">
+    <value>Un server X installato su questo computer (VcXsrv, X410, Xming…) che accetta le connessioni TCP locali: «:0» è la porta 6000. L'inoltro X11 si attiva server per server (Proprietà o Opzioni avanzate).</value>
+  </data>
+  <data name="X11DisplayInvalid" xml:space="preserve">
+    <value>Server X locale: «:0», «localhost:0» o «127.0.0.1:0.0» (solo questo computer: il protocollo X non è cifrato).</value>
+  </data>
+  <data name="X11Active" xml:space="preserve">
+    <value>Inoltro X11 attivo verso il server X {0} di questo computer.</value>
+  </data>
+  <data name="X11NoServer" xml:space="preserve">
+    <value>Inoltro X11 attivo, ma nessun server X è in ascolto su {0} (porta {1}): avviate VcXsrv, X410 o Xming consentendo le connessioni TCP locali.</value>
+  </data>
+  <data name="X11Refused" xml:space="preserve">
+    <value>Inoltro X11 rifiutato dal server o dal PSMP: le applicazioni grafiche non potranno essere visualizzate.</value>
+  </data>
 </root>

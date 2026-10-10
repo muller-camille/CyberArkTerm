@@ -4872,4 +4872,34 @@ Deux instances écraseraient l'une l'autre leurs réglages, leur coffre local et
   <data name="CloseAllLeaveEmergencyHeading" xml:space="preserve">
     <value>Quitter l'accès d'urgence et fermer les sessions ouvertes ?</value>
   </data>
+  <data name="X11Forwarding" xml:space="preserve">
+    <value>Transfert _X11 (applications graphiques)</value>
+  </data>
+  <data name="X11ForwardingTip" xml:space="preserve">
+    <value>Les applications graphiques lancées sur le serveur (xclock, installeurs…) s'affichent sur le serveur X de ce poste (VcXsrv, X410, Xming…). À réserver aux serveurs de confiance : un serveur compromis pourrait voir les autres fenêtres X de ce poste et y envoyer des frappes.</value>
+  </data>
+  <data name="X11SshOnly" xml:space="preserve">
+    <value>Pour les sessions SSH seulement.</value>
+  </data>
+  <data name="X11Section" xml:space="preserve">
+    <value>Applications graphiques (X11)</value>
+  </data>
+  <data name="X11DisplayLabel" xml:space="preserve">
+    <value>Serveur X _local :</value>
+  </data>
+  <data name="X11DisplayHelp" xml:space="preserve">
+    <value>Un serveur X installé sur ce poste (VcXsrv, X410, Xming…) qui accepte les connexions TCP locales : « :0 » est le port 6000. Le transfert X11 se coche serveur par serveur (Propriétés ou Options avancées).</value>
+  </data>
+  <data name="X11DisplayInvalid" xml:space="preserve">
+    <value>Serveur X local : « :0 », « localhost:0 » ou « 127.0.0.1:0.0 » (ce poste seulement : le protocole X n'est pas chiffré).</value>
+  </data>
+  <data name="X11Active" xml:space="preserve">
+    <value>Transfert X11 actif vers le serveur X {0} de ce poste.</value>
+  </data>
+  <data name="X11NoServer" xml:space="preserve">
+    <value>Transfert X11 actif, mais aucun serveur X n'écoute sur {0} (port {1}) : lancez VcXsrv, X410 ou Xming en autorisant les connexions TCP locales.</value>
+  </data>
+  <data name="X11Refused" xml:space="preserve">
+    <value>Transfert X11 refusé par le serveur ou par le PSMP : les applications graphiques ne pourront pas s'afficher.</value>
+  </data>
 </root>
