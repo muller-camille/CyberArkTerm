@@ -106,7 +106,7 @@
     <value>Connect over SS_H (PSMP)</value>
   </data>
   <data name="MenuConnectAdvanced" xml:space="preserve">
-    <value>_Advanced connection…</value>
+    <value>_Advanced options…</value>
   </data>
   <data name="MenuAddToMyServers" xml:space="preserve">
     <value>Add to _My servers</value>
@@ -136,10 +136,10 @@
     <value>_Delete folder…</value>
   </data>
   <data name="ToolLogout" xml:space="preserve">
-    <value>Sign out</value>
+    <value>Sign out of CyberArk</value>
   </data>
   <data name="ToolLogoutTip" xml:space="preserve">
-    <value>Close the CyberArk session and return to the sign-in screen</value>
+    <value>Close the CyberArk session and all the tabs, then return to the sign-in screen</value>
   </data>
   <data name="ToolExit" xml:space="preserve">
     <value>Exit</value>
@@ -157,7 +157,7 @@
     <value>Open the account over SSH through the PSMP</value>
   </data>
   <data name="ToolAdvanced" xml:space="preserve">
-    <value>Advanced…</value>
+    <value>Advanced options…</value>
   </data>
   <data name="ToolAdvancedTip" xml:space="preserve">
     <value>Choose the component, target machine, reason or ticket</value>
@@ -259,7 +259,7 @@
     <value>Right-click</value>
   </data>
   <data name="ShortcutMenu" xml:space="preserve">
-    <value>: PSM, SSH, files (SFTP), advanced connection, My servers</value>
+    <value>: PSM, SSH, files (SFTP), advanced options, My servers</value>
   </data>
   <data name="ShortcutSshKey" xml:space="preserve">
     <value>SSH session</value>
@@ -333,7 +333,7 @@
     <value>Settings saved</value>
   </data>
   <data name="SettingsSavedLanguage" xml:space="preserve">
-    <value>Settings saved. The new language applies after signing out or at the next start.</value>
+    <value>Settings saved. The new language applies after signing out of CyberArk or at the next start.</value>
   </data>
   <data name="PreferencesNotSaved" xml:space="preserve">
     <value>Preferences not saved: {0}</value>
@@ -420,7 +420,7 @@
     <value>Account not found in CyberArk (deleted or access removed).</value>
   </data>
   <data name="ConnectTitle" xml:space="preserve">
-    <value>Session connection</value>
+    <value>Advanced connection options</value>
   </data>
   <data name="ConnectionType" xml:space="preserve">
     <value>Connection type</value>
@@ -471,13 +471,13 @@
     <value>I_nterface language:</value>
   </data>
   <data name="LanguageHelp" xml:space="preserve">
-    <value>Applied after signing out or at the next start.</value>
+    <value>Applied after signing out of CyberArk or at the next start.</value>
   </data>
   <data name="SettingsSshSection" xml:space="preserve">
     <value>SSH via PSM for SSH (PSMP)</value>
   </data>
   <data name="SettingsSshHelp" xml:space="preserve">
-    <value>Unix accounts then open over SSH by default (PSM stays available in “Advanced connection”). Without any PSMP, SSH is disabled.</value>
+    <value>Unix accounts then open over SSH by default (PSM stays available in “Advanced options…”). Without any PSMP, SSH is disabled.</value>
   </data>
   <data name="PsmpAddressLabel" xml:space="preserve">
     <value>_Default PSMP:</value>
@@ -486,10 +486,10 @@
     <value>_Port:</value>
   </data>
   <data name="SshInApp" xml:space="preserve">
-    <value>Open SSH sessions in ZillaTerm (terminal tab + “Files” tab), otherwise in Windows Terminal</value>
+    <value>_Open SSH sessions in ZillaTerm (terminal tab + “Files” tab), otherwise in Windows Terminal</value>
   </data>
   <data name="FollowSetting" xml:space="preserve">
-    <value>Let the file browser follow the terminal folder (sets PROMPT_COMMAND in the shell when the session opens)</value>
+    <value>_Let the file browser follow the terminal folder (sets PROMPT__COMMAND in the shell when the session opens)</value>
   </data>
   <data name="UploadLabel" xml:space="preserve">
     <value>File upload:</value>
@@ -707,11 +707,6 @@
   <data name="UploadFailed" xml:space="preserve">
     <value>Upload of {0} failed: {1}</value>
   </data>
-  <data name="UploadFailedDetails" xml:space="preserve">
-    <value>Upload of {0} failed:
-
-{1}</value>
-  </data>
   <data name="Uploaded" xml:space="preserve">
     <value>Uploaded over {1} to {2}: {0}</value>
   </data>
@@ -740,7 +735,7 @@
     <value>Download to Explorer</value>
   </data>
   <data name="DragDownloaded" xml:space="preserve">
-    <value>{0} item(s) downloaded by drag and drop.</value>
+    <value>{0:# item|# items} downloaded by drag and drop.</value>
   </data>
   <data name="DragCancelled" xml:space="preserve">
     <value>Download cancelled.</value>
@@ -752,16 +747,16 @@
     <value>Checking {0} (SHA-256)…</value>
   </data>
   <data name="TransferVerified" xml:space="preserve">
-    <value>✓ {0} file(s) identical on both sides (SHA-256)</value>
+    <value>✓ {0:# file|# files} identical on both sides (SHA-256)</value>
   </data>
   <data name="TransferVerifiedOne" xml:space="preserve">
     <value>✓ identical on both sides, SHA-256 {0}…</value>
   </data>
   <data name="TransferNotVerified" xml:space="preserve">
-    <value>⚠ {0} file(s) could not be checked</value>
+    <value>⚠ {0:# file|# files} could not be checked</value>
   </data>
   <data name="TransferMismatch" xml:space="preserve">
-    <value>✗ {0} file(s) differ from the original: transfer them again</value>
+    <value>✗ {0:# file differs|# files differ} from the original: transfer {0:it|them} again</value>
   </data>
   <data name="TransferMismatchFile" xml:space="preserve">
     <value>{0}: the downloaded file differs from the server's (SHA-256).</value>
@@ -776,13 +771,13 @@
     <value>The data received from the server was hashed (SHA-256), then the file written on this computer was read again and hashed: both checksums must be identical.</value>
   </data>
   <data name="ChecksAllOk" xml:space="preserve">
-    <value>✓ The {0} file(s) are identical on both sides.</value>
+    <value>{0:✓ The file is identical on both sides.|✓ The # files are identical on both sides.}</value>
   </data>
   <data name="ChecksSomeDiffer" xml:space="preserve">
-    <value>✗ {0} file(s) out of {1} differ: transfer them again.</value>
+    <value>✗ {0:# file|# files} out of {1} {0:differs|differ}: transfer {0:it|them} again.</value>
   </data>
   <data name="ChecksSomeUnverified" xml:space="preserve">
-    <value>⚠ {0} file(s) out of {1} could not be read again: transferred but not checked.</value>
+    <value>⚠ {0:# file|# files} out of {1} could not be read again: transferred but not checked.</value>
   </data>
   <data name="ChecksColFile" xml:space="preserve">
     <value>File on the server</value>
@@ -815,7 +810,7 @@
     <value>Copies one line per file (checksum of the original and path on the server), to check again on the server with sha256sum -c.</value>
   </data>
   <data name="ChecksCopied" xml:space="preserve">
-    <value>Copied: {0} line(s)</value>
+    <value>Copied: {0:# line|# lines}</value>
   </data>
   <data name="ChecksColDirection" xml:space="preserve">
     <value>Direction</value>
@@ -833,13 +828,13 @@
     <value>✗ Failed: {0}</value>
   </data>
   <data name="ChecksSomeFailed" xml:space="preserve">
-    <value>✗ {0} file(s) out of {1} failed.</value>
+    <value>✗ {0:# file|# files} out of {1} failed.</value>
   </data>
   <data name="ChecksSomeInterrupted" xml:space="preserve">
-    <value>⏹ {0} file(s) out of {1} interrupted by a cancellation: incomplete copy deleted.</value>
+    <value>⏹ {0:# file|# files} out of {1} interrupted by a cancellation: incomplete copy deleted.</value>
   </data>
   <data name="SettingsTailSession" xml:space="preserve">
-    <value>Follow files (tail -f) in an independent session</value>
+    <value>_Follow files (tail -f) in an independent session</value>
   </data>
   <data name="SettingsTailSessionHelp" xml:space="preserve">
     <value>Each follow window opens its own SFTP connection instead of sharing the one of the Files tab: it does not wait for transfers, but it is one more PSMP session (recorded separately, and an MFA validation may be asked).</value>
@@ -988,7 +983,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>Log files (*.log)|*.log|Text files (*.txt)|*.txt|All files (*.*)|*.*</value>
   </data>
   <data name="TailSaved" xml:space="preserve">
-    <value>{0} lines saved to {1}</value>
+    <value>{0:# line|# lines} saved to {1}</value>
   </data>
   <data name="TailSaveFailed" xml:space="preserve">
     <value>Cannot save: {0}</value>
@@ -1069,7 +1064,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>Also show a Windows notification when the window is not in front (at most one every 30 seconds). It gives the number of lines and the file name, never the content of the lines.</value>
   </data>
   <data name="TailAlertCount" xml:space="preserve">
-    <value>⚠ {0} alerts</value>
+    <value>⚠ {0:# alert|# alerts}</value>
   </data>
   <data name="TailAlertCountTip" xml:space="preserve">
     <value>Go to the next alert line; right-click: reset the counter</value>
@@ -1084,7 +1079,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>tail -f: alert</value>
   </data>
   <data name="TailNotificationText" xml:space="preserve">
-    <value>{0} new alert line(s) in {1}</value>
+    <value>{0:# new alert line|# new alert lines} in {1}</value>
   </data>
   <data name="TailSearch" xml:space="preserve">
     <value>Search:</value>
@@ -1105,7 +1100,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>{0} / {1}</value>
   </data>
   <data name="TailSearchTotal" xml:space="preserve">
-    <value>{0} lines</value>
+    <value>{0:# line|# lines}</value>
   </data>
   <data name="TailSearchNone" xml:space="preserve">
     <value>No result</value>
@@ -1210,7 +1205,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>What you type in a ticked session is also sent to the other ticked, connected sessions. The mouse wheel is not copied; pasting several lines asks first.</value>
   </data>
   <data name="ParallelBroadcastBanner" xml:space="preserve">
-    <value>⚠ Simultaneous typing: what you type is sent to {0} session(s): {1}. Untick a session to exclude it.</value>
+    <value>⚠ Simultaneous typing: what you type is sent to {0:# session|# sessions}: {1}. Untick a session to exclude it.</value>
   </data>
   <data name="ParallelBroadcastHidden" xml:space="preserve">
     <value>{0} of them hidden by the enlarged session.</value>
@@ -1252,13 +1247,13 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>Open the {0} servers in the _parallel view</value>
   </data>
   <data name="MenuConnectMany" xml:space="preserve">
-    <value>Connect to the {0} servers (one tab each)</value>
+    <value>{0:Connect (# server)|Connect to the # servers (one tab each)}</value>
   </data>
   <data name="MenuOpenFolderInParallel" xml:space="preserve">
-    <value>Open in the _parallel view ({0} SSH servers)</value>
+    <value>Open in the _parallel view ({0:# SSH server|# SSH servers})</value>
   </data>
   <data name="SavedMarkedStatus" xml:space="preserve">
-    <value>{0} server(s) selected: right-click one of them to open them together (Esc to cancel).</value>
+    <value>{0:# server|# servers} selected: right-click one of them to open them together (Esc to cancel).</value>
   </data>
   <data name="ParallelNoSshServer" xml:space="preserve">
     <value>None of these servers opens over SSH: only SSH sessions go to the parallel view.</value>
@@ -1270,16 +1265,16 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>_Open</value>
   </data>
   <data name="ParallelOpenedStatus" xml:space="preserve">
-    <value>{0} session(s) opened in the parallel view.</value>
+    <value>{0:# session|# sessions} opened in the parallel view.</value>
   </data>
   <data name="SavedOpenedStatus" xml:space="preserve">
-    <value>{0} connection(s) opened.</value>
+    <value>{0:# connection|# connections} opened.</value>
   </data>
   <data name="ParallelSkippedPsm" xml:space="preserve">
-    <value>{0} Windows (PSM) server(s) left out.</value>
+    <value>{0:# Windows (PSM) server|# Windows (PSM) servers} left out.</value>
   </data>
   <data name="SavedMissingAccounts" xml:space="preserve">
-    <value>{0} server(s) no longer found in CyberArk.</value>
+    <value>{0:# server|# servers} no longer found in CyberArk.</value>
   </data>
   <data name="ParallelDetach" xml:space="preserve">
     <value>Separate _window</value>
@@ -1424,7 +1419,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>Reading {0}…</value>
   </data>
   <data name="RemotePickCount" xml:space="preserve">
-    <value>{0} item(s)</value>
+    <value>{0:# item|# items}</value>
   </data>
   <data name="RemotePickError" xml:space="preserve">
     <value>Cannot read {0}: {1}</value>
@@ -1505,10 +1500,10 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>✗ Different files</value>
   </data>
   <data name="CompareSummary" xml:space="preserve">
-    <value>{0} difference(s) · {1} line(s) removed, {2} added</value>
+    <value>{0:# difference|# differences} · {1:# line|# lines} removed, {2} added</value>
   </data>
   <data name="CompareHiddenLines" xml:space="preserve">
-    <value>··· {0} identical line(s) ···</value>
+    <value>··· {0:# identical line|# identical lines} ···</value>
   </data>
   <data name="CompareLineEndings" xml:space="preserve">
     <value>Different line endings: {0} on the left, {1} on the right.</value>
@@ -1628,13 +1623,13 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>Ctrl+0</value>
   </data>
   <data name="SettingsRightClickPastes" xml:space="preserve">
-    <value>Right-click in the terminal pastes the clipboard (Shift+right-click then opens the menu)</value>
+    <value>_Right-click in the terminal pastes the clipboard (Shift+right-click then opens the menu)</value>
   </data>
   <data name="TerminalThemeLabel" xml:space="preserve">
     <value>Terminal _colours:</value>
   </data>
   <data name="TerminalFontLabel" xml:space="preserve">
-    <value>_Font:</value>
+    <value>_Font size:</value>
   </data>
   <data name="TerminalFontTip" xml:space="preserve">
     <value>Font size of the terminals (8 to 32). Ctrl+wheel changes it for one terminal, Ctrl+0 restores it.</value>
@@ -1715,7 +1710,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>Download not kept: {0}</value>
   </data>
   <data name="AboutAutoCheck" xml:space="preserve">
-    <value>Look for a new version when ZillaTerm starts (at most once a day; a request to GitHub)</value>
+    <value>_Look for a new version when ZillaTerm starts (at most once a day; a request to GitHub)</value>
   </data>
   <data name="AboutUpdateNote" xml:space="preserve">
     <value>Nothing is installed automatically: the checked archive is kept in the Downloads folder, and you replace the executable yourself (your settings are kept). The executable is not signed.</value>
@@ -1814,7 +1809,7 @@ Send them in a single {3} archive? One file to transfer and check instead of {0}
     <value>✓ done</value>
   </data>
   <data name="QueueStateDifferent" xml:space="preserve">
-    <value>✗ {0} file(s) differ</value>
+    <value>✗ {0:# file differs|# files differ}</value>
   </data>
   <data name="QueueStateCancelled" xml:space="preserve">
     <value>cancelled</value>
@@ -1925,11 +1920,8 @@ Your changes stay in the editor: save again to retry.</value>
   <data name="PermissionsInvalid" xml:space="preserve">
     <value>Enter three or four digits from 0 to 7 (e.g. 644, 1777).</value>
   </data>
-  <data name="ItemsIn" xml:space="preserve">
-    <value>{0} items in {1}</value>
-  </data>
   <data name="ItemsCount" xml:space="preserve">
-    <value>{0} items</value>
+    <value>{0:# item|# items}</value>
   </data>
   <data name="PermissionsApplying" xml:space="preserve">
     <value>Changing the permissions of {0}…</value>
@@ -1974,13 +1966,10 @@ Your changes stay in the editor: save again to retry.</value>
     <value>E_xecute (x) only for folders and files that are already executable</value>
   </data>
   <data name="PermissionsProgress" xml:space="preserve">
-    <value>Changing permissions… {0} items done</value>
+    <value>Changing permissions… {0:# item|# items} done</value>
   </data>
   <data name="PermissionsDoneCount" xml:space="preserve">
-    <value>Permissions {0} applied: {1} items</value>
-  </data>
-  <data name="RdpTitle" xml:space="preserve">
-    <value>Remote desktop</value>
+    <value>Permissions {0} applied: {1:# item|# items}</value>
   </data>
   <data name="RdpConnecting" xml:space="preserve">
     <value>Connecting to {0}…</value>
@@ -2238,7 +2227,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>Add a KeePass database (emergency access outside CyberArk)</value>
   </data>
   <data name="KeePassUnlocked" xml:space="preserve">
-    <value>KeePass database {0} unlocked ({1} entries)</value>
+    <value>KeePass database {0} unlocked ({1:# entry|# entries})</value>
   </data>
   <data name="KeePassLockedStatus" xml:space="preserve">
     <value>KeePass database {0} locked</value>
@@ -2324,7 +2313,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>Local vault locked.</value>
   </data>
   <data name="LocalStoreStateUnlocked" xml:space="preserve">
-    <value>Local vault unlocked: {0} remembered password(s).</value>
+    <value>Local vault unlocked: {0:# remembered password|# remembered passwords}.</value>
   </data>
   <data name="LocalStoreCreate" xml:space="preserve">
     <value>C_reate…</value>
@@ -2357,7 +2346,7 @@ Your changes stay in the editor: save again to retry.</value>
     <value>CyberArk session</value>
   </data>
   <data name="KeepAlive" xml:space="preserve">
-    <value>Keep the PVWA session open while ZillaTerm runs (a light request every 4 minutes, paused while Windows is locked)</value>
+    <value>_Keep the CyberArk session open while you use the computer (a light request every 4 minutes; paused while Windows is locked or after 15 minutes without keyboard or mouse)</value>
   </data>
   <data name="KeepAliveExpired" xml:space="preserve">
     <value>The CyberArk session has expired: F5, or any CyberArk action, offers to sign in again.</value>
@@ -2397,7 +2386,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>Loading the members…</value>
   </data>
   <data name="SafeMembersCount" xml:space="preserve">
-    <value>{0} member(s)</value>
+    <value>{0:# member|# members}</value>
   </data>
   <data name="SafeMembersCanAdd" xml:space="preserve">
     <value>Can add accounts: {0}</value>
@@ -2733,7 +2722,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>Used for the lines whose safe or platform column is missing or empty.</value>
   </data>
   <data name="ImportSummary" xml:space="preserve">
-    <value>{0} account(s) to create, {1} line(s) with an error (not imported).</value>
+    <value>{0:# account|# accounts} to create, {1:# line|# lines} with an error (not imported).</value>
   </data>
   <data name="ImportPasswordsWarning" xml:space="preserve">
     <value>The file contains passwords: they are never shown. Delete the file once the import is done.</value>
@@ -2775,16 +2764,16 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>Not imported: {0}</value>
   </data>
   <data name="AccountsImported" xml:space="preserve">
-    <value>{0} account(s) imported</value>
+    <value>{0:# account|# accounts} imported</value>
   </data>
   <data name="ImportConfirmHint" xml:space="preserve">
     <value>Nothing is sent before you click Import; the next window then shows the result of each line.</value>
   </data>
   <data name="ImportRunning" xml:space="preserve">
-    <value>Creating {0} account(s) in CyberArk, one line at a time.</value>
+    <value>Creating {0:# account|# accounts} in CyberArk, one line at a time.</value>
   </data>
   <data name="ImportSessionExpired" xml:space="preserve">
-    <value>The PVWA session has expired: import stopped, {0} created, {1} refused; the other lines were not sent.</value>
+    <value>The CyberArk session has expired: import stopped, {0} created, {1} refused; the other lines were not sent.</value>
   </data>
   <data name="ImportSaveResult" xml:space="preserve">
     <value>Save the _result…</value>
@@ -2868,7 +2857,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>Export the _displayed accounts (CSV)…</value>
   </data>
   <data name="ImportServersTip" xml:space="preserve">
-    <value>Import a list of servers (file exported from My servers, or shared list)</value>
+    <value>Import the servers of a file exported from My servers (on this computer or by a colleague), or of a shared list</value>
   </data>
   <data name="ExportServersTip" xml:space="preserve">
     <value>Export My servers to a file (folders, modes, components, target machines; no password)</value>
@@ -2889,7 +2878,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>My servers is empty: nothing to export.</value>
   </data>
   <data name="ServersExported" xml:space="preserve">
-    <value>{0} server(s) exported to {1}</value>
+    <value>{0:# server|# servers} exported to {1}</value>
   </data>
   <data name="ImportServersTitle" xml:space="preserve">
     <value>Import servers</value>
@@ -2898,13 +2887,13 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>Import impossible: {0}</value>
   </data>
   <data name="ImportServersNothing" xml:space="preserve">
-    <value>Nothing to import: the {0} server(s) of this file are already in My servers.</value>
+    <value>Nothing to import: this file only has servers already in My servers ({0:# server|# servers}).</value>
   </data>
   <data name="ImportServersConfirm" xml:space="preserve">
-    <value>Import {0} server(s) into My servers from “{1}”?</value>
+    <value>Import {0:# server|# servers} into My servers from “{1}”?</value>
   </data>
   <data name="ImportServersDuplicates" xml:space="preserve">
-    <value>{0} server(s) already in My servers will be skipped.</value>
+    <value>{0:# server already in My servers will be skipped.|# servers already in My servers will be skipped.}</value>
   </data>
   <data name="ImportServersFolders" xml:space="preserve">
     <value>New folders: {0}</value>
@@ -2916,7 +2905,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>This file was created for the PVWA {0}: its account IDs designate other accounts than on {1}. Sign in to {0} to import it.</value>
   </data>
   <data name="ServersImported" xml:space="preserve">
-    <value>{0} server(s) imported ({1} already present)</value>
+    <value>{0:# server|# servers} imported ({1} already present)</value>
   </data>
   <data name="SharedListsTitle" xml:space="preserve">
     <value>Shared lists</value>
@@ -2958,7 +2947,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>The shared list “{0}” is already open.</value>
   </data>
   <data name="SharedListOpened" xml:space="preserve">
-    <value>Shared list “{0}” opened ({1} server(s)).</value>
+    <value>Shared list “{0}” opened ({1:# server|# servers}).</value>
   </data>
   <data name="SharedListOtherPvwaWarning" xml:space="preserve">
     <value>The list “{0}” was created for the PVWA {1}; you are connected to {2}. Servers whose account does not exist here appear greyed out.</value>
@@ -3027,16 +3016,16 @@ Your changes stay in the editor: save again to send the whole file once the conn
     <value>Open or create a shared list first (button at the top of the tab).</value>
   </data>
   <data name="SharedServersAdded" xml:space="preserve">
-    <value>{0} server(s) added to the shared list “{1}” ({2} already there)</value>
+    <value>{0:# server|# servers} added to the shared list “{1}” ({2} already there)</value>
   </data>
   <data name="SharedServersRemoved" xml:space="preserve">
-    <value>{0} server(s) removed from the shared list “{1}”</value>
+    <value>{0:# server|# servers} removed from the shared list “{1}”</value>
   </data>
   <data name="CopiedToMyServers" xml:space="preserve">
-    <value>{0} server(s) copied into My servers ({1} already present)</value>
+    <value>{0:# server|# servers} copied into My servers ({1} already present)</value>
   </data>
   <data name="CopiedToMyServersNone" xml:space="preserve">
-    <value>Already in My servers ({0} server(s)).</value>
+    <value>Already in My servers ({0:# server|# servers}).</value>
   </data>
   <data name="MenuSharedHistory" xml:space="preserve">
     <value>_History of changes…</value>
@@ -3073,7 +3062,7 @@ Your changes stay in the editor: save again to send the whole file once the conn
   </data>
   <data name="SharedHistoryHeader" xml:space="preserve">
     <value>{0}
-Current revision: {1} · {2} server(s)</value>
+Current revision: {1} · {2:# server|# servers}</value>
   </data>
   <data name="SharedHistoryChangesTab" xml:space="preserve">
     <value>Changes</value>
@@ -3172,13 +3161,13 @@ Current revision: {1} · {2} server(s)</value>
     <value>The clipboard of this computer contains no text.</value>
   </data>
   <data name="VncClipboardSent" xml:space="preserve">
-    <value>{0} character(s) sent to the server's clipboard: paste them there.</value>
+    <value>{0:# character|# characters} sent to the server's clipboard: paste {0:it|them} there.</value>
   </data>
   <data name="VncClipboardReceived" xml:space="preserve">
-    <value>Text copied on the server ({0} characters): “Copy remote text” to get it.</value>
+    <value>Text copied on the server ({0:# character|# characters}): “Copy remote text” to get it.</value>
   </data>
   <data name="VncClipboardCopied" xml:space="preserve">
-    <value>{0} character(s) copied from the server.</value>
+    <value>{0:# character|# characters} copied from the server.</value>
   </data>
   <data name="VncOpened" xml:space="preserve">
     <value>VNC session opened: {0}</value>
@@ -3480,7 +3469,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Closing a session will no longer be confirmed (Settings › Terminal to ask again).</value>
   </data>
   <data name="CloseAllLogoutHeading" xml:space="preserve">
-    <value>Sign out and close the open sessions?</value>
+    <value>Sign out of CyberArk and close the open sessions?</value>
   </data>
   <data name="CloseAllExitHeading" xml:space="preserve">
     <value>Quit and close the open sessions?</value>
@@ -3504,7 +3493,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Edited files not sent back: {0} (their local copies are deleted)</value>
   </data>
   <data name="ActionSignOut" xml:space="preserve">
-    <value>Sign out</value>
+    <value>Sign out of CyberArk</value>
   </data>
   <data name="ActionQuit" xml:space="preserve">
     <value>Quit</value>
@@ -3675,7 +3664,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Remove the member</value>
   </data>
   <data name="ParallelPasteHeading" xml:space="preserve">
-    <value>Paste {0} lines in {1} sessions?</value>
+    <value>Paste {0} lines in {1:# session|# sessions}?</value>
   </data>
   <data name="ParallelPasteMessage" xml:space="preserve">
     <value>Each line runs as a command on every server.</value>
@@ -3795,10 +3784,10 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Send Ctrl+Alt+Del</value>
   </data>
   <data name="SettingsConfirmClose" xml:space="preserve">
-    <value>Confirm before closing a connected session (SSH, remote desktop, VNC)</value>
+    <value>Co_nfirm before closing a connected session (SSH, remote desktop, VNC)</value>
   </data>
   <data name="SettingsConfirmPaste" xml:space="preserve">
-    <value>Warn before pasting several lines when the shell would run them one by one</value>
+    <value>_Warn before pasting several lines when the shell would run them one by one</value>
   </data>
   <data name="PermissionsApply" xml:space="preserve">
     <value>Apply</value>
@@ -3828,7 +3817,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Stop changing permissions (items already done keep their new permissions)</value>
   </data>
   <data name="PermissionsStopped" xml:space="preserve">
-    <value>Stopped: {0} items changed</value>
+    <value>Stopped: {0:# item|# items} changed</value>
   </data>
   <data name="PermissionsNothing" xml:space="preserve">
     <value>No permission changed.</value>
@@ -3917,9 +3906,6 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="A11yMarked" xml:space="preserve">
     <value>selected</value>
   </data>
-  <data name="A11yUnavailable" xml:space="preserve">
-    <value>account no longer visible in CyberArk</value>
-  </data>
   <data name="A11yToolbar" xml:space="preserve">
     <value>Toolbar</value>
   </data>
@@ -3942,7 +3928,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Language</value>
   </data>
   <data name="LoginQuit" xml:space="preserve">
-    <value>Quit</value>
+    <value>Exit</value>
   </data>
   <data name="CapsLockOn" xml:space="preserve">
     <value>Caps Lock is on.</value>
@@ -4020,7 +4006,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Updates</value>
   </data>
   <data name="SettingsKeepAliveEffect" xml:space="preserve">
-    <value>⚠ Effect: the PVWA session no longer closes by itself after inactivity while ZillaTerm runs.</value>
+    <value>⚠ Effect: while you work in ZillaTerm, the CyberArk session no longer closes by itself after its idle timeout.</value>
   </data>
   <data name="SettingsRightClickEffect" xml:space="preserve">
     <value>⚠ Effect: a stray right-click sends the clipboard to the shell, root shells included.</value>
@@ -4104,7 +4090,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Safes: {0}.</value>
   </data>
   <data name="ImportCreateAccounts" xml:space="preserve">
-    <value>_Create {0} accounts</value>
+    <value>_Create {0:# account|# accounts}</value>
   </data>
   <data name="ImportStopHeading" xml:space="preserve">
     <value>Stop the import?</value>
@@ -4185,13 +4171,13 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>⚠ done · not verified: {0} of {1}</value>
   </data>
   <data name="FilesBadgeActive" xml:space="preserve">
-    <value>{0} transfer(s) running or waiting</value>
+    <value>{0:# transfer|# transfers} running or waiting</value>
   </data>
   <data name="FilesBadgeProblem" xml:space="preserve">
-    <value>{0} transfer(s) failed or differ: see the Files tab</value>
+    <value>{0:# transfer|# transfers} failed or different: see the Files tab</value>
   </data>
   <data name="TailFilterActive" xml:space="preserve">
-    <value>Filter: {0} / {1} lines shown</value>
+    <value>Filter: {0} / {1:# line|# lines} shown</value>
   </data>
   <data name="TailClearFieldTip" xml:space="preserve">
     <value>Empty this field</value>
@@ -4305,7 +4291,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>This server is already in “My servers” for this account.</value>
   </data>
   <data name="ServerPromptAdvanced" xml:space="preserve">
-    <value>_Advanced…</value>
+    <value>_Advanced options…</value>
   </data>
   <data name="ServerPromptAdvancedTip" xml:space="preserve">
     <value>Opens the full connection window (type, PSM component, reason, ticket) with this server.</value>
@@ -4392,7 +4378,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Central environment file</value>
   </data>
   <data name="EnvKeepAlive" xml:space="preserve">
-    <value>Keep the PVWA session open</value>
+    <value>Keep the CyberArk session open</value>
   </data>
   <data name="EnvSshInApp" xml:space="preserve">
     <value>SSH in ZillaTerm</value>
@@ -4548,7 +4534,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Reading the sessions…</value>
   </data>
   <data name="SessionImportReadFrom" xml:space="preserve">
-    <value>{0} sessions read from {1}</value>
+    <value>{0:# session|# sessions} read from {1}</value>
   </data>
   <data name="SessionImportNone" xml:space="preserve">
     <value>No session found in {0}.</value>
@@ -4605,7 +4591,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Import sessions from another _tool…</value>
   </data>
   <data name="SessionImportDone" xml:space="preserve">
-    <value>{0} servers imported into My servers</value>
+    <value>{0:# server|# servers} imported into My servers</value>
   </data>
   <data name="SourcePuttyRegistry" xml:space="preserve">
     <value>PuTTY (Windows registry)</value>
@@ -4695,7 +4681,7 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>Shows only the items of this folder whose name contains this text, or matches a mask with * and ? (several separated by ;). Cleared when you change folder. Ctrl+F; Esc clears.</value>
   </data>
   <data name="FilesFilterSummary" xml:space="preserve">
-    <value>{0} of {1} items shown (filter)</value>
+    <value>{0} of {1:# item|# items} shown (filter)</value>
   </data>
   <data name="KeePassTitleRequired" xml:space="preserve">
     <value>Fill in a title for this entry.</value>
@@ -4806,12 +4792,57 @@ Two instances would overwrite each other's settings, local vault and files being
     <value>No transfer matches this filter.</value>
   </data>
   <data name="TransferLinksSkipped" xml:space="preserve">
-    <value>↷ {0} link(s) to a folder not followed</value>
+    <value>↷ {0:# link|# links} to a folder not followed</value>
   </data>
   <data name="ChecksSkipped" xml:space="preserve">
     <value>↷ Not followed (link to {0})</value>
   </data>
   <data name="ChecksSomeSkipped" xml:space="preserve">
-    <value>↷ {0} link(s) to a folder (junction or symbolic link) not followed: their content was not sent.</value>
+    <value>↷ {0:# link|# links} to a folder (junction or symbolic link) not followed: {0:its|their} content was not sent.</value>
+  </data>
+  <data name="MissingInCyberArk" xml:space="preserve">
+    <value>not found in CyberArk</value>
+  </data>
+  <data name="MatchReason" xml:space="preserve">
+    <value>matches: {0}</value>
+  </data>
+  <data name="A11yFolderPath" xml:space="preserve">
+    <value>Folder path</value>
+  </data>
+  <data name="A11yRemotePath" xml:space="preserve">
+    <value>Folder or file path</value>
+  </data>
+  <data name="A11yHistoryFilter" xml:space="preserve">
+    <value>Transfers shown</value>
+  </data>
+  <data name="ConnectionTypeLabel" xml:space="preserve">
+    <value>T_ype:</value>
+  </data>
+  <data name="MyServersImport" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="MyServersImportTip" xml:space="preserve">
+    <value>Add servers to My servers: ZillaTerm file, sessions of another tool, shared list or KeePass database</value>
+  </data>
+  <data name="MyServersShare" xml:space="preserve">
+    <value>Share</value>
+  </data>
+  <data name="MyServersShareTip" xml:space="preserve">
+    <value>Export My servers to a file, or create a shared list on a network share</value>
+  </data>
+  <data name="MenuImportServerFile" xml:space="preserve">
+    <value>_ZillaTerm file (export of My servers)…</value>
+  </data>
+  <data name="MenuImportOtherTool" xml:space="preserve">
+    <value>Sessions of another _tool…</value>
+  </data>
+  <data name="MenuExportMyServers" xml:space="preserve">
+    <value>_Export My servers to a file…</value>
+  </data>
+  <data name="BrowseOther" xml:space="preserve">
+    <value>Br_owse…</value>
+  </data>
+  <data name="A11yExtractCommand" xml:space="preserve">
+    <value>Extraction command</value>
   </data>
 </root>

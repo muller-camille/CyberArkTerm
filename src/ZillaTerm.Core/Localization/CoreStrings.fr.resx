@@ -30,9 +30,6 @@
   <data name="ServerAddressWhat" xml:space="preserve">
     <value>l'adresse du serveur</value>
   </data>
-  <data name="UserNameWhat" xml:space="preserve">
-    <value>le nom d'utilisateur</value>
-  </data>
   <data name="CharacterNotAllowed" xml:space="preserve">
     <value>Caractère non autorisé dans {0} : « {1} ».</value>
   </data>
@@ -479,5 +476,83 @@
   </data>
   <data name="RdpTlsFailed" xml:space="preserve">
     <value>Échec de la négociation TLS avec le serveur Bureau à distance : {0}</value>
+  </data>
+  <data name="ErrorWithPvwaMessage" xml:space="preserve">
+    <value>{0} Message du PVWA : {1}</value>
+  </data>
+  <data name="ErrorWithDetail" xml:space="preserve">
+    <value>{0} Détail : {1}</value>
+  </data>
+  <data name="PvwaBadCredentials" xml:space="preserve">
+    <value>Le PVWA refuse l'identifiant ou le mot de passe. Vérifiez-les (et Verr. Maj) avant de réessayer : après plusieurs échecs, CyberArk suspend le compte.</value>
+  </data>
+  <data name="PvwaUserSuspended" xml:space="preserve">
+    <value>Votre compte CyberArk est suspendu ou désactivé (trop d'échecs d'identification, ou par un administrateur). Demandez à l'équipe CyberArk de le réactiver.</value>
+  </data>
+  <data name="PvwaPasswordExpired" xml:space="preserve">
+    <value>Votre mot de passe CyberArk a expiré : changez-le sur la page web du PVWA, puis identifiez-vous ici avec le nouveau.</value>
+  </data>
+  <data name="PvwaDualControl" xml:space="preserve">
+    <value>Ce compte exige une demande approuvée (double validation) : faites la demande d'accès sur la page web du PVWA et attendez son approbation, puis recommencez.</value>
+  </data>
+  <data name="PvwaTicketRequired" xml:space="preserve">
+    <value>CyberArk exige un ticket valide pour ce compte : vérifiez le système et le numéro du ticket (champs « Ticket »), puis recommencez.</value>
+  </data>
+  <data name="PvwaReasonRequired" xml:space="preserve">
+    <value>CyberArk exige un motif pour ce compte : saisissez-le dans le champ « Motif », puis recommencez.</value>
+  </data>
+  <data name="PvwaComponentNotConfigured" xml:space="preserve">
+    <value>Ce composant de connexion n'est pas configuré pour la plateforme du compte : choisissez-en un autre dans « Options avancées… » (Composant PSM).</value>
+  </data>
+  <data name="PvwaAlreadyExists" xml:space="preserve">
+    <value>Ce compte existe déjà dans ce safe.</value>
+  </data>
+  <data name="PvwaSessionExpired" xml:space="preserve">
+    <value>Votre session CyberArk a expiré : identifiez-vous de nouveau.</value>
+  </data>
+  <data name="PvwaForbidden" xml:space="preserve">
+    <value>CyberArk refuse cette action : votre compte n'a pas les droits nécessaires sur ce safe. Demandez-les à un gestionnaire du safe (« Membres du safe… » montre vos droits).</value>
+  </data>
+  <data name="PvwaNotFound" xml:space="preserve">
+    <value>Introuvable dans CyberArk (supprimé, ou droits retirés) : actualisez la liste (F5).</value>
+  </data>
+  <data name="PvwaServerError" xml:space="preserve">
+    <value>Le PVWA a rencontré une erreur : réessayez dans un instant. Si elle persiste, transmettez ce message à l'équipe CyberArk.</value>
+  </data>
+  <data name="SshAuthenticationRefused" xml:space="preserve">
+    <value>Le serveur SSH refuse l'authentification. Vérifiez le mot de passe (et Verr. Maj) avant de réessayer ; via le PSMP, c'est votre mot de passe CyberArk, et plusieurs échecs suspendent votre compte.</value>
+  </data>
+  <data name="SshNoSshAnswer" xml:space="preserve">
+    <value>Le serveur a fermé la connexion sans répondre en SSH : vérifiez l'adresse et le port, ou réessayez dans un instant.</value>
+  </data>
+  <data name="NetworkTimeout" xml:space="preserve">
+    <value>Le serveur n'a pas répondu à temps : vérifiez l'adresse, le port et votre accès au réseau (VPN, pare-feu), puis réessayez.</value>
+  </data>
+  <data name="NetworkHostNotFound" xml:space="preserve">
+    <value>Nom de serveur introuvable (DNS) : vérifiez l'adresse, ou votre connexion au réseau de l'entreprise (VPN).</value>
+  </data>
+  <data name="NetworkRefused" xml:space="preserve">
+    <value>Le serveur refuse la connexion sur ce port : vérifiez l'adresse et le port, et que le service y est démarré.</value>
+  </data>
+  <data name="NetworkConnectionLost" xml:space="preserve">
+    <value>La connexion a été coupée par le serveur ou le réseau : reconnectez-vous.</value>
+  </data>
+  <data name="FieldMachine" xml:space="preserve">
+    <value>machine {0}</value>
+  </data>
+  <data name="FieldSafe" xml:space="preserve">
+    <value>safe {0}</value>
+  </data>
+  <data name="FieldPlatform" xml:space="preserve">
+    <value>plateforme {0}</value>
+  </data>
+  <data name="FieldDomain" xml:space="preserve">
+    <value>domaine {0}</value>
+  </data>
+  <data name="FieldName" xml:space="preserve">
+    <value>nom {0}</value>
+  </data>
+  <data name="AnyMachine" xml:space="preserve">
+    <value>toutes machines</value>
   </data>
 </root>

@@ -66,7 +66,7 @@ public partial class MainWindow
 
         foreach (var session in node.Sessions)
         {
-            items.Add(new SavedSessionNode(session, _byId.GetValueOrDefault(session.AccountId)) { IsMarked = _savedMarks.Contains(session) });
+            items.Add(new SavedSessionNode(session, _byId.GetValueOrDefault(session.AccountId), _accountsLoaded) { IsMarked = _savedMarks.Contains(session) });
         }
 
         return items;

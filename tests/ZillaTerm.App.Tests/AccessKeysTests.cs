@@ -6,8 +6,8 @@ namespace ZillaTerm.App.Tests;
 
 /// <summary>
 /// Touches d'accès (lettre soulignée, Alt+lettre) : deux entrées d'un même menu ou deux contrôles d'une même fenêtre
-/// ne partagent pas la même lettre, dans aucune langue. Les groupes sont lus dans le XAML ; les menus construits dans le
-/// code sont listés ici.
+/// (d'un même onglet, dans une fenêtre à onglets) ne partagent pas la même lettre, dans aucune langue. Les groupes sont
+/// lus dans le XAML ; les menus construits dans le code sont listés ici.
 /// </summary>
 public sealed partial class AccessKeysTests
 {
@@ -115,12 +115,23 @@ public sealed partial class AccessKeysTests
         }
 
         string[] controls = ["Label", "AccessText", "Button", "CheckBox", "RadioButton", "TabItem", "GroupBox"];
-        var window = root.Descendants()
+        HashSet<string> Keys(IEnumerable<XElement> elements) => elements
             .Where(e => !inMenus.Contains(e) && controls.Contains(e.Name.LocalName) && e.Name.Namespace == Wpf)
             .SelectMany(e => new[] { "Content", "Text", "Header" }.Select(a => KeyOf((string?)e.Attribute(a))))
             .OfType<string>()
             .ToHashSet();
-        groups.Add((file, window));
+
+        // Fenêtre à onglets (Paramètres) : seul l'onglet affiché a ses touches d'accès actives, WPF ignorant les éléments
+        // invisibles ; chaque onglet forme donc un groupe avec le reste de la fenêtre (en-têtes des onglets, boutons du bas).
+        var pages = root.Descendants(Wpf + "TabItem")
+            .Select(t => (Name: (string?)t.Attribute(Xaml + "Name") ?? "TabItem",
+                Content: t.Elements().Where(e => !e.Name.LocalName.EndsWith(".Header", StringComparison.Ordinal)).SelectMany(e => e.DescendantsAndSelf()).ToHashSet()))
+            .Where(p => p.Content.Count > 0)
+            .ToList();
+        var inPages = pages.SelectMany(p => p.Content).ToHashSet();
+        var common = Keys(root.Descendants().Where(e => !inPages.Contains(e)));
+        groups.Add((file, common));
+        groups.AddRange(pages.Select(p => ($"{file}:{p.Name}", common.Concat(Keys(p.Content)).ToHashSet())));
         return groups;
     }
 

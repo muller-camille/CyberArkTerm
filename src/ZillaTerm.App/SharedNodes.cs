@@ -72,9 +72,10 @@ public sealed class SharedFolderNode(SharedServerList list, string path, List<ob
 
 /// <summary>
 /// Serveur d'une liste partagée. <see cref="Session"/> en est la copie utilisée pour se connecter (jamais enregistrée
-/// dans les préférences) ; <see cref="Account"/> est null si le compte n'est pas visible dans CyberArk.
+/// dans les préférences) ; <see cref="Account"/> est null si le compte n'est pas visible dans CyberArk, ou tant que la
+/// liste des comptes n'est pas chargée (<paramref name="accountsKnown"/> faux : rien n'est alors signalé).
 /// </summary>
-public sealed class SharedServerNode(SharedServerList list, ServerEntry entry, SavedSession session, PvwaAccount? account)
+public sealed class SharedServerNode(SharedServerList list, ServerEntry entry, SavedSession session, PvwaAccount? account, bool accountsKnown = true)
 {
     public SharedServerList List { get; } = list;
 
@@ -88,9 +89,10 @@ public sealed class SharedServerNode(SharedServerList list, ServerEntry entry, S
 
     public string ModeText => Session.Mode == ConnectMode.Psm ? Session.Component ?? "PSM" : SessionLibrary.ModeName(Session.Mode);
 
-    public override string ToString() => $"{Title}, {ModeText}";
+    public override string ToString() => $"{Title}, {ModeText}" + (IsMissing ? ", " + Strings.MissingInCyberArk : "");
 
-    public double Opacity => Account is null ? 0.5 : 1;
+    /// <summary>Compte introuvable dans CyberArk : « ⚠ introuvable dans CyberArk » après le nom, en clair (pas d'opacité).</summary>
+    public bool IsMissing => accountsKnown && Account is null;
 
     public bool IsExpanded { get; set; }
 
@@ -122,7 +124,7 @@ public sealed class SharedServerNode(SharedServerList list, ServerEntry entry, S
                     : Text.Format(Strings.SharedAddedBy, Entry.AddedBy));
             }
 
-            lines.Add(Account is null ? Strings.SavedAccountMissing : Text.Format(Strings.SharedServerInList, List.Name));
+            lines.Add(IsMissing ? Strings.SavedAccountMissing : Text.Format(Strings.SharedServerInList, List.Name));
             return string.Join("\n", lines);
         }
     }

@@ -47,8 +47,8 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
   `Ctrl+F4` o `Ctrl+Maiusc+W`: chiudi la scheda.
 - **Chiudere una sessione connessa** (SSH, desktop remoto, VNC) chiede conferma, con la casella «Non chiedere più
   alla chiusura di una sessione» (impostazione «Conferma prima di chiudere una sessione connessa», Impostazioni ›
-  Terminale). Alla disconnessione e all'uscita, una sola finestra riepiloga ciò che verrà chiuso: sessioni,
-  trasferimenti in corso, file modificati non rimandati.
+  Terminale). Con «Disconnetti da CyberArk» (che chiude tutte le schede) e all'uscita, una sola finestra riepiloga
+  ciò che verrà chiuso: sessioni, trasferimenti in corso, file modificati non rimandati.
 - **Conferme**: i pulsanti dicono l'azione («Elimina l'account», «Sostituisci la chiave e connetti»…), «Annulla» è il
   pulsante predefinito, e il server, l'account o il safe interessato viene nominato. I valori da confrontare
   (impronte) sono mostrati con un carattere a spaziatura fissa, con «Copia». Alcune azioni irreversibili (eliminare
@@ -57,6 +57,11 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
   «Parallelo»…). In accesso di emergenza, i pulsanti propri di CyberArk sono nascosti.
 - **Barra di stato**: un messaggio ordinario si cancella dopo 10 secondi; un errore resta visibile fino al messaggio
   successivo. Il numero di account compare solo con la scheda «Disponibili».
+- **Messaggi di errore**: i rifiuti comuni del PVWA (password rifiutata, account sospeso, password scaduta, motivo o
+  ticket richiesto, doppio controllo, diritti mancanti, sessione scaduta) e gli errori comuni di connessione
+  (autenticazione SSH rifiutata, nome del server non trovato, server che non risponde o rifiuta la connessione,
+  connessione interrotta) sono spiegati e dicono cosa fare; segue il testo originale («Messaggio del PVWA: …» o
+  «Dettaglio: …»), da trasmettere così com'è al team CyberArk o al supporto.
 - **Sessione CyberArk scaduta** (timeout di inattività del PVWA): una finestra chiede la password (e la risposta
   RADIUS se serve) per accedere di nuovo, con lo stesso indirizzo, lo stesso utente e lo stesso metodo. Schede,
   sessioni aperte e trasferimenti restano come sono; l'azione che ha incontrato la scadenza viene ripetuta
@@ -69,8 +74,13 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
 ![Scheda «Disponibili» filtrata su più server](captures/it/available.png)
 
 - La casella di ricerca («Filtra gli account…», `Ctrl+F`) filtra su tutti i campi (server, utente, safe,
-  piattaforma, dominio…), anche con più parole (`prd sql`). La ✕ in fondo alla casella (come in ogni casella di
-  ricerca o di filtro) o `Esc` la svuota.
+  piattaforma, dominio…), anche con più parole (`prd sql`). Quando la parola cercata non si vede nella riga, il
+  motivo compare in grigio a destra dell'account («corrisponde: macchina srv01», «corrisponde: safe PROD»…).
+  La ✕ in fondo alla casella (come in ogni casella di ricerca o di filtro) o `Esc` la svuota.
+- Più account mostrati con lo stesso nome (`utente@indirizzo`) in una cartella si distinguono con un testo grigio a
+  destra: le loro macchine autorizzate («→ srv01, srv02 (+2)», «→ qualsiasi macchina»), altrimenti la
+  piattaforma, il safe o il nome in CyberArk. Le utilità per la lettura dello schermo lo leggono con il nome
+  dell'account.
 - Al posto di un elenco vuoto, la scheda dice cosa succede: caricamento degli account, caricamento non riuscito con
   il suo messaggio e «Riprova», nessun account disponibile per il tuo utente CyberArk, o nessun account
   corrispondente al filtro, con «Cancella il filtro».
@@ -133,11 +143,11 @@ subito nella lingua scelta, conservando l'indirizzo e il nome utente inseriti.
 
 ## 3. Aprire una sessione PSM (desktop remoto)
 
-<img src="captures/it/psm-connect.png" alt="Connessione PSM avanzata: macchina di destinazione, motivo, ticket" width="520">
+<img src="captures/it/psm-connect.png" alt="Opzioni avanzate di connessione: macchina di destinazione, motivo, ticket" width="520">
 
 Fai doppio clic sull'account (oppure Invio, oppure il pulsante «Connetti»); un account Unix si apre in SSH tramite
-il PSMP quando il suo indirizzo è impostato, o in soli file per una piattaforma «SFTP» (vedi 4.), e «Connessione
-avanzata…» permette allora di scegliere il PSM. ZillaTerm richiede la connessione al PVWA e apre la sessione in **Connessione Desktop remoto** di Windows
+il PSMP quando il suo indirizzo è impostato, o in soli file per una piattaforma «SFTP» (vedi 4.), e «Opzioni
+avanzate…» permette allora di scegliere il PSM. ZillaTerm richiede la connessione al PVWA e apre la sessione in **Connessione Desktop remoto** di Windows
 (`mstsc`), esattamente come il pulsante «Connect» del PVWA: il file RDP del PVWA le viene passato così com'è. Un
 componente che apre un'applicazione remota (RemoteApp) apre le sue finestre sul desktop del computer.
 
@@ -155,16 +165,17 @@ componente che apre un'applicazione remota (RemoteApp) apre le sue finestre sul 
   `SRV01`) resta un account di quel server quando un altro account della cassaforte lo punta (account locale, account
   Unix) o quando la sua piattaforma è una piattaforma di server o di postazioni («Server», «Srv», «Desktop»,
   «Workstation»). Un account che ha solo un elenco di macchine, senza esservi limitato, si apre sul proprio
-  indirizzo; la macchina di destinazione resta facoltativa. Mai una sessione verso il dominio stesso: il server viene sempre chiesto, «Connessione avanzata» compresa. La finestra «Scegli il server» chiede su quale aprire la sessione:
+  indirizzo; la macchina di destinazione resta facoltativa. Mai una sessione verso il dominio stesso: il server viene sempre chiesto, «Opzioni avanzate…» comprese. La finestra «Scegli il server» chiede su quale aprire la sessione:
   l'elenco propone i server già usati con questo account (sessioni recenti, «I miei server»), poi le sue macchine
   autorizzate; un account limitato alle sue macchine rifiuta le altre. «Mantieni questo server in «I miei server»»,
   con la cartella desiderata, lo aggiunge dopo una connessione riuscita, con il nome `account@server` (la scelta
-  viene ricordata per la volta successiva; la casella scompare se il server è già presente). «Avanzata…» apre la
-  finestra completa con questo server.
-- **Motivo e ticket**: se il PVWA rifiuta la richiesta (motivo obbligatorio, componente non configurato…), il suo
-  messaggio viene mostrato e puoi correggere e riprovare.
-- Il pulsante «Avanzata…» della barra degli strumenti (o clic destro → «Connessione avanzata…») apre questa
-  finestra su richiesta. Il cursore viene posto sul primo campo utilizzabile; in SSH o in soli file, i campi che
+  viene ricordata per la volta successiva; la casella scompare se il server è già presente). «Opzioni avanzate…»
+  apre la finestra completa con questo server.
+- **Motivo e ticket**: se il PVWA rifiuta la richiesta (motivo o ticket richiesto, componente non configurato…), la
+  finestra dice cosa fare, seguito dal messaggio originale del PVWA, e puoi correggere e riprovare.
+- Il pulsante «Opzioni avanzate…» della barra degli strumenti (o clic destro → «Opzioni avanzate…») apre questa
+  finestra, «Opzioni avanzate di connessione», su richiesta. I due campi del ticket (sistema, numero) hanno un nome
+  per le utilità per la lettura dello schermo; la colonna delle etichette si allarga con il loro testo. Il cursore viene posto sul primo campo utilizzabile; in SSH o in soli file, i campi che
   servono solo al PSM sono disattivati e la loro descrizione comandi lo dice; senza componente, la finestra chiede di
   sceglierne uno.
 
@@ -369,7 +380,7 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
   di stato della scheda (al massimo tre righe, testo completo nella descrizione comandi). Navigazione,
   eliminazione, permessi, editor e trascinamento verso Esplora file passano tra due file. Chiudere la scheda con
   trasferimenti in corso chiede conferma («Annulla i trasferimenti e chiudi» o «Continua i trasferimenti»); alla
-  disconnessione e all'uscita, compaiono nel riepilogo.
+  disconnessione da CyberArk e all'uscita, compaiono nel riepilogo.
 - **Molti file insieme: archivio .tar.gz**: da 200 file rilasciati (soglia nelle Impostazioni, opzione «Proporre un
   archivio .tar.gz»), ZillaTerm propone di inviarli in un unico archivio: un solo file da trasferire e verificare
   invece di migliaia, molto più veloce tramite il PSMP. L'archivio viene creato sul computer (nella coda,
@@ -502,13 +513,13 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
 
 ![I miei server organizzati in cartelle](captures/it/my-servers.png)
 
-- **Aggiungere** un account: clic destro in «Disponibili» → «Aggiungi ai miei server» e poi la cartella desiderata,
+- **Aggiungere** un account: clic destro in «Disponibili» → «Aggiungi a «I miei server»» e poi la cartella desiderata,
   oppure trascina l'account sulla scheda «I miei server», oppure il pulsante «Aggiungi» della barra degli strumenti.
   Per un account di dominio viene chiesto il server (facoltativo: senza server, verrà chiesto a ogni connessione).
-- **Aggiungere una sessione aperta**: clic destro sulla scheda della sessione (o nel suo terminale) → «Aggiungi ai
-  miei server» e poi la cartella desiderata. Il server mantiene il tipo di connessione e la macchina di destinazione;
+- **Aggiungere una sessione aperta**: clic destro sulla scheda della sessione (o nel suo terminale) → «Aggiungi a
+  «I miei server»» e poi la cartella desiderata. Il server mantiene il tipo di connessione e la macchina di destinazione;
   la voce è disattivata se è già presente.
-- **Aggiungere una connessione recente**: clic destro nelle sessioni recenti della home → «Aggiungi ai miei server»
+- **Aggiungere una connessione recente**: clic destro nelle sessioni recenti della home → «Aggiungi a «I miei server»»
   e poi la cartella desiderata. Il server mantiene il tipo di connessione (PSM, SSH o solo file), il componente PSM e la
   macchina di destinazione usati.
 - **Cartelle**: clic destro → nuova cartella o sottocartella, rinomina, elimina; trascina server e cartelle per
@@ -538,38 +549,43 @@ e voci KeePass SFTP, FTP, FTPS ([sezione 7](#7-accesso-di-emergenza-fuori-da-cyb
 <img src="captures/it/server-properties.png" alt="Proprietà di un server in «I miei server»" width="540">
 
 Senza PSMP nelle Impostazioni, i tipi SSH e solo file sono disattivati, come altrove; un valore errato
-viene segnalato nella finestra. Un server il cui account non è più visibile in CyberArk appare in grigio.
+viene segnalato nella finestra. Un server il cui account non è trovato in CyberArk (eliminato o diritti revocati)
+porta la dicitura «⚠ non trovato in CyberArk», letta anche dalle utilità per la lettura dello schermo; nulla viene
+segnalato mentre gli account si caricano.
 
 ### Esportare, importare, condividere
 
-Quattro pulsanti in alto nella scheda, a sinistra del pulsante cassaforte (database KeePass):
+Due menu in alto nella scheda, «Importa ▾» e «Condividi ▾», a sinistra dei pulsanti «Nuova cartella», «Proprietà /
+rinomina» e «Rimuovi il server o elimina la cartella» (`Tab` raggiunge questi pulsanti, le frecce passano dall'uno
+all'altro):
 
-- **Esporta** salva «I miei server» in un file `.json`: cartelle (anche vuote), nome, account CyberArk (ID), tipo di
+- **Condividi › Esporta «I miei server» in un file…** salva «I miei server» in un file `.json`: cartelle (anche vuote), nome, account CyberArk (ID), tipo di
   connessione, componente, macchina di destinazione, motivo predefinito, cartella SFTP iniziale. Nessuna password né
   file seguito. Utile per cambiare computer o passare il proprio elenco.
-- **Importa** legge un file esportato (o un elenco condiviso) e riassume prima di aggiungere: server aggiunti, server
+- **Importa › File ZillaTerm (esportazione di «I miei server»)…** legge un file esportato (o un elenco condiviso) e
+  riassume prima di aggiungere: server aggiunti, server
   già presenti (stesso account, tipo, componente, macchina di destinazione e cartella: ignorati), cartelle create,
   server aperti su una macchina di destinazione (da verificare: la macchina viene dal file). Niente viene rimosso o
   modificato in «I miei server». Un file creato per un altro PVWA viene rifiutato: i suoi ID di account vi indicano
   altri account.
-- **Importa le sessioni di un altro programma** (icona terminale e scudo): vedi
-  [sotto](#riprendere-le-sessioni-di-un-altro-programma).
-- **Elenchi condivisi** (icona con due persone): un elenco di server in un file su una condivisione di rete, che tutto
-  il team apre e completa.
-  - «Crea un elenco condiviso…»: scegli la posizione (condivisione di rete) e il nome mostrato a tutti; «Apri un
-    elenco condiviso…»: aggiungi un elenco creato da un collega. Gli elenchi aperti compaiono in cima alla scheda
+- **Importa › Sessioni di un altro programma…**: vedi [sotto](#riprendere-le-sessioni-di-un-altro-programma).
+- **Importa › Aggiungi un database KeePass…**: vedi [7.](#7-accesso-di-emergenza-fuori-da-cyberark-database-keepass)
+- **Elenchi condivisi**: un elenco di server in un file su una condivisione di rete, che tutto il team apre e
+  completa.
+  - «Condividi › Crea un elenco condiviso…»: scegli la posizione (condivisione di rete) e il nome mostrato a tutti;
+    «Importa › Apri un elenco condiviso…»: aggiungi un elenco creato da un collega. Gli elenchi aperti compaiono in cima alla scheda
     (dopo i database KeePass), con le loro cartelle; anche la ricerca li filtra.
   - **Aggiungere**: clic destro su un server o una cartella di «I miei server» → «Condividi in un elenco» (la
     cartella viene mantenuta), o trascina un server, una cartella o un account di «Disponibili» sull'elenco o su una
     sua cartella (conferma). Il motivo predefinito resta personale: non viene mai condiviso.
   - **Rimuovere**: clic destro → «Rimuovi dall'elenco condiviso…» (o `Canc`), dopo conferma.
-  - **Usare**: doppio clic per connettersi; clic destro per la connessione avanzata, la password, i membri del safe o
-    «Copia in I miei server». Ognuno si connette con i propri diritti CyberArk: un account che non vedi nel vault
-    CyberArk appare in grigio. La descrizione comandi mostra l'account come lo descrive CyberArk, la macchina di destinazione,
+  - **Usare**: doppio clic per connettersi; clic destro per le opzioni avanzate, la password, i membri del safe o
+    «Copia in «I miei server»». Ognuno si connette con i propri diritti CyberArk: un account che non vedi nel vault
+    CyberArk porta la dicitura «⚠ non trovato in CyberArk». La descrizione comandi mostra l'account come lo descrive CyberArk, la macchina di destinazione,
     chi ha aggiunto il server e quando.
   - **Macchina di destinazione**: un server condiviso che apre un account di dominio su una macchina non presente tra
     le macchine consentite dell'account in CyberArk chiede conferma alla prima connessione (chiunque abbia diritto di
-    scrittura sulla condivisione può modificare l'elenco). «Copia in I miei server» elenca questi server e chiede
+    scrittura sulla condivisione può modificare l'elenco). «Copia in «I miei server»» elenca questi server e chiede
     conferma prima di copiarli.
   - **Elenco di un altro PVWA**: un elenco creato per un altro vault CyberArk viene mostrato, ma i suoi server non si aprono e
     non si copiano, e non vi si può aggiungere nulla: accedi a quel PVWA per usarlo.
@@ -585,9 +601,9 @@ Quattro pulsanti in alto nella scheda, a sinistra del pulsante cassaforte (datab
 
 ### Riprendere le sessioni di un altro programma
 
-Per passare a ZillaTerm senza ridigitare i server, e smettere di connettersi a loro direttamente: pulsante «Importa
-le sessioni di un altro programma» in alto nella scheda (icona terminale e scudo), o menu **Impostazioni** › «Importa
-le sessioni di un altro programma…». Gli account del PVWA devono essere caricati.
+Per passare a ZillaTerm senza ridigitare i server, e smettere di connettersi a loro direttamente: menu «Importa ▾» ›
+«Sessioni di un altro programma…» in alto nella scheda, o menu **Impostazioni** › «Importa le sessioni di un altro
+programma…». Gli account del PVWA devono essere caricati.
 
 <img src="captures/it/session-import.png" alt="Importazione delle sessioni di un altro programma: anteprima prima dell'importazione" width="820">
 
@@ -623,7 +639,7 @@ le sessioni di un altro programma…». Gli account del PVWA devono essere caric
 3. **Connessione salvata**, mai diretta: Desktop remoto tramite PSM; SSH e file (SFTP, SCP) tramite il PSMP se ce n'è
    uno per quel server (solo file per una piattaforma «SFTP»), altrimenti tramite PSM (`PSM-WinSCP` per i file);
    Telnet tramite `PSM-Telnet`.
-4. **Cartella in I miei server**: le cartelle dell'altro programma vengono ricreate sotto questa cartella («Importati»
+4. **Cartella in «I miei server»**: le cartelle dell'altro programma vengono ricreate sotto questa cartella («Importati»
    per impostazione predefinita; vuoto: nella radice), e ogni server mantiene il suo nome.
 5. **Importa** aggiunge le sessioni selezionate e pronte. La tabella mostra poi il risultato di ogni server:
    «Importato», o «Non importato» con il motivo (nessun account nel PVWA, tipo di connessione non supportato come VNC,
@@ -657,8 +673,8 @@ contengono.
   nascosti). Con CyberArk, i database compaiono anche in cima a «I miei server». La descrizione comandi di una
   scheda di sessione aperta da un database lo ricorda: «Accesso diretto di emergenza (KeePass): fuori da CyberArk,
   annotato in urgence.log».
-- **Aggiungere un database**: pulsante cassaforte della scheda «I miei server» (o clic destro → «Aggiungi un
-  database KeePass…»). La finestra «Aggiungi un database KeePass» ricorda in una fascia che queste connessioni sono
+- **Aggiungere un database**: menu «Importa ▾» › «Aggiungi un database KeePass…» della scheda «I miei server»
+  (pulsante cassaforte in accesso di emergenza), o clic destro nella scheda → «Aggiungi un database KeePass…». La finestra «Aggiungi un database KeePass» ricorda in una fascia che queste connessioni sono
   fuori da CyberArk; «Sfoglia…» sceglie il file `.kdbx`, poi il nome e un eventuale file chiave.
 - **Sbloccare**: doppio clic sul database. Password principale e/o file chiave (tutti i formati di KeePass).
   «Memorizza la password principale nel vault locale» evita di ridigitarla (vedi sotto).
@@ -708,7 +724,7 @@ contengono.
   il salvataggio, la versione precedente del file è conservata in `database.kdbx.bak`, poi eliminata appena il nuovo
   file viene riletto identico: nessuna vecchia copia, che si aprirebbe ancora con una vecchia password principale,
   resta accanto al database (condiviso o no).
-- **Bloccare**: clic destro → «Blocca». I database si bloccano anche alla disconnessione, alla chiusura e al
+- **Bloccare**: clic destro → «Blocca». I database si bloccano anche alla disconnessione da CyberArk, alla chiusura e al
   **blocco di Windows**.
 
 **Vault locale**: le password principali che scegli di memorizzare sono conservate in
@@ -717,7 +733,7 @@ Windows. Questa password viene chiesta quando sblocchi un database KeePass la cu
 (proposto solo in quel momento) permette di digitare invece la password del database. Se il vault locale non è
 aperto, il database si apre comunque, e la barra di stato segnala che la sua password principale non è stata
 memorizzata. Gestione nelle **Impostazioni**, pagina Sicurezza: «Crea…», «Sblocca…», «Cambia password…», «Elimina
-ora…»; queste azioni si applicano subito, senza «Salva». Si blocca alla disconnessione (così «Accesso di emergenza»
+ora…»; queste azioni si applicano subito, senza «Salva». Si blocca alla disconnessione da CyberArk (così «Accesso di emergenza»
 non riapre mai i database memorizzati senza password), alla chiusura e al blocco di Windows.
 
 ## Scorciatoie
@@ -763,8 +779,11 @@ In un terminale, `Ctrl+K`, `Ctrl+B` e `F6` vengono inviati al server (`F6` alle 
 ogni finestra ha i suoi tasti di scelta (`Alt` + lettera sottolineata, senza doppioni, in italiano, francese e
 inglese), e il menu di un elemento di «I miei server» si apre nello stesso punto con il clic destro, `Maiusc+F10` o
 il tasto Menu. I campi password (accesso, database KeePass, vault locale) avvisano quando Bloc Maiusc è attivo. Le
-utilità per la lettura dello schermo annunciano il nome degli elementi di elenchi e alberi e dei pulsanti con
-icona, i messaggi della barra di stato e gli errori di connessione. In contrasto elevato, l'interfaccia usa i colori
+utilità per la lettura dello schermo annunciano il nome degli elementi di elenchi e alberi, dei pulsanti con icona
+o simbolo (✕, ↑, ↓), dei campi (percorso, numero del ticket…), i messaggi della barra di stato e gli errori di
+connessione. Le barre degli strumenti di «I miei server» e della scheda File sono un solo passo di `Tab` (le frecce
+passano da un pulsante all'altro). Nelle Impostazioni, ogni casella ha il suo tasto di scelta, senza doppioni nella
+pagina mostrata. In contrasto elevato, l'interfaccia usa i colori
 di sistema di Windows e ne segue i cambiamenti.
 
 ## Impostazioni e file di configurazione
@@ -778,16 +797,16 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 
 | Pagina | Impostazione | Ruolo | Predefinito |
 | --- | --- | --- | --- |
-| Generale | Lingua dell'interfaccia | Français, English, Italiano o lingua del sistema; applicata dopo la disconnessione o al prossimo avvio | lingua di Windows (inglese se non è tradotta) |
+| Generale | Lingua dell'interfaccia | Français, English, Italiano o lingua del sistema; applicata dopo la disconnessione da CyberArk o al prossimo avvio | lingua di Windows (inglese se non è tradotta) |
 | Generale | File centrale | File di ambiente del team su una condivisione di rete, riletto a ogni avvio; le sue modifiche vengono mostrate prima di essere applicate (vedi [Ambiente condiviso](#ambiente-condiviso)) | vuoto |
 | Generale | Cercare una nuova versione all'avvio | Una richiesta a GitHub al massimo una volta al giorno; un link nella barra di stato se esiste una versione più recente (la finestra «Informazioni» ricorda questa impostazione) | no |
-| CyberArk | Mantenere aperta la sessione PVWA | Richiesta leggera ogni 4 minuti mentre usi il computer; sospesa quando Windows è bloccato o dopo 15 minuti senza tastiera né mouse (la sessione PVWA scade allora secondo il suo timeout di inattività) | sì |
+| CyberArk | Mantenere aperta la sessione CyberArk | Richiesta leggera ogni 4 minuti mentre usi il computer; sospesa quando Windows è bloccato o dopo 15 minuti senza tastiera né mouse (la sessione CyberArk scade allora secondo il suo timeout di inattività) | sì |
 | CyberArk | PSMP predefinito, porta | Server PSM for SSH; se impostato (o un PSMP per dominio), gli account Unix si aprono in SSH per impostazione predefinita (in soli file per una piattaforma «SFTP»); senza alcun PSMP, SSH e SFTP sono disattivati | vuoto, 22 |
 | CyberArk | PSMP per dominio | Altri PSMP (indirizzo, porta, dominio servito); ogni server passa da quello del dominio più vicino al suo (vedi [PSMP per dominio](#psmp-per-dominio)); «Quale PSMP per il server» per verificare | nessuno |
 | CyberArk | Componente degli account Windows | Componente PSM degli account Windows (di dominio o locali) senza componente memorizzato per la loro piattaforma, ad esempio `WIN-PSM` | vuoto = `PSM-RDP` |
 | CyberArk | Componente per piattaforma | Tabella Piattaforma (ID del PVWA, ad esempio `WinDomain`) / Componente PSM: «Aggiungi un componente», «Rimuovi la riga», celle modificabili; ha la precedenza sul componente degli account Windows. «Memorizza questo componente per la piattaforma» (finestra di connessione) vi aggiunge una riga | vuoto |
 | Terminale | SSH in ZillaTerm | Terminale e scheda File integrati; altrimenti Windows Terminal | sì |
-| Terminale | Colori del terminale, carattere | Tavolozza (Campbell, One Half, Solarized…) e dimensione del carattere dei terminali SSH | Campbell, 14 |
+| Terminale | Colori del terminale, dimensione carattere | Tavolozza (Campbell, One Half, Solarized…) e dimensione del carattere dei terminali SSH | Campbell, 14 |
 | Terminale | Avvisa prima di incollare più righe | Anteprima e conferma quando la shell eseguirebbe le righe una alla volta | sì |
 | Terminale | Conferma prima di chiudere una sessione connessa | SSH, desktop remoto, VNC; «Non chiedere più» nella conferma deseleziona questa impostazione | sì |
 | Terminale | Il clic destro nel terminale incolla gli appunti | Maiusc+clic destro apre allora il menu; ⚠ un clic destro involontario invia gli appunti alla shell | no |
@@ -873,7 +892,7 @@ può scaricarla da solo (repository rinominato): scaricala una volta dalla pagin
   senza passare da una stringa; la password va direttamente negli appunti di Windows, contrassegnata per essere
   esclusa dalla cronologia (`Win+V`), dalla sincronizzazione tra dispositivi e dagli strumenti di monitoraggio degli
   appunti, poi cancellata dopo 20 s se è ancora presente (nuovo tentativo ogni secondo se un'altra applicazione
-  tiene aperti gli appunti), oltre che alla disconnessione, alla chiusura e al blocco di Windows. Non viene mai
+  tiene aperti gli appunti), oltre che alla disconnessione da CyberArk, alla chiusura e al blocco di Windows. Non viene mai
   mostrata né scritta nel registro di debug. Una risposta che non è la password (pagina HTML di manutenzione,
   reindirizzamento verso una pagina di accesso SSO, risposta vuota) viene rifiutata invece di essere copiata.
 - **Importazione delle sessioni di un altro programma**: vengono letti solo il server, la porta, il protocollo,
@@ -918,7 +937,7 @@ può scaricarla da solo (repository rinominato): scaricala una volta dalla pagin
   - la password principale non è mai salvata, tranne nel vault locale se lo chiedi: Argon2id (64 MiB, 3 passate) poi
     AES-256-GCM, parametri di derivazione autenticati, il tutto protetto da DPAPI (account Windows);
   - in memoria, la chiave del database e le password delle voci restano mascherate e sono rivelate solo al momento
-    della connessione; database bloccati alla disconnessione, alla chiusura e al blocco di Windows;
+    della connessione; database bloccati alla disconnessione da CyberArk, alla chiusura e al blocco di Windows;
   - salvataggio sicuro: il file viene riletto, la modifica è applicata alla sua versione attuale (le modifiche fatte
     altrove sono conservate), il risultato decifrato è verificato e il file è sostituito in un solo passo (una copia
     `.bak` durante la sostituzione, eliminata una volta riletto il file identico); una voce modificata altrove nel
@@ -1105,13 +1124,19 @@ non lo interrompe. Con csh, ksh, sh o fish il monitoraggio non viene installato 
 | «Il PVWA non ha un componente di connessione «PSM-RDP» per questo account» (`EPVWA093E Failed to get the relevant connection component`) | La piattaforma dell'account usa un componente con un altro nome (ad esempio `WIN-PSM`): quello proposto dal pulsante «Connect» del PVWA, o il nome dopo `/c` in un comando `psm /u … /a … /c …`. Inseriscilo in «Componente»; «Memorizza questo componente per la piattaforma» è selezionata per le connessioni successive. |
 | «Connessione TLS rifiutata: il certificato del PVWA non è considerato attendibile» | Il certificato (o l'autorità che lo ha emesso) non è nell'archivio Windows della postazione. |
 | «Il PVWA deve essere raggiunto in HTTPS» | Inserisci l'indirizzo senza `http://` (o con `https://`). |
+| «Il PVWA rifiuta il nome utente o la password» (`ITATS004E Authentication failure…`) | Verifica il nome utente, la password e il Bloc Maiusc prima di riprovare: dopo vari tentativi falliti, CyberArk sospende l'account. |
+| «Il tuo account CyberArk è sospeso o disattivato» | Troppi accessi non riusciti, o decisione di un amministratore: chiedi al team CyberArk di riattivarlo. |
+| «La tua password CyberArk è scaduta» | Cambiala nella pagina web del PVWA, poi accedi a ZillaTerm con quella nuova. |
+| «Il server SSH rifiuta l'autenticazione» | Tramite il PSMP è la tua password CyberArk: verificala (e il Bloc Maiusc) prima di riprovare, vari tentativi falliti sospendono l'account. |
+| «Nome del server non trovato (DNS)», «Il server non ha risposto in tempo», «Il server rifiuta la connessione su questa porta» | Verifica l'indirizzo e la porta, e l'accesso alla rete aziendale (VPN, firewall); il «Dettaglio» che segue riporta il messaggio di Windows. |
 | Finestra «Sessione CyberArk scaduta» | Timeout di inattività del PVWA superato: inserisci la password per accedere di nuovo; schede, sessioni e trasferimenti restano aperti. |
 | «Password» → «Copia la password…»: «Il PVWA rifiuta: … «Recuperare gli account» …» | Diritto mancante sul safe, o motivo / ticket richiesto dalla piattaforma: inseriscilo. Con la doppia convalida, fai la richiesta nel PVWA. |
 | «Verifica / Cambia / Riconcilia»: «Il PVWA rifiuta: … «Avviare le operazioni CPM» …» | Chiedi questo diritto sul safe; «Membri del safe» mostra i tuoi diritti. |
 | «Aggiungi un account»: «Il PVWA rifiuta: il tuo account deve avere il diritto «Aggiungere account»…» | Chiedi questo diritto sul safe (e «Aggiornare il contenuto degli account» per fornire la password), oppure crea l'account senza password. «Membri del safe» mostra i tuoi diritti. |
 | «Membri del safe»: «Il tuo account non può vedere i membri di questo safe» | Il PVWA richiede il diritto «View Safe Members» sul safe: chiedilo a un gestore del safe. |
-| «Connection component … is not configured for platform …» | Scegli il componente corretto in «Connessione avanzata», seleziona «Memorizza» per la piattaforma. |
-| «You must specify a reason…» | Inserisci un motivo nella finestra che si apre (o un motivo predefinito nelle proprietà del server, in «I miei server»). |
+| «Questo componente di connessione non è configurato per la piattaforma dell'account» (`Connection component … is not configured for platform …`) | Scegli il componente corretto in «Opzioni avanzate…», seleziona «Memorizza» per la piattaforma. |
+| «CyberArk richiede un motivo per questo account» (`You must specify a reason…`) | Inserisci un motivo nella finestra che si apre (o un motivo predefinito nelle proprietà del server, in «I miei server»). |
+| «CyberArk richiede un ticket valido per questo account», «Questo account richiede una richiesta approvata (doppio controllo)» | Inserisci il sistema e il numero del ticket; per il doppio controllo, richiedi l'accesso nella pagina web del PVWA e attendi l'approvazione. |
 | L'account non compare | Non hai il permesso «List accounts» sul suo safe, oppure l'elenco va ricaricato (`F5`). |
 | La password PSMP viene chiesta per ogni scheda | MFA caching non attivato sul PVWA: comportamento normale (una volta per scheda). Aprendo più sessioni insieme, spunta «Usa questa password anche…» per digitarla una sola volta. |
 | La scheda File indica «Connessione SFTP impossibile» | SFTP non è consentito sul PSMP o per questo account: rivolgiti al team CyberArk. |

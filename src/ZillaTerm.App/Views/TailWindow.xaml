@@ -80,10 +80,13 @@
                 <CheckBox x:Name="SearchRegexBox" VerticalAlignment="Center" Margin="10,0,0,0" Click="OnSearchOption">
                     <AccessText Text="{x:Static loc:Strings.TailSearchRegex}" />
                 </CheckBox>
-                <Button Content="↑" Width="28" Margin="10,0,0,0" Click="OnSearchPrevious" ToolTip="{x:Static loc:Strings.TailSearchPreviousTip}" />
-                <Button Content="↓" Width="28" Margin="4,0,0,0" Click="OnSearchNext" ToolTip="{x:Static loc:Strings.TailSearchNextTip}" />
+                <Button Content="↑" Width="28" Margin="10,0,0,0" Click="OnSearchPrevious" ToolTip="{x:Static loc:Strings.TailSearchPreviousTip}"
+                        AutomationProperties.Name="{x:Static loc:Strings.TailSearchPreviousTip}" />
+                <Button Content="↓" Width="28" Margin="4,0,0,0" Click="OnSearchNext" ToolTip="{x:Static loc:Strings.TailSearchNextTip}"
+                        AutomationProperties.Name="{x:Static loc:Strings.TailSearchNextTip}" />
                 <TextBlock x:Name="SearchCount" Margin="10,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}" />
-                <Button Content="✕" Width="26" Margin="10,0,0,0" Click="OnCloseSearch" ToolTip="{x:Static loc:Strings.TailSearchCloseTip}" />
+                <Button Content="✕" Width="26" Margin="10,0,0,0" Click="OnCloseSearch" ToolTip="{x:Static loc:Strings.TailSearchCloseTip}"
+                        AutomationProperties.Name="{x:Static loc:Strings.TailSearchCloseTip}" />
             </StackPanel>
         </Border>
 
@@ -106,7 +109,7 @@
                             <TextBlock Text="{Binding Label, Mode=OneWay}" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock Text="{Binding Status, Mode=OneWay}" Foreground="{Binding StatusBrush, Mode=OneWay}" Margin="8,0,0,0" VerticalAlignment="Center" />
                             <Button Content="✕" Tag="{Binding}" Click="OnRemoveFeed" Padding="4,0" Margin="6,0,0,0" Background="Transparent" BorderThickness="0"
-                                    ToolTip="{x:Static loc:Strings.TailSourceRemoveTip}" />
+                                    ToolTip="{x:Static loc:Strings.TailSourceRemoveTip}" AutomationProperties.Name="{x:Static loc:Strings.TailSourceRemoveTip}" />
                         </StackPanel>
                     </Border>
                 </DataTemplate>

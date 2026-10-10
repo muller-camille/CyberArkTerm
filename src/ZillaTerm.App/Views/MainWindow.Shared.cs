@@ -254,12 +254,15 @@ public partial class MainWindow
         _sharedReload?.Stop();
     }
 
-    private void OnSharedListsMenu(object sender, RoutedEventArgs e)
+    /// <summary>Menus « Importer » et « Partager » de l'en-tête de « Mes serveurs », ouverts sous leur bouton.</summary>
+    private void OnHeaderMenu(object sender, RoutedEventArgs e)
     {
-        var menu = (ContextMenu)FindResource("SharedListsMenu");
-        menu.PlacementTarget = (UIElement)sender;
-        menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-        menu.IsOpen = true;
+        if (((FrameworkElement)sender).ContextMenu is { } menu)
+        {
+            menu.PlacementTarget = (UIElement)sender;
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            menu.IsOpen = true;
+        }
     }
 
     private async void OnOpenSharedList(object sender, RoutedEventArgs e)
@@ -587,7 +590,7 @@ public partial class MainWindow
         foreach (var session in node.Sessions)
         {
             var account = SessionLibrary.IsForHost(session, PvwaHost) ? _byId.GetValueOrDefault(session.AccountId) : null;
-            var server = new SharedServerNode(list, entries[session], session, account);
+            var server = new SharedServerNode(list, entries[session], session, account, _accountsLoaded);
             _sharedSessions.AddOrUpdate(session, server);
             items.Add(server);
         }

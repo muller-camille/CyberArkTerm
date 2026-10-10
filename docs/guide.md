@@ -46,8 +46,8 @@ away in the chosen language, keeping the address and user name you typed.
   next / previous tab; `Ctrl+F4` or `Ctrl+Shift+W`: close the tab.
 - **Closing a connected session** (SSH, remote desktop, VNC) asks for confirmation, with a "Don't ask again when
   closing a session" box (the "Confirm before closing a connected session" setting, Settings › Terminal). On
-  sign-out and on exit, a single window sums up what will be closed: sessions, transfers running, edited files not
-  sent back.
+  "Sign out of CyberArk" (which closes every tab) and on exit, a single window sums up what will be closed: sessions,
+  transfers running, edited files not sent back.
 - **Confirmations**: the buttons say the action ("Delete the account", "Replace the key and connect"…), "Cancel" is
   the default button, and the server, account or safe concerned is named. Values to compare (fingerprints) are shown
   in a fixed-width font with "Copy". Some irreversible actions (deleting an account, accepting a server key that
@@ -56,6 +56,11 @@ away in the chosen language, keeping the address and user name you typed.
   emergency access, the buttons specific to CyberArk are hidden.
 - **Status bar**: an ordinary message clears after 10 seconds; an error stays until the next message. The number of
   accounts only shows with the "Available" tab.
+- **Error messages**: the common PVWA refusals (password refused, account suspended, password expired, reason or
+  ticket required, dual control, missing rights, session expired) and the common connection errors (SSH
+  authentication refused, server name not found, server not answering or refusing the connection, connection cut)
+  are explained and say what to do; the original text follows ("PVWA message: …" or "Details: …"), to pass on as is
+  to the CyberArk team or to support.
 - **CyberArk session expired** (PVWA inactivity timeout): a window asks for your password (and the RADIUS response if
   needed) to sign in again, with the same address, user and method. Tabs, open sessions and transfers stay as they
   are; the action that hit the expiry is run again (accounts reload, connection). "Later" keeps working without
@@ -68,7 +73,11 @@ away in the chosen language, keeping the address and user name you typed.
 
 - The search box ("Filter accounts…", `Ctrl+F`) filters on every field (server, user, safe, platform, domain…),
   several words allowed (`prd sql`). The ✕ at the end of the box (as in every search or filter box) or `Esc` empties
-  it.
+  it. When the word searched for does not show in the row, the reason shows in grey to the right of the account
+  ("matches: machine srv01", "matches: safe PROD"…).
+- Several accounts shown under the same name (`user@address`) in a folder are told apart by a grey text to the
+  right: their allowed machines ("→ srv01, srv02 (+2)", "→ any machine"), otherwise their platform, their
+  safe or their name in CyberArk. Screen readers read it with the name of the account.
 - Instead of an empty list, the tab says what is going on: accounts loading, loading failed with its message and
   "Retry", no account available to your CyberArk user, or no account matching the filter, with "Clear the filter".
 - "Group by" sorts accounts by safe, platform or target type.
@@ -126,10 +135,10 @@ away in the chosen language, keeping the address and user name you typed.
 
 ## 3. Open a PSM session (remote desktop)
 
-<img src="captures/en/psm-connect.png" alt="Advanced PSM connection: target machine, reason, ticket" width="520">
+<img src="captures/en/psm-connect.png" alt="Advanced connection options: target machine, reason, ticket" width="520">
 
 Double-click the account (or press Enter, or the "Connect" button); a Unix account opens over SSH through the PSMP
-when its address is set, or as files only for an "SFTP" platform (see 4.), and "Advanced connection…" then lets you
+when its address is set, or as files only for an "SFTP" platform (see 4.), and "Advanced options…" then lets you
 choose the PSM. ZillaTerm requests the
 connection from the PVWA and opens the session in Windows **Remote Desktop Connection** (`mstsc`), exactly like the
 PVWA "Connect" button: the PVWA's RDP file is handed over as is. A component that opens a remote application
@@ -149,14 +158,16 @@ PVWA "Connect" button: the PVWA's RDP file is handed over as is. A component tha
   another account in the vault targets it (local account, Unix account) or when its platform is a server or desktop
   platform ("Server", "Srv", "Desktop", "Workstation"). An account that only lists machines, without being restricted
   to them, opens on its own address; the target machine stays optional. Never a session to the domain
-  itself: the server is always asked, "Advanced connection" included. The "Choose the server" window asks which one to open the session on: the list offers
+  itself: the server is always asked, "Advanced options…" included. The "Choose the server" window asks which one to open the session on: the list offers
   the servers already used with this account (recent sessions, "My servers"), then its allowed machines; an account
   restricted to its machines refuses the others. "Keep this server in “My servers”", with the folder you want, adds
   it after a successful connection, named `account@server` (the choice is remembered for next time; the box
-  disappears when the server is already there). "Advanced…" opens the full window with this server.
-- **Reason and ticket**: if the PVWA refuses the request (reason required, component not configured…), its message
-  is shown and you can fix it and try again.
-- The "Advanced…" toolbar button (or right-click → "Advanced connection…") opens this window on demand. The cursor
+  disappears when the server is already there). "Advanced options…" opens the full window with this server.
+- **Reason and ticket**: if the PVWA refuses the request (reason or ticket required, component not configured…), the
+  window says what to do, followed by the original PVWA message, and you can fix it and try again.
+- The "Advanced options…" toolbar button (or right-click → "Advanced options…") opens this window, "Advanced
+  connection options", on demand. The two ticket fields (system, number) are named for screen readers; the label
+  column widens with their text. The cursor
   is put in the first usable field; over SSH or files only, the fields used only by the PSM are greyed out and
   their tooltip says so; without a component, the window asks you to choose one.
 
@@ -505,32 +516,36 @@ and KeePass SFTP, FTP, FTPS entries ([section 7](#7-emergency-access-outside-cyb
 <img src="captures/en/server-properties.png" alt="Properties of a server in “My servers”" width="540">
 
 Without a PSMP in the Settings, the SSH and files-only types are greyed out, as elsewhere; an incorrect value
-is reported in the window. A server whose account is no longer visible in CyberArk is greyed out.
+is reported in the window. A server whose account is not found in CyberArk (deleted or access removed) shows
+"⚠ not found in CyberArk", which screen readers read too; nothing is flagged while the accounts are loading.
 
 ### Export, import, share
 
-Four buttons at the top of the tab, left of the safe button (KeePass databases):
+Two menus at the top of the tab, "Import ▾" and "Share ▾", left of the "New folder", "Properties / rename" and
+"Remove the server or delete the folder" buttons (`Tab` reaches these buttons, the arrow keys move from one to the
+other):
 
-- **Export** saves "My servers" to a `.json` file: folders (even empty ones), name, CyberArk account (ID), connection
+- **Share › Export My servers to a file…** saves "My servers" to a `.json` file: folders (even empty ones), name, CyberArk account (ID), connection
   type, component, target machine, default reason, SFTP start folder. No password and no followed file. Handy to move
   to another computer or to pass your list on.
-- **Import** reads an exported file (or a shared list) and sums up before adding: servers added, servers already
+- **Import › ZillaTerm file (export of My servers)…** reads an exported file (or a shared list) and sums up before
+  adding: servers added, servers already
   there (same account, type, component, target machine and folder: skipped), folders created, servers opened on a
   target machine (check them: the machine comes from the file). Nothing is removed or changed in "My servers". A file
   created for another PVWA is refused: its account IDs designate other accounts there.
-- **Import sessions from another tool** (terminal and shield icon): see [below](#bring-in-the-sessions-of-another-tool).
-- **Shared lists** (two-people icon): a list of servers in a file on a network share, which the whole team opens and
-  completes.
-  - "Create a shared list…": choose the location (network share) and the name shown to everyone; "Open a shared
-    list…": add a list created by a colleague. Open lists are shown at the top of the tab (after the KeePass databases),
+- **Import › Sessions of another tool…**: see [below](#bring-in-the-sessions-of-another-tool).
+- **Import › Add a KeePass database…**: see [7.](#7-emergency-access-outside-cyberark-keepass-databases)
+- **Shared lists**: a list of servers in a file on a network share, which the whole team opens and completes.
+  - "Share › Create a shared list…": choose the location (network share) and the name shown to everyone; "Import ›
+    Open a shared list…": add a list created by a colleague. Open lists are shown at the top of the tab (after the KeePass databases),
     with their folders; the search filters them too.
   - **Add**: right-click a server or a folder of "My servers" → "Share in a list" (the folder is kept), or drag a
     server, a folder or an account of "Available" onto the list or one of its folders (confirmation). The default
     reason stays personal: it is never shared.
   - **Remove**: right-click → "Remove from the shared list…" (or `Del`), after confirmation.
-  - **Use**: double-click to connect; right-click for the advanced connection, the password, the safe members or
+  - **Use**: double-click to connect; right-click for the advanced options, the password, the safe members or
     "Copy into My servers". Everyone connects with their own CyberArk rights: an account you cannot see in the
-    CyberArk Vault is greyed out. The tooltip shows the account as CyberArk describes it, the target machine, who added the server
+    CyberArk Vault shows "⚠ not found in CyberArk". The tooltip shows the account as CyberArk describes it, the target machine, who added the server
     and when.
   - **Target machine**: a shared server that opens a domain account on a machine not among the account's allowed
     machines in CyberArk asks for confirmation on the first connection (anyone with write access to the share can
@@ -548,9 +563,8 @@ Four buttons at the top of the tab, left of the safe button (KeePass databases):
 
 ### Bring in the sessions of another tool
 
-To move to ZillaTerm without typing your servers again, and stop connecting to them directly: "Import sessions from
-another tool" button at the top of the tab (terminal and shield icon), or **Settings** menu › "Import sessions from
-another tool…". The PVWA accounts must be loaded.
+To move to ZillaTerm without typing your servers again, and stop connecting to them directly: "Import ▾" menu ›
+"Sessions of another tool…" at the top of the tab, or **Settings** menu › "Import sessions from another tool…". The PVWA accounts must be loaded.
 
 <img src="captures/en/session-import.png" alt="Importing the sessions of another tool: preview before the import" width="820">
 
@@ -617,7 +631,8 @@ servers, over SSH, remote desktop or VNC, or to their files only (SFTP, FTP, FTP
   (only the KeePass databases are shown; the "Available" tab and the buttons specific to CyberArk are hidden). With
   CyberArk, the databases also appear at the top of "My servers". The tooltip of a session tab opened from a
   database says so: "Direct emergency access (KeePass): outside CyberArk, written to urgence.log".
-- **Add a database**: safe button of the "My servers" tab (or right-click → "Add a KeePass database…"). The "Add a
+- **Add a database**: "Import ▾" menu › "Add a KeePass database…" of the "My servers" tab (safe button in emergency
+  access), or right-click in the tab → "Add a KeePass database…". The "Add a
   KeePass database" window reminds you in a banner that these connections are outside CyberArk; "Browse…" picks the
   `.kdbx` file, then the name and an optional key file.
 - **Unlock**: double-click the database. Master password and/or key file (every KeePass format). "Remember the
@@ -663,7 +678,7 @@ servers, over SSH, remote desktop or VNC, or to their files only (SFTP, FTP, FTP
   previous version of an entry goes to its history, like in KeePass. While saving, the previous version of the file
   is kept as `database.kdbx.bak`, then deleted as soon as the new file reads back identical: no old copy, which
   would still open with an old master password, stays next to the database (shared or not).
-- **Lock**: right-click → "Lock". Databases also lock on sign-out, on exit and when **Windows is locked**.
+- **Lock**: right-click → "Lock". Databases also lock on sign-out of CyberArk, on exit and when **Windows is locked**.
 
 **Local vault**: the master passwords you choose to remember are kept in `%APPDATA%\ZillaTerm\coffre-local.dat`,
 encrypted with a password of your own (at least 8 characters) and tied to your Windows account. That password is
@@ -716,7 +731,9 @@ In a terminal, `Ctrl+K`, `Ctrl+B` and `F6` are sent to the server (`F6` to appli
 window has its access keys (`Alt` + underlined letter, without duplicates, in English, French and Italian), and the
 menu of an item of "My servers" opens at the same place with a right-click, `Shift+F10` or the Menu key. Password
 boxes (sign-in, KeePass database, local vault) warn when Caps Lock is on. Screen readers announce the names of list
-and tree items and of icon buttons, the status bar messages and connection errors. In high contrast mode, the
+and tree items, of icon or symbol buttons (✕, ↑, ↓), of fields (path, ticket number…), the status bar messages and
+connection errors. The toolbars of "My servers" and of the Files tab are a single `Tab` stop (the arrow keys move
+from one button to the other). In the Settings, every box has its access key, without duplicates in the page shown. In high contrast mode, the
 interface takes the Windows system colours and follows their changes.
 
 ## Settings and configuration file
@@ -729,16 +746,16 @@ field concerned, with the cursor in it. Options with a side effect say so under 
 
 | Page | Setting | Purpose | Default |
 | --- | --- | --- | --- |
-| General | Interface language | Français, English, Italiano or system language; applied after signing out or at the next start | Windows language (English if it is not translated) |
+| General | Interface language | Français, English, Italiano or system language; applied after signing out of CyberArk or at the next start | Windows language (English if it is not translated) |
 | General | Central file | Team environment file on a network share, read at each start; its changes are shown before being applied (see [Shared environment](#shared-environment)) | empty |
 | General | Look for a new version at startup | One request to GitHub at most once a day; a link in the status bar when a newer version exists (the "About" window recalls this setting) | no |
-| CyberArk | Keep the PVWA session open | Light request every 4 minutes while you use the computer; paused while Windows is locked or after 15 minutes without keyboard or mouse (the PVWA session then expires after its idle timeout) | yes |
+| CyberArk | Keep the CyberArk session open | Light request every 4 minutes while you use the computer; paused while Windows is locked or after 15 minutes without keyboard or mouse (the CyberArk session then expires after its idle timeout) | yes |
 | CyberArk | Default PSMP, port | PSM for SSH server; when set (or a PSMP by domain), Unix accounts open over SSH by default (as files only for an "SFTP" platform); without any PSMP, SSH and SFTP are disabled | empty, 22 |
 | CyberArk | PSMP by domain | Other PSMPs (address, port, domain served); each server goes through the one of the domain closest to its own (see [PSMP by domain](#psmp-by-domain)); "Which PSMP for the server" to check | none |
 | CyberArk | Windows accounts component | PSM component of Windows accounts (domain or local) without a component remembered for their platform, for example `WIN-PSM` | empty = `PSM-RDP` |
 | CyberArk | Component per platform | Platform (PVWA ID, for example `WinDomain`) / PSM component table: "Add a component", "Remove the line", editable cells; takes precedence over the Windows accounts component. "Remember this component for platform" (connection window) adds a line to it | empty |
 | Terminal | SSH in ZillaTerm | Built-in terminal and Files tab; otherwise Windows Terminal | yes |
-| Terminal | Terminal colours, font | Palette (Campbell, One Half, Solarized…) and font size of the SSH terminals | Campbell, 14 |
+| Terminal | Terminal colours, font size | Palette (Campbell, One Half, Solarized…) and font size of the SSH terminals | Campbell, 14 |
 | Terminal | Warn before pasting several lines | Preview and confirmation when the shell would run the lines one by one | yes |
 | Terminal | Confirm before closing a connected session | SSH, remote desktop, VNC; "Don't ask again" in the confirmation unticks this setting | yes |
 | Terminal | Right-click in the terminal pastes the clipboard | Shift+right-click then opens the menu; ⚠ a stray right-click sends the clipboard to the shell | no |
@@ -1035,13 +1052,19 @@ sh or fish, following is not set up and nothing stays on screen.
 | "The PVWA has no connection component “PSM-RDP” for this account" (`EPVWA093E Failed to get the relevant connection component`) | The account's platform uses a component with another name (for example `WIN-PSM`): the one offered by the PVWA "Connect" button, or the name after `/c` in a `psm /u … /a … /c …` command. Enter it in "Component"; "Remember this component for platform" is ticked for the next connections. |
 | "TLS connection refused: this computer does not trust the PVWA certificate" | The certificate (or its issuing authority) is not in the workstation's Windows store. |
 | "The PVWA must be reached over HTTPS" | Type the address without `http://` (or with `https://`). |
+| "The PVWA refused the user name or the password" (`ITATS004E Authentication failure…`) | Check the user name, the password and Caps Lock before trying again: after several failures, CyberArk suspends the account. |
+| "Your CyberArk account is suspended or disabled" | Too many failed sign-ins, or an administrator's decision: ask the CyberArk team to reactivate it. |
+| "Your CyberArk password has expired" | Change it on the PVWA web page, then sign in to ZillaTerm with the new one. |
+| "The SSH server refused the authentication" | Through the PSMP, it is your CyberArk password: check it (and Caps Lock) before trying again, several failures suspend the account. |
+| "Server name not found (DNS)", "The server did not answer in time", "The server refuses connections on this port" | Check the address and the port, and your access to the company network (VPN, firewall); the "Details" that follow give the Windows message. |
 | "CyberArk session expired" window | PVWA inactivity timeout reached: type your password to sign in again; tabs, sessions and transfers stay open. |
 | "Password" → "Copy the password…": "The PVWA refused: … “Retrieve accounts” …" | Missing right on the safe, or reason / ticket required by the platform: type it. With dual control, make the request in the PVWA. |
 | "Verify / Change / Reconcile": "The PVWA refused: … “Initiate CPM account management operations” …" | Ask for this right on the safe; "Safe members" shows your rights. |
 | "Add an account": "The PVWA refused: your account needs the “Add accounts” right…" | Ask for this right on the safe (and "Update account content" to give the password), or create the account without a password. "Safe members" shows your rights. |
 | "Safe members": "Your account cannot see the members of this safe" | The PVWA requires the "View Safe Members" right on the safe: ask a manager of the safe. |
-| "Connection component … is not configured for platform …" | Choose the right component in "Advanced connection", tick "Remember" for the platform. |
-| "You must specify a reason…" | Enter a reason in the window that opens (or a default reason in the server's properties, in "My servers"). |
+| "This connection component is not set up for the platform of the account" (`Connection component … is not configured for platform …`) | Choose the right component in "Advanced options…", tick "Remember" for the platform. |
+| "CyberArk requires a reason for this account" (`You must specify a reason…`) | Enter a reason in the window that opens (or a default reason in the server's properties, in "My servers"). |
+| "CyberArk requires a valid ticket for this account", "This account needs an approved request (dual control)" | Enter the ticketing system and the ticket number; for dual control, request access on the PVWA web page and wait for the approval. |
 | The account does not show up | You lack the "List accounts" permission on its safe, or the list needs reloading (`F5`). |
 | The PSMP password is asked for each tab | MFA caching is not enabled on the PVWA: expected behavior (once per tab). When opening several sessions together, tick "Also use this password…" to type it only once. |
 | The Files tab shows "SFTP connection failed" | SFTP is not allowed on the PSMP or for this account: ask your CyberArk team. |

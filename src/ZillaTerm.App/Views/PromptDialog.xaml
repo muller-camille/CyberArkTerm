@@ -18,10 +18,11 @@
         <!-- Réponse précédente refusée : dit avant la saisie, avec le numéro de l'essai (verrouillage du compte). -->
         <TextBlock x:Name="RefusedText" TextWrapping="Wrap" Foreground="{DynamicResource ErrorBrush}" Margin="0,0,0,8" Visibility="Collapsed"
                    AutomationProperties.LiveSetting="Assertive" />
-        <PasswordBox x:Name="SecretBox" Margin="0,0,0,6" />
+        <!-- Champ nommé par la question du serveur (« Password: »…) pour les lecteurs d'écran. -->
+        <PasswordBox x:Name="SecretBox" Margin="0,0,0,6" AutomationProperties.LabeledBy="{Binding ElementName=PromptText}" />
         <TextBlock x:Name="CapsLockText" Text="{x:Static loc:Strings.CapsLockOn}" Foreground="{DynamicResource WarningBrush}" Margin="0,0,0,6"
                    Visibility="Collapsed" AutomationProperties.LiveSetting="Polite" />
-        <TextBox x:Name="TextBox" Margin="0,0,0,6" Visibility="Collapsed" />
+        <TextBox x:Name="TextBox" Margin="0,0,0,6" Visibility="Collapsed" AutomationProperties.LabeledBy="{Binding ElementName=PromptText}" />
         <TextBlock x:Name="HintText" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,6" Visibility="Collapsed" />
         <!-- Groupe de sessions ouvertes ensemble : un seul mot de passe pour toutes, en mémoire seulement. -->
         <CheckBox x:Name="ShareBox" Margin="0,2,0,6" Visibility="Collapsed">
