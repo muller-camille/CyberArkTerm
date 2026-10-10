@@ -15,6 +15,14 @@ Bibliothèque de commandes, globales ou propres à un serveur « Courants » (pa
 - Rangement par dossiers, recherche, import/export (sans secret).
 - Intérêt : éviter les fautes de frappe quand la même commande part sur 8 serveurs.
 
+### Démarrer le serveur X du poste
+
+Le transfert X11 suppose un serveur X déjà lancé (VcXsrv, X410…) ; sinon, une ligne grise dit qu'aucun serveur X
+n'écoute. Piste : le démarrer automatiquement quand une session avec X11 s'ouvre et que rien n'écoute.
+
+- Seulement un serveur X installé et choisi dans les Paramètres (chemin complet), jamais trouvé au hasard.
+- Lancé pour n'écouter que sur ce poste (127.0.0.1), sans désactiver son contrôle d'accès (pas d'option `-ac`).
+
 ## Onglet Fichiers et transferts
 
 ### Extraire automatiquement une archive .tar.gz envoyée
@@ -150,6 +158,56 @@ Piste : une sélection multiple dans « Disponibles » (Ctrl+clic, comme dans «
 - **Privilege Cloud** : connexion via CyberArk Identity.
 - **SAML** : authentification par le fournisseur d'identité de l'entreprise.
 - **PSM Gateway (HTML5)** : PVWA qui ouvre les sessions dans le navigateur au lieu de fournir un fichier `.rdp`.
+
+## Intervention et consignes d'astreinte
+
+### Titre ou ticket de l'intervention
+
+Champ facultatif au lancement de l'enregistrement (« INC0012345 – disque plein prd-lnx01 »), qui nomme l'intervention
+dans la liste (aujourd'hui une simple date) et sert de titre au rapport.
+
+### Serveurs touchés en tête du rapport
+
+Tableau récapitulatif : une ligne par serveur avec l'arrivée, le départ, la durée, le nombre de commandes et de
+transferts. C'est ce qu'on recopie à la main dans un compte rendu d'incident.
+
+### Note rapide depuis le terminal
+
+Un raccourci (Ctrl+Maj+N) ouvre un petit champ et ajoute la note au journal sans ouvrir la fenêtre Intervention, avec
+des modèles en un clic (« Début incident », « Escalade », « Résolu »).
+
+### Consignes mises à jour visibles
+
+Date de modification du fichier des consignes affichée ; si son contenu a changé depuis la dernière lecture, une
+pastille « Nouvelles consignes » sur le bouton Intervention, pour qu'un numéro d'urgence changé ne passe pas inaperçu.
+
+### Proposer d'enregistrer
+
+Proposer l'enregistrement à l'ouverture d'une session sur une cible de production (règle définie par l'équipe dans le
+fichier d'environnement, par ex. les safes `*-PRD`), et demander s'il faut l'arrêter à la déconnexion de CyberArk.
+
+### Durée de conservation des journaux
+
+Effacement automatique des journaux de plus de N jours, réglable par l'équipe (fichier d'environnement) : ils
+contiennent tout ce qu'ont affiché les terminaux et ne doivent pas rester indéfiniment sur le poste.
+
+### Empreinte du rapport
+
+SHA-256 du rapport écrit en bas de page et affiché à l'export, pour qu'un auditeur vérifie qu'il n'a pas été retouché.
+
+### Recherche dans les interventions passées
+
+« Quand suis-je allé sur srv01 ? » : recherche dans les journaux, déchiffrés en mémoire seulement, jamais sur le disque.
+
+### Résumé pour la relève
+
+Bouton de passation : les serveurs touchés et les notes marquées « à suivre », à transmettre à la personne
+d'astreinte suivante.
+
+### Consignes en liste à cocher
+
+Les lignes des consignes commençant par `[ ]` deviennent des cases à cocher ; chaque case cochée est notée dans le
+journal (« Ticket ouvert ✓ »). Le texte reste du texte brut : rien d'autre n'est interprété.
 
 ## KeePass (accès d'urgence)
 
