@@ -149,7 +149,7 @@ public sealed class TerminalEmulator
     /// <summary>
     /// Ligne quittée par un saut de ligne sur l'écran principal (jamais en écran alternatif : vim, less, top) : son numéro
     /// (comme <see cref="FirstScreenLine"/>), son texte (sans les espaces de fin, sauf si elle continue), et vrai si elle
-    /// continue sur la suivante (retour automatique en fin de ligne). Sert au journal d'astreinte.
+    /// continue sur la suivante (retour automatique en fin de ligne). Sert au journal d'intervention.
     /// </summary>
     public event Action<long, string, bool>? LineLeft;
 

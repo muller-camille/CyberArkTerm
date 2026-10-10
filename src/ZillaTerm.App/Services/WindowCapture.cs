@@ -11,7 +11,7 @@ public sealed record RemoteDesktopWindow(IntPtr Handle, string Title);
 
 /// <summary>
 /// Capture d'une fenêtre en PNG avec PrintWindow (contenu rendu par DirectX compris), même cachée par une autre fenêtre ;
-/// pour le journal d'astreinte.
+/// pour le journal d'intervention.
 /// </summary>
 public static class WindowCapture
 {

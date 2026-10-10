@@ -59,8 +59,8 @@ public partial class MainWindow
         var tab = new TabItem { Content = view, Tag = session };
         tab.Header = TabHeader(tab, label, icon, duplicate);
         view.SessionMenu = items => AddTerminalSessionItems(items, tab, duplicate);
-        // Texte du terminal gardé pendant l'enregistrement d'une astreinte.
-        Duty.Attach(session);
+        // Texte du terminal gardé pendant l'enregistrement d'une intervention.
+        Intervention.Attach(session);
         session.StateChanged += () =>
         {
             switch (session.State)
@@ -72,7 +72,7 @@ public partial class MainWindow
                     SessionStatus(label, Text.Format(Strings.SshSessionError, label, session.Error), isError: true);
                     break;
                 case RemoteSessionState.Closed:
-                    DutyRecord(Core.Duty.DutyKind.Connection, label, Strings.DutyClosedByServer);
+                    InterventionRecord(Core.Interventions.InterventionKind.Connection, label, Strings.InterventionClosedByServer);
                     break;
             }
         };

@@ -2,17 +2,17 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 
-namespace ZillaTerm.Core.Duty;
+namespace ZillaTerm.Core.Interventions;
 
-/// <summary>Textes du rapport d'astreinte, dans la langue de l'interface.</summary>
-public sealed class DutyReportText
+/// <summary>Textes du rapport d'intervention, dans la langue de l'interface.</summary>
+public sealed class InterventionReportText
 {
-    public string Title { get; init; } = "On-call duty";
+    public string Title { get; init; } = "On-call intervention";
 
     /// <summary>{0} = début, {1} = fin, {2} = durée.</summary>
     public string Period { get; init; } = "From {0} to {1} ({2})";
 
-    public string Unfinished { get; init; } = "Recording interrupted: ZillaTerm stopped before the end of the duty.";
+    public string Unfinished { get; init; } = "Recording interrupted: ZillaTerm stopped before the end of the intervention.";
 
     public string Damaged { get; init; } = "Part of the journal could not be read or was changed.";
 
@@ -29,26 +29,26 @@ public sealed class DutyReportText
     public string EventHeader { get; init; } = "Event";
 
     /// <summary>Nom de chaque nature d'événement.</summary>
-    public Func<DutyKind, string> Kind { get; init; } = k => k.ToString();
+    public Func<InterventionKind, string> Kind { get; init; } = k => k.ToString();
 
     /// <summary>Ligne du résumé : nombre d'événements d'une nature (accord du pluriel).</summary>
-    public Func<DutyKind, int, string> Count { get; init; } = (k, n) => $"{k}: {n}";
+    public Func<InterventionKind, int, string> Count { get; init; } = (k, n) => $"{k}: {n}";
 
     /// <summary>Durée lisible.</summary>
     public Func<TimeSpan, string> Duration { get; init; } = d => d.ToString(@"h\:mm", CultureInfo.InvariantCulture);
 }
 
 /// <summary>
-/// Rapport d'une astreinte : une page HTML autonome (chronologie, texte des terminaux, captures), à joindre au compte
+/// Rapport d'une intervention : une page HTML autonome (chronologie, texte des terminaux, captures), à joindre au compte
 /// rendu. Tout le texte est échappé et la page interdit les scripts et les ressources externes (le texte des terminaux
 /// vient des serveurs).
 /// </summary>
-public static class DutyReport
+public static class InterventionReport
 {
     private static readonly byte[] PngSignature = [0x89, (byte)'P', (byte)'N', (byte)'G', 0x0D, 0x0A, 0x1A, 0x0A];
 
     /// <param name="zone">Fuseau des heures affichées (celui du poste).</param>
-    public static string ToHtml(DutyRecording recording, DutyReportText text, TimeZoneInfo zone, CultureInfo culture)
+    public static string ToHtml(InterventionRecording recording, InterventionReportText text, TimeZoneInfo zone, CultureInfo culture)
     {
         var entries = recording.Entries;
         var html = new StringBuilder();
@@ -95,7 +95,7 @@ public static class DutyReport
         }
 
         html.Append("<h2>").Append(Encode(text.Summary)).Append("</h2>\n<ul>\n");
-        foreach (var kind in new[] { DutyKind.Connection, DutyKind.Action, DutyKind.Transfer, DutyKind.Screenshot, DutyKind.Note, DutyKind.Terminal })
+        foreach (var kind in new[] { InterventionKind.Connection, InterventionKind.Action, InterventionKind.Transfer, InterventionKind.Screenshot, InterventionKind.Note, InterventionKind.Terminal })
         {
             int count = entries.Count(e => e.Kind == kind);
             if (count > 0)
@@ -113,12 +113,12 @@ public static class DutyReport
             var entry = entries[i];
             html.Append("<tr><td class=\"time\">").Append(Encode(Local(entry.Time))).Append("</td><td class=\"source\">")
                 .Append(Encode(entry.Source)).Append("</td><td>");
-            if (entry.Kind == DutyKind.Terminal)
+            if (entry.Kind == InterventionKind.Terminal)
             {
                 // Lignes successives d'un même terminal : un seul bloc.
                 html.Append("<pre>");
                 int j = i;
-                for (; j < entries.Count && entries[j].Kind == DutyKind.Terminal && entries[j].Source == entry.Source; j++)
+                for (; j < entries.Count && entries[j].Kind == InterventionKind.Terminal && entries[j].Source == entry.Source; j++)
                 {
                     html.Append(Encode(entries[j].Text)).Append('\n');
                 }
@@ -130,7 +130,7 @@ public static class DutyReport
             {
                 html.Append("<span class=\"kind\">").Append(Encode(text.Kind(entry.Kind))).Append("</span> ")
                     .Append(Encode(entry.Text).Replace("\n", "<br>", StringComparison.Ordinal));
-                if (entry.Kind == DutyKind.Screenshot && entry.Image is { } image && IsPng(image))
+                if (entry.Kind == InterventionKind.Screenshot && entry.Image is { } image && IsPng(image))
                 {
                     html.Append("<br><img alt=\"").Append(Encode(entry.Text)).Append("\" src=\"data:image/png;base64,")
                         .Append(Convert.ToBase64String(image)).Append("\">");

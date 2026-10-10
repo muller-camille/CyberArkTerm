@@ -22,36 +22,36 @@ public partial class RdpSessionView : UserControl
 
     internal RdpSession Session { get; }
 
-    /// <summary>Astreinte en cours d'enregistrement : le bouton « Capture » est proposé.</summary>
-    internal bool DutyRecording
+    /// <summary>Intervention en cours d'enregistrement : le bouton « Capture » est proposé.</summary>
+    internal bool InterventionRecording
     {
-        get => _dutyRecording;
+        get => _interventionRecording;
         set
         {
-            _dutyRecording = value;
+            _interventionRecording = value;
             Update();
         }
     }
 
-    private bool _dutyRecording;
+    private bool _interventionRecording;
 
     private void OnCapture(object sender, RoutedEventArgs e)
     {
         var png = Services.WindowCapture.CaptureChildPng(Session.Host.SlotHandle);
         if (png is null)
         {
-            StatusLine.Text = Strings.DutyCaptureFailed;
+            StatusLine.Text = Strings.InterventionCaptureFailed;
             return;
         }
 
-        Services.DutyRecorder.Current.Record(Core.Duty.DutyKind.Screenshot, Session.Label, Text.Format(Strings.DutyCaptureOf, Session.Label), png);
-        StatusLine.Text = Text.Format(Strings.DutyCaptured, Session.Label);
+        Services.InterventionRecorder.Current.Record(Core.Interventions.InterventionKind.Screenshot, Session.Label, Text.Format(Strings.InterventionCaptureOf, Session.Label), png);
+        StatusLine.Text = Text.Format(Strings.InterventionCaptured, Session.Label);
     }
 
     private void Update()
     {
         var session = Session;
-        CaptureButton.Visibility = _dutyRecording && session.ShowsDesktop ? Visibility.Visible : Visibility.Collapsed;
+        CaptureButton.Visibility = _interventionRecording && session.ShowsDesktop ? Visibility.Visible : Visibility.Collapsed;
         Overlay.Visibility = session.ShowsDesktop ? Visibility.Collapsed : Visibility.Visible;
         FullScreenButton.IsEnabled = session.IsConnected;
         DisconnectButton.IsEnabled = session.HasControl;

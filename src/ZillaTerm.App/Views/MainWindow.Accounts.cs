@@ -312,7 +312,7 @@ public partial class MainWindow
             (options, ct) => client.RetrievePasswordAsync(account.Id, options, ct), _passwordClipboard.Copy, account.SafeName) { Owner = this };
         if (dialog.ShowDialog() == true)
         {
-            DutyRecord(Core.Duty.DutyKind.Action, label, Strings.DutyPasswordCopied);
+            InterventionRecord(Core.Interventions.InterventionKind.Action, label, Strings.InterventionPasswordCopied);
             StartPasswordCountdown(label);
         }
         else if (dialog.SessionExpired)

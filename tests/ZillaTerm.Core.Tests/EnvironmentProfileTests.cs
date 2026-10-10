@@ -207,8 +207,9 @@ public sealed class EnvironmentProfileTests : IDisposable
 
         Assert.Equal(("pvwa.corp.com", "jdupont"), (settings.PvwaUrl, settings.UserName));
     }
+
     /// <summary>
-    /// Texte de l'astreinte : diffusé par le fichier d'environnement en texte brut ; absent, il ne change rien, vide, il
+    /// Consignes d'astreinte : diffusées par le fichier d'environnement en texte brut ; absent, il ne change rien, vide, il
     /// l'efface ; trop long ou avec des caractères invisibles, le fichier est refusé.
     /// </summary>
     [Fact]
@@ -235,5 +236,40 @@ public sealed class EnvironmentProfileTests : IDisposable
         Assert.Equal(EnvironmentProblem.InvalidDutyText, reversed.Problem);
         Assert.Throws<EnvironmentFileException>(new EnvironmentProfile { DutyText = new string('x', EnvironmentProfile.MaxDutyText + 1) }.Validate);
         new EnvironmentProfile { DutyText = "Tél.\t01 23 45 67 89" }.Validate();
+    }
+
+    /// <summary>
+    /// Fichier des consignes d'astreinte : diffusé par le fichier d'environnement ; sur un partage, le changement est
+    /// signalé avec le serveur (Windows s'y authentifie) ; vide, il est retiré ; un chemin de périphérique est refusé.
+    /// </summary>
+    [Fact]
+    public void DutyTextFileIsSharedAndChecked()
+    {
+        var settings = new AppSettings { DutyTextFile = @"\\files.corp.local\astreinte\consignes.txt" };
+        var profile = EnvironmentProfile.FromSettings(settings, null);
+        Assert.Equal(@"\\files.corp.local\astreinte\consignes.txt", profile.DutyTextFile);
+        Assert.Null(EnvironmentProfile.FromSettings(new AppSettings(), null).DutyTextFile);
+
+        var target = new AppSettings();
+        var change = Assert.Single(profile.Diff(target), c => c.Setting == EnvironmentSetting.DutyTextFile);
+        Assert.True(change.Sensitive);
+        Assert.Equal("files.corp.local", change.Detail);
+        profile.ApplyTo(target);
+        Assert.Equal(@"\\files.corp.local\astreinte\consignes.txt", target.DutyTextFile);
+        Assert.DoesNotContain(profile.Diff(target), c => c.Setting == EnvironmentSetting.DutyTextFile);
+
+        var local = Assert.Single(new EnvironmentProfile { DutyTextFile = @"C:\Equipe\consignes.txt" }.Diff(target),
+            c => c.Setting == EnvironmentSetting.DutyTextFile);
+        Assert.False(local.Sensitive);
+        new EnvironmentProfile { DutyTextFile = "" }.ApplyTo(target);
+        Assert.Empty(target.DutyTextFile);
+
+        foreach (var path in new[] { "consignes.txt", @"\\.\pipe\consignes", @"\\srv\pipe\consignes", @"C:\Equipe\CON.txt", "C:\\a\u202Etxt.exe" })
+        {
+            var refused = Assert.Throws<EnvironmentFileException>(new EnvironmentProfile { DutyTextFile = path }.Validate);
+            Assert.Equal(EnvironmentProblem.InvalidPath, refused.Problem);
+        }
+
+        new EnvironmentProfile { DutyTextFile = @"C:\Equipe\consignes.txt" }.Validate();
     }
 }

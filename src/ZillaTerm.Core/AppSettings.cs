@@ -151,10 +151,16 @@ public sealed class AppSettings
     public bool FollowTerminalFolder { get; set; } = true;
 
     /// <summary>
-    /// Texte de l'astreinte (bonnes pratiques, numéros d'urgence…) affiché par le bouton « Astreinte » ; en général
+    /// Consignes d'astreinte (bonnes pratiques, numéros d'urgence…) affichées dans la fenêtre « Intervention » ; en général
     /// diffusé par le fichier d'environnement de l'équipe.
     /// </summary>
     public string DutyText { get; set; } = "";
+
+    /// <summary>
+    /// Fichier des consignes d'astreinte (partage réseau en général), relu à chaque ouverture de la fenêtre « Intervention » ;
+    /// remplace <see cref="DutyText"/>, montré si le fichier est illisible. Vide : pas de fichier.
+    /// </summary>
+    public string DutyTextFile { get; set; } = "";
 
     /// <summary>Serveur X de ce poste pour le transfert X11 (voir <see cref="Ssh.X11Display"/>), « :0 » par défaut.</summary>
     public string X11Display { get; set; } = Ssh.X11Display.Default;
@@ -481,6 +487,7 @@ public sealed class AppSettings
         }
 
         settings.DutyText ??= "";
+        settings.DutyTextFile = DutyReminderFile.IsValidPath(settings.DutyTextFile) ? settings.DutyTextFile.Trim() : "";
         settings.X11Servers ??= [];
         settings.X11Servers.RemoveAll(string.IsNullOrWhiteSpace);
         settings.CompareToolArguments ??= DefaultCompareArguments;

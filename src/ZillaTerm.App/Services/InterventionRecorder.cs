@@ -4,38 +4,38 @@ using ZillaTerm.App.Localization;
 using ZillaTerm.App.Services.KeePass;
 using ZillaTerm.Core;
 using ZillaTerm.Core.Diagnostics;
-using ZillaTerm.Core.Duty;
+using ZillaTerm.Core.Interventions;
 using ZillaTerm.Core.KeePass;
 using ZillaTerm.Core.Ssh;
 
 namespace ZillaTerm.App.Services;
 
 /// <summary>
-/// Enregistrement de l'astreinte, pour toute l'application : il continue après une déconnexion de CyberArk ou le passage
+/// Enregistrement d'une intervention, pour toute l'application : il continue après une déconnexion de CyberArk ou le passage
 /// en accès d'urgence, et s'arrête avec ZillaTerm. Rien n'est gardé tant qu'il n'est pas lancé.
 /// </summary>
 /// <remarks>
 /// Les événements arrivent de plusieurs fils (transferts, X11) : <see cref="Record"/> les accepte de partout. Démarrer,
 /// arrêter et <see cref="Attach"/> se font sur le fil de l'interface.
 /// </remarks>
-public sealed class DutyRecorder
+public sealed class InterventionRecorder
 {
-    /// <summary>Distingue les blocs du journal d'astreinte des autres données protégées par DPAPI.</summary>
-    private static readonly byte[] Entropy = "ZillaTerm.DutyJournal.v1"u8.ToArray();
+    /// <summary>Distingue les blocs du journal d'intervention des autres données protégées par DPAPI.</summary>
+    private static readonly byte[] Entropy = "ZillaTerm.InterventionJournal.v1"u8.ToArray();
 
-    private readonly ConditionalWeakTable<SshSession, DutyTerminalTranscript> _transcripts = [];
+    private readonly ConditionalWeakTable<SshSession, InterventionTerminalTranscript> _transcripts = [];
     private readonly ISecretProtector _protector;
     private readonly string _directory;
-    private volatile DutyJournal? _journal;
+    private volatile InterventionJournal? _journal;
 
-    public DutyRecorder(string directory, ISecretProtector protector)
+    public InterventionRecorder(string directory, ISecretProtector protector)
     {
         _directory = directory;
         _protector = protector;
     }
 
-    /// <summary>Enregistrement de l'application (journaux dans <see cref="DutyJournal.DefaultDirectory"/>, DPAPI).</summary>
-    public static DutyRecorder Current { get; } = new(DutyJournal.DefaultDirectory, new DpapiProtector(Entropy));
+    /// <summary>Enregistrement de l'application (journaux dans <see cref="InterventionJournal.DefaultDirectory"/>, DPAPI).</summary>
+    public static InterventionRecorder Current { get; } = new(InterventionJournal.DefaultDirectory, new DpapiProtector(Entropy));
 
     /// <summary>Protection des journaux, pour les relire.</summary>
     public ISecretProtector Protector => _protector;
@@ -53,7 +53,7 @@ public sealed class DutyRecorder
     /// <summary>Fichier de l'enregistrement en cours.</summary>
     public string? JournalPath => _journal?.Path;
 
-    /// <summary>Le disque a refusé une écriture : la suite de l'astreinte n'est plus gardée.</summary>
+    /// <summary>Le disque a refusé une écriture : la suite de l'intervention n'est plus gardée.</summary>
     public Exception? Failure => _journal?.Failure;
 
     public bool TerminalTextCapped => _journal?.TerminalTextCapped ?? false;
@@ -62,7 +62,7 @@ public sealed class DutyRecorder
     public event Action? Changed;
 
     /// <summary>Commence l'enregistrement ; <paramref name="who"/> et <paramref name="mode"/> sont écrits en tête.</summary>
-    /// <exception cref="System.IO.IOException">Dossier des astreintes inaccessible.</exception>
+    /// <exception cref="System.IO.IOException">Dossier des interventions inaccessible.</exception>
     public void Start(string who, string mode)
     {
         if (_journal is not null)
@@ -71,13 +71,13 @@ public sealed class DutyRecorder
         }
 
         var now = DateTime.UtcNow;
-        var journal = DutyJournal.Start(_directory, _protector, now);
-        journal.Write(new DutyEntry(now, DutyKind.Started, "",
-            Text.Format(Strings.DutyStartedEntry, who, Environment.MachineName, UpdateChecker.CurrentVersion, mode)));
+        var journal = InterventionJournal.Start(_directory, _protector, now);
+        journal.Write(new InterventionEntry(now, InterventionKind.Started, "",
+            Text.Format(Strings.InterventionStartedEntry, who, Environment.MachineName, UpdateChecker.CurrentVersion, mode)));
         journal.Flush();
         StartedAt = now;
         _journal = journal;
-        DebugLog.Write("duty", $"Astreinte enregistrée dans {journal.Path}");
+        DebugLog.Write("intervention", $"Intervention enregistrée dans {journal.Path}");
         Changed?.Invoke();
     }
 
@@ -92,25 +92,25 @@ public sealed class DutyRecorder
 
         _journal = null;
         StartedAt = null;
-        journal.Stop(new DutyEntry(DateTime.UtcNow, DutyKind.Stopped, "", reason));
-        DebugLog.Write("duty", "Fin de l'enregistrement de l'astreinte.");
+        journal.Stop(new InterventionEntry(DateTime.UtcNow, InterventionKind.Stopped, "", reason));
+        DebugLog.Write("intervention", "Fin de l'enregistrement de l'intervention.");
         Changed?.Invoke();
     }
 
-    /// <summary>Écrit sur le disque ce qui attend (avant de relire l'astreinte en cours).</summary>
+    /// <summary>Écrit sur le disque ce qui attend (avant de relire l'intervention en cours).</summary>
     public void Flush() => _journal?.Flush();
 
     /// <summary>Ajoute un événement si l'enregistrement est lancé (depuis n'importe quel fil).</summary>
-    public void Record(DutyKind kind, string source, string text, byte[]? image = null) =>
-        _journal?.Write(new DutyEntry(DateTime.UtcNow, kind, source, text, image));
+    public void Record(InterventionKind kind, string source, string text, byte[]? image = null) =>
+        _journal?.Write(new InterventionEntry(DateTime.UtcNow, kind, source, text, image));
 
     /// <summary>Texte du terminal d'une session SSH, gardé pendant l'enregistrement (fil de l'interface).</summary>
     public void Attach(SshSession session) =>
-        _transcripts.GetValue(session, s => new DutyTerminalTranscript(s.Emulator, line =>
+        _transcripts.GetValue(session, s => new InterventionTerminalTranscript(s.Emulator, line =>
         {
             if (_journal is { } journal)
             {
-                journal.Write(new DutyEntry(DateTime.UtcNow, DutyKind.Terminal, s.Label, line));
+                journal.Write(new InterventionEntry(DateTime.UtcNow, InterventionKind.Terminal, s.Label, line));
             }
         }));
 
@@ -123,12 +123,12 @@ public sealed class DutyRecorder
         }
 
         var text = new StringBuilder();
-        text.Append(Text.Format(record.Upload ? Strings.DutyUpload : Strings.DutyDownload, record.Label, record.Destination));
+        text.Append(Text.Format(record.Upload ? Strings.InterventionUpload : Strings.InterventionDownload, record.Label, record.Destination));
         text.Append(" — ").Append(record.State switch
         {
-            TransferState.Done => Strings.DutyTransferDone,
-            TransferState.Cancelled => Strings.DutyTransferCancelled,
-            _ => Text.Format(Strings.DutyTransferFailed, record.Error ?? ""),
+            TransferState.Done => Strings.InterventionTransferDone,
+            TransferState.Cancelled => Strings.InterventionTransferCancelled,
+            _ => Text.Format(Strings.InterventionTransferFailed, record.Error ?? ""),
         });
         foreach (var file in record.Files)
         {
@@ -144,6 +144,6 @@ public sealed class DutyRecorder
             }
         }
 
-        Record(DutyKind.Transfer, record.Server, text.ToString());
+        Record(InterventionKind.Transfer, record.Server, text.ToString());
     }
 }

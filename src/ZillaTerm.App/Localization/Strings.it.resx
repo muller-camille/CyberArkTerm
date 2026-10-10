@@ -4902,301 +4902,337 @@ Due istanze sovrascriverebbero a vicenda impostazioni, vault locale e file in mo
   <data name="X11Refused" xml:space="preserve">
     <value>Inoltro X11 rifiutato dal server o dal PSMP: le applicazioni grafiche non potranno essere visualizzate.</value>
   </data>
-  <data name="ToolDuty" xml:space="preserve">
-    <value>Reperibilità</value>
+  <data name="ToolIntervention" xml:space="preserve">
+    <value>Intervento</value>
   </data>
-  <data name="ToolDutyTip" xml:space="preserve">
-    <value>Reperibilità: istruzioni e numeri di emergenza del team, e registrazione di ciò che fate</value>
+  <data name="ToolInterventionTip" xml:space="preserve">
+    <value>Intervento: registra ciò che fate (terminali, connessioni, trasferimenti, catture) per conservarne traccia; promemoria di reperibilità</value>
   </data>
-  <data name="DutyRecordingIndicator" xml:space="preserve">
-    <value>● Reperibilità registrata</value>
+  <data name="InterventionRecordingIndicator" xml:space="preserve">
+    <value>● Intervento registrato</value>
   </data>
-  <data name="DutyTitle" xml:space="preserve">
-    <value>Reperibilità</value>
+  <data name="InterventionTitle" xml:space="preserve">
+    <value>Intervento</value>
   </data>
   <data name="DutyTeamTextSection" xml:space="preserve">
-    <value>Istruzioni del team</value>
+    <value>Promemoria di reperibilità</value>
   </data>
   <data name="DutyNoText" xml:space="preserve">
-    <value>Ancora nessun testo di reperibilità. Si imposta in Impostazioni › Generale › Testo della reperibilità e si diffonde al team con il file di ambiente.</value>
+    <value>Ancora nessun promemoria di reperibilità. Si imposta in Impostazioni › Generale › Reperibilità (testo o file) e si diffonde al team con il file di ambiente.</value>
   </data>
-  <data name="DutyRecordingSection" xml:space="preserve">
+  <data name="InterventionRecordingSection" xml:space="preserve">
     <value>Registrazione</value>
   </data>
-  <data name="DutyStartRecording" xml:space="preserve">
-    <value>_Registra la reperibilità</value>
+  <data name="InterventionStartRecording" xml:space="preserve">
+    <value>_Registra l'intervento</value>
   </data>
-  <data name="DutyStopRecording" xml:space="preserve">
+  <data name="InterventionStopRecording" xml:space="preserve">
     <value>_Interrompi la registrazione</value>
   </data>
-  <data name="DutyNotRecording" xml:space="preserve">
+  <data name="InterventionNotRecording" xml:space="preserve">
     <value>Nessuna registrazione in corso.</value>
   </data>
-  <data name="DutyRecordingSince" xml:space="preserve">
+  <data name="InterventionRecordingSince" xml:space="preserve">
     <value>Registrazione dalle {0} ({1}), {2:# evento|# eventi}.</value>
   </data>
-  <data name="DutyRecordingHelp" xml:space="preserve">
-    <value>Tutto viene conservato fino all'interruzione: il testo dei terminali SSH, le connessioni, le azioni sugli account, i trasferimenti di file con il loro SHA-256, le vostre note e le catture. Il registro è cifrato solo per il vostro account Windows. Le password digitate senza eco non ci sono, ma tutto ciò che mostra un terminale sì.</value>
+  <data name="InterventionRecordingHelp" xml:space="preserve">
+    <value>Per qualsiasi intervento, in reperibilità o no. Tutto viene conservato fino all'interruzione: il testo dei terminali SSH, le connessioni, le azioni sugli account, i trasferimenti di file con il loro SHA-256, le vostre note e le catture. Il registro è cifrato solo per il vostro account Windows. Le password digitate senza eco non ci sono, ma tutto ciò che mostra un terminale sì.</value>
   </data>
-  <data name="DutyNotePlaceholder" xml:space="preserve">
+  <data name="InterventionNotePlaceholder" xml:space="preserve">
     <value>Nota per il registro (numero di incidente, decisione…)</value>
   </data>
-  <data name="DutyNoteName" xml:space="preserve">
+  <data name="InterventionNoteName" xml:space="preserve">
     <value>Nota per il registro</value>
   </data>
-  <data name="DutyAddNote" xml:space="preserve">
+  <data name="InterventionAddNote" xml:space="preserve">
     <value>Aggiungi _nota</value>
   </data>
-  <data name="DutyCaptureRdp" xml:space="preserve">
+  <data name="InterventionCaptureRdp" xml:space="preserve">
     <value>Ca_ttura un desktop remoto…</value>
   </data>
-  <data name="DutyCaptureTip" xml:space="preserve">
+  <data name="InterventionCaptureTip" xml:space="preserve">
     <value>Immagine di una finestra Connessione Desktop remoto (sessioni PSM), aggiunta al registro</value>
   </data>
-  <data name="DutyNoRdpWindow" xml:space="preserve">
+  <data name="InterventionNoRdpWindow" xml:space="preserve">
     <value>Nessuna finestra Connessione Desktop remoto è aperta (una finestra ridotta a icona non può essere catturata).</value>
   </data>
-  <data name="DutyCaptureFailed" xml:space="preserve">
+  <data name="InterventionCaptureFailed" xml:space="preserve">
     <value>Non è stato possibile catturare la finestra.</value>
   </data>
-  <data name="DutyCaptured" xml:space="preserve">
+  <data name="InterventionCaptured" xml:space="preserve">
     <value>Cattura aggiunta al registro: {0}</value>
   </data>
-  <data name="DutyNoteAdded" xml:space="preserve">
+  <data name="InterventionNoteAdded" xml:space="preserve">
     <value>Nota aggiunta al registro.</value>
   </data>
-  <data name="DutyPreviousSection" xml:space="preserve">
-    <value>Reperibilità registrate</value>
+  <data name="InterventionPreviousSection" xml:space="preserve">
+    <value>Interventi registrati</value>
   </data>
-  <data name="DutyJournalItem" xml:space="preserve">
+  <data name="InterventionJournalItem" xml:space="preserve">
     <value>{0}  ({1})</value>
   </data>
-  <data name="DutyInProgress" xml:space="preserve">
+  <data name="InterventionInProgress" xml:space="preserve">
     <value>{0}  (in corso)</value>
   </data>
-  <data name="DutyNoJournal" xml:space="preserve">
-    <value>Nessuna reperibilità registrata.</value>
+  <data name="InterventionNoJournal" xml:space="preserve">
+    <value>Nessun intervento registrato.</value>
   </data>
-  <data name="DutyExportReport" xml:space="preserve">
+  <data name="InterventionExportReport" xml:space="preserve">
     <value>E_sporta il rapporto…</value>
   </data>
-  <data name="DutyDelete" xml:space="preserve">
+  <data name="InterventionDelete" xml:space="preserve">
     <value>_Elimina…</value>
   </data>
-  <data name="DutyReportNotEncrypted" xml:space="preserve">
+  <data name="InterventionReportNotEncrypted" xml:space="preserve">
     <value>Il rapporto esportato non è cifrato: conservatelo in un luogo sicuro.</value>
   </data>
-  <data name="DutyReportSaved" xml:space="preserve">
+  <data name="InterventionReportSaved" xml:space="preserve">
     <value>Rapporto salvato: {0}</value>
   </data>
-  <data name="DutyReadFailed" xml:space="preserve">
+  <data name="InterventionReadFailed" xml:space="preserve">
     <value>Impossibile leggere il registro: {0}</value>
   </data>
-  <data name="DutyDeleteHeading" xml:space="preserve">
-    <value>Eliminare questo registro di reperibilità?</value>
+  <data name="InterventionDeleteHeading" xml:space="preserve">
+    <value>Eliminare questo registro di intervento?</value>
   </data>
-  <data name="DutyDeleteDetail" xml:space="preserve">
-    <value>Reperibilità del {0}. Non potrà essere recuperata.</value>
+  <data name="InterventionDeleteDetail" xml:space="preserve">
+    <value>Intervento del {0}. Non potrà essere recuperato.</value>
   </data>
-  <data name="DutyDeleteAction" xml:space="preserve">
+  <data name="InterventionDeleteAction" xml:space="preserve">
     <value>Elimina</value>
   </data>
-  <data name="DutyStartFailed" xml:space="preserve">
+  <data name="InterventionStartFailed" xml:space="preserve">
     <value>Impossibile avviare la registrazione: {0}</value>
   </data>
-  <data name="DutyWriteFailed" xml:space="preserve">
-    <value>Il disco rifiuta il registro: il resto della reperibilità non viene conservato ({0}).</value>
+  <data name="InterventionWriteFailed" xml:space="preserve">
+    <value>Il disco rifiuta il registro: il resto dell'intervento non viene conservato ({0}).</value>
   </data>
-  <data name="DutyTerminalCapped" xml:space="preserve">
+  <data name="InterventionTerminalCapped" xml:space="preserve">
     <value>Limite del testo dei terminali raggiunto: i terminali non vengono più conservati (gli altri eventi sì).</value>
   </data>
-  <data name="DutyStartedEntry" xml:space="preserve">
+  <data name="InterventionStartedEntry" xml:space="preserve">
     <value>{0} su {1}, ZillaTerm {2}, {3}</value>
   </data>
-  <data name="DutyModeCyberArk" xml:space="preserve">
+  <data name="InterventionModeCyberArk" xml:space="preserve">
     <value>sessione CyberArk ({0})</value>
   </data>
-  <data name="DutyModeEmergency" xml:space="preserve">
+  <data name="InterventionModeEmergency" xml:space="preserve">
     <value>accesso di emergenza (senza CyberArk)</value>
   </data>
-  <data name="DutyStoppedByUser" xml:space="preserve">
+  <data name="InterventionStoppedByUser" xml:space="preserve">
     <value>Registrazione interrotta</value>
   </data>
-  <data name="DutyStoppedAtExit" xml:space="preserve">
+  <data name="InterventionStoppedAtExit" xml:space="preserve">
     <value>ZillaTerm chiuso</value>
   </data>
-  <data name="DutyConnected" xml:space="preserve">
+  <data name="InterventionConnected" xml:space="preserve">
     <value>Connesso: {0}</value>
   </data>
-  <data name="DutyConnectionFailed" xml:space="preserve">
+  <data name="InterventionConnectionFailed" xml:space="preserve">
     <value>Connessione non riuscita: {0}</value>
   </data>
-  <data name="DutyClosedByServer" xml:space="preserve">
+  <data name="InterventionClosedByServer" xml:space="preserve">
     <value>Sessione chiusa dal server</value>
   </data>
-  <data name="DutyTabClosed" xml:space="preserve">
+  <data name="InterventionTabClosed" xml:space="preserve">
     <value>Sessione chiusa</value>
   </data>
-  <data name="DutyPsmLaunched" xml:space="preserve">
+  <data name="InterventionPsmLaunched" xml:space="preserve">
     <value>Sessione PSM aperta in Connessione Desktop remoto, componente {0}</value>
   </data>
-  <data name="DutyMachine" xml:space="preserve">
+  <data name="InterventionMachine" xml:space="preserve">
     <value>Macchina di destinazione: {0}</value>
   </data>
-  <data name="DutyReason" xml:space="preserve">
+  <data name="InterventionReason" xml:space="preserve">
     <value>Motivo: {0}</value>
   </data>
-  <data name="DutyTicket" xml:space="preserve">
+  <data name="InterventionTicket" xml:space="preserve">
     <value>Ticket: {0} {1}</value>
   </data>
-  <data name="DutySshExternal" xml:space="preserve">
+  <data name="InterventionSshExternal" xml:space="preserve">
     <value>Sessione SSH aperta in Windows Terminal: {0}</value>
   </data>
-  <data name="DutyRdpExternal" xml:space="preserve">
+  <data name="InterventionRdpExternal" xml:space="preserve">
     <value>Sessione aperta in Connessione Desktop remoto: {0}</value>
   </data>
-  <data name="DutyPasswordCopied" xml:space="preserve">
+  <data name="InterventionPasswordCopied" xml:space="preserve">
     <value>Password copiata negli appunti</value>
   </data>
-  <data name="DutyCpmRequested" xml:space="preserve">
+  <data name="InterventionCpmRequested" xml:space="preserve">
     <value>CPM: {0} richiesto</value>
   </data>
-  <data name="DutyAccountAdded" xml:space="preserve">
+  <data name="InterventionAccountAdded" xml:space="preserve">
     <value>Account aggiunto nel safe {0}</value>
   </data>
-  <data name="DutyAccountEdited" xml:space="preserve">
+  <data name="InterventionAccountEdited" xml:space="preserve">
     <value>Account modificato</value>
   </data>
-  <data name="DutyAccountDeleted" xml:space="preserve">
+  <data name="InterventionAccountDeleted" xml:space="preserve">
     <value>Account eliminato</value>
   </data>
-  <data name="DutyEmergencyEntered" xml:space="preserve">
+  <data name="InterventionEmergencyEntered" xml:space="preserve">
     <value>Accesso di emergenza aperto (senza CyberArk)</value>
   </data>
-  <data name="DutyLoggedOut" xml:space="preserve">
+  <data name="InterventionLoggedOut" xml:space="preserve">
     <value>Disconnessione</value>
   </data>
-  <data name="DutyUpload" xml:space="preserve">
+  <data name="InterventionUpload" xml:space="preserve">
     <value>Invio di {0} verso {1}</value>
   </data>
-  <data name="DutyDownload" xml:space="preserve">
+  <data name="InterventionDownload" xml:space="preserve">
     <value>Download di {0} verso {1}</value>
   </data>
-  <data name="DutyTransferDone" xml:space="preserve">
+  <data name="InterventionTransferDone" xml:space="preserve">
     <value>completato</value>
   </data>
-  <data name="DutyTransferCancelled" xml:space="preserve">
+  <data name="InterventionTransferCancelled" xml:space="preserve">
     <value>annullato</value>
   </data>
-  <data name="DutyTransferFailed" xml:space="preserve">
+  <data name="InterventionTransferFailed" xml:space="preserve">
     <value>non riuscito: {0}</value>
   </data>
-  <data name="DutyX11Window" xml:space="preserve">
+  <data name="InterventionX11Window" xml:space="preserve">
     <value>Finestra X11 aperta dal server</value>
   </data>
-  <data name="DutyCaptureOf" xml:space="preserve">
+  <data name="InterventionCaptureOf" xml:space="preserve">
     <value>Cattura di {0}</value>
   </data>
-  <data name="DutyCaptureButton" xml:space="preserve">
+  <data name="InterventionCaptureButton" xml:space="preserve">
     <value>Cattura</value>
   </data>
-  <data name="DutyCaptureButtonTip" xml:space="preserve">
-    <value>Aggiunge un'immagine di questo desktop al registro di reperibilità</value>
+  <data name="InterventionCaptureButtonTip" xml:space="preserve">
+    <value>Aggiunge un'immagine di questo desktop al registro dell'intervento</value>
   </data>
-  <data name="DutyReportTitle" xml:space="preserve">
-    <value>Rapporto di reperibilità</value>
+  <data name="InterventionReportTitle" xml:space="preserve">
+    <value>Rapporto di intervento</value>
   </data>
-  <data name="DutyReportPeriod" xml:space="preserve">
+  <data name="InterventionReportPeriod" xml:space="preserve">
     <value>Dal {0} al {1} ({2})</value>
   </data>
-  <data name="DutyReportUnfinished" xml:space="preserve">
-    <value>Registrazione interrotta: ZillaTerm si è chiuso prima della fine della reperibilità.</value>
+  <data name="InterventionReportUnfinished" xml:space="preserve">
+    <value>Registrazione interrotta: ZillaTerm si è chiuso prima della fine dell'intervento.</value>
   </data>
-  <data name="DutyReportDamaged" xml:space="preserve">
+  <data name="InterventionReportDamaged" xml:space="preserve">
     <value>Una parte del registro è illeggibile o è stata modificata.</value>
   </data>
-  <data name="DutyReportConfidential" xml:space="preserve">
+  <data name="InterventionReportConfidential" xml:space="preserve">
     <value>Riservato: questo rapporto contiene ciò che hanno mostrato i terminali. Non è cifrato.</value>
   </data>
-  <data name="DutyReportSummary" xml:space="preserve">
+  <data name="InterventionReportSummary" xml:space="preserve">
     <value>Riepilogo</value>
   </data>
-  <data name="DutyReportTimeline" xml:space="preserve">
+  <data name="InterventionReportTimeline" xml:space="preserve">
     <value>Cronologia</value>
   </data>
-  <data name="DutyReportTime" xml:space="preserve">
+  <data name="InterventionReportTime" xml:space="preserve">
     <value>Ora</value>
   </data>
-  <data name="DutyReportSession" xml:space="preserve">
+  <data name="InterventionReportSession" xml:space="preserve">
     <value>Sessione</value>
   </data>
-  <data name="DutyReportEvent" xml:space="preserve">
+  <data name="InterventionReportEvent" xml:space="preserve">
     <value>Evento</value>
   </data>
-  <data name="DutyKindStarted" xml:space="preserve">
+  <data name="InterventionKindStarted" xml:space="preserve">
     <value>Inizio</value>
   </data>
-  <data name="DutyKindStopped" xml:space="preserve">
+  <data name="InterventionKindStopped" xml:space="preserve">
     <value>Fine</value>
   </data>
-  <data name="DutyKindNote" xml:space="preserve">
+  <data name="InterventionKindNote" xml:space="preserve">
     <value>Nota</value>
   </data>
-  <data name="DutyKindTerminal" xml:space="preserve">
+  <data name="InterventionKindTerminal" xml:space="preserve">
     <value>Terminale</value>
   </data>
-  <data name="DutyKindConnection" xml:space="preserve">
+  <data name="InterventionKindConnection" xml:space="preserve">
     <value>Connessione</value>
   </data>
-  <data name="DutyKindAction" xml:space="preserve">
+  <data name="InterventionKindAction" xml:space="preserve">
     <value>Azione</value>
   </data>
-  <data name="DutyKindTransfer" xml:space="preserve">
+  <data name="InterventionKindTransfer" xml:space="preserve">
     <value>Trasferimento</value>
   </data>
-  <data name="DutyKindScreenshot" xml:space="preserve">
+  <data name="InterventionKindScreenshot" xml:space="preserve">
     <value>Cattura</value>
   </data>
-  <data name="DutyCountConnection" xml:space="preserve">
+  <data name="InterventionCountConnection" xml:space="preserve">
     <value>{0:# evento di connessione|# eventi di connessione}</value>
   </data>
-  <data name="DutyCountAction" xml:space="preserve">
+  <data name="InterventionCountAction" xml:space="preserve">
     <value>{0:# azione|# azioni}</value>
   </data>
-  <data name="DutyCountTransfer" xml:space="preserve">
+  <data name="InterventionCountTransfer" xml:space="preserve">
     <value>{0:# trasferimento|# trasferimenti}</value>
   </data>
-  <data name="DutyCountScreenshot" xml:space="preserve">
+  <data name="InterventionCountScreenshot" xml:space="preserve">
     <value>{0:# cattura|# catture}</value>
   </data>
-  <data name="DutyCountNote" xml:space="preserve">
+  <data name="InterventionCountNote" xml:space="preserve">
     <value>{0:# nota|# note}</value>
   </data>
-  <data name="DutyCountTerminal" xml:space="preserve">
+  <data name="InterventionCountTerminal" xml:space="preserve">
     <value>{0:# riga di terminale|# righe di terminale}</value>
   </data>
-  <data name="DutyDuration" xml:space="preserve">
+  <data name="InterventionDuration" xml:space="preserve">
     <value>{0} h {1:00}</value>
   </data>
   <data name="DutySection" xml:space="preserve">
     <value>Reperibilità</value>
   </data>
   <data name="DutyTextLabel" xml:space="preserve">
-    <value>Testo della re_peribilità:</value>
+    <value>Promemoria di re_peribilità:</value>
   </data>
   <data name="DutyTextHelp" xml:space="preserve">
-    <value>Mostrato dal pulsante «Reperibilità»: buone pratiche, numeri di emergenza… Testo semplice. Diffuso al team con il file di ambiente (pulsante Impostazioni › Esporta l'ambiente).</value>
+    <value>Mostrato in alto nella finestra «Intervento»: buone pratiche, numeri di emergenza… Testo semplice. Diffuso al team con il file di ambiente (pulsante Impostazioni › Esporta l'ambiente).</value>
   </data>
   <data name="InvalidDutyText" xml:space="preserve">
-    <value>Testo della reperibilità: al massimo 8000 caratteri, senza caratteri invisibili.</value>
+    <value>Promemoria di reperibilità: al massimo 8000 caratteri, senza caratteri invisibili.</value>
   </data>
   <data name="EnvDutyText" xml:space="preserve">
-    <value>Testo della reperibilità</value>
+    <value>Promemoria di reperibilità</value>
   </data>
   <data name="EnvInvalidDutyText" xml:space="preserve">
-    <value>Testo della reperibilità non valido (al massimo 8000 caratteri, senza caratteri invisibili): {0}</value>
+    <value>Promemoria di reperibilità non valido (al massimo 8000 caratteri, senza caratteri invisibili): {0}</value>
   </data>
-  <data name="DutyStoppedHint" xml:space="preserve">
+  <data name="InterventionStoppedHint" xml:space="preserve">
     <value>Registrazione interrotta. Esporta il rapporto per rileggerlo o trasmetterlo.</value>
+  </data>
+  <data name="DutyFileLabel" xml:space="preserve">
+    <value>File del pro_memoria:</value>
+  </data>
+  <data name="DutyFileHelp" xml:space="preserve">
+    <value>Facoltativo: un file di testo (ad esempio su una condivisione di rete) riletto a ogni apertura della finestra Intervento. Sostituisce il testo qui sopra: i responsabili lo aggiornano senza ridistribuire l'ambiente. Se non è leggibile, viene mostrato il testo qui sopra.</value>
+  </data>
+  <data name="InvalidDutyFile" xml:space="preserve">
+    <value>File del promemoria: percorso completo di un file (C:\… o \\server\condivisione\…).</value>
+  </data>
+  <data name="EnvDutyFile" xml:space="preserve">
+    <value>File del promemoria di reperibilità</value>
+  </data>
+  <data name="EnvDutyFileNetwork" xml:space="preserve">
+    <value>File del promemoria di reperibilità sul server di rete {0}</value>
+  </data>
+  <data name="DutyFileReading" xml:space="preserve">
+    <value>Lettura del file del promemoria…</value>
+  </data>
+  <data name="DutyFileSource" xml:space="preserve">
+    <value>Letto da {0}</value>
+  </data>
+  <data name="DutyFileUnreadable" xml:space="preserve">
+    <value>Il file del promemoria non è leggibile ({0}): viene mostrato il testo salvato.</value>
+  </data>
+  <data name="DutyFileSlow" xml:space="preserve">
+    <value>la condivisione non risponde</value>
+  </data>
+  <data name="DutyFileTruncated" xml:space="preserve">
+    <value>Il file del promemoria è troppo lungo: ne viene mostrato solo l'inizio.</value>
+  </data>
+  <data name="DutyFileMissing" xml:space="preserve">
+    <value>file non trovato</value>
+  </data>
+  <data name="DutyFileDenied" xml:space="preserve">
+    <value>accesso negato</value>
   </data>
 </root>

@@ -4,10 +4,10 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using ZillaTerm.Core.KeePass;
 
-namespace ZillaTerm.Core.Duty;
+namespace ZillaTerm.Core.Interventions;
 
-/// <summary>Nature d'un événement du journal d'astreinte.</summary>
-public enum DutyKind
+/// <summary>Nature d'un événement du journal d'intervention.</summary>
+public enum InterventionKind
 {
     /// <summary>Début de l'enregistrement (utilisateur, poste, version).</summary>
     Started,
@@ -34,26 +34,26 @@ public enum DutyKind
     Screenshot,
 }
 
-/// <summary>Événement du journal d'astreinte.</summary>
+/// <summary>Événement du journal d'intervention.</summary>
 /// <param name="Time">Heure UTC.</param>
 /// <param name="Source">Session ou serveur concerné ; vide pour ZillaTerm lui-même.</param>
-/// <param name="Image">Capture d'écran (PNG), pour <see cref="DutyKind.Screenshot"/>.</param>
-public sealed record DutyEntry(DateTime Time, DutyKind Kind, string Source, string Text, byte[]? Image = null);
+/// <param name="Image">Capture d'écran (PNG), pour <see cref="InterventionKind.Screenshot"/>.</param>
+public sealed record InterventionEntry(DateTime Time, InterventionKind Kind, string Source, string Text, byte[]? Image = null);
 
-/// <summary>Astreinte relue : ses événements ; un bloc illisible, d'un autre journal ou déplacé la marque abîmée.</summary>
+/// <summary>Intervention relue : ses événements ; un bloc illisible, d'un autre journal ou déplacé la marque abîmée.</summary>
 /// <param name="Unfinished">Pas d'événement de fin : ZillaTerm s'est arrêté pendant l'enregistrement.</param>
-public sealed record DutyRecording(string Path, IReadOnlyList<DutyEntry> Entries, bool Damaged, bool Unfinished)
+public sealed record InterventionRecording(string Path, IReadOnlyList<InterventionEntry> Entries, bool Damaged, bool Unfinished)
 {
     public DateTime? Start => Entries.Count > 0 ? Entries[0].Time : null;
 
     public DateTime? End => Entries.Count > 0 ? Entries[^1].Time : null;
 }
 
-/// <summary>Astreinte enregistrée (fichier), pour la liste des astreintes précédentes.</summary>
-public sealed record DutyFile(string Path, DateTime Start, long Length);
+/// <summary>Intervention enregistrée (fichier), pour la liste des interventions précédentes.</summary>
+public sealed record InterventionFile(string Path, DateTime Start, long Length);
 
 /// <summary>
-/// Journal d'une astreinte : ce qui s'est passé pendant l'enregistrement (texte des terminaux, connexions, actions,
+/// Journal d'une intervention : ce qui s'est passé pendant l'enregistrement (texte des terminaux, connexions, actions,
 /// transferts, captures), pour s'en souvenir et rédiger le compte rendu.
 /// </summary>
 /// <remarks>
@@ -69,17 +69,17 @@ public sealed record DutyFile(string Path, DateTime Start, long Length);
 /// plus gardé (une commande qui affiche des gigaoctets ne remplit pas le disque).
 /// </para>
 /// </remarks>
-public sealed class DutyJournal : IDisposable
+public sealed class InterventionJournal : IDisposable
 {
     public static readonly TimeSpan FlushInterval = TimeSpan.FromSeconds(2);
 
-    /// <summary>Texte des terminaux gardé au plus par astreinte (caractères).</summary>
+    /// <summary>Texte des terminaux gardé au plus par intervention (caractères).</summary>
     public const long MaxTerminalText = 64L * 1024 * 1024;
 
     /// <summary>Plus grand bloc lu (une capture d'écran en 4K tient largement).</summary>
     private const int MaxChunk = 64 * 1024 * 1024;
 
-    private static readonly byte[] Magic = "ZTDUTY1\n"u8.ToArray();
+    private static readonly byte[] Magic = "ZTINTV1\n"u8.ToArray();
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -90,7 +90,7 @@ public sealed class DutyJournal : IDisposable
     private readonly ISecretProtector _protector;
     private readonly string _id = Guid.NewGuid().ToString("N");
     private readonly object _lock = new();
-    private readonly List<DutyEntry> _pending = [];
+    private readonly List<InterventionEntry> _pending = [];
     private readonly Timer _timer;
     private FileStream? _file;
     private long _sequence;
@@ -98,7 +98,7 @@ public sealed class DutyJournal : IDisposable
     private long _terminalText;
     private bool _terminalCapped;
 
-    private DutyJournal(string path, FileStream file, ISecretProtector protector, long terminalTextLimit)
+    private InterventionJournal(string path, FileStream file, ISecretProtector protector, long terminalTextLimit)
     {
         Path = path;
         _file = file;
@@ -115,30 +115,30 @@ public sealed class DutyJournal : IDisposable
     /// <summary>Le disque a refusé une écriture : les événements suivants sont perdus (voir <see cref="Failure"/>).</summary>
     public Exception? Failure { get; private set; }
 
-    /// <summary>Dossier des astreintes de l'utilisateur.</summary>
+    /// <summary>Dossier des interventions de l'utilisateur.</summary>
     public static string DefaultDirectory =>
-        System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ZillaTerm", "Astreintes");
+        System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ZillaTerm", "Interventions");
 
-    /// <summary>Commence une astreinte : nouveau fichier, nommé d'après l'heure de début.</summary>
+    /// <summary>Commence une intervention : nouveau fichier, nommé d'après l'heure de début.</summary>
     /// <param name="terminalTextLimit">Texte des terminaux gardé au plus (caractères).</param>
-    public static DutyJournal Start(string directory, ISecretProtector protector, DateTime now, long terminalTextLimit = MaxTerminalText)
+    public static InterventionJournal Start(string directory, ISecretProtector protector, DateTime now, long terminalTextLimit = MaxTerminalText)
     {
         Directory.CreateDirectory(directory);
         string name = now.ToUniversalTime().ToString("yyyyMMdd-HHmmss", System.Globalization.CultureInfo.InvariantCulture);
-        string path = System.IO.Path.Combine(directory, $"astreinte-{name}.zdj");
+        string path = System.IO.Path.Combine(directory, $"intervention-{name}.zij");
         for (int i = 2; File.Exists(path); i++)
         {
-            path = System.IO.Path.Combine(directory, $"astreinte-{name}-{i}.zdj");
+            path = System.IO.Path.Combine(directory, $"intervention-{name}-{i}.zij");
         }
 
         var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.Read);
         file.Write(Magic);
         file.Flush(flushToDisk: true);
-        return new DutyJournal(path, file, protector, terminalTextLimit);
+        return new InterventionJournal(path, file, protector, terminalTextLimit);
     }
 
     /// <summary>Ajoute un événement (depuis n'importe quel fil).</summary>
-    public void Write(DutyEntry entry)
+    public void Write(InterventionEntry entry)
     {
         lock (_lock)
         {
@@ -147,7 +147,7 @@ public sealed class DutyJournal : IDisposable
                 return;
             }
 
-            if (entry.Kind == DutyKind.Terminal)
+            if (entry.Kind == InterventionKind.Terminal)
             {
                 if (_terminalCapped)
                 {
@@ -210,8 +210,8 @@ public sealed class DutyJournal : IDisposable
         }
     }
 
-    /// <summary>Termine l'astreinte : dernier événement, écriture, fermeture du fichier.</summary>
-    public void Stop(DutyEntry last)
+    /// <summary>Termine l'intervention : dernier événement, écriture, fermeture du fichier.</summary>
+    public void Stop(InterventionEntry last)
     {
         Write(last);
         Dispose();
@@ -228,42 +228,42 @@ public sealed class DutyJournal : IDisposable
         }
     }
 
-    /// <summary>Astreintes du dossier, la plus récente en tête.</summary>
-    public static IReadOnlyList<DutyFile> List(string directory)
+    /// <summary>Interventions du dossier, la plus récente en tête.</summary>
+    public static IReadOnlyList<InterventionFile> List(string directory)
     {
         if (!Directory.Exists(directory))
         {
             return [];
         }
 
-        var files = new List<DutyFile>();
-        foreach (var info in new DirectoryInfo(directory).EnumerateFiles("astreinte-*.zdj"))
+        var files = new List<InterventionFile>();
+        foreach (var info in new DirectoryInfo(directory).EnumerateFiles("intervention-*.zij"))
         {
-            var stamp = info.Name["astreinte-".Length..^".zdj".Length];
+            var stamp = info.Name["intervention-".Length..^".zij".Length];
             if (stamp.Length >= 15
                 && DateTime.TryParseExact(stamp[..15], "yyyyMMdd-HHmmss", System.Globalization.CultureInfo.InvariantCulture,
                     System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal,
                     out var start))
             {
-                files.Add(new DutyFile(info.FullName, start, info.Length));
+                files.Add(new InterventionFile(info.FullName, start, info.Length));
             }
         }
 
         return [.. files.OrderByDescending(f => f.Start).ThenByDescending(f => f.Path, StringComparer.Ordinal)];
     }
 
-    /// <summary>Relit une astreinte. Un fichier tronqué ou abîmé rend ce qui a pu être lu, marqué <c>Damaged</c>.</summary>
-    /// <exception cref="InvalidDataException">Pas un journal d'astreinte.</exception>
-    public static DutyRecording Read(string path, ISecretProtector protector)
+    /// <summary>Relit une intervention. Un fichier tronqué ou abîmé rend ce qui a pu être lu, marqué <c>Damaged</c>.</summary>
+    /// <exception cref="InvalidDataException">Pas un journal d'intervention.</exception>
+    public static InterventionRecording Read(string path, ISecretProtector protector)
     {
         using var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         var magic = new byte[Magic.Length];
         if (file.ReadAtLeast(magic, magic.Length, throwOnEndOfStream: false) != magic.Length || !magic.AsSpan().SequenceEqual(Magic))
         {
-            throw new InvalidDataException("Not a ZillaTerm duty journal.");
+            throw new InvalidDataException("Not a ZillaTerm intervention journal.");
         }
 
-        var entries = new List<DutyEntry>();
+        var entries = new List<InterventionEntry>();
         bool damaged = false;
         string? id = null;
         long expected = 0;
@@ -316,8 +316,8 @@ public sealed class DutyJournal : IDisposable
             entries.AddRange(chunk.Entries.Where(e => e is not null && e.Text is not null && e.Source is not null));
         }
 
-        return new DutyRecording(path, entries, damaged, entries.Count == 0 || entries[^1].Kind != DutyKind.Stopped);
+        return new InterventionRecording(path, entries, damaged, entries.Count == 0 || entries[^1].Kind != InterventionKind.Stopped);
     }
 
-    private sealed record Chunk(string Id, long Sequence, List<DutyEntry> Entries);
+    private sealed record Chunk(string Id, long Sequence, List<InterventionEntry> Entries);
 }

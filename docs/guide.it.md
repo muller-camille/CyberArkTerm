@@ -11,7 +11,7 @@
 - [5. Sfogliare e inviare file: scheda «File»](#5-sfogliare-e-inviare-file-scheda-file)
 - [6. Organizzare i server: scheda «I miei server»](#6-organizzare-i-server-scheda-i-miei-server)
 - [7. Accesso di emergenza fuori da CyberArk: database KeePass](#7-accesso-di-emergenza-fuori-da-cyberark-database-keepass)
-- [8. Reperibilità: istruzioni del team e registrazione](#8-reperibilità-istruzioni-del-team-e-registrazione)
+- [8. Intervento: registrazione e promemoria di reperibilità](#8-intervento-registrazione-e-promemoria-di-reperibilità)
 - [Scorciatoie](#scorciatoie)
 - [Impostazioni e file di configurazione](#impostazioni-e-file-di-configurazione)
 - [Sicurezza](#sicurezza)
@@ -757,18 +757,27 @@ memorizzata. Gestione nelle **Impostazioni**, pagina Sicurezza: «Crea…», «S
 ora…»; queste azioni si applicano subito, senza «Salva». Si blocca alla disconnessione da CyberArk (così «Accesso di emergenza»
 non riapre mai i database memorizzati senza password), alla chiusura e al blocco di Windows.
 
-## 8. Reperibilità: istruzioni del team e registrazione
+## 8. Intervento: registrazione e promemoria di reperibilità
 
-Il pulsante **«Reperibilità»** della barra degli strumenti apre una finestra con:
+Il pulsante **«Intervento»** della barra degli strumenti apre una finestra utile a qualsiasi intervento, in
+reperibilità o no:
 
-- **Le istruzioni del team**: buone pratiche, numeri di emergenza, contatti… Il testo si imposta in **Impostazioni ›
-  Generale › Testo della reperibilità** e si diffonde a tutto il team con il [file di ambiente](#ambiente-condiviso).
+- **Il promemoria di reperibilità**: buone pratiche, numeri di emergenza, contatti… Proviene:
+  - dal testo di **Impostazioni › Generale › Promemoria di reperibilità**, diffuso a tutto il team con il
+    [file di ambiente](#ambiente-condiviso);
+  - oppure da un **file di testo** indicato in **Impostazioni › Generale › File del promemoria** (di solito su una
+    condivisione di rete; anch'esso diffondibile con il file di ambiente). Viene riletto a ogni apertura della
+    finestra: i responsabili lo aggiornano senza ridistribuire l'ambiente. Il suo percorso appare sotto il titolo; se
+    non è leggibile (assente, accesso negato, condivisione che non risponde entro 5 secondi), viene mostrato il testo
+    delle Impostazioni, con il motivo. UTF-8 o UTF-16 (il Blocco note va bene); vengono letti solo i primi 64 KB.
+
   Viene mostrato come testo semplice (selezionabile per copiare un numero): nessun link né formattazione viene
-  interpretato.
-- **«Registra la reperibilità»**: da quel momento ZillaTerm conserva tutto ciò che accade, fino a «Interrompi la
+  interpretato, e i caratteri invisibili di un file (che potrebbero invertire l'ordine delle cifre di un numero)
+  vengono rimossi.
+- **«Registra l'intervento»**: da quel momento ZillaTerm conserva tutto ciò che accade, fino a «Interrompi la
   registrazione» o alla chiusura di ZillaTerm. La registrazione continua dopo la disconnessione da CyberArk e in
-  accesso di emergenza. Un pallino rosso sul pulsante e «● Reperibilità registrata» nella barra di stato lo
-  ricordano. Vengono conservati:
+  accesso di emergenza. Un pallino rosso sul pulsante e «● Intervento registrato» nella barra di stato lo ricordano.
+  Vengono conservati:
   - il **testo dei terminali SSH** (comandi digitati e il loro risultato, riga per riga, con l'ora; non la schermata
     di vim, less o top, né il comando che ZillaTerm digita da sé per seguire la cartella);
   - le **connessioni**: apertura, errore e chiusura delle sessioni SSH, file, desktop remoto e VNC, e le sessioni
@@ -780,16 +789,17 @@ Il pulsante **«Reperibilità»** della barra degli strumenti apre una finestra 
   - le **catture**: «Cattura un desktop remoto…» acquisisce l'immagine di una finestra Connessione Desktop remoto
     (sessioni PSM; una finestra ridotta a icona non può essere catturata), e il pulsante «Cattura» delle schede
     desktop remoto di ZillaTerm acquisisce il desktop visualizzato.
-- **«Reperibilità registrate»**: l'elenco delle registrazioni, dalla più recente. **«Esporta il rapporto…»** (o
-  doppio clic) ne fa una pagina HTML: riepilogo, cronologia, blocchi di testo dei terminali e catture, da allegare al
-  resoconto della reperibilità. **«Elimina…»** cancella una registrazione terminata.
+- **«Interventi registrati»**: l'elenco delle registrazioni, dalla più recente. All'interruzione l'intervento resta
+  selezionato: **«Esporta il rapporto…»** (o doppio clic) ne fa una pagina HTML: riepilogo, cronologia, blocchi di
+  testo dei terminali e catture, da allegare al resoconto dell'intervento. **«Elimina…»** cancella una registrazione
+  terminata.
 
-Il registro è **cifrato solo per il vostro account Windows** (DPAPI) in `%LOCALAPPDATA%\ZillaTerm\Astreintes`, blocco
+Il registro è **cifrato solo per il vostro account Windows** (DPAPI) in `%LOCALAPPDATA%\ZillaTerm\Interventions`, blocco
 per blocco durante la registrazione (un arresto improvviso perde solo gli ultimi due secondi, e il rapporto lo
 segnala). Un blocco rimosso, spostato o modificato viene segnalato. ⚠ Le password digitate senza eco non ci sono, ma
 **tutto ciò che mostra un terminale sì** (il contenuto di un file di configurazione, per esempio); il rapporto
 esportato **non è cifrato**: conservatelo in un luogo sicuro. Il testo dei terminali è limitato a 64 milioni di
-caratteri per reperibilità (gli altri eventi continuano a essere conservati oltre).
+caratteri per intervento (gli altri eventi continuano a essere conservati oltre).
 
 ## Scorciatoie
 
@@ -858,7 +868,8 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 | Pagina | Impostazione | Ruolo | Predefinito |
 | --- | --- | --- | --- |
 | Generale | Tema | Come Windows, Chiaro o Scuro; applicato subito (il contrasto elevato di Windows ha la precedenza) | come Windows |
-| Generale | Testo della reperibilità | Istruzioni e numeri di emergenza mostrati dal pulsante «Reperibilità»; testo semplice, diffuso dal file di ambiente (vedi [Reperibilità](#8-reperibilità-istruzioni-del-team-e-registrazione)) | vuoto |
+| Generale | Promemoria di reperibilità | Buone pratiche e numeri di emergenza mostrati nella finestra «Intervento»; testo semplice, diffuso dal file di ambiente (vedi [Intervento](#8-intervento-registrazione-e-promemoria-di-reperibilità)) | vuoto |
+| Generale | File del promemoria | File di testo (di solito su una condivisione di rete) riletto a ogni apertura della finestra «Intervento», mostrato al posto del promemoria qui sopra; diffuso dal file di ambiente | vuoto |
 | Generale | Lingua dell'interfaccia | Français, English, Italiano o lingua del sistema; applicata dopo la disconnessione da CyberArk o al prossimo avvio | lingua di Windows (inglese se non è tradotta) |
 | Generale | File centrale | File di ambiente del team su una condivisione di rete, riletto a ogni avvio; le sue modifiche vengono mostrate prima di essere applicate (vedi [Ambiente condiviso](#ambiente-condiviso)) | vuoto |
 | Generale | Cercare una nuova versione all'avvio | Una richiesta a GitHub al massimo una volta al giorno; un link nella barra di stato se esiste una versione più recente (la finestra «Informazioni» ricorda questa impostazione) | no |
@@ -887,7 +898,7 @@ dicono sotto la loro casella («⚠ Effetto: …»).
 
 Per dare ZillaTerm a un collega con la configurazione del team (indirizzo del PVWA, metodo di accesso, PSMP
 predefinito e per dominio, componente degli account Windows e componenti per piattaforma, elenchi condivisi, chiavi
-dei PSMP, testo della reperibilità, alcune opzioni), senza niente di personale né alcuna password:
+dei PSMP, promemoria di reperibilità (testo o file), alcune opzioni), senza niente di personale né alcuna password:
 
 1. **Esportare**: pulsante «Impostazioni» → «Esporta l'ambiente…» salva `ZillaTerm.env.json`.
 2. **Accanto all'eseguibile**: metti questo file accanto a `ZillaTerm.exe` (ad esempio nello stesso zip).

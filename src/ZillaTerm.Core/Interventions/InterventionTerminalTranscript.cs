@@ -1,16 +1,16 @@
 using System.Text;
 using ZillaTerm.Core.Terminal;
 
-namespace ZillaTerm.Core.Duty;
+namespace ZillaTerm.Core.Interventions;
 
 /// <summary>
-/// Texte d'un terminal pour le journal d'astreinte : chaque ligne complète, une fois quittée (les morceaux d'une ligne
+/// Texte d'un terminal pour le journal d'intervention : chaque ligne complète, une fois quittée (les morceaux d'une ligne
 /// coupée par le retour automatique sont réunis), sur l'écran principal seulement (pas vim, less ou top). La commande
 /// que ZillaTerm tape pour suivre le dossier, effacée de l'écran, n'y figure pas non plus : les lignes qui suivent sa
 /// marque attendent, et sont oubliées si l'effacement arrive.
 /// </summary>
 /// <remarks>À utiliser sur le fil de l'émulateur (celui de l'interface), comme lui.</remarks>
-public sealed class DutyTerminalTranscript : IDisposable
+public sealed class InterventionTerminalTranscript : IDisposable
 {
     private readonly TerminalEmulator _emulator;
     private readonly Action<string> _line;
@@ -18,7 +18,7 @@ public sealed class DutyTerminalTranscript : IDisposable
     private readonly List<string> _held = [];
 
     /// <param name="line">Reçoit chaque ligne complète.</param>
-    public DutyTerminalTranscript(TerminalEmulator emulator, Action<string> line)
+    public InterventionTerminalTranscript(TerminalEmulator emulator, Action<string> line)
     {
         _emulator = emulator;
         _line = line;

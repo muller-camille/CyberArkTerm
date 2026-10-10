@@ -26,7 +26,7 @@ public partial class MainWindow
     private async Task OpenRdpTabAsync(string label, Func<CancellationToken, Task<RdpConnectionRequest>> prepare, Func<Task>? duplicate = null)
     {
         var session = new RdpSession(label, prepare);
-        var view = new RdpSessionView(session) { Visibility = Visibility.Hidden, DutyRecording = Duty.IsRecording };
+        var view = new RdpSessionView(session) { Visibility = Visibility.Hidden, InterventionRecording = Intervention.IsRecording };
         var tab = new TabItem { Tag = session };
         tab.Header = TabHeader(tab, label, "IconWindows", duplicate);
         session.StateChanged += () =>

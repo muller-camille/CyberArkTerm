@@ -11,7 +11,7 @@
 - [5. Parcourir et déposer des fichiers : onglet « Fichiers »](#5-parcourir-et-déposer-des-fichiers--onglet--fichiers-)
 - [6. Organiser ses serveurs : onglet « Mes serveurs »](#6-organiser-ses-serveurs--onglet--mes-serveurs-)
 - [7. Accès d'urgence hors CyberArk : bases KeePass](#7-accès-durgence-hors-cyberark--bases-keepass)
-- [8. Astreinte : consignes de l'équipe et enregistrement](#8-astreinte--consignes-de-léquipe-et-enregistrement)
+- [8. Intervention : enregistrement et consignes d'astreinte](#8-intervention--enregistrement-et-consignes-dastreinte)
 - [Raccourcis](#raccourcis)
 - [Paramètres et fichier de configuration](#paramètres-et-fichier-de-configuration)
 - [Sécurité](#sécurité)
@@ -755,18 +755,26 @@ maître n'a pas été mémorisé. Gestion dans les **Paramètres**, page Sécuri
 suite, sans « Enregistrer ». Il se verrouille à la déconnexion de CyberArk (« Accès d'urgence » ne rouvre ainsi jamais les
 bases mémorisées sans mot de passe), à la fermeture et au verrouillage de Windows.
 
-## 8. Astreinte : consignes de l'équipe et enregistrement
+## 8. Intervention : enregistrement et consignes d'astreinte
 
-Le bouton **« Astreinte »** de la barre d'outils ouvre une fenêtre avec :
+Le bouton **« Intervention »** de la barre d'outils ouvre une fenêtre utile à toute intervention, d'astreinte ou non :
 
-- **Les consignes de l'équipe** : bonnes pratiques, numéros d'urgence, contacts… Le texte se règle dans
-  **Paramètres › Général › Texte de l'astreinte** et se diffuse à toute l'équipe par le
-  [fichier d'environnement](#environnement-partagé). Il s'affiche en texte brut (sélectionnable pour copier un
-  numéro) : aucun lien ni mise en forme n'est interprété.
-- **« Enregistrer l'astreinte »** : à partir de là, ZillaTerm garde tout ce qui se passe, jusqu'à « Arrêter
+- **Les consignes d'astreinte** : bonnes pratiques, numéros d'urgence, contacts… Elles viennent :
+  - du texte de **Paramètres › Général › Consignes d'astreinte**, diffusé à toute l'équipe par le
+    [fichier d'environnement](#environnement-partagé) ;
+  - ou d'un **fichier texte** indiqué dans **Paramètres › Général › Fichier des consignes** (sur un partage réseau en
+    général ; lui aussi diffusable par le fichier d'environnement). Il est relu à chaque ouverture de la fenêtre : les
+    responsables le mettent à jour sans rediffuser l'environnement. Son chemin s'affiche sous le titre ; s'il est
+    illisible (absent, accès refusé, partage qui ne répond pas en 5 secondes), le texte des Paramètres s'affiche, avec
+    la raison. UTF-8 ou UTF-16 (le Bloc-notes convient) ; seuls les 64 premiers Ko sont lus.
+
+  Elles s'affichent en texte brut (sélectionnable pour copier un numéro) : aucun lien ni mise en forme n'est
+  interprété, et les caractères invisibles d'un fichier (qui pourraient inverser l'ordre des chiffres d'un numéro)
+  sont retirés.
+- **« Enregistrer l'intervention »** : à partir de là, ZillaTerm garde tout ce qui se passe, jusqu'à « Arrêter
   l'enregistrement » ou la fermeture de ZillaTerm. L'enregistrement continue après une déconnexion de CyberArk et en
-  accès d'urgence. Une pastille rouge sur le bouton et « ● Astreinte enregistrée » dans la barre d'état le rappellent.
-  Sont gardés :
+  accès d'urgence. Une pastille rouge sur le bouton et « ● Intervention enregistrée » dans la barre d'état le
+  rappellent. Sont gardés :
   - le **texte des terminaux SSH** (commandes tapées et leur résultat, ligne par ligne, avec l'heure ; pas l'écran
     de vim, less ou top, ni la commande que ZillaTerm tape lui-même pour suivre le dossier) ;
   - les **connexions** : ouverture, échec et fermeture des sessions SSH, fichiers, Bureau à distance et VNC, et les
@@ -778,16 +786,17 @@ Le bouton **« Astreinte »** de la barre d'outils ouvre une fenêtre avec :
   - les **captures** : « Capturer un Bureau à distance… » prend une image d'une fenêtre Connexion Bureau à distance
     (sessions PSM ; une fenêtre réduite ne peut pas l'être), et le bouton « Capture » des onglets Bureau à distance
     de ZillaTerm prend celle du bureau affiché.
-- **« Astreintes enregistrées »** : la liste des enregistrements, du plus récent au plus ancien. **« Exporter le
-  rapport… »** (ou double-clic) en fait une page HTML : résumé, chronologie, blocs de texte des terminaux et
-  captures, à joindre au compte rendu d'astreinte. **« Supprimer… »** efface un enregistrement terminé.
+- **« Interventions enregistrées »** : la liste des enregistrements, du plus récent au plus ancien. À l'arrêt,
+  l'intervention reste sélectionnée : **« Exporter le rapport… »** (ou double-clic) en fait une page HTML : résumé,
+  chronologie, blocs de texte des terminaux et captures, à joindre au compte rendu d'intervention. **« Supprimer… »**
+  efface un enregistrement terminé.
 
-Le journal est **chiffré pour votre compte Windows seul** (DPAPI) dans `%LOCALAPPDATA%\ZillaTerm\Astreintes`, bloc par
+Le journal est **chiffré pour votre compte Windows seul** (DPAPI) dans `%LOCALAPPDATA%\ZillaTerm\Interventions`, bloc par
 bloc au fil de l'enregistrement (un arrêt brutal ne perd que les deux dernières secondes, et le rapport le signale).
 Un bloc retiré, déplacé ou modifié est signalé dans le rapport. ⚠ Les mots de passe tapés sans écho n'y figurent pas,
 mais **tout ce qu'affiche un terminal y est** (contenu d'un fichier de configuration, par exemple) ; le rapport
 exporté n'est **pas chiffré** : rangez-le en lieu sûr. Le texte des terminaux est plafonné à 64 millions de
-caractères par astreinte (les autres événements continuent d'être gardés au-delà).
+caractères par intervention (les autres événements continuent d'être gardés au-delà).
 
 ## Raccourcis
 
@@ -855,7 +864,8 @@ disent sous leur case (« ⚠ Effet : … »).
 | Page | Paramètre | Rôle | Défaut |
 | --- | --- | --- | --- |
 | Général | Thème | Comme Windows, Clair ou Sombre ; appliqué tout de suite (le contraste élevé de Windows l'emporte) | comme Windows |
-| Général | Texte de l'astreinte | Consignes et numéros d'urgence affichés par le bouton « Astreinte » ; texte brut, diffusé par le fichier d'environnement (voir [Astreinte](#8-astreinte--consignes-de-léquipe-et-enregistrement)) | vide |
+| Général | Consignes d'astreinte | Bonnes pratiques et numéros d'urgence affichés dans la fenêtre « Intervention » ; texte brut, diffusé par le fichier d'environnement (voir [Intervention](#8-intervention--enregistrement-et-consignes-dastreinte)) | vide |
+| Général | Fichier des consignes | Fichier texte (partage réseau en général) relu à chaque ouverture de la fenêtre « Intervention », affiché à la place des consignes ci-dessus ; diffusé par le fichier d'environnement | vide |
 | Général | Langue de l'interface | Français, English, Italiano ou langue du système ; appliquée après la déconnexion de CyberArk ou au prochain démarrage | langue de Windows (anglais si elle n'est pas traduite) |
 | Général | Fichier central | Fichier d'environnement de l'équipe sur un partage réseau, relu à chaque démarrage ; ses changements sont montrés avant d'être appliqués (voir [Environnement partagé](#environnement-partagé)) | vide |
 | Général | Rechercher une nouvelle version au démarrage | Une requête vers GitHub au plus une fois par jour ; lien dans la barre d'état si une version plus récente existe (la fenêtre « À propos » rappelle ce réglage) | non |
@@ -884,7 +894,7 @@ disent sous leur case (« ⚠ Effet : … »).
 
 Pour donner ZillaTerm à un collègue avec la configuration de l'équipe (adresse du PVWA, méthode de connexion,
 PSMP par défaut et par domaine, composant des comptes Windows et composants par plateforme, listes partagées, clés
-des PSMP, texte de l'astreinte, quelques options), sans rien de personnel ni aucun mot de passe :
+des PSMP, consignes d'astreinte (texte ou fichier), quelques options), sans rien de personnel ni aucun mot de passe :
 
 1. **Exporter** : bouton « Paramètres » → « Exporter l'environnement… » enregistre `ZillaTerm.env.json`.
 2. **À côté de l'exécutable** : posez ce fichier à côté de `ZillaTerm.exe` (par exemple dans le même zip). Au

@@ -189,7 +189,7 @@ public sealed class SshSession : RemoteSession
         x11.RequestReceived += (_, e) =>
         {
             DebugLog.Write("x11", $"{label} : fenêtre X11 ouverte par le serveur ({e.OriginatorHost})");
-            DutyRecorder.Current.Record(Core.Duty.DutyKind.Action, label, Strings.DutyX11Window);
+            InterventionRecorder.Current.Record(Core.Interventions.InterventionKind.Action, label, Strings.InterventionX11Window);
         };
         x11.Exception += (_, e) => DebugLog.Write("x11", $"{label} : connexion X11", e.Exception);
         var shell = client.CreateShellStream("xterm-256color", (uint)Emulator.Columns, (uint)Emulator.Rows, 0, 0, 65536, null, x11);

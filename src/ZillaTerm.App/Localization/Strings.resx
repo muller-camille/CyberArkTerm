@@ -4902,301 +4902,337 @@ Two instances would overwrite each other's settings, local vault and files being
   <data name="X11Refused" xml:space="preserve">
     <value>X11 forwarding refused by the server or the PSMP: graphical applications cannot be shown.</value>
   </data>
-  <data name="ToolDuty" xml:space="preserve">
-    <value>Duty</value>
+  <data name="ToolIntervention" xml:space="preserve">
+    <value>Intervention</value>
   </data>
-  <data name="ToolDutyTip" xml:space="preserve">
-    <value>On-call duty: the team's instructions and emergency numbers, and the recording of what you do</value>
+  <data name="ToolInterventionTip" xml:space="preserve">
+    <value>Intervention: records what you do (terminals, connections, transfers, captures) to keep a trace of it; on-call duty reminder</value>
   </data>
-  <data name="DutyRecordingIndicator" xml:space="preserve">
-    <value>● Duty recorded</value>
+  <data name="InterventionRecordingIndicator" xml:space="preserve">
+    <value>● Intervention recorded</value>
   </data>
-  <data name="DutyTitle" xml:space="preserve">
-    <value>On-call duty</value>
+  <data name="InterventionTitle" xml:space="preserve">
+    <value>Intervention</value>
   </data>
   <data name="DutyTeamTextSection" xml:space="preserve">
-    <value>Team instructions</value>
+    <value>On-call duty reminder</value>
   </data>
   <data name="DutyNoText" xml:space="preserve">
-    <value>No duty text yet. It is set in Settings › General › Duty text, and shared with the team by the environment file.</value>
+    <value>No on-call duty reminder yet. It is set in Settings › General › On-call duty (a text or a file), and shared with the team by the environment file.</value>
   </data>
-  <data name="DutyRecordingSection" xml:space="preserve">
+  <data name="InterventionRecordingSection" xml:space="preserve">
     <value>Recording</value>
   </data>
-  <data name="DutyStartRecording" xml:space="preserve">
-    <value>_Record the duty</value>
+  <data name="InterventionStartRecording" xml:space="preserve">
+    <value>_Record the intervention</value>
   </data>
-  <data name="DutyStopRecording" xml:space="preserve">
+  <data name="InterventionStopRecording" xml:space="preserve">
     <value>_Stop recording</value>
   </data>
-  <data name="DutyNotRecording" xml:space="preserve">
+  <data name="InterventionNotRecording" xml:space="preserve">
     <value>Not recording.</value>
   </data>
-  <data name="DutyRecordingSince" xml:space="preserve">
+  <data name="InterventionRecordingSince" xml:space="preserve">
     <value>Recording since {0} ({1}), {2:# event|# events}.</value>
   </data>
-  <data name="DutyRecordingHelp" xml:space="preserve">
-    <value>Everything is kept until you stop: the text of the SSH terminals, connections, account actions, file transfers with their SHA-256, your notes and the captures. The journal is encrypted for your Windows account only. Passwords typed without echo are not in it, but whatever a terminal shows is.</value>
+  <data name="InterventionRecordingHelp" xml:space="preserve">
+    <value>For any intervention, on call or not. Everything is kept until you stop: the text of the SSH terminals, connections, account actions, file transfers with their SHA-256, your notes and the captures. The journal is encrypted for your Windows account only. Passwords typed without echo are not in it, but whatever a terminal shows is.</value>
   </data>
-  <data name="DutyNotePlaceholder" xml:space="preserve">
+  <data name="InterventionNotePlaceholder" xml:space="preserve">
     <value>Note for the journal (incident number, decision…)</value>
   </data>
-  <data name="DutyNoteName" xml:space="preserve">
+  <data name="InterventionNoteName" xml:space="preserve">
     <value>Note for the journal</value>
   </data>
-  <data name="DutyAddNote" xml:space="preserve">
+  <data name="InterventionAddNote" xml:space="preserve">
     <value>Add _note</value>
   </data>
-  <data name="DutyCaptureRdp" xml:space="preserve">
+  <data name="InterventionCaptureRdp" xml:space="preserve">
     <value>Ca_pture a remote desktop…</value>
   </data>
-  <data name="DutyCaptureTip" xml:space="preserve">
+  <data name="InterventionCaptureTip" xml:space="preserve">
     <value>Image of a Remote Desktop Connection window (PSM sessions), added to the journal</value>
   </data>
-  <data name="DutyNoRdpWindow" xml:space="preserve">
+  <data name="InterventionNoRdpWindow" xml:space="preserve">
     <value>No Remote Desktop Connection window is open (a minimized window cannot be captured).</value>
   </data>
-  <data name="DutyCaptureFailed" xml:space="preserve">
+  <data name="InterventionCaptureFailed" xml:space="preserve">
     <value>The window could not be captured.</value>
   </data>
-  <data name="DutyCaptured" xml:space="preserve">
+  <data name="InterventionCaptured" xml:space="preserve">
     <value>Capture added to the journal: {0}</value>
   </data>
-  <data name="DutyNoteAdded" xml:space="preserve">
+  <data name="InterventionNoteAdded" xml:space="preserve">
     <value>Note added to the journal.</value>
   </data>
-  <data name="DutyPreviousSection" xml:space="preserve">
-    <value>Recorded duties</value>
+  <data name="InterventionPreviousSection" xml:space="preserve">
+    <value>Recorded interventions</value>
   </data>
-  <data name="DutyJournalItem" xml:space="preserve">
+  <data name="InterventionJournalItem" xml:space="preserve">
     <value>{0}  ({1})</value>
   </data>
-  <data name="DutyInProgress" xml:space="preserve">
+  <data name="InterventionInProgress" xml:space="preserve">
     <value>{0}  (in progress)</value>
   </data>
-  <data name="DutyNoJournal" xml:space="preserve">
-    <value>No recorded duty.</value>
+  <data name="InterventionNoJournal" xml:space="preserve">
+    <value>No recorded intervention.</value>
   </data>
-  <data name="DutyExportReport" xml:space="preserve">
+  <data name="InterventionExportReport" xml:space="preserve">
     <value>E_xport the report…</value>
   </data>
-  <data name="DutyDelete" xml:space="preserve">
+  <data name="InterventionDelete" xml:space="preserve">
     <value>_Delete…</value>
   </data>
-  <data name="DutyReportNotEncrypted" xml:space="preserve">
+  <data name="InterventionReportNotEncrypted" xml:space="preserve">
     <value>The exported report is not encrypted: keep it in a safe place.</value>
   </data>
-  <data name="DutyReportSaved" xml:space="preserve">
+  <data name="InterventionReportSaved" xml:space="preserve">
     <value>Report saved: {0}</value>
   </data>
-  <data name="DutyReadFailed" xml:space="preserve">
+  <data name="InterventionReadFailed" xml:space="preserve">
     <value>The journal could not be read: {0}</value>
   </data>
-  <data name="DutyDeleteHeading" xml:space="preserve">
-    <value>Delete this duty journal?</value>
+  <data name="InterventionDeleteHeading" xml:space="preserve">
+    <value>Delete this intervention journal?</value>
   </data>
-  <data name="DutyDeleteDetail" xml:space="preserve">
-    <value>Duty of {0}. It cannot be recovered.</value>
+  <data name="InterventionDeleteDetail" xml:space="preserve">
+    <value>Intervention of {0}. It cannot be recovered.</value>
   </data>
-  <data name="DutyDeleteAction" xml:space="preserve">
+  <data name="InterventionDeleteAction" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="DutyStartFailed" xml:space="preserve">
+  <data name="InterventionStartFailed" xml:space="preserve">
     <value>The recording could not start: {0}</value>
   </data>
-  <data name="DutyWriteFailed" xml:space="preserve">
-    <value>The disk refused the journal: the rest of the duty is not kept ({0}).</value>
+  <data name="InterventionWriteFailed" xml:space="preserve">
+    <value>The disk refused the journal: the rest of the intervention is not kept ({0}).</value>
   </data>
-  <data name="DutyTerminalCapped" xml:space="preserve">
+  <data name="InterventionTerminalCapped" xml:space="preserve">
     <value>Terminal text limit reached: the terminals are no longer kept (the other events are).</value>
   </data>
-  <data name="DutyStartedEntry" xml:space="preserve">
+  <data name="InterventionStartedEntry" xml:space="preserve">
     <value>{0} on {1}, ZillaTerm {2}, {3}</value>
   </data>
-  <data name="DutyModeCyberArk" xml:space="preserve">
+  <data name="InterventionModeCyberArk" xml:space="preserve">
     <value>CyberArk session ({0})</value>
   </data>
-  <data name="DutyModeEmergency" xml:space="preserve">
+  <data name="InterventionModeEmergency" xml:space="preserve">
     <value>emergency access (without CyberArk)</value>
   </data>
-  <data name="DutyStoppedByUser" xml:space="preserve">
+  <data name="InterventionStoppedByUser" xml:space="preserve">
     <value>Recording stopped</value>
   </data>
-  <data name="DutyStoppedAtExit" xml:space="preserve">
+  <data name="InterventionStoppedAtExit" xml:space="preserve">
     <value>ZillaTerm closed</value>
   </data>
-  <data name="DutyConnected" xml:space="preserve">
+  <data name="InterventionConnected" xml:space="preserve">
     <value>Connected: {0}</value>
   </data>
-  <data name="DutyConnectionFailed" xml:space="preserve">
+  <data name="InterventionConnectionFailed" xml:space="preserve">
     <value>Connection failed: {0}</value>
   </data>
-  <data name="DutyClosedByServer" xml:space="preserve">
+  <data name="InterventionClosedByServer" xml:space="preserve">
     <value>Session closed by the server</value>
   </data>
-  <data name="DutyTabClosed" xml:space="preserve">
+  <data name="InterventionTabClosed" xml:space="preserve">
     <value>Session closed</value>
   </data>
-  <data name="DutyPsmLaunched" xml:space="preserve">
+  <data name="InterventionPsmLaunched" xml:space="preserve">
     <value>PSM session opened in Remote Desktop Connection, component {0}</value>
   </data>
-  <data name="DutyMachine" xml:space="preserve">
+  <data name="InterventionMachine" xml:space="preserve">
     <value>Target machine: {0}</value>
   </data>
-  <data name="DutyReason" xml:space="preserve">
+  <data name="InterventionReason" xml:space="preserve">
     <value>Reason: {0}</value>
   </data>
-  <data name="DutyTicket" xml:space="preserve">
+  <data name="InterventionTicket" xml:space="preserve">
     <value>Ticket: {0} {1}</value>
   </data>
-  <data name="DutySshExternal" xml:space="preserve">
+  <data name="InterventionSshExternal" xml:space="preserve">
     <value>SSH session opened in Windows Terminal: {0}</value>
   </data>
-  <data name="DutyRdpExternal" xml:space="preserve">
+  <data name="InterventionRdpExternal" xml:space="preserve">
     <value>Session opened in Remote Desktop Connection: {0}</value>
   </data>
-  <data name="DutyPasswordCopied" xml:space="preserve">
+  <data name="InterventionPasswordCopied" xml:space="preserve">
     <value>Password copied to the clipboard</value>
   </data>
-  <data name="DutyCpmRequested" xml:space="preserve">
+  <data name="InterventionCpmRequested" xml:space="preserve">
     <value>CPM: {0} requested</value>
   </data>
-  <data name="DutyAccountAdded" xml:space="preserve">
+  <data name="InterventionAccountAdded" xml:space="preserve">
     <value>Account added to safe {0}</value>
   </data>
-  <data name="DutyAccountEdited" xml:space="preserve">
+  <data name="InterventionAccountEdited" xml:space="preserve">
     <value>Account changed</value>
   </data>
-  <data name="DutyAccountDeleted" xml:space="preserve">
+  <data name="InterventionAccountDeleted" xml:space="preserve">
     <value>Account deleted</value>
   </data>
-  <data name="DutyEmergencyEntered" xml:space="preserve">
+  <data name="InterventionEmergencyEntered" xml:space="preserve">
     <value>Emergency access opened (without CyberArk)</value>
   </data>
-  <data name="DutyLoggedOut" xml:space="preserve">
+  <data name="InterventionLoggedOut" xml:space="preserve">
     <value>Signed out</value>
   </data>
-  <data name="DutyUpload" xml:space="preserve">
+  <data name="InterventionUpload" xml:space="preserve">
     <value>Upload of {0} to {1}</value>
   </data>
-  <data name="DutyDownload" xml:space="preserve">
+  <data name="InterventionDownload" xml:space="preserve">
     <value>Download of {0} to {1}</value>
   </data>
-  <data name="DutyTransferDone" xml:space="preserve">
+  <data name="InterventionTransferDone" xml:space="preserve">
     <value>done</value>
   </data>
-  <data name="DutyTransferCancelled" xml:space="preserve">
+  <data name="InterventionTransferCancelled" xml:space="preserve">
     <value>cancelled</value>
   </data>
-  <data name="DutyTransferFailed" xml:space="preserve">
+  <data name="InterventionTransferFailed" xml:space="preserve">
     <value>failed: {0}</value>
   </data>
-  <data name="DutyX11Window" xml:space="preserve">
+  <data name="InterventionX11Window" xml:space="preserve">
     <value>X11 window opened by the server</value>
   </data>
-  <data name="DutyCaptureOf" xml:space="preserve">
+  <data name="InterventionCaptureOf" xml:space="preserve">
     <value>Capture of {0}</value>
   </data>
-  <data name="DutyCaptureButton" xml:space="preserve">
+  <data name="InterventionCaptureButton" xml:space="preserve">
     <value>Capture</value>
   </data>
-  <data name="DutyCaptureButtonTip" xml:space="preserve">
-    <value>Adds an image of this desktop to the duty journal</value>
+  <data name="InterventionCaptureButtonTip" xml:space="preserve">
+    <value>Adds an image of this desktop to the intervention journal</value>
   </data>
-  <data name="DutyReportTitle" xml:space="preserve">
-    <value>On-call duty report</value>
+  <data name="InterventionReportTitle" xml:space="preserve">
+    <value>Intervention report</value>
   </data>
-  <data name="DutyReportPeriod" xml:space="preserve">
+  <data name="InterventionReportPeriod" xml:space="preserve">
     <value>From {0} to {1} ({2})</value>
   </data>
-  <data name="DutyReportUnfinished" xml:space="preserve">
-    <value>Recording interrupted: ZillaTerm stopped before the end of the duty.</value>
+  <data name="InterventionReportUnfinished" xml:space="preserve">
+    <value>Recording interrupted: ZillaTerm stopped before the end of the intervention.</value>
   </data>
-  <data name="DutyReportDamaged" xml:space="preserve">
+  <data name="InterventionReportDamaged" xml:space="preserve">
     <value>Part of the journal could not be read or was changed.</value>
   </data>
-  <data name="DutyReportConfidential" xml:space="preserve">
+  <data name="InterventionReportConfidential" xml:space="preserve">
     <value>Confidential: this report contains what the terminals showed. It is not encrypted.</value>
   </data>
-  <data name="DutyReportSummary" xml:space="preserve">
+  <data name="InterventionReportSummary" xml:space="preserve">
     <value>Summary</value>
   </data>
-  <data name="DutyReportTimeline" xml:space="preserve">
+  <data name="InterventionReportTimeline" xml:space="preserve">
     <value>Timeline</value>
   </data>
-  <data name="DutyReportTime" xml:space="preserve">
+  <data name="InterventionReportTime" xml:space="preserve">
     <value>Time</value>
   </data>
-  <data name="DutyReportSession" xml:space="preserve">
+  <data name="InterventionReportSession" xml:space="preserve">
     <value>Session</value>
   </data>
-  <data name="DutyReportEvent" xml:space="preserve">
+  <data name="InterventionReportEvent" xml:space="preserve">
     <value>Event</value>
   </data>
-  <data name="DutyKindStarted" xml:space="preserve">
+  <data name="InterventionKindStarted" xml:space="preserve">
     <value>Start</value>
   </data>
-  <data name="DutyKindStopped" xml:space="preserve">
+  <data name="InterventionKindStopped" xml:space="preserve">
     <value>End</value>
   </data>
-  <data name="DutyKindNote" xml:space="preserve">
+  <data name="InterventionKindNote" xml:space="preserve">
     <value>Note</value>
   </data>
-  <data name="DutyKindTerminal" xml:space="preserve">
+  <data name="InterventionKindTerminal" xml:space="preserve">
     <value>Terminal</value>
   </data>
-  <data name="DutyKindConnection" xml:space="preserve">
+  <data name="InterventionKindConnection" xml:space="preserve">
     <value>Connection</value>
   </data>
-  <data name="DutyKindAction" xml:space="preserve">
+  <data name="InterventionKindAction" xml:space="preserve">
     <value>Action</value>
   </data>
-  <data name="DutyKindTransfer" xml:space="preserve">
+  <data name="InterventionKindTransfer" xml:space="preserve">
     <value>Transfer</value>
   </data>
-  <data name="DutyKindScreenshot" xml:space="preserve">
+  <data name="InterventionKindScreenshot" xml:space="preserve">
     <value>Capture</value>
   </data>
-  <data name="DutyCountConnection" xml:space="preserve">
+  <data name="InterventionCountConnection" xml:space="preserve">
     <value>{0:# connection event|# connection events}</value>
   </data>
-  <data name="DutyCountAction" xml:space="preserve">
+  <data name="InterventionCountAction" xml:space="preserve">
     <value>{0:# action|# actions}</value>
   </data>
-  <data name="DutyCountTransfer" xml:space="preserve">
+  <data name="InterventionCountTransfer" xml:space="preserve">
     <value>{0:# transfer|# transfers}</value>
   </data>
-  <data name="DutyCountScreenshot" xml:space="preserve">
+  <data name="InterventionCountScreenshot" xml:space="preserve">
     <value>{0:# capture|# captures}</value>
   </data>
-  <data name="DutyCountNote" xml:space="preserve">
+  <data name="InterventionCountNote" xml:space="preserve">
     <value>{0:# note|# notes}</value>
   </data>
-  <data name="DutyCountTerminal" xml:space="preserve">
+  <data name="InterventionCountTerminal" xml:space="preserve">
     <value>{0:# terminal line|# terminal lines}</value>
   </data>
-  <data name="DutyDuration" xml:space="preserve">
+  <data name="InterventionDuration" xml:space="preserve">
     <value>{0} h {1:00} min</value>
   </data>
   <data name="DutySection" xml:space="preserve">
     <value>On-call duty</value>
   </data>
   <data name="DutyTextLabel" xml:space="preserve">
-    <value>D_uty text:</value>
+    <value>D_uty reminder:</value>
   </data>
   <data name="DutyTextHelp" xml:space="preserve">
-    <value>Shown by the "Duty" button: good practices, emergency numbers… Plain text. Shared with the team by the environment file (Settings button › Export the environment).</value>
+    <value>Shown at the top of the "Intervention" window: good practices, emergency numbers… Plain text. Shared with the team by the environment file (Settings button › Export the environment).</value>
   </data>
   <data name="InvalidDutyText" xml:space="preserve">
-    <value>Duty text: 8000 characters at most, without invisible characters.</value>
+    <value>On-call duty reminder: 8000 characters at most, without invisible characters.</value>
   </data>
   <data name="EnvDutyText" xml:space="preserve">
-    <value>Duty text</value>
+    <value>On-call duty reminder</value>
   </data>
   <data name="EnvInvalidDutyText" xml:space="preserve">
-    <value>Invalid duty text (8000 characters at most, without invisible characters): {0}</value>
+    <value>Invalid on-call duty reminder (8000 characters at most, without invisible characters): {0}</value>
   </data>
-  <data name="DutyStoppedHint" xml:space="preserve">
+  <data name="InterventionStoppedHint" xml:space="preserve">
     <value>Recording stopped. Export the report to read it again or pass it on.</value>
+  </data>
+  <data name="DutyFileLabel" xml:space="preserve">
+    <value>Reminder _file:</value>
+  </data>
+  <data name="DutyFileHelp" xml:space="preserve">
+    <value>Optional: a text file (on a network share, for example) read again each time the Intervention window opens. It replaces the text above, so the managers can update it without sending a new environment. If it cannot be read, the text above is shown.</value>
+  </data>
+  <data name="InvalidDutyFile" xml:space="preserve">
+    <value>Reminder file: full path of a file (C:\… or \\server\share\…).</value>
+  </data>
+  <data name="EnvDutyFile" xml:space="preserve">
+    <value>On-call duty reminder file</value>
+  </data>
+  <data name="EnvDutyFileNetwork" xml:space="preserve">
+    <value>On-call duty reminder file on the network server {0}</value>
+  </data>
+  <data name="DutyFileReading" xml:space="preserve">
+    <value>Reading the reminder file…</value>
+  </data>
+  <data name="DutyFileSource" xml:space="preserve">
+    <value>Read from {0}</value>
+  </data>
+  <data name="DutyFileUnreadable" xml:space="preserve">
+    <value>The reminder file cannot be read ({0}): the saved text is shown.</value>
+  </data>
+  <data name="DutyFileSlow" xml:space="preserve">
+    <value>the share does not answer</value>
+  </data>
+  <data name="DutyFileTruncated" xml:space="preserve">
+    <value>The reminder file is too long: only its beginning is shown.</value>
+  </data>
+  <data name="DutyFileMissing" xml:space="preserve">
+    <value>file not found</value>
+  </data>
+  <data name="DutyFileDenied" xml:space="preserve">
+    <value>access denied</value>
   </data>
 </root>

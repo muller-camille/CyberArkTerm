@@ -127,8 +127,8 @@ public partial class App : Application
 
     private void Release()
     {
-        // Astreinte en cours : sa fin est écrite avant que ZillaTerm s'arrête.
-        DutyRecorder.Current.Stop(Strings.DutyStoppedAtExit);
+        // Intervention en cours d'enregistrement : sa fin est écrite avant que ZillaTerm s'arrête.
+        InterventionRecorder.Current.Stop(Strings.InterventionStoppedAtExit);
         _keePass?.Dispose();
         _keePass = null;
         _instance?.ReleaseMutex();
