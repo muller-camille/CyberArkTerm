@@ -27,6 +27,11 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      # SSH.NET 2026.0.0 patché, compilé depuis le fork à un commit figé (comme build.yml et release.yml).
+      - name: SSH.NET patché
+        shell: bash
+        run: bash tools/sshnet-patched.sh
+
       - name: Bureau à distance et compte de test
         shell: pwsh
         run: |
